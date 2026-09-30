@@ -302,7 +302,14 @@ class RegistryTests(unittest.TestCase):
                 self.assertIn(model, run_experiment.MODEL_PATHS,
                               f"hparams/{method}/{name} names a model that is not registered")
                 hparams = hparams_cls.from_hparams(os.path.join(directory, name))
+                # Files hold paths relative to the project; the runner anchors them.
+                run_experiment.resolve_project_paths(hparams)
                 self.assertEqual(hparams.model_name, run_experiment.MODEL_PATHS[model])
+                # Every method must share one covariance cache, or a method
+                # silently recomputes statistics the others already have.
+                if getattr(hparams, "stats_dir", None):
+                    self.assertEqual(hparams.stats_dir, os.path.join(EXP_DIR, "data", "stats"),
+                                     f"hparams/{method}/{name} points at a different stats cache")
 
     def test_dynamic_methods_are_flagged(self):
         import run_experiment

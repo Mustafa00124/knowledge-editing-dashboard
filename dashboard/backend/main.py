@@ -16,6 +16,7 @@ import config
 import datasets_reader
 import downloads
 import environment
+import hparam_sweeps
 import models_reader
 import db
 import gpu_status
@@ -24,7 +25,7 @@ import causal_tracing_reader
 import registry
 import results_reader
 import slurm
-from schemas import ArchiveRequest, DownloadRequest, SubmitExperimentRequest
+from schemas import ArchiveRequest, DownloadRequest, PromoteRequest, SubmitExperimentRequest, SweepRequest
 
 app = FastAPI(title="Knowledge-Editing Dashboard")
 
@@ -117,6 +118,64 @@ def cancel_download(task_id: str):
 @app.post("/api/downloads/clear")
 def clear_downloads():
     return {"removed": downloads.clear_finished()}
+
+
+# ---------------------------------------------------------------- hyperparameters
+
+
+@app.get("/api/hparams/investigations")
+def get_investigations():
+    """Each kind of setting, the methods that have it, and their current
+    values and suggested sweep values per model."""
+    return hparam_sweeps.catalog()
+
+
+@app.post("/api/hparams/estimate")
+def estimate_sweep(req: SweepRequest):
+    try:
+        return hparam_sweeps.estimate(req.model_dump())
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(400, str(exc).strip("'\""))
+
+
+@app.post("/api/hparams/sweeps")
+def launch_sweep(req: SweepRequest):
+    try:
+        return hparam_sweeps.launch(req.model_dump())
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(400, str(exc).strip("'\""))
+
+
+@app.get("/api/hparams/sweeps")
+def list_sweeps(investigation: Optional[str] = None):
+    return hparam_sweeps.list_sweeps(investigation)
+
+
+@app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/cancel")
+def cancel_sweep(investigation: str, sweep_id: str):
+    ids = [str(j["job_id"]) for j in db.list_jobs() if j.get("sweep_id") == hparam_sweeps.SWEEP_PREFIX + sweep_id]
+    if not ids:
+        raise HTTPException(404, "no such sweep")
+    statuses = slurm.sacct_statuses(ids)
+    active = [i for i in ids if statuses.get(i, {}).get("state") in ("PENDING", "RUNNING", "REQUEUED", "SUSPENDED")]
+    return {"cancelled": len(active), "error": slurm.cancel_many(active) or None}
+
+
+@app.get("/api/hparams/results")
+def get_sweep_results(investigation: str):
+    return hparam_sweeps.results(investigation)
+
+
+@app.post("/api/hparams/promote")
+def promote_config(req: PromoteRequest):
+    """Use a sweep run's settings as the main configuration for its
+    method and model (rewrites that hparams file)."""
+    try:
+        return hparam_sweeps.promote(req.investigation, req.sweep_id, req.run)
+    except KeyError:
+        raise HTTPException(404, "no such run")
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
 
 
 # ---------------------------------------------------------------- experiment types

@@ -366,6 +366,10 @@ PATH_KEYS = ("model_name", "stats_dir", "P_loc")
 def resolve_project_paths(hparams):
     def absolute(value):
         if isinstance(value, str) and value and not os.path.isabs(value):
+            if value.startswith("./"):
+                # "./x" was always relative to the working directory, which
+                # is this experiment folder; keep that meaning.
+                return os.path.normpath(os.path.join(EXP_DIR, value))
             return os.path.join(PROJECT_ROOT, value)
         return value
 

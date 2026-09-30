@@ -13,7 +13,9 @@ WEIGHT_EDIT_METHODS = {
 # no joint solve at all. This mirrors the "mode" field of
 # run_experiment.py's LOCATE_AND_EDIT table - test_dynamic_methods.py
 # asserts the two do not drift apart.
-JOINT_BATCH_METHODS = WEIGHT_EDIT_METHODS - {"rome", "wilke", "fine", "fidal"}
+# Knowledge Neurons and CaKE edit weights one fact per call.
+WEIGHT_EDIT_METHODS = WEIGHT_EDIT_METHODS | {"kn", "cake"}
+JOINT_BATCH_METHODS = WEIGHT_EDIT_METHODS - {"rome", "wilke", "fine", "fidal", "kn", "cake"}
 
 # Two independent choices, spelled as four modes because that is how a run
 # is actually described ("sequential batch of 10, reset every 1000"):

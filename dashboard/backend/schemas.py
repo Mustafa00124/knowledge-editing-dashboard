@@ -19,6 +19,24 @@ class ArchiveRequest(BaseModel):
     dry_run: bool = False
 
 
+class SweepRequest(BaseModel):
+    investigation: str
+    # method -> hparams key -> values to try
+    methods: Dict[str, Dict[str, List[Any]]]
+    models: List[str]
+    data_paths: List[str]
+    ds_size: str = "full"  # of the dev split: "full" is all of it (up to 100)
+    edit_mode: str = "batch"
+    seed: int = 0
+    label: str = ""
+
+
+class PromoteRequest(BaseModel):
+    investigation: str
+    sweep_id: str
+    run: str
+
+
 class DownloadItem(BaseModel):
     kind: str  # "dataset", "model" or "component"
     name: str

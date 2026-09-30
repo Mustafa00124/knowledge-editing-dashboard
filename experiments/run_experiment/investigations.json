@@ -1,0 +1,117 @@
+{
+ "about": "Hyperparameter investigations for the dashboard's Hyperparameters page. Each investigation is one kind of setting (the WHERE / WHAT / HOW MUCH / CONTEXT framework) and lists the methods that have it, under the name their hparams file uses. `kind` decides the suggested sweep values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
+ "investigations": [
+  {
+   "id": "edit_layers",
+   "label": "Edit layers",
+   "category": "WHERE",
+   "question": "Which layer, or block of layers, should the edit be written into?",
+   "tools": ["causal_tracing"],
+   "methods": {
+    "rome": {"knobs": {"layers": {"kind": "layer", "stability": "model"}}},
+    "memit": {"knobs": {"layers": {"kind": "layer_window", "stability": "model"}}},
+    "pmet": {"knobs": {"layers": {"kind": "layer_window", "stability": "model"}}},
+    "alphaedit": {"knobs": {"layers": {"kind": "layer_window", "stability": "model"}}},
+    "nmke": {"knobs": {"layers": {"kind": "layer_window", "stability": "model"}}},
+    "ft": {"knobs": {"layers": {"kind": "layer", "stability": "model"}}},
+    "wilke": {"knobs": {"scanning_ceiling": {"kind": "int", "stability": "model", "note": "WilKE picks a layer per fact from 0..scanning_ceiling; this bounds the search"}}},
+    "fidal": {"knobs": {"top_k": {"kind": "int", "stability": "not_reported", "note": "FiDAL picks this many layers per fact by Fisher information"}}}
+   },
+   "cost_note": "Each new layer for MEMIT, PMET, AlphaEdit, NMKE, WilKE and FiDAL needs covariance statistics computed once per model: 6 to 12 minutes and up to 1 GB per layer."
+  },
+  {
+   "id": "neurons",
+   "label": "Neurons and masks",
+   "category": "WHERE",
+   "question": "How many neurons may the edit touch, and how strict is the selection?",
+   "methods": {
+    "fine": {"knobs": {"neuron_num": {"kind": "int", "stability": "robust", "note": "more neurons help generalizability and hurt locality"}}},
+    "kn": {"knobs": {"adaptive_threshold": {"kind": "log", "stability": "data"}, "p": {"kind": "log", "stability": "robust", "note": "share of paraphrases a neuron must appear in (with refine)"}}},
+    "nmke": {"knobs": {"entropy_alpha": {"kind": "log", "stability": "model"}}}
+   }
+  },
+  {
+   "id": "adapter_placement",
+   "label": "Adapter placement and rank",
+   "category": "WHERE",
+   "question": "Which modules get adapters, and how much capacity do they have?",
+   "methods": {
+    "lora": {"knobs": {
+      "rank": {"kind": "int", "stability": "robust"},
+      "target_modules": {"kind": "choice", "stability": "model", "options": [["q_proj", "v_proj"], ["q_proj", "k_proj", "v_proj", "o_proj"], ["up_proj", "down_proj", "gate_proj"], ["q_proj", "v_proj", "k_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]]}}},
+    "cake": {"knobs": {
+      "rank": {"kind": "int", "stability": "robust"},
+      "mask_padding": {"kind": "bool", "stability": "not_reported", "note": "upstream trains on padding (EOS) tokens"}}}
+   }
+  },
+  {
+   "id": "weight_update",
+   "label": "Weight-update strength",
+   "category": "HOW MUCH",
+   "question": "How hard do methods that train weights directly push the update?",
+   "methods": {
+    "ft": {"knobs": {"lr": {"kind": "log", "stability": "robust"}, "num_steps": {"kind": "int", "stability": "robust"}}},
+    "lora": {"knobs": {"lr": {"kind": "log", "stability": "model"}, "num_steps": {"kind": "int", "stability": "model"}, "lora_alpha": {"kind": "log", "stability": "robust"}}},
+    "fine": {"knobs": {"lr": {"kind": "log", "stability": "robust"}, "epochs": {"kind": "int", "stability": "robust"}}},
+    "cake": {"knobs": {"lr": {"kind": "log", "stability": "robust"}, "num_epochs": {"kind": "int", "stability": "not_reported"}}},
+    "kn": {"knobs": {"lr_scale": {"kind": "log", "stability": "not_reported", "note": "the original code and EasyEdit disagree on the erase and write strengths"}}}
+   }
+  },
+  {
+   "id": "value_optimisation",
+   "label": "Value-vector optimisation",
+   "category": "HOW MUCH",
+   "question": "How hard do locate-and-edit methods optimise the target vector they write?",
+   "methods": {
+    "rome": {"knobs": {"v_lr": {"kind": "log", "stability": "robust"}, "v_num_grad_steps": {"kind": "int", "stability": "robust"}}},
+    "memit": {"knobs": {"v_lr": {"kind": "log", "stability": "robust"}, "v_num_grad_steps": {"kind": "int", "stability": "robust"}}},
+    "pmet": {"knobs": {"v_lr": {"kind": "log", "stability": "model"}, "v_num_grad_steps": {"kind": "int", "stability": "model"}}},
+    "alphaedit": {"knobs": {"v_lr": {"kind": "log", "stability": "model"}, "v_num_grad_steps": {"kind": "int", "stability": "robust"}}},
+    "nmke": {"knobs": {"v_lr": {"kind": "log", "stability": "model"}, "v_num_grad_steps": {"kind": "int", "stability": "robust"}}},
+    "wilke": {"knobs": {"v_lr": {"kind": "log", "stability": "robust"}, "v_num_grad_steps": {"kind": "int", "stability": "robust"}}},
+    "fidal": {"knobs": {"v_lr": {"kind": "log", "stability": "not_reported"}, "v_num_grad_steps": {"kind": "int", "stability": "not_reported"}}}
+   }
+  },
+  {
+   "id": "preservation",
+   "label": "Preservation strength",
+   "category": "HOW MUCH",
+   "question": "How strongly is existing knowledge protected while the edit is written?",
+   "methods": {
+    "rome": {"knobs": {"kl_factor": {"kind": "log", "stability": "robust"}, "clamp_norm_factor": {"kind": "log", "stability": "robust"}}},
+    "memit": {"knobs": {"kl_factor": {"kind": "log", "stability": "robust"}, "clamp_norm_factor": {"kind": "log", "stability": "robust"}, "mom2_update_weight": {"kind": "log", "stability": "model"}}},
+    "pmet": {"knobs": {"kl_factor": {"kind": "log", "stability": "model"}, "clamp_norm_factor": {"kind": "log", "stability": "model"}, "mom2_update_weight": {"kind": "log", "stability": "model"}}},
+    "alphaedit": {"knobs": {"nullspace_threshold": {"kind": "log", "stability": "robust"}, "kl_factor": {"kind": "log", "stability": "robust"}}},
+    "nmke": {"knobs": {"nullspace_threshold": {"kind": "log", "stability": "robust"}, "kl_factor": {"kind": "log", "stability": "robust"}}},
+    "wilke": {"knobs": {"kl_factor": {"kind": "log", "stability": "robust"}}},
+    "ft": {"knobs": {"norm_constraint": {"kind": "log", "stability": "model"}}},
+    "fine": {"knobs": {"alpha": {"kind": "log", "stability": "robust", "note": "KL penalty"}, "beta": {"kind": "log", "stability": "robust", "note": "repetition penalty"}, "gamma": {"kind": "log", "stability": "robust", "note": "norm penalty"}}}
+   }
+  },
+  {
+   "id": "covariance",
+   "label": "Covariance statistics",
+   "category": "CONTEXT",
+   "question": "How many samples estimate the key covariance that protects preserved knowledge?",
+   "methods": {
+    "rome": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "robust"}}},
+    "memit": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "robust"}}},
+    "pmet": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "model"}}},
+    "alphaedit": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "robust"}}},
+    "nmke": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "robust"}}},
+    "wilke": {"knobs": {"mom2_n_samples": {"kind": "int", "stability": "robust"}}}
+   },
+   "cost_note": "Every new sample count recomputes the statistics for each edited layer."
+  },
+  {
+   "id": "retrieval",
+   "label": "Retrieval and demonstrations",
+   "category": "CONTEXT",
+   "question": "How much retrieved context do in-context methods put in the prompt?",
+   "methods": {
+    "ike": {"knobs": {"k": {"kind": "int", "stability": "data", "note": "demonstrations per query; 32 in the original paper, 16 in EasyEdit"}}},
+    "scr": {"knobs": {"retrieval_k": {"kind": "int", "stability": "data", "note": "about 5 for Wiki data, 1 to 3 for ZsRE in the paper"}}}
+   }
+  }
+ ]
+}

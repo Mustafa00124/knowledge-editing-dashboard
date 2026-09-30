@@ -126,7 +126,9 @@ def _dataset_meta(exp_cfg, params):
     return None, None
 
 
-def _submit_one(exp_cfg, params, run_name, out_root=None):
+def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None):
+    """extra_args: already-quoted command-line arguments appended as given
+    (hyperparameter sweeps pass --split dev, --final_only and --hparam)."""
     if "evaluation_modes" in params:
         try:
             registry.validate_modes(params["evaluation_modes"])
@@ -157,6 +159,7 @@ def _submit_one(exp_cfg, params, run_name, out_root=None):
     benchmark, subset = _dataset_meta(exp_cfg, params)
     if benchmark:
         args.append(f"--dataset_benchmark {shlex.quote(benchmark)} --dataset_subset {shlex.quote(subset)}")
+    args.extend(extra_args or [])
     args_str = " ".join(args)
 
     # No --time unless an experiment type explicitly asks for one. The AAIL

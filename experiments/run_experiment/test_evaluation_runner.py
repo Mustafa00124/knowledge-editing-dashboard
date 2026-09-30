@@ -53,7 +53,7 @@ class RunnerEvaluationTests(unittest.TestCase):
              patch("evaluation_config.judge_configured", return_value=True), \
              patch("semantic_evaluation.SemanticEvaluator.bertscore", side_effect=lambda probes: [0.9] * len(probes)), \
              patch("semantic_evaluation.SemanticEvaluator.judge_probe", return_value={"verdict": "pass", "reason": "Equivalent"}), \
-             patch.object(sys, "argv", ["run_experiment.py", "--method", "ft", "--model", "gpt-j-6b",
+             patch.object(sys, "argv", ["run_experiment.py", "--split", "all", "--method", "ft", "--model", "gpt-j-6b",
                  "--evaluation_modes", modes, "--out_root", tmp, "--run_name", "test", "--ds_size", "1",
                  "--num_steps", "1", "--checkpoint_every", "1", "--sample_every", "1", "--fluency_every", "1"]), \
              contextlib.redirect_stdout(io.StringIO()):
