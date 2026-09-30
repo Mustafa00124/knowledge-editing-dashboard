@@ -127,6 +127,7 @@ def evaluate_requests_ike(
     hparams: IKEHyperParams,
     baseline_answers: Optional[Dict[Tuple[int, str, int], str]] = None,
     answer_cache=None,
+    fluency: bool = False,
 ) -> Tuple[List[Dict], Dict[Tuple[int, str, int], str]]:
     """Same per-record shape eval_utils.aggregate_metrics expects, and the
     same locality reasoning as scr.py's evaluate_requests_scr: since
@@ -168,6 +169,11 @@ def evaluate_requests_ike(
             if accs:
                 locality[f"{cat}_acc"] = accs
 
-        per_record.append({"rewrite_acc": rewrite_acc, "portability": portability, "locality": locality})
+        metrics = {"rewrite_acc": rewrite_acc, "portability": portability, "locality": locality}
+        if fluency:
+            from scr import fluency_score
+            metrics["fluency"] = fluency_score(tok, record["prompt"], lambda budget: ike_answer(
+                model, tok, new_fact, record["prompt"], pool, device, k, budget))
+        per_record.append(metrics)
 
     return per_record, answers_this_call

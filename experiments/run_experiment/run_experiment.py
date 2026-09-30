@@ -99,6 +99,8 @@ METHOD_HPARAMS_DIR = {
     "fidal": "FiDAL",
     "scr": "SCR",
     "ike": "IKE",
+    "kn": "KN",
+    "cake": "CaKE",
 }
 
 # The "locate-and-edit" family (ROME/MEMIT/PMET/AlphaEdit): all compute a
@@ -149,6 +151,24 @@ LOCATE_AND_EDIT = {
     # hparams.layers. They live under dynamic/ rather than in
     # external/EasyEdit because EasyEdit ships none of them, and because
     # two of the four otherwise require patching transformers itself.
+    # Neuron level: integrated-gradient attribution, then rewriting those
+    # neurons' value vectors. See knowledge_neurons.py.
+    "kn": {
+        "hparams_module": "easyeditor.models.kn.kn_hparams",
+        "hparams_class": "KNHyperParams",
+        "apply_module": "knowledge_neurons",
+        "apply_fn": "apply_knowledge_neurons_to_model",
+        "mode": "single",
+    },
+    # Circuit level: a LoRA adapter on every projection, trained on CaKE's
+    # circuit-guided examples (MQuAKE only). See cake.py.
+    "cake": {
+        "hparams_module": "cake",
+        "hparams_class": "CaKEHyperParams",
+        "apply_module": "cake",
+        "apply_fn": "apply_cake_to_model",
+        "mode": "single",
+    },
     "wilke": {
         "hparams_module": "dynamic.wilke",
         "hparams_class": "WilKEHyperParams",
@@ -261,6 +281,15 @@ def parse_args():
         "what gets recorded and what the reset interval is capped to.",
     )
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--split", choices=("test", "dev", "all"), default="test",
+                   help="which records to edit (splits/, made by scripts/make_splits.py): test for "
+                        "reported experiments, dev for hyperparameter sweeps, all only for debugging")
+    p.add_argument("--hparam", action="append", default=[], metavar="KEY=VALUE",
+                   help="override one hparams-file setting (repeatable; VALUE is YAML, e.g. layers=[4,5] "
+                        "or v_lr=0.1). Used by hyperparameter sweeps; recorded in the run's summary")
+    p.add_argument("--final_only", action="store_true",
+                   help="evaluate only before editing and at the end (hyperparameter sweeps), "
+                        "ignoring --checkpoint_every/--fluency_every/--sample_every")
     p.add_argument("--checkpoint_every", type=int, default=50, help="cheap metrics (edit/locality/portability)")
     p.add_argument("--fluency_every", type=int, default=250, help="adds the generation-based fluency score (multiple of --checkpoint_every)")
     p.add_argument("--sample_every", type=int, default=500, help="dumps a few raw generated samples for eyeballing (multiple of --checkpoint_every)")
@@ -352,6 +381,29 @@ def resolve_project_paths(hparams):
     return hparams
 
 
+def apply_overrides(hparams, pairs):
+    """--hparam key=value settings onto a loaded hparams object. Refuses keys
+    the method does not have, so a typo cannot silently sweep nothing.
+    FiDAL keeps its base editor's settings in base_config; keys found only
+    there are set there."""
+    overrides = {}
+    base_config = getattr(hparams, "base_config", None)
+    for pair in pairs:
+        key, sep, raw = pair.partition("=")
+        key = key.strip()
+        if not sep or not key:
+            raise SystemExit(f"--hparam expects KEY=VALUE, got {pair!r}")
+        value = yaml.safe_load(raw)
+        if hasattr(hparams, key):
+            setattr(hparams, key, value)
+        elif isinstance(base_config, dict) and key in base_config:
+            base_config[key] = value
+        else:
+            raise SystemExit(f"--hparam {key}: {type(hparams).__name__} has no setting named {key!r}")
+        overrides[key] = value
+    return overrides
+
+
 def _hparams_path(method, model):
     return os.path.join(EXP_DIR, "hparams", METHOD_HPARAMS_DIR[method], f"{model}.yaml")
 
@@ -406,14 +458,31 @@ def main():
     # and this way a bad --data_path or a method/dataset mismatch (e.g.
     # ROME on a dataset with no 'subject' field) fails fast, before paying
     # for a GPU model load.
-    requests = load_requests(args.data_path, args.ds_size)
-    print(f"{len(requests)} edit requests loaded from {args.data_path}")
+    # The split is applied to the full file before --ds_size slices it, so
+    # "the first 20" means the first 20 records of this split.
+    import splits
+    all_requests = load_requests(args.data_path, None)
+    try:
+        requests = splits.select(all_requests, args.data_path, args.split)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    requests = requests[:args.ds_size]
+    print(f"{len(requests)} edit requests from the {args.split} split of {args.data_path}")
     if args.method in LOCATE_AND_EDIT and any("subject" not in r for r in requests):
         raise SystemExit(
             f"--method {args.method} needs a 'subject' token to locate and edit, but --data_path "
             f"{args.data_path} doesn't provide one (see its load_*_requests function in eval_utils.py). "
             "Use --method ft/lora/scr/ike with this dataset instead."
         )
+    # Also checked before the model load, so an impossible pairing fails fast.
+    if args.method == "kn" and any(r.get("ground_truth") in (None, "", "<|endoftext|>") for r in requests):
+        raise SystemExit(f"--method kn attributes neurons to the original answer, and {args.data_path} "
+                         "has records without one (ground_truth)")
+    if args.method == "cake":
+        from cake import CAKE_DATA
+        if os.path.basename(args.data_path) not in CAKE_DATA:
+            raise SystemExit(f"--method cake has circuit-guided training data only for {', '.join(CAKE_DATA)} "
+                             "(upstream releases no generator for other datasets)")
 
     # From here on ds_size means the number of requests actually loaded, not
     # the number asked for: "full" has no number until the file is read, and a
@@ -488,7 +557,16 @@ def main():
             hparams.k = args.retrieval_k  # IKE's spelling of the same knob
         total_steps = args.ds_size
 
+    overrides = apply_overrides(hparams, args.hparam)
+    if args.method == "cake":
+        hparams.data_path = args.data_path  # which CaKE training file to use
+        hparams.seed = args.seed
     resolve_project_paths(hparams)
+
+    if args.final_only:
+        # One evaluation before editing (the baseline locality and fluency
+        # are measured against) and one at the end: nothing in between.
+        args.checkpoint_every = args.fluency_every = args.sample_every = max(total_steps, 1)
 
     if args.method in ("scr", "ike"):
         semantic.cfg["max_new_tokens"] = hparams.max_new_tokens
@@ -533,6 +611,9 @@ def main():
                 "fluency_every": args.fluency_every,
                 "sample_every": args.sample_every,
                 "data_path": args.data_path,
+                "split": args.split,
+                "final_only": args.final_only,
+                "hparam_overrides": overrides,
                 "seed": args.seed,
                 "run_name": run_name,
                 "dataset_benchmark": dataset_benchmark,
@@ -599,10 +680,21 @@ def main():
         # the data_path; if no such file exists (e.g. ZsRE ships no train
         # split), fall back to the test set doubling as its own demo pool.
         demo_path = args.data_path.replace("test", "train")
-        if not os.path.exists(demo_path):
-            demo_path = args.data_path
-        ike_demo_requests = load_requests(demo_path, args.ds_size)
-        print(f"[{run_name}] {len(ike_demo_requests)} IKE demo records loaded from {demo_path}")
+        if demo_path != args.data_path and os.path.exists(demo_path):
+            ike_demo_requests = load_requests(demo_path, args.ds_size)
+            demo_source = demo_path
+        else:
+            # No train file: use the split's demo portion, records that are
+            # neither dev nor test. Falling back to the evaluated records
+            # themselves would put each answer in its own prompt (the
+            # "copy" demonstration restates the new fact verbatim).
+            pool = splits.demo_pool(all_requests, args.data_path)
+            if pool is None:
+                raise SystemExit(f"IKE needs demonstration records separate from those it is evaluated on, "
+                                 f"and {args.data_path} has no train file or split demo portion")
+            ike_demo_requests = pool[:args.ds_size]
+            demo_source = f"{args.data_path} (split demo portion)"
+        print(f"[{run_name}] {len(ike_demo_requests)} IKE demo records from {demo_source}")
 
     ckpt_path = os.path.join(run_dir, "checkpoints.jsonl")
     ckpt_file = open(ckpt_path, "w")
@@ -628,7 +720,9 @@ def main():
         group_start = state["group_start"] if args.edit_mode and step else 0
         group_stop = state["group_stop"] if args.edit_mode and step else len(requests)
         scored_requests = requests[group_start:group_stop]
-        do_fluency = step % args.fluency_every == 0
+        # The final step always scores fluency: runs whose step count is not
+        # a multiple of --fluency_every used to end with no fluency at all.
+        do_fluency = step % args.fluency_every == 0 or step == total_steps
         answer_cache = {}
         evaluations = {}
         if "original" in args.evaluation_modes:
@@ -636,7 +730,8 @@ def main():
                 from scr import evaluate_requests_scr
 
                 per_record, scr_answers = evaluate_requests_scr(
-                    model, tok, requests, scr_kb, device, hparams, baseline_answers=state["scr_baseline"], answer_cache=answer_cache
+                    model, tok, requests, scr_kb, device, hparams, baseline_answers=state["scr_baseline"], answer_cache=answer_cache,
+                    fluency=do_fluency,
                 )
                 if state["scr_baseline"] is None:
                     state["scr_baseline"] = scr_answers  # step 0 (empty KB) becomes the baseline
@@ -644,7 +739,8 @@ def main():
                 from ike import evaluate_requests_ike
 
                 per_record, ike_answers = evaluate_requests_ike(
-                    model, tok, requests, ike_pool, device, hparams, baseline_answers=state["ike_baseline"], answer_cache=answer_cache
+                    model, tok, requests, ike_pool, device, hparams, baseline_answers=state["ike_baseline"], answer_cache=answer_cache,
+                    fluency=do_fluency,
                 )
                 if state["ike_baseline"] is None:
                     state["ike_baseline"] = ike_answers  # step 0 (empty demo pool) becomes the baseline
@@ -854,6 +950,8 @@ def main():
         "edit_batch_size": args.edit_batch_size if args.edit_mode in JOINT_MODES else None,
         "ds_size": args.ds_size,
         "ds_size_requested": ds_size_requested,
+        "split": args.split,
+        "hparam_overrides": overrides,
         "seed": args.seed,
         # started_at predates the model load, total_sec is measured from
         # after it - so finished_at - started_at is legitimately a bit

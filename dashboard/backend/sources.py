@@ -44,6 +44,13 @@ EASYEDIT = {
     "patches": ["patches/EasyEdit-alphaedit-fixes.patch"],
     "bytes": 200_000_000,
 }
+# CaKE's upstream repo, for its released circuit-guided training data
+# (datasets/*-cake.json). The method itself is experiments/run_experiment/cake.py.
+CAKE = {
+    "url": "https://github.com/zjunlp/CaKE.git",
+    "commit": "df528e13fffbd2117e6041c129285e1e146933d2",
+    "bytes": 44_000_000,
+}
 REQUIREMENTS = [
     "external/EasyEdit/requirements.txt",
     "experiments/run_experiment/requirements-evaluation.txt",
@@ -57,6 +64,11 @@ COMPONENTS = {
         "label": "EasyEdit",
         "description": "The editing library every method runs through, at the pinned commit with this project's AlphaEdit fix applied.",
         "bytes": EASYEDIT["bytes"],
+    },
+    "cake-data": {
+        "label": "CaKE training data",
+        "description": "CaKE's released circuit-guided training examples for MQuAKE, needed only to run the CaKE method.",
+        "bytes": CAKE["bytes"],
     },
     "experiment-env": {
         "label": "Experiment Python environment",
@@ -295,6 +307,8 @@ def component_status(key):
     if key == "easyedit":
         path = EXTERNAL_DIR / "EasyEdit"
         return {"installed": (path / "easyeditor").is_dir(), "present_bytes": 0}
+    if key == "cake-data":
+        return {"installed": (EXTERNAL_DIR / "CaKE" / "datasets").is_dir(), "present_bytes": 0}
     if key == "experiment-env":
         return {"installed": experiment_env_ready(), "partial": VENV_PYTHON.exists() and not experiment_env_ready(),
                 "present_bytes": 0}
@@ -352,6 +366,12 @@ def _base_python():
         f"the experiment environment needs Python 3.10 or newer, and this is {sys.version.split()[0]} "
         "with no python3.10+ on PATH. Install one (3.11 is what the project uses) and try again."
     )
+
+
+def install_cake_data():
+    say("== CaKE training data")
+    git_checkout_with_patches(CAKE["url"], CAKE["commit"], EXTERNAL_DIR / "CaKE")
+    say("  CaKE training data ready")
 
 
 def install_experiment_env():

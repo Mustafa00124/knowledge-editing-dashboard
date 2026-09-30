@@ -248,14 +248,21 @@ def _combo_supported(exp_cfg, params):
     if edit_mode == "sequential_batch" and int(params.get("edit_batch_size", 1)) > int(params.get("reset_every", 1)):
         return False
 
-    needs_subject = methods.get(method, {}).get("requires_subject", False)
-    if not needs_subject:
-        return True
+    spec = methods.get(method, {})
+    # CaKE's training data exists only for some files; `only_subsets` names them.
+    only = spec.get("only_subsets")
+    if only and Path(str(data_path)).name not in only:
+        return False
 
-    for benchmark in fields.get("data_path", {}).get("benchmarks", []):
-        for subset in benchmark.get("subsets", []):
-            if subset.get("value") == data_path:
-                return subset.get("provides_subject", True)
+    subset = next((s for benchmark in fields.get("data_path", {}).get("benchmarks", [])
+                   for s in benchmark.get("subsets", []) if s.get("value") == data_path), None)
+    if subset is None:
+        return True
+    if spec.get("requires_subject") and subset.get("provides_subject", True) is False:
+        return False
+    # Knowledge Neurons attributes neurons to the original answer.
+    if spec.get("requires_ground_truth") and subset.get("provides_ground_truth", True) is False:
+        return False
     return True
 
 

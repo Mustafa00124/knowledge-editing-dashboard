@@ -84,6 +84,9 @@ def launch_blockers(exp_cfg, params):
             option = next((o for o in field.get("options", []) if o.get("value") == value), None)
             if option and option.get("available") is False:
                 blockers.append(f"Model {option.get('label', value)} is unavailable: {option.get('note', 'not installed')}.")
+        if field["name"] == "method" and value == "cake" and not (config.EXTERNAL_DIR / "CaKE" / "datasets").is_dir():
+            blockers.append("CaKE's training data is not downloaded (Downloads page, or "
+                            f"`{SETUP_HINT} --cake`).")
         if field.get("control") == "dataset" and value and not os.path.exists(str(value)):
             blockers.append(f"Dataset file {value} is not downloaded (Downloads page, or `{SETUP_HINT} --datasets`).")
     return blockers

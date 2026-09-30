@@ -1,0 +1,21 @@
+# CaKE (see cake.py): upstream's settings from external/CaKE/edit_utils.py,
+# the same for every model there (qwen2.5-7b and llama3-8b in run.sh).
+# Runs only on MQuAKE CF-3k, CF-3k-v2 and T, the subsets CaKE releases
+# circuit-guided training data for.
+# GPT-J names its projections differently and has no gate projection, so
+# upstream's module list is translated: out_proj for o_proj, fc_in/fc_out
+# for up/down.
+alg_name: "CaKE"
+model_name: models/GPT-J-6B
+device: 0
+
+rank: 8
+lora_alpha: 32
+lora_dropout: 0.05
+target_modules: ["q_proj", "v_proj", "k_proj", "out_proj", "fc_in", "fc_out"]
+num_epochs: 40
+lr: 1.0e-4
+batch_size: 4
+max_length: 256
+# Upstream trains on padding (EOS) tokens too; true leaves them out of the loss.
+mask_padding: false

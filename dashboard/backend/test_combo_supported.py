@@ -52,6 +52,18 @@ class ComboSupportedTests(unittest.TestCase):
         self.assertFalse(self.supported(method="rome", edit_mode="single", data_path=realtimeqa))
         self.assertTrue(self.supported(method="ft", edit_mode="single", data_path=realtimeqa))
 
+    def test_cake_runs_only_where_its_training_data_exists(self):
+        mquake = os.path.join(ROOT, "datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json")
+        mquake_full = os.path.join(ROOT, "datasets/MQuAKE/datasets/MQuAKE-CF.json")
+        self.assertTrue(self.supported(method="cake", edit_mode="single", data_path=mquake))
+        self.assertFalse(self.supported(method="cake", edit_mode="single", data_path=mquake_full))
+        self.assertFalse(self.supported(method="cake", edit_mode="single", data_path=DATASET))
+
+    def test_knowledge_neurons_needs_an_original_answer(self):
+        counterfact = os.path.join(ROOT, "datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json")
+        self.assertTrue(self.supported(method="kn", edit_mode="single", data_path=counterfact))
+        self.assertFalse(self.supported(method="kn", edit_mode="single", data_path=DATASET))  # wiki_recent
+
 
 if __name__ == "__main__":
     unittest.main()

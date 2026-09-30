@@ -167,6 +167,20 @@ def _matches(answer: str, ground_truths) -> bool:
     return any(g and g.lower() in answer_l for g in flat)
 
 
+# EasyEdit's fluency: n-gram entropy of a 100-token continuation of the edit
+# prompt (compute_edit_quality, max_out_len=100). Here the continuation comes
+# through this method's own answer path, retrieved context included, since
+# that is the text the edited system produces.
+FLUENCY_TOKENS = 100
+
+
+def fluency_score(tok, prompt, generate):
+    from easyeditor.evaluate.evaluate_utils import n_gram_entropy
+
+    budget = max(FLUENCY_TOKENS - len(tok(prompt)["input_ids"]), 10)
+    return {"ngram_entropy": n_gram_entropy([f"{prompt} {generate(budget)}"])}
+
+
 def evaluate_requests_scr(
     model,
     tok,
@@ -176,6 +190,7 @@ def evaluate_requests_scr(
     hparams: SCRHyperParams,
     baseline_answers: Optional[Dict[Tuple[int, str, int], str]] = None,
     answer_cache=None,
+    fluency: bool = False,
 ) -> Tuple[List[Dict], Dict[Tuple[int, str, int], str]]:
     """Same per-record shape eval_utils.aggregate_metrics expects
     (rewrite_acc / portability / locality dicts of *_acc lists), but
@@ -223,6 +238,10 @@ def evaluate_requests_scr(
             if accs:
                 locality[f"{cat}_acc"] = accs
 
-        per_record.append({"rewrite_acc": rewrite_acc, "portability": portability, "locality": locality})
+        metrics = {"rewrite_acc": rewrite_acc, "portability": portability, "locality": locality}
+        if fluency:
+            metrics["fluency"] = fluency_score(tok, record["prompt"], lambda budget: scr_answer(
+                model, tok, record["prompt"], kb, device, k, budget))
+        per_record.append(metrics)
 
     return per_record, answers_this_call

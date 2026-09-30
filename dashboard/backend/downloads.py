@@ -38,7 +38,7 @@ def _setup_args(kind, name, parts):
     if kind == "model":
         return ["--models", name]
     if kind == "component":
-        return {"easyedit": ["--external"], "experiment-env": ["--venv"]}[name]
+        return {"easyedit": ["--external"], "cake-data": ["--cake"], "experiment-env": ["--venv"]}[name]
     raise KeyError(kind)
 
 

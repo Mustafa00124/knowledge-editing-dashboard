@@ -12,6 +12,7 @@ and checked against recorded sha256s where the source allows:
     python scripts/setup.py --models Qwen3-4B         model weights (names from --status);
                                                       --models main for the set experiments use
     python scripts/setup.py --external                EasyEdit (+ this project's AlphaEdit fix)
+    python scripts/setup.py --cake                    CaKE's training data (only for the CaKE method)
     python scripts/setup.py --venv                    venvs/easyedit_venv for running experiments
 
 The dashboard's Downloads page offers the same choices with buttons; it runs
@@ -36,7 +37,6 @@ REFERENCE_REPOS = {
     "WilKE": ("https://github.com/ChenhuiHu/WilKE.git", "2aa874b4a3dae915bdebf3ef765ac06d710cc9d6"),
     "FiNE": ("https://github.com/opanhw/FiNE.git", "87bdf930edee6aa0f1f1cdc28cc374a89c55cb7d"),
     "NMKE": ("https://github.com/LiuJinzhe-Keepgoing/NMKE.git", "6c81e45097c3e14d35360d852f9769da8abab81b"),
-    "CaKE": ("https://github.com/zjunlp/CaKE.git", "df528e13fffbd2117e6041c129285e1e146933d2"),
 }
 
 # Created empty so SLURM log paths and result writers have somewhere to go.
@@ -83,12 +83,13 @@ def main():
     parser.add_argument("--parts", nargs="+", default=[], metavar="PART", help="optional dataset parts, e.g. train (UniEdit)")
     parser.add_argument("--models", nargs="+", metavar="NAME", help="model weights; 'main' for the main set")
     parser.add_argument("--external", action="store_true", help="clone EasyEdit at its pinned commit and apply patches/")
-    parser.add_argument("--reference-repos", action="store_true", help="also clone WilKE, FiNE, NMKE and CaKE")
+    parser.add_argument("--cake", action="store_true", help="CaKE's training data (needed only for the CaKE method)")
+    parser.add_argument("--reference-repos", action="store_true", help="also clone WilKE, FiNE and NMKE")
     parser.add_argument("--venv", action="store_true", help="create venvs/easyedit_venv and install requirements")
     parser.add_argument("--all", action="store_true", help="--external --datasets --venv (models stay opt-in)")
     args = parser.parse_args()
 
-    chosen = [args.external, args.reference_repos, args.datasets is not None, args.models, args.venv, args.all]
+    chosen = [args.external, args.cake, args.reference_repos, args.datasets is not None, args.models, args.venv, args.all]
     if not any(chosen):
         status()
         print("\nnothing selected; see --help")
@@ -99,6 +100,8 @@ def main():
     try:
         if args.external or args.all:
             sources.install_easyedit()
+        if args.cake:
+            sources.install_cake_data()
         if args.reference_repos:
             for name, (url, commit) in REFERENCE_REPOS.items():
                 sources.say(f"== {name}")

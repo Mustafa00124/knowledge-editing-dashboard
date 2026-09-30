@@ -45,13 +45,14 @@ export function comboCount(params, fields) {
     // Only sequential_batch has both knobs, so only there can they conflict.
     if (point.edit_mode === 'sequential_batch' &&
         Number(point.edit_batch_size) > Number(point.reset_every)) return false
-    const needsSubject = methodDef?.requires_subject || false
-    if (!needsSubject) return true
-    for (const benchmark of defs.data_path?.benchmarks || []) {
-      for (const subset of benchmark.subsets || []) {
-        if (subset.value === point.data_path) return subset.provides_subject !== false
-      }
-    }
+    const only = methodDef?.only_subsets
+    if (only && point.data_path && !only.includes(String(point.data_path).split('/').pop())) return false
+    const subset = (defs.data_path?.benchmarks || [])
+      .flatMap((benchmark) => benchmark.subsets || [])
+      .find((s) => s.value === point.data_path)
+    if (!subset) return true
+    if (methodDef?.requires_subject && subset.provides_subject === false) return false
+    if (methodDef?.requires_ground_truth && subset.provides_ground_truth === false) return false
     return true
   }
 

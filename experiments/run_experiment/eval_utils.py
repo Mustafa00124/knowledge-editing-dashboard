@@ -78,10 +78,18 @@ def load_recent_requests(data_path: str, ds_size: int) -> List[Dict]:
         prompts, answers = _flatten_probes([d[field] for d in data])
         locality_inputs[key] = {"prompt": prompts, "ground_truth": answers}
 
+    # The original answer, where the file has one (wiki_counterfact and ZsRE;
+    # wiki_recent inserts new facts, so it has none). No metric reads it:
+    # scores compare against target_new. Knowledge Neurons needs it to
+    # attribute neurons to the fact being replaced.
+    def original(d):
+        truth = d.get("ground_truth")
+        return truth[0] if isinstance(truth, list) and truth else truth
+
     return _prepare_requests(
         prompts=[d["prompt"] for d in data],
         target_new=[d["target_new"] for d in data],
-        ground_truth=[None] * len(data),
+        ground_truth=[original(d) for d in data],
         subject=[d["subject"] for d in data],
         locality_inputs=locality_inputs,
         portability_inputs=portability_inputs,
