@@ -132,7 +132,7 @@ def _output_target(exp_cfg, save_results):
     if save_results:
         return None, exp_cfg.get("out_root")
     testing_id = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S-%f_UTC")
-    return testing_id, str(config.RESULTS_DIR / "Trial Runs" / testing_id)
+    return testing_id, str(config.TRIAL_RUNS_DIR / testing_id)
 
 def _job_progress(job, exp_cfg):
     params = json.loads(job["params_json"])

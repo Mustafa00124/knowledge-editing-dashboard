@@ -52,7 +52,7 @@ class RerunFailedTests(unittest.TestCase):
             job_id=job_id, experiment_type="run_experiment",
             run_name=f"ft_model_seed{seed}", params={"method": "ft", "seed": seed},
             sbatch_path="original.sbatch", out_path="original.out", err_path="original.err",
-            out_root=self.out_root if testing_id is None else str(Path(self.temp.name) / "Trial Runs" / testing_id),
+            out_root=self.out_root if testing_id is None else str(Path(self.temp.name) / "trial_runs" / testing_id),
             queue_slot=0, testing_id=testing_id,
         )
 
@@ -85,7 +85,7 @@ class RerunFailedTests(unittest.TestCase):
         result = main.rerun_failed_queue_slot(0)
         retry = next(job for job in result["jobs"] if job["job_id"] == "201")
         self.assertNotEqual(retry["testing_id"], "old-trial")
-        self.assertIn("Trial Runs", retry["out_root"])
+        self.assertIn("trial_runs", retry["out_root"])
         self.assertEqual(self.submissions[0][2], retry["out_root"])
 
     def test_partial_submission_keeps_launched_retry_and_unsubmitted_failure(self):

@@ -8,6 +8,11 @@ PROJECT_ROOT = Path(os.environ.get("KE_PROJECT_ROOT") or Path(__file__).resolve(
 
 EXPERIMENTS_DIR = PROJECT_ROOT / "experiments"
 RESULTS_DIR = PROJECT_ROOT / "results"
+# Two trees: main experiments (the reported results) and hyperparameter
+# investigations (sweeps on dev records, organised by what they tune).
+MAIN_RESULTS_DIR = RESULTS_DIR / "main"
+TRIAL_RUNS_DIR = MAIN_RESULTS_DIR / "trial_runs"
+HPARAM_RESULTS_DIR = RESULTS_DIR / "hyperparameters"
 DATASETS_DIR = PROJECT_ROOT / "datasets"
 MODELS_DIR = PROJECT_ROOT / "models"
 EXTERNAL_DIR = PROJECT_ROOT / "external"

@@ -74,7 +74,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
-DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/causal_tracing"
+DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/hyperparameters/edit_layers/causal_tracing"
 DEFAULT_DATA_PATH = f"{PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json"
 ROME_HPARAMS_DIR = f"{PROJECT_ROOT}/experiments/run_experiment/hparams/ROME"
 

@@ -84,7 +84,7 @@ EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
 DEFAULT_EASYEDIT_PATH = os.path.join(PROJECT_ROOT, "external/EasyEdit")
 DEFAULT_DATA_PATH = os.path.join(PROJECT_ROOT, "datasets/KnowEdit/benchmark/wiki_recent/recent_test.json")
-DEFAULT_OUT_ROOT = os.path.join(PROJECT_ROOT, "results/run_experiment")
+DEFAULT_OUT_ROOT = os.path.join(PROJECT_ROOT, "results/main/run_experiment")
 
 METHOD_HPARAMS_DIR = {
     "ft": "FT",

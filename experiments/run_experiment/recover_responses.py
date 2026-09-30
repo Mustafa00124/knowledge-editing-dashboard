@@ -15,7 +15,7 @@ import sys
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_RESULTS = ROOT / "results/run_experiment"
+DEFAULT_RESULTS = ROOT / "results/main/run_experiment"
 
 
 def needed(run_dir, summary):

@@ -36,7 +36,7 @@ export default function TestingResults() {
         </div>
         {group && <div className="testing-detail">
           <h2>{new Date(group.submitted_at).toLocaleString()}</h2>
-          <p className="drawer-desc">Folder: Trial Runs/{group.id}</p>
+          <p className="drawer-desc">Folder: results/main/trial_runs/{group.id}</p>
           {group.jobs.map((job) => (
             <article className="testing-job" key={job.job_id}>
               <h3>{job.run_name}</h3>
