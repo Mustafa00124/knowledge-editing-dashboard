@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
@@ -125,6 +126,9 @@ export default function CausalTracing() {
 
   return (
     <div>
+      <div className="hp-breadcrumb">
+        <Link to="/hyperparameters">Hyperparameters</Link> / <Link to="/hyperparameters/edit_layers">Edit layers</Link> / Causal tracing
+      </div>
       <div className="page-header">
         <h1>Causal Tracing</h1>
       </div>

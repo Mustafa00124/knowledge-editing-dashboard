@@ -1,8 +1,9 @@
 # Knowledge Editing
 
 Compares knowledge editing methods (fine-tuning, LoRA, ROME, MEMIT, PMET,
-AlphaEdit, WilKE, FiNE, NMKE, FiDAL, SCR, IKE) across language models and
-benchmarks. It records checkpointed metrics and generated answers, and ships
+AlphaEdit, WilKE, FiNE, NMKE, FiDAL, Knowledge Neurons, CaKE, SCR, IKE)
+across language models and benchmarks. SNKE and MCircKE are listed but not
+implemented: no public implementation was found. It records checkpointed metrics and generated answers, and ships
 a web dashboard for launching experiments and browsing results and datasets.
 
 It was built on USF's gaivi SLURM cluster, but a clone runs anywhere. The
@@ -73,6 +74,18 @@ Not downloaded, but produced locally:
 | `experiments/run_experiment/data/stats` | covariance statistics, computed on the first locate-and-edit run per model and layer (up to ~20 GB) |
 | `experiments/run_experiment/evaluation.local.json` | copy `evaluation.example.json` and add an API key, only for the LLM Judge evaluation mode |
 
+## Dev and test records
+
+Every runnable dataset subset is split once, for good, into dev and test
+records (`splits/`, built by `scripts/make_splits.py`). Hyperparameter
+sweeps use only dev records (100 per subset, fewer for small ones); main
+experiments use only test records. Records are grouped by subject, and a
+subject that is dev anywhere is excluded from every test set, so
+overlapping benchmarks cannot leak a tuned fact into a reported score.
+Datasets without a train file also get a separate demo portion, IKE's
+demonstration pool, so IKE never draws demonstrations from the records it
+is scored on. `experiments/run_experiment/test_splits.py` checks all of it.
+
 ## Layout
 
 | Path | What it is |
@@ -82,6 +95,8 @@ Not downloaded, but produced locally:
 | `experiments/causal_tracing/` | Causal tracing to locate where a model stores facts. |
 | `datasets/` | One folder per benchmark. Git tracks only each one's `SOURCE.json` manifest; the data is downloaded into it. |
 | `scripts/setup.py` | Command-line version of the Downloads page. |
+| `splits/` | The fixed dev/test split, one file per dataset subset. |
+| `experiments/run_experiment/investigations.json` | The hyperparameter investigations the dashboard's Hyperparameters page offers. |
 | `patches/` | Local fixes applied on top of pinned upstream repos. |
 
 Paths in configs are relative to the repo root (`hparams/*.yaml`) or written
@@ -93,6 +108,9 @@ as `${PROJECT_ROOT}` (`dashboard.json`), so the checkout can live anywhere.
 cd experiments/run_experiment
 ../../venvs/easyedit_venv/bin/python run_experiment.py --method rome --model qwen3-4b --ds_size 20
 ```
+
+`--split test` is the default; pass `--split dev --final_only --hparam layers=[4]`
+to reproduce a hyperparameter sweep point by hand.
 
 Output lands in `results/run_experiment/runs/<run_name>/`. See
 `python run_experiment.py --help` for every option.

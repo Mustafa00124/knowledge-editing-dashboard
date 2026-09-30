@@ -46,6 +46,17 @@ function resultsQuery(type, archived) {
 export const api = {
   capabilities: () => req('/capabilities'),
 
+  // Hyperparameter investigations (see backend/hparam_sweeps.py).
+  investigations: () => req('/hparams/investigations'),
+  estimateSweep: (spec) => req('/hparams/estimate', { method: 'POST', body: JSON.stringify(spec) }),
+  launchSweep: (spec) => req('/hparams/sweeps', { method: 'POST', body: JSON.stringify(spec) }),
+  sweeps: (investigation) => req(`/hparams/sweeps${investigation ? `?investigation=${encodeURIComponent(investigation)}` : ''}`),
+  cancelSweep: (investigation, id) =>
+    req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/cancel`, { method: 'POST' }),
+  sweepResults: (investigation) => req(`/hparams/results?investigation=${encodeURIComponent(investigation)}`),
+  promoteConfig: (investigation, sweepId, run) =>
+    req('/hparams/promote', { method: 'POST', body: JSON.stringify({ investigation, sweep_id: sweepId, run }) }),
+
   // Downloads page: everything fetchable (components, datasets, models)
   // with on-disk status, and the background tasks fetching them.
   downloads: () => req('/downloads'),

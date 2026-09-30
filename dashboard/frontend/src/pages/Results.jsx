@@ -9,6 +9,7 @@ import ResultsArchive from './ResultsArchive.jsx'
 import ResultsDatasetPicker from '../components/ResultsDatasetPicker.jsx'
 import ArchiveConfirm from '../components/ArchiveConfirm.jsx'
 import TestingResults from './TestingResults.jsx'
+import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import { api } from '../api.js'
 import { metricLabel } from '../lib/formatMetric.js'
 import { toggleGroup } from '../lib/groupSelect.js'
@@ -146,8 +147,9 @@ export default function Results() {
 
   return (
     <div>
+      <ResultsSubnav />
       <div className="page-header">
-        <h1>Results</h1>
+        <h1>Main results</h1>
         {mode === 'table' && (
           <button
             type="button"

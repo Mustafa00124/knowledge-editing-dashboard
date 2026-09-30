@@ -233,12 +233,38 @@ directories will move before it commits.
   across runs, and plot any checkpointed metric over steps.
 - **Results · Responses** (`/results/responses`) — browse the qualitative
   generation samples (`samples/step_*.json`) for a given run/step.
+- **Hyperparameters** (`/hyperparameters`): find settings before the main
+  experiments. Each investigation is one kind of setting (edit layers,
+  neurons and masks, adapter placement, weight-update strength, value-vector
+  optimisation, preservation strength, covariance statistics, retrieval and
+  demonstrations; defined in `../experiments/run_experiment/investigations.json`)
+  and lists only the methods that have it, under their own setting names,
+  with the current value, the authors' stability tag and suggested values.
+  A sweep picks methods, values, models and datasets and launches through
+  the normal job path, but on **dev records only** (`--split dev`), with
+  evaluation only before editing and at the end (`--final_only`), and the
+  values passed as `--hparam` overrides. The page estimates runs, GPU-hours
+  and missing covariance statistics before launch. Causal tracing is a tool
+  inside Edit layers (`/hyperparameters/edit_layers/causal-tracing`); its
+  peak layer is added to the suggested layers. Backend:
+  `backend/hparam_sweeps.py`, results under
+  `results/hyperparameters/<investigation>/sweeps/<sweep>/`.
+- **Results · Hyperparameters** (`/results/hyperparameters`): every sweep
+  run of an investigation, filterable by method, model, dataset and sweep,
+  scored on reliability, generalizability, locality and fluency (final over
+  the unedited model's) on a 0 to 1 scale, and ranked by default by the
+  weakest of those, so no setting ranks well by giving one up. Cells are
+  coloured by editable thresholds (colour only, nothing is hidden). A chart
+  plots the criteria across the swept value when one setting varies. "Use
+  as main config" writes a run's values into that method's hparams file for
+  that model and records it in `hparams/TUNED.json`. Results · Main and
+  Results · Hyperparameters are separate pages that load only their own data.
 - **Downloads** (`/downloads`): choose which datasets, models and setup
   components to fetch; see "Running it off gaivi" above.
 - **Datasets** (`/datasets`) — browse the benchmarks under `../datasets/`
   (DUnE, KnowEdit, and anything added later) and preview records from
   their json/jsonl files.
-- **Causal Tracing** (`/causal-tracing`) — runs the measurement that is
+- **Causal Tracing** (`/hyperparameters/edit_layers/causal-tracing`) — runs the measurement that is
   supposed to decide the `layers` hyperparameter for ROME/MEMIT/PMET/AlphaEdit,
   per model, and records the answer in
   `results/causal_tracing/traced_layers.json`. The table pairs each model's
