@@ -1,0 +1,53 @@
+# WilKE (ACL Findings 2024, arXiv:2402.10987) - see dynamic/wilke.py.
+#
+# Every field except alg_name, layers and scanning_ceiling is copied
+# verbatim from hparams/ROME/qwen3-4b.yaml, because WilKE's own
+# compute_u/compute_v are byte-identical to ROME's: the only thing it
+# changes is which layer they run at. Keeping the two files in step
+# matters - a WilKE-vs-ROME comparison is only about layer choice if
+# everything else is the same.
+#
+# layers is empty on purpose. WilKE picks the layer per fact, so this
+# field (which ROME uses to name its fixed target) has nothing to say;
+# dynamic/wilke.py never reads it.
+#
+# scanning_ceiling: candidate layers are range(scanning_ceiling).
+# Upstream ships 7 for GPT-J's 28 layers and 24 for GPT2-XL's 48, which
+# are 25% and 50% of depth respectively. GPT-J is the model this project
+# shares with them, so its 7 is kept exactly and the others follow the
+# same 25% rule (36 layers -> 9).
+#
+# Cost: one full ROME edit per candidate layer per fact, and
+# mom2_adjustment is true, so the first run caches layer statistics for
+# all 9 candidates rather than for one layer.
+
+alg_name: WilKE
+model_name: models/Qwen3-4B
+stats_dir: ./data/stats
+device: 0
+layers: []
+fact_token: subject_last
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+clamp_norm_factor: 4
+kl_factor: 0.0625
+mom2_adjustment: true
+context_template_length_params:
+- - 5
+  - 10
+- - 10
+  - 10
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: lm_head
+mom2_dataset: wikipedia
+mom2_n_samples: 100000
+mom2_dtype: float32
+model_parallel: false
+fp16: false
+scanning_ceiling: 9

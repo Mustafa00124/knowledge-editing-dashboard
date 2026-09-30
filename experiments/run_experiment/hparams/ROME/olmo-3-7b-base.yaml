@@ -1,0 +1,42 @@
+# Inherited from mistral-7b-v0.1.yaml, with only model_name changed.
+# Olmo3ForCausalLM matches Mistral's module naming exactly
+# (model.layers.{{}}.mlp.down_proj / model.norm / lm_head) at the same depth
+# (32 layers), so every module template and layer index carries over and
+# v_loss_layer 31 is still the last layer. hidden_size also matches (4096);
+# intermediate_size and vocab differ but neither appears here.
+#
+# UNVALIDATED: this is a different pretrain, so the *choice* of edit layer is
+# inherited, not traced for Olmo. Same caveat the Mistral and Qwen configs
+# already carry - see experiments/causal_tracing to trace it properly.
+# Exact match for our downloaded model - adapted from
+# external/EasyEdit/hparams/ROME/mistral-7b.yaml, just pointing model_name
+# at the local path (everything else, including layers/v_loss_layer, is
+# upstream's own validated config for this exact model).
+
+alg_name: "ROME"
+model_name: models/Olmo-3-7B-Base
+stats_dir: "./data/stats"
+device: 0
+layers: [5]
+fact_token: "subject_last"
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 31
+v_weight_decay: 1e-3
+clamp_norm_factor: 4
+kl_factor: 0.0625
+# Original ROME (kmeng01/memit hparams/ROME) uses true; EasyEdit ships
+# false, which drops the C^-1 whitening that protects unrelated facts.
+mom2_adjustment: true
+context_template_length_params: [[5, 10], [10, 10]]
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+model_parallel: false
+fp16: false

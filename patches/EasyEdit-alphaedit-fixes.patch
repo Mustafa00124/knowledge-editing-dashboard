@@ -1,0 +1,59 @@
+diff --git a/easyeditor/models/alphaedit/AlphaEdit_main.py b/easyeditor/models/alphaedit/AlphaEdit_main.py
+index 60e28ea..7a16e16 100644
+--- a/easyeditor/models/alphaedit/AlphaEdit_main.py
++++ b/easyeditor/models/alphaedit/AlphaEdit_main.py
+@@ -65,6 +65,10 @@ def apply_AlphaEdit_to_model(
+             "llama" in hparams.model_name.lower()
+             or "qwen" in hparams.model_name.lower()
+             or "gpt-j-6b" in hparams.model_name.lower()
++            # LOCAL FIX: Olmo 3 is Llama-shaped - down_proj is
++            # [hidden, intermediate], so W_out.shape[1] is the right size here,
++            # same as the three above.
++            or "olmo" in hparams.model_name.lower()
+         ):
+             P = torch.zeros((len(hparams.layers), W_out.shape[1], W_out.shape[1]), device="cpu")
+         elif "gpt2-xl" in hparams.model_name.lower():
+@@ -72,7 +76,12 @@ def apply_AlphaEdit_to_model(
+         del W_out
+         for i, layer in enumerate(hparams.layers):
+             P[i,:,:] = get_project(model, tok, layer, hparams)
+-        torch.save(P, "null_space_project.pt")
++        # LOCAL FIX: upstream saved to a hardcoded "null_space_project.pt" in
++        # the working directory, but the existence check above reads
++        # hparams.P_loc - so the cache never hit, every run recomputed P, and
++        # concurrent runs raced to write one shared file.
++        os.makedirs(os.path.dirname(os.path.abspath(hparams.P_loc)), exist_ok=True)
++        torch.save(P, hparams.P_loc)
+         P_loaded = True
+     elif P_loaded == False:
+         P = torch.load(hparams.P_loc)
+@@ -82,10 +91,28 @@ def apply_AlphaEdit_to_model(
+     # If this is the first calculation (i.e., cache_c_new == false), then initialize cache_c first
+     if not cache_c_new:
+         W_out = nethook.get_parameter(model, f"{hparams.rewrite_module_tmp.format(hparams.layers[-1])}.weight")
+-        if "llama" in hparams.model_name.lower() or "qwen" in hparams.model_name.lower():
++        # LOCAL FIX (reapply after any EasyEdit update): "gpt-j-6b" is listed
++        # in the P branch above but was missing here, so for GPT-J neither
++        # arm matched, cache_c was never created, and cache_c_new was still
++        # set True below - execute_AlphaEdit then died with
++        # "NameError: name 'cache_c' is not defined".
++        if (
++            "llama" in hparams.model_name.lower()
++            or "qwen" in hparams.model_name.lower()
++            or "gpt-j-6b" in hparams.model_name.lower()
++            # LOCAL FIX: Olmo 3 is Llama-shaped - down_proj is
++            # [hidden, intermediate], so W_out.shape[1] is the right size here,
++            # same as the three above.
++            or "olmo" in hparams.model_name.lower()
++        ):
+             cache_c = torch.zeros((len(hparams.layers), W_out.shape[1], W_out.shape[1]), device="cpu")
+         elif "gpt2-xl" in hparams.model_name.lower():
+             cache_c = torch.zeros((len(hparams.layers), W_out.shape[0], W_out.shape[0]), device="cpu")
++        else:
++            raise ValueError(
++                f"AlphaEdit has no cache_c shape rule for model {hparams.model_name!r}; "
++                "add it here and to the P branch above rather than failing later with a NameError"
++            )
+         del W_out
+         cache_c_new = True
+     

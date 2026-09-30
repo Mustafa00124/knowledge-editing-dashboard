@@ -1,0 +1,35 @@
+# Derived from qwen3-4b.yaml: model_name only.
+# LoRA sets `layers: []`, so unlike the locate-and-edit methods there is no
+# edit-layer choice to inherit or trace here - the only model-specific values
+# are target_modules, and Olmo3ForCausalLM has the same q_proj/v_proj
+# attention projections Qwen does. Nothing here is depth-dependent.
+# Adapted from external/EasyEdit/hparams/LoRA/qwen2.5-7b.yaml - no
+# Qwen3-4B LoRA hparams shipped. target_modules ["q_proj","v_proj"] kept
+# as upstream's choice (standard efficient-LoRA convention: only
+# query/value projections) - confirmed these attribute names are real on
+# this exact model via model.safetensors.index.json (self_attn.q_proj,
+# self_attn.v_proj both present), not guessed.
+#
+# `lr` and `num_steps` below are placeholders - run_experiment.py always
+# overrides them from its --lr/--num_steps CLI args, matching the FT
+# hparams' own convention.
+alg_name: "LoRA"
+model_name: models/Olmo-3-7B-Think
+device: 0
+
+lora_type: "lora"
+rank: 8
+lora_alpha: 32
+layers: []
+kl_factor: 0
+norm_constraint: false
+lora_dropout: 0.1
+target_modules: ["q_proj", "v_proj"]
+
+num_steps: 50
+batch_size: 20
+max_length: 128
+lr: 5e-3
+weight_decay: 0.0
+
+model_parallel: false

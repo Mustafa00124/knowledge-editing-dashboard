@@ -1,0 +1,32 @@
+# Exact match for our downloaded model - adapted from
+# external/EasyEdit/hparams/ROME/mistral-7b.yaml, just pointing model_name
+# at the local path (everything else, including layers/v_loss_layer, is
+# upstream's own validated config for this exact model).
+
+alg_name: "ROME"
+model_name: models/Mistral-7B-v0.1
+stats_dir: "./data/stats"
+device: 0
+layers: [5]
+fact_token: "subject_last"
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 31
+v_weight_decay: 1e-3
+clamp_norm_factor: 4
+kl_factor: 0.0625
+# Original ROME (kmeng01/memit hparams/ROME) uses true; EasyEdit ships
+# false, which drops the C^-1 whitening that protects unrelated facts.
+mom2_adjustment: true
+context_template_length_params: [[5, 10], [10, 10]]
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+model_parallel: false
+fp16: false

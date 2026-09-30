@@ -1,0 +1,64 @@
+# NMKE (NeurIPS 2025, arXiv:2510.22139) - see dynamic/nmke.py.
+#
+# NMKE is AlphaEdit with a per-neuron mask on the update, so everything
+# above the mask knobs is copied from hparams/AlphaEdit/qwen3-4b.yaml
+# unchanged. layers stays fixed the way AlphaEdit's is: NMKE's dynamism
+# is *within* those layers (which neurons may move), not across them.
+#
+# P_loc points at its own file rather than sharing AlphaEdit's cached
+# null-space projection. The two are identical as long as both configs
+# keep the same layers list, but a same-length different-layers edit
+# would load a silently wrong P, and the expensive part (the cached
+# covariance statistics in stats_dir) is shared anyway.
+#
+# The mask knobs are upstream's defaults from entropy_adaptive_mask_ratio
+# and AMPLIFY_FACTOR. use_resonance/use_burst are dead arguments upstream
+# (the branch reading them is commented out and the union is always
+# taken); here they are live, defaulting to the union that upstream
+# actually runs.
+
+alg_name: NMKE
+model_name: models/Qwen3-4B
+stats_dir: experiments/run_experiment/data/stats
+P_loc: experiments/run_experiment/data/stats/nmke_P_qwen3-4b.pt
+device: 0
+layers:
+- 4
+- 5
+- 6
+- 7
+- 8
+clamp_norm_factor: 4
+layer_selection: all
+fact_token: subject_last
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+kl_factor: 0.0625
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: lm_head
+mom2_dataset: wikipedia
+mom2_n_samples: 100000
+mom2_dtype: float32
+nullspace_threshold: 2e-2
+L2: 1
+model_parallel: false
+resonance_bounds:
+- 0.3
+- 0.4
+burst_bounds:
+- 0.3
+- 0.4
+gamma_r: 3.0
+gamma_b: 2.0
+entropy_alpha: 30.0
+amplify_factor: 30.0
+use_resonance: true
+use_burst: true

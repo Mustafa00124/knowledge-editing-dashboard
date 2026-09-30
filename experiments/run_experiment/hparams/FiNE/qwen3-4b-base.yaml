@@ -1,0 +1,47 @@
+# FiNE (ICLR 2025, arXiv:2503.01090) - see dynamic/fine.py.
+#
+# epochs/lr/alpha/beta/gamma/neuron_num/last_layer/early_stop_prob are
+# upstream's, which ships the identical values for GPT-J, Llama-2-7B and
+# Llama-3-8B (hparams/FINE/*.yaml in github.com/opanhw/FiNE) - they do
+# not vary by model there, so they are not varied here either.
+#
+# Module templates come from hparams/ROME/qwen3-4b-base.yaml. FiNE needs no
+# layers field: it scores every neuron in layers 0..33 (all but
+# the last_layer=3, which stay frozen to protect generation) and lets the
+# top-k land wherever they land.
+#
+# layer and random are the paper's ablations - pin selection to one layer,
+# or pick neurons at random - left off by default.
+#
+# delta_dtype is a local addition: upstream allocates the learnable
+# deltas in bfloat16, where Adam at lr=1e-3 rounds much of each update
+# away. Set it to bfloat16 to reproduce their numerics exactly.
+#
+# lm_head_module is carried over for completeness; dynamic/capture.py
+# resolves the unembedding through get_output_embeddings() instead,
+# because Qwen3 and Olmo-3 tie their embeddings and the hparams files in
+# this tree disagree about how to name the tied tensor.
+
+alg_name: FiNE
+model_name: models/Qwen3-4B-Base
+device: 0
+epochs: 50
+lr: 0.001
+alpha: 1
+beta: 10
+gamma: 0.1
+neuron_num: 5
+last_layer: 3
+early_stop_prob: 0.9
+add_eos: false
+layer: null
+random: false
+delta_dtype: float32
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: lm_head
+model_parallel: false
+fp16: false

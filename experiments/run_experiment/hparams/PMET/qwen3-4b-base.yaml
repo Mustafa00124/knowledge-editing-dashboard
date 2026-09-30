@@ -1,0 +1,50 @@
+# Inherited verbatim from qwen3-4b.yaml, with only model_name changed.
+# Same pretrain and identical architecture (Qwen3ForCausalLM, 36 layers,
+# hidden 2560), so every layer index and module template stays valid.
+# The weights differ, so the cached mom2 stats do not carry over and are
+# recomputed on first use under models/Qwen3-4B-Base.
+# No Qwen PMET hparams shipped with EasyEdit at all (only gpt-j-6B) - this
+# is a from-scratch adaptation, not a copy of an existing template:
+#   - layers/v_loss_layer follow the same choices as MEMIT's qwen3-4b.yaml
+#     (same repo, algorithmically close sibling method - [4,5,6,7,8]/35)
+#   - module templates use Qwen3-4B's actual parameter names, confirmed
+#     directly against model.safetensors.index.json (not guessed):
+#     model.layers.{}.self_attn.o_proj is the real attention output
+#     projection for this model.
+# Same mom2_adjustment/stats-cache note as MEMIT's hparams applies here.
+alg_name: "PMET"
+model_name: models/Qwen3-4B-Base
+stats_dir: experiments/run_experiment/data/stats
+device: 0
+layers: [4, 5, 6, 7, 8]
+clamp_norm_factor: 4
+layer_selection: "all"
+fact_token: "subject_last"
+v_num_grad_steps: 30
+v_lr: 2e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+kl_factor: 1
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+rewrite_module_tmps: ["model.layers.{}.mlp.down_proj"]
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp.down_proj"
+attn_module_tmp: "model.layers.{}.self_attn.o_proj"
+ln_f_module: "model.norm"
+# Qwen3-4B sets tie_word_embeddings: true, so the unembedding is the same
+# tensor as the input embedding and there is no separate lm_head.weight in
+# named_parameters() (PyTorch reports a shared tensor only under its first
+# name). compute_z looks the unembedding up with nethook.get_parameter,
+# which is an exact name match over named_parameters(), so "lm_head" raises
+# LookupError: lm_head.weight. Pointing at the tied parameter gives the
+# identical (vocab, hidden) matrix; 5 of EasyEdit's own shipped configs use
+# this same value for tied models. Untied models (GPT-J, Mistral) keep
+# "lm_head".
+lm_head_module: "model.embed_tokens"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+model_parallel: false
+nll_loss_factor: 1

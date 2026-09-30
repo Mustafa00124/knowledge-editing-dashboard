@@ -1,0 +1,49 @@
+# Inherited verbatim from qwen3-4b.yaml, with only model_name changed.
+# Same pretrain and identical architecture (Qwen3ForCausalLM, 36 layers,
+# hidden 2560), so every layer index and module template stays valid.
+# The weights differ, so the cached mom2 stats do not carry over and are
+# recomputed on first use under models/Qwen3-4B-Base.
+# Adapted from external/EasyEdit/hparams/ROME/qwen2.5-7b.yaml — no
+# Qwen3-4B ROME hparams shipped with EasyEdit, hand-adapted the same way
+# hparams/FT/qwen3-4b.yaml was:
+#   - model_name -> local Qwen3-4B path
+#   - device -> 0
+#   - v_loss_layer -> 35 (last layer, 0-indexed, 36 layers total) -
+#     upstream's qwen2.5-7b.yaml uses 27 out of its 28 layers, i.e. the
+#     last one; same convention here.
+#   - layers -> [5] kept as upstream's qwen2.5-7b.yaml value (the layer
+#     ROME edits, per the original paper's causal-tracing analysis) -
+#     inherited, not independently re-validated for Qwen3 specifically.
+#
+# mom2_adjustment is true (matching the original ROME repo), so stats_dir
+# and the mom2_* settings below are live: ROME whitens its update with the
+# key covariance C^-1. Layer 5's statistics are already cached from MEMIT,
+# which targets layers 4-8, so this costs no extra precompute here.
+
+alg_name: "ROME"
+model_name: models/Qwen3-4B-Base
+stats_dir: "./data/stats"
+device: 0
+layers: [5]
+fact_token: "subject_last"
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+clamp_norm_factor: 4
+kl_factor: 0.0625
+# Original ROME (kmeng01/memit hparams/ROME) uses true; EasyEdit ships
+# false, which drops the C^-1 whitening that protects unrelated facts.
+mom2_adjustment: true
+context_template_length_params: [[5, 10], [10, 10]]
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+model_parallel: false
+fp16: false

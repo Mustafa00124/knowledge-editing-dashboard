@@ -1,0 +1,45 @@
+# Inherited from mistral-7b-v0.1.yaml, with only model_name changed.
+# Olmo3ForCausalLM matches Mistral's module naming exactly
+# (model.layers.{{}}.mlp.down_proj / model.norm / lm_head) at the same depth
+# (32 layers), so every module template and layer index carries over and
+# v_loss_layer 31 is still the last layer. hidden_size also matches (4096);
+# intermediate_size and vocab differ but neither appears here.
+#
+# UNVALIDATED: this is a different pretrain, so the *choice* of edit layer is
+# inherited, not traced for Olmo. Same caveat the Mistral and Qwen configs
+# already carry - see experiments/causal_tracing to trace it properly.
+# Adapted from external/EasyEdit/hparams/FT/mistral-7b.yaml:
+#   - model_name -> local Mistral-7B-v0.1 path
+#   - objective_optimization -> "target_new" (FT-M), matching the choice
+#     made for qwen3-4b.yaml (see that file's comment) rather than
+#     upstream's "prompt_last" default, so FT behaves the same way across
+#     every model in this pipeline.
+#   - norm_constraint -> false, same reasoning.
+#
+# `lr` and `num_steps` below are placeholders — run_experiment.py always
+# overrides them from its --lr/--num_steps CLI args.
+
+alg_name: "FT"
+model_name: models/Olmo-3-7B-Base
+device: 0
+
+layers: [21]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+# Paper FT baseline is constrained: weights stay inside a 5e-5 norm ball
+# of the originals (kmeng01/memit hparams/FT/..._constr.json). Without
+# it, long runs degenerate - ours emitted empty text from step 500.
+norm_constraint: 5e-5
+objective_optimization: "target_new"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false

@@ -1,0 +1,74 @@
+# FiDAL (ACL 2026, aclanthology.org/2026.acl-long.957) - see dynamic/fidal.py.
+#
+# FiDAL locates; it does not edit. base_method names the editor it hands
+# the chosen layers to, and every field this file shares with
+# hparams/MEMIT/qwen3-4b-base.yaml is that editor's own config, copied
+# unchanged so that FiDAL-vs-MEMIT isolates the locating stage.
+#
+# layers is still present because the base editor's HyperParams class
+# requires it, but dynamic/fidal.py overwrites it per fact with the
+# probe's result. candidate_layers is what actually matters here:
+# MEMIT's fixed band [4, 5, 6, 7, 8] widened by three layers either side,
+# clipped to this model's 36.
+#
+# top_k = 5 so that FiDAL edits as many matrices as MEMIT does,
+# making the comparison about *which* layers rather than how many. Set
+# it to 1 when base_method is rome, which only ever writes one layer.
+#
+# probe_steps/probe_lr/probe_init are not specified in the paper (it
+# gives no hyperparameters for the probing stage); these are local
+# defaults chosen to keep probing cheap. They are recorded in every
+# run's hparams.yaml so a run is reproducible even though the paper is
+# not fully specified.
+#
+# Cost note: the base editor computes cached covariance statistics for
+# whichever layers get selected, so across a long run expect statistics
+# for most of candidate_layers rather than for MEMIT's five.
+
+alg_name: FiDAL
+model_name: models/Qwen3-4B-Base
+stats_dir: experiments/run_experiment/data/stats
+device: 0
+layers:
+- 4
+- 5
+- 6
+- 7
+- 8
+clamp_norm_factor: 4
+layer_selection: all
+fact_token: subject_last
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+kl_factor: 0.0625
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: model.embed_tokens
+mom2_dataset: wikipedia
+mom2_n_samples: 100000
+mom2_dtype: float32
+model_parallel: false
+base_method: memit
+candidate_layers:
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+- 11
+top_k: 5
+probe_steps: 10
+probe_lr: 0.01
+probe_init: 0.001

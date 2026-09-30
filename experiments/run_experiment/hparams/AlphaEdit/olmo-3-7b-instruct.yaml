@@ -1,0 +1,42 @@
+# Derived from qwen3-4b.yaml: model_name, v_loss_layer 35 -> 31 (Olmo 3 is 32
+# layers deep, Qwen3-4B is 36), and its own P_loc - the null-space projection
+# is computed from this checkpoint's weights and must not be shared.
+#
+# Needs "olmo" in the two model-name branches of
+# external/EasyEdit/easyeditor/models/alphaedit/AlphaEdit_main.py, which is
+# where the P and cache_c shapes are picked.
+#
+# UNVALIDATED: the edit-layer choice is inherited, not traced for Olmo.
+# Adapted from external/EasyEdit/hparams/AlphaEdit/qwen2.5-7b.yaml - no
+# Qwen3-4B AlphaEdit hparams shipped. Same v_loss_layer/layers adaptation
+# as MEMIT/PMET's qwen3-4b.yaml (35 / [4,5,6,7,8]) and the same
+# mom2_adjustment + P_loc first-run caching note as AlphaEdit's
+# gpt-j-6b.yaml in this folder.
+alg_name: "AlphaEdit"
+model_name: models/Olmo-3-7B-Instruct
+stats_dir: experiments/run_experiment/data/stats
+P_loc: experiments/run_experiment/data/stats/alphaedit_P_olmo-3-7b-instruct.pt
+device: 0
+layers: [4, 5, 6, 7, 8]
+clamp_norm_factor: 4
+layer_selection: "all"
+fact_token: "subject_last"
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 31
+v_weight_decay: 1e-3
+kl_factor: 0.0625
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+nullspace_threshold: 2e-2
+L2: 1
+model_parallel: false

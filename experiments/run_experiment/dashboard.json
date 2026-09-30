@@ -1,0 +1,1331 @@
+{
+ "name": "run_experiment",
+ "label": "Run Experiment",
+ "description": "Runs any registered method (finetuning, locate-and-edit, or in-context) on any registered model against a chosen dataset, checkpointing edit/portability/locality/fluency metrics as it goes.",
+ "script": "run_experiment.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/run_experiment",
+ "results_default": true,
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "32G"
+ },
+ "field_groups": [
+  {
+   "id": "protocol",
+   "label": "Dataset size and editing protocol",
+   "note": "the protocol applies to weight-editing methods only; scores average all reset groups"
+  },
+  {
+   "id": "ft",
+   "label": "Finetuning settings",
+   "note": "FT and LoRA only"
+  },
+  {
+   "id": "locate",
+   "label": "Locate-and-edit settings",
+   "note": "MEMIT, PMET and AlphaEdit only"
+  },
+  {
+   "id": "incontext",
+   "label": "In-context settings",
+   "note": "SCR and IKE only"
+  },
+  {
+   "id": "run",
+   "label": "Checkpointing and evaluation",
+   "note": "applies to every method"
+  }
+ ],
+ "fields": [
+  {
+   "name": "method",
+   "label": "Method",
+   "type": "string",
+   "control": "method",
+   "default": "ft",
+   "sweepable": true,
+   "run_name_bare": true,
+   "categories": [
+    {
+     "label": "Finetuning",
+     "methods": [
+      {
+       "label": "FT",
+       "value": "ft",
+       "available": true
+      },
+      {
+       "label": "LoRA",
+       "value": "lora",
+       "available": true,
+       "note": "no Mistral-7B hparams yet (every other registered model is covered)"
+      }
+     ]
+    },
+    {
+     "label": "Locate-and-Edit",
+     "methods": [
+      {
+       "label": "ROME",
+       "value": "rome",
+       "available": true,
+       "requires_subject": true,
+       "no_joint_batch": true
+      },
+      {
+       "label": "MEMIT",
+       "value": "memit",
+       "available": true,
+       "requires_subject": true
+      },
+      {
+       "label": "PMET",
+       "value": "pmet",
+       "available": true,
+       "note": "no Mistral-7B hparams yet (every other registered model is covered)",
+       "requires_subject": true
+      },
+      {
+       "label": "AlphaEdit",
+       "value": "alphaedit",
+       "available": true,
+       "note": "no Mistral-7B hparams yet (every other registered model is covered)",
+       "requires_subject": true
+      }
+     ]
+    },
+    {
+     "label": "Dynamic Locate-and-Edit",
+     "note": "the edit site is chosen per fact rather than fixed in hparams",
+     "methods": [
+      {
+       "label": "WilKE",
+       "value": "wilke",
+       "available": true,
+       "requires_subject": true,
+       "no_joint_batch": true,
+       "note": "scans layers 0..scanning_ceiling per fact and edits the one needing the smallest relative weight change; costs one ROME edit per candidate layer, and caches mom2 stats for all of them"
+      },
+      {
+       "label": "FiNE",
+       "value": "fine",
+       "available": true,
+       "requires_subject": true,
+       "no_joint_batch": true,
+       "note": "neuron-level: scores every FFN neuron in every unfrozen layer and gradient-edits the top-k, so the edited layers differ per fact"
+      },
+      {
+       "label": "NMKE",
+       "value": "nmke",
+       "available": true,
+       "requires_subject": true,
+       "note": "AlphaEdit's closed-form update masked down to the neurons an entropy-adaptive attribution keeps; no Mistral-7B hparams, mirroring AlphaEdit's own coverage"
+      },
+      {
+       "label": "FiDAL",
+       "value": "fidal",
+       "available": true,
+       "requires_subject": true,
+       "no_joint_batch": true,
+       "note": "a locator, not an editor: Fisher-ranked probing picks the layers, then base_method (MEMIT by default) writes them; reimplemented from the paper, no code was released"
+      }
+     ]
+    },
+    {
+     "label": "In-Context",
+     "methods": [
+      {
+       "label": "IKE",
+       "value": "ike",
+       "available": true
+      },
+      {
+       "label": "SCR",
+       "value": "scr",
+       "available": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "genuinely the base model despite shipping a chat template - Qwen reuses one tokenizer_config across the family, and the <|endoftext|> eos (not <|im_end|>) is what distinguishes it"
+    },
+    {
+     "label": "Qwen3-4B",
+     "value": "qwen3-4b",
+     "variant": "Hybrid",
+     "model_type": "chat",
+     "available": true,
+     "note": "post-trained hybrid; thinking mode lives in its chat template, which the runner does not apply"
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Thinking-2507",
+     "value": "qwen3-4b-thinking-2507",
+     "variant": "Thinking",
+     "model_type": "reasoning",
+     "available": true,
+     "note": "emits <think> blocks - teacher-forced token_em is not meaningful here, use the generation-based evaluation modes"
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "allenai/Olmo-3-1025-7B; hparams inherited from Mistral-7B (same module naming and depth), layers untraced"
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true,
+     "note": "hparams inherited from Mistral-7B, layers untraced"
+    },
+    {
+     "label": "Olmo-3-7B-Think",
+     "value": "olmo-3-7b-think",
+     "variant": "Think",
+     "model_type": "reasoning",
+     "available": true,
+     "note": "emits reasoning traces - use the generation-based evaluation modes"
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": false,
+     "note": "meta-llama/Llama-3.1-8B - gated, needs an accepted licence and HF token"
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": false,
+     "note": "meta-llama/Llama-3.1-8B-Instruct - gated"
+    },
+    {
+     "label": "DeepSeek-R1-Distill-Llama-8B",
+     "value": "deepseek-r1-distill-llama-8b",
+     "variant": "R1 distill",
+     "model_type": "reasoning",
+     "available": false,
+     "note": "third-party: DeepSeek reasoning distilled onto Llama-3.1-8B - ungated, but a different group's recipe, so a weaker pairing than Qwen or Olmo"
+    },
+    {
+     "label": "Mistral-7B-v0.1",
+     "value": "mistral-7b-v0.1",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": false,
+     "note": "mistralai/Mistral-7B-Instruct-v0.1 - exists upstream, not downloaded"
+    },
+    {
+     "label": "GPT-J-6B",
+     "value": "gpt-j-6b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "base only - EleutherAI never released an instruct version"
+    },
+    {
+     "label": "GPT-NeoX-20B",
+     "value": "gpt-neox-20b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": false,
+     "note": "base only - no official instruct version"
+    },
+    {
+     "label": "OLMo-2-7B",
+     "value": "olmo-2-7b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": false,
+     "note": "float32 on disk (28G); -SFT/-DPO/-Instruct exist upstream if this family is revived"
+    },
+    {
+     "label": "GPT-OSS-20B",
+     "value": "gpt-oss-20b",
+     "variant": "Reasoning",
+     "model_type": "reasoning",
+     "available": false,
+     "note": "no base checkpoint released, so it cannot be paired; harmony chat template missing from the local download"
+    },
+    {
+     "label": "Gemma-3-27B",
+     "value": "gemma3-27b",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": false,
+     "note": "not downloaded"
+    }
+   ],
+   "control": "model",
+   "families": [
+    {
+     "label": "Qwen3-4B",
+     "models": [
+      "qwen3-4b-base",
+      "qwen3-4b",
+      "qwen3-4b-instruct-2507",
+      "qwen3-4b-thinking-2507"
+     ]
+    },
+    {
+     "label": "Olmo-3-7B",
+     "models": [
+      "olmo-3-7b-base",
+      "olmo-3-7b-instruct",
+      "olmo-3-7b-think"
+     ]
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "models": [
+      "llama-3.1-8b",
+      "llama-3.1-8b-instruct",
+      "deepseek-r1-distill-llama-8b"
+     ]
+    },
+    {
+     "label": "Mistral-7B",
+     "models": [
+      "mistral-7b-v0.1",
+      "mistral-7b-instruct-v0.1"
+     ]
+    },
+    {
+     "label": "GPT-J-6B",
+     "models": [
+      "gpt-j-6b"
+     ]
+    },
+    {
+     "label": "Other",
+     "models": [
+      "olmo-2-7b",
+      "gpt-neox-20b",
+      "gpt-oss-20b",
+      "gemma3-27b"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "evaluation_modes",
+   "label": "Evaluation",
+   "type": "string",
+   "control": "evaluation",
+   "default": "original",
+   "options": []
+  },
+  {
+   "name": "ds_size",
+   "label": "Dataset size",
+   "note": "how many edit requests to load; Full uses every record the selected dataset has",
+   "group": "protocol",
+   "type": "string",
+   "default": "20",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "20",
+     "value": "20"
+    },
+    {
+     "label": "50",
+     "value": "50"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "Full dataset",
+     "value": "full"
+    }
+   ],
+   "run_name_prefix": "ds"
+  },
+  {
+   "name": "edit_mode",
+   "label": "Edit mode",
+   "note": "single and batch isolate one edit (one fact, or a joint batch of them) and restore the original weights after each; the sequential pair let edits pile up until the reset interval",
+   "group": "protocol",
+   "type": "string",
+   "default": "batch",
+   "sweepable": true,
+   "run_name_bare": true,
+   "show_when": {
+    "method": [
+     "ft",
+     "lora",
+     "rome",
+     "memit",
+     "pmet",
+     "alphaedit"
+    ]
+   },
+   "default_when": {
+    "method": {
+     "rome": "sequential",
+     "ft": "batch",
+     "lora": "batch",
+     "memit": "batch",
+     "pmet": "batch",
+     "alphaedit": "batch"
+    }
+   },
+   "options": [
+    {
+     "label": "Single",
+     "value": "single"
+    },
+    {
+     "label": "Batch",
+     "value": "batch",
+     "methods": [
+      "ft",
+      "lora",
+      "memit",
+      "pmet",
+      "alphaedit"
+     ]
+    },
+    {
+     "label": "Sequential",
+     "value": "sequential"
+    },
+    {
+     "label": "Sequential batch",
+     "value": "sequential_batch",
+     "methods": [
+      "ft",
+      "lora",
+      "memit",
+      "pmet",
+      "alphaedit"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "reset_every",
+   "label": "Reset interval",
+   "note": "edits accumulated before the model is restored to its original weights; cannot exceed the dataset size",
+   "group": "protocol",
+   "type": "int",
+   "default": "1000",
+   "allow_custom": true,
+   "sweepable": true,
+   "show_when": {
+    "edit_mode": [
+     "sequential",
+     "sequential_batch"
+    ],
+    "method": [
+     "ft",
+     "lora",
+     "rome",
+     "memit",
+     "pmet",
+     "alphaedit"
+    ]
+   },
+   "options": [
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "10000",
+     "value": "10000"
+    }
+   ],
+   "max_from": "ds_size"
+  },
+  {
+   "name": "edit_batch_size",
+   "label": "Batch size",
+   "note": "facts solved for in one joint edit call; under Sequential batch it cannot exceed the reset interval",
+   "group": "protocol",
+   "type": "int",
+   "default": "10",
+   "allow_custom": true,
+   "sweepable": true,
+   "show_when": {
+    "edit_mode": [
+     "batch",
+     "sequential_batch"
+    ],
+    "method": [
+     "ft",
+     "lora",
+     "memit",
+     "pmet",
+     "alphaedit"
+    ]
+   },
+   "options": [
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    }
+   ],
+   "max_from": "reset_every"
+  },
+  {
+   "name": "data_path",
+   "label": "Dataset",
+   "type": "string",
+   "control": "dataset",
+   "sweepable": true,
+   "default": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_recent/recent_test.json",
+   "benchmarks": [
+    {
+     "label": "KnowEdit",
+     "subsets": [
+      {
+       "label": "wiki_recent",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_recent/recent_test.json",
+       "available": true
+      },
+      {
+       "label": "wiki_counterfact",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
+       "available": true
+      },
+      {
+       "label": "ZsRE",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/ZsRE/ZsRE-test-all.json",
+       "available": true
+      },
+      {
+       "label": "WikiBio",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Convsent",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "trivia",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "DUnE",
+     "subsets": [
+      {
+       "label": "arithmetic",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "debiasing_I",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "debiasing_II",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "new_info",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "scientific",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "MQuAKE",
+     "subsets": [
+      {
+       "label": "CF-3k v2",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json",
+       "available": true
+      },
+      {
+       "label": "CF full",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF.json",
+       "available": true
+      },
+      {
+       "label": "Temporal",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-T.json",
+       "available": true
+      }
+     ]
+    },
+    {
+     "label": "Bi-ZsRE",
+     "subsets": [
+      {
+       "label": "test (English)",
+       "value": "${PROJECT_ROOT}/datasets/Bi-ZsRE/Bi-ZsRE-data/bizsre_test.json",
+       "available": true
+      }
+     ]
+    },
+    {
+     "label": "UniEdit",
+     "subsets": [
+      {
+       "label": "agronomy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/agronomy.json",
+       "available": true
+      },
+      {
+       "label": "art",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/art.json",
+       "available": true
+      },
+      {
+       "label": "astronomy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/astronomy.json",
+       "available": true
+      },
+      {
+       "label": "biology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/biology.json",
+       "available": true
+      },
+      {
+       "label": "chemistry",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/chemistry.json",
+       "available": true
+      },
+      {
+       "label": "civil engineering",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/civil engineering.json",
+       "available": true
+      },
+      {
+       "label": "computer science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/computer science.json",
+       "available": true
+      },
+      {
+       "label": "data science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/data science.json",
+       "available": true
+      },
+      {
+       "label": "economics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/economics.json",
+       "available": true
+      },
+      {
+       "label": "environmental science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/environmental science.json",
+       "available": true
+      },
+      {
+       "label": "geoscience",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/geoscience.json",
+       "available": true
+      },
+      {
+       "label": "history",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/history.json",
+       "available": true
+      },
+      {
+       "label": "jurisprudence",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/jurisprudence.json",
+       "available": true
+      },
+      {
+       "label": "literature",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/literature.json",
+       "available": true
+      },
+      {
+       "label": "material science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/material science.json",
+       "available": true
+      },
+      {
+       "label": "mathematics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/mathematics.json",
+       "available": true
+      },
+      {
+       "label": "mechanical engineering",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/mechanical engineering.json",
+       "available": true
+      },
+      {
+       "label": "medicine",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/medicine.json",
+       "available": true
+      },
+      {
+       "label": "pedagogy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/pedagogy.json",
+       "available": true
+      },
+      {
+       "label": "philosophy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/philosophy.json",
+       "available": true
+      },
+      {
+       "label": "physics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/physics.json",
+       "available": true
+      },
+      {
+       "label": "political science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/political science.json",
+       "available": true
+      },
+      {
+       "label": "psychology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/psychology.json",
+       "available": true
+      },
+      {
+       "label": "sociology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/sociology.json",
+       "available": true
+      },
+      {
+       "label": "sports science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/sports science.json",
+       "available": true
+      }
+     ]
+    },
+    {
+     "label": "TAXI",
+     "subsets": [
+      {
+       "label": "animal",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "drink",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "food",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "instrument",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "plant",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "vehicle",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "RippleEdits",
+     "subsets": [
+      {
+       "label": "recent",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "random",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "popular",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "RelEdit",
+     "subsets": [
+      {
+       "label": "gpt2 (intra)",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "RealTimeQA",
+     "subsets": [
+      {
+       "label": "All",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/realtimeqa_editing.json",
+       "available": true,
+       "note": "No 'subject' field (see build_editing_set.py) - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "Who",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/who.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "What",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/what.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "When",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/when.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "Where",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/where.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "Which",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/which.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "Why",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/why.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "How",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/how.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      },
+      {
+       "label": "Others",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type/others.json",
+       "available": true,
+       "note": "No 'subject' field - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit",
+       "provides_subject": false
+      }
+     ]
+    },
+    {
+     "label": "ConflictEdit",
+     "subsets": [
+      {
+       "label": "GPT-J \u00b7 Easy",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT-J \u00b7 Hard",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT-J \u00b7 Coverage",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT-J \u00b7 Composite",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT-J \u00b7 Reverse",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT2-XL \u00b7 Easy",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT2-XL \u00b7 Hard",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT2-XL \u00b7 Coverage",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT2-XL \u00b7 Composite",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "GPT2-XL \u00b7 Reverse",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "ReCoE",
+     "subsets": [
+      {
+       "label": "Superlative",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Comparative",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Counting",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Sorting",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Aggregation",
+       "value": null,
+       "available": false
+      },
+      {
+       "label": "Subtraction",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "Altered Riddles",
+     "subsets": [
+      {
+       "label": "Public auxiliary set",
+       "value": null,
+       "available": false
+      }
+     ]
+    },
+    {
+     "label": "UnKEBench",
+     "subsets": [
+      {
+       "label": "test",
+       "value": "${PROJECT_ROOT}/datasets/UnKEBench/data/final_data_v3.json",
+       "available": true,
+       "note": "No 'subject' field in the release - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit. Targets are long-form passages (median 90 words), so edit success is not comparable with a short-span benchmark.",
+       "provides_subject": false
+      }
+     ]
+    },
+    {
+     "label": "EditEverything",
+     "subsets": [
+      {
+       "label": "All domains",
+       "value": "${PROJECT_ROOT}/datasets/EditEverything/data/editevery.json",
+       "available": true,
+       "note": "No 'subject' field in the release - FT/LoRA/SCR/IKE only, not ROME/MEMIT/PMET/AlphaEdit. 552 records over seven domains (physics 221, biology 92, math 78, chemistry 51, code 49, poetry 31, news 30); targets median 177 words and the release ships no locality or portability probes, so edit success is the only metric.",
+       "provides_subject": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "lr",
+   "label": "Learning rate",
+   "group": "ft",
+   "type": "float",
+   "default": "0.0005",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": ".0e",
+   "show_when": {
+    "method": [
+     "ft",
+     "lora"
+    ]
+   },
+   "options": [
+    {
+     "label": "0.1",
+     "value": "0.1"
+    },
+    {
+     "label": "0.01",
+     "value": "0.01"
+    },
+    {
+     "label": "0.005",
+     "value": "0.005"
+    },
+    {
+     "label": "0.001",
+     "value": "0.001"
+    },
+    {
+     "label": "0.0005",
+     "value": "0.0005"
+    },
+    {
+     "label": "0.0001",
+     "value": "0.0001"
+    },
+    {
+     "label": "0.00001",
+     "value": "0.00001"
+    },
+    {
+     "label": "0.000001",
+     "value": "0.000001"
+    }
+   ],
+   "default_when": {
+    "method": {
+     "ft": "0.0005",
+     "lora": "0.005"
+    }
+   }
+  },
+  {
+   "name": "num_steps",
+   "label": "Num steps",
+   "note": "other methods' step count is always their dataset size",
+   "group": "ft",
+   "type": "int",
+   "default": "25",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "show_when": {
+    "method": [
+     "ft",
+     "lora"
+    ]
+   },
+   "options": [
+    {
+     "label": "25",
+     "value": "25"
+    },
+    {
+     "label": "50",
+     "value": "50"
+    },
+    {
+     "label": "500",
+     "value": "500"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "2500",
+     "value": "2500"
+    },
+    {
+     "label": "5000",
+     "value": "5000"
+    },
+    {
+     "label": "10000",
+     "value": "10000"
+    }
+   ],
+   "default_when": {
+    "method": {
+     "ft": "25",
+     "lora": "50"
+    }
+   }
+  },
+  {
+   "name": "mom2_n_samples",
+   "label": "Covariance samples",
+   "note": "Wikipedia samples used to estimate the covariance stats these methods need. The stock 100000 takes hours the first time per model+layer (then it's cached); lower it for a usable run sooner with a noisier estimate.",
+   "group": "locate",
+   "type": "int",
+   "default": "100000",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "show_when": {
+    "method": [
+     "memit",
+     "pmet",
+     "alphaedit"
+    ]
+   },
+   "options": [
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "5000",
+     "value": "5000"
+    },
+    {
+     "label": "20000",
+     "value": "20000"
+    },
+    {
+     "label": "50000",
+     "value": "50000"
+    },
+    {
+     "label": "100000",
+     "value": "100000"
+    }
+   ]
+  },
+  {
+   "name": "retrieval_k",
+   "label": "Retrieved items (k)",
+   "note": "how many retrieved facts/demonstrations get prepended to a prompt",
+   "group": "incontext",
+   "type": "int",
+   "default": "3",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "show_when": {
+    "method": [
+     "scr",
+     "ike"
+    ]
+   },
+   "options": [
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "3",
+     "value": "3"
+    },
+    {
+     "label": "5",
+     "value": "5"
+    },
+    {
+     "label": "8",
+     "value": "8"
+    },
+    {
+     "label": "16",
+     "value": "16"
+    }
+   ]
+  },
+  {
+   "name": "checkpoint_every",
+   "label": "Checkpoint every",
+   "group": "run",
+   "type": "int",
+   "default": "10",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    }
+   ],
+   "note": "powers of ten; applies to runs with no edit protocol (SCR, IKE and the dynamic locate-and-edit methods). A protocol run checkpoints once per reset group instead."
+  },
+  {
+   "name": "fluency_every",
+   "label": "Fluency every",
+   "note": "must be a multiple of Checkpoint every",
+   "group": "run",
+   "type": "int",
+   "default": "100",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    }
+   ]
+  },
+  {
+   "name": "sample_every",
+   "label": "Sample every",
+   "note": "must be a multiple of Checkpoint every",
+   "group": "run",
+   "type": "int",
+   "default": "1000",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "10000",
+     "value": "10000"
+    }
+   ]
+  },
+  {
+   "name": "seed",
+   "label": "Seed",
+   "group": "run",
+   "type": "int",
+   "default": "0",
+   "allow_custom": true,
+   "custom_as_option": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "0",
+     "value": "0"
+    },
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "2",
+     "value": "2"
+    },
+    {
+     "label": "3",
+     "value": "3"
+    }
+   ]
+  }
+ ],
+ "run_name_always": [
+  "method",
+  "model",
+  "lr",
+  "ds_size",
+  "edit_mode",
+  "reset_every",
+  "edit_batch_size"
+ ]
+}
