@@ -231,7 +231,14 @@ MODEL_PATHS = {
     "olmo-3-7b-base": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Base"),
     "olmo-3-7b-instruct": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Instruct"),
     "olmo-3-7b-think": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Think"),
+    # Llama 3.1 8B: base, instruct, and DeepSeek's R1 reasoning distill onto
+    # the same base. All three are Mistral-7B-shaped (32 layers, hidden 4096,
+    # Llama module naming), so their hparams are inherited, layers untraced.
+    "llama-3.1-8b": os.path.join(PROJECT_ROOT, "models/Llama-3.1-8B"),
+    "llama-3.1-8b-instruct": os.path.join(PROJECT_ROOT, "models/Llama-3.1-8B-Instruct"),
+    "deepseek-r1-distill-llama-8b": os.path.join(PROJECT_ROOT, "models/DeepSeek-R1-Distill-Llama-8B"),
     "mistral-7b-v0.1": os.path.join(PROJECT_ROOT, "models/Mistral-7B-v0.1"),
+    "mistral-7b-instruct-v0.1": os.path.join(PROJECT_ROOT, "models/Mistral-7B-Instruct-v0.1"),
     "gpt-j-6b": os.path.join(PROJECT_ROOT, "models/GPT-J-6B"),
 }
 

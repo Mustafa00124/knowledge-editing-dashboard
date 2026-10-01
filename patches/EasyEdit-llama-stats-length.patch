@@ -1,0 +1,26 @@
+diff --git a/easyeditor/models/rome/layer_stats.py b/easyeditor/models/rome/layer_stats.py
+index 9774182..ca2bfd5 100644
+--- a/easyeditor/models/rome/layer_stats.py
++++ b/easyeditor/models/rome/layer_stats.py
+@@ -126,6 +126,11 @@ def layer_stats(
+                 maxlen = 4096
+         if hasattr(model.config, 'model_type') and 'qwen' in model.config.model_type:
+             maxlen = min(maxlen, 4096)
++        # LOCAL FIX: Llama 3.1 reports a 131072-token context, so without a cap
++        # each covariance batch is a 131k-token sequence and an 8B model runs
++        # out of memory on a 96 GB GPU. Same 4096 cap as Mistral and Qwen.
++        if hasattr(model.config, 'model_type') and 'llama' in model.config.model_type:
++            maxlen = min(maxlen, 4096)
+ 
+         if batch_tokens is not None and batch_tokens < maxlen:
+             maxlen = batch_tokens
+@@ -151,6 +156,9 @@ def layer_stats(
+             npos = 4096
+     if hasattr(model.config, 'model_type') and 'qwen' in model.config.model_type:
+             npos = min(npos, 4096)
++    # LOCAL FIX: see the Llama cap in get_ds above.
++    if hasattr(model.config, 'model_type') and 'llama' in model.config.model_type:
++        npos = min(npos, 4096)
+ 
+     if batch_tokens is None:
+         batch_tokens = npos * 3  # Sort and divide into batches with this many tokens

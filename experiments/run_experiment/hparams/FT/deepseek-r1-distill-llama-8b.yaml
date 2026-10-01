@@ -1,0 +1,24 @@
+# Inherited unchanged from Olmo-3-7B-Base (itself inherited from Mistral-7B): same module layout and depth
+# (32 layers, hidden 4096, Llama-style model.layers.N.mlp.down_proj).
+# The edit layers are not traced for this model; placeholders for now.
+alg_name: "FT"
+model_name: models/DeepSeek-R1-Distill-Llama-8B
+device: 0
+
+layers: [21]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+norm_constraint: 5e-5
+objective_optimization: "target_new"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false
