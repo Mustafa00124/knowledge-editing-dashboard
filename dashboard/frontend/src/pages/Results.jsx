@@ -10,6 +10,7 @@ import ResultsDatasetPicker from '../components/ResultsDatasetPicker.jsx'
 import ArchiveConfirm from '../components/ArchiveConfirm.jsx'
 import TestingResults from './TestingResults.jsx'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
+import { protocolLabel } from '../lib/hparams.js'
 import { api } from '../api.js'
 import { metricLabel } from '../lib/formatMetric.js'
 import { toggleGroup } from '../lib/groupSelect.js'
@@ -58,7 +59,11 @@ export default function Results() {
   const [selecting, setSelecting] = useState(false)
   const [selected, setSelected] = useState([])
 
-  const loadManifest = () => api.manifest().then(setManifest)
+  // Each run carries its protocol in words, so single, batch and sequential
+  // runs can be kept apart as a table axis instead of averaged together.
+  const loadManifest = () => api.manifest().then((rows) => setManifest(rows.map((r) => ({
+    ...r, protocol: protocolLabel(r.edit_mode, r.reset_every, r.edit_batch_size),
+  }))))
   const move = useArchiveMove(() => {
     loadManifest()
     setSelected([])

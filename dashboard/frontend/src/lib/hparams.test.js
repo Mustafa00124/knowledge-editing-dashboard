@@ -57,3 +57,13 @@ test('model type is a factor: tuning stages are compared across families', () =>
   assert.deepEqual([...base.over.model].sort(), ['olmo-base', 'qwen-base'])
   assert.ok(Math.abs(base.scores.reliability.mean - 0.9) < 1e-12)
 })
+
+test('protocols stay apart unless pooled, and are a factor of their own', () => {
+  const mixed = [
+    { ...run('memit', 'a', 'd1', [4], 1.0, 0.6), protocol: 'single' },
+    { ...run('memit', 'a', 'd1', [4], 0.5, 0.6), protocol: 'batch of 10' },
+  ]
+  assert.equal(aggregate(mixed, 'method', true).length, 2)
+  assert.equal(aggregate(mixed, 'method', false).length, 1)
+  assert.deepEqual(aggregate(mixed, 'protocol', true).map((g) => g.value).sort(), ['batch of 10', 'single'])
+})

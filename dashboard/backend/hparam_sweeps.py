@@ -781,6 +781,33 @@ def _wall_seconds(summary):
     return round((end - start).total_seconds(), 1)
 
 
+def protocol_label(mode, reset_every=None, batch_size=None):
+    """The editing protocol in words (see edit_protocol.py)."""
+    if not mode:
+        return "no protocol (older runs)"
+    if mode == "single":
+        return "single"
+    if mode == "batch":
+        return f"batch of {batch_size}"
+    if mode == "sequential":
+        return f"sequential, reset every {reset_every}"
+    return f"batches of {batch_size}, reset every {reset_every}"
+
+
+def _protocol(exp_cfg, request, summary):
+    """A run's protocol: from its summary when finished, else what its sweep
+    asked for (reset interval and batch size at the page's defaults)."""
+    if summary:
+        mode, reset, batch = summary.get("edit_mode"), summary.get("reset_every"), summary.get("edit_batch_size")
+    else:
+        params = slurm._prepare_params(exp_cfg, {"edit_mode": request.get("edit_mode"), "evaluation_modes": "original"})
+        mode, reset, batch = params.get("edit_mode"), params.get("reset_every"), params.get("edit_batch_size")
+        reset = reset if mode in ("sequential", "sequential_batch") else None
+        batch = batch if mode in ("batch", "sequential_batch") else None
+    return {"edit_mode": mode, "reset_every": reset, "edit_batch_size": batch,
+            "label": protocol_label(mode, reset, batch)}
+
+
 MODEL_TYPE_LABEL = {"raw": "base", "chat": "instruct", "reasoning": "reasoning"}
 
 
@@ -832,6 +859,9 @@ def results(investigation):
                 "model_variant": models.get(run["model"], {}).get("variant"),
                 "model_type": models.get(run["model"], {}).get("type"),
                 "model_family": models.get(run["model"], {}).get("family"),
+                # Single, batch and sequential runs live in separate sweeps and
+                # never overwrite each other; this keeps them apart in tables.
+                **(lambda p: {"protocol": p["label"], "protocol_detail": p})(_protocol(exp_cfg, sweep["request"], summary)),
                 "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
                 "overrides": run["overrides"], "fixed": run.get("fixed") or {},
                 "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,

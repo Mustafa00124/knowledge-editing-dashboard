@@ -155,7 +155,7 @@ export default function HyperparameterResults() {
     api.sweepFailures().then((f) => setFailureCount(f.open.length)).catch(() => {})
   }, [view])
   const filters = { method: params.get('method') || '', model: params.get('model') || '',
-    dataset: params.get('dataset') || '', sweep: params.get('sweep') || '' }
+    dataset: params.get('dataset') || '', sweep: params.get('sweep') || '', protocol: params.get('protocol') || '' }
   const setParam = (key, value) => {
     const next = new URLSearchParams(params)
     if (value) next.set(key, value)
@@ -183,8 +183,9 @@ export default function HyperparameterResults() {
   const options = (key) => [...new Set((rows || []).map((r) => r[key]))].sort()
   const visible = useMemo(() => (rows || []).filter((r) =>
     (!filters.method || r.method === filters.method) && (!filters.model || r.model === filters.model) &&
-    (!filters.dataset || r.dataset === filters.dataset) && (!filters.sweep || r.sweep_id === filters.sweep)),
-  [rows, filters.method, filters.model, filters.dataset, filters.sweep])
+    (!filters.dataset || r.dataset === filters.dataset) && (!filters.sweep || r.sweep_id === filters.sweep) &&
+    (!filters.protocol || r.protocol === filters.protocol)),
+  [rows, filters.method, filters.model, filters.dataset, filters.sweep, filters.protocol])
 
   // Swept settings in view (layers, v_lr, ...) are factors too.
   const knobFactors = useMemo(() => [...new Set(visible.flatMap((r) => Object.keys(r.overrides || {})))].sort()
@@ -339,7 +340,7 @@ export default function HyperparameterResults() {
               (!byFactor?.knob || knobFactors.length > 1) && (
                 <label className="hp-pool" title="Off: every tested value stays its own row, so different settings are never averaged together">
                   <input type="checkbox" checked={!pool} onChange={() => setParam('pool', pool ? '' : '1')} />
-                  {byFactor?.knob ? ' Keep the other tested settings separate' : ' Keep each tested setting separate'}
+                  {byFactor?.knob ? ' Keep the other tested settings separate' : ' Keep each tested setting and protocol separate'}
                 </label>
               )
             )}
@@ -348,6 +349,7 @@ export default function HyperparameterResults() {
           <div className="hp-filters">
             <Filter label="Method" options={options('method')} value={filters.method} onChange={(v) => setParam('method', v)} />
             <Filter label="Model" options={options('model')} value={filters.model} onChange={(v) => setParam('model', v)} />
+            <Filter label="Protocol" options={options('protocol')} value={filters.protocol} onChange={(v) => setParam('protocol', v)} />
             <Filter label="Sweep" options={options('sweep_id')} value={filters.sweep} onChange={(v) => setParam('sweep', v)} />
             <Thresholds thresholds={thresholds} onChange={setThresholds} />
           </div>
@@ -405,7 +407,7 @@ export default function HyperparameterResults() {
                       onClick={() => setSort((s) => ({ key: 'factor', desc: s.key === 'factor' ? !s.desc : false }))}>
                       {byFactor.knob ? <code>{byFactor.label}</code> : byFactor.label}{sort.key === 'factor' ? (sort.desc ? ' ↓' : ' ↑') : ''}
                     </th>
-                    {!pool && groups.some((g) => Object.keys(g.overrides || {}).length) && <th>Other settings</th>}
+                    {!pool && groups.some((g) => Object.keys(g.overrides || {}).length || g.protocol) && <th>Other settings</th>}
                     <th title="finished runs averaged, of all runs in the group">Runs</th>
                     {header('worst', 'Weakest', 'mean of each run’s weakest criterion')}
                     {CRITERIA.map((c) => header(c.key, c.label, `${c.help}; mean ± standard deviation`))}
@@ -420,8 +422,11 @@ export default function HyperparameterResults() {
                           ? <><strong>{g.rows[0].model_label}</strong> <ModelTag row={g.rows[0]} /></>
                           : <strong>{g.value}</strong>}
                       </td>
-                      {!pool && groups.some((x) => Object.keys(x.overrides || {}).length) && (
-                        <td className="hp-setting">{Object.entries(g.overrides || {}).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}</td>
+                      {!pool && groups.some((x) => Object.keys(x.overrides || {}).length || x.protocol) && (
+                        <td className="hp-setting">
+                          {Object.entries(g.overrides || {}).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}
+                          {g.protocol && <div className="dl-dim">{g.protocol}</div>}
+                        </td>
                       )}
                       <td className="hp-over">
                         {g.finished}{g.finished !== g.total ? <span className="dl-dim"> of {g.total}</span> : ''}
@@ -460,7 +465,7 @@ export default function HyperparameterResults() {
                   <tr>
                     <td className="hp-run-cell">
                       <strong>{r.method}</strong> · {r.model_label || r.model} <ModelTag row={r} />
-                      <div className="dl-dim">{r.dataset}</div>
+                      <div className="dl-dim">{r.dataset}{r.protocol ? ` · ${r.protocol}` : ''}</div>
                     </td>
                     <td className="hp-setting">
                       {Object.entries(r.overrides).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}

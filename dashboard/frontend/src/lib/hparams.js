@@ -89,6 +89,16 @@ export function duration(seconds) {
 
 export const pct = (value) => (value == null ? '—' : `${Math.round(value * 1000) / 10}%`)
 
+// The editing protocol in words, as the backend labels sweep runs
+// (hparam_sweeps.protocol_label).
+export function protocolLabel(mode, resetEvery, batchSize) {
+  if (!mode) return 'no protocol (older runs)'
+  if (mode === 'single') return 'single'
+  if (mode === 'batch') return `batch of ${batchSize}`
+  if (mode === 'sequential') return `sequential, reset every ${resetEvery}`
+  return `batches of ${batchSize}, reset every ${resetEvery}`
+}
+
 // ---- averaging runs ----
 
 // The tested values of a run, as one comparable key ("layers=[4]"),
@@ -113,6 +123,7 @@ export const FACTORS = [
   { key: 'model_type', label: 'Model type', help: 'base, instruct or reasoning: compares tuning stages across families' },
   { key: 'model_family', label: 'Model family', help: 'one pretrain and its tuning stages, e.g. every Qwen3-4B variant' },
   { key: 'dataset', label: 'Dataset' },
+  { key: 'protocol', label: 'Protocol', help: 'single, batch or sequential editing: how many facts per edit call and how many build up before the weights reset' },
 ]
 // What an averaged row reports it averaged over.
 const OVER = ['method', 'model', 'dataset']
@@ -135,13 +146,15 @@ export function aggregate(rows, factor, keepSetting, done = 'COMPLETED') {
   const groups = new Map()
   for (const row of rows) {
     const value = factor ? factorValue(row, factor) : 'All runs'
-    // Grouping by a setting: the other swept settings (if any) stay apart.
-    const rest = keepSetting ? settingKey(row.overrides, knob) : ''
+    // Grouping by a setting: the other swept settings (if any) stay apart,
+    // and so do protocols, unless pooled.
+    const rest = keepSetting ? `${settingKey(row.overrides, knob)}|${factor === 'protocol' ? '' : row.protocol || ''}` : ''
     const key = `${value}|${rest}`
     const shown = keepSetting
       ? Object.fromEntries(Object.entries(row.overrides || {}).filter(([k]) => k !== knob))
       : null
-    if (!groups.has(key)) groups.set(key, { key, value, raw: knob ? row.overrides?.[knob] : undefined, overrides: shown, rows: [] })
+    const protocol = keepSetting && factor !== 'protocol' ? row.protocol : null
+    if (!groups.has(key)) groups.set(key, { key, value, raw: knob ? row.overrides?.[knob] : undefined, overrides: shown, protocol, rows: [] })
     groups.get(key).rows.push(row)
   }
   return [...groups.values()].map((g) => {

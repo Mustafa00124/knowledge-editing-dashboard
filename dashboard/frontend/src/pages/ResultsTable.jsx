@@ -9,6 +9,7 @@ import { groupSelectState } from '../lib/groupSelect.js'
 const AXIS_FIELDS = [
   { key: 'method', label: 'Method' },
   { key: 'model', label: 'Model' },
+  { key: 'protocol', label: 'Protocol' },
   { key: 'lr', label: 'Learning rate' },
   { key: 'num_steps', label: 'Num steps' },
   { key: 'ds_size', label: 'Dataset size' },
