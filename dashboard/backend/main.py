@@ -179,6 +179,12 @@ def rerun_failed_sweep_runs(investigation: str, sweep_id: str):
         raise HTTPException(404, "no such sweep")
 
 
+@app.get("/api/hparams/failures")
+def get_sweep_failures():
+    """Failed sweep runs across every investigation, with their errors."""
+    return hparam_sweeps.failures()
+
+
 @app.get("/api/hparams/results")
 def get_sweep_results(investigation: str):
     return hparam_sweeps.results(investigation)

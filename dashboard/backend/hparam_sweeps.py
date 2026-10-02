@@ -448,7 +448,8 @@ def _sweeps(investigation=None):
 
 
 def _statuses(sweeps):
-    ids = [run["job_id"] for _, sweep in sweeps for run in sweep["runs"]]
+    ids = [job for _, sweep in sweeps for run in sweep["runs"]
+           for job in [run["job_id"], *run.get("earlier_jobs", [])]]
     try:
         return slurm.sacct_statuses(ids) if ids else {}
     except (RuntimeError, OSError):
@@ -623,6 +624,14 @@ def results(investigation):
             job = jobs.get(str(run["job_id"]), {})
             error = _error_line(job.get("err_path")) if state in ("FAILED", "OUT_OF_MEMORY", "CANCELLED", "TIMEOUT") else None
             loss = _loss_summary(run_dir)
+            # Earlier attempts replaced by "Rerun failed", with why each ended.
+            earlier = []
+            for job_id in run.get("earlier_jobs", []):
+                old_state = statuses.get(str(job_id), {}).get("state", "UNKNOWN")
+                old_job = jobs.get(str(job_id), {})
+                earlier.append({"job_id": str(job_id), "state": old_state,
+                                "error": _error_line(old_job.get("err_path")),
+                                "submitted_at": old_job.get("submitted_at")})
             rows.append({
                 "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
                 "method": run["method"], "model": run["model"], "data_path": run["data_path"],
@@ -630,6 +639,8 @@ def results(investigation):
                 "overrides": run["overrides"], "fixed": run.get("fixed") or {},
                 "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,
                 "flags": _flags(state, error, loss, scores),
+                "earlier": earlier, "submitted_at": job.get("submitted_at"),
+                "investigation": investigation,
                 "records": summary.get("ds_size") if summary else None,
                 "scores": scores, "worst": worst,
                 "fluency_raw": summary.get("fluency") if summary else None,
@@ -642,6 +653,25 @@ def results(investigation):
                 "elapsed_sec": _seconds(statuses.get(str(run["job_id"]), {}).get("elapsed")),
             })
     return rows
+
+
+def failures():
+    """Across every investigation: runs that are failing now (ended without
+    finishing, or finished with an error flag such as a NaN loss), and runs
+    that failed before and were fixed by a rerun."""
+    labels = {i["id"]: i["label"] for i in _load_catalog()["investigations"]}
+    open_rows, resolved = [], []
+    for investigation in labels:
+        for row in results(investigation):
+            row["investigation_label"] = labels[investigation]
+            failing = row["state"] in RETRYABLE or any(f["level"] == "error" for f in row["flags"])
+            if failing:
+                open_rows.append(row)
+            elif any(e["state"] in RETRYABLE for e in row["earlier"]):
+                resolved.append(row)
+    newest = lambda r: r.get("submitted_at") or ""
+    return {"open": sorted(open_rows, key=newest, reverse=True),
+            "resolved": sorted(resolved, key=newest, reverse=True)}
 
 
 def _yaml_value(value):

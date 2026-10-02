@@ -265,7 +265,12 @@ directories will move before it commits.
   coloured by editable thresholds (colour only, nothing is hidden). A chart
   plots the criteria across the swept value when one setting varies. "Use
   as main config" writes a run's values into that method's hparams file for
-  that model and records it in `hparams/TUNED.json`. Results · Main and
+  that model and records it in `hparams/TUNED.json`. The **Failures** view
+  (`/results/hyperparameters?view=failures`) lists, across every
+  investigation, runs failing now (ended without finishing, or finished
+  with an error flag such as a NaN loss) with their error line and log,
+  and runs fixed by "Rerun failed" together with each earlier attempt's
+  error. Results · Main and
   Results · Hyperparameters are separate pages that load only their own data.
 - **Downloads** (`/downloads`): choose which datasets, models and setup
   components to fetch; see "Running it off gaivi" above.

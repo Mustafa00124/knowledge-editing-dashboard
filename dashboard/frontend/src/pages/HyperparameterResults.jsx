@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
+import SweepFailures from '../components/SweepFailures.jsx'
 import { CRITERIA, band, duration, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
@@ -109,6 +110,11 @@ export default function HyperparameterResults() {
   const [promoted, setPromoted] = useState({})
   const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
+  const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
+  const [failureCount, setFailureCount] = useState(null)
+  useEffect(() => {
+    api.sweepFailures().then((f) => setFailureCount(f.open.length)).catch(() => {})
+  }, [view])
   const filters = { method: params.get('method') || '', model: params.get('model') || '',
     dataset: params.get('dataset') || '', sweep: params.get('sweep') || '' }
   const setParam = (key, value) => {
@@ -126,14 +132,14 @@ export default function HyperparameterResults() {
   }, [])
 
   useEffect(() => {
-    if (!investigation) return
+    if (!investigation || view !== 'rankings') return
     let live = true
     setRows(null)
     const load = () => api.sweepResults(investigation).then((r) => { if (live) setRows(r) }).catch((e) => setError(e.message))
     load()
     const timer = setInterval(load, 20000)
     return () => { live = false; clearInterval(timer) }
-  }, [investigation])
+  }, [investigation, view])
 
   const options = (key) => [...new Set((rows || []).map((r) => r[key]))].sort()
   const visible = useMemo(() => (rows || []).filter((r) =>
@@ -194,6 +200,16 @@ export default function HyperparameterResults() {
         <h1>Hyperparameter results</h1>
         {current && <Link to={`/hyperparameters/${current.id}`} className="btn-plain-small">Launch sweeps for {current.label} →</Link>}
       </div>
+      <div className="pill-row hp-view-switch" role="group" aria-label="View">
+        <button type="button" className={`pill${view === 'rankings' ? ' selected' : ''}`} aria-pressed={view === 'rankings'}
+          onClick={() => setParam('view', '')}>Rankings</button>
+        <button type="button" className={`pill${view === 'failures' ? ' selected' : ''}`} aria-pressed={view === 'failures'}
+          onClick={() => setParam('view', 'failures')}>
+          Failures{failureCount ? <span className="hp-failure-count">{failureCount}</span> : null}
+        </button>
+      </div>
+      {view === 'failures' && <SweepFailures />}
+      {view === 'rankings' && <>
       <div className="pill-row hp-investigation-pills" role="group" aria-label="Investigation">
         {investigations.map((i) => (
           <button key={i.id} type="button" className={`pill${i.id === investigation ? ' selected' : ''}`}
@@ -242,7 +258,7 @@ export default function HyperparameterResults() {
             <table className="hp-table">
               <thead>
                 <tr>
-                  <th>Method</th><th>Model</th><th>Dataset</th><th>Setting</th>
+                  <th>Run</th><th>Setting</th>
                   {header('worst', 'Weakest', 'the lowest of the four criteria this run has')}
                   {CRITERIA.map((c) => header(c.key, c.label, c.help))}
                   <th title="the loss the method optimises, first to last step">Loss</th>
@@ -254,9 +270,7 @@ export default function HyperparameterResults() {
                 {sorted.map((r) => (
                   <Fragment key={`${r.sweep_id}/${r.run}`}>
                   <tr>
-                    <td>{r.method}</td>
-                    <td>{r.model}</td>
-                    <td>{r.dataset}</td>
+                    <td className="hp-run-cell"><strong>{r.method}</strong> · {r.model}<div className="dl-dim">{r.dataset}</div></td>
                     <td className="hp-setting">
                       {Object.entries(r.overrides).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}
                       {Object.keys(r.fixed || {}).length > 0 && (
@@ -294,7 +308,7 @@ export default function HyperparameterResults() {
                     </td>
                   </tr>
                   {openLog === r.run && (
-                    <tr className="hp-log-row"><td colSpan={12}><RunLog jobId={r.job_id} /></td></tr>
+                    <tr className="hp-log-row"><td colSpan={11}><RunLog jobId={r.job_id} /></td></tr>
                   )}
                   </Fragment>
                 ))}
@@ -303,6 +317,7 @@ export default function HyperparameterResults() {
           </div>
         </>
       )}
+      </>}
     </div>
   )
 }
