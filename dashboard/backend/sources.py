@@ -41,7 +41,7 @@ VENV_PYTHON = VENV / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 EASYEDIT = {
     "url": "https://github.com/zjunlp/EasyEdit.git",
     "commit": "14cea8245f06715684592ab55184939b99d70784",
-    "patches": ["patches/EasyEdit-alphaedit-fixes.patch", "patches/EasyEdit-llama-stats-length.patch"],
+    "patches": ["patches/EasyEdit-alphaedit-fixes.patch", "patches/EasyEdit-long-context-stats-cap.patch"],
     "bytes": 200_000_000,
 }
 # CaKE's upstream repo, for its released circuit-guided training data
