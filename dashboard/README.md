@@ -272,6 +272,13 @@ directories will move before it commits.
   variance on hover). Each tested setting stays its own row unless pooled,
   the weakest is averaged per run, and only finished runs are averaged.
   The chart averages the same way, with ± one standard deviation bars. The
+  Swept settings (layers, v_lr, ...) are factors too, as are model type
+  (base / instruct / reasoning) and model family. The chart's x-axis is the
+  chosen factor: a line across a setting's values, grouped bars across
+  methods, models or datasets, each point a mean with ± one standard
+  deviation bars. Every tuning stage is its own model value (so runs never
+  overwrite each other) and is labelled with its stage, here and in Main
+  results.
   **Failures** view
   (`/results/hyperparameters?view=failures`) lists, across every
   investigation, runs failing now (ended without finishing, or finished
