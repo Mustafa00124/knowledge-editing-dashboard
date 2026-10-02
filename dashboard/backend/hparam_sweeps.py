@@ -24,6 +24,8 @@ import json
 import re
 import secrets
 import shlex
+import shutil
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -456,11 +458,126 @@ def _statuses(sweeps):
         return {}
 
 
+ACTIVE = ("PENDING", "RUNNING", "REQUEUED", "SUSPENDED", "CONFIGURING", "COMPLETING")
+
+# SLURM's pending reasons in plain words.
+PENDING_REASONS = {
+    "Priority": "queued behind other waiting jobs (yours or others')",
+    "Resources": "waiting for a free GPU",
+    "QOSMaxJobsPerUserLimit": "your other jobs are using all of your job slots",
+    "AssocMaxJobsLimit": "your other jobs are using all of your job slots",
+    "QOSMaxGRESPerUser": "your other jobs are using all of your GPU allowance",
+    "Dependency": "waiting for another job to finish",
+    "BeginTime": "scheduled to start later",
+    "JobHeldUser": "held",
+    "JobHeldAdmin": "held by an administrator",
+    "ReqNodeNotAvail": "the GPU node is unavailable",
+    "PartitionDown": "the partition is down",
+}
+
+
+def _queue(job_ids):
+    """Why each pending job is waiting, and SLURM's start estimate."""
+    ids = [str(j) for j in job_ids if not str(j).startswith(("local-", "download-"))]
+    out = {}
+    if ids and shutil.which("squeue"):
+        try:
+            text = subprocess.run(["squeue", "-h", "-j", ",".join(ids), "-o", "%i|%T|%r|%S"],
+                                  capture_output=True, text=True, timeout=10).stdout
+        except (OSError, subprocess.SubprocessError):
+            text = ""
+        for line in text.splitlines():
+            parts = line.strip().split("|")
+            if len(parts) == 4 and parts[1] == "PENDING":
+                reason = parts[2].strip("()")
+                out[parts[0]] = {"reason": reason, "reason_text": PENDING_REASONS.get(reason, reason or "queued"),
+                                 "start_estimate": None if parts[3] in ("N/A", "") else parts[3]}
+    for job_id in job_ids:
+        if str(job_id).startswith("local-") and str(job_id) not in out:
+            out[str(job_id)] = {"reason": "local", "reason_text": "waiting for the running local job to finish",
+                                "start_estimate": None}
+    return out
+
+
+def _run_progress(run_dir, out_path=None):
+    """What a running run is doing, from files it already writes: its
+    phase, and how far through its facts or training steps it is."""
+    hp_path = run_dir / "hparams.yaml"
+    if not hp_path.exists():
+        return {"phase": "starting", "done": None, "total": None}
+    try:
+        hp = yaml.safe_load(hp_path.read_text()) or {}
+    except (OSError, yaml.YAMLError):
+        hp = {}
+    total_facts = hp.get("ds_size")
+    last = None
+    loss_path = run_dir / "loss.jsonl"
+    if loss_path.exists():
+        lines = _tail_lines(loss_path, 400)
+        for line in reversed(lines):
+            try:
+                last = json.loads(line)
+                break
+            except ValueError:
+                continue
+        if last is not None and "fact" in last and total_facts:
+            return {"phase": "editing", "unit": "fact", "done": min(int(last["fact"]) + 1, total_facts), "total": total_facts}
+        if last is not None and last.get("kind") == "train" and hp.get("num_steps"):
+            return {"phase": "training", "unit": "step", "done": int(last["step"]), "total": int(hp["num_steps"])}
+    # Nothing logged yet: loading, computing covariance statistics, or the
+    # before-editing evaluation.
+    tail = "".join(_tail_lines(out_path, 60)) if out_path else ""
+    if (run_dir / "checkpoints.jsonl").exists() and (run_dir / "checkpoints.jsonl").stat().st_size:
+        phase = "computing covariance statistics" if "Computing Cov locally" in tail else "editing"
+    elif "loading model" in tail:
+        phase = "evaluating before editing"
+    else:
+        phase = "loading the model"
+    return {"phase": phase, "done": None, "total": total_facts}
+
+
+def _run_states(sweep_dir, sweep, statuses, queue, jobs):
+    exp_cfg = _exp_cfg()
+    rows = []
+    for position, run in enumerate(sweep["runs"], 1):
+        benchmark, subset = slurm._dataset_meta(exp_cfg, {"data_path": run["data_path"]})
+        job_id = str(run["job_id"])
+        state = statuses.get(job_id, {}).get("state", "UNKNOWN")
+        row = {"position": position, "run": run["run_name"], "method": run["method"], "model": run["model"],
+               "data_path": run["data_path"], "dataset_short": subset or Path(run["data_path"]).stem, "overrides": run["overrides"], "fixed": run.get("fixed") or {},
+               "job_id": job_id, "state": state, "elapsed_sec": _seconds(statuses.get(job_id, {}).get("elapsed"))}
+        if state == "PENDING":
+            row["waiting"] = queue.get(job_id)
+        elif state == "RUNNING":
+            row["progress"] = _run_progress(sweep_dir / "runs" / run["run_name"], jobs.get(job_id, {}).get("out_path"))
+        rows.append(row)
+    return rows
+
+
+def _overall(rows):
+    """0..1 across the sweep: finished runs count fully, running ones by
+    their own progress where it is known."""
+    if not rows:
+        return 0.0
+    total = 0.0
+    for r in rows:
+        if r["state"] not in ACTIVE:
+            total += 1
+        elif r.get("progress", {}).get("done") and r["progress"].get("total"):
+            total += r["progress"]["done"] / r["progress"]["total"]
+    return round(total / len(rows), 4)
+
+
 def list_sweeps(investigation=None):
     sweeps = list(_sweeps(investigation))
     statuses = _statuses(sweeps)
+    pending = [str(r["job_id"]) for _, s in sweeps for r in s["runs"]
+               if statuses.get(str(r["job_id"]), {}).get("state") == "PENDING"]
+    queue = _queue(pending)
+    jobs = {str(j["job_id"]): j for j in db.list_jobs()} if any(
+        statuses.get(str(r["job_id"]), {}).get("state") == "RUNNING" for _, s in sweeps for r in s["runs"]) else {}
     out = []
-    for _, sweep in sweeps:
+    for sweep_dir, sweep in sweeps:
         counts = {}
         for run in sweep["runs"]:
             state = statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN")
@@ -468,12 +585,71 @@ def list_sweeps(investigation=None):
         counts_retry = sum(c for state, c in counts.items() if state in RETRYABLE)
         # Scheduler time of every run so far (finished or not), for the sweep's cost.
         gpu_seconds = sum(_seconds(statuses.get(str(r["job_id"]), {}).get("elapsed")) or 0 for r in sweep["runs"])
+        runs = _run_states(sweep_dir, sweep, statuses, queue, jobs)
+        waiting = [r for r in runs if r["state"] == "PENDING"]
+        reasons = {}
+        for r in waiting:
+            text = (r.get("waiting") or {}).get("reason_text", "queued")
+            reasons[text] = reasons.get(text, 0) + 1
         out.append({k: sweep[k] for k in ("id", "investigation", "label", "created_at")}
                    | {"retryable": counts_retry, "gpu_seconds": gpu_seconds}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
-                      "models": sorted({r["model"] for r in sweep["runs"]})})
+                      "models": sorted({r["model"] for r in sweep["runs"]}),
+                      "active": sum(1 for r in runs if r["state"] in ACTIVE),
+                      "finished": sum(1 for r in runs if r["state"] not in ACTIVE),
+                      "overall": _overall(runs),
+                      "running": [r for r in runs if r["state"] == "RUNNING"],
+                      "waiting": [{"text": t, "count": c} for t, c in reasons.items()],
+                      "start_estimate": min((w["waiting"] or {}).get("start_estimate") or "9999" for w in waiting)
+                      if waiting else None})
+    for row in out:
+        if row["start_estimate"] == "9999":
+            row["start_estimate"] = None
     return out
+
+
+def sweep_detail(investigation, sweep_id):
+    """Everything about one sweep: its full request, what was skipped, and
+    every run with its state, waiting reason or progress, scores and error."""
+    sweep_dir = _sweep_dir(investigation, sweep_id)
+    path = sweep_dir / "sweep.json"
+    if not path.exists():
+        raise KeyError(sweep_id)
+    sweep = json.loads(path.read_text())
+    statuses = _statuses([(sweep_dir, sweep)])
+    pending = [str(r["job_id"]) for r in sweep["runs"] if statuses.get(str(r["job_id"]), {}).get("state") == "PENDING"]
+    jobs = {str(j["job_id"]): j for j in db.list_jobs()}
+    runs = _run_states(sweep_dir, sweep, statuses, _queue(pending), jobs)
+    scored = {r["run"]: r for r in results(investigation) if r["sweep_id"] == sweep_id}
+    for run in runs:
+        extra = scored.get(run["run"], {})
+        run.update({k: extra.get(k) for k in ("scores", "worst", "dataset", "model_label", "model_variant",
+                                               "model_type", "wall_sec", "total_sec", "records", "error",
+                                               "flags", "loss", "earlier")})
+    labels = {i["id"]: i["label"] for i in _load_catalog()["investigations"]}
+    return {"id": sweep["id"], "investigation": investigation, "investigation_label": labels.get(investigation),
+            "label": sweep.get("label"), "created_at": sweep.get("created_at"), "request": sweep["request"],
+            "skipped": sweep.get("skipped", []), "errors": sweep.get("errors", []), "runs": runs,
+            "overall": _overall(runs)}
+
+
+def delete_sweep(investigation, sweep_id):
+    """Take a sweep off every page. Refused while any run is queued or
+    running. Moved to <investigation>/deleted/, not erased, so it can be
+    put back by moving the folder back into sweeps/."""
+    sweep_dir = _sweep_dir(investigation, sweep_id)
+    if not (sweep_dir / "sweep.json").exists():
+        raise KeyError(sweep_id)
+    sweep = json.loads((sweep_dir / "sweep.json").read_text())
+    statuses = _statuses([(sweep_dir, sweep)])
+    if any(statuses.get(str(r["job_id"]), {}).get("state") in ACTIVE for r in sweep["runs"]):
+        raise ValueError("this sweep still has queued or running runs: cancel them first")
+    trash = config.HPARAM_RESULTS_DIR / investigation / "deleted"
+    trash.mkdir(parents=True, exist_ok=True)
+    target = trash / f"{sweep_id}--deleted-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    shutil.move(str(sweep_dir), str(target))
+    return {"moved_to": str(target.relative_to(config.PROJECT_ROOT))}
 
 
 def _first_row(path):

@@ -170,6 +170,26 @@ def cancel_sweep(investigation: str, sweep_id: str):
     return {"cancelled": len(active), "error": slurm.cancel_many(active) or None}
 
 
+@app.get("/api/hparams/sweeps/{investigation}/{sweep_id}")
+def get_sweep_detail(investigation: str, sweep_id: str):
+    """One sweep's request and every run's state, progress and scores."""
+    try:
+        return hparam_sweeps.sweep_detail(investigation, sweep_id)
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
+
+
+@app.delete("/api/hparams/sweeps/{investigation}/{sweep_id}")
+def delete_sweep(investigation: str, sweep_id: str):
+    """Hide a finished sweep (moved to <investigation>/deleted/, not erased)."""
+    try:
+        return hparam_sweeps.delete_sweep(investigation, sweep_id)
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
+
+
 @app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/rerun-failed")
 def rerun_failed_sweep_runs(investigation: str, sweep_id: str):
     """Resubmit a sweep's failed or cancelled runs with the same settings."""

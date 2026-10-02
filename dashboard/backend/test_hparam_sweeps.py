@@ -86,5 +86,55 @@ class RunDiagnosticsTests(unittest.TestCase):
         self.assertEqual(hparam_sweeps._flags("FAILED", line, None, {})[0]["text"], "out of GPU memory")
 
 
+class SweepProgressTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.run = Path(tempfile.mkdtemp())
+
+    def test_progress_reads_facts_from_the_loss_log(self):
+        import json
+        (self.run / "hparams.yaml").write_text("ds_size: 100\nmethod: rome\n")
+        (self.run / "loss.jsonl").write_text(json.dumps({"kind": "value_vector", "step": 3, "loss": 1.0, "fact": 36}) + "\n")
+        progress = hparam_sweeps._run_progress(self.run)
+        self.assertEqual((progress["done"], progress["total"], progress["unit"]), (37, 100, "fact"))
+
+    def test_a_run_that_has_not_written_anything_is_starting(self):
+        self.assertEqual(hparam_sweeps._run_progress(self.run)["phase"], "starting")
+
+    def test_overall_counts_finished_runs_and_running_ones_by_their_progress(self):
+        rows = [{"state": "COMPLETED"}, {"state": "FAILED"},
+                {"state": "RUNNING", "progress": {"done": 50, "total": 100}}, {"state": "PENDING"}]
+        self.assertAlmostEqual(hparam_sweeps._overall(rows), 2.5 / 4)
+
+    def test_a_sweep_with_active_runs_cannot_be_deleted(self):
+        import json
+        from unittest import mock
+        sweep_dir = self.run / "sweeps" / "s1"
+        sweep_dir.mkdir(parents=True)
+        (sweep_dir / "sweep.json").write_text(json.dumps({"id": "s1", "runs": [{"job_id": "1"}]}))
+        with mock.patch.object(hparam_sweeps, "_sweep_dir", return_value=sweep_dir), \
+             mock.patch.object(hparam_sweeps, "_statuses", return_value={"1": {"state": "RUNNING"}}):
+            with self.assertRaisesRegex(ValueError, "cancel them first"):
+                hparam_sweeps.delete_sweep("edit_layers", "s1")
+        self.assertTrue((sweep_dir / "sweep.json").exists())
+
+    def test_deleting_a_finished_sweep_moves_it_out_of_sight_without_erasing_it(self):
+        import json
+        from unittest import mock
+        root = self.run / "hyperparameters"
+        sweep_dir = root / "edit_layers" / "sweeps" / "s2"
+        sweep_dir.mkdir(parents=True)
+        (sweep_dir / "sweep.json").write_text(json.dumps({"id": "s2", "runs": [{"job_id": "2"}]}))
+        with mock.patch.object(config, "HPARAM_RESULTS_DIR", root), \
+             mock.patch.object(config, "PROJECT_ROOT", self.run), \
+             mock.patch.object(hparam_sweeps, "_statuses", return_value={"2": {"state": "COMPLETED"}}):
+            hparam_sweeps.delete_sweep("edit_layers", "s2")
+            self.assertEqual(list(hparam_sweeps._sweeps("edit_layers")), [])
+        self.assertFalse(sweep_dir.exists())
+        kept = list((root / "edit_layers" / "deleted").glob("s2--deleted-*/sweep.json"))
+        self.assertEqual(len(kept), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

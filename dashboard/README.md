@@ -254,7 +254,14 @@ directories will move before it commits.
   tuned by an earlier sweep), with the investigation that tunes it and
   the best value that investigation has found. Any of them can be changed
   for one sweep (sent as extra --hparam overrides, recorded as `fixed` in
-  sweep.json, not part of run names). Backend:
+  sweep.json, not part of run names). Each sweep in an investigation's
+  list shows, before it starts, why SLURM is holding it (in words: waiting
+  for a free GPU, your job slots are all in use, ...) and SLURM's start
+  estimate; once running, a bar and which run it is on with that run's
+  fact or step count, from the files it already writes. Clicking a sweep
+  opens its full request and every run's state, scores, time and error.
+  A finished sweep can be deleted, which moves its folder to
+  `<investigation>/deleted/` rather than erasing it. Backend:
   `backend/hparam_sweeps.py`, results under
   `results/hyperparameters/<investigation>/sweeps/<sweep>/`.
 - **Results · Hyperparameters** (`/results/hyperparameters`): every sweep

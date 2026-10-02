@@ -5,11 +5,12 @@ import DatasetField from '../components/DatasetField.jsx'
 import ModelField from '../components/ModelField.jsx'
 import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
 import HeldConstant from '../components/HeldConstant.jsx'
+import SweepCard from '../components/SweepCard.jsx'
+import SweepDetailModal from '../components/SweepDetailModal.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
 import { CATEGORY_HELP, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
 const EXPERIMENT = 'run_experiment'
-const ACTIVE = ['PENDING', 'RUNNING', 'REQUEUED', 'SUSPENDED']
 
 function KnobEditor({ knob, model, values, onChange }) {
   const [custom, setCustom] = useState('')
@@ -75,6 +76,7 @@ export default function HyperparameterInvestigation() {
   const [held, setHeld] = useState({})
   // Held-constant settings changed for this sweep: method -> model -> key -> value.
   const [fixed, setFixed] = useState({})
+  const [detailFor, setDetailFor] = useState(null)
   const [estimate, setEstimate] = useState(null)
   const [launching, setLaunching] = useState(false)
   const [message, setMessage] = useState(null)
@@ -101,7 +103,7 @@ export default function HyperparameterInvestigation() {
   const refreshSweeps = () => api.sweeps(investigationId).then(setSweeps).catch(() => {})
   useEffect(() => {
     refreshSweeps()
-    const timer = setInterval(refreshSweeps, 15000)
+    const timer = setInterval(refreshSweeps, 8000)
     return () => clearInterval(timer)
   }, [investigationId])
 
@@ -318,32 +320,18 @@ export default function HyperparameterInvestigation() {
         <h2 className="section-heading">Sweeps in this investigation</h2>
         {!sweeps.length && <p className="dl-dim">None yet.</p>}
         <ul className="dl-tasks">
-          {sweeps.map((s) => {
-            const active = Object.entries(s.states).filter(([state]) => ACTIVE.includes(state)).reduce((n, [, c]) => n + c, 0)
-            const done = s.states.COMPLETED || 0
-            return (
-              <li key={s.id} className="dl-task">
-                <div className="dl-task-top">
-                  <span className="dl-task-label">{s.label || s.id}<span className="dl-dim"> · {s.methods.join(', ')} · {s.models.join(', ')}</span></span>
-                  <span className="dl-dim">{done}/{s.runs} done{active ? `, ${active} active` : ''}</span>
-                </div>
-                <div className="progress-track"><div className="progress-fill" style={{ width: `${(done / Math.max(s.runs, 1)) * 100}%` }} /></div>
-                <div className="dl-task-actions">
-                  <span className="dl-dim">{new Date(s.created_at).toLocaleString()}{s.gpu_seconds ? ` · ${duration(s.gpu_seconds)} of GPU time so far` : ''}</span>
-                  <Link to={`/results/hyperparameters?investigation=${investigation.id}&sweep=${s.id}`} className="btn-plain-small">Results</Link>
-                  {s.retryable > 0 && (
-                    <button type="button" className="btn-plain-small" title="Resubmit the failed or cancelled runs with the same settings"
-                      onClick={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}>Rerun {s.retryable} failed</button>
-                  )}
-                  {active > 0 && (
-                    <button type="button" className="btn-danger-small"
-                      onClick={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}>Cancel</button>
-                  )}
-                </div>
-              </li>
-            )
-          })}
+          {sweeps.map((s) => (
+            <SweepCard key={s.id} sweep={s}
+              onDetails={() => setDetailFor(s.id)}
+              onCancel={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}
+              onRerun={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}
+              onDelete={() => {
+                if (!window.confirm(`Delete ${s.label || s.id}? It disappears from every page; its folder is moved to deleted/, not erased.`)) return
+                api.deleteSweep(investigation.id, s.id).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))
+              }} />
+          ))}
         </ul>
+        {detailFor && <SweepDetailModal investigation={investigation.id} sweepId={detailFor} onClose={() => setDetailFor(null)} />}
       </section>
     </div>
   )
