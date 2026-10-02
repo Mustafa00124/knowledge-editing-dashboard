@@ -15,7 +15,7 @@ The goal is not only "which editing method performs best". It is:
 > does a knowledge edit become risky?
 
 That is, does edit success depend on the knowledge being rule-like rather than
-factual, on it being a definition or a causal claim or a sentiment, on how
+factual, on it being a negation or a count or a hierarchy rather than a plain link, on how
 densely connected it is, on whether it was inserted or deleted or replaced, on
 how the update was phrased?
 
@@ -27,10 +27,10 @@ single hierarchy would force an arbitrary precedence between them and make
 matched examples impossible to express.
 
 ```
-Domain x Knowledge Form x Edit Nature x Edit Representation x Connectivity x Dependency
+Topic x Edit Type x Knowledge Form x Edit Representation x Connectivity x Dependency
 ```
 
-Matched examples are the point: same domain and similar knowledge form but
+Matched examples are the point: same topic and similar knowledge form but
 different connectivity, or one knowledge item expressed several different ways.
 That is what lets a failure be attributed to a factor, instead of comparing two
 examples that differ in every respect at once.
@@ -42,68 +42,92 @@ sync.
 
 ## Axes
 
-### Domain
+### Topic
 
 `finance`, `economics`, `biology`, `physics`, `chemistry`, `mathematics`,
 `grammar_language`, `philosophy`, `people`, `geography`, `history`,
 `technology`.
 
-Mainly a diversity control, so that a finding about rule-based knowledge is not
-secretly a finding about mathematics.
+The first layer. Mainly a diversity control, so that a finding about rules is
+not secretly a finding about mathematics.
 
-### Knowledge form
+### Edit type
 
-The substantive axis. Existing benchmarks concentrate almost entirely on the
-first entry.
-
-| Key | What it is | Example |
-| --- | --- | --- |
-| `entity_relation` | Triple-shaped claim linking two entities through a relation | France > capital > Paris |
-| `property` | Attribute of a single entity | Gold is conductive. |
-| `definition` | What a term means | A bachelor is an unmarried adult man. |
-| `rule_law` | General principle with open-ended instances | Force equals mass times acceleration. |
-| `causal` | Why something happens, not just that it does | Raising interest rates tends to reduce borrowing. |
-| `temporal_event` | Occurrence with participants, time, location, cause, outcome | The Wall Street crash began in October 1929. |
-| `evaluative` | Stance toward an entity or topic rather than a proposition about it | Disposition toward a country, technology or public figure |
-
-Definitions matter because redefining a term should change every classification
-judgment that applies it. Rules matter because one edit can license an
-unbounded number of changed outputs. Events matter because we can
-counterfactually change one component (time, participant, outcome) and check
-whether answers depending on that component follow. Evaluative items let us ask
-whether an attitude can be edited, whether the change generalizes across
-contexts, and whether factual knowledge survives it intact.
-
-### Edit nature
-
-`insert`, `delete`, `replace`. Independent of knowledge form: in principle any
-form can be inserted, deleted or replaced, and whether that actually holds is
+`insert`, `replace`, `delete`. Independent of knowledge form: in principle any
+form can be inserted, replaced or deleted, and whether that actually holds is
 itself a finding.
 
 Everything under `replace` is counterfactual by construction. The original is
 something we are confident every LLM has seen and holds true, swapped for a
 false-but-plausible alternative.
 
+### Knowledge form
+
+The substantive axis, categorized the way description logic carves up a
+knowledge base rather than as knowledge-graph entity-relation triples.
+Existing benchmarks concentrate almost entirely on the first entry.
+
+Three tiers: **fact vs rule**, then the kind of fact or rule, then the form.
+Facts are claims about particular individuals (the DL ABox). Rules are claims
+about descriptions or relations in general (the TBox and RBox), so a single
+rule edit should move every individual it covers.
+
+| Tier | Group | Key | Form | DL | Example |
+| --- | --- | --- | --- | --- | --- |
+| Fact | Links (a R b) | `plain_link` | Plain link | R(a, b) | Paris is the capital of France. |
+| Fact | Descriptions of one thing (a fits C) | `membership` | Plain membership | C(a) | Paris is a city. |
+| | | `negation` | Negation | ¬C(a) | Marie does not speak German. |
+| | | `disjunction` | Disjunction ("or") | (C ⊔ D)(a) | Alex is a doctor or a nurse. |
+| | | `existential` | Existential ("some") | ∃R.C(a) | Marie speaks some Romance language. |
+| | | `universal` | Universal ("all") | ∀R.C(a) | Everyone in this class passed. |
+| | | `counting` | Counting | (= n R.C)(a) | Marie speaks exactly three languages. |
+| Rule | Rules about descriptions (every C is D) | `hierarchy` | Hierarchy | C ⊑ D | Every capital is a city. |
+| | | `constraint` | Constraint | C ⊑ (= 1 R.D), C ⊓ D ⊑ ⊥ | Every country has exactly one capital; nothing is both a city and a country. |
+| Rule | Rules about relations | `relation_rule` | Relation rule | Trans(R), R ≡ S⁻ | "Located in" is transitive; "capital of" flips to "has capital". |
+
+#### Fact temporality
+
+Facts carry one more layer, `temporality`: how the fact sits in time. It cuts
+across the fact forms rather than nesting under one (a plain link can be a
+state or an event; a membership can be timeless or a state), so it is its own
+field, `null` for rules.
+
+| Key | What it is | Example |
+| --- | --- | --- |
+| `timeless` | True independent of time: mathematics, facts that hold by what the terms mean | 7 is a prime number. |
+| `state` | True over a period that can end: capitals, who holds an office | Paris is the capital of France. |
+| `event` | Happened at a point in time: an assassination, a discovery | Marie Curie discovered radium. |
+
+Records store `knowledge_form` (tier and group follow from it) and, for facts,
+`temporality`. A
+definition ("a bachelor is an unmarried adult man") is a hierarchy in both
+directions (C ≡ D).
+
+Rules matter because one edit should license an unbounded number of changed
+outputs. The description forms matter because each has its own entailments:
+editing a negation, a disjunction or a count should change different
+downstream answers than editing a plain membership.
+
 ### Edit representation
 
 How the update is communicated, holding the intended edit operation fixed. Two
 groups.
 
-**Coherent phrasing** preserves the intended meaning and varies only how much
-interpretation it takes to recover it. This separates "the method captured the
-meaning" from "the method pattern-matched the surface form".
+**Phrasing** is the level under plain links (other forms are always
+`direct` for now). Same edit, three ways:
 
-| Key | Example |
-| --- | --- |
-| `direct` | Tom is interested in tennis. |
-| `negated` | Tom is not indifferent to tennis. |
-| `double_negation` | Tom is not uninterested in tennis. |
-| `implicit` | Tom spends every weekend at the tennis club. |
-| `confusing` | It would be wrong to say Tom has no interest in tennis. |
-| `distractor_heavy` | Tom, who dislikes golf and rarely watches football, is interested in tennis. |
+| Key | What it tests | Example |
+| --- | --- | --- |
+| `direct` | Baseline: stated plainly | The capital of France is Lyon. |
+| `confusing` | A logically equivalent form (negations, double negations, contrapositives) that reduces to the same fact. Can the model see one fact across different logical forms? | It is not true that France has a capital other than Lyon. |
+| `distractor_heavy` | The same edit embedded in unrelated information; the queried part is a small piece of it. Does distraction affect editing? | France, which borders Spain, produces a quarter of the world's wine and hosts the Tour de France each July, has Lyon as its capital. |
 
-**Degraded coherence** is the gibberish stress test. Gibberish is not a domain
-and not a knowledge form: domain says what the knowledge is about, knowledge
+The earlier `negated` and `double_negation` are now just instances of
+`confusing`. `implicit` (the claim is only entailed, never stated) was dropped,
+since it is not logically equivalent to the edit.
+
+**Degraded coherence** is the gibberish stress test. Gibberish is not a topic
+and not a knowledge form: topic says what the knowledge is about, knowledge
 form says what structural type it is, and this says how the edit is
 represented. The same knowledge form and the same edit operation can be
 expressed normally or in increasingly strange ways.
@@ -139,7 +163,7 @@ and propagation be tested almost independently of pretrained world knowledge.
 
 #### The grounding ladder
 
-The point of the axis. Hold subject, relation, edit nature and method fixed,
+The point of the axis. Hold subject, relation, edit type and method fixed,
 and walk the target away from the model's semantic structure one rung at a
 time, measuring reliability, propagation and locality at each. `France's
 capital is ___`:
@@ -230,9 +254,10 @@ One record per knowledge item, carrying its coordinates and its probes:
 {
   "id": "math-rule-0001",
   "coordinate": {
-    "domain": "mathematics",
-    "knowledge_form": "rule_law",
-    "edit_nature": "replace",
+    "topic": "mathematics",
+    "edit_type": "replace",
+    "knowledge_form": "hierarchy",
+    "temporality": null,
     "edit_representation": "direct",
     "connectivity": "high",
     "dependency": "high"
@@ -271,7 +296,11 @@ knowledge item walked up the grounding ladder, the same item under several
   not as a knowledge form. "Einstein developed general relativity" generates
   "Who developed general relativity?", "What did Einstein develop?" and "Which
   theory did Einstein develop?" all from one item. "Why" is the exception: it
-  draws on causal or mechanistic knowledge, which is its own knowledge form.
+  asks for an explanation, which no form in the current scheme covers (next
+  point).
+- **Outside description logic.** The previous form list had `causal` and
+  `evaluative`, which DL does not express (no causation, no stance). They are
+  dropped for now. Events came back as a fact temporality rather than a form.
 
 ## Layout note
 

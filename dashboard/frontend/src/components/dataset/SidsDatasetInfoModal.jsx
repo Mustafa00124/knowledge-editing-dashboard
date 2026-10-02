@@ -5,7 +5,9 @@ import {
   CONNECTIVITY,
   DEPENDENCY,
   EPISTEMIC_STATUS,
+  FACT_TEMPORALITY,
   GROUNDING_LADDER,
+  KNOWLEDGE_TIERS,
   PROBE_ROLES,
   QUERY_VARIANTS,
   STRUCTURE_CAVEAT,
@@ -56,7 +58,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
             </p>
             <p className="dataset-note">
               Because of that, items are not filed in one hierarchy. Each is given coordinates on several independent
-              axes, so matched examples are possible: same domain and knowledge form but different connectivity, or one
+              axes, so matched examples are possible: same topic and knowledge form but different connectivity, or one
               knowledge item expressed several different ways. That is what lets a failure be attributed to a factor
               rather than to two unrelated examples differing in every respect at once.
             </p>
@@ -64,7 +66,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
 
           <section>
             <h3>Axes</h3>
-            {AXES.map((axis) => (
+            {AXES.filter((axis) => axis.key !== 'knowledge_form' && axis.key !== 'temporality').map((axis) => (
               <div className="sids-axis" key={axis.key}>
                 <h4>{axis.label}</h4>
                 <dl className="sids-axis-values">
@@ -89,10 +91,53 @@ export default function SidsDatasetInfoModal({ onClose }) {
               </div>
             ))}
             <p className="dataset-note">
-              Domain is mainly a diversity control. Knowledge form is the substantive axis, and edit nature is
-              independent of it: in principle any form can be inserted, deleted or replaced, and whether that holds in
-              practice is itself a finding.
+              Topic is mainly a diversity control. Edit type is independent of knowledge form: in principle any form
+              can be inserted, replaced or deleted, and whether that holds in practice is itself a finding.
             </p>
+          </section>
+
+          <section>
+            <h3>Knowledge form</h3>
+            <p>
+              The substantive axis, categorized the way description logic carves up a knowledge base rather than as
+              knowledge-graph triples. Published benchmarks test almost only the first form, a plain link. Facts are
+              claims about particular individuals; rules are claims about descriptions or relations in general, so one
+              rule edit should move every individual it covers.
+            </p>
+            {KNOWLEDGE_TIERS.map((tier) => (
+              <div className="sids-axis" key={tier.key}>
+                <h4>{tier.label} <span className="sids-rubric-q">{tier.description}</span></h4>
+                {tier.key === 'fact' && (
+                  <div>
+                    <p className="sids-group-label">Temporality <span>cuts across every fact form</span></p>
+                    <dl className="sids-axis-values">
+                      {FACT_TEMPORALITY.map((t) => (
+                        <div key={t.key}>
+                          <dt>{t.label}</dt>
+                          <dd>{t.description} <em>{t.examples.join(' · ')}</em></dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )}
+                {tier.groups.map((group) => (
+                  <div key={group.key}>
+                    <p className="sids-group-label">{group.label} <span>{group.notation}</span></p>
+                    <dl className="sids-axis-values">
+                      {group.forms.map((form) => (
+                        <div key={form.key}>
+                          <dt>{form.label}</dt>
+                          <dd>
+                            <code>{form.notation}</code> {form.description}
+                            <em> {form.examples.join(' · ')}</em>
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            ))}
           </section>
 
           <section>
@@ -111,7 +156,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               ))}
             </dl>
             <p>
-              Holding subject, relation, edit nature and method fixed, the target can then be walked away from the
+              Holding subject, relation, edit type and method fixed, the target can then be walked away from the
               model's semantic structure one rung at a time, with reliability, propagation and locality measured at
               each. <code>{GROUNDING_LADDER.frame}</code>
             </p>

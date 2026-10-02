@@ -3,14 +3,16 @@ import {
   COHERENCE_PROPERTIES,
   CONNECTIVITY,
   DEPENDENCY,
-  DOMAINS,
-  EDIT_NATURES,
   EDIT_REPRESENTATIONS,
+  EDIT_TYPES,
+  FACT_TEMPORALITY,
   GROUNDING_LADDER,
   KNOWLEDGE_FORMS,
+  KNOWLEDGE_TIERS,
   PROBE_ROLES,
   REPRESENTATION_GROUPS,
   STRUCTURE_EXAMPLES,
+  TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
@@ -39,9 +41,10 @@ function TabRow({ label, values, selected, onSelect }) {
 
 export default function SidsDatasetBrowser() {
   const [coordinate, setCoordinate] = useState({
-    domain: DOMAINS[0].key,
+    topic: TOPICS[0].key,
+    edit_type: EDIT_TYPES[0].key,
     knowledge_form: KNOWLEDGE_FORMS[0].key,
-    edit_nature: EDIT_NATURES[0].key,
+    temporality: FACT_TEMPORALITY[1].key,
     edit_representation: EDIT_REPRESENTATIONS[0].key,
     connectivity: 'medium',
     dependency: 'medium',
@@ -49,7 +52,24 @@ export default function SidsDatasetBrowser() {
   const set = (axis) => (value) => setCoordinate((c) => ({ ...c, [axis]: value }))
 
   const form = KNOWLEDGE_FORMS.find((f) => f.key === coordinate.knowledge_form)
-  const nature = EDIT_NATURES.find((n) => n.key === coordinate.edit_nature)
+  const tier = KNOWLEDGE_TIERS.find((t) => t.key === form.tier)
+  const group = tier.groups.find((g) => g.key === form.group)
+  // Picking a branch lands on its first form, so a coordinate always names a
+  // concrete form rather than a half-chosen path.
+  // Phrasing only exists under plain links for now, so leaving one drops a
+  // confusing or distractor-heavy phrasing back to direct.
+  const selectForm = (formKey) => setCoordinate((c) => ({
+    ...c,
+    knowledge_form: formKey,
+    edit_representation:
+      formKey !== 'plain_link' && EDIT_REPRESENTATIONS.find((e) => e.key === c.edit_representation)?.group === 'coherent'
+        ? 'direct'
+        : c.edit_representation,
+  }))
+  const selectGroup = (groupKey) => selectForm(tier.groups.find((g) => g.key === groupKey).forms[0].key)
+  const selectTier = (tierKey) => selectForm(KNOWLEDGE_TIERS.find((t) => t.key === tierKey).groups[0].forms[0].key)
+  const editType = EDIT_TYPES.find((n) => n.key === coordinate.edit_type)
+  const temporality = FACT_TEMPORALITY.find((t) => t.key === coordinate.temporality)
   const representation = EDIT_REPRESENTATIONS.find((e) => e.key === coordinate.edit_representation)
   const combo = STRUCTURE_EXAMPLES.find(
     (s) => s.connectivity === coordinate.connectivity && s.dependency === coordinate.dependency,
@@ -57,23 +77,57 @@ export default function SidsDatasetBrowser() {
 
   return (
     <div className="sids-browser">
-      <TabRow label="Domain" values={DOMAINS} selected={coordinate.domain} onSelect={set('domain')} />
+      <TabRow label="Topic" values={TOPICS} selected={coordinate.topic} onSelect={set('topic')} />
 
-      <TabRow label="Knowledge form" values={KNOWLEDGE_FORMS} selected={coordinate.knowledge_form} onSelect={set('knowledge_form')} />
+      <TabRow label="Edit type" values={EDIT_TYPES} selected={coordinate.edit_type} onSelect={set('edit_type')} />
+      {editType && <p className="dataset-note">{editType.description}</p>}
+
+      {/* Knowledge form branches: Facts | Rules first, then (facts only)
+          temporality, then the kind of fact or rule, then the form. Each row
+          only offers the children of what is selected above it. */}
+      <TabRow label="Fact or rule" values={KNOWLEDGE_TIERS} selected={tier.key} onSelect={selectTier} />
+      <p className="dataset-note">{tier.description}</p>
+
+      {tier.key === 'fact' && (
+        <>
+          <TabRow label="Temporality" values={FACT_TEMPORALITY} selected={coordinate.temporality} onSelect={set('temporality')} />
+          {temporality && (
+            <p className="dataset-note">
+              {temporality.description} <em>{temporality.examples.join(' · ')}</em>
+            </p>
+          )}
+        </>
+      )}
+
+      <TabRow label={`Kind of ${tier.key}`} values={tier.groups} selected={group.key} onSelect={selectGroup} />
+      <p className="dataset-note"><code>{group.notation}</code> {group.description}</p>
+
+      {/* A group with a single form (plain link, relation rule) has nothing
+          left to choose, so it gets no row of its own. */}
+      {group.forms.length > 1 && (
+        <TabRow label={group.label} values={group.forms} selected={coordinate.knowledge_form} onSelect={selectForm} />
+      )}
       {form && (
         <p className="dataset-note">
-          {form.description}
+          <strong>{form.label}</strong> <code>{form.notation}</code> {form.description}
           {form.examples && <em> {form.examples.join(' · ')}</em>}
         </p>
       )}
 
-      <TabRow label="Edit nature" values={EDIT_NATURES} selected={coordinate.edit_nature} onSelect={set('edit_nature')} />
-      {nature && <p className="dataset-note">{nature.description}</p>}
+      {/* Phrasing: the level under plain links. Same edit, said directly, in
+          a logically equivalent but harder form, or buried in distractors. */}
+      {form.key === 'plain_link' && (
+        <TabRow
+          label="Phrasing"
+          values={EDIT_REPRESENTATIONS.filter((e) => e.group === 'coherent')}
+          selected={coordinate.edit_representation}
+          onSelect={set('edit_representation')}
+        />
+      )}
 
-      {/* Split into two rows rather than one long one: coherent phrasing and
-          degraded coherence are doing different jobs, and fourteen tabs in a
-          single row reads as one undifferentiated list. */}
-      {REPRESENTATION_GROUPS.map((group) => (
+      {/* Degraded coherence stays its own row: it is the gibberish stress
+          test, not a phrasing of a well-formed fact. */}
+      {REPRESENTATION_GROUPS.filter((g) => g.key === 'degraded').map((group) => (
         <div key={group.key}>
           <p className="sids-group-label">{group.label} <span>{group.note}</span></p>
           <TabRow

@@ -8,9 +8,9 @@
 // arbitrary precedence between them and make matched pairs impossible to
 // express. See datasets/SidsDataset/README.md for the same scheme in prose.
 
-// Mainly a diversity control. We vary domain so that a finding about, say,
-// rule-based knowledge is not secretly a finding about mathematics.
-export const DOMAINS = [
+// First layer. Mainly a diversity control: we vary topic so that a finding
+// about, say, rules is not secretly a finding about mathematics.
+export const TOPICS = [
   { key: 'finance', label: 'Finance' },
   { key: 'economics', label: 'Economics' },
   { key: 'biology', label: 'Biology' },
@@ -25,64 +25,179 @@ export const DOMAINS = [
   { key: 'technology', label: 'Technology' },
 ]
 
-// The substantive axis. Existing benchmarks concentrate almost entirely on
-// the first entry here, which is the gap this dataset exists to fill.
-export const KNOWLEDGE_FORMS = [
-  {
-    key: 'entity_relation',
-    label: 'Entity-relation fact',
-    description: 'A triple-shaped claim linking two entities through a relation. What nearly every published benchmark already tests.',
-    examples: ['France > capital > Paris', 'Marie Curie > discovered > radium'],
-  },
-  {
-    key: 'property',
-    label: 'Property',
-    description: 'An attribute of a single entity rather than a link between two.',
-    examples: ['Gold is conductive.', 'Saturn is a gas giant.'],
-  },
-  {
-    key: 'definition',
-    label: 'Definition',
-    description: 'What a term means. Interesting because redefining a term should change every classification judgment that applies it, not just recall of the definition itself.',
-    examples: ['A bachelor is an unmarried adult man.'],
-  },
-  {
-    key: 'rule_law',
-    label: 'Rule / law',
-    description: 'A general principle with open-ended instances: mathematical rules, grammar rules, physical laws. The highest-leverage form, since one edit can license an unbounded number of changed outputs.',
-    examples: ['Adjectives precede the noun in English.', 'Force equals mass times acceleration.'],
-  },
-  {
-    key: 'causal',
-    label: 'Causal / mechanistic',
-    description: 'Why something happens, not just that it does. The form that "why" questions actually draw on.',
-    examples: ['Raising interest rates tends to reduce borrowing.', 'Raising temperature at fixed volume raises gas pressure.'],
-  },
-  {
-    key: 'temporal_event',
-    label: 'Temporal / event',
-    description: 'An occurrence with internal structure: participants, time, location, cause, outcome, and links to other events. Editing one component lets us test whether answers depending on that component follow.',
-    examples: ['The Wall Street crash began in October 1929.'],
-  },
-  {
-    key: 'evaluative',
-    label: 'Evaluative / sentiment',
-    description: 'The stance the model takes toward an entity or topic rather than a proposition about it. Tests whether an attitude can be edited, whether it generalizes across contexts, and whether factual knowledge survives intact.',
-    examples: ['Positive disposition toward a given country, technology or public figure.'],
-  },
-]
-
-// Independent of knowledge form: in principle any form can be inserted,
-// deleted or replaced, and whether that actually holds is itself a finding.
-export const EDIT_NATURES = [
+// Second layer. Independent of knowledge form: in principle any form can be
+// inserted, replaced or deleted, and whether that actually holds is itself a
+// finding.
+export const EDIT_TYPES = [
   { key: 'insert', label: 'Insert', description: 'Add knowledge the model does not hold.' },
-  { key: 'delete', label: 'Delete', description: 'Remove knowledge the model does hold.' },
   {
     key: 'replace',
     label: 'Replace',
     description: 'Substitute held knowledge with a false-but-plausible alternative. Counterfactual by construction: the original is something we are confident every LLM has seen and holds true.',
   },
+  { key: 'delete', label: 'Delete', description: 'Remove knowledge the model does hold.' },
 ]
+
+// Third layer, and the substantive one. Categorized the way description logic
+// carves up a knowledge base rather than as knowledge-graph triples: published
+// benchmarks test almost nothing but the first form here (a plain link), and
+// the rest is what a triple cannot express. Three tiers: fact vs rule, then
+// the kind of fact or rule, then the form itself.
+//
+// Facts are claims about particular individuals (the DL ABox). Rules are
+// claims about descriptions or relations in general (the TBox and RBox), so a
+// single rule edit should move every individual it covers.
+export const KNOWLEDGE_TIERS = [
+  {
+    key: 'fact',
+    label: 'Facts',
+    description: 'Claims about particular individuals.',
+    groups: [
+      {
+        key: 'link',
+        label: 'Links',
+        notation: 'a R b',
+        description: 'One individual related to another.',
+        forms: [
+          {
+            key: 'plain_link',
+            label: 'Plain link',
+            notation: 'R(a, b)',
+            description: 'Two individuals joined by a relation. The triple nearly every published benchmark already tests.',
+            examples: ['Paris is the capital of France.'],
+          },
+        ],
+      },
+      {
+        key: 'description',
+        label: 'Descriptions of one thing',
+        notation: 'a fits C',
+        description: 'One individual said to fit a description, which can be built up from other descriptions.',
+        forms: [
+          {
+            key: 'membership',
+            label: 'Plain membership',
+            notation: 'C(a)',
+            description: 'The individual belongs to a named class.',
+            examples: ['Paris is a city.'],
+          },
+          {
+            key: 'negation',
+            label: 'Negation',
+            notation: '¬C(a)',
+            description: 'The individual does not fit the description. Asserted absence, not merely an unknown.',
+            examples: ['Marie does not speak German.'],
+          },
+          {
+            key: 'disjunction',
+            label: 'Disjunction ("or")',
+            notation: '(C ⊔ D)(a)',
+            description: 'The individual fits at least one of several descriptions without saying which.',
+            examples: ['Alex is a doctor or a nurse.'],
+          },
+          {
+            key: 'existential',
+            label: 'Existential ("some")',
+            notation: '∃R.C(a)',
+            description: 'The individual is related to some member of a class, without naming which one.',
+            examples: ['Marie speaks some Romance language.'],
+          },
+          {
+            key: 'universal',
+            label: 'Universal ("all")',
+            notation: '∀R.C(a)',
+            description: 'Everything the individual is related to through a relation fits a description.',
+            examples: ['Everyone in this class passed.'],
+          },
+          {
+            key: 'counting',
+            label: 'Counting',
+            notation: '(= n R.C)(a)',
+            description: 'The individual is related to a stated number of things (exactly, at least or at most).',
+            examples: ['Marie speaks exactly three languages.'],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    key: 'rule',
+    label: 'Rules',
+    description: 'Claims about descriptions or relations in general, with open-ended instances. One edit should change every individual it covers.',
+    groups: [
+      {
+        key: 'description_rule',
+        label: 'Rules about descriptions',
+        notation: 'every C is D',
+        description: 'How descriptions relate to each other.',
+        forms: [
+          {
+            key: 'hierarchy',
+            label: 'Hierarchy',
+            notation: 'C ⊑ D',
+            description: 'Everything fitting one description fits another. A definition is a hierarchy in both directions (C ≡ D).',
+            examples: ['Every capital is a city.'],
+          },
+          {
+            key: 'constraint',
+            label: 'Constraint',
+            notation: 'C ⊑ (= 1 R.D), C ⊓ D ⊑ ⊥',
+            description: 'Limits on what can hold together: required counts, or descriptions that can never overlap.',
+            examples: ['Every country has exactly one capital.', 'Nothing is both a city and a country.'],
+          },
+        ],
+      },
+      {
+        key: 'relation_rule',
+        label: 'Rules about relations',
+        notation: 'R behaves like this',
+        description: 'Properties of a relation itself, independent of any class.',
+        forms: [
+          {
+            key: 'relation_rule',
+            label: 'Relation rule',
+            notation: 'Trans(R), R ≡ S⁻',
+            description: 'Transitivity, inverses, symmetry, one relation implying another.',
+            examples: ['"Located in" is transitive.', '"Capital of" flips to "has capital".'],
+          },
+        ],
+      },
+    ],
+  },
+]
+
+// The extra layer facts carry: how the fact sits in time. It cuts across the
+// fact forms rather than nesting under one, since a plain link can be a state
+// ("Paris is the capital of France") or an event ("Curie discovered radium")
+// and a membership can be timeless ("7 is prime") or a state. Rules don't
+// carry it. Records store it as `temporality`, null for rules.
+export const FACT_TEMPORALITY = [
+  {
+    key: 'timeless',
+    label: 'Timeless',
+    description: 'True independent of time: mathematics, and facts that hold by what the terms mean. Nothing should ever make it stop being true.',
+    examples: ['7 is a prime number.', 'The square root of 81 is 9.'],
+  },
+  {
+    key: 'state',
+    label: 'State',
+    description: 'True over a period that can end: capitals, who holds an office, where someone lives. An edit here is a plausible real-world change.',
+    examples: ['Paris is the capital of France.', 'Marie lives in Lyon.'],
+  },
+  {
+    key: 'event',
+    label: 'Event',
+    description: 'Happened at a point in time and stays happened: an assassination, a discovery, a founding. Editing one should move the answers that depend on when, who or what.',
+    examples: ['Marie Curie discovered radium.', 'Lincoln was assassinated in 1865.'],
+  },
+]
+
+// Flat list of the forms, each carrying its tier and group, for anything that
+// just needs to look a form up. Records store only `knowledge_form`; the tier
+// and group follow from it.
+export const KNOWLEDGE_FORMS = KNOWLEDGE_TIERS.flatMap((tier) =>
+  tier.groups.flatMap((group) => group.forms.map((form) => ({ ...form, tier: tier.key, group: group.key }))),
+)
 
 // What a degraded representation actually destroys. Naming these separately
 // is the point: "gibberish" as one bucket would conflate five different
@@ -105,12 +220,27 @@ export const COHERENCE_PROPERTIES = [
 // model's existing semantic structure before editing behaves differently or
 // becomes damaging?
 export const EDIT_REPRESENTATIONS = [
-  { key: 'direct', group: 'coherent', label: 'Direct', description: 'Stated plainly.', example: 'Tom is interested in tennis.' },
-  { key: 'negated', group: 'coherent', label: 'Negated', description: 'Carries one negation the reader has to resolve.', example: 'Tom is not indifferent to tennis.' },
-  { key: 'double_negation', group: 'coherent', label: 'Double negation', description: 'Two negations that cancel, requiring real interpretation rather than surface reading.', example: 'Tom is not uninterested in tennis.' },
-  { key: 'implicit', group: 'coherent', label: 'Implicit / compositional', description: 'The target claim follows from what is stated but is never stated itself.', example: 'Tom spends every weekend at the tennis club.' },
-  { key: 'confusing', group: 'coherent', label: 'Confusing', description: 'Deliberately convoluted phrasing of the same content.', example: 'It would be wrong to say Tom has no interest in tennis.' },
-  { key: 'distractor_heavy', group: 'coherent', label: 'Distractor-heavy', description: 'The target claim buried among irrelevant but topically adjacent material.', example: 'Tom, who dislikes golf and rarely watches football, is interested in tennis.' },
+  {
+    key: 'direct',
+    group: 'coherent',
+    label: 'Direct',
+    description: 'Stated plainly. The baseline the other two are compared against.',
+    example: 'The capital of France is Lyon.',
+  },
+  {
+    key: 'confusing',
+    group: 'coherent',
+    label: 'Confusing',
+    description: 'A logically equivalent form (negations, double negations, contrapositives) that reduces to exactly the same fact. Tests whether the model recognizes one fact across different logical forms.',
+    example: 'It is not true that France has a capital other than Lyon.',
+  },
+  {
+    key: 'distractor_heavy',
+    group: 'coherent',
+    label: 'Distractor-heavy',
+    description: 'The same edit embedded in unrelated information, so the part that gets queried is a small piece of what was written. Tests whether distraction affects editing.',
+    example: 'France, which borders Spain, produces a quarter of the world\'s wine and hosts the Tour de France each July, has Lyon as its capital.',
+  },
 
   {
     key: 'semantic_incoherence',
@@ -179,11 +309,11 @@ export const EDIT_REPRESENTATIONS = [
 ]
 
 export const REPRESENTATION_GROUPS = [
-  { key: 'coherent', label: 'Coherent phrasing', note: 'Meaning preserved, interpretation difficulty varies.' },
+  { key: 'coherent', label: 'Phrasing', note: 'Same fact, logically equivalent or buried in distraction.' },
   { key: 'degraded', label: 'Degraded coherence', note: 'One property deliberately destroyed. Each is tagged with which.' },
 ]
 
-// The controlled sequence: hold subject, relation, edit nature and method
+// The controlled sequence: hold subject, relation, edit type and method
 // fixed, walk the target away from the model's semantic structure one rung at
 // a time, and measure reliability, propagation and locality at each. This is
 // where the axis earns its keep, since the rungs differ in exactly one thing.
@@ -283,7 +413,7 @@ export const EPISTEMIC_STATUS = [
 // generalization probes instead of a category. Recorded here because the
 // distinction is easy to re-litigate otherwise.
 export const QUERY_VARIANTS = {
-  note: 'Who / what / which are alternative surface queries over the same underlying knowledge, so they are generalization probes rather than a knowledge form. "Why" is the exception: it draws on causal or mechanistic knowledge, which is its own form above.',
+  note: 'Who / what / which are alternative surface queries over the same underlying knowledge, so they are generalization probes rather than a knowledge form. "Why" is the exception: it asks for an explanation, and causal knowledge has no form in the current scheme (see open points).',
   example: {
     item: 'Einstein developed general relativity.',
     queries: ['Who developed general relativity?', 'What did Einstein develop?', 'Which theory did Einstein develop?'],
@@ -292,9 +422,10 @@ export const QUERY_VARIANTS = {
 
 // Render order for the coordinate summary and the info panel.
 export const AXES = [
-  { key: 'domain', label: 'Domain', values: DOMAINS },
+  { key: 'topic', label: 'Topic', values: TOPICS },
+  { key: 'edit_type', label: 'Edit type', values: EDIT_TYPES },
   { key: 'knowledge_form', label: 'Knowledge form', values: KNOWLEDGE_FORMS },
-  { key: 'edit_nature', label: 'Edit nature', values: EDIT_NATURES },
+  { key: 'temporality', label: 'Temporality (facts only)', values: FACT_TEMPORALITY },
   { key: 'edit_representation', label: 'Edit representation', values: EDIT_REPRESENTATIONS },
   { key: 'connectivity', label: 'Connectivity', values: CONNECTIVITY.levels },
   { key: 'dependency', label: 'Dependency', values: DEPENDENCY.levels },
@@ -305,12 +436,16 @@ export function axisValue(axisKey, valueKey) {
 }
 
 // A compact human-readable coordinate, e.g.
-// "mathematics · rule_law · replace · direct · C:high · D:high".
+// "mathematics · replace · rule/hierarchy · direct · C:high · D:high", or for
+// a fact "history · replace · fact/event/plain_link · ...".
 export function coordinateSummary(coordinate) {
+  const form = KNOWLEDGE_FORMS.find((f) => f.key === coordinate.knowledge_form)
   return [
-    coordinate.domain,
-    coordinate.knowledge_form,
-    coordinate.edit_nature,
+    coordinate.topic,
+    coordinate.edit_type,
+    form
+      ? [form.tier, form.tier === 'fact' ? coordinate.temporality : null, form.key].filter(Boolean).join('/')
+      : coordinate.knowledge_form,
     coordinate.edit_representation,
     `C:${coordinate.connectivity}`,
     `D:${coordinate.dependency}`,
