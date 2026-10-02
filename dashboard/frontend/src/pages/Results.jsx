@@ -141,7 +141,14 @@ export default function Results() {
 
   const modelMeta = useMemo(() => {
     const meta = {}
-    for (const o of expType?.fields?.find((f) => f.name === 'model')?.options || []) meta[o.value] = { label: o.label }
+    // Every tuning stage is its own model value; the label says which one,
+    // since a name like "Qwen3-4B" alone does not (that one is the hybrid).
+    const stage = { raw: 'base', chat: 'instruct', reasoning: 'reasoning' }
+    for (const o of expType?.fields?.find((f) => f.name === 'model')?.options || []) {
+      const type = stage[o.model_type] || o.model_type
+      const suffix = o.variant && type && o.variant.toLowerCase() !== type ? `${o.variant}, ${type}` : (o.variant || type)
+      meta[o.value] = { label: suffix ? `${o.label} (${suffix})` : o.label, type }
+    }
     return meta
   }, [expType])
 

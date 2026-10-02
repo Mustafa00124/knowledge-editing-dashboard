@@ -605,9 +605,24 @@ def _wall_seconds(summary):
     return round((end - start).total_seconds(), 1)
 
 
+MODEL_TYPE_LABEL = {"raw": "base", "chat": "instruct", "reasoning": "reasoning"}
+
+
+def _model_info(exp_cfg):
+    """Model value -> display name, tuning stage, type and family, from the
+    picker's own catalog (dashboard.json)."""
+    field = next(f for f in exp_cfg["fields"] if f["name"] == "model")
+    family = {m: fam["label"] for fam in field.get("families", []) for m in fam["models"]}
+    return {o["value"]: {"label": o.get("label", o["value"]), "variant": o.get("variant"),
+                         "type": MODEL_TYPE_LABEL.get(o.get("model_type"), o.get("model_type")),
+                         "family": family.get(o["value"], o.get("label", o["value"]))}
+            for o in field["options"]}
+
+
 def results(investigation):
     """One row per run of every sweep in an investigation."""
     exp_cfg = _exp_cfg()
+    models = _model_info(exp_cfg)
     sweeps = list(_sweeps(investigation))
     statuses = _statuses(sweeps)
     jobs = {str(j["job_id"]): j for j in db.list_jobs()}
@@ -635,6 +650,12 @@ def results(investigation):
             rows.append({
                 "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
                 "method": run["method"], "model": run["model"], "data_path": run["data_path"],
+                # Each tuning stage is its own model value, so runs never
+                # overwrite each other; these say which stage it is.
+                "model_label": models.get(run["model"], {}).get("label", run["model"]),
+                "model_variant": models.get(run["model"], {}).get("variant"),
+                "model_type": models.get(run["model"], {}).get("type"),
+                "model_family": models.get(run["model"], {}).get("family"),
                 "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
                 "overrides": run["overrides"], "fixed": run.get("fixed") or {},
                 "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,

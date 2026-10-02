@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CartesianGrid, ErrorBar, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, ErrorBar, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import SweepFailures from '../components/SweepFailures.jsx'
-import { CRITERIA, FACTORS, aggregate, band, duration, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
+import { CRITERIA, FACTORS, aggregate, band, duration, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
 const LINE_COLORS = ['var(--accent)', 'var(--good)', 'var(--warn)', 'var(--danger)']
@@ -47,6 +47,17 @@ function RunLog({ jobId }) {
       {log.log_tail && <pre className="dl-log">{log.log_tail}</pre>}
       {!log.err_tail && !log.log_tail && <p className="dl-dim">The logs are empty.</p>}
     </div>
+  )
+}
+
+// Which tuning stage a model is: every stage is its own model value, so runs
+// never overwrite each other, but the name alone does not always say it.
+function ModelTag({ row }) {
+  if (!row.model_variant && !row.model_type) return null
+  return (
+    <span className={`hp-model-tag is-${row.model_type || 'other'}`} title={`${row.model_family} family, ${row.model_type} model`}>
+      {row.model_variant}{row.model_variant && row.model_type && row.model_variant.toLowerCase() !== row.model_type ? ` · ${row.model_type}` : ''}
+    </span>
   )
 }
 
@@ -137,7 +148,7 @@ export default function HyperparameterResults() {
   const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
   // Averaging: by a factor (method, model or dataset), keeping each tested
   // setting apart unless pooled. Dataset averaging needs every dataset.
-  const by = FACTORS.some((f) => f.key === params.get('by')) ? params.get('by') : ''
+  const byParam = params.get('by') || ''
   const pool = params.get('pool') === '1'
   const [failureCount, setFailureCount] = useState(null)
   useEffect(() => {
@@ -175,11 +186,27 @@ export default function HyperparameterResults() {
     (!filters.dataset || r.dataset === filters.dataset) && (!filters.sweep || r.sweep_id === filters.sweep)),
   [rows, filters.method, filters.model, filters.dataset, filters.sweep])
 
+  // Swept settings in view (layers, v_lr, ...) are factors too.
+  const knobFactors = useMemo(() => [...new Set(visible.flatMap((r) => Object.keys(r.overrides || {})))].sort()
+    .map((key) => ({ key: knobFactor(key), label: key, knob: true })), [visible])
+  const allFactors = [...FACTORS, ...knobFactors]
+  const by = allFactors.some((f) => f.key === byParam) ? byParam : ''
   const effectiveBy = by === 'dataset' && filters.dataset ? '' : by
+  const byFactor = allFactors.find((f) => f.key === effectiveBy)
   const groups = useMemo(() => {
     if (!effectiveBy) return null
     const value = (g) => (sort.key === 'worst' ? g.worst.mean : sort.key === 'time' ? g.time.mean : g.scores[sort.key]?.mean)
-    return aggregate(visible, effectiveBy, !pool).sort((a, b) => {
+    const list = aggregate(visible, effectiveBy, !pool)
+    if (sort.key === 'factor') {
+      // In the factor's own order: layer 3 before 4, by number where it is one.
+      const order = (g) => (typeof g.raw === 'number' ? g.raw : Array.isArray(g.raw) && typeof g.raw[0] === 'number' ? g.raw[0] : null)
+      return list.sort((a, b) => {
+        const oa = order(a), ob = order(b)
+        const cmp = oa != null && ob != null ? oa - ob : String(a.value).localeCompare(String(b.value), undefined, { numeric: true })
+        return sort.desc ? -cmp : cmp
+      })
+    }
+    return list.sort((a, b) => {
       const va = value(a), vb = value(b)
       if (va == null && vb == null) return 0
       if (va == null) return 1
@@ -199,26 +226,38 @@ export default function HyperparameterResults() {
     })
   }, [visible, sort])
 
-  // A line chart when the visible rows vary one setting for a single method,
-  // model and dataset: the metrics across that setting's values.
+  // The chart's x-axis is the "Average by" factor: a line across a swept
+  // setting's values, grouped bars across methods, models or datasets.
+  // Each point is the mean of the finished runs at that value with a bar
+  // of one standard deviation. With individual runs it falls back to the
+  // one swept setting of a single method.
   const chart = useMemo(() => {
     const done = visible.filter((r) => r.state === DONE)
     if (!done.length) return null
-    if (new Set(done.map((r) => r.method)).size !== 1) return null
-    const keys = [...new Set(done.flatMap((r) => Object.keys(r.overrides)))]
-    if (keys.length !== 1) return null
-    const knob = keys[0]
-    // Several runs per value (other models or datasets): plot their mean
-    // with a bar of one standard deviation either side.
-    const points = aggregate(done, null, true).map((g) => ({
-      x: formatValue(g.overrides[knob]), raw: g.overrides[knob], n: g.finished,
+    let factor = byFactor
+    if (!factor) {
+      if (new Set(done.map((r) => r.method)).size !== 1) return null
+      const keys = [...new Set(done.flatMap((r) => Object.keys(r.overrides)))]
+      if (keys.length !== 1) return null
+      factor = { key: knobFactor(keys[0]), label: keys[0], knob: true }
+    }
+    const byValue = aggregate(done, factor.key, false)
+    const points = byValue.map((g) => ({
+      x: g.value, raw: g.raw, n: g.finished,
       ...Object.fromEntries(CRITERIA.flatMap((c) => [[c.key, g.scores[c.key].mean], [`${c.key}_sd`, g.scores[c.key].sd ?? 0]])),
     }))
-    points.sort((a, b) => (typeof a.raw === 'number' && typeof b.raw === 'number' ? a.raw - b.raw
-      : String(valueKey(a.raw)).localeCompare(String(valueKey(b.raw)), undefined, { numeric: true })))
-    return { knob, points, averaged: points.some((p) => p.n > 1),
+    const order = (p) => (typeof p.raw === 'number' ? p.raw : Array.isArray(p.raw) && typeof p.raw[0] === 'number' ? p.raw[0] : null)
+    points.sort((a, b) => {
+      const oa = order(a), ob = order(b)
+      return oa != null && ob != null ? oa - ob : String(a.x).localeCompare(String(b.x), undefined, { numeric: true })
+    })
+    // The table may split a value further by another swept setting; the
+    // chart pools those splits, and says so.
+    const otherSettings = byFactor && !pool && groups?.some((g) => Object.keys(g.overrides || {}).length)
+    return { label: factor.label, knob: Boolean(factor.knob), points, otherSettings,
+      averaged: points.some((p) => p.n > 1),
       criteria: CRITERIA.filter((c) => points.some((p) => p[c.key] != null)) }
-  }, [visible])
+  }, [visible, byFactor, pool, groups])
 
   async function promote(row) {
     const settings = Object.entries(row.overrides).map(([k, v]) => `${k} = ${formatValue(v)}`).join(', ')
@@ -270,8 +309,10 @@ export default function HyperparameterResults() {
       {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/hyperparameters/${investigation}`}>Launch one</Link>.</p>}
       {rows && rows.length > 0 && (
         <>
-          {options('dataset').length > 1 && (
+          {/* The layer above averaging: which datasets are in view at all. */}
+          <div className="hp-dataset-layer">
             <div className="pill-row hp-dataset-tabs" role="group" aria-label="Dataset">
+              <span className="dl-dim">Dataset</span>
               <button type="button" className={`pill${!filters.dataset ? ' selected' : ''}`} aria-pressed={!filters.dataset}
                 onClick={() => setParam('dataset', '')}>All datasets</button>
               {options('dataset').map((d) => (
@@ -279,27 +320,30 @@ export default function HyperparameterResults() {
                   aria-pressed={filters.dataset === d} onClick={() => setParam('dataset', d)}>{d}</button>
               ))}
             </div>
-          )}
           <div className="hp-average" role="group" aria-label="Average by">
             <span className="dl-dim">Average by</span>
             <button type="button" className={`pill${!effectiveBy ? ' selected' : ''}`} aria-pressed={!effectiveBy}
               onClick={() => setParam('by', '')}>Individual runs</button>
-            {FACTORS.map((f) => {
-              const blocked = f.key === 'dataset' && Boolean(filters.dataset)
-              return (
-                <button key={f.key} type="button" disabled={blocked}
-                  className={`pill${effectiveBy === f.key ? ' selected' : ''}${blocked ? ' disabled' : ''}`}
-                  aria-pressed={effectiveBy === f.key} onClick={() => setParam('by', f.key)}
-                  title={blocked ? 'Choose All datasets to average by dataset' : `one row per ${f.label.toLowerCase()}, averaged over everything else`}>
-                  {f.label}
-                </button>
-              )
-            })}
+            {/* Dataset is a choice only with All datasets in view. */}
+            {allFactors.filter((f) => f.key !== 'dataset' || !filters.dataset).map((f) => (
+              <button key={f.key} type="button"
+                className={`pill${effectiveBy === f.key ? ' selected' : ''}${f.knob ? ' hp-knob-factor' : ''}`}
+                aria-pressed={effectiveBy === f.key} onClick={() => setParam('by', f.key)}
+                title={f.knob
+                  ? `one row per ${f.label} value, averaged over methods, models and datasets: compares the ${f.label} values directly`
+                  : f.help || `one row per ${f.label.toLowerCase()}, averaged over everything else`}>
+                {f.knob ? <code>{f.label}</code> : f.label}
+              </button>
+            ))}
             {effectiveBy && (
-              <label className="hp-pool" title="Off: every tested value stays its own row, so different settings are never averaged together">
-                <input type="checkbox" checked={!pool} onChange={() => setParam('pool', pool ? '' : '1')} /> Keep each tested setting separate
-              </label>
+              (!byFactor?.knob || knobFactors.length > 1) && (
+                <label className="hp-pool" title="Off: every tested value stays its own row, so different settings are never averaged together">
+                  <input type="checkbox" checked={!pool} onChange={() => setParam('pool', pool ? '' : '1')} />
+                  {byFactor?.knob ? ' Keep the other tested settings separate' : ' Keep each tested setting separate'}
+                </label>
+              )
             )}
+          </div>
           </div>
           <div className="hp-filters">
             <Filter label="Method" options={options('method')} value={filters.method} onChange={(v) => setParam('method', v)} />
@@ -314,20 +358,40 @@ export default function HyperparameterResults() {
 
           {chart && (
             <div className="chart-wrap hp-chart">
-              <div className="dl-dim">Across <code>{chart.knob}</code>{chart.averaged ? ', mean of the runs at each value, bars ± one standard deviation' : ''}</div>
+              <div className="dl-dim">
+                By {chart.knob ? <code>{chart.label}</code> : chart.label.toLowerCase()}
+                {chart.averaged ? ': mean of the finished runs at each value, bars ± one standard deviation' : ''}
+                {chart.otherSettings ? '; pooled over the other tested settings, which the table keeps apart' : ''}
+              </div>
               <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={chart.points} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="x" stroke="var(--text-dim)" />
-                  <YAxis domain={[0, 1]} tickFormatter={(v) => `${Math.round(v * 100)}%`} stroke="var(--text-dim)" />
-                  <Tooltip formatter={(v) => pct(v)} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }} />
-                  <Legend />
-                  {chart.criteria.map((c, i) => (
-                    <Line key={c.key} type="monotone" dataKey={c.key} name={c.label} stroke={LINE_COLORS[i]} dot connectNulls>
-                      {chart.averaged && <ErrorBar dataKey={`${c.key}_sd`} width={4} stroke={LINE_COLORS[i]} />}
-                    </Line>
-                  ))}
-                </LineChart>
+                {chart.knob ? (
+                  <LineChart data={chart.points} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="x" stroke="var(--text-dim)" />
+                    <YAxis domain={[0, 1]} tickFormatter={(v) => `${Math.round(v * 100)}%`} stroke="var(--text-dim)" />
+                    <Tooltip formatter={(v) => pct(v)} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }} />
+                    <Legend />
+                    {chart.criteria.map((c, i) => (
+                      <Line key={c.key} type="monotone" dataKey={c.key} name={c.label} stroke={LINE_COLORS[i]} dot connectNulls>
+                        {chart.averaged && <ErrorBar dataKey={`${c.key}_sd`} width={4} stroke={LINE_COLORS[i]} />}
+                      </Line>
+                    ))}
+                  </LineChart>
+                ) : (
+                  <BarChart data={chart.points} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="x" stroke="var(--text-dim)" />
+                    <YAxis domain={[0, 1]} ticks={[0, 0.25, 0.5, 0.75, 1]} tickFormatter={(v) => `${Math.round(v * 100)}%`} stroke="var(--text-dim)" />
+                    <Tooltip formatter={(v) => pct(v)} cursor={{ fill: 'var(--panel-2)' }}
+                      contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }} />
+                    <Legend />
+                    {chart.criteria.map((c, i) => (
+                      <Bar key={c.key} dataKey={c.key} name={c.label} fill={LINE_COLORS[i]} maxBarSize={36}>
+                        {chart.averaged && <ErrorBar dataKey={`${c.key}_sd`} width={4} stroke="var(--text)" />}
+                      </Bar>
+                    ))}
+                  </BarChart>
+                )}
               </ResponsiveContainer>
             </div>
           )}
@@ -337,8 +401,11 @@ export default function HyperparameterResults() {
               <table className="hp-table">
                 <thead>
                   <tr>
-                    <th>{FACTORS.find((f) => f.key === effectiveBy).label}</th>
-                    {!pool && <th>Setting</th>}
+                    <th className="hp-sortable" title="click to order the rows by this value"
+                      onClick={() => setSort((s) => ({ key: 'factor', desc: s.key === 'factor' ? !s.desc : false }))}>
+                      {byFactor.knob ? <code>{byFactor.label}</code> : byFactor.label}{sort.key === 'factor' ? (sort.desc ? ' ↓' : ' ↑') : ''}
+                    </th>
+                    {!pool && groups.some((g) => Object.keys(g.overrides || {}).length) && <th>Other settings</th>}
                     <th title="finished runs averaged, of all runs in the group">Runs</th>
                     {header('worst', 'Weakest', 'mean of each run’s weakest criterion')}
                     {CRITERIA.map((c) => header(c.key, c.label, `${c.help}; mean ± standard deviation`))}
@@ -348,8 +415,12 @@ export default function HyperparameterResults() {
                 <tbody>
                   {groups.map((g) => (
                     <tr key={g.key}>
-                      <td className="hp-run-cell"><strong>{g.value}</strong></td>
-                      {!pool && (
+                      <td className="hp-run-cell">
+                        {effectiveBy === 'model'
+                          ? <><strong>{g.rows[0].model_label}</strong> <ModelTag row={g.rows[0]} /></>
+                          : <strong>{g.value}</strong>}
+                      </td>
+                      {!pool && groups.some((x) => Object.keys(x.overrides || {}).length) && (
                         <td className="hp-setting">{Object.entries(g.overrides || {}).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}</td>
                       )}
                       <td className="hp-over">
@@ -387,7 +458,10 @@ export default function HyperparameterResults() {
                 {sorted.map((r) => (
                   <Fragment key={`${r.sweep_id}/${r.run}`}>
                   <tr>
-                    <td className="hp-run-cell"><strong>{r.method}</strong> · {r.model}<div className="dl-dim">{r.dataset}</div></td>
+                    <td className="hp-run-cell">
+                      <strong>{r.method}</strong> · {r.model_label || r.model} <ModelTag row={r} />
+                      <div className="dl-dim">{r.dataset}</div>
+                    </td>
                     <td className="hp-setting">
                       {Object.entries(r.overrides).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}
                       {Object.keys(r.fixed || {}).length > 0 && (

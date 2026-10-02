@@ -91,15 +91,31 @@ export const pct = (value) => (value == null ? '—' : `${Math.round(value * 100
 
 // ---- averaging runs ----
 
-// The tested values of a run, as one comparable key ("layers=[4]").
-export const settingKey = (overrides) =>
-  Object.keys(overrides || {}).sort().map((k) => `${k}=${valueKey(overrides[k])}`).join(' ')
+// The tested values of a run, as one comparable key ("layers=[4]"),
+// optionally leaving one setting out.
+export const settingKey = (overrides, except) =>
+  Object.keys(overrides || {}).filter((k) => k !== except).sort().map((k) => `${k}=${valueKey(overrides[k])}`).join(' ')
+
+// A swept setting can be averaged by too: "knob:layers" groups runs by
+// their layers value, whatever method, model or dataset they came from.
+export const knobFactor = (key) => `knob:${key}`
+const knobOf = (factor) => (factor && factor.startsWith('knob:') ? factor.slice(5) : null)
+
+function factorValue(row, factor) {
+  const knob = knobOf(factor)
+  if (!knob) return row[factor]
+  return knob in (row.overrides || {}) ? formatValue(row.overrides[knob]) : 'not swept'
+}
 
 export const FACTORS = [
   { key: 'method', label: 'Method' },
   { key: 'model', label: 'Model' },
+  { key: 'model_type', label: 'Model type', help: 'base, instruct or reasoning: compares tuning stages across families' },
+  { key: 'model_family', label: 'Model family', help: 'one pretrain and its tuning stages, e.g. every Qwen3-4B variant' },
   { key: 'dataset', label: 'Dataset' },
 ]
+// What an averaged row reports it averaged over.
+const OVER = ['method', 'model', 'dataset']
 
 // Mean, sample variance and standard deviation of the non-missing values.
 export function stats(values) {
@@ -115,16 +131,23 @@ export function stats(values) {
 // averaging every finished run in it over everything else. The weakest
 // score is averaged per run, so it still means "no criterion collapsed".
 export function aggregate(rows, factor, keepSetting, done = 'COMPLETED') {
+  const knob = knobOf(factor)
   const groups = new Map()
   for (const row of rows) {
-    const key = `${factor ? row[factor] : ''}|${keepSetting ? settingKey(row.overrides) : ''}`
-    if (!groups.has(key)) groups.set(key, { key, value: factor ? row[factor] : 'All runs', overrides: keepSetting ? row.overrides : null, rows: [] })
+    const value = factor ? factorValue(row, factor) : 'All runs'
+    // Grouping by a setting: the other swept settings (if any) stay apart.
+    const rest = keepSetting ? settingKey(row.overrides, knob) : ''
+    const key = `${value}|${rest}`
+    const shown = keepSetting
+      ? Object.fromEntries(Object.entries(row.overrides || {}).filter(([k]) => k !== knob))
+      : null
+    if (!groups.has(key)) groups.set(key, { key, value, raw: knob ? row.overrides?.[knob] : undefined, overrides: shown, rows: [] })
     groups.get(key).rows.push(row)
   }
   return [...groups.values()].map((g) => {
     const finished = g.rows.filter((r) => r.state === done)
-    const over = Object.fromEntries(FACTORS.filter((f) => f.key !== factor)
-      .map((f) => [f.key, [...new Set(g.rows.map((r) => r[f.key]))]]))
+    const over = Object.fromEntries(OVER.filter((f) => f !== factor)
+      .map((f) => [f, [...new Set(g.rows.map((r) => r[f]))]]))
     return {
       ...g,
       total: g.rows.length,

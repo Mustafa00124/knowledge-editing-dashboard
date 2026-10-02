@@ -35,3 +35,25 @@ test('unfinished runs are counted but not averaged, and pooling merges settings'
   assert.equal(a5.finished, 1)
   assert.equal(aggregate(rows, 'model', false).length, 2)
 })
+
+test('a swept setting is a factor: one row per value across methods, models and datasets', () => {
+  const groups = aggregate(rows, 'knob:layers', true)
+  assert.deepEqual(groups.map((g) => g.value).sort(), ['[4]', '[5]'])
+  const four = groups.find((g) => g.value === '[4]')
+  assert.equal(four.finished, 3)
+  assert.deepEqual([...four.over.model].sort(), ['a', 'b'])
+  assert.ok(Math.abs(four.scores.reliability.mean - 0.8) < 1e-12)
+})
+
+test('model type is a factor: tuning stages are compared across families', () => {
+  const typed = [
+    { ...run('rome', 'qwen-base', 'd1', [4], 1.0, 0.6), model_type: 'base' },
+    { ...run('rome', 'olmo-base', 'd1', [4], 0.8, 0.6), model_type: 'base' },
+    { ...run('rome', 'qwen-instruct', 'd1', [4], 0.5, 0.6), model_type: 'instruct' },
+  ]
+  const groups = aggregate(typed, 'model_type', true)
+  const base = groups.find((g) => g.value === 'base')
+  assert.equal(base.finished, 2)
+  assert.deepEqual([...base.over.model].sort(), ['olmo-base', 'qwen-base'])
+  assert.ok(Math.abs(base.scores.reliability.mean - 0.9) < 1e-12)
+})
