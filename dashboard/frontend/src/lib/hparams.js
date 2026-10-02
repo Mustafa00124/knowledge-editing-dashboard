@@ -17,8 +17,11 @@ export const STABILITY_LABEL = {
 }
 
 // Swept values travel as JSON so lists (layers, modules) round-trip.
-export const formatValue = (value) =>
-  Array.isArray(value) ? `[${value.join(', ')}]` : typeof value === 'boolean' ? String(value) : String(value)
+export const formatValue = (value) => {
+  if (Array.isArray(value)) return value.some((v) => typeof v === 'object' && v !== null) ? JSON.stringify(value) : `[${value.join(', ')}]`
+  if (value !== null && typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
 
 export const valueKey = (value) => JSON.stringify(value)
 

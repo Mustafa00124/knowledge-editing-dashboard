@@ -130,6 +130,15 @@ def get_investigations():
     return hparam_sweeps.catalog()
 
 
+@app.get("/api/hparams/settings")
+def get_held_settings(investigation: str, methods: str, models: str):
+    """What a sweep holds constant: every other setting of the chosen
+    methods per model, its effective value and source, the investigation
+    that tunes it, and the best value that investigation found so far."""
+    return hparam_sweeps.settings(investigation, [m for m in methods.split(",") if m],
+                                  [m for m in models.split(",") if m])
+
+
 @app.post("/api/hparams/estimate")
 def estimate_sweep(req: SweepRequest):
     try:

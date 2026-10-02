@@ -48,6 +48,8 @@ export const api = {
 
   // Hyperparameter investigations (see backend/hparam_sweeps.py).
   investigations: () => req('/hparams/investigations'),
+  heldSettings: (investigation, methods, models) =>
+    req(`/hparams/settings?investigation=${encodeURIComponent(investigation)}&methods=${encodeURIComponent(methods.join(','))}&models=${encodeURIComponent(models.join(','))}`),
   estimateSweep: (spec) => req('/hparams/estimate', { method: 'POST', body: JSON.stringify(spec) }),
   launchSweep: (spec) => req('/hparams/sweeps', { method: 'POST', body: JSON.stringify(spec) }),
   sweeps: (investigation) => req(`/hparams/sweeps${investigation ? `?investigation=${encodeURIComponent(investigation)}` : ''}`),

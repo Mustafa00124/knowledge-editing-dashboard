@@ -246,7 +246,15 @@ directories will move before it commits.
   values passed as `--hparam` overrides. The page estimates runs, GPU-hours
   and missing covariance statistics before launch. Causal tracing is a tool
   inside Edit layers (`/hyperparameters/edit_layers/causal-tracing`); its
-  peak layer is added to the suggested layers. Backend:
+  peak layer is added to the suggested layers. A "Held constant" block
+  lists everything the sweep does not vary: the run-level settings (dev
+  split, protocol, records, seed, evaluation) and every other setting of
+  each chosen method per model, at the value runs really get (the
+  hparams file, an Experiments-page default such as IKE's k, or a value
+  tuned by an earlier sweep), with the investigation that tunes it and
+  the best value that investigation has found. Any of them can be changed
+  for one sweep (sent as extra --hparam overrides, recorded as `fixed` in
+  sweep.json, not part of run names). Backend:
   `backend/hparam_sweeps.py`, results under
   `results/hyperparameters/<investigation>/sweeps/<sweep>/`.
 - **Results · Hyperparameters** (`/results/hyperparameters`): every sweep

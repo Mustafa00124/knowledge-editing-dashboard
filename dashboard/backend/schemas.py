@@ -29,6 +29,9 @@ class SweepRequest(BaseModel):
     edit_mode: str = "batch"
     seed: int = 0
     label: str = ""
+    # Held-constant settings changed from their current value:
+    # method -> model -> hparams key -> value, applied to every run.
+    fixed: Dict[str, Dict[str, Dict[str, Any]]] = {}
 
 
 class PromoteRequest(BaseModel):

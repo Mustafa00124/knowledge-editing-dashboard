@@ -212,7 +212,14 @@ export default function HyperparameterResults() {
                     <td>{r.method}</td>
                     <td>{r.model}</td>
                     <td>{r.dataset}</td>
-                    <td className="hp-setting">{Object.entries(r.overrides).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}</td>
+                    <td className="hp-setting">
+                      {Object.entries(r.overrides).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}
+                      {Object.keys(r.fixed || {}).length > 0 && (
+                        <div className="dl-desc" title="held at a non-default value in this sweep">
+                          held: {Object.entries(r.fixed).map(([k, v]) => `${k} ${formatValue(v)}`).join(', ')}
+                        </div>
+                      )}
+                    </td>
                     <td className={`hp-score is-${weakestBand(r, thresholds)}`}><strong>{pct(r.worst)}</strong></td>
                     {CRITERIA.map((c) => (
                       <td key={c.key} className={`hp-score is-${band(r.scores?.[c.key], thresholds[c.key])}`}

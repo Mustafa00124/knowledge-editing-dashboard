@@ -4,6 +4,7 @@ import { api } from '../api.js'
 import DatasetField from '../components/DatasetField.jsx'
 import ModelField from '../components/ModelField.jsx'
 import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
+import HeldConstant from '../components/HeldConstant.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
 import { CATEGORY_HELP, STABILITY_LABEL, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
@@ -70,6 +71,10 @@ export default function HyperparameterInvestigation() {
   const [editMode, setEditMode] = useState(null)
   const [dsSize, setDsSize] = useState('full')
   const [label, setLabel] = useState('')
+  const [seed, setSeed] = useState(0)
+  const [held, setHeld] = useState({})
+  // Held-constant settings changed for this sweep: method -> model -> key -> value.
+  const [fixed, setFixed] = useState({})
   const [estimate, setEstimate] = useState(null)
   const [launching, setLaunching] = useState(false)
   const [message, setMessage] = useState(null)
@@ -107,8 +112,26 @@ export default function HyperparameterInvestigation() {
     methods: Object.fromEntries(Object.entries(methods)
       .map(([m, knobs]) => [m, Object.fromEntries(Object.entries(knobs).filter(([, v]) => v.length))])
       .filter(([, knobs]) => Object.keys(knobs).length)),
-    models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed: 0, label,
-  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label])
+    models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed, label,
+    fixed: Object.fromEntries(Object.entries(fixed).filter(([m]) => methods[m])),
+  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed])
+
+  const methodList = Object.keys(methods).sort().join(',')
+  useEffect(() => {
+    if (!methodList || !models.length) { setHeld({}); return }
+    let live = true
+    api.heldSettings(investigationId, methodList.split(','), models).then((h) => { if (live) setHeld(h) }).catch(() => {})
+    return () => { live = false }
+  }, [investigationId, methodList, models.join(',')])
+
+  function fix(method, model, key, value) {
+    setFixed((previous) => {
+      const forModel = { ...(previous[method]?.[model] || {}) }
+      if (value === undefined) delete forModel[key]
+      else forModel[key] = value
+      return { ...previous, [method]: { ...(previous[method] || {}), [model]: forModel } }
+    })
+  }
   const ready = Object.keys(spec.methods).length > 0 && models.length > 0 && dataPaths.length > 0
 
   // Re-estimate a moment after the selection settles.
@@ -234,12 +257,33 @@ export default function HyperparameterInvestigation() {
               <option value="20">20</option>
             </select>
           </label>
+          <label>Seed{' '}
+            <select value={seed} onChange={(e) => setSeed(Number(e.target.value))}>
+              {[0, 1, 2, 3].map((v) => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </label>
           <label>Label{' '}
             <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="optional, e.g. first pass" />
           </label>
         </div>
         <p className="dl-dim">Use the protocol the main experiments will use: settings tuned under single edits do not transfer to sequential ones.</p>
       </section>
+
+      <HeldConstant
+        held={held}
+        swept={Object.fromEntries(Object.entries(methods).map(([m, knobs]) => [m, Object.keys(knobs).filter((k) => knobs[k].length)]))}
+        fixed={fixed}
+        onFix={fix}
+        models={models}
+        runSettings={[
+          ['Records', `dev split only, ${dsSize === 'full' ? 'all dev records (up to 100)' : `${dsSize} per subset`}; test records are never used`],
+          ['Editing protocol', editMode || 'batch'],
+          ['Seed', String(seed)],
+          ['Evaluation', 'before editing and once at the end; Original scorer (token match), fluency on every run'],
+          ['Models', models.join(', ') || 'none chosen'],
+          ['Datasets', `${dataPaths.length} subset${dataPaths.length === 1 ? '' : 's'}`],
+        ]}
+      />
 
       <div className={`dl-bar${ready ? ' has-selection' : ''}`}>
         <div className="dl-bar-summary">

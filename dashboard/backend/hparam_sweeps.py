@@ -40,6 +40,24 @@ TUNED_PATH = HPARAMS_DIR / "TUNED.json"
 EXPERIMENT = "run_experiment"
 SWEEP_PREFIX = "hp-"
 LOG_FACTORS = (0.1, 0.3, 1, 3, 10)
+
+# hparams keys that are plumbing rather than tuning: names, paths, devices,
+# and module-name templates fixed by the architecture.
+HIDDEN_KEYS = {"alg_name", "model_name", "device", "stats_dir", "P_loc", "model_parallel", "mom2_dtype",
+               "fp16", "delta_dtype", "lora_type", "base_method", "data_path", "seed"}
+HIDDEN_SUFFIXES = ("_tmp", "_tmps", "_module")
+
+# Experiments-page fields that override an hparams-file setting when the
+# field applies to the method (run_experiment.py sets hparams from them).
+FIELD_OVERRIDES = {
+    "lr": {"ft": "lr", "lora": "lr"},
+    "num_steps": {"ft": "num_steps", "lora": "num_steps"},
+    "mom2_n_samples": {"memit": "mom2_n_samples", "pmet": "mom2_n_samples", "alphaedit": "mom2_n_samples"},
+    "retrieval_k": {"scr": "retrieval_k", "ike": "k"},
+}
+# Set by the runner itself, never from a file or a sweep.
+RUNNER_SET = {("ft", "batch_size"): "every record at once (the runner sets it to the record count)",
+              ("lora", "batch_size"): "every record at once (the runner sets it to the record count)"}
 INT_FACTORS = (0.5, 1, 2)
 
 
@@ -170,11 +188,13 @@ def catalog():
             for key, spec in entry["knobs"].items():
                 defaults, suggestions = {}, {}
                 for model in models:
-                    hp = _read_hparams(method, model)
-                    if hp is None or key not in hp:
+                    # The value runs really get, which for a few settings is
+                    # an Experiments-page default rather than the file's.
+                    current = {r["key"]: r["value"] for r in effective_settings(method, model, exp_cfg) or []}
+                    if key not in current:
                         continue
-                    defaults[model] = hp[key]
-                    suggestions[model] = suggest(spec["kind"], hp[key], spec, model)
+                    defaults[model] = current[key]
+                    suggestions[model] = suggest(spec["kind"], current[key], spec, model)
                 knobs.append({
                     "key": key, **spec, "defaults": defaults, "suggestions": suggestions,
                     "tuned": {m: tuned_settings.get(method, {}).get(m, {}).get(key) for m in defaults
@@ -186,6 +206,85 @@ def catalog():
                 "note": option.get("note"), "knobs": knobs,
             })
         out.append({**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods})
+    return out
+
+
+def _owners():
+    """(method, key) -> the investigation that tunes it."""
+    owners = {}
+    for inv in _load_catalog()["investigations"]:
+        for method, entry in inv["methods"].items():
+            for key in entry["knobs"]:
+                owners[(method, key)] = {"id": inv["id"], "label": inv["label"]}
+    return owners
+
+
+def effective_settings(method, model, exp_cfg=None):
+    """Every tunable setting a run of this method on this model gets, with
+    the value it really runs with and where that value comes from."""
+    exp_cfg = exp_cfg or _exp_cfg()
+    hp = _read_hparams(method, model)
+    if hp is None:
+        return None
+    fields = {f["name"]: f for f in exp_cfg["fields"]}
+    from_fields = {}
+    for field_name, per_method in FIELD_OVERRIDES.items():
+        key = per_method.get(method)
+        if key and field_name in fields:
+            from_fields[key] = slurm._cast(fields[field_name]["default"], fields[field_name]["type"])
+    tuned_here = tuned().get(method, {}).get(model, {})
+    out = []
+    for key, value in hp.items():
+        if key in HIDDEN_KEYS or key.endswith(HIDDEN_SUFFIXES):
+            continue
+        if (method, key) in RUNNER_SET:
+            out.append({"key": key, "value": None, "source": "runner", "note": RUNNER_SET[(method, key)],
+                        "editable": False})
+            continue
+        if key in from_fields:
+            out.append({"key": key, "value": from_fields[key], "source": "experiment_default", "editable": True,
+                        "note": f"the Experiments page default; the hparams file says {json.dumps(value)}"})
+        elif key in tuned_here:
+            t = tuned_here[key]
+            out.append({"key": key, "value": value, "source": "tuned", "editable": True,
+                        "note": f"tuned in {t['investigation']} (sweep {t['sweep']})"})
+        else:
+            out.append({"key": key, "value": value, "source": "hparams", "editable": True})
+    return out
+
+
+def settings(investigation, methods, models):
+    """Held-constant candidates for a sweep: each method's settings per
+    model, which investigation tunes each one, and the best value that
+    investigation has found so far (weakest criterion, any dataset)."""
+    exp_cfg = _exp_cfg()
+    owners = _owners()
+    results_cache = {}
+
+    def best(method, model, key, owner):
+        if not owner or owner["id"] == investigation:
+            return None
+        rows = results_cache.setdefault(owner["id"], results(owner["id"]))
+        candidates = [r for r in rows if r["method"] == method and r["model"] == model and r["worst"] is not None
+                      and list(r["overrides"]) == [key]]
+        if not candidates:
+            return None
+        top = max(candidates, key=lambda r: r["worst"])
+        return {"value": top["overrides"][key], "worst": top["worst"], "dataset": top["dataset"],
+                "sweep": top["sweep_id"], "run": top["run"]}
+
+    out = {}
+    for method in methods:
+        out[method] = {}
+        for model in models:
+            rows = effective_settings(method, model, exp_cfg)
+            if rows is None:
+                continue
+            for row in rows:
+                owner = owners.get((method, row["key"]))
+                row["owner"] = owner
+                row["best"] = best(method, model, row["key"], owner) if row["editable"] else None
+            out[method][model] = rows
     return out
 
 
@@ -209,6 +308,15 @@ def _grid(knob_values):
         yield dict(zip(keys, combo))
 
 
+def _skip_reason(exp_cfg, params):
+    spec = _method_options(exp_cfg).get(params["method"], {})
+    if params.get("edit_mode") in ("batch", "sequential_batch") and spec.get("no_joint_batch"):
+        return f"{spec.get('label', params['method'])} edits one fact at a time; choose the single or sequential protocol"
+    if params.get("edit_mode") == "sequential_batch" and int(params.get("edit_batch_size", 1)) > int(params.get("reset_every", 1)):
+        return "the batch size is larger than the reset interval"
+    return "this method cannot run on this dataset"
+
+
 def plan(req):
     """Every run a launch request would submit, and every point skipped with
     the reason, without submitting anything."""
@@ -217,6 +325,7 @@ def plan(req):
     if inv is None:
         raise ValueError(f"unknown investigation {req['investigation']!r}")
     runs, skipped = [], []
+    fixed_all = req.get("fixed") or {}
     for method, knob_values in req["methods"].items():
         if method not in inv["methods"]:
             raise ValueError(f"{method} has no setting in the {inv['label']} investigation")
@@ -231,6 +340,16 @@ def plan(req):
             if _read_hparams(method, model) is None:
                 skipped.append({"method": method, "model": model, "reason": "no hparams for this model"})
                 continue
+            # Held-constant settings changed from their current value; applied
+            # to every run of this method and model, never part of a run name.
+            fixed = dict((fixed_all.get(method) or {}).get(model) or {})
+            editable = {r["key"] for r in effective_settings(method, model, exp_cfg) if r["editable"]}
+            bad = set(fixed) - editable
+            if bad:
+                raise ValueError(f"{method} on {model} has no adjustable setting {', '.join(sorted(bad))}")
+            clash = set(fixed) & set(knob_values)
+            if clash:
+                raise ValueError(f"{', '.join(sorted(clash))} is being swept, so it cannot also be held at a value")
             for data_path in req["data_paths"]:
                 params = slurm._prepare_params(exp_cfg, {
                     "method": method, "model": model, "data_path": data_path,
@@ -239,13 +358,13 @@ def plan(req):
                 })
                 if not slurm._combo_supported(exp_cfg, params):
                     skipped.append({"method": method, "model": model, "data_path": data_path,
-                                    "reason": "this method cannot run on this dataset"})
+                                    "reason": _skip_reason(exp_cfg, params)})
                     continue
                 for overrides in _grid(knob_values):
                     name = "_".join([method, model, _dataset_slug(exp_cfg, data_path)]
                                     + [f"{k}{_slug(v)}" for k, v in overrides.items()])
-                    runs.append({"run_name": name, "method": method, "model": model,
-                                 "data_path": data_path, "overrides": overrides, "params": params})
+                    runs.append({"run_name": name, "method": method, "model": model, "data_path": data_path,
+                                 "overrides": overrides, "fixed": fixed, "params": params})
     return exp_cfg, inv, runs, skipped
 
 
@@ -259,7 +378,7 @@ def launch(req):
     submitted, errors = [], []
     for run in runs:
         extra = ["--split dev", "--final_only"] + [
-            f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}" for k, v in run["overrides"].items()]
+            f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}" for k, v in {**run["fixed"], **run["overrides"]}.items()]
         try:
             result = slurm._submit_one(exp_cfg, run["params"], run["run_name"], out_root, extra_args=extra)
         except RuntimeError as exc:
@@ -269,7 +388,7 @@ def launch(req):
             job_id=result["job_id"], experiment_type=EXPERIMENT, run_name=run["run_name"],
             params=run["params"], sbatch_path=result["sbatch_path"], out_path=result["out_path"],
             err_path=result["err_path"], out_root=str(out_root), sweep_id=SWEEP_PREFIX + sweep_id)
-        submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides")}
+        submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides", "fixed")}
                          | {"job_id": result["job_id"]})
     (out_root / "sweep.json").write_text(json.dumps({
         "id": sweep_id, "investigation": inv["id"], "label": req.get("label") or "",
@@ -353,7 +472,7 @@ def results(investigation):
                 "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
                 "method": run["method"], "model": run["model"], "data_path": run["data_path"],
                 "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
-                "overrides": run["overrides"],
+                "overrides": run["overrides"], "fixed": run.get("fixed") or {},
                 "state": statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN"),
                 "records": summary.get("ds_size") if summary else None,
                 "scores": scores, "worst": worst,
