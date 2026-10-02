@@ -4,7 +4,8 @@ import { Bar, BarChart, CartesianGrid, ErrorBar, Legend, Line, LineChart, Respon
 import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import SweepFailures from '../components/SweepFailures.jsx'
-import { CRITERIA, FACTORS, aggregate, band, duration, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
+import FactorPanel from '../components/FactorPanel.jsx'
+import { CRITERIA, FACTORS, aggregate, band, duration, factorValue, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
 const LINE_COLORS = ['var(--accent)', 'var(--good)', 'var(--warn)', 'var(--danger)']
@@ -146,21 +147,28 @@ export default function HyperparameterResults() {
   const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
   const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
-  // Averaging: by a factor (method, model or dataset), keeping each tested
-  // setting apart unless pooled. Dataset averaging needs every dataset.
-  const byParam = params.get('by') || ''
-  const pool = params.get('pool') === '1'
+  // Which factor is the table's rows ('run' for one row per run), and the
+  // values left out of each factor; everything included is averaged.
+  const rowsParam = params.get('rows') || 'run'
+  const excluded = useMemo(() => {
+    try { return JSON.parse(params.get('excl') || '{}') } catch { return {} }
+  }, [params])
   const [failureCount, setFailureCount] = useState(null)
   useEffect(() => {
     api.sweepFailures().then((f) => setFailureCount(f.open.length)).catch(() => {})
   }, [view])
-  const filters = { method: params.get('method') || '', model: params.get('model') || '',
-    dataset: params.get('dataset') || '', sweep: params.get('sweep') || '', protocol: params.get('protocol') || '' }
+  const filters = { sweep: params.get('sweep') || '' }
   const setParam = (key, value) => {
     const next = new URLSearchParams(params)
     if (value) next.set(key, value)
     else next.delete(key)
     setParams(next, { replace: true })
+  }
+  const setExcluded = (factor, values) => {
+    const next = { ...excluded }
+    if (values.length) next[factor] = values
+    else delete next[factor]
+    setParam('excl', Object.keys(next).length ? JSON.stringify(next) : '')
   }
 
   useEffect(() => {
@@ -181,23 +189,30 @@ export default function HyperparameterResults() {
   }, [investigation, view])
 
   const options = (key) => [...new Set((rows || []).map((r) => r[key]))].sort()
-  const visible = useMemo(() => (rows || []).filter((r) =>
-    (!filters.method || r.method === filters.method) && (!filters.model || r.model === filters.model) &&
-    (!filters.dataset || r.dataset === filters.dataset) && (!filters.sweep || r.sweep_id === filters.sweep) &&
-    (!filters.protocol || r.protocol === filters.protocol)),
-  [rows, filters.method, filters.model, filters.dataset, filters.sweep, filters.protocol])
+  // Dataset and protocol first, then the rest; swept settings (layers,
+  // v_lr, ...) are factors too.
+  const knobFactors = useMemo(() => [...new Set((rows || []).flatMap((r) => Object.keys(r.overrides || {})))].sort()
+    .map((key) => ({ key: knobFactor(key), label: key, knob: true,
+      help: `the ${key} values this investigation swept` })), [rows])
+  const ORDER = ['dataset', 'protocol', 'method', 'model', 'model_type', 'model_family']
+  const allFactors = [...ORDER.map((k) => FACTORS.find((f) => f.key === k)), ...knobFactors]
+  const rowsBy = allFactors.some((f) => f.key === rowsParam) ? rowsParam : 'run'
+  const byFactor = allFactors.find((f) => f.key === rowsBy)
+  const modelNames = useMemo(() => Object.fromEntries((rows || []).map((r) => [r.model, r])), [rows])
+  const display = (key, value) => (key === 'model' && modelNames[value]
+    ? `${modelNames[value].model_label}${modelNames[value].model_variant ? ` (${modelNames[value].model_variant})` : ''}`
+    : String(value))
 
-  // Swept settings in view (layers, v_lr, ...) are factors too.
-  const knobFactors = useMemo(() => [...new Set(visible.flatMap((r) => Object.keys(r.overrides || {})))].sort()
-    .map((key) => ({ key: knobFactor(key), label: key, knob: true })), [visible])
-  const allFactors = [...FACTORS, ...knobFactors]
-  const by = allFactors.some((f) => f.key === byParam) ? byParam : ''
-  const effectiveBy = by === 'dataset' && filters.dataset ? '' : by
-  const byFactor = allFactors.find((f) => f.key === effectiveBy)
+  const visible = useMemo(() => (rows || []).filter((r) =>
+    (!filters.sweep || r.sweep_id === filters.sweep) &&
+    allFactors.every((f) => !(excluded[f.key] || []).includes(factorValue(r, f.key)))),
+  [rows, filters.sweep, excluded, allFactors.length])
+
   const groups = useMemo(() => {
-    if (!effectiveBy) return null
+    if (rowsBy === 'run') return null
     const value = (g) => (sort.key === 'worst' ? g.worst.mean : sort.key === 'time' ? g.time.mean : g.scores[sort.key]?.mean)
-    const list = aggregate(visible, effectiveBy, !pool)
+    // Everything included is averaged together within a row.
+    const list = aggregate(visible, rowsBy, false)
     if (sort.key === 'factor') {
       // In the factor's own order: layer 3 before 4, by number where it is one.
       const order = (g) => (typeof g.raw === 'number' ? g.raw : Array.isArray(g.raw) && typeof g.raw[0] === 'number' ? g.raw[0] : null)
@@ -214,7 +229,7 @@ export default function HyperparameterResults() {
       if (vb == null) return -1
       return sort.desc ? vb - va : va - vb
     })
-  }, [visible, effectiveBy, pool, sort])
+  }, [visible, rowsBy, sort])
 
   const sorted = useMemo(() => {
     const value = (r) => (sort.key === 'worst' ? r.worst : sort.key === 'time' ? (r.wall_sec ?? r.elapsed_sec) : r.scores?.[sort.key])
@@ -227,7 +242,7 @@ export default function HyperparameterResults() {
     })
   }, [visible, sort])
 
-  // The chart's x-axis is the "Average by" factor: a line across a swept
+  // The chart's x-axis is the table-rows factor: a line across a swept
   // setting's values, grouped bars across methods, models or datasets.
   // Each point is the mean of the finished runs at that value with a bar
   // of one standard deviation. With individual runs it falls back to the
@@ -252,13 +267,10 @@ export default function HyperparameterResults() {
       const oa = order(a), ob = order(b)
       return oa != null && ob != null ? oa - ob : String(a.x).localeCompare(String(b.x), undefined, { numeric: true })
     })
-    // The table may split a value further by another swept setting; the
-    // chart pools those splits, and says so.
-    const otherSettings = byFactor && !pool && groups?.some((g) => Object.keys(g.overrides || {}).length)
-    return { label: factor.label, knob: Boolean(factor.knob), points, otherSettings,
+    return { label: factor.label, key: factor.key, knob: Boolean(factor.knob), points: points.map((p) => ({ ...p, x: display(factor.key, p.x) })),
       averaged: points.some((p) => p.n > 1),
       criteria: CRITERIA.filter((c) => points.some((p) => p[c.key] != null)) }
-  }, [visible, byFactor, pool, groups])
+  }, [visible, byFactor])
 
   async function promote(row) {
     const settings = Object.entries(row.overrides).map(([k, v]) => `${k} = ${formatValue(v)}`).join(', ')
@@ -310,46 +322,9 @@ export default function HyperparameterResults() {
       {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/hyperparameters/${investigation}`}>Launch one</Link>.</p>}
       {rows && rows.length > 0 && (
         <>
-          {/* The layer above averaging: which datasets are in view at all. */}
-          <div className="hp-dataset-layer">
-            <div className="pill-row hp-dataset-tabs" role="group" aria-label="Dataset">
-              <span className="dl-dim">Dataset</span>
-              <button type="button" className={`pill${!filters.dataset ? ' selected' : ''}`} aria-pressed={!filters.dataset}
-                onClick={() => setParam('dataset', '')}>All datasets</button>
-              {options('dataset').map((d) => (
-                <button key={d} type="button" className={`pill${filters.dataset === d ? ' selected' : ''}`}
-                  aria-pressed={filters.dataset === d} onClick={() => setParam('dataset', d)}>{d}</button>
-              ))}
-            </div>
-          <div className="hp-average" role="group" aria-label="Average by">
-            <span className="dl-dim">Average by</span>
-            <button type="button" className={`pill${!effectiveBy ? ' selected' : ''}`} aria-pressed={!effectiveBy}
-              onClick={() => setParam('by', '')}>Individual runs</button>
-            {/* Dataset is a choice only with All datasets in view. */}
-            {allFactors.filter((f) => f.key !== 'dataset' || !filters.dataset).map((f) => (
-              <button key={f.key} type="button"
-                className={`pill${effectiveBy === f.key ? ' selected' : ''}${f.knob ? ' hp-knob-factor' : ''}`}
-                aria-pressed={effectiveBy === f.key} onClick={() => setParam('by', f.key)}
-                title={f.knob
-                  ? `one row per ${f.label} value, averaged over methods, models and datasets: compares the ${f.label} values directly`
-                  : f.help || `one row per ${f.label.toLowerCase()}, averaged over everything else`}>
-                {f.knob ? <code>{f.label}</code> : f.label}
-              </button>
-            ))}
-            {effectiveBy && (
-              (!byFactor?.knob || knobFactors.length > 1) && (
-                <label className="hp-pool" title="Off: every tested value stays its own row, so different settings are never averaged together">
-                  <input type="checkbox" checked={!pool} onChange={() => setParam('pool', pool ? '' : '1')} />
-                  {byFactor?.knob ? ' Keep the other tested settings separate' : ' Keep each tested setting and protocol separate'}
-                </label>
-              )
-            )}
-          </div>
-          </div>
+          <FactorPanel factors={allFactors} rows={rows} excluded={excluded} onExclude={setExcluded}
+            rowsBy={rowsBy} onRowsBy={(key) => setParam('rows', key === 'run' ? '' : key)} display={display} />
           <div className="hp-filters">
-            <Filter label="Method" options={options('method')} value={filters.method} onChange={(v) => setParam('method', v)} />
-            <Filter label="Model" options={options('model')} value={filters.model} onChange={(v) => setParam('model', v)} />
-            <Filter label="Protocol" options={options('protocol')} value={filters.protocol} onChange={(v) => setParam('protocol', v)} />
             <Filter label="Sweep" options={options('sweep_id')} value={filters.sweep} onChange={(v) => setParam('sweep', v)} />
             <Thresholds thresholds={thresholds} onChange={setThresholds} />
           </div>
@@ -363,7 +338,6 @@ export default function HyperparameterResults() {
               <div className="dl-dim">
                 By {chart.knob ? <code>{chart.label}</code> : chart.label.toLowerCase()}
                 {chart.averaged ? ': mean of the finished runs at each value, bars ± one standard deviation' : ''}
-                {chart.otherSettings ? '; pooled over the other tested settings, which the table keeps apart' : ''}
               </div>
               <ResponsiveContainer width="100%" height={260}>
                 {chart.knob ? (
@@ -407,7 +381,6 @@ export default function HyperparameterResults() {
                       onClick={() => setSort((s) => ({ key: 'factor', desc: s.key === 'factor' ? !s.desc : false }))}>
                       {byFactor.knob ? <code>{byFactor.label}</code> : byFactor.label}{sort.key === 'factor' ? (sort.desc ? ' ↓' : ' ↑') : ''}
                     </th>
-                    {!pool && groups.some((g) => Object.keys(g.overrides || {}).length || g.protocol) && <th>Other settings</th>}
                     <th title="finished runs averaged, of all runs in the group">Runs</th>
                     {header('worst', 'Weakest', 'mean of each run’s weakest criterion')}
                     {CRITERIA.map((c) => header(c.key, c.label, `${c.help}; mean ± standard deviation`))}
@@ -418,16 +391,10 @@ export default function HyperparameterResults() {
                   {groups.map((g) => (
                     <tr key={g.key}>
                       <td className="hp-run-cell">
-                        {effectiveBy === 'model'
+                        {rowsBy === 'model'
                           ? <><strong>{g.rows[0].model_label}</strong> <ModelTag row={g.rows[0]} /></>
                           : <strong>{g.value}</strong>}
                       </td>
-                      {!pool && groups.some((x) => Object.keys(x.overrides || {}).length || x.protocol) && (
-                        <td className="hp-setting">
-                          {Object.entries(g.overrides || {}).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}
-                          {g.protocol && <div className="dl-dim">{g.protocol}</div>}
-                        </td>
-                      )}
                       <td className="hp-over">
                         {g.finished}{g.finished !== g.total ? <span className="dl-dim"> of {g.total}</span> : ''}
                         <div className="dl-dim">

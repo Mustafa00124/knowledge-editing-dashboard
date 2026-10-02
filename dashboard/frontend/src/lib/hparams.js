@@ -111,7 +111,7 @@ export const settingKey = (overrides, except) =>
 export const knobFactor = (key) => `knob:${key}`
 const knobOf = (factor) => (factor && factor.startsWith('knob:') ? factor.slice(5) : null)
 
-function factorValue(row, factor) {
+export function factorValue(row, factor) {
   const knob = knobOf(factor)
   if (!knob) return row[factor]
   return knob in (row.overrides || {}) ? formatValue(row.overrides[knob]) : 'not swept'
@@ -126,7 +126,7 @@ export const FACTORS = [
   { key: 'protocol', label: 'Protocol', help: 'single, batch or sequential editing: how many facts per edit call and how many build up before the weights reset' },
 ]
 // What an averaged row reports it averaged over.
-const OVER = ['method', 'model', 'dataset']
+const OVER = ['method', 'model', 'dataset', 'protocol']
 
 // Mean, sample variance and standard deviation of the non-missing values.
 export function stats(values) {

@@ -272,19 +272,18 @@ directories will move before it commits.
   coloured by editable thresholds (colour only, nothing is hidden). A chart
   plots the criteria across the swept value when one setting varies. "Use
   as main config" writes a run's values into that method's hparams file for
-  that model and records it in `hparams/TUNED.json`. Dataset tabs show one
-  dataset or all of them; "Average by" method, model or dataset (dataset
-  only with all datasets shown) gives one row per value, averaged over
-  everything else, as mean ± standard deviation with the run count (the
-  variance on hover). Each tested setting stays its own row unless pooled,
-  the weakest is averaged per run, and only finished runs are averaged.
-  Swept settings (layers, v_lr, ...) are factors too, as are model type
-  (base / instruct / reasoning) and model family. The chart's x-axis is the
-  chosen factor: a line across a setting's values, grouped bars across
-  methods, models or datasets, each point a mean with ± one standard
-  deviation bars. Every tuning stage is its own model value (so runs never
+  that model and records it in `hparams/TUNED.json`. A factor panel lists dataset, protocol, method, model,
+  model type, model family and every swept setting; opening one shows all
+  its values to include or leave out (with a select-all circle), and
+  everything included is averaged together. One factor is the table's rows
+  ("Rows"), or "Each run" for no averaging: one row per included value,
+  mean ± standard deviation over the included values of every other
+  factor, with the run count and the variance on hover. Only finished runs
+  are averaged and the weakest is averaged per run. The chart's x-axis is
+  the rows factor: a line across a setting's values, grouped bars across
+  the rest. Every tuning stage is its own model value (so runs never
   overwrite each other) and is labelled with its stage, here and in Main
-  results. The **Failures** view
+  results; Main results can also use Protocol as a row or column. The **Failures** view
   (`/results/hyperparameters?view=failures`) lists, across every
   investigation, runs failing now (ended without finishing, or finished
   with an error flag such as a NaN loss) with their error line and log,
