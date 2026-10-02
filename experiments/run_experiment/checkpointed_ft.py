@@ -35,6 +35,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from easyeditor.util.device import normalize_device
 from easyeditor.models.ft.ft_hparams import FTHyperParams
 from easyeditor.models.ft.ft_main import chunks, AverageMeter
+import loss_log
 
 
 def execute_ft_checkpointed(
@@ -142,6 +143,7 @@ def execute_ft_checkpointed(
                     for k, v in weights.items():
                         v[...] = torch.clamp(v, min=weights_copy[k] - eps, max=weights_copy[k] + eps)
 
+        loss_log.record("train", step, loss_meter.avg)
         if step % checkpoint_every == 0 or step == hparams.num_steps:
             model.eval()
             on_checkpoint(step, loss=loss_meter.avg)

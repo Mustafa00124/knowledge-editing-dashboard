@@ -55,6 +55,8 @@ export const api = {
   sweeps: (investigation) => req(`/hparams/sweeps${investigation ? `?investigation=${encodeURIComponent(investigation)}` : ''}`),
   cancelSweep: (investigation, id) =>
     req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/cancel`, { method: 'POST' }),
+  rerunFailedSweep: (investigation, id) =>
+    req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/rerun-failed`, { method: 'POST' }),
   sweepResults: (investigation) => req(`/hparams/results?investigation=${encodeURIComponent(investigation)}`),
   promoteConfig: (investigation, sweepId, run) =>
     req('/hparams/promote', { method: 'POST', body: JSON.stringify({ investigation, sweep_id: sweepId, run }) }),

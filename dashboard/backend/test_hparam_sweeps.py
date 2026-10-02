@@ -50,5 +50,41 @@ class HeldConstantTests(unittest.TestCase):
         self.assertIsNone(owners["fact_token"])
 
 
+class RunDiagnosticsTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from pathlib import Path
+        self.dir = Path(tempfile.mkdtemp())
+
+    def write_loss(self, entries):
+        import json
+        (self.dir / "loss.jsonl").write_text("".join(json.dumps(e) + "\n" for e in entries))
+
+    def test_value_vector_loss_is_averaged_over_facts(self):
+        self.write_loss([{"kind": "value_vector", "step": 1, "loss": 3.0, "fact": 0, "target_prob": 0.02},
+                         {"kind": "value_vector", "step": 2, "loss": 1.0, "fact": 0, "target_prob": 0.4},
+                         {"kind": "value_vector", "step": 1, "loss": 4.0, "fact": 1, "target_prob": 0.01},
+                         {"kind": "value_vector", "step": 2, "loss": 0.5, "fact": 1, "target_prob": 0.6}])
+        summary = hparam_sweeps._loss_summary(self.dir)
+        self.assertEqual(summary["curve"], [3.5, 0.75])
+        self.assertEqual(summary["final_prob"], 0.5)
+
+    def test_flags_name_what_went_wrong(self):
+        self.write_loss([{"kind": "train", "step": 1, "loss": 1.0}, {"kind": "train", "step": 2, "loss": "nan"}])
+        texts = [f["text"] for f in hparam_sweeps._flags("COMPLETED", None, hparam_sweeps._loss_summary(self.dir),
+                                                         {"fluency": 0.5})]
+        self.assertIn("loss became NaN", texts)
+        self.assertIn("fluency fell 50%", texts)
+
+    def test_error_line_skips_warnings_and_progress_bars(self):
+        err = self.dir / "job.err"
+        err.write_text("UserWarning: something\n  3%|#  | 1/30 [00:01<00:30, 1.0it/s]\n"
+                       "Traceback (most recent call last):\n  File \"x.py\", line 1\n"
+                       "torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2 GiB\n")
+        line = hparam_sweeps._error_line(str(err))
+        self.assertTrue(line.startswith("torch.OutOfMemoryError"))
+        self.assertEqual(hparam_sweeps._flags("FAILED", line, None, {})[0]["text"], "out of GPU memory")
+
+
 if __name__ == "__main__":
     unittest.main()

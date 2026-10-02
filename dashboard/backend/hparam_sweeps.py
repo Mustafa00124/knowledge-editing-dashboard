@@ -399,6 +399,44 @@ def launch(req):
     return {"sweep_id": sweep_id, "submitted": len(submitted), "skipped": skipped, "errors": errors}
 
 
+RETRYABLE = ("FAILED", "CANCELLED", "TIMEOUT", "OUT_OF_MEMORY", "NODE_FAIL", "BOOT_FAIL", "PREEMPTED")
+
+
+def rerun_failed(investigation, sweep_id):
+    """Resubmit every run of a sweep that ended without finishing, with the
+    same settings and run name. Earlier job ids are kept per run."""
+    exp_cfg = _exp_cfg()
+    sweep_dir = _sweep_dir(investigation, sweep_id)
+    path = sweep_dir / "sweep.json"
+    sweep = json.loads(path.read_text())
+    statuses = _statuses([(sweep_dir, sweep)])
+    rerun, errors = [], []
+    for run in sweep["runs"]:
+        if statuses.get(str(run["job_id"]), {}).get("state") not in RETRYABLE:
+            continue
+        params = slurm._prepare_params(exp_cfg, {
+            "method": run["method"], "model": run["model"], "data_path": run["data_path"],
+            "ds_size": sweep["request"].get("ds_size", "full"), "edit_mode": sweep["request"].get("edit_mode"),
+            "seed": sweep["request"].get("seed", 0), "evaluation_modes": "original"})
+        extra = ["--split dev", "--final_only"] + [
+            f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}"
+            for k, v in {**(run.get("fixed") or {}), **run["overrides"]}.items()]
+        try:
+            result = slurm._submit_one(exp_cfg, params, run["run_name"], sweep_dir, extra_args=extra)
+        except RuntimeError as exc:
+            errors.append({"run_name": run["run_name"], "error": str(exc)})
+            continue
+        db.insert_job(
+            job_id=result["job_id"], experiment_type=EXPERIMENT, run_name=run["run_name"], params=params,
+            sbatch_path=result["sbatch_path"], out_path=result["out_path"], err_path=result["err_path"],
+            out_root=str(sweep_dir), sweep_id=SWEEP_PREFIX + sweep_id)
+        run.setdefault("earlier_jobs", []).append(run["job_id"])
+        run["job_id"] = result["job_id"]
+        rerun.append(run["run_name"])
+    path.write_text(json.dumps(sweep, indent=1) + "\n")
+    return {"rerun": rerun, "errors": errors}
+
+
 def _sweeps(investigation=None):
     root = config.HPARAM_RESULTS_DIR
     pattern = f"{investigation}/sweeps/*/sweep.json" if investigation else "*/sweeps/*/sweep.json"
@@ -426,7 +464,11 @@ def list_sweeps(investigation=None):
         for run in sweep["runs"]:
             state = statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN")
             counts[state] = counts.get(state, 0) + 1
+        counts_retry = sum(c for state, c in counts.items() if state in RETRYABLE)
+        # Scheduler time of every run so far (finished or not), for the sweep's cost.
+        gpu_seconds = sum(_seconds(statuses.get(str(r["job_id"]), {}).get("elapsed")) or 0 for r in sweep["runs"])
         out.append({k: sweep[k] for k in ("id", "investigation", "label", "created_at")}
+                   | {"retryable": counts_retry, "gpu_seconds": gpu_seconds}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
                       "models": sorted({r["model"] for r in sweep["runs"]})})
@@ -454,11 +496,120 @@ def _scores(summary, baseline):
     return scores, (min(present) if present else None)
 
 
+# Lines in a job's stderr that are noise rather than the reason it failed.
+_NOISE = re.compile(r"Warning|warnings\.warn|it/s\]|s/it\]|%\||TOKENIZERS_PARALLELISM|huggingface/tokenizers|"
+                    r"Avoid using `tokenizers`|Explicitly set the environment")
+_ERROR = re.compile(r"^(\w+\.)*\w*(Error|Exception|Exit)\b|^RuntimeError|^error:|CUDA out of memory")
+FLUENCY_DROP = 0.85  # flag when fluency falls below this share of the unedited model's
+
+
+def _tail_lines(path, n=300):
+    try:
+        with open(path, errors="replace") as handle:
+            return handle.readlines()[-n:]
+    except (OSError, TypeError):
+        return []
+
+
+def _error_line(err_path):
+    """The most telling line of a failed run's stderr, without warnings and
+    progress bars: the exception if there is one, else the last real line."""
+    lines = [l.strip() for l in _tail_lines(err_path) if l.strip() and not _NOISE.search(l)]
+    errors = [l for l in lines if _ERROR.search(l)]
+    line = errors[-1] if errors else (lines[-1] if lines else "")
+    return line[:400]
+
+
+def _downsample(values, limit=40):
+    if len(values) <= limit:
+        return values
+    stride = len(values) / limit
+    return [values[int(i * stride)] for i in range(limit)] + [values[-1]]
+
+
+def _loss_summary(run_dir):
+    """A run's loss.jsonl reduced to what the table shows: the curve (mean
+    over facts at each step), first and last values, NaN, and for
+    value-vector optimisation the new answer's final probability."""
+    path = run_dir / "loss.jsonl"
+    if not path.exists():
+        return None
+    by_step, last_prob, has_nan, kinds = {}, {}, False, set()
+    with open(path) as handle:
+        for line in handle:
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            kinds.add(entry.get("kind"))
+            value = entry.get("loss")
+            if isinstance(value, str):
+                has_nan = True
+                continue
+            if value is None:
+                continue
+            by_step.setdefault(entry["step"], []).append(value)
+            if entry.get("target_prob") is not None and isinstance(entry["target_prob"], (int, float)):
+                last_prob[entry.get("fact", 0)] = entry["target_prob"]
+    if not by_step and not has_nan:
+        return None
+    curve = [sum(v) / len(v) for _, v in sorted(by_step.items())]
+    return {
+        "kind": "value_vector" if "value_vector" in kinds else "train",
+        "curve": [round(v, 4) for v in _downsample(curve)],
+        "first": round(curve[0], 4) if curve else None,
+        "last": round(curve[-1], 4) if curve else None,
+        "nan": has_nan,
+        "final_prob": round(sum(last_prob.values()) / len(last_prob), 4) if last_prob else None,
+    }
+
+
+def _flags(state, error, loss, scores):
+    flags = []
+    if error and "out of memory" in error.lower():
+        flags.append({"level": "error", "text": "out of GPU memory"})
+    elif state == "FAILED" and error:
+        flags.append({"level": "error", "text": "failed"})
+    if loss:
+        if loss["nan"]:
+            flags.append({"level": "error", "text": "loss became NaN"})
+        elif loss["first"] is not None and loss["last"] is not None and loss["last"] > loss["first"] * 1.05:
+            flags.append({"level": "warn", "text": "loss rose"})
+        if loss["final_prob"] is not None and loss["final_prob"] < 0.1:
+            flags.append({"level": "warn", "text": f"target probability only {loss['final_prob']:.2f} after optimisation"})
+    fluency = (scores or {}).get("fluency")
+    if fluency is not None and fluency < FLUENCY_DROP:
+        flags.append({"level": "warn", "text": f"fluency fell {round((1 - fluency) * 100)}%"})
+    return flags
+
+
+def _seconds(clock):
+    """sacct's [D-]HH:MM:SS (or MM:SS) as seconds."""
+    if not clock:
+        return None
+    days, _, rest = clock.rpartition("-")
+    parts = [int(p) for p in rest.split(":") if p.isdigit()]
+    while len(parts) < 3:
+        parts.insert(0, 0)
+    return (int(days) if days else 0) * 86400 + parts[0] * 3600 + parts[1] * 60 + parts[2]
+
+
+def _wall_seconds(summary):
+    """Start to finish, model load included (total_sec starts after it)."""
+    try:
+        start = datetime.fromisoformat(summary["started_at"])
+        end = datetime.fromisoformat(summary["finished_at"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return round((end - start).total_seconds(), 1)
+
+
 def results(investigation):
     """One row per run of every sweep in an investigation."""
     exp_cfg = _exp_cfg()
     sweeps = list(_sweeps(investigation))
     statuses = _statuses(sweeps)
+    jobs = {str(j["job_id"]): j for j in db.list_jobs()}
     rows = []
     for sweep_dir, sweep in sweeps:
         for run in sweep["runs"]:
@@ -468,17 +619,27 @@ def results(investigation):
             baseline = _first_row(run_dir / "checkpoints.jsonl")
             scores, worst = _scores(summary, baseline) if summary else ({}, None)
             benchmark, subset = slurm._dataset_meta(exp_cfg, {"data_path": run["data_path"]})
+            state = statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN")
+            job = jobs.get(str(run["job_id"]), {})
+            error = _error_line(job.get("err_path")) if state in ("FAILED", "OUT_OF_MEMORY", "CANCELLED", "TIMEOUT") else None
+            loss = _loss_summary(run_dir)
             rows.append({
                 "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
                 "method": run["method"], "model": run["model"], "data_path": run["data_path"],
                 "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
                 "overrides": run["overrides"], "fixed": run.get("fixed") or {},
-                "state": statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN"),
+                "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,
+                "flags": _flags(state, error, loss, scores),
                 "records": summary.get("ds_size") if summary else None,
                 "scores": scores, "worst": worst,
                 "fluency_raw": summary.get("fluency") if summary else None,
                 "fluency_baseline": (baseline or {}).get("fluency"),
+                # Time: editing and evaluation (after the model loaded), the
+                # whole run start to finish, and for unfinished runs what
+                # the scheduler reports so far.
                 "total_sec": summary.get("total_sec") if summary else None,
+                "wall_sec": _wall_seconds(summary) if summary else None,
+                "elapsed_sec": _seconds(statuses.get(str(run["job_id"]), {}).get("elapsed")),
             })
     return rows
 

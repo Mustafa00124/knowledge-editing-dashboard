@@ -169,6 +169,8 @@ def apply_cake_to_model(model, tok, requests, hparams, copy=False, return_orig_w
     device = next(peft_model.parameters()).device
     peft_model.train()
     generator = torch.Generator().manual_seed(hparams.seed)
+    import loss_log
+    fact_index, step = loss_log.new_fact(), 0
     for _ in range(hparams.num_epochs):
         for index in DataLoader(rows, batch_size=hparams.batch_size, shuffle=True, generator=generator):
             with torch.autocast(device_type=device.type, dtype=torch.bfloat16):
@@ -176,6 +178,8 @@ def apply_cake_to_model(model, tok, requests, hparams, copy=False, return_orig_w
                                   attention_mask=batch["attention_mask"][index].to(device),
                                   labels=labels[index].to(device)).loss
             loss.backward()
+            step += 1
+            loss_log.record("train", step, loss, fact=fact_index)
             torch.nn.utils.clip_grad_norm_(trainable, 1.0)
             optimizer.step()
             schedule.step()

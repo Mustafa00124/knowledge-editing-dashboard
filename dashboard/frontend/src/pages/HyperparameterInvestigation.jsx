@@ -6,7 +6,7 @@ import ModelField from '../components/ModelField.jsx'
 import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
 import HeldConstant from '../components/HeldConstant.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
-import { CATEGORY_HELP, STABILITY_LABEL, formatValue, parseValue, valueKey } from '../lib/hparams.js'
+import { CATEGORY_HELP, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
 const EXPERIMENT = 'run_experiment'
 const ACTIVE = ['PENDING', 'RUNNING', 'REQUEUED', 'SUSPENDED']
@@ -329,8 +329,12 @@ export default function HyperparameterInvestigation() {
                 </div>
                 <div className="progress-track"><div className="progress-fill" style={{ width: `${(done / Math.max(s.runs, 1)) * 100}%` }} /></div>
                 <div className="dl-task-actions">
-                  <span className="dl-dim">{new Date(s.created_at).toLocaleString()}</span>
+                  <span className="dl-dim">{new Date(s.created_at).toLocaleString()}{s.gpu_seconds ? ` · ${duration(s.gpu_seconds)} of GPU time so far` : ''}</span>
                   <Link to={`/results/hyperparameters?investigation=${investigation.id}&sweep=${s.id}`} className="btn-plain-small">Results</Link>
+                  {s.retryable > 0 && (
+                    <button type="button" className="btn-plain-small" title="Resubmit the failed or cancelled runs with the same settings"
+                      onClick={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}>Rerun {s.retryable} failed</button>
+                  )}
                   {active > 0 && (
                     <button type="button" className="btn-danger-small"
                       onClick={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}>Cancel</button>

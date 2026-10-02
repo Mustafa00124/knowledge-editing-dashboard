@@ -1,12 +1,53 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
-import { CRITERIA, band, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
+import { CRITERIA, band, duration, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
 const LINE_COLORS = ['var(--accent)', 'var(--good)', 'var(--warn)', 'var(--danger)']
+
+// A run's loss over its optimisation steps (mean over facts), as a tiny line.
+function Sparkline({ values, bad }) {
+  if (!values || values.length < 2) return null
+  const max = Math.max(...values), min = Math.min(...values)
+  const span = max - min || 1
+  const points = values.map((v, i) => `${(i / (values.length - 1)) * 60},${18 - ((v - min) / span) * 16 - 1}`).join(' ')
+  return (
+    <svg width="60" height="18" viewBox="0 0 60 18" className={`hp-spark${bad ? ' is-bad' : ''}`} aria-hidden="true">
+      <polyline points={points} fill="none" strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+function LossCell({ loss }) {
+  if (!loss) return <span className="dl-dim">—</span>
+  const label = loss.kind === 'value_vector' ? 'target-vector loss, mean over facts' : 'training loss'
+  const fmt = (v) => (v == null ? '?' : v >= 100 ? v.toFixed(0) : v.toFixed(2))
+  return (
+    <span className="hp-loss" title={`${label}${loss.final_prob != null ? `; new answer's final probability ${loss.final_prob}` : ''}`}>
+      <Sparkline values={loss.curve} bad={loss.nan || (loss.last > loss.first * 1.05)} />
+      <span className="dl-dim">{loss.nan ? 'NaN' : `${fmt(loss.first)} → ${fmt(loss.last)}`}</span>
+    </span>
+  )
+}
+
+function RunLog({ jobId }) {
+  const [log, setLog] = useState(null)
+  useEffect(() => {
+    api.getExperiment(jobId).then(setLog).catch((e) => setLog({ err_tail: e.message, log_tail: '' }))
+  }, [jobId])
+  if (!log) return <p className="dl-dim">Loading the job's log…</p>
+  return (
+    <div className="hp-run-log">
+      <div className="dl-dim">Job {jobId}: last lines of its error and output logs</div>
+      {log.err_tail && <pre className="dl-log">{log.err_tail}</pre>}
+      {log.log_tail && <pre className="dl-log">{log.log_tail}</pre>}
+      {!log.err_tail && !log.log_tail && <p className="dl-dim">The logs are empty.</p>}
+    </div>
+  )
+}
 
 // The weakest score, coloured by the threshold of the criterion it came from.
 function weakestBand(row, thresholds) {
@@ -66,6 +107,7 @@ export default function HyperparameterResults() {
   const [thresholds, setThresholds] = useState(loadThresholds)
   const [sort, setSort] = useState({ key: 'worst', desc: true })
   const [promoted, setPromoted] = useState({})
+  const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
   const filters = { method: params.get('method') || '', model: params.get('model') || '',
     dataset: params.get('dataset') || '', sweep: params.get('sweep') || '' }
@@ -100,7 +142,7 @@ export default function HyperparameterResults() {
   [rows, filters.method, filters.model, filters.dataset, filters.sweep])
 
   const sorted = useMemo(() => {
-    const value = (r) => (sort.key === 'worst' ? r.worst : r.scores?.[sort.key])
+    const value = (r) => (sort.key === 'worst' ? r.worst : sort.key === 'time' ? (r.wall_sec ?? r.elapsed_sec) : r.scores?.[sort.key])
     return [...visible].sort((a, b) => {
       const va = value(a), vb = value(b)
       if (va == null && vb == null) return 0
@@ -203,12 +245,15 @@ export default function HyperparameterResults() {
                   <th>Method</th><th>Model</th><th>Dataset</th><th>Setting</th>
                   {header('worst', 'Weakest', 'the lowest of the four criteria this run has')}
                   {CRITERIA.map((c) => header(c.key, c.label, c.help))}
+                  <th title="the loss the method optimises, first to last step">Loss</th>
+                  {header('time', 'Time', 'start to finish, model load included; running jobs show time so far')}
                   <th>Status</th><th />
                 </tr>
               </thead>
               <tbody>
                 {sorted.map((r) => (
-                  <tr key={`${r.sweep_id}/${r.run}`}>
+                  <Fragment key={`${r.sweep_id}/${r.run}`}>
+                  <tr>
                     <td>{r.method}</td>
                     <td>{r.model}</td>
                     <td>{r.dataset}</td>
@@ -227,7 +272,20 @@ export default function HyperparameterResults() {
                         {pct(r.scores?.[c.key])}
                       </td>
                     ))}
-                    <td className="dl-dim">{r.state === DONE ? `${r.records} records` : r.state.toLowerCase()}</td>
+                    <td><LossCell loss={r.loss} /></td>
+                    <td className="hp-time" title={r.wall_sec != null
+                      ? `editing and evaluation ${duration(r.total_sec)}${r.records ? `, about ${(r.total_sec / r.records).toFixed(1)}s per record` : ''}; the rest is loading the model`
+                      : 'time so far, from the scheduler'}>
+                      {r.wall_sec != null ? duration(r.wall_sec) : r.elapsed_sec ? <span className="dl-dim">{duration(r.elapsed_sec)} so far</span> : '—'}
+                      {r.wall_sec != null && r.records ? <div className="dl-dim">{(r.total_sec / r.records).toFixed(1)}s / record</div> : null}
+                    </td>
+                    <td className="hp-status">
+                      <div className="dl-dim">{r.state === DONE ? `${r.records} records` : r.state.toLowerCase()}</div>
+                      {(r.flags || []).map((f) => <span key={f.text} className={`hp-flag is-${f.level}`}>{f.text}</span>)}
+                      {r.error && <div className="hp-error" title={r.error}>{r.error}</div>}
+                      <button type="button" className="btn-plain-small"
+                        onClick={() => setOpenLog(openLog === r.run ? null : r.run)}>{openLog === r.run ? 'Hide log' : 'Log'}</button>
+                    </td>
                     <td>
                       {r.state === DONE && (promoted[r.run]
                         ? <span className="dl-dim">{promoted[r.run]}</span>
@@ -235,6 +293,10 @@ export default function HyperparameterResults() {
                             title="Write these values into this method's hparams file for this model">Use as main config</button>)}
                     </td>
                   </tr>
+                  {openLog === r.run && (
+                    <tr className="hp-log-row"><td colSpan={12}><RunLog jobId={r.job_id} /></td></tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

@@ -170,6 +170,15 @@ def cancel_sweep(investigation: str, sweep_id: str):
     return {"cancelled": len(active), "error": slurm.cancel_many(active) or None}
 
 
+@app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/rerun-failed")
+def rerun_failed_sweep_runs(investigation: str, sweep_id: str):
+    """Resubmit a sweep's failed or cancelled runs with the same settings."""
+    try:
+        return hparam_sweeps.rerun_failed(investigation, sweep_id)
+    except FileNotFoundError:
+        raise HTTPException(404, "no such sweep")
+
+
 @app.get("/api/hparams/results")
 def get_sweep_results(investigation: str):
     return hparam_sweeps.results(investigation)

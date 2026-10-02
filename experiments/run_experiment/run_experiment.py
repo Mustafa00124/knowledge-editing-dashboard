@@ -598,6 +598,8 @@ def main():
     run_dir = os.path.join(args.out_root, "runs", run_name)
     samples_dir = os.path.join(run_dir, "samples")
     os.makedirs(samples_dir, exist_ok=True)
+    import loss_log
+    loss_log.start(os.path.join(run_dir, "loss.jsonl"))
 
     # Written into hparams.yaml (not just summary.json) because that file
     # lands on disk immediately, before the model even loads - so a run
@@ -879,9 +881,12 @@ def main():
                     if training_fn:
                         hparams.batch_size = len(chunk)
                         latest = {"loss": None}
-                        def capture(step, value):
+                        # The training loops call on_checkpoint(step, loss=...);
+                        # this used to take `value`, so FT and LoRA crashed at
+                        # their first checkpoint under every edit protocol.
+                        def capture(step, loss=None):
                             if step:
-                                latest["loss"] = value
+                                latest["loss"] = loss
                         training_fn(model, tok, chunk, hparams, hparams.num_steps, capture)
                         loss = latest["loss"]
                     else:

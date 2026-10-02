@@ -38,6 +38,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from easyeditor.models.lora.lora_hparams import LoRAHyperParams
 from easyeditor.models.lora.lora_main import chunks, AverageMeter
+import loss_log
 
 
 def execute_lora_checkpointed(
@@ -95,6 +96,7 @@ def execute_lora_checkpointed(
             loss.backward()
             opt.step()
 
+        loss_log.record("train", step, loss_meter.avg)
         if step % checkpoint_every == 0 or step == hparams.num_steps:
             peft_model.eval()
             on_checkpoint(step, loss=loss_meter.avg)

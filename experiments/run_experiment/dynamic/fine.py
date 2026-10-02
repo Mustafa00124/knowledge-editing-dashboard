@@ -44,6 +44,7 @@ import torch.nn.functional as F
 import yaml
 
 from . import capture, locations
+import loss_log
 
 
 @dataclass
@@ -258,6 +259,9 @@ def _execute_fine(model, tok, request, hparams, nethook):
 
             print(f"[FiNE] epoch {epoch + 1} loss={loss.item():.4f} nll={nll.item():.4f} "
                   f"kl={kl.item():.4f} pen={penalty.item():.4f} norm={norm.item():.4f}")
+            if epoch == 0:
+                fact_index = loss_log.new_fact()
+            loss_log.record("train", epoch + 1, loss, fact=fact_index, nll=nll.item(), kl=kl.item())
 
             stop = hparams.early_stop_prob is not None and nll < -np.log(hparams.early_stop_prob)
             if stop or bool(torch.isnan(nll)):
