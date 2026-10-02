@@ -88,3 +88,51 @@ export function duration(seconds) {
 }
 
 export const pct = (value) => (value == null ? '—' : `${Math.round(value * 1000) / 10}%`)
+
+// ---- averaging runs ----
+
+// The tested values of a run, as one comparable key ("layers=[4]").
+export const settingKey = (overrides) =>
+  Object.keys(overrides || {}).sort().map((k) => `${k}=${valueKey(overrides[k])}`).join(' ')
+
+export const FACTORS = [
+  { key: 'method', label: 'Method' },
+  { key: 'model', label: 'Model' },
+  { key: 'dataset', label: 'Dataset' },
+]
+
+// Mean, sample variance and standard deviation of the non-missing values.
+export function stats(values) {
+  const xs = values.filter((v) => v != null && Number.isFinite(v))
+  const n = xs.length
+  if (!n) return { n: 0, mean: null, variance: null, sd: null }
+  const mean = xs.reduce((a, b) => a + b, 0) / n
+  const variance = n > 1 ? xs.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1) : null
+  return { n, mean, variance, sd: variance == null ? null : Math.sqrt(variance) }
+}
+
+// One row per value of `factor` (and per tested setting unless pooled),
+// averaging every finished run in it over everything else. The weakest
+// score is averaged per run, so it still means "no criterion collapsed".
+export function aggregate(rows, factor, keepSetting, done = 'COMPLETED') {
+  const groups = new Map()
+  for (const row of rows) {
+    const key = `${factor ? row[factor] : ''}|${keepSetting ? settingKey(row.overrides) : ''}`
+    if (!groups.has(key)) groups.set(key, { key, value: factor ? row[factor] : 'All runs', overrides: keepSetting ? row.overrides : null, rows: [] })
+    groups.get(key).rows.push(row)
+  }
+  return [...groups.values()].map((g) => {
+    const finished = g.rows.filter((r) => r.state === done)
+    const over = Object.fromEntries(FACTORS.filter((f) => f.key !== factor)
+      .map((f) => [f.key, [...new Set(g.rows.map((r) => r[f.key]))]]))
+    return {
+      ...g,
+      total: g.rows.length,
+      finished: finished.length,
+      over,
+      worst: stats(finished.map((r) => r.worst)),
+      scores: Object.fromEntries(CRITERIA.map((c) => [c.key, stats(finished.map((r) => r.scores?.[c.key]))])),
+      time: stats(finished.map((r) => r.wall_sec)),
+    }
+  })
+}

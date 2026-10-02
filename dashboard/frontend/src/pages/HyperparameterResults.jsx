@@ -1,10 +1,10 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, ErrorBar, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import SweepFailures from '../components/SweepFailures.jsx'
-import { CRITERIA, band, duration, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
+import { CRITERIA, FACTORS, aggregate, band, duration, formatValue, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
 const LINE_COLORS = ['var(--accent)', 'var(--good)', 'var(--warn)', 'var(--danger)']
@@ -50,12 +50,36 @@ function RunLog({ jobId }) {
   )
 }
 
+// A mean with its spread: "49.2%" over "± 1.3 · n=5", the variance on hover.
+function MeanCell({ stat, threshold, strong }) {
+  if (!stat || stat.mean == null) return <td className="hp-score is-none">—</td>
+  const sdPoints = stat.sd == null ? null : stat.sd * 100
+  const title = stat.n > 1
+    ? `mean of ${stat.n} runs; standard deviation ${sdPoints.toFixed(2)} points, variance ${(stat.variance * 1e4).toFixed(2)} (points squared)`
+    : 'one run, so no spread'
+  return (
+    <td className={`hp-score is-${band(stat.mean, threshold)}`} title={title}>
+      {strong ? <strong>{pct(stat.mean)}</strong> : pct(stat.mean)}
+      <div className="hp-spread">{sdPoints == null ? `n=${stat.n}` : `± ${sdPoints.toFixed(1)} · n=${stat.n}`}</div>
+    </td>
+  )
+}
+
 // The weakest score, coloured by the threshold of the criterion it came from.
 function weakestBand(row, thresholds) {
   const present = CRITERIA.filter((c) => row.scores?.[c.key] != null)
   if (!present.length) return 'none'
   const weakest = present.reduce((a, b) => (row.scores[b.key] < row.scores[a.key] ? b : a))
   return band(row.scores[weakest.key], thresholds[weakest.key])
+}
+
+// An averaged row's weakest, coloured by the threshold of whichever
+// criterion has the lowest mean, as a single run's weakest is.
+function weakestThreshold(group, thresholds) {
+  const present = CRITERIA.filter((c) => group.scores[c.key]?.mean != null)
+  if (!present.length) return null
+  const lowest = present.reduce((a, b) => (group.scores[b.key].mean < group.scores[a.key].mean ? b : a))
+  return thresholds[lowest.key]
 }
 
 function Filter({ label, options, value, onChange }) {
@@ -111,6 +135,10 @@ export default function HyperparameterResults() {
   const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
   const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
+  // Averaging: by a factor (method, model or dataset), keeping each tested
+  // setting apart unless pooled. Dataset averaging needs every dataset.
+  const by = FACTORS.some((f) => f.key === params.get('by')) ? params.get('by') : ''
+  const pool = params.get('pool') === '1'
   const [failureCount, setFailureCount] = useState(null)
   useEffect(() => {
     api.sweepFailures().then((f) => setFailureCount(f.open.length)).catch(() => {})
@@ -147,6 +175,19 @@ export default function HyperparameterResults() {
     (!filters.dataset || r.dataset === filters.dataset) && (!filters.sweep || r.sweep_id === filters.sweep)),
   [rows, filters.method, filters.model, filters.dataset, filters.sweep])
 
+  const effectiveBy = by === 'dataset' && filters.dataset ? '' : by
+  const groups = useMemo(() => {
+    if (!effectiveBy) return null
+    const value = (g) => (sort.key === 'worst' ? g.worst.mean : sort.key === 'time' ? g.time.mean : g.scores[sort.key]?.mean)
+    return aggregate(visible, effectiveBy, !pool).sort((a, b) => {
+      const va = value(a), vb = value(b)
+      if (va == null && vb == null) return 0
+      if (va == null) return 1
+      if (vb == null) return -1
+      return sort.desc ? vb - va : va - vb
+    })
+  }, [visible, effectiveBy, pool, sort])
+
   const sorted = useMemo(() => {
     const value = (r) => (sort.key === 'worst' ? r.worst : sort.key === 'time' ? (r.wall_sec ?? r.elapsed_sec) : r.scores?.[sort.key])
     return [...visible].sort((a, b) => {
@@ -163,15 +204,20 @@ export default function HyperparameterResults() {
   const chart = useMemo(() => {
     const done = visible.filter((r) => r.state === DONE)
     if (!done.length) return null
-    if (new Set(done.map((r) => `${r.method}|${r.model}|${r.dataset}`)).size !== 1) return null
+    if (new Set(done.map((r) => r.method)).size !== 1) return null
     const keys = [...new Set(done.flatMap((r) => Object.keys(r.overrides)))]
     if (keys.length !== 1) return null
     const knob = keys[0]
-    const points = done.map((r) => ({ x: formatValue(r.overrides[knob]), raw: r.overrides[knob],
-      ...Object.fromEntries(CRITERIA.map((c) => [c.key, r.scores[c.key]])) }))
+    // Several runs per value (other models or datasets): plot their mean
+    // with a bar of one standard deviation either side.
+    const points = aggregate(done, null, true).map((g) => ({
+      x: formatValue(g.overrides[knob]), raw: g.overrides[knob], n: g.finished,
+      ...Object.fromEntries(CRITERIA.flatMap((c) => [[c.key, g.scores[c.key].mean], [`${c.key}_sd`, g.scores[c.key].sd ?? 0]])),
+    }))
     points.sort((a, b) => (typeof a.raw === 'number' && typeof b.raw === 'number' ? a.raw - b.raw
       : String(valueKey(a.raw)).localeCompare(String(valueKey(b.raw)), undefined, { numeric: true })))
-    return { knob, points, criteria: CRITERIA.filter((c) => points.some((p) => p[c.key] != null)) }
+    return { knob, points, averaged: points.some((p) => p.n > 1),
+      criteria: CRITERIA.filter((c) => points.some((p) => p[c.key] != null)) }
   }, [visible])
 
   async function promote(row) {
@@ -224,10 +270,40 @@ export default function HyperparameterResults() {
       {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/hyperparameters/${investigation}`}>Launch one</Link>.</p>}
       {rows && rows.length > 0 && (
         <>
+          {options('dataset').length > 1 && (
+            <div className="pill-row hp-dataset-tabs" role="group" aria-label="Dataset">
+              <button type="button" className={`pill${!filters.dataset ? ' selected' : ''}`} aria-pressed={!filters.dataset}
+                onClick={() => setParam('dataset', '')}>All datasets</button>
+              {options('dataset').map((d) => (
+                <button key={d} type="button" className={`pill${filters.dataset === d ? ' selected' : ''}`}
+                  aria-pressed={filters.dataset === d} onClick={() => setParam('dataset', d)}>{d}</button>
+              ))}
+            </div>
+          )}
+          <div className="hp-average" role="group" aria-label="Average by">
+            <span className="dl-dim">Average by</span>
+            <button type="button" className={`pill${!effectiveBy ? ' selected' : ''}`} aria-pressed={!effectiveBy}
+              onClick={() => setParam('by', '')}>Individual runs</button>
+            {FACTORS.map((f) => {
+              const blocked = f.key === 'dataset' && Boolean(filters.dataset)
+              return (
+                <button key={f.key} type="button" disabled={blocked}
+                  className={`pill${effectiveBy === f.key ? ' selected' : ''}${blocked ? ' disabled' : ''}`}
+                  aria-pressed={effectiveBy === f.key} onClick={() => setParam('by', f.key)}
+                  title={blocked ? 'Choose All datasets to average by dataset' : `one row per ${f.label.toLowerCase()}, averaged over everything else`}>
+                  {f.label}
+                </button>
+              )
+            })}
+            {effectiveBy && (
+              <label className="hp-pool" title="Off: every tested value stays its own row, so different settings are never averaged together">
+                <input type="checkbox" checked={!pool} onChange={() => setParam('pool', pool ? '' : '1')} /> Keep each tested setting separate
+              </label>
+            )}
+          </div>
           <div className="hp-filters">
             <Filter label="Method" options={options('method')} value={filters.method} onChange={(v) => setParam('method', v)} />
             <Filter label="Model" options={options('model')} value={filters.model} onChange={(v) => setParam('model', v)} />
-            <Filter label="Dataset" options={options('dataset')} value={filters.dataset} onChange={(v) => setParam('dataset', v)} />
             <Filter label="Sweep" options={options('sweep_id')} value={filters.sweep} onChange={(v) => setParam('sweep', v)} />
             <Thresholds thresholds={thresholds} onChange={setThresholds} />
           </div>
@@ -238,7 +314,7 @@ export default function HyperparameterResults() {
 
           {chart && (
             <div className="chart-wrap hp-chart">
-              <div className="dl-dim">Across <code>{chart.knob}</code></div>
+              <div className="dl-dim">Across <code>{chart.knob}</code>{chart.averaged ? ', mean of the runs at each value, bars ± one standard deviation' : ''}</div>
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={chart.points} margin={{ top: 8, right: 16, bottom: 8, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -247,14 +323,55 @@ export default function HyperparameterResults() {
                   <Tooltip formatter={(v) => pct(v)} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--border)' }} />
                   <Legend />
                   {chart.criteria.map((c, i) => (
-                    <Line key={c.key} type="monotone" dataKey={c.key} name={c.label} stroke={LINE_COLORS[i]} dot connectNulls />
+                    <Line key={c.key} type="monotone" dataKey={c.key} name={c.label} stroke={LINE_COLORS[i]} dot connectNulls>
+                      {chart.averaged && <ErrorBar dataKey={`${c.key}_sd`} width={4} stroke={LINE_COLORS[i]} />}
+                    </Line>
                   ))}
                 </LineChart>
               </ResponsiveContainer>
             </div>
           )}
 
-          <div className="table-wrap">
+          {groups && (
+            <div className="table-wrap">
+              <table className="hp-table">
+                <thead>
+                  <tr>
+                    <th>{FACTORS.find((f) => f.key === effectiveBy).label}</th>
+                    {!pool && <th>Setting</th>}
+                    <th title="finished runs averaged, of all runs in the group">Runs</th>
+                    {header('worst', 'Weakest', 'mean of each run’s weakest criterion')}
+                    {CRITERIA.map((c) => header(c.key, c.label, `${c.help}; mean ± standard deviation`))}
+                    {header('time', 'Time', 'mean start-to-finish time')}
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.map((g) => (
+                    <tr key={g.key}>
+                      <td className="hp-run-cell"><strong>{g.value}</strong></td>
+                      {!pool && (
+                        <td className="hp-setting">{Object.entries(g.overrides || {}).map(([k, v]) => <div key={k}><code>{k}</code> {formatValue(v)}</div>)}</td>
+                      )}
+                      <td className="hp-over">
+                        {g.finished}{g.finished !== g.total ? <span className="dl-dim"> of {g.total}</span> : ''}
+                        <div className="dl-dim">
+                          {Object.entries(g.over).map(([factor, values]) => `${values.length} ${factor}${values.length === 1 ? '' : 's'}`).join(', ')}
+                        </div>
+                      </td>
+                      <MeanCell stat={g.worst} threshold={weakestThreshold(g, thresholds)} strong />
+                      {CRITERIA.map((c) => <MeanCell key={c.key} stat={g.scores[c.key]} threshold={thresholds[c.key]} />)}
+                      <td className="hp-time" title={g.time.n > 1 ? `standard deviation ${duration(g.time.sd)}` : undefined}>
+                        {duration(g.time.mean)}
+                        {g.time.sd != null && <div className="hp-spread">± {duration(g.time.sd)}</div>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {!groups && <div className="table-wrap">
             <table className="hp-table">
               <thead>
                 <tr>
@@ -314,7 +431,7 @@ export default function HyperparameterResults() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div>}
         </>
       )}
       </>}

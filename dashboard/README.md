@@ -265,7 +265,14 @@ directories will move before it commits.
   coloured by editable thresholds (colour only, nothing is hidden). A chart
   plots the criteria across the swept value when one setting varies. "Use
   as main config" writes a run's values into that method's hparams file for
-  that model and records it in `hparams/TUNED.json`. The **Failures** view
+  that model and records it in `hparams/TUNED.json`. Dataset tabs show one
+  dataset or all of them; "Average by" method, model or dataset (dataset
+  only with all datasets shown) gives one row per value, averaged over
+  everything else, as mean ± standard deviation with the run count (the
+  variance on hover). Each tested setting stays its own row unless pooled,
+  the weakest is averaged per run, and only finished runs are averaged.
+  The chart averages the same way, with ± one standard deviation bars. The
+  **Failures** view
   (`/results/hyperparameters?view=failures`) lists, across every
   investigation, runs failing now (ended without finishing, or finished
   with an error flag such as a NaN loss) with their error line and log,
