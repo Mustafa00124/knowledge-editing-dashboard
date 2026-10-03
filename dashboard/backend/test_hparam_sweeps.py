@@ -102,6 +102,47 @@ class MethodInvestigationTests(unittest.TestCase):
         self.assertEqual(hparam_sweeps._slug([4, 5, 6, 7, 8]), "4-5-6-7-8")  # unchanged for edit windows
 
 
+class SCRInvestigationTests(unittest.TestCase):
+    KNOBS = ("retrieval_k", "sentence_model_name", "min_similarity", "kb_key", "latest_edit_wins", "confirm",
+             "confirm_margin", "confirm_shots", "max_confirmed", "fact_order", "answer_template",
+             "no_context_framing")
+
+    def test_scr_owns_its_settings_and_each_has_a_current_value(self):
+        owners = hparam_sweeps._owners()
+        editable = {r["key"] for r in hparam_sweeps.effective_settings("scr", "qwen3-4b") if r["editable"]}
+        for key in self.KNOBS:
+            self.assertEqual(owners[("scr", key)]["id"], "scr", key)
+            self.assertIn(key, editable)
+        retrieval = next(i for i in hparam_sweeps._load_catalog()["investigations"] if i["id"] == "retrieval")
+        self.assertEqual(list(retrieval["methods"]), ["ike"])
+
+    def test_default_datasets_are_distinct_and_have_dev_records(self):
+        from unittest.mock import patch
+        import json
+        inv = next(i for i in hparam_sweeps._load_catalog()["investigations"] if i["id"] == "scr")
+        # The catalog as written, so the result does not depend on what is downloaded here.
+        raw = json.loads((config.EXPERIMENTS_DIR / "run_experiment" / "dashboard.json").read_text())
+        with patch.object(hparam_sweeps, "_has_dev_split", return_value=True):
+            paths = hparam_sweeps.default_datasets(inv, raw)
+        self.assertTrue(any(p.endswith("MQuAKE-CF-3k-v2.json") for p in paths))
+        self.assertFalse(any(p.endswith("MQuAKE-CF.json") for p in paths))
+        self.assertTrue(any(p.endswith("realtimeqa_editing.json") for p in paths))
+        self.assertFalse(any("by_question_type" in p for p in paths))
+        self.assertEqual(len(paths), len(set(paths)))
+        with patch.object(hparam_sweeps, "_has_dev_split", return_value=False):
+            self.assertEqual(hparam_sweeps.default_datasets(inv, raw), [])
+        self.assertIsNone(hparam_sweeps.default_datasets({"id": "x"}))
+
+    def test_a_spec_can_ask_for_the_default_datasets(self):
+        from unittest.mock import patch
+        req = {"investigation": "scr", "methods": {"scr": {"confirm": ["each", "off"]}}, "models": ["qwen3-4b"],
+               "data_paths": ["default"], "ds_size": "full", "edit_mode": "batch"}
+        with patch.object(hparam_sweeps, "default_datasets", return_value=[DATASET]):
+            _, _, runs, _ = hparam_sweeps.plan(req)
+        self.assertEqual(len(runs), 2)
+        self.assertEqual(req["data_paths"], [DATASET])  # recorded as the real list
+
+
 class RunDiagnosticsTests(unittest.TestCase):
     def setUp(self):
         import tempfile

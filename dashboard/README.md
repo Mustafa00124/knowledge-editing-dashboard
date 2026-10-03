@@ -254,7 +254,16 @@ directories will move before it commits.
   steps, alpha, dropout, weight decay, LoRA or AdaLoRA). To tune FT-M and
   FT-L separately, hold `objective_optimization` fixed in each sweep; sweep
   it to compare them. The shared investigations no longer list FT or LoRA.
-  An earlier LoRA sweep stays under Adapter placement.
+  An earlier LoRA sweep stays under Adapter placement. **SCR** has one too:
+  its retriever (`retrieval_k`, the embedding model, a similarity floor,
+  facts found by sentence or subject, latest edit wins), its confirmation
+  (on or off, the Yes margin, worked examples, a cap on confirmed facts) and
+  its answer prompt (fact order, an instruction, and the framing when no
+  fact is confirmed). The defaults in `hparams/SCR/*.yaml` are the original
+  behaviour. Its page starts with every runnable dataset that has dev
+  records, less subsets that repeat another's records (`datasets: all` and
+  `datasets_except` in investigations.json; `"data_paths": ["default"]` in a
+  sweep spec). IKE's `k` is now the "IKE demonstrations" investigation.
   A sweep picks methods, values, models and datasets and launches through
   the normal job path, but on **dev records only** (`--split dev`), with
   evaluation only before editing and at the end (`--final_only`), and the

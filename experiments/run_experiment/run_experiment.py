@@ -777,7 +777,7 @@ def main():
                 if args.method == "scr":
                     from scr import scr_answer
                     return cached_answer(answer_cache, question, lambda: scr_answer(
-                        model, tok, question, scr_kb, device, hparams.retrieval_k, hparams.max_new_tokens))
+                        model, tok, question, scr_kb, device, hparams.retrieval_k, hparams.max_new_tokens, hparams))
                 if args.method == "ike" and step != 0:
                     from ike import ike_answer
                     fact = f"{record['prompt']} {record['target_new']}"
@@ -930,12 +930,13 @@ def main():
                     prev = step
                     on_checkpoint(step, loss=None)
         elif args.method == "scr":
-            from scr import build_kb
+            from scr import kb_entries
 
-            kb_texts_all = build_kb(requests)
+            entries = kb_entries(requests, hparams.kb_key)
             on_checkpoint(0, loss=None)  # KB still empty - pure baseline, nothing ever injected
             for i in range(total_steps):
-                scr_kb.grow([kb_texts_all[i]])
+                e = entries[i]
+                scr_kb.grow([e["text"]], keys=[e["key"]], ids=[e["id"]], replace=hparams.latest_edit_wins)
                 step = i + 1
                 if step % args.checkpoint_every == 0 or step == total_steps:
                     on_checkpoint(step, loss=None)

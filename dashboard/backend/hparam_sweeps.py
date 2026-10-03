@@ -193,6 +193,30 @@ def suggest(kind, default, spec=None, model=None):
     return [default]
 
 
+def _has_dev_split(data_path):
+    """Whether scripts/make_splits.py made a split for this file (a sweep
+    runs on its dev records, so a file without one cannot be swept)."""
+    try:
+        rel = Path(data_path).resolve().relative_to((config.PROJECT_ROOT / "datasets").resolve())
+    except ValueError:
+        return False
+    return (config.PROJECT_ROOT / "splits" / rel).exists()
+
+
+def default_datasets(inv, exp_cfg=None):
+    """The datasets a sweep of this investigation starts with: for
+    `datasets: all`, every runnable subset with dev records, less those
+    matching `datasets_except`. None when the investigation sets none."""
+    if inv.get("datasets") != "all":
+        return None
+    exp_cfg = exp_cfg or _exp_cfg()
+    field = next(f for f in exp_cfg["fields"] if f.get("control") == "dataset")
+    skip = inv.get("datasets_except") or []
+    return [s["value"] for b in field["benchmarks"] for s in b["subsets"]
+            if s.get("available") is not False and s.get("value") and _has_dev_split(s["value"])
+            and not any(part in s["value"] for part in skip)]
+
+
 def tuned():
     return json.loads(TUNED_PATH.read_text()) if TUNED_PATH.exists() else {}
 
@@ -233,7 +257,8 @@ def catalog():
                 "available": option.get("available", True) is not False,
                 "note": option.get("note"), "knobs": knobs,
             })
-        row = {**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods}
+        row = {**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods,
+               "default_datasets": default_datasets(inv, exp_cfg)}
         if any(k["kind"] in ("layer", "layer_window", "layer_span")
                for entry in inv["methods"].values() for k in entry["knobs"].values()):
             # Each model's traced peak beside the layers every method edits,
@@ -365,6 +390,10 @@ def plan(req):
     if inv is None:
         raise ValueError(f"unknown investigation {req['investigation']!r}")
     runs, skipped = [], []
+    if list(req.get("data_paths") or []) == ["default"]:
+        req["data_paths"] = default_datasets(inv, exp_cfg) or []
+        if not req["data_paths"]:
+            raise ValueError(f"{inv['label']} has no default datasets; list data_paths")
     fixed_all = req.get("fixed") or {}
     for method, knob_values in req["methods"].items():
         if method not in inv["methods"]:

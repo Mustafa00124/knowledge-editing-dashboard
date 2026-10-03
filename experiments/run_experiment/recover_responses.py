@@ -68,12 +68,12 @@ def recover(run_dir):
     model.eval()
     index = None
     if method in ("ike", "scr"):
-        from scr import SCRIndex, build_kb
+        from scr import SCRIndex, kb_entries
 
         index = SCRIndex(hp.sentence_model_name, "cuda:0")
         if method == "scr":
-            for text in build_kb(requests)[:step]:
-                index.grow([text])
+            for e in kb_entries(requests, getattr(hp, "kb_key", "statement"))[:step]:
+                index.grow([e["text"]], keys=[e["key"]], ids=[e["id"]], replace=getattr(hp, "latest_edit_wins", False))
         else:
             from ike import build_demo_sentences
 

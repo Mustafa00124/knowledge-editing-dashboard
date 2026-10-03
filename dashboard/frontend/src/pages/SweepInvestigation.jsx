@@ -144,7 +144,8 @@ export default function SweepInvestigation() {
       const dataDefault = field('data_path').default
       setModels(field('model').options.some((o) => o.value === modelDefault && o.available !== false) ? [modelDefault] : [])
       const dataOk = field('data_path').benchmarks.some((b) => b.subsets.some((s) => s.value === dataDefault && s.available !== false))
-      setDataPaths(dataOk ? [dataDefault] : [])
+      // An investigation meant to run across datasets starts with all of them.
+      setDataPaths(inv.default_datasets?.length ? inv.default_datasets : dataOk ? [dataDefault] : [])
       setEditMode(field('edit_mode').default)
     }).catch((e) => setError(e.message))
   }, [investigationId])
