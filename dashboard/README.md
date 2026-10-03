@@ -237,8 +237,7 @@ directories will move before it commits.
   `/hyperparameters` addresses redirect): experiments that set up the main
   experiments' configuration, in three groups. **Mechanistic**: measure the
   model itself, per model, no method involved (Knowledge localisation, on
-  its own page below; neuron attribution and circuit tracing are listed as
-  planned). **Prompt format**: whether a prompt's format changes a
+  its own page below; Neuron attribution and Circuit tracing, on theirs). **Prompt format**: whether a prompt's format changes a
   measurement (format conditions of causal tracing). **Hyperparameter
   sweeps**: each one kind of setting (edit layers, neurons and masks, adapter placement, weight-update strength, value-vector
   optimisation, preservation strength, covariance statistics, retrieval and
@@ -422,6 +421,54 @@ Output follows run_experiment's layout (`runs/<run>/checkpoints.jsonl`,
 curves and the optional token heatmap, plus `traced_layers.json`: model ->
 chosen layer, rebuilt from the run summaries so a re-trace replaces an entry
 rather than accumulating.
+
+## Neuron attribution and circuit tracing
+
+Two more per-model experiment types beside causal tracing
+(`experiments/neuron_tracing/neuron_trace.py`,
+`experiments/circuit_tracing/circuit_trace.py`), registered and launched the
+same way (`"queue": false`, own pages under Investigations,
+`/experiments/investigations/neuron_tracing` and `.../circuit_tracing`).
+Both reuse causal tracing's loaders, formats, fact sets and known-fact
+filter, so the three are compared on the same facts, and both show the
+model's traced peak next to their own. `experiments/causal_tracing/components.py`
+maps what they hook per architecture: each head (a slice of the attention
+output projection's input), each MLP neuron (the down projection's input),
+and where attention and the MLP read and write the residual stream, for the
+pre-norm (Llama, Qwen, Mistral), post-norm (Olmo 2/3) and parallel (GPT-J,
+NeoX) layouts. CPU tests in each folder check the hooks on all three.
+
+**Neuron attribution** scores every MLP neuron at the last prompt token by
+integrated gradients on the answer probability (Dai et al.'s Knowledge
+Neurons; `--ig_steps`, 20). A fact's neurons are those above `--threshold`
+(0.2) of its largest attribution, at most `--max_neurons`. It then tests
+them: the fact's neurons switched off, the same number of random neurons in
+the same layers switched off, the neurons doubled, and the fact's neurons
+switched off on another fact (another relation where possible). Summary:
+where the neurons sit (share per layer, attribution mass, peak, share in the
+early-to-mid band, share in the last quarter), how concentrated attribution
+is (top-10 share), the suppression drop against the random control and the
+spillover onto the other fact, with 95% intervals and a verdict (causal,
+partial, not causal), neuron overlap within against across relations, and
+the "hub" neurons selected for three or more facts. `neurons.json` keeps
+every fact's selection and layer mass.
+
+**Circuit tracing** uses causal tracing's corruption (noise on the subject,
+`--noise_scale`, `--n_noise_samples`) and one forward/backward pass per
+fact for attribution patching: each head and MLP scored as (clean minus
+corrupted activation) times the gradient of log P(answer), split by
+position (subject tokens, last token, other), and edge attribution between
+blocks (embedding, attention L, MLP L, the unembedding) using each
+receiver's own input gradient. `--verify_k` of each fact's top components
+are really patched to check the estimate (median rank correlation in the
+summary). Then components are ranked on the even-position facts and tested
+on the odd ones: the top K restored into the corrupted run (sufficiency,
+against K random components of the same mix) and held at their corrupted
+values in the clean run (necessity), for each K in `--circuit_sizes`; once
+over all components and once over heads alone, since a whole MLP outweighs
+one head. Verdict: compact (80% recovered with at most 20), distributed, or
+not found. `circuit.json` adds the layer x head grid by position, the full
+edge matrix and every fact's top components.
 
 ## Adding a new experiment type
 

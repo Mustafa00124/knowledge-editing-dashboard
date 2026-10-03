@@ -13,6 +13,9 @@ Experiment output is written here and is not tracked by git. Two trees:
   tracing runs (per model, no method), `traced_layers.json`, and
   `fact_sets/runs/<name>/` (shared fact lists from
   `experiments/fact_selection/select_facts.py`).
+  `neuron_tracing/` and `circuit_tracing/` hold the neuron attribution and
+  circuit tracing runs (per model, no method; `runs/<run>/neurons.json`,
+  `circuit.json`).
 
 Each run directory has the same files in both trees (`hparams.yaml`,
 `checkpoints.jsonl`, `summary.json`, `samples/`), so the same readers work on
