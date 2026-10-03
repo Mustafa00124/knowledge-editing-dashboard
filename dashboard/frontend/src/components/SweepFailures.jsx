@@ -47,7 +47,7 @@ function FailureCard({ row, onRerun, rerunning }) {
           {row.method} · {row.model} · {row.dataset}
           <span className="dl-dim"> · {settings}</span>
         </span>
-        <Link to={`/results/hyperparameters?investigation=${row.investigation}&sweep=${row.sweep_id}`} className="btn-plain-small">
+        <Link to={`/results/investigations?investigation=${row.investigation}&sweep=${row.sweep_id}`} className="btn-plain-small">
           {row.investigation_label} · {row.sweep_label || row.sweep_id}
         </Link>
       </div>

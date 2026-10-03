@@ -156,8 +156,8 @@ def launch_sweep(req: SweepRequest):
 
 
 @app.get("/api/hparams/sweeps")
-def list_sweeps(investigation: Optional[str] = None):
-    return hparam_sweeps.list_sweeps(investigation)
+def list_sweeps(investigation: Optional[str] = None, include_hidden: bool = False):
+    return hparam_sweeps.list_sweeps(investigation, include_hidden)
 
 
 @app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/cancel")
@@ -177,6 +177,18 @@ def get_sweep_detail(investigation: str, sweep_id: str):
         return hparam_sweeps.sweep_detail(investigation, sweep_id)
     except KeyError:
         raise HTTPException(404, "no such sweep")
+
+
+@app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/hide")
+def hide_sweep(investigation: str, sweep_id: str, hidden: bool = True):
+    """Clear a finished sweep off the sweep lists (hidden=false brings it
+    back). Its results stay on Results · Investigations."""
+    try:
+        return hparam_sweeps.set_hidden(investigation, sweep_id, hidden)
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
+    except ValueError as exc:
+        raise HTTPException(409, str(exc))
 
 
 @app.delete("/api/hparams/sweeps/{investigation}/{sweep_id}")
@@ -230,6 +242,9 @@ def get_experiment_types():
 
 
 # ---------------------------------------------------------------- experiments (jobs)
+# All launch surfaces below ultimately call slurm._submit_one(), where the
+# shared four-GPU dependency lanes are applied.  Do not add a direct sbatch
+# path here or in the hyperparameter routes, or it would bypass that cap.
 
 def _output_target(exp_cfg, save_results):
     if save_results:
@@ -272,7 +287,9 @@ def submit_experiment(req: SubmitExperimentRequest):
 
     testing_id, out_root = _output_target(exp_cfg, req.save_results)
     try:
-        results = slurm.submit_sweep(exp_cfg, req.params, out_root if testing_id else None)
+        if any(not str(job).isdigit() for job in req.after_ok):
+            raise RuntimeError("after_ok takes SLURM job ids")
+        results = slurm.submit_sweep(exp_cfg, req.params, out_root if testing_id else None, req.after_ok)
     except RuntimeError as e:
         raise HTTPException(500, str(e))
 

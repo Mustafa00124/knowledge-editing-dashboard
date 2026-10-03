@@ -94,7 +94,7 @@ export default function HeldConstant({ held, swept, fixed, onFix, models, runSet
                           {row.source === 'experiment_default' && changed === undefined && <div className="dl-desc">{row.note}</div>}
                           {row.source === 'tuned' && changed === undefined && <div className="dl-desc">{row.note}</div>}
                         </td>
-                        <td>{row.owner ? <Link to={`/hyperparameters/${row.owner.id}`}>{row.owner.label}</Link> : <span className="dl-dim">not swept by any</span>}</td>
+                        <td>{row.owner ? <Link to={`/experiments/investigations/${row.owner.id}`}>{row.owner.label}</Link> : <span className="dl-dim">not swept by any</span>}</td>
                         <td>
                           {row.best ? (
                             <button type="button" className="btn-plain-small"

@@ -7,7 +7,7 @@ export default function ResultsSubnav() {
   return (
     <nav className="results-subnav" aria-label="Results area">
       <NavLink to="/results/main" className={cls}>Main experiments</NavLink>
-      <NavLink to="/results/hyperparameters" className={cls}>Hyperparameters</NavLink>
+      <NavLink to="/results/investigations" className={cls}>Investigations</NavLink>
     </nav>
   )
 }

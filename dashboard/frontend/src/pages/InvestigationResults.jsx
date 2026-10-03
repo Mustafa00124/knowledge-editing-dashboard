@@ -136,7 +136,7 @@ function Thresholds({ thresholds, onChange }) {
   )
 }
 
-export default function HyperparameterResults() {
+export default function InvestigationResults() {
   const [params, setParams] = useSearchParams()
   const [investigations, setInvestigations] = useState([])
   const [rows, setRows] = useState(null)
@@ -172,7 +172,9 @@ export default function HyperparameterResults() {
   }
 
   useEffect(() => {
-    api.investigations().then((all) => {
+    api.investigations().then((everything) => {
+      // Causal tracing keeps its results on its own page, not as sweeps.
+      const all = everything.filter((i) => i.scope !== 'model')
       setInvestigations(all)
       if (!investigation && all.length) setParam('investigation', all[0].id)
     }).catch((e) => setError(e.message))
@@ -296,7 +298,7 @@ export default function HyperparameterResults() {
       <ResultsSubnav />
       <div className="page-header">
         <h1>Hyperparameter results</h1>
-        {current && <Link to={`/hyperparameters/${current.id}`} className="btn-plain-small">Launch sweeps for {current.label} →</Link>}
+        {current && <Link to={`/experiments/investigations/${current.id}`} className="btn-plain-small">Launch sweeps for {current.label} →</Link>}
       </div>
       <div className="pill-row hp-view-switch" role="group" aria-label="View">
         <button type="button" className={`pill${view === 'rankings' ? ' selected' : ''}`} aria-pressed={view === 'rankings'}
@@ -319,7 +321,7 @@ export default function HyperparameterResults() {
       </div>
       {error && <p className="form-error">{error}</p>}
       {rows === null && !error && <p className="empty">Loading…</p>}
-      {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/hyperparameters/${investigation}`}>Launch one</Link>.</p>}
+      {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/experiments/investigations/${investigation}`}>Launch one</Link>.</p>}
       {rows && rows.length > 0 && (
         <>
           <FactorPanel factors={allFactors} rows={rows} excluded={excluded} onExclude={setExcluded}

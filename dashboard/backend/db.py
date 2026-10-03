@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import config
 
 NUM_SLOTS = 8
+GPU_JOB_LANES = 4
 
 
 def _conn():
@@ -74,6 +75,23 @@ def init():
         if "paused" not in slot_cols:
             conn.execute("ALTER TABLE queue_slots ADD COLUMN paused INTEGER NOT NULL DEFAULT 0")
 
+        # Every dashboard-submitted GPU job belongs to one of four serial
+        # dependency lanes.  SLURM may run one job from each lane, so main
+        # experiments and hyperparameter sweeps together can never occupy
+        # more than four GPUs.  Keeping the lane tails in SQLite preserves
+        # the throttle across dashboard restarts.
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS gpu_job_lanes (
+                lane INTEGER PRIMARY KEY,
+                tail_job_id TEXT,
+                updated_at TEXT
+            )
+            """
+        )
+        for i in range(GPU_JOB_LANES):
+            conn.execute("INSERT OR IGNORE INTO gpu_job_lanes (lane) VALUES (?)", (i,))
+
 
 def insert_job(job_id, experiment_type, run_name, params, sbatch_path, out_path, err_path, out_root, sweep_id=None, queue_slot=None, testing_id=None, retry_of=None):
     with _conn() as conn:
@@ -99,6 +117,28 @@ def insert_job(job_id, experiment_type, run_name, params, sbatch_path, out_path,
                 testing_id,
                 retry_of,
             ),
+        )
+
+
+def next_gpu_lane():
+    """Return the least-recently-used dependency lane and its current tail."""
+    with _conn() as conn:
+        row = conn.execute(
+            """
+            SELECT lane, tail_job_id, updated_at
+            FROM gpu_job_lanes
+            ORDER BY updated_at IS NOT NULL, updated_at, lane
+            LIMIT 1
+            """
+        ).fetchone()
+        return (row["lane"], row["tail_job_id"], row["updated_at"])
+
+
+def set_gpu_lane_tail(lane, job_id):
+    with _conn() as conn:
+        conn.execute(
+            "UPDATE gpu_job_lanes SET tail_job_id = ?, updated_at = ? WHERE lane = ?",
+            (str(job_id), datetime.now(timezone.utc).isoformat(), lane),
         )
 
 

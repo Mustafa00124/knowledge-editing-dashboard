@@ -1,64 +1,71 @@
-"""Causal tracing: which layer should ROME/MEMIT/PMET/AlphaEdit edit, for a
-given model?
+"""Causal tracing: where in a given model is a fact recalled, and how reliably
+is that in early-to-mid MLP layers?
 
-Those methods all take a `layers` hyperparameter naming the site they write
-to. That number is not a free choice - it comes from causal tracing (Meng et
-al., 2022), which measures where in the network a factual prediction is
-actually decided. Every ROME/MEMIT yaml under
-experiments/run_experiment/hparams/ that we did not inherit from a published
-config is currently guessing: hparams/ROME/qwen3-4b.yaml says so in its own
-header ("layers -> [5] kept as upstream's qwen2.5-7b.yaml value ... inherited,
-not independently re-validated for Qwen3 specifically"). This script produces
-the measurement those files should be quoting.
+A property of the model alone: no editing method is involved, and one trace
+per model serves every method. ROME/MEMIT/PMET/AlphaEdit all take a `layers`
+hyperparameter naming the site they write to, and causal tracing (Meng et
+al., 2022) is where that number is supposed to start from. Which layer each
+method should edit is a separate, per-method question (the Edit layers
+sweeps), since a traced peak need not be the best edit site (Hase et al.,
+2023). So besides a peak layer, every trace reports how reliable the
+"facts live in early-to-mid MLPs" picture is for this model (see
+reliability()).
 
-The method, per prompt:
+The method, per fact:
 
   1. Clean run. Feed "The Space Needle is in downtown" and record the
-     probability of the token the model actually recalls ("Seattle").
-  2. Corrupted run. Add Gaussian noise to the *subject* token embeddings
-     ("The Space Needle"), which collapses that probability: the model can no
-     longer tell which entity is being asked about.
+     probability of the answer token the model gives ("Seattle").
+  2. Corrupted run. Add Gaussian noise to the input embeddings of the
+     corrupted span (the subject, or for multiple choice the question, or for
+     a riddle the clue it added), which collapses that probability.
   3. Restored runs. Re-run corrupted, but copy one clean activation back in -
-     at one token position, at one layer - and see how much of the lost
-     probability returns. A site that restores the answer is a site where the
-     fact was stored.
+     at the last corrupted token, at one layer - and see how much of the lost
+     probability returns.
 
-The indirect effect of a site is (restored probability - corrupted
-probability), averaged over prompts. The layer with the largest average
-indirect effect is the layer to edit.
+The indirect effect (AIE) of a site is (restored probability - corrupted
+probability), averaged over facts. Three kinds of site:
 
-Three kinds of site are traced, all at the last subject token (the position
-ROME identifies as the one carrying the resolved entity):
+  hidden - the residual stream after a whole block, one layer at a time.
+  mlp    - the MLP output, over a window of `--window` layers centred on each
+           layer (neighbouring layers re-supply the same information, so one
+           layer alone barely moves the probability; --window 1 shows that).
+  attn   - the attention output, same windowing.
 
-  hidden - the residual stream after a whole transformer block, restored one
-           layer at a time. Shows *where* along the depth the fact lives.
-  mlp    - the MLP output, restored over a window of `--window` layers
-           centred on each layer. Single-layer MLP restoration barely moves
-           the probability because neighbouring layers re-supply the same
-           information; the window is how ROME gets past that redundancy,
-           and it is this curve's peak that names the layer to edit.
-  attn   - the attention output, same windowing. Peaks later than mlp, at the
-           site where the answer is read out rather than stored.
+--sever adds ROME's necessity test: restore the hidden state at layer L as
+above, but hold every later layer's MLP (or attention) output at the token
+to its corrupted value. If recovery collapses, those MLPs are needed to
+carry the fact on, not just correlated with it.
 
-Only prompts the model already gets right are traced. A fact the model cannot
-recall has no recall to localize, so it would contribute noise to the average.
-Records are kept when the model's greedy next token matches the dataset's
-true answer with probability >= --min_prob; datasets that carry no true
-answer fall back to tracing the model's own confident prediction.
+Only facts the model already gives are traced: its most likely next token,
+setting aside whitespace-only tokens (a newline is not an answer), must be
+the start of an accepted answer with probability >= --min_prob, and that
+answer token is what gets traced.
+
+Which facts and how they are written: --fact_set traces a fixed list from
+experiments/fact_selection/select_facts.py (the same facts for every model
+in a group), else the --split records of --data_path (nontest = dev + demo:
+the trace that informs edit layers never sees a test record). --format
+writes each fact as a completion, a question, through the chat template,
+as multiple choice or as a riddle; formats.py has the loaders and formats.
+A fact set below MIN_FACTS facts is refused unless --allow_thin.
 
 Output layout matches run_experiment's, so the dashboard's existing job
 progress, log and manifest machinery work unchanged:
 
     <out_root>/runs/<run_name>/hparams.yaml      resolved config
-    <out_root>/runs/<run_name>/checkpoints.jsonl one line per --checkpoint_every prompts
+    <out_root>/runs/<run_name>/checkpoints.jsonl one line per --checkpoint_every facts
     <out_root>/runs/<run_name>/summary.json      written once, at the end
-    <out_root>/runs/<run_name>/trace.json        full curves, and the token grid if asked
+    <out_root>/runs/<run_name>/trace.json        mean curves, every fact's own curves,
+                                                 and the token grid if asked
     <out_root>/manifest.json                     rebuilt from every runs/*/summary.json
-    <out_root>/traced_layers.json                model -> traced layer, the point of all this
+    <out_root>/traced_layers.json                model -> traced layer
 
-traced_layers.json is what the hparams read when we wire this in. It is
-rebuilt from the summaries rather than appended to, so re-tracing a model
-replaces its entry and archiving a trace run removes it.
+traced_layers.json is what the Edit layers sweeps read to suggest layers
+around each model's peak. Only the plain-completion, window-10 trace of a
+model feeds it (the form edits are written in); the other formats and
+windows are comparisons. It is rebuilt from the summaries rather than
+appended to, so re-tracing a model replaces its entry and archiving a trace
+run removes it.
 """
 import argparse
 import json
@@ -72,15 +79,35 @@ import torch
 import yaml
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+import formats as F
+
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
-DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/hyperparameters/edit_layers/causal_tracing"
-DEFAULT_DATA_PATH = f"{PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json"
+DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/investigations/causal_tracing"
+DEFAULT_DATA_PATH = f"{PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json"
 ROME_HPARAMS_DIR = f"{PROJECT_ROOT}/experiments/run_experiment/hparams/ROME"
+SPLIT_CHOICES = F.SPLIT_CHOICES
+
+# Fewer facts than this and a peak or a reliability share is noise. A fact
+# set below it is refused (--allow_thin overrides); a trace that ends below
+# it is flagged "thin".
+MIN_FACTS = 50
+# "Early-to-mid" as a share of depth, so 32- and 36-layer models compare.
+DEFAULT_BAND = (0.0, 0.5)
 
 MODEL_PATHS = {
+    "qwen3-4b-base": f"{PROJECT_ROOT}/models/Qwen3-4B-Base",
     "qwen3-4b": f"{PROJECT_ROOT}/models/Qwen3-4B",
+    "qwen3-4b-instruct-2507": f"{PROJECT_ROOT}/models/Qwen3-4B-Instruct-2507",
+    "qwen3-4b-thinking-2507": f"{PROJECT_ROOT}/models/Qwen3-4B-Thinking-2507",
+    "olmo-3-7b-base": f"{PROJECT_ROOT}/models/Olmo-3-7B-Base",
+    "olmo-3-7b-instruct": f"{PROJECT_ROOT}/models/Olmo-3-7B-Instruct",
+    "olmo-3-7b-think": f"{PROJECT_ROOT}/models/Olmo-3-7B-Think",
+    "llama-3.1-8b": f"{PROJECT_ROOT}/models/Llama-3.1-8B",
+    "llama-3.1-8b-instruct": f"{PROJECT_ROOT}/models/Llama-3.1-8B-Instruct",
+    "deepseek-r1-distill-llama-8b": f"{PROJECT_ROOT}/models/DeepSeek-R1-Distill-Llama-8B",
     "mistral-7b-v0.1": f"{PROJECT_ROOT}/models/Mistral-7B-v0.1",
+    "mistral-7b-instruct-v0.1": f"{PROJECT_ROOT}/models/Mistral-7B-Instruct-v0.1",
     "gpt-j-6b": f"{PROJECT_ROOT}/models/GPT-J-6B",
     "olmo-2-7b": f"{PROJECT_ROOT}/models/OLMo-2-7B",
     "gpt-neox-20b": f"{PROJECT_ROOT}/models/GPT-NeoX-20B",
@@ -106,7 +133,7 @@ ARCHS = {
     },
 }
 # llama-shaped: everything else we have downloaded.
-for _model_type in ("llama", "mistral", "qwen2", "qwen3", "olmo2", "gpt_oss"):
+for _model_type in ("llama", "mistral", "qwen2", "qwen3", "olmo2", "olmo3", "gpt_oss"):
     ARCHS[_model_type] = {
         "embed": "model.embed_tokens",
         "layer": "model.layers.{}",
@@ -115,33 +142,48 @@ for _model_type in ("llama", "mistral", "qwen2", "qwen3", "olmo2", "gpt_oss"):
     }
 
 KINDS = ("hidden", "mlp", "attn")
+SEVER_KINDS = ("sever_mlp", "sever_attn")
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Causal tracing for edit-layer selection")
+    p = argparse.ArgumentParser(description="Causal tracing: where a model recalls facts, and how reliably")
     p.add_argument("--model", required=True, choices=sorted(MODEL_PATHS))
     p.add_argument("--data_path", default=DEFAULT_DATA_PATH)
     p.add_argument("--dataset_benchmark", default=None, help="human label, passed by the dashboard")
     p.add_argument("--dataset_subset", default=None, help="human label, passed by the dashboard")
-    p.add_argument("--n_prompts", type=int, default=200, help="prompts to trace, after the known-fact filter")
-    p.add_argument("--max_candidates", type=int, default=2000, help="records to scan looking for those prompts")
+    p.add_argument("--split", default="nontest", choices=SPLIT_CHOICES,
+                   help="records of --data_path to draw from: nontest = dev + demo, never test")
+    p.add_argument("--fact_set", default="",
+                   help="trace this fixed fact list (select_facts.py) instead of scanning --data_path")
+    p.add_argument("--allow_thin", type=int, default=0, help=f"1 traces a fact set below {MIN_FACTS} facts")
+    p.add_argument("--format", default="completion", choices=sorted(F.FORMATS),
+                   help="how each fact is written as a prompt (formats.FORMATS)")
+    p.add_argument("--n_prompts", type=int, default=200, help="facts to trace, after the known-fact filter")
+    p.add_argument("--max_candidates", type=int, default=2000, help="records to scan looking for those facts")
     p.add_argument("--min_prob", type=float, default=0.1,
-                   help="skip a record unless the model recalls the answer with at least this probability")
+                   help="skip a fact unless the model gives the answer with at least this probability")
     p.add_argument("--noise_scale", type=float, default=3.0,
-                   help="subject-embedding noise, in units of the embedding standard deviation (ROME uses 3)")
+                   help="input-embedding noise, in units of the embedding standard deviation (ROME uses 3)")
     p.add_argument("--window", type=int, default=10, help="layers restored together for the mlp/attn curves")
     p.add_argument("--effect", default="mlp", choices=KINDS,
-                   help="which curve names the edit layer written to traced_layers.json")
+                   help="which curve names the layer written to traced_layers.json")
+    p.add_argument("--sever", type=int, default=0,
+                   help="1 adds the severing test: hidden-state restoration with later MLPs/attention frozen")
+    p.add_argument("--band", default=f"{DEFAULT_BAND[0]},{DEFAULT_BAND[1]}",
+                   help="early-to-mid band as a share of depth, 'low,high' (layer/n_layers in [low, high))")
     p.add_argument("--n_noise_samples", type=int, default=10, help="corrupted runs averaged per measurement")
     p.add_argument("--token_grid", type=int, default=0,
-                   help="also trace every token position, not just the last subject token, for this many prompts "
-                        "(0 = off). Produces the token x layer heatmap, and costs prompt_length times more per prompt.")
+                   help="also trace every token position, not just the last corrupted token, for this many facts "
+                        "(0 = off). Produces the token x layer heatmap, and costs prompt_length times more per fact.")
     p.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16", "float32"])
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--checkpoint_every", type=int, default=10, help="prompts between checkpoint lines")
+    p.add_argument("--checkpoint_every", type=int, default=10, help="facts between checkpoint lines")
     p.add_argument("--run_name", default=None)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
-    return p.parse_args()
+    args = p.parse_args()
+    low, high = (float(x) for x in args.band.split(","))
+    args.band = (low, high)
+    return args
 
 
 def _now():
@@ -161,60 +203,55 @@ def memory_snapshot(device):
     return snapshot
 
 
-# ---------------------------------------------------------------- data
+# ---------------------------------------------------------------- facts
 
-def _true_answer(record):
-    """The answer the *model* is expected to already know.
-
-    Not target_new: that is the counterfactual an edit would install, which
-    the model by construction does not believe. Tracing needs the fact it
-    does.
-    """
-    value = record.get("ground_truth")
-    if isinstance(value, list):
-        value = next((v for v in value if isinstance(v, str) and v.strip()), None)
-    if isinstance(value, str) and value.strip():
-        return value.strip()
-    # ZsRE carries the original answer inside "cond": "Geometridae >> Noctuidae || ..."
-    cond = record.get("cond")
-    if isinstance(cond, str) and ">>" in cond:
-        return cond.split(">>")[0].strip() or None
-    return None
+def load_fact_set(path):
+    with open(path) as f:
+        fact_set = json.load(f)
+    return fact_set, [F.normalize(row) for row in fact_set["facts"]]
 
 
-def load_prompts(data_path, limit):
-    """(prompt, subject, answer-or-None) triples from a KnowEdit-shaped file.
-
-    Deliberately not run_experiment's eval_utils.load_requests: that builds
-    EasyEdit edit requests, whose ground_truth is None for the recent-shaped
-    files, and pulls in the whole easyeditor package to do it. Tracing needs
-    three plain strings.
-    """
-    with open(data_path) as f:
-        data = json.load(f)
-    if isinstance(data, dict):
-        data = data.get("data", [])
-    rows = []
-    for record in data[:limit]:
-        if not isinstance(record, dict):
-            continue
-        prompt, subject = record.get("prompt"), record.get("subject")
-        if not prompt or not subject or subject not in prompt:
-            continue  # the noise has to land on the subject, so it has to be locatable
-        rows.append({"prompt": prompt, "subject": subject, "answer": _true_answer(record)})
-    return rows
+def answer_ids(tok, answers):
+    """First-token ids that count as giving one of `answers`: both spacings,
+    since tokenizers disagree about the leading space."""
+    ids = set()
+    for answer in answers:
+        for variant in (" " + answer, answer):
+            encoded = tok(variant, add_special_tokens=False)["input_ids"]
+            if encoded:
+                ids.add(encoded[0])
+    return ids
 
 
-def subject_token_range(tok, prompt, subject):
-    """Token index range [start, end) covering the subject inside the prompt."""
-    start_char = prompt.index(subject)
-    end_char = start_char + len(subject)
-    encoded = tok(prompt, return_offsets_mapping=True)
-    spans = encoded["offset_mapping"]
-    indices = [i for i, (a, b) in enumerate(spans) if a < end_char and b > start_char]
-    if not indices:
+_WHITESPACE_IDS = {}
+
+
+def whitespace_ids(tok):
+    """Token ids that decode to nothing but whitespace (newlines, spaces).
+
+    Some models (Olmo-3) read "The official language of Japan is" as a
+    finished line and put their top probability on a newline, with the
+    answer close behind. Such a token says nothing about the fact, so it is
+    skipped when asking which answer the model would give."""
+    key = id(tok)
+    if key not in _WHITESPACE_IDS:
+        texts = tok.batch_decode([[i] for i in range(len(tok))])
+        _WHITESPACE_IDS[key] = torch.tensor([i for i, t in enumerate(texts) if t and not t.strip()], dtype=torch.long)
+    return _WHITESPACE_IDS[key]
+
+
+def recall_target(tok, probs, answers, min_prob):
+    """The token to trace if the model knows this fact, else None.
+
+    The model's most likely next token once whitespace-only tokens are set
+    aside. With dataset answers it must start one of them; either way its own
+    probability (not renormalised) must reach min_prob."""
+    masked = probs.clone()
+    masked[whitespace_ids(tok).to(masked.device)] = -1.0
+    target = int(masked.argmax())
+    if answers and target not in answer_ids(tok, answers):
         return None
-    return indices[0], indices[-1] + 1
+    return target if float(probs[target]) >= min_prob else None
 
 
 # ---------------------------------------------------------------- tracing
@@ -223,24 +260,29 @@ class Patch:
     """Forward hooks implementing one traced run.
 
     Row 0 of the batch is the clean run and is never touched. Rows 1.. are
-    corrupted: noise is added to their subject embeddings, and then whichever
-    sites are being restored have row 0's activation copied back over them.
-    Everything is done in place on the module's own output, which keeps this
-    agnostic to whether a module returns a tensor or a tuple.
+    corrupted: noise is added to their embeddings at `noise_tokens`, then
+    whichever sites are being restored get row 0's activation copied back,
+    `freeze` holds sites at given (already recorded) corrupted values, and
+    `capture` records sites' corrupted values for a later freeze. All in
+    place on the module's own output, so it does not matter whether a module
+    returns a tensor or a tuple.
     """
 
-    def __init__(self, model, embed_name, noise=None, subject_range=None, restore=()):
+    def __init__(self, model, embed_name, noise=None, noise_tokens=(), restore=(), freeze=None, capture=None):
         self.model = model
         self.handles = []
         self.noise = noise
-        self.subject_range = subject_range
+        self.noise_tokens = list(noise_tokens)
         self.embed_name = embed_name
         self.restore = {}
         for token_index, module_name in restore:
             self.restore.setdefault(module_name, []).append(token_index)
+        self.freeze = freeze or {}     # module -> (token, tensor[n_samples, hidden])
+        self.capture = capture         # module -> token; filled with module -> tensor
+        self.captured = {}
 
     def __enter__(self):
-        names = set(self.restore)
+        names = set(self.restore) | set(self.freeze) | set(self.capture or {})
         if self.noise is not None:
             names.add(self.embed_name)
         for name in names:
@@ -257,17 +299,21 @@ class Patch:
         def hook(module, inputs, output):
             hidden = output[0] if isinstance(output, tuple) else output
             if name == self.embed_name and self.noise is not None:
-                start, end = self.subject_range
-                hidden[1:, start:end] += self.noise.to(hidden.device, hidden.dtype)
+                hidden[1:, self.noise_tokens] += self.noise.to(hidden.device, hidden.dtype)
             for token_index in self.restore.get(name, []):
                 hidden[1:, token_index] = hidden[0, token_index]
+            if name in self.freeze:
+                token_index, value = self.freeze[name]
+                hidden[1:, token_index] = value.to(hidden.device, hidden.dtype)
+            if self.capture and name in self.capture:
+                self.captured[name] = hidden[1:, self.capture[name]].detach().clone()
             return output
         return hook
 
 
-def traced_prob(model, inputs, answer_id, embed_name, noise, subject_range, restore=()):
+def traced_prob(model, inputs, answer_id, embed_name, noise, noise_tokens, restore=(), freeze=None):
     """Mean probability of `answer_id` across the corrupted rows."""
-    with torch.no_grad(), Patch(model, embed_name, noise, subject_range, restore):
+    with torch.no_grad(), Patch(model, embed_name, noise, noise_tokens, restore, freeze):
         logits = model(**inputs).logits
     # softmax in fp32: the differences being measured are smaller than
     # bfloat16 resolves, even though the forward pass itself is fine in it.
@@ -284,71 +330,95 @@ def window_sites(kind, layer, n_layers, window, token_index, templates):
     return [(token_index, templates[kind].format(L)) for L in range(low, high)]
 
 
-def trace_prompt(model, tok, device, row, args, templates, n_layers, rng):
-    """One prompt: clean, corrupted, and the restored curves.
+def sever_curves(model, inputs, target, embed_name, noise, noise_tokens, token, templates, n_layers):
+    """ROME's severing test. For each layer L: restore the hidden state at L,
+    but hold the MLP (or attention) output of every later layer at the token
+    to its corrupted value. If the restored information needs those modules
+    to reach the answer, recovery collapses."""
+    out = {}
+    for sever, kind in (("sever_mlp", "mlp"), ("sever_attn", "attn")):
+        names = [templates[kind].format(L) for L in range(n_layers)]
+        with torch.no_grad(), Patch(model, embed_name, noise, noise_tokens,
+                                    capture={name: token for name in names}) as patch:
+            model(**inputs)
+        corrupted = patch.captured
+        out[sever] = [
+            traced_prob(model, inputs, target, embed_name, noise, noise_tokens,
+                        [(token, templates["layer"].format(L))],
+                        freeze={names[k]: (token, corrupted[names[k]]) for k in range(L + 1, n_layers)})
+            for L in range(n_layers)
+        ]
+    return out
 
-    Returns None when the model does not recall this fact confidently enough
-    to be worth tracing.
+
+def trace_prompt(model, tok, device, row, args, templates, n_layers, rng):
+    """One fact: clean, corrupted, and the restored curves.
+
+    Returns None when the fact cannot be written in this format, or when the
+    model does not give its answer confidently enough to be worth tracing.
     """
-    prompt, subject = row["prompt"], row["subject"]
-    span = subject_token_range(tok, prompt, subject)
-    if span is None:
+    item = F.build(row, args.format, tok)
+    if item is None:
+        return None
+    spans = F.token_spans(tok, item)
+    if not spans:
         return None
 
     batch = 1 + args.n_noise_samples
-    encoded = tok([prompt] * batch, return_tensors="pt").to(device)
-    inputs = {k: v for k, v in encoded.items() if k in ("input_ids", "attention_mask")}
+    encoded = F.encode(tok, item, return_tensors="pt")
+    inputs = {k: encoded[k].repeat(batch, 1).to(device) for k in ("input_ids", "attention_mask")}
 
     with torch.no_grad():
         clean_logits = model(**inputs).logits[0, -1, :].float()
     clean_probs = torch.softmax(clean_logits, dim=-1)
-    top_id = int(clean_probs.argmax())
-    top_prob = float(clean_probs[top_id])
-
-    if row["answer"]:
-        # A dataset answer only counts when the model actually produces it:
-        # both spacings, since tokenizers disagree about the leading space.
-        wanted = {tok(variant, add_special_tokens=False)["input_ids"][0]
-                  for variant in (" " + row["answer"], row["answer"])
-                  if tok(variant, add_special_tokens=False)["input_ids"]}
-        if top_id not in wanted:
-            return None
-    if top_prob < args.min_prob:
+    # The traced probability is the answer's, not a newline's.
+    target = recall_target(tok, clean_probs, item["answers"], args.min_prob)
+    if target is None:
         return None
+    p_clean = float(clean_probs[target])
 
     n_tokens = inputs["input_ids"].shape[1]
     embed_name = templates["embed"]
+    noise_tokens = sorted({i for start, end in spans for i in range(start, end)})
     noise = torch.from_numpy(
-        args.noise_level * rng.standard_normal((args.n_noise_samples, span[1] - span[0], model.config.hidden_size))
+        args.noise_level * rng.standard_normal((args.n_noise_samples, len(noise_tokens), model.config.hidden_size))
     ).float()
 
-    corrupted = traced_prob(model, inputs, top_id, embed_name, noise, span)
+    corrupted = traced_prob(model, inputs, target, embed_name, noise, noise_tokens)
 
-    last_subject = span[1] - 1
+    # The last corrupted token: ROME's "last subject token", where the
+    # resolved entity (or clue, or question) is carried forward.
+    token = spans[-1][1] - 1
     curves = {}
     for kind in KINDS:
         curves[kind] = [
-            traced_prob(model, inputs, top_id, embed_name, noise, span,
-                        window_sites(kind, layer, n_layers, args.window, last_subject, templates))
+            traced_prob(model, inputs, target, embed_name, noise, noise_tokens,
+                        window_sites(kind, layer, n_layers, args.window, token, templates))
             for layer in range(n_layers)
         ]
+    if args.sever:
+        curves.update(sever_curves(model, inputs, target, embed_name, noise, noise_tokens, token, templates, n_layers))
 
     grid = None
     if args.token_grid:
         grid = {kind: [[
-            traced_prob(model, inputs, top_id, embed_name, noise, span,
+            traced_prob(model, inputs, target, embed_name, noise, noise_tokens,
                         window_sites(kind, layer, n_layers, args.window, token_index, templates))
             for layer in range(n_layers)] for token_index in range(n_tokens)]
             for kind in KINDS}
 
     return {
-        "prompt": prompt,
-        "subject": subject,
-        "answer": tok.decode([top_id]),
-        "p_clean": top_prob,
+        "id": row.get("id"),
+        "relation": row.get("relation"),
+        "domain": row.get("domain"),
+        "prompt": item["text"],
+        "subject": row.get("subject"),
+        "answer": tok.decode([target]),
+        "p_clean": p_clean,
         "p_corrupt": corrupted,
         "n_tokens": n_tokens,
-        "subject_range": list(span),
+        "subject_range": [spans[-1][0], spans[-1][1]],
+        "corrupt_spans": [list(s) for s in spans],
         "curves": curves,
         "grid": grid,
     }
@@ -374,8 +444,8 @@ def token_bucket(token_index, span, n_tokens):
 
 
 BUCKET_LABELS = [
-    "first subject token", "middle subject tokens", "last subject token",
-    "first token after subject", "further tokens", "last token",
+    "first corrupted token", "middle corrupted tokens", "last corrupted token",
+    "first token after it", "further tokens", "last token",
 ]
 
 
@@ -386,7 +456,9 @@ def aggregate(traces, n_layers, effect):
         return out
     out["p_clean"] = float(np.mean([t["p_clean"] for t in traces]))
     out["p_corrupt"] = float(np.mean([t["p_corrupt"] for t in traces]))
-    for kind in KINDS:
+    for kind in KINDS + SEVER_KINDS:
+        if kind not in traces[0]["curves"]:
+            continue
         # Indirect effect, not raw probability: how much of what the noise
         # destroyed this site puts back.
         aie = np.mean([np.array(t["curves"][kind]) - t["p_corrupt"] for t in traces], axis=0)
@@ -398,6 +470,71 @@ def aggregate(traces, n_layers, effect):
     out["peak_aie"] = out[f"peak_aie_{effect}"]
     out["layers"] = [out["peak_layer"]]
     return out
+
+
+def _ci(values):
+    return [round(float(np.percentile(values, 2.5)), 4), round(float(np.percentile(values, 97.5)), 4)]
+
+
+def reliability(traces, n_layers, band, kind="mlp", n_boot=1000, seed=0):
+    """How reliably this model recalls facts in the early-to-mid band of
+    `kind` layers, rather than just where the averaged curve peaks.
+
+    share_peak_in_band   share of facts whose own curve peaks in the band
+    mass_in_band         per fact, the share of its positive effect that lies
+                         in the band (uniform spread would give `baseline`)
+    peak_ci              where the averaged curve peaks, across resampled facts
+    sever_drop_mlp/attn  how much hidden-state recovery in the band falls when
+                         later MLPs (or attention) are frozen: necessity
+    Each with a 95% bootstrap interval over facts, and a one-word verdict."""
+    if not traces:
+        return None
+    low, high = band
+    in_band = [layer for layer in range(n_layers) if low <= layer / n_layers < high]
+    curves = np.array([np.array(t["curves"][kind]) - t["p_corrupt"] for t in traces])
+    peaks = curves.argmax(axis=1)
+    hits = np.isin(peaks, in_band).astype(float)
+    positive = np.clip(curves, 0, None)
+    mass = positive[:, in_band].sum(axis=1) / np.maximum(positive.sum(axis=1), 1e-9)
+    rng = np.random.default_rng(seed)
+    boots = rng.integers(0, len(traces), size=(n_boot, len(traces)))
+    mean_peaks = [int(curves[idx].mean(axis=0).argmax()) for idx in boots]
+    out = {
+        "kind": kind,
+        "band": [low, high],
+        "band_layers": [in_band[0], in_band[-1]] if in_band else None,
+        "n_facts": len(traces),
+        "share_peak_in_band": round(float(hits.mean()), 4),
+        "share_peak_in_band_ci": _ci(hits[boots].mean(axis=1)),
+        "mass_in_band": round(float(mass.mean()), 4),
+        "mass_in_band_ci": _ci(mass[boots].mean(axis=1)),
+        "baseline": round(len(in_band) / n_layers, 4),
+        "peak_median": int(np.median(peaks)),
+        "peak_iqr": [int(np.percentile(peaks, 25)), int(np.percentile(peaks, 75))],
+        "peak_ci": [int(np.percentile(mean_peaks, 2.5)), int(np.percentile(mean_peaks, 97.5))],
+    }
+    if "sever_mlp" in traces[0]["curves"] and in_band:
+        hidden = np.array([np.array(t["curves"]["hidden"]) - t["p_corrupt"] for t in traces])[:, in_band].mean()
+        for name in SEVER_KINDS:
+            severed = np.array([np.array(t["curves"][name]) - t["p_corrupt"] for t in traces])[:, in_band].mean()
+            out[f"{name.replace('sever_', 'sever_drop_')}"] = round(float(1 - severed / hidden), 4) if hidden > 0 else None
+    out["verdict"] = _verdict(out)
+    return out
+
+
+def _verdict(r):
+    """strong: most facts peak in the band (lower bound >= 0.6) and the band
+    holds clearly more than its share of the effect; moderate: a majority
+    and more than its share; weak otherwise. Severing, when run, must also
+    show the MLPs are needed (a drop of at least 0.3) for strong."""
+    share_low = r["share_peak_in_band_ci"][0]
+    above = r["mass_in_band"] - r["baseline"]
+    needed = r.get("sever_drop_mlp")
+    if share_low >= 0.6 and above >= 0.15 and (needed is None or needed >= 0.3):
+        return "strong"
+    if r["share_peak_in_band"] >= 0.5 and above > 0:
+        return "moderate"
+    return "weak"
 
 
 def aggregate_grid(traces, n_layers):
@@ -435,8 +572,14 @@ def rebuild_manifest(out_root):
     return manifest
 
 
+def feeds_traced_layers(row):
+    """Only the form edits are written in, at the standard window: the other
+    formats and windows are comparisons, not the model's edit-layer hint."""
+    return (row.get("format") or "completion") == "completion" and row.get("window", 10) == 10
+
+
 def rebuild_traced_layers(out_root, manifest):
-    """model -> the layer its most recent finished trace chose.
+    """model -> the layer its most recent finished plain-completion trace chose.
 
     Derived from the summaries, never appended to, so re-tracing a model
     replaces its entry and archiving a trace run drops it - the same rule the
@@ -445,7 +588,7 @@ def rebuild_traced_layers(out_root, manifest):
     latest = {}
     for row in manifest:
         model = row.get("model")
-        if not model or row.get("peak_layer") is None:
+        if not model or row.get("peak_layer") is None or not feeds_traced_layers(row):
             continue
         current = latest.get(model)
         if current is None or (row.get("finished_at") or "") >= (current.get("finished_at") or ""):
@@ -460,6 +603,9 @@ def rebuild_traced_layers(out_root, manifest):
             "n_prompts": row["n_prompts"],
             "n_layers": row["n_layers"],
             "dataset": " / ".join(x for x in (row.get("dataset_benchmark"), row.get("dataset_subset")) if x),
+            "fact_set": row.get("fact_set_name"),
+            "verdict": (row.get("reliability") or {}).get("verdict"),
+            "share_peak_in_band": (row.get("reliability") or {}).get("share_peak_in_band"),
             "run": row["run"],
             "traced_at": row.get("finished_at"),
         }
@@ -502,12 +648,30 @@ def resolve_modules(model, model_key):
     return templates, source
 
 
+def _round_curves(curves):
+    return {kind: [round(float(v), 5) for v in values] for kind, values in curves.items()}
+
+
 def main():
     args = parse_args()
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
 
-    run_name = args.run_name or f"{args.model}_n{args.n_prompts}"
+    fact_set_info = None
+    if args.fact_set:
+        fact_set_info, rows = load_fact_set(args.fact_set)
+        if len(rows) < MIN_FACTS and not args.allow_thin:
+            raise SystemExit(f"fact set {fact_set_info.get('name')} has {len(rows)} facts, below the {MIN_FACTS} "
+                             f"minimum; add facts from another dataset, or pass --allow_thin 1 to trace it anyway")
+        if fact_set_info.get("formats") and args.format not in fact_set_info["formats"]:
+            print(f"warning: fact set was selected for formats {fact_set_info['formats']}, "
+                  f"tracing as {args.format}; some facts may drop out", flush=True)
+    else:
+        rows = F.load_rows(args.data_path, args.split, args.max_candidates)
+    if not rows:
+        raise SystemExit(f"no usable records in {args.fact_set or args.data_path}")
+
+    run_name = args.run_name or f"{args.model}_{args.format}_n{args.n_prompts}"
     run_dir = os.path.join(args.out_root, "runs", run_name)
     os.makedirs(run_dir, exist_ok=True)
 
@@ -515,23 +679,22 @@ def main():
     model_path = MODEL_PATHS[args.model]
     print(f"[{run_name}] loading {model_path}", flush=True)
     tok = AutoTokenizer.from_pretrained(model_path)
+    if args.format in F.CHAT_FORMATS and not F.has_chat_template(tok):
+        raise SystemExit(f"{args.model} has no chat template, so it cannot be traced as {args.format}")
     model = AutoModelForCausalLM.from_pretrained(model_path, dtype=getattr(torch, args.dtype)).to(device)
     model.eval()
 
     templates, template_source = resolve_modules(model, args.model)
     n_layers = getattr(model.config, "num_hidden_layers", None) or model.config.n_layer
-    print(f"[{run_name}] {n_layers} layers, modules from {template_source}", flush=True)
-
-    rows = load_prompts(args.data_path, args.max_candidates)
-    if not rows:
-        raise SystemExit(f"no usable prompt/subject records in {args.data_path}")
+    print(f"[{run_name}] {n_layers} layers, modules from {template_source}, format {args.format}", flush=True)
 
     # ROME's noise level: 3x the standard deviation of this model's own token
     # embeddings, measured over the candidate prompts rather than the whole
     # vocabulary, so it is scaled to the tokens actually being corrupted.
     with torch.no_grad():
         embed = model.get_submodule(templates["embed"])
-        sample_ids = [i for row in rows[:1000] for i in tok(row["prompt"], add_special_tokens=False)["input_ids"]]
+        texts = [item["text"] for item in (F.build(row, args.format, tok) for row in rows[:1000]) if item]
+        sample_ids = [i for text in texts for i in tok(text, add_special_tokens=False)["input_ids"]]
         embeddings = embed(torch.tensor(sample_ids[:20000], device=device))
         embedding_std = float(embeddings.float().std())
     args.noise_level = args.noise_scale * embedding_std
@@ -541,12 +704,15 @@ def main():
         "run": run_name, "model": args.model, "model_path": model_path,
         "model_type": model.config.model_type, "n_layers": n_layers,
         "modules": templates, "module_source": template_source,
-        "data_path": args.data_path,
+        "data_path": args.data_path, "split": args.split, "format": args.format,
+        "fact_set": args.fact_set or None,
+        "fact_set_name": fact_set_info.get("name") if fact_set_info else None,
+        "fact_set_size": len(rows) if fact_set_info else None,
         "dataset_benchmark": args.dataset_benchmark, "dataset_subset": args.dataset_subset,
         "n_prompts": args.n_prompts, "max_candidates": args.max_candidates,
         "min_prob": args.min_prob, "noise_scale": args.noise_scale,
         "noise_level": args.noise_level, "embedding_std": embedding_std,
-        "window": args.window, "effect": args.effect,
+        "window": args.window, "effect": args.effect, "sever": args.sever, "band": list(args.band),
         "n_noise_samples": args.n_noise_samples, "token_grid": args.token_grid,
         "dtype": args.dtype, "seed": args.seed,
     }
@@ -556,11 +722,12 @@ def main():
     started_at, t_start = _now(), time.time()
     ckpt_file = open(os.path.join(run_dir, "checkpoints.jsonl"), "w")
     traces, scanned, skipped = [], 0, 0
+    total = min(args.n_prompts, len(rows))
 
     def checkpoint():
         summary = aggregate(traces, n_layers, args.effect)
         row = {
-            "step": len(traces), "at": _now(), "elapsed_sec": round(time.time() - t_start, 2),
+            "step": len(traces), "total_steps": total, "at": _now(), "elapsed_sec": round(time.time() - t_start, 2),
             "scanned": scanned, "skipped_unknown": skipped,
             "peak_layer": summary.get("peak_layer"), "peak_aie": summary.get("peak_aie"),
             "p_clean": summary.get("p_clean"), "p_corrupt": summary.get("p_corrupt"),
@@ -576,7 +743,7 @@ def main():
             break
         scanned += 1
         # The grid is only for the heatmap, and it is the expensive part, so
-        # only the first --token_grid prompts pay for it.
+        # only the first --token_grid facts pay for it.
         args_for_row = argparse.Namespace(**vars(args))
         args_for_row.token_grid = 1 if len(traces) < args.token_grid else 0
         trace = trace_prompt(model, tok, device, row, args_for_row, templates, n_layers, rng)
@@ -594,6 +761,8 @@ def main():
     summary = {
         **{k: v for k, v in config.items() if k not in ("modules",)},
         **aggregate(traces, n_layers, args.effect),
+        "reliability": reliability(traces, n_layers, args.band, seed=args.seed),
+        "thin": len(traces) < MIN_FACTS,
         "scanned": scanned, "skipped_unknown": skipped,
         "known_rate": round(len(traces) / scanned, 4) if scanned else None,
         "started_at": started_at, "finished_at": _now(),
@@ -608,13 +777,19 @@ def main():
             "run": run_name,
             "summary": summary,
             "token_grid": aggregate_grid(traces, n_layers),
-            "prompts": [{k: t[k] for k in ("prompt", "subject", "answer", "p_clean", "p_corrupt")} for t in traces],
-        }, f, indent=2)
+            # Every fact's own curves: what reliability() was computed from,
+            # and what any later breakdown (by relation, domain, ...) needs.
+            "prompts": [{**{k: t[k] for k in ("id", "relation", "domain", "prompt", "subject", "answer",
+                                              "p_clean", "p_corrupt", "corrupt_spans")},
+                         "curves": _round_curves(t["curves"])} for t in traces],
+        }, f)
 
     manifest = rebuild_manifest(args.out_root)
     mapping = rebuild_traced_layers(args.out_root, manifest)
+    verdict = (summary["reliability"] or {}).get("verdict")
     print(f"[{run_name}] done: {args.model} -> layer {summary.get('peak_layer')} "
-          f"(AIE {summary.get('peak_aie')}, {len(traces)} prompts)", flush=True)
+          f"(AIE {summary.get('peak_aie')}, {len(traces)} prompts, early-to-mid: {verdict})"
+          + (" THIN" if summary["thin"] else ""), flush=True)
     print(f"[{run_name}] traced_layers.json now covers {sorted(mapping)}", flush=True)
 
 

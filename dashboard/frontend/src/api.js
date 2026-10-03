@@ -52,15 +52,20 @@ export const api = {
     req(`/hparams/settings?investigation=${encodeURIComponent(investigation)}&methods=${encodeURIComponent(methods.join(','))}&models=${encodeURIComponent(models.join(','))}`),
   estimateSweep: (spec) => req('/hparams/estimate', { method: 'POST', body: JSON.stringify(spec) }),
   launchSweep: (spec) => req('/hparams/sweeps', { method: 'POST', body: JSON.stringify(spec) }),
-  sweeps: (investigation) => req(`/hparams/sweeps${investigation ? `?investigation=${encodeURIComponent(investigation)}` : ''}`),
+  sweeps: (investigation, includeHidden = false) => {
+    const q = new URLSearchParams()
+    if (investigation) q.set('investigation', investigation)
+    if (includeHidden) q.set('include_hidden', 'true')
+    return req(`/hparams/sweeps${q.toString() ? `?${q}` : ''}`)
+  },
+  hideSweep: (investigation, id, hidden = true) =>
+    req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/hide?hidden=${hidden}`, { method: 'POST' }),
   cancelSweep: (investigation, id) =>
     req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/cancel`, { method: 'POST' }),
   rerunFailedSweep: (investigation, id) =>
     req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/rerun-failed`, { method: 'POST' }),
   sweepFailures: () => req('/hparams/failures'),
   sweepDetail: (investigation, id) => req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}`),
-  deleteSweep: (investigation, id) =>
-    req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   sweepResults: (investigation) => req(`/hparams/results?investigation=${encodeURIComponent(investigation)}`),
   promoteConfig: (investigation, sweepId, run) =>
     req('/hparams/promote', { method: 'POST', body: JSON.stringify({ investigation, sweep_id: sweepId, run }) }),

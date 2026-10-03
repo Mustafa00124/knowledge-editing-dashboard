@@ -1,3 +1,4 @@
+import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
@@ -8,7 +9,7 @@ import HeldConstant from '../components/HeldConstant.jsx'
 import SweepCard from '../components/SweepCard.jsx'
 import SweepDetailModal from '../components/SweepDetailModal.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
-import { CATEGORY_HELP, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
+import { GROUP_LABEL, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
 const EXPERIMENT = 'run_experiment'
 
@@ -60,11 +61,58 @@ function KnobEditor({ knob, model, values, onChange }) {
   )
 }
 
-export default function HyperparameterInvestigation() {
+// Each model's traced peak (Knowledge localisation, per model) beside the
+// layers each method edits today. The suggestions below add the peak, so a
+// sweep checks the trace against what editing actually does; an untraced
+// model gets suggestions around its default only.
+function TracedPeaks({ investigation }) {
+  const layered = investigation.methods
+    .map((m) => ({ ...m, knob: m.knobs.find((k) => k.key === 'layers') }))
+    .filter((m) => m.knob)
+  const models = [...new Set(layered.flatMap((m) => Object.keys(m.knob.defaults)))]
+  const traced = investigation.traced
+  return (
+    <div className="card hp-tool-card">
+      <div className="card-title">
+        Traced peak per model · <Link to="/experiments/investigations/causal_tracing">Knowledge localisation →</Link>
+      </div>
+      <div className="card-sub">
+        Where each model recalls facts, measured once per model, beside the layers each method edits today.
+        {' '}{models.filter((m) => !traced[m]).length} of {models.length} models are untraced; their suggestions
+        centre on the default only.
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Model</th><th>Traced peak</th>{layered.map((m) => <th key={m.method}>{m.label}</th>)}</tr>
+          </thead>
+          <tbody>
+            {models.map((model) => (
+              <tr key={model}>
+                <td>{model}</td>
+                <td>
+                  {traced[model]
+                    ? `${traced[model].peak_layer} (${traced[model].n_prompts} prompt${traced[model].n_prompts === 1 ? '' : 's'})`
+                    : <span className="dl-dim">untraced</span>}
+                </td>
+                {layered.map((m) => (
+                  <td key={m.method}>{m.knob.defaults[model] ? JSON.stringify(m.knob.defaults[model]) : '—'}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+export default function SweepInvestigation() {
   const { investigationId } = useParams()
   const [investigation, setInvestigation] = useState(null)
   const [expType, setExpType] = useState(null)
   const [sweeps, setSweeps] = useState([])
+  const [showHidden, setShowHidden] = useState(false)
   const [error, setError] = useState(null)
   const [models, setModels] = useState([])
   const [dataPaths, setDataPaths] = useState([])
@@ -100,7 +148,7 @@ export default function HyperparameterInvestigation() {
     }).catch((e) => setError(e.message))
   }, [investigationId])
 
-  const refreshSweeps = () => api.sweeps(investigationId).then(setSweeps).catch(() => {})
+  const refreshSweeps = () => api.sweeps(investigationId, true).then(setSweeps).catch(() => {})
   useEffect(() => {
     refreshSweeps()
     const timer = setInterval(refreshSweeps, 8000)
@@ -178,32 +226,25 @@ export default function HyperparameterInvestigation() {
     }
   }
 
-  if (error) return <div><div className="page-header"><h1>Hyperparameters</h1></div><p className="form-error">{error}</p></div>
-  if (!investigation || !expType) return <div><div className="page-header"><h1>Hyperparameters</h1></div><p className="empty">Loading…</p></div>
+  if (error) return <div><ExperimentsSubnav /><div className="page-header"><h1>Investigations</h1></div><p className="form-error">{error}</p></div>
+  if (!investigation || !expType) return <div><ExperimentsSubnav /><div className="page-header"><h1>Investigations</h1></div><p className="empty">Loading…</p></div>
 
   const editField = field('edit_mode')
 
   return (
     <div className="hp-investigation">
-      <div className="hp-breadcrumb"><Link to="/hyperparameters">Hyperparameters</Link> / {investigation.label}</div>
+      <ExperimentsSubnav />
+      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / {investigation.label}</div>
       <div className="page-header">
         <h1>{investigation.label}</h1>
-        <Link to={`/results/hyperparameters?investigation=${investigation.id}`} className="btn-plain-small">Results for this investigation →</Link>
+        <Link to={`/results/investigations?investigation=${investigation.id}`} className="btn-plain-small">Results for this investigation →</Link>
       </div>
       <p className="hp-intro">
-        <span className="badge">{investigation.category}</span> {CATEGORY_HELP[investigation.category]}. {investigation.question}
+        <span className="badge">{GROUP_LABEL[investigation.group]}</span> {investigation.question}
       </p>
       {investigation.cost_note && <p className="dl-dim">{investigation.cost_note}</p>}
 
-      {investigation.tools?.includes('causal_tracing') && (
-        <Link to="/hyperparameters/edit_layers/causal-tracing" className="card hp-tool-card">
-          <div className="card-title">Causal tracing →</div>
-          <div className="card-sub">
-            Measures which layer carries each fact, per model. Its peak layer is added to the suggested layers below,
-            so a layer sweep can check the trace against what editing actually does.
-          </div>
-        </Link>
-      )}
+      {investigation.traced && <TracedPeaks investigation={investigation} />}
 
       <LaunchBlockedNotice blockers={blockers} />
 
@@ -306,7 +347,7 @@ export default function HyperparameterInvestigation() {
           {message && (
             <div className={message.ok ? 'dl-bar-ok' : 'dl-bar-warning'} role="status">
               {message.text}
-              {message.sweep && <> · <Link to={`/results/hyperparameters?investigation=${investigation.id}`}>see results</Link></>}
+              {message.sweep && <> · <Link to={`/results/investigations?investigation=${investigation.id}`}>see results</Link></>}
             </div>
           )}
         </div>
@@ -318,17 +359,20 @@ export default function HyperparameterInvestigation() {
 
       <section className="dl-section">
         <h2 className="section-heading">Sweeps in this investigation</h2>
-        {!sweeps.length && <p className="dl-dim">None yet.</p>}
+        {!sweeps.some((s) => !s.hidden) && <p className="dl-dim">{sweeps.length ? 'None showing.' : 'None yet.'}</p>}
+        {sweeps.some((s) => s.hidden) && (
+          <button type="button" className="btn-plain-small" onClick={() => setShowHidden((v) => !v)}>
+            {showHidden ? 'Leave out hidden sweeps' : `Show ${sweeps.filter((s) => s.hidden).length} hidden`}
+          </button>
+        )}
         <ul className="dl-tasks">
-          {sweeps.map((s) => (
+          {sweeps.filter((s) => showHidden || !s.hidden).map((s) => (
             <SweepCard key={s.id} sweep={s}
               onDetails={() => setDetailFor(s.id)}
               onCancel={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}
               onRerun={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}
-              onDelete={() => {
-                if (!window.confirm(`Delete ${s.label || s.id}? It disappears from every page; its folder is moved to deleted/, not erased.`)) return
-                api.deleteSweep(investigation.id, s.id).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))
-              }} />
+              onHide={() => api.hideSweep(investigation.id, s.id).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))}
+              onUnhide={() => api.hideSweep(investigation.id, s.id, false).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))} />
           ))}
         </ul>
         {detailFor && <SweepDetailModal investigation={investigation.id} sweepId={detailFor} onClose={() => setDetailFor(null)} />}

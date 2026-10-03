@@ -12,7 +12,7 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 # investigations (sweeps on dev records, organised by what they tune).
 MAIN_RESULTS_DIR = RESULTS_DIR / "main"
 TRIAL_RUNS_DIR = MAIN_RESULTS_DIR / "trial_runs"
-HPARAM_RESULTS_DIR = RESULTS_DIR / "hyperparameters"
+INVESTIGATIONS_DIR = RESULTS_DIR / "investigations"
 DATASETS_DIR = PROJECT_ROOT / "datasets"
 MODELS_DIR = PROJECT_ROOT / "models"
 EXTERNAL_DIR = PROJECT_ROOT / "external"
@@ -20,6 +20,7 @@ EXTERNAL_DIR = PROJECT_ROOT / "external"
 DASHBOARD_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = DASHBOARD_DIR / "dashboard.db"
 SUBMITTED_SBATCH_DIR = DASHBOARD_DIR / "backend" / "submitted"
+GPU_LANE_LOCK_PATH = DASHBOARD_DIR / "backend" / ".gpu_lane.lock"
 # State files for jobs run without SLURM (see local_jobs.py).
 LOCAL_JOBS_DIR = DASHBOARD_DIR / "backend" / "local_jobs"
 

@@ -1,4 +1,4 @@
-"""The causal tracing reader: pairing a model's traced layer with the layer its edit hparams use today."""
+"""The causal tracing reader: each model's traced layer, per model only."""
 import contextlib
 import importlib
 import io
@@ -21,16 +21,6 @@ class CausalTracingReaderTests(unittest.TestCase):
         root = Path(self.temp.name)
         self.out_root = root / "results" / "causal_tracing"
         (self.out_root / "runs").mkdir(parents=True)
-        self.hparams = root / "experiments" / "run_experiment" / "hparams"
-
-        for method, layers in [("ROME", "[5]"), ("MEMIT", "[4, 5, 6, 7, 8]")]:
-            path = self.hparams / method / "qwen3-4b.yaml"
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(f"alg_name: {method}\nlayers: {layers}\ndevice: 0\n")
-        # Block-style list, and a model with no hparams at all.
-        rome_gptj = self.hparams / "ROME" / "gpt-j-6b.yaml"
-        rome_gptj.write_text("alg_name: ROME\nlayers:\n  - 3\n  - 4\n")
-
         self.config = {
             "name": "causal_tracing",
             "out_root": str(self.out_root),
@@ -46,9 +36,6 @@ class CausalTracingReaderTests(unittest.TestCase):
         self.patch_get = patch.object(main.registry, "get_experiment_type", return_value=self.config)
         self.patch_get.start()
         self.addCleanup(self.patch_get.stop)
-        self.patch_hparams = patch.object(reader, "HPARAMS_DIR", self.hparams)
-        self.patch_hparams.start()
-        self.addCleanup(self.patch_hparams.stop)
 
     def write_trace(self, model, layer, run="run1", n_prompts=200):
         (self.out_root / "manifest.json").write_text(json.dumps([
@@ -64,14 +51,9 @@ class CausalTracingReaderTests(unittest.TestCase):
                     "traced_at": "2026-09-20T01:00:00-04:00"}
         }))
 
-    def test_reads_the_layer_each_method_would_edit_today(self):
-        overview = main.get_causal_tracing()
-        models = {m["value"]: m for m in overview["models"]}
-
-        self.assertEqual(models["qwen3-4b"]["hparams_layers"], {"ROME": [5], "MEMIT": [4, 5, 6, 7, 8]})
-        # Block-style yaml reads the same as the inline form.
-        self.assertEqual(models["gpt-j-6b"]["hparams_layers"], {"ROME": [3, 4]})
-        self.assertEqual(models["olmo-2-7b"]["hparams_layers"], {})
+    def test_overview_has_no_method_columns(self):
+        models = main.get_causal_tracing()["models"]
+        self.assertTrue(all("hparams_layers" not in m for m in models))
 
     def test_untraced_models_are_listed_with_no_answer_rather_than_omitted(self):
         overview = main.get_causal_tracing()

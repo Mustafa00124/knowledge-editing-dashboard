@@ -1,16 +1,21 @@
 {
  "name": "causal_tracing",
  "label": "Causal Tracing",
- "description": "Locates where a model stores the facts it recalls, by corrupting the subject and restoring one site at a time. Names the layer ROME/MEMIT/PMET/AlphaEdit should edit for that model.",
+ "description": "Locates where a model recalls the facts it knows, by corrupting the input and restoring one site at a time, and reports how reliably that is in early-to-mid MLP layers. One trace per model and format; no editing method is involved.",
  "script": "causal_trace.py",
  "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
- "out_root": "${PROJECT_ROOT}/results/hyperparameters/edit_layers/causal_tracing",
+ "out_root": "${PROJECT_ROOT}/results/investigations/causal_tracing",
  "queue": false,
  "progress_field": "n_prompts",
  "run_name_always": [
   "model",
   "data_path",
-  "n_prompts"
+  "format",
+  "fact_set",
+  "n_prompts",
+  "window",
+  "sever",
+  "seed"
  ],
  "resources": {
   "partition": "AAIL",
@@ -45,34 +50,80 @@
    "run_name_bare": true,
    "options": [
     {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base",
+     "available": true
+    },
+    {
      "label": "Qwen3-4B",
      "value": "qwen3-4b",
-     "available": true,
-     "note": "ROME/MEMIT hparams currently inherit layer 5 from qwen2.5-7b, untraced"
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Thinking-2507",
+     "value": "qwen3-4b-thinking-2507",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Think",
+     "value": "olmo-3-7b-think",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct",
+     "available": true
+    },
+    {
+     "label": "DeepSeek-R1-Distill-Llama-8B",
+     "value": "deepseek-r1-distill-llama-8b",
+     "available": true
     },
     {
      "label": "Mistral-7B-v0.1",
      "value": "mistral-7b-v0.1",
-     "available": true,
-     "note": "ROME/MEMIT hparams inherited, untraced"
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1",
+     "available": true
     },
     {
      "label": "GPT-J-6B",
      "value": "gpt-j-6b",
      "available": true,
-     "note": "upstream ROME hparams, traced in the original paper - the check that this script agrees"
+     "note": "traced in the original ROME paper: the check that this script agrees"
     },
     {
      "label": "OLMo-2-7B",
      "value": "olmo-2-7b",
-     "available": true,
-     "note": "no locate-and-edit hparams yet"
+     "available": true
     },
     {
      "label": "GPT-NeoX-20B",
      "value": "gpt-neox-20b",
-     "available": true,
-     "note": "no locate-and-edit hparams yet"
+     "available": true
     },
     {
      "label": "GPT-OSS-20B",
@@ -90,7 +141,7 @@
    "control": "dataset",
    "sweepable": true,
    "default": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
-   "note": "tracing needs facts the model already knows, so only datasets carrying the true answer (not just an edit target) are listed",
+   "note": "tracing needs facts the model already knows, so only datasets carrying the true answer (not just an edit target) are listed. Ignored when a fact set is chosen.",
    "benchmarks": [
     {
      "label": "KnowEdit",
@@ -114,8 +165,166 @@
        "note": "post-training facts: the model is not expected to know them, so there is no recall to localize"
       }
      ]
+    },
+    {
+     "label": "MQuAKE",
+     "subsets": [
+      {
+       "label": "CF-3k-v2",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json",
+       "available": true,
+       "note": "single-fact rewrites with their true answers, ROME-style completions over 37 Wikidata relations"
+      }
+     ]
+    },
+    {
+     "label": "UniEdit",
+     "subsets": [
+      {
+       "label": "all 25 domains",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test",
+       "available": true,
+       "note": "real Wikidata facts across 25 knowledge domains; trace through a fact set (select_facts.py reads every domain file)"
+      }
+     ]
+    },
+    {
+     "label": "RealTimeQA",
+     "subsets": [
+      {
+       "label": "by question type",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type",
+       "available": true,
+       "note": "news questions with four choices (format mcq / chat_mcq); trace through a fact set"
+      }
+     ]
+    },
+    {
+     "label": "AlteredRiddles",
+     "subsets": [
+      {
+       "label": "altered riddles",
+       "value": "${PROJECT_ROOT}/datasets/AlteredRiddles/benchmark.jsonl",
+       "available": true,
+       "note": "riddles with an added clue that changes the answer (format riddle / chat_riddle); the clue is what gets corrupted"
+      }
+     ]
     }
-   ]
+   ],
+   "run_name_unless": "fact_set"
+  },
+  {
+   "name": "split",
+   "label": "Records",
+   "group": "prompts",
+   "type": "string",
+   "default": "nontest",
+   "sweepable": false,
+   "options": [
+    {
+     "label": "dev + demo (never test)",
+     "value": "nontest"
+    },
+    {
+     "label": "dev only",
+     "value": "dev"
+    },
+    {
+     "label": "all, including test (checks only)",
+     "value": "all"
+    }
+   ],
+   "note": "which records of the dataset to scan. The trace informs edit layers, so it stays off test records like every sweep."
+  },
+  {
+   "name": "fact_set",
+   "label": "Fact set",
+   "group": "prompts",
+   "type": "string",
+   "default": "",
+   "sweepable": false,
+   "options": [
+    {
+     "label": "none: scan the dataset per model",
+     "value": ""
+    },
+    {
+     "label": "MQuAKE, shared by 8 base/instruct models",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_shared8/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Qwen3-4B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_qwen3-4b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Olmo-3-7B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_olmo-3-7b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Llama-3.1-8B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_llama-3.1-8b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Mistral-7B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_mistral-7b/fact_set.json"
+    }
+   ],
+   "note": "a fixed list from fact selection: every model traces the same facts. The page lists the sets on disk.",
+   "run_name_path_part": true,
+   "run_name_skip_default": true,
+   "allow_custom": true
+  },
+  {
+   "name": "format",
+   "label": "Prompt format",
+   "group": "prompts",
+   "type": "string",
+   "default": "completion",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "completion",
+     "value": "completion",
+     "note": "the cloze sentence; noise on the subject"
+    },
+    {
+     "label": "question",
+     "value": "question",
+     "note": "'Question: ... Answer:' as plain text; noise on the subject"
+    },
+    {
+     "label": "chat_question",
+     "value": "chat_question",
+     "note": "the question through the model's chat template, asking for the answer only; noise on the subject"
+    },
+    {
+     "label": "chat_prefill",
+     "value": "chat_prefill",
+     "note": "the question through the chat template, with the cloze sentence begun as the reply; noise on every mention of the subject"
+    },
+    {
+     "label": "mcq",
+     "value": "mcq",
+     "note": "question, lettered choices, 'Answer:' as plain text; noise on the question"
+    },
+    {
+     "label": "chat_mcq",
+     "value": "chat_mcq",
+     "note": "the multiple-choice prompt through the chat template, asking for the letter only; noise on the question"
+    },
+    {
+     "label": "riddle",
+     "value": "riddle",
+     "note": "'Riddle: ... Answer:' as plain text; noise on the clue the altered riddle added"
+    },
+    {
+     "label": "chat_riddle",
+     "value": "chat_riddle",
+     "note": "the riddle through the chat template, asking for the answer only; noise on the added clue"
+    }
+   ],
+   "note": "how each fact is written; chat_* go through the model's chat template (instruct models)"
   },
   {
    "name": "n_prompts",
@@ -256,6 +465,48 @@
     {
      "label": "15",
      "value": "15"
+    }
+   ],
+   "run_name_skip_default": true,
+   "run_name_prefix": "w"
+  },
+  {
+   "name": "sever",
+   "label": "Severing test",
+   "group": "trace",
+   "type": "int",
+   "default": "0",
+   "sweepable": false,
+   "run_name_skip_default": true,
+   "run_name_prefix": "sever",
+   "options": [
+    {
+     "label": "off",
+     "value": "0"
+    },
+    {
+     "label": "on (about 1.7x the time)",
+     "value": "1"
+    }
+   ],
+   "note": "restore the hidden state with later MLPs or attention frozen: are the MLPs needed to carry the fact?"
+  },
+  {
+   "name": "allow_thin",
+   "label": "Allow a thin fact set",
+   "group": "run",
+   "type": "int",
+   "default": "0",
+   "sweepable": false,
+   "run_name_skip_default": true,
+   "options": [
+    {
+     "label": "no: refuse below 50 facts",
+     "value": "0"
+    },
+    {
+     "label": "yes",
+     "value": "1"
     }
    ]
   },
@@ -410,7 +661,9 @@
      "label": "2",
      "value": "2"
     }
-   ]
+   ],
+   "run_name_skip_default": true,
+   "run_name_prefix": "seed"
   }
  ]
 }

@@ -132,7 +132,7 @@ export default function SweepDetailModal({ investigation, sweepId, onClose }) {
                   </tbody>
                 </table>
               </div>
-              <Link to={`/results/hyperparameters?investigation=${investigation}&sweep=${sweepId}`} onClick={onClose}>
+              <Link to={`/results/investigations?investigation=${investigation}&sweep=${sweepId}`} onClick={onClose}>
                 Rank these runs in Results →
               </Link>
             </>

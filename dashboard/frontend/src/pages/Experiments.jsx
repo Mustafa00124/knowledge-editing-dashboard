@@ -1,3 +1,4 @@
+import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { api } from '../api.js'
 import ExperimentDrawer from '../components/ExperimentDrawer.jsx'
@@ -161,8 +162,9 @@ export default function Experiments() {
 
   return (
     <div>
+      <ExperimentsSubnav />
       <div className="page-header">
-        <h1>Experiments</h1>
+        <h1>Main experiments</h1>
         <button className="btn-primary" onClick={() => setDrawerOpen(true)}>
           + New Experiment
         </button>

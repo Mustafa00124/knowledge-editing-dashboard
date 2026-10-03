@@ -9,6 +9,9 @@ class SubmitExperimentRequest(BaseModel):
     # Every field arrives as a list, even single-value ones - a plain
     # submission is just a sweep of size 1 per field. See slurm.submit_sweep.
     params: Dict[str, List[Any]] = {}
+    # SLURM job ids these jobs must wait for to finish successfully (e.g.
+    # traces on a fact set whose selection job has not finished yet).
+    after_ok: List[str] = []
 
 
 class ArchiveRequest(BaseModel):

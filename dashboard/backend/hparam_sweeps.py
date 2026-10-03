@@ -9,7 +9,7 @@ records only (--split dev), evaluates only before editing and at the end
 (--final_only), and passes the swept values as --hparam overrides.
 
 On disk, one folder per sweep:
-    results/hyperparameters/<investigation>/sweeps/<sweep_id>/
+    results/investigations/<investigation>/sweeps/<sweep_id>/
         sweep.json          what was varied and fixed, and every run's job id
         runs/<run>/...      the runner's usual files (hparams, checkpoints, summary)
 
@@ -106,11 +106,18 @@ def _model_layers(model):
     return cfg.get("num_hidden_layers") or cfg.get("n_layer")
 
 
+def _traced():
+    """model -> its causal trace (peak layer, prompts, ...), from the
+    Knowledge localisation investigation."""
+    path = config.INVESTIGATIONS_DIR / "causal_tracing" / "traced_layers.json"
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
 def _traced_peak(model):
-    path = config.HPARAM_RESULTS_DIR / "edit_layers" / "causal_tracing" / "traced_layers.json"
-    if not path.exists():
-        return None
-    entry = json.loads(path.read_text()).get(model)
+    entry = _traced().get(model)
     return entry.get("peak_layer") if entry else None
 
 
@@ -207,7 +214,13 @@ def catalog():
                 "available": option.get("available", True) is not False,
                 "note": option.get("note"), "knobs": knobs,
             })
-        out.append({**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods})
+        row = {**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods}
+        if inv["id"] == "edit_layers":
+            # Each model's traced peak beside the layers every method edits,
+            # so the per-method sweep can be read against the per-model trace.
+            row["traced"] = {m: {k: t.get(k) for k in ("peak_layer", "layers", "n_prompts", "effect", "dataset", "run")}
+                             for m, t in _traced().items()}
+        out.append(row)
     return out
 
 
@@ -291,7 +304,7 @@ def settings(investigation, methods, models):
 
 
 def _sweep_dir(investigation, sweep_id):
-    return config.HPARAM_RESULTS_DIR / investigation / "sweeps" / sweep_id
+    return config.INVESTIGATIONS_DIR / investigation / "sweeps" / sweep_id
 
 
 def _slug(value):
@@ -440,7 +453,7 @@ def rerun_failed(investigation, sweep_id):
 
 
 def _sweeps(investigation=None):
-    root = config.HPARAM_RESULTS_DIR
+    root = config.INVESTIGATIONS_DIR
     pattern = f"{investigation}/sweeps/*/sweep.json" if investigation else "*/sweeps/*/sweep.json"
     for path in sorted(root.glob(pattern), reverse=True):
         try:
@@ -568,8 +581,8 @@ def _overall(rows):
     return round(total / len(rows), 4)
 
 
-def list_sweeps(investigation=None):
-    sweeps = list(_sweeps(investigation))
+def list_sweeps(investigation=None, include_hidden=False):
+    sweeps = [(d, s) for d, s in _sweeps(investigation) if include_hidden or not s.get("hidden")]
     statuses = _statuses(sweeps)
     pending = [str(r["job_id"]) for _, s in sweeps for r in s["runs"]
                if statuses.get(str(r["job_id"]), {}).get("state") == "PENDING"]
@@ -592,7 +605,7 @@ def list_sweeps(investigation=None):
             text = (r.get("waiting") or {}).get("reason_text", "queued")
             reasons[text] = reasons.get(text, 0) + 1
         out.append({k: sweep[k] for k in ("id", "investigation", "label", "created_at")}
-                   | {"retryable": counts_retry, "gpu_seconds": gpu_seconds}
+                   | {"hidden": bool(sweep.get("hidden")), "retryable": counts_retry, "gpu_seconds": gpu_seconds}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
                       "models": sorted({r["model"] for r in sweep["runs"]}),
@@ -634,6 +647,28 @@ def sweep_detail(investigation, sweep_id):
             "overall": _overall(runs)}
 
 
+def set_hidden(investigation, sweep_id, hidden):
+    """Clear a finished sweep off the sweep lists, or bring it back. Only a
+    flag in sweep.json changes: its runs stay where they are and keep
+    showing on Results · Investigations."""
+    sweep_dir = _sweep_dir(investigation, sweep_id)
+    path = sweep_dir / "sweep.json"
+    if not path.exists():
+        raise KeyError(sweep_id)
+    sweep = json.loads(path.read_text())
+    if hidden:
+        statuses = _statuses([(sweep_dir, sweep)])
+        if any(statuses.get(str(r["job_id"]), {}).get("state") in ACTIVE for r in sweep["runs"]):
+            raise ValueError("this sweep still has queued or running runs: cancel them first")
+        sweep["hidden"] = True
+        sweep["hidden_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+    else:
+        sweep.pop("hidden", None)
+        sweep.pop("hidden_at", None)
+    path.write_text(json.dumps(sweep, indent=1) + "\n")
+    return {"hidden": hidden}
+
+
 def delete_sweep(investigation, sweep_id):
     """Take a sweep off every page. Refused while any run is queued or
     running. Moved to <investigation>/deleted/, not erased, so it can be
@@ -645,7 +680,7 @@ def delete_sweep(investigation, sweep_id):
     statuses = _statuses([(sweep_dir, sweep)])
     if any(statuses.get(str(r["job_id"]), {}).get("state") in ACTIVE for r in sweep["runs"]):
         raise ValueError("this sweep still has queued or running runs: cancel them first")
-    trash = config.HPARAM_RESULTS_DIR / investigation / "deleted"
+    trash = config.INVESTIGATIONS_DIR / investigation / "deleted"
     trash.mkdir(parents=True, exist_ok=True)
     target = trash / f"{sweep_id}--deleted-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     shutil.move(str(sweep_dir), str(target))

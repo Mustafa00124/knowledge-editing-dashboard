@@ -1,12 +1,17 @@
-// Shared helpers for the Hyperparameters pages and their results.
+// Shared helpers for the Investigations pages and their results.
 
-export const CATEGORY_ORDER = ['WHERE', 'WHAT', 'HOW MUCH', 'CONTEXT']
+export const GROUP_ORDER = ['mechanistic', 'sweep', 'prompt_format']
 
-export const CATEGORY_HELP = {
-  WHERE: 'where the edit lands',
-  WHAT: 'the content being written',
-  'HOW MUCH': 'how strongly it is written',
-  CONTEXT: 'the data and prompts that shape the edit',
+export const GROUP_LABEL = {
+  mechanistic: 'Mechanistic',
+  sweep: 'Hyperparameter sweeps',
+  prompt_format: 'Prompt format',
+}
+
+export const GROUP_HELP = {
+  mechanistic: 'measure the model itself, per model, with no editing method involved',
+  sweep: 'try settings of each editing method on dev records, to pick what the main experiments use',
+  prompt_format: 'check whether how a prompt is written changes a measurement',
 }
 
 export const STABILITY_LABEL = {
