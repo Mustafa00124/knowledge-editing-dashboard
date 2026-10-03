@@ -96,7 +96,7 @@ is scored on. `experiments/run_experiment/test_splits.py` checks all of it.
 | `datasets/` | One folder per benchmark. Git tracks only each one's `SOURCE.json` manifest; the data is downloaded into it. |
 | `scripts/setup.py` | Command-line version of the Downloads page. |
 | `splits/` | The fixed dev/test split, one file per dataset subset. |
-| `experiments/run_experiment/investigations.json` | The hyperparameter investigations the dashboard's Hyperparameters page offers. |
+| `experiments/run_experiment/investigations.json` | The investigations (mechanistic, hyperparameter sweeps, prompt format) on the dashboard's Experiments → Investigations page. |
 | `patches/` | Local fixes applied on top of pinned upstream repos. |
 
 Paths in configs are relative to the repo root (`hparams/*.yaml`) or written

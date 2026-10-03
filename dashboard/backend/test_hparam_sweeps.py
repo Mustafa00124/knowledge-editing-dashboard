@@ -122,11 +122,11 @@ class SweepProgressTests(unittest.TestCase):
     def test_deleting_a_finished_sweep_moves_it_out_of_sight_without_erasing_it(self):
         import json
         from unittest import mock
-        root = self.run / "hyperparameters"
+        root = self.run / "investigations"
         sweep_dir = root / "edit_layers" / "sweeps" / "s2"
         sweep_dir.mkdir(parents=True)
         (sweep_dir / "sweep.json").write_text(json.dumps({"id": "s2", "runs": [{"job_id": "2"}]}))
-        with mock.patch.object(config, "HPARAM_RESULTS_DIR", root), \
+        with mock.patch.object(config, "INVESTIGATIONS_DIR", root), \
              mock.patch.object(config, "PROJECT_ROOT", self.run), \
              mock.patch.object(hparam_sweeps, "_statuses", return_value={"2": {"state": "COMPLETED"}}):
             hparam_sweeps.delete_sweep("edit_layers", "s2")
@@ -134,6 +134,34 @@ class SweepProgressTests(unittest.TestCase):
         self.assertFalse(sweep_dir.exists())
         kept = list((root / "edit_layers" / "deleted").glob("s2--deleted-*/sweep.json"))
         self.assertEqual(len(kept), 1)
+
+    def test_hiding_a_sweep_clears_it_from_the_list_but_keeps_its_results(self):
+        import json
+        from unittest import mock
+        root = self.run / "investigations"
+        sweep_dir = root / "edit_layers" / "sweeps" / "s3"
+        sweep_dir.mkdir(parents=True)
+        (sweep_dir / "sweep.json").write_text(json.dumps({"id": "s3", "runs": [{"job_id": "3"}]}))
+        with mock.patch.object(config, "INVESTIGATIONS_DIR", root), \
+             mock.patch.object(hparam_sweeps, "_statuses", return_value={"3": {"state": "COMPLETED"}}):
+            hparam_sweeps.set_hidden("edit_layers", "s3", True)
+            listed = [s["id"] for _, s in hparam_sweeps._sweeps("edit_layers")]
+            self.assertEqual(listed, ["s3"])  # what results() reads
+            self.assertTrue(json.loads((sweep_dir / "sweep.json").read_text())["hidden"])
+            hparam_sweeps.set_hidden("edit_layers", "s3", False)
+            self.assertNotIn("hidden", json.loads((sweep_dir / "sweep.json").read_text()))
+        self.assertTrue(sweep_dir.exists())
+
+    def test_a_sweep_with_active_runs_cannot_be_hidden(self):
+        import json
+        from unittest import mock
+        sweep_dir = self.run / "sweeps" / "s4"
+        sweep_dir.mkdir(parents=True)
+        (sweep_dir / "sweep.json").write_text(json.dumps({"id": "s4", "runs": [{"job_id": "4"}]}))
+        with mock.patch.object(hparam_sweeps, "_sweep_dir", return_value=sweep_dir), \
+             mock.patch.object(hparam_sweeps, "_statuses", return_value={"4": {"state": "PENDING"}}):
+            with self.assertRaisesRegex(ValueError, "cancel them first"):
+                hparam_sweeps.set_hidden("edit_layers", "s4", True)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ const when = (iso) => {
 
 // One sweep: why it is waiting before it starts, a bar and the run it is on
 // once it has, and actions for when it is done.
-export default function SweepCard({ sweep, onDetails, onCancel, onRerun, onDelete }) {
+export default function SweepCard({ sweep, onDetails, onCancel, onRerun, onHide, onUnhide }) {
   const started = sweep.running.length > 0 || sweep.finished > 0
   const done = sweep.states.COMPLETED || 0
   const failed = sweep.retryable
@@ -67,15 +67,19 @@ export default function SweepCard({ sweep, onDetails, onCancel, onRerun, onDelet
           {done && !sweep.active ? ' · done' : ''}
         </span>
         <button type="button" className="btn-plain-small" onClick={onDetails}>Details</button>
-        <Link to={`/results/hyperparameters?investigation=${sweep.investigation}&sweep=${sweep.id}`} className="btn-plain-small">Results</Link>
+        <Link to={`/results/investigations?investigation=${sweep.investigation}&sweep=${sweep.id}`} className="btn-plain-small">Results</Link>
         {failed > 0 && (
           <button type="button" className="btn-plain-small" onClick={onRerun}
             title="Resubmit the failed or cancelled runs with the same settings">Rerun {failed} failed</button>
         )}
         {sweep.active > 0 && <button type="button" className="btn-danger-small" onClick={onCancel}>Cancel</button>}
-        {sweep.active === 0 && (
-          <button type="button" className="btn-danger-small" onClick={onDelete}
-            title="Remove this sweep from every page (moved to a deleted/ folder, not erased)">Delete</button>
+        {sweep.active === 0 && !sweep.hidden && (
+          <button type="button" className="btn-plain-small" onClick={onHide}
+            title="Clear this sweep from the list. Its runs stay on Results · Investigations">Hide</button>
+        )}
+        {sweep.hidden && (
+          <button type="button" className="btn-plain-small" onClick={onUnhide}
+            title="Put this sweep back on the list">Unhide</button>
         )}
       </div>
     </li>

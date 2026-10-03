@@ -1,0 +1,127 @@
+{
+ "name": "fact_selection",
+ "label": "Fact selection",
+ "description": "Picks one fact set every model in a group already knows, spread evenly across relations, so causal traces of those models are compared on the same facts. Launched from the Knowledge localisation page.",
+ "script": "select_facts.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets",
+ "queue": false,
+ "run_name_always": [
+  "name"
+ ],
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "64G"
+ },
+ "fields": [
+  {
+   "name": "name",
+   "label": "Fact set name",
+   "type": "string",
+   "default": "mquake_shared8",
+   "cli": false,
+   "run_name_bare": true,
+   "sweepable": false,
+   "note": "the run name, and the folder the set is written to"
+  },
+  {
+   "name": "models",
+   "label": "Models",
+   "type": "string",
+   "default": "qwen3-4b-base,qwen3-4b-instruct-2507,olmo-3-7b-base,olmo-3-7b-instruct,llama-3.1-8b,llama-3.1-8b-instruct,mistral-7b-v0.1,mistral-7b-instruct-v0.1",
+   "sweepable": false,
+   "note": "comma-separated; the set keeps only facts all of them know"
+  },
+  {
+   "name": "data_paths",
+   "label": "Datasets",
+   "type": "string",
+   "default": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json,${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF.json",
+   "sweepable": false,
+   "note": "comma-separated; non-test records only"
+  },
+  {
+   "name": "formats",
+   "label": "Formats",
+   "type": "string",
+   "default": "completion",
+   "sweepable": false,
+   "note": "comma-separated; a fact must be known in every one (chat_* only by the instruct models)"
+  },
+  {
+   "name": "instruct_models",
+   "label": "Instruct models",
+   "type": "string",
+   "default": "qwen3-4b-instruct-2507,olmo-3-7b-instruct,llama-3.1-8b-instruct,mistral-7b-instruct-v0.1",
+   "sweepable": false,
+   "note": "the models also held to the chat_* formats"
+  },
+  {
+   "name": "groups",
+   "label": "Groups",
+   "type": "string",
+   "default": "qwen3-4b:qwen3-4b-base,qwen3-4b-instruct-2507;olmo-3-7b:olmo-3-7b-base,olmo-3-7b-instruct;llama-3.1-8b:llama-3.1-8b,llama-3.1-8b-instruct;mistral-7b:mistral-7b-v0.1,mistral-7b-instruct-v0.1",
+   "sweepable": false,
+   "note": "'name:model,model;...': one set per group from the facts its models share. Empty: one set over all models."
+  },
+  {
+   "name": "split",
+   "label": "Records",
+   "type": "string",
+   "default": "nontest",
+   "sweepable": false,
+   "options": [
+    {
+     "label": "dev + demo (never test)",
+     "value": "nontest"
+    },
+    {
+     "label": "dev only",
+     "value": "dev"
+    },
+    {
+     "label": "all records (tracing only: it locates, it does not pick a setting)",
+     "value": "all"
+    }
+   ]
+  },
+  {
+   "name": "n",
+   "label": "Facts",
+   "type": "int",
+   "default": "100",
+   "sweepable": false
+  },
+  {
+   "name": "max_candidates",
+   "label": "Candidates to score",
+   "type": "int",
+   "default": "0",
+   "sweepable": false,
+   "note": "sample at most this many facts, evenly across relations/domains, before scoring (0 = all)"
+  },
+  {
+   "name": "min_prob",
+   "label": "Known-fact threshold",
+   "type": "float",
+   "default": "0.1",
+   "sweepable": false
+  },
+  {
+   "name": "seed",
+   "label": "Seed",
+   "type": "int",
+   "default": "0",
+   "sweepable": false
+  },
+  {
+   "name": "dtype",
+   "label": "Precision",
+   "type": "string",
+   "default": "bfloat16",
+   "sweepable": false
+  }
+ ]
+}

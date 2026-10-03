@@ -1,27 +1,20 @@
-"""Reads the causal tracing experiment's output: which layer each model's
-trace chose, and what the edit hparams currently say instead.
+"""Reads the causal tracing experiment's output: where each model recalls
+facts, per model. No editing method is involved.
 
 The mapping itself (traced_layers.json) is written by
 experiments/causal_tracing/causal_trace.py, rebuilt from its run summaries.
-Nothing here writes to it - this module only reads, and pairs each model with
-the `layers` its locate-and-edit hparams use today, which is the comparison
-the whole experiment exists to make.
+Nothing here writes to it - this module only reads. Comparing a traced peak
+with the layers each method edits is the Edit layers investigation's job
+(hparam_sweeps.catalog), not this one's.
 """
 import json
 from pathlib import Path
-
-import yaml
 
 import config
 import registry
 import results_reader
 
 EXPERIMENT = "causal_tracing"
-
-# The methods whose hparams carry a `layers` value a trace could inform.
-LOCATE_METHODS = ("ROME", "MEMIT", "PMET", "AlphaEdit")
-HPARAMS_DIR = config.EXPERIMENTS_DIR / "run_experiment" / "hparams"
-
 
 def _root():
     root = results_reader.out_root(EXPERIMENT)
@@ -35,26 +28,6 @@ def _read_json(path):
         return None
 
 
-def _hparams_layers(model):
-    """What each locate-and-edit method would edit for this model today.
-
-    Read straight out of the yaml the run would load, so this can never
-    disagree with what an edit actually does.
-    """
-    out = {}
-    for method in LOCATE_METHODS:
-        path = HPARAMS_DIR / method / f"{model}.yaml"
-        if not path.exists():
-            continue
-        try:
-            hparams = yaml.safe_load(path.read_text()) or {}
-        except (OSError, yaml.YAMLError):
-            continue
-        if hparams.get("layers") is not None:
-            out[method] = hparams["layers"]
-    return out
-
-
 def _model_options():
     """The models this experiment can trace, from its own dashboard.json, so
     the picker and the runner can't drift apart."""
@@ -64,6 +37,29 @@ def _model_options():
         return []
     field = next((f for f in cfg.get("fields", []) if f["name"] == "model"), None)
     return field.get("options", []) if field else []
+
+
+def fact_sets(root):
+    """Every fact set on disk, newest first: single-set runs' fact_set.json
+    and grouped runs' sets/<group>.json, with what the page needs to offer
+    and flag them (below_min sets are refused by the tracer)."""
+    base = root / "fact_sets" / "runs" if root else None
+    if not base or not base.is_dir():
+        return []
+    out = []
+    for path in list(base.glob("*/fact_set.json")) + list(base.glob("*/sets/*.json")):
+        data = _read_json(path)
+        if not data:
+            continue
+        out.append({
+            "path": str(path), "name": data.get("name") or path.parent.name,
+            "models": data.get("models", []), "formats": data.get("formats") or ["completion"],
+            "picked": data.get("picked", len(data.get("facts", []))), "shared": data.get("shared"),
+            "below_min": data.get("below_min", data.get("picked", len(data.get("facts", []))) < 50),
+            "finished_at": data.get("finished_at"), "_mtime": path.stat().st_mtime,
+        })
+    out.sort(key=lambda s: -s.pop("_mtime"))
+    return out
 
 
 def overview():
@@ -80,7 +76,6 @@ def overview():
             "label": option.get("label", model),
             "note": option.get("note"),
             "available": option.get("available", True),
-            "hparams_layers": _hparams_layers(model),
             "traced": mapping.get(model),
             "runs": sum(1 for row in runs if row.get("model") == model),
         })
@@ -89,6 +84,7 @@ def overview():
         "mapping": mapping,
         "mapping_path": str(root / "traced_layers.json") if root else None,
         "runs": sorted(runs, key=lambda row: row.get("finished_at") or "", reverse=True),
+        "fact_sets": fact_sets(root),
     }
 
 

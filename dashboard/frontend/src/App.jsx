@@ -1,10 +1,11 @@
 import { Suspense, lazy } from 'react'
-import { Routes, Route, NavLink, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, NavLink, Navigate, useLocation, useParams } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Experiments from './pages/Experiments.jsx'
 import CausalTracing from './pages/CausalTracing.jsx'
-import Hyperparameters from './pages/Hyperparameters.jsx'
-import HyperparameterInvestigation from './pages/HyperparameterInvestigation.jsx'
+import TracingFormats from './pages/TracingFormats.jsx'
+import Investigations from './pages/Investigations.jsx'
+import SweepInvestigation from './pages/SweepInvestigation.jsx'
 import Datasets from './pages/Datasets.jsx'
 import Models from './pages/Models.jsx'
 import Methods from './pages/Methods.jsx'
@@ -12,9 +13,17 @@ import Downloads from './pages/Downloads.jsx'
 import ThemeSwitcher from './components/ThemeSwitcher.jsx'
 
 // Separate pages, loaded only when opened: choosing Main never fetches sweep
-// data, and choosing Hyperparameters never fetches the main results.
+// data, and choosing Investigations never fetches the main results.
 const MainResults = lazy(() => import('./pages/Results.jsx'))
-const HyperparameterResults = lazy(() => import('./pages/HyperparameterResults.jsx'))
+const InvestigationResults = lazy(() => import('./pages/InvestigationResults.jsx'))
+
+// Old /hyperparameters links (bookmarks, notes) land on the same page under
+// its new address, query string and investigation id included.
+function Moved({ to }) {
+  const { search } = useLocation()
+  const { investigationId } = useParams()
+  return <Navigate to={to.replace(':investigationId', investigationId || '') + search} replace />
+}
 
 const linkClass = ({ isActive }) => (isActive ? 'active' : '')
 
@@ -28,7 +37,6 @@ const PAGE_ACCENT_CLASS = {
   '/methods': 'accent-methods',
   '/experiments': 'accent-experiments',
   '/results': 'accent-results',
-  '/hyperparameters': 'accent-tracing',
   '/downloads': 'accent-models',
 }
 
@@ -46,7 +54,6 @@ export default function App() {
           <NavLink to="/models" className={linkClass}>Models</NavLink>
           <NavLink to="/methods" className={linkClass}>Methods</NavLink>
           <NavLink to="/experiments" className={linkClass}>Experiments</NavLink>
-          <NavLink to="/hyperparameters" className={linkClass}>Hyperparameters</NavLink>
           <NavLink to="/results" className={linkClass}>Results</NavLink>
           <NavLink to="/downloads" className={linkClass}>Downloads</NavLink>
         </div>
@@ -59,13 +66,18 @@ export default function App() {
           <Route path="/models" element={<Models />} />
           <Route path="/methods" element={<Methods />} />
           <Route path="/experiments" element={<Experiments />} />
-          <Route path="/hyperparameters" element={<Hyperparameters />} />
-          <Route path="/hyperparameters/edit_layers/causal-tracing" element={<CausalTracing />} />
-          <Route path="/hyperparameters/:investigationId" element={<HyperparameterInvestigation />} />
-          <Route path="/causal-tracing" element={<Navigate to="/hyperparameters/edit_layers/causal-tracing" replace />} />
+          <Route path="/experiments/investigations" element={<Investigations />} />
+          <Route path="/experiments/investigations/causal_tracing" element={<CausalTracing />} />
+          <Route path="/experiments/investigations/tracing_formats" element={<TracingFormats />} />
+          <Route path="/experiments/investigations/:investigationId" element={<SweepInvestigation />} />
+          <Route path="/hyperparameters" element={<Moved to="/experiments/investigations" />} />
+          <Route path="/hyperparameters/edit_layers/causal-tracing" element={<Moved to="/experiments/investigations/causal_tracing" />} />
+          <Route path="/hyperparameters/:investigationId" element={<Moved to="/experiments/investigations/:investigationId" />} />
+          <Route path="/causal-tracing" element={<Moved to="/experiments/investigations/causal_tracing" />} />
           <Route path="/results" element={<Navigate to="/results/main" replace />} />
           <Route path="/results/main" element={<Suspense fallback={<p className="empty">Loading…</p>}><MainResults /></Suspense>} />
-          <Route path="/results/hyperparameters" element={<Suspense fallback={<p className="empty">Loading…</p>}><HyperparameterResults /></Suspense>} />
+          <Route path="/results/investigations" element={<Suspense fallback={<p className="empty">Loading…</p>}><InvestigationResults /></Suspense>} />
+          <Route path="/results/hyperparameters" element={<Moved to="/results/investigations" />} />
           <Route path="/downloads" element={<Downloads />} />
         </Routes>
       </main>

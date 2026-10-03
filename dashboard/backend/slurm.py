@@ -15,13 +15,83 @@ import re
 import shlex
 import shutil
 import subprocess
+import threading
 import time
+from contextlib import contextmanager, nullcontext
+from datetime import datetime, timezone
 from pathlib import Path
 
 import config
+import db
 import environment
 import local_jobs
 import registry
+
+try:
+    import fcntl
+except ImportError:  # Windows local mode does not submit SLURM jobs.
+    fcntl = None
+
+
+_gpu_submit_lock = threading.Lock()
+
+
+@contextmanager
+def _locked_gpu_lane():
+    """Serialize lane selection across threads and dashboard processes."""
+    with _gpu_submit_lock:
+        config.GPU_LANE_LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with config.GPU_LANE_LOCK_PATH.open("a+") as lock_file:
+            if fcntl is not None:
+                fcntl.flock(lock_file, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                if fcntl is not None:
+                    fcntl.flock(lock_file, fcntl.LOCK_UN)
+
+
+def _gpu_request_count(resources):
+    count = 0
+    for item in str(resources.get("gres", "gpu:1")).split(","):
+        parts = item.strip().lower().split(":")
+        if parts and parts[0] == "gpu":
+            count += int(parts[-1]) if parts[-1].isdigit() else 1
+    return count
+
+
+def _uses_gpu(resources):
+    return _gpu_request_count(resources) > 0
+
+
+def _live_lane_tail(job_id, updated_at):
+    """Return a dependency only while its job can still constrain the lane.
+
+    A freshly submitted tail is kept without querying SLURM; accounting may
+    not know about it yet.  For an older tail, squeue is authoritative: an
+    absent job has finished and may also have aged out far enough that sbatch
+    would reject its id as a dependency.
+    """
+    if not job_id:
+        return None
+    try:
+        stamp = datetime.fromisoformat((updated_at or "").replace("Z", "+00:00"))
+    except ValueError:
+        stamp = None
+    if stamp is not None and (datetime.now(timezone.utc) - stamp).total_seconds() < 300:
+        return job_id
+    proc = subprocess.run(
+        ["squeue", "-h", "-j", str(job_id), "-o", "%A"],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        # A job old enough to have left slurmctld's memory is refused by id
+        # rather than listed as absent; it has finished all the same.
+        if "Invalid job id" in proc.stderr:
+            return None
+        raise RuntimeError(f"could not verify GPU-lane tail {job_id}: {proc.stderr.strip()}")
+    return job_id if proc.stdout.strip() else None
 
 
 def _cast(value, ftype):
@@ -86,6 +156,20 @@ def _format_run_name(exp_cfg, params, swept_fields):
         if name not in params or name not in fields or not _field_relevant(fields[name], params):
             continue
         field = fields[name]
+        # Fields that only distinguish a run when changed (a non-default
+        # window, a fact set) name it only then, keeping the common name short.
+        if field.get("run_name_skip_default") and str(params[name]) in (str(field.get("default", "")), ""):
+            continue
+        # The dataset is named by the fact set instead when the run has one.
+        if field.get("run_name_unless") and params.get(field["run_name_unless"]):
+            continue
+        if field.get("run_name_path_part"):
+            # A file path names the run by what it identifies:
+            # .../fact_sets/runs/mquake_formats/sets/olmo-3-7b.json -> "mquake_formats-olmo-3-7b".
+            path = Path(str(params[name]))
+            label = path.parent.name if path.stem == "fact_set" else f"{path.parent.parent.name}-{path.stem}"
+            parts.append(_slug(label))
+            continue
         # The dataset field's raw value is a full path - name it by the
         # subset label the picker already knows it by instead, so a
         # dataset sweep reads as ..._wiki_recent, not as a nested path.
@@ -126,7 +210,7 @@ def _dataset_meta(exp_cfg, params):
     return None, None
 
 
-def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None):
+def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None, after_ok=()):
     """extra_args: already-quoted command-line arguments appended as given
     (hyperparameter sweeps pass --split dev, --final_only and --hparam)."""
     if "evaluation_modes" in params:
@@ -143,6 +227,12 @@ def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None):
     logs_dir.mkdir(exist_ok=True)
 
     res = exp_cfg.get("resources", {})
+    gpu_count = _gpu_request_count(res)
+    if gpu_count > 1:
+        raise RuntimeError(
+            "dashboard experiments may request only one GPU per job; "
+            "the shared launch cap is four GPUs"
+        )
     job_name = exp_cfg["name"]
     # Registry-only fields (model/method, for now) describe the run but
     # aren't real script flags yet - don't pass them through to argparse.
@@ -170,14 +260,23 @@ def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None):
     # until someone notices - that's what the queue card's Cancel is for.
     time_line = f"\n#SBATCH --time={res['time']}" if res.get("time") else ""
 
-    sbatch_text = f"""#!/bin/bash
+    def make_sbatch_text(dependency_job_id=None):
+        # A comma joins conditions that must all hold: the GPU lane's tail
+        # has ended (any state), and every after_ok job succeeded.
+        conditions = ([f"afterany:{dependency_job_id}"] if dependency_job_id else []) + \
+            [f"afterok:{job}" for job in after_ok]
+        dependency_line = (
+            f"\n#SBATCH --dependency={','.join(conditions)}"
+            if conditions else ""
+        )
+        return f"""#!/bin/bash
 #SBATCH --job-name={job_name}
 #SBATCH --partition={res.get('partition', 'AAIL')}
 #SBATCH --output={logs_dir}/%x_%j.out
 #SBATCH --error={logs_dir}/%x_%j.err
 #SBATCH --gres={res.get('gres', 'gpu:1')}
 #SBATCH --cpus-per-task={res.get('cpus_per_task', 2)}
-#SBATCH --mem={res.get('mem', '32G')}{time_line}
+#SBATCH --mem={res.get('mem', '32G')}{time_line}{dependency_line}
 
 set -euo pipefail
 cd "{exp_dir}"
@@ -187,21 +286,34 @@ cd "{exp_dir}"
     config.SUBMITTED_SBATCH_DIR.mkdir(parents=True, exist_ok=True)
     ts = time.strftime("%Y%m%d_%H%M%S_%f")
     sbatch_path = config.SUBMITTED_SBATCH_DIR / f"{job_name}_{run_name}_{ts}.sbatch"
-    sbatch_path.write_text(sbatch_text)
 
     if environment.scheduler() == "local":
+        sbatch_path.write_text(make_sbatch_text())
         job_id = local_jobs.new_job_id()
         local_jobs.submit(job_id, sbatch_path, logs_dir / f"{job_name}_{job_id}.out",
                           logs_dir / f"{job_name}_{job_id}.err")
     else:
-        proc = subprocess.run(["sbatch", str(sbatch_path)], capture_output=True, text=True)
-        if proc.returncode != 0:
-            raise RuntimeError(f"sbatch failed: {proc.stderr.strip() or proc.stdout.strip()}")
+        # A persistent four-lane dependency chain is the actual GPU cap.
+        # This is global across all dashboard launch surfaces, unlike a
+        # per-sweep job-array %4 limit, which would allow two sweeps to use
+        # eight GPUs together.
+        lane = None
+        with _locked_gpu_lane() if _uses_gpu(res) else nullcontext():
+            dependency_job_id = None
+            if _uses_gpu(res):
+                lane, dependency_job_id, updated_at = db.next_gpu_lane()
+                dependency_job_id = _live_lane_tail(dependency_job_id, updated_at)
+            sbatch_path.write_text(make_sbatch_text(dependency_job_id))
+            proc = subprocess.run(["sbatch", str(sbatch_path)], capture_output=True, text=True)
+            if proc.returncode != 0:
+                raise RuntimeError(f"sbatch failed: {proc.stderr.strip() or proc.stdout.strip()}")
 
-        m = re.search(r"Submitted batch job (\d+)", proc.stdout)
-        if not m:
-            raise RuntimeError(f"couldn't parse job id from sbatch output: {proc.stdout!r}")
-        job_id = m.group(1)
+            m = re.search(r"Submitted batch job (\d+)", proc.stdout)
+            if not m:
+                raise RuntimeError(f"couldn't parse job id from sbatch output: {proc.stdout!r}")
+            job_id = m.group(1)
+            if lane is not None:
+                db.set_gpu_lane_tail(lane, job_id)
 
     return {
         "job_id": job_id,
@@ -269,7 +381,7 @@ def _combo_supported(exp_cfg, params):
     return True
 
 
-def submit_sweep(exp_cfg, raw_param_lists, out_root=None):
+def submit_sweep(exp_cfg, raw_param_lists, out_root=None, after_ok=()):
     """raw_param_lists: {field_name: [values...]} - every field arrives as
     a list, even ones with a single value. Submits one sbatch job per
     combination in the Cartesian product and returns a list of results
@@ -303,7 +415,7 @@ def submit_sweep(exp_cfg, raw_param_lists, out_root=None):
         if not _combo_supported(exp_cfg, params):
             continue
         run_name = _format_run_name(exp_cfg, params, swept_fields)
-        results.append(_submit_one(exp_cfg, params, run_name, out_root))
+        results.append(_submit_one(exp_cfg, params, run_name, out_root, after_ok=after_ok))
     return results
 
 

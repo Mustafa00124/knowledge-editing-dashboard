@@ -233,20 +233,28 @@ directories will move before it commits.
   across runs, and plot any checkpointed metric over steps.
 - **Results · Responses** (`/results/responses`) — browse the qualitative
   generation samples (`samples/step_*.json`) for a given run/step.
-- **Hyperparameters** (`/hyperparameters`): find settings before the main
-  experiments. Each investigation is one kind of setting (edit layers,
-  neurons and masks, adapter placement, weight-update strength, value-vector
-  optimisation, preservation strength, covariance statistics, retrieval and
-  demonstrations; defined in `../experiments/run_experiment/investigations.json`)
+- **Experiments → Investigations** (`/experiments/investigations`; the old
+  `/hyperparameters` addresses redirect): experiments that set up the main
+  experiments' configuration, in three groups. **Mechanistic**: measure the
+  model itself, per model, no method involved (Knowledge localisation, on
+  its own page below; neuron attribution and circuit tracing are listed as
+  planned). **Input and context**: whether what the model is given
+  changes a result, both how the prompt is written (format conditions of
+  causal tracing) and what context is added to it (retrieval and
+  demonstrations, a per-method sweep that works like those below).
+  **Hyperparameter
+  sweeps**: each one kind of setting (edit layers, neurons and masks, adapter placement, weight-update strength, value-vector
+  optimisation, preservation strength, covariance statistics; defined in `../experiments/run_experiment/investigations.json`)
   and lists only the methods that have it, under their own setting names,
   with the current value, the authors' stability tag and suggested values.
   A sweep picks methods, values, models and datasets and launches through
   the normal job path, but on **dev records only** (`--split dev`), with
   evaluation only before editing and at the end (`--final_only`), and the
   values passed as `--hparam` overrides. The page estimates runs, GPU-hours
-  and missing covariance statistics before launch. Causal tracing is a tool
-  inside Edit layers (`/hyperparameters/edit_layers/causal-tracing`); its
-  peak layer is added to the suggested layers. A "Held constant" block
+  and missing covariance statistics before launch. Edit layers shows each
+  model's traced peak beside the layers every method edits today, and adds
+  the peak to the suggested layers; an untraced model gets suggestions
+  around its default only. A "Held constant" block
   lists everything the sweep does not vary: the run-level settings (dev
   split, protocol, records, seed, evaluation) and every other setting of
   each chosen method per model, at the value runs really get (the
@@ -260,11 +268,15 @@ directories will move before it commits.
   estimate; once running, a bar and which run it is on with that run's
   fact or step count, from the files it already writes. Clicking a sweep
   opens its full request and every run's state, scores, time and error.
-  A finished sweep can be deleted, which moves its folder to
-  `<investigation>/deleted/` rather than erasing it. Backend:
+  A finished sweep can be hidden, which clears it from the sweep list
+  (a `hidden` flag in its `sweep.json`; nothing moves) while its runs stay
+  on Results · Investigations. "Show N hidden" lists them again, with
+  Unhide. Removing a sweep from every page is API-only
+  (`DELETE /api/hparams/sweeps/<investigation>/<id>`), which moves its
+  folder to `<investigation>/deleted/` rather than erasing it. Backend:
   `backend/hparam_sweeps.py`, results under
-  `results/hyperparameters/<investigation>/sweeps/<sweep>/`.
-- **Results · Hyperparameters** (`/results/hyperparameters`): every sweep
+  `results/investigations/<investigation>/sweeps/<sweep>/`.
+- **Results · Investigations** (`/results/investigations`): every sweep
   run of an investigation, filterable by method, model, dataset and sweep,
   scored on reliability, generalizability, locality and fluency (final over
   the unedited model's) on a 0 to 1 scale, and ranked by default by the
@@ -284,25 +296,24 @@ directories will move before it commits.
   the rest. Every tuning stage is its own model value (so runs never
   overwrite each other) and is labelled with its stage, here and in Main
   results; Main results can also use Protocol as a row or column. The **Failures** view
-  (`/results/hyperparameters?view=failures`) lists, across every
+  (`/results/investigations?view=failures`) lists, across every
   investigation, runs failing now (ended without finishing, or finished
   with an error flag such as a NaN loss) with their error line and log,
   and runs fixed by "Rerun failed" together with each earlier attempt's
   error. Results · Main and
-  Results · Hyperparameters are separate pages that load only their own data.
+  Results · Investigations are separate pages that load only their own data.
 - **Downloads** (`/downloads`): choose which datasets, models and setup
   components to fetch; see "Running it off gaivi" above.
 - **Datasets** (`/datasets`) — browse the benchmarks under `../datasets/`
   (DUnE, KnowEdit, and anything added later) and preview records from
   their json/jsonl files.
-- **Causal Tracing** (`/hyperparameters/edit_layers/causal-tracing`) — runs the measurement that is
-  supposed to decide the `layers` hyperparameter for ROME/MEMIT/PMET/AlphaEdit,
-  per model, and records the answer in
-  `results/causal_tracing/traced_layers.json`. The table pairs each model's
-  traced layer with what its hparams use today, so an inherited guess is
-  visible as one. Nothing reads the mapping automatically yet: wiring it into
-  the edit runs is a separate decision, since it would change what a rerun of
-  an existing result means. The dynamic methods below give the other half of
+- **Knowledge localisation** (`/experiments/investigations/causal_tracing`): causal
+  tracing, per model. It locates where each model recalls facts and records
+  the peak in `results/investigations/causal_tracing/traced_layers.json`.
+  No editing method is involved: one trace per model serves every method.
+  Which layer each method should edit is the separate, per-method Edit
+  layers investigation, which reads this mapping to suggest layers (it never
+  changes an hparams file by itself). The dynamic methods below give the other half of
   that comparison: they record the layer they picked for each individual fact,
   so a traced peak can be checked against what an editor actually chose.
 - **Results · Archive** — archived runs with when/why they were retired and
@@ -363,8 +374,55 @@ recalls, then the same prompt with Gaussian noise on the subject token
 embeddings (recall collapses), then that corrupted run again with one clean
 activation patched back in. The probability a site restores is what that site
 was contributing. Averaged over prompts, the peak of the MLP curve at the last
-subject token is the layer to edit. Only facts the model actually gets right
+subject token is where the model recalls the fact, and the starting point for
+the Edit layers sweeps (whether it is the best layer to edit is what those
+sweeps test). Only facts the model actually gets right
 are traced, since a fact it cannot recall has no recall to localize.
+
+Facts come from `--split` records: `nontest` (dev and demo of `splits/`)
+by default, or `all`. The tracing studies use `all` (decided 2026-10-03):
+tracing locates where facts are recalled and tests whether that is
+early-to-mid; it does not choose a setting by score, and the non-test
+records alone were too few (Olmo-3 shared only 43 MQuAKE facts). Fact
+selection's `--max_candidates` samples a relation-balanced pool to score,
+since MQuAKE alone has about 7,300 unique facts and UniEdit 100,000. `formats.py` loads
+MQuAKE (single-fact rewrites: a cloze sentence and a question per fact,
+over 37 Wikidata relations), UniEdit (real Wikidata facts in 25 domains),
+RealTimeQA (four-choice news questions), AlteredRiddles (riddles with an
+added clue; split by `scripts/make_riddle_split.py`, since the editing
+runner cannot load them yet) and the KnowEdit files, and writes each fact
+in a `--format`: `completion`, `question`, `chat_question`, `chat_prefill`,
+`mcq`, `chat_mcq`, `riddle`, `chat_riddle` (chat_* through the model's chat
+template). Each format says what gets the noise: the subject, the question
+(multiple choice), or the clue the altered riddle added.
+
+To compare models on equal terms, a fact selection job
+(`experiments/fact_selection/`, its own experiment type so the page shows
+its progress, one step per model scored) first scores every model in every
+requested format, then writes one set per group (`--groups`, by default one
+per family: base and instruct share facts) from the facts that group's
+models all know, chat formats required only of `--instruct_models`, spread
+evenly across relations or domains. Each trace then runs with `--fact_set`
+on exactly that list ("Fact set" on the page, listed from disk). Sets live
+in `results/investigations/causal_tracing/fact_sets/runs/<name>/sets/<group>.json`
+(a single-group run also writes `fact_set.json`), with `known.json`
+recording which model knew which fact in which format. A set below 50 facts
+is flagged `below_min`, and the tracer refuses it unless `--allow_thin 1`.
+
+Besides the peak, every trace now reports how reliably the model recalls
+facts in early-to-mid MLP layers (`reliability` in its summary; the "All
+traces" table): the share of facts whose own MLP curve peaks in the band
+(first half of the layers by default, `--band`), the share of each fact's
+effect inside the band against an even spread, the averaged peak across
+resampled facts, and with `--sever 1` ROME's severing test (hidden-state
+restoration with every later MLP, or attention, held at its corrupted
+value: how much recovery is lost). Each comes with a 95% bootstrap interval
+over facts and a verdict (strong / moderate / weak). `trace.json` keeps
+every fact's own curves, so breakdowns by relation or domain need no rerun.
+`--window 1` restores one layer at a time, to check that a plateau is not
+the 10-layer window smearing it. Only plain-completion, window-10 traces
+feed `traced_layers.json`; the rest are comparisons, shown on the "Prompt
+format in tracing" page (`/experiments/investigations/tracing_formats`).
 
 Output follows run_experiment's layout (`runs/<run>/checkpoints.jsonl`,
 `summary.json`, `manifest.json`), plus `runs/<run>/trace.json` for the full
@@ -398,8 +456,12 @@ as it needs, rather than being killed part-way with its `summary.json`
 (and so its manifest entry) never written. Add `"time": "HH:MM:SS"` back to
 a given experiment type's `resources` if you do want it capped. Note SLURM
 caps you at **6 concurrently running jobs** (QOS `normal`, `MaxJobsPU=6`,
-which includes the dashboard's own job), so a larger sweep queues rather
-than running all at once.
+which includes the dashboard's own job). The dashboard additionally puts all
+GPU experiments -- main runs, hyperparameter sweeps, causal tracing and
+retries -- into four shared serial dependency lanes. Consequently it uses at
+most **4 GPUs at once** across every dashboard launch, leaving one QOS job slot
+available for an interactive GPU allocation while the dashboard itself uses
+another. Larger sweeps remain submitted to SLURM but wait on `Dependency`.
 
 Optional keys beyond the basics, all read by `slurm.py` / the drawer:
 
