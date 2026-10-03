@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Optional, Any, Dict, List
 
 from pydantic import BaseModel
 
@@ -12,6 +12,22 @@ class SubmitExperimentRequest(BaseModel):
     # SLURM job ids these jobs must wait for to finish successfully (e.g.
     # traces on a fact set whose selection job has not finished yet).
     after_ok: List[str] = []
+    # Which investigation this launch is for (its page shows the progress);
+    # left empty, it follows from the experiment type (see launches.py).
+    investigation: Optional[str] = None
+    # What the launch is for, shown on the progress section. Required from
+    # the agent token.
+    label: str = ""
+    note: str = ""
+    # Arguments written the way the runner's command line takes them, e.g.
+    # "--model llama-3.1-8b --format question --n_prompts 50". A flag given
+    # more than once is swept. Merged with params; a field in both is an error.
+    args: str = ""
+    # Flags the experiment type has no field for, passed to the runner as
+    # given, e.g. ["--ig_steps 50"]. Recorded with the job and in its run name.
+    extra_args: List[str] = []
+    # Resolve everything and say what would run, without submitting.
+    dry_run: bool = False
 
 
 class ArchiveRequest(BaseModel):
@@ -35,6 +51,8 @@ class SweepRequest(BaseModel):
     # Held-constant settings changed from their current value:
     # method -> model -> hparams key -> value, applied to every run.
     fixed: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    # Why this sweep was run, shown on its progress card.
+    note: str = ""
 
 
 class PromoteRequest(BaseModel):

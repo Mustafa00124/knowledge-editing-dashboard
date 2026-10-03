@@ -78,6 +78,17 @@ export const api = {
   downloadLog: (id) => req(`/downloads/${encodeURIComponent(id)}/log`),
   clearDownloads: () => req('/downloads/clear', { method: 'POST' }),
   experimentTypes: () => req('/experiment-types'),
+  // Launches: every batch submitted at once (a sweep, or an experiment
+  // submission), with progress; backend/launches.py.
+  launches: (investigation, { active = false, limit = 50, days = 7 } = {}) => {
+    const q = new URLSearchParams({ active: String(active), limit: String(limit), days: String(days) })
+    if (investigation) q.set('investigation', investigation)
+    return req(`/launches?${q}`)
+  },
+  launchSummary: () => req('/launches/summary'),
+  launchDetail: (id) => req(`/launches/${encodeURIComponent(id)}`),
+  cancelLaunch: (id) => req(`/launches/${encodeURIComponent(id)}/cancel`, { method: 'POST' }),
+
   experiments: (type) => req(`/experiments${type ? `?experiment_type=${encodeURIComponent(type)}` : ''}`),
   submitExperiment: (experiment_type, params, save_results = true) =>
     req('/experiments', { method: 'POST', body: JSON.stringify({ experiment_type, params, save_results }) }),

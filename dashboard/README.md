@@ -478,6 +478,30 @@ one head. Verdict: compact (80% recovered with at most 20), distributed, or
 not found. `circuit.json` adds the layer x head grid by position, the full
 edge matrix and every fact's top components.
 
+## Launches, progress and agents
+
+Every submission is a **launch**: a hyperparameter sweep, or the runs one
+`POST /api/experiments` submitted together. `backend/launches.py` summarises
+both the same way (runs, states, overall progress, what each running run is
+doing, why waiting ones wait), and `components/InvestigationProgress.jsx`
+shows that as a **Progress** section on every investigation page, with the
+Investigations overview listing what is running now. Jobs record the
+investigation they are for, their launch (`batch_id`), a label and note, and
+who launched them (`launched_by`: user or agent).
+
+`POST /api/experiments` takes fields as `params` or as an `args` string in
+the runner's own syntax (a flag given twice is swept), rejects fields the
+type does not have instead of dropping them, passes `extra_args` (flags with
+no field) through and marks the run name with them, and with `dry_run`
+returns each run's command and blockers without submitting. Agents use the
+second token, `backend/.agent_token`, through `scripts/dash.py`; it cannot
+promote, archive, download, use the queue slots, or cancel the user's
+launches (`AGENT_BLOCKED` in `main.py`). The backend writes its address to
+`backend/.backend_url` for the CLI. Job scripts export `KE_DASHBOARD_JOB=1`,
+and `experiments/launch_guard.py` makes every runner refuse to write into
+`results/` without it (or a job id the dashboard recorded) unless given
+`--untracked`. The agent-facing guide is `AGENTS.md` in this folder.
+
 ## Adding a new experiment type
 
 The dashboard doesn't hardcode `run_experiment` — it discovers any

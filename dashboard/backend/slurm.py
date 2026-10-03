@@ -210,30 +210,12 @@ def _dataset_meta(exp_cfg, params):
     return None, None
 
 
-def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None, after_ok=()):
-    """extra_args: already-quoted command-line arguments appended as given
-    (hyperparameter sweeps pass --split dev, --final_only and --hparam)."""
-    if "evaluation_modes" in params:
-        try:
-            registry.validate_modes(params["evaluation_modes"])
-        except ValueError as exc:
-            raise RuntimeError(str(exc)) from exc
-    blockers = environment.launch_blockers(exp_cfg, params)
-    if blockers:
-        raise RuntimeError("cannot launch here: " + " ".join(blockers))
+def command_args(exp_cfg, params, run_name, out_root=None, extra_args=None):
+    """The runner's command-line arguments for one run, each value quoted.
+    extra_args: already-quoted arguments appended as given (hyperparameter
+    sweeps pass --split dev, --final_only and --hparam; agents may pass
+    flags the experiment type has no field for)."""
     fields = {f["name"]: f for f in exp_cfg["fields"]}
-    exp_dir = Path(exp_cfg["_dir"])
-    logs_dir = exp_dir / "logs"
-    logs_dir.mkdir(exist_ok=True)
-
-    res = exp_cfg.get("resources", {})
-    gpu_count = _gpu_request_count(res)
-    if gpu_count > 1:
-        raise RuntimeError(
-            "dashboard experiments may request only one GPU per job; "
-            "the shared launch cap is four GPUs"
-        )
-    job_name = exp_cfg["name"]
     # Registry-only fields (model/method, for now) describe the run but
     # aren't real script flags yet - don't pass them through to argparse.
     # --run_name is always passed explicitly so the script's output
@@ -250,7 +232,32 @@ def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None, after
     if benchmark:
         args.append(f"--dataset_benchmark {shlex.quote(benchmark)} --dataset_subset {shlex.quote(subset)}")
     args.extend(extra_args or [])
-    args_str = " ".join(args)
+    return args
+
+
+def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None, after_ok=()):
+    """extra_args: see command_args()."""
+    if "evaluation_modes" in params:
+        try:
+            registry.validate_modes(params["evaluation_modes"])
+        except ValueError as exc:
+            raise RuntimeError(str(exc)) from exc
+    blockers = environment.launch_blockers(exp_cfg, params)
+    if blockers:
+        raise RuntimeError("cannot launch here: " + " ".join(blockers))
+    exp_dir = Path(exp_cfg["_dir"])
+    logs_dir = exp_dir / "logs"
+    logs_dir.mkdir(exist_ok=True)
+
+    res = exp_cfg.get("resources", {})
+    gpu_count = _gpu_request_count(res)
+    if gpu_count > 1:
+        raise RuntimeError(
+            "dashboard experiments may request only one GPU per job; "
+            "the shared launch cap is four GPUs"
+        )
+    job_name = exp_cfg["name"]
+    args_str = " ".join(command_args(exp_cfg, params, run_name, out_root, extra_args))
 
     # No --time unless an experiment type explicitly asks for one. The AAIL
     # partition's own limit is "infinite", so omitting the line lets a run
@@ -279,6 +286,8 @@ def _submit_one(exp_cfg, params, run_name, out_root=None, extra_args=None, after
 #SBATCH --mem={res.get('mem', '32G')}{time_line}{dependency_line}
 
 set -euo pipefail
+# Tells the runner the dashboard launched it (experiments/launch_guard.py).
+export KE_DASHBOARD_JOB=1
 cd "{exp_dir}"
 "{environment.runner_python(exp_cfg)}" "{exp_cfg['script']}" {args_str}
 """
@@ -381,12 +390,21 @@ def _combo_supported(exp_cfg, params):
     return True
 
 
-def submit_sweep(exp_cfg, raw_param_lists, out_root=None, after_ok=()):
+def extra_args_suffix(extra_args):
+    """A short, stable tag for runs given flags beyond the form fields, so
+    they never share a run directory with an otherwise identical run."""
+    if not extra_args:
+        return ""
+    import hashlib
+    return "_x" + hashlib.sha1(" ".join(extra_args).encode()).hexdigest()[:6]
+
+
+def plan_sweep(exp_cfg, raw_param_lists, extra_args=None):
     """raw_param_lists: {field_name: [values...]} - every field arrives as
-    a list, even ones with a single value. Submits one sbatch job per
-    combination in the Cartesian product and returns a list of results
-    (same shape as a single _submit_one() call each).
-    """
+    a list, even ones with a single value. Returns (runs, skipped): one
+    {"params", "run_name"} per combination of the Cartesian product that
+    will actually run, and how many combinations were dropped as duplicates
+    or unsupported pairings. Submits nothing."""
     fields = {f["name"]: f for f in exp_cfg["fields"]}
     field_names = list(fields.keys())
 
@@ -395,7 +413,8 @@ def submit_sweep(exp_cfg, raw_param_lists, out_root=None, after_ok=()):
     value_lists = [raw_param_lists.get(name) or [None] for name in field_names]
     combos = list(itertools.product(*value_lists))
 
-    results = []
+    runs = []
+    skipped = 0
     seen = set()
     for combo in combos:
         raw_params = dict(zip(field_names, combo))
@@ -410,13 +429,23 @@ def submit_sweep(exp_cfg, raw_param_lists, out_root=None, after_ok=()):
             sorted((k, str(v)) for k, v in params.items() if _field_relevant(fields[k], params))
         )
         if signature in seen:
+            skipped += 1
             continue
         seen.add(signature)
         if not _combo_supported(exp_cfg, params):
+            skipped += 1
             continue
-        run_name = _format_run_name(exp_cfg, params, swept_fields)
-        results.append(_submit_one(exp_cfg, params, run_name, out_root, after_ok=after_ok))
-    return results
+        run_name = _format_run_name(exp_cfg, params, swept_fields) + extra_args_suffix(extra_args)
+        runs.append({"params": params, "run_name": run_name})
+    return runs, skipped
+
+
+def submit_sweep(exp_cfg, raw_param_lists, out_root=None, after_ok=(), extra_args=None):
+    """Submits one sbatch job per run plan_sweep() returns and returns a
+    list of results (same shape as a single _submit_one() call each)."""
+    runs, _ = plan_sweep(exp_cfg, raw_param_lists, extra_args)
+    return [_submit_one(exp_cfg, run["params"], run["run_name"], out_root, extra_args=extra_args, after_ok=after_ok)
+            for run in runs]
 
 
 def submit_exact(exp_cfg, params, run_name, out_root=None):

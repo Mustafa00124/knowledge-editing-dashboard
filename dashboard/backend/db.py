@@ -54,6 +54,12 @@ def init():
             conn.execute("ALTER TABLE jobs ADD COLUMN retry_of TEXT")
         if "pause_requested" not in cols:
             conn.execute("ALTER TABLE jobs ADD COLUMN pause_requested INTEGER NOT NULL DEFAULT 0")
+        # Which investigation a launch is for, the batch it was submitted in,
+        # its label and note, and who launched it (user or agent): what the
+        # investigation pages' progress sections group and show.
+        for col in ("investigation", "batch_id", "label", "launched_by", "note", "extra_args_json"):
+            if col not in cols:
+                conn.execute(f"ALTER TABLE jobs ADD COLUMN {col} TEXT")
 
         conn.execute(
             """
@@ -93,14 +99,16 @@ def init():
             conn.execute("INSERT OR IGNORE INTO gpu_job_lanes (lane) VALUES (?)", (i,))
 
 
-def insert_job(job_id, experiment_type, run_name, params, sbatch_path, out_path, err_path, out_root, sweep_id=None, queue_slot=None, testing_id=None, retry_of=None):
+def insert_job(job_id, experiment_type, run_name, params, sbatch_path, out_path, err_path, out_root, sweep_id=None, queue_slot=None, testing_id=None, retry_of=None,
+               investigation=None, batch_id=None, label=None, launched_by=None, note=None, extra_args=None):
     with _conn() as conn:
         conn.execute(
             """
             INSERT INTO jobs
                 (job_id, experiment_type, run_name, params_json, submitted_at,
-                 sbatch_path, out_path, err_path, out_root, sweep_id, queue_slot, testing_id, retry_of)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 sbatch_path, out_path, err_path, out_root, sweep_id, queue_slot, testing_id, retry_of,
+                 investigation, batch_id, label, launched_by, note, extra_args_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 job_id,
@@ -116,6 +124,12 @@ def insert_job(job_id, experiment_type, run_name, params, sbatch_path, out_path,
                 queue_slot,
                 testing_id,
                 retry_of,
+                investigation,
+                batch_id,
+                label,
+                launched_by,
+                note,
+                json.dumps(extra_args) if extra_args else None,
             ),
         )
 

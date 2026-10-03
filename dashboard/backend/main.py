@@ -1,5 +1,7 @@
 import json
+import os
 import re
+import socket
 import secrets
 import sqlite3
 import subprocess
@@ -17,6 +19,7 @@ import datasets_reader
 import downloads
 import environment
 import hparam_sweeps
+import launches
 import models_reader
 import db
 import gpu_status
@@ -62,12 +65,68 @@ else:
 
 print(f"\n=== dashboard auth token (paste into the frontend once): {AUTH_TOKEN} ===\n", flush=True)
 
+# A second token for agents (scripts/dash.py reads it). Requests with it are
+# recorded as launched_by "agent", show as such on the progress sections,
+# and cannot reach the routes in AGENT_BLOCKED or cancel what a person
+# launched. See dashboard/AGENTS.md.
+_AGENT_TOKEN_PATH = config.DASHBOARD_DIR / "backend" / ".agent_token"
+if _AGENT_TOKEN_PATH.exists():
+    AGENT_TOKEN = _AGENT_TOKEN_PATH.read_text().strip()
+else:
+    AGENT_TOKEN = secrets.token_urlsafe(24)
+    _AGENT_TOKEN_PATH.write_text(AGENT_TOKEN)
+    _AGENT_TOKEN_PATH.chmod(0o600)
+
+# Where this backend answers, for agents on other nodes (scripts/dash.py).
+try:
+    (config.DASHBOARD_DIR / "backend" / ".backend_url").write_text(
+        f"http://{socket.getfqdn()}:{os.environ.get('DASHBOARD_PORT', '8000')}\n")
+except OSError:
+    pass
+
+# Changes that are the user's call: promoting a setting into the main
+# configuration, deleting or archiving results, downloads, the hand-run
+# queue, and hiding sweeps.
+AGENT_BLOCKED = [
+    ("POST", re.compile(r"^/api/hparams/promote$")),
+    ("DELETE", re.compile(r"^/api/hparams/sweeps/")),
+    ("POST", re.compile(r"^/api/hparams/sweeps/[^/]+/[^/]+/hide$")),
+    ("POST", re.compile(r"^/api/downloads")),
+    ("DELETE", re.compile(r"^/api/downloads/")),
+    ("POST", re.compile(r"^/api/results/archive")),
+    ("POST", re.compile(r"^/api/queue/")),
+]
+
 
 @app.middleware("http")
 async def check_auth(request: Request, call_next):
-    if request.url.path.startswith("/api") and request.headers.get("x-dashboard-token") != AUTH_TOKEN:
-        return JSONResponse({"detail": "unauthorized"}, status_code=401)
+    if request.url.path.startswith("/api"):
+        token = request.headers.get("x-dashboard-token")
+        if token == AUTH_TOKEN:
+            request.state.role = "user"
+        elif token == AGENT_TOKEN:
+            request.state.role = "agent"
+            if any(request.method == method and pattern.match(request.url.path) for method, pattern in AGENT_BLOCKED):
+                return JSONResponse({"detail": "the agent token cannot do this; ask the user to do it in the dashboard"},
+                                    status_code=403)
+        else:
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
     return await call_next(request)
+
+
+def _role(request):
+    return getattr(request.state, "role", "user")
+
+
+def _require_owner(request, owner):
+    """An agent may cancel or rerun only what an agent launched."""
+    if _role(request) == "agent" and owner != "agent":
+        raise HTTPException(403, "this was launched by the user; the agent token can only change agent launches")
+
+
+@app.get("/api/whoami")
+def whoami(request: Request):
+    return {"role": _role(request)}
 
 
 # ---------------------------------------------------------------- capabilities
@@ -149,9 +208,11 @@ def estimate_sweep(req: SweepRequest):
 
 
 @app.post("/api/hparams/sweeps")
-def launch_sweep(req: SweepRequest):
+def launch_sweep(req: SweepRequest, request: Request):
+    if _role(request) == "agent" and not req.label.strip():
+        raise HTTPException(400, "give the sweep a label saying what it is for")
     try:
-        return hparam_sweeps.launch(req.model_dump())
+        return hparam_sweeps.launch(req.model_dump(), launched_by=_role(request))
     except (KeyError, ValueError) as exc:
         raise HTTPException(400, str(exc).strip("'\""))
 
@@ -162,7 +223,11 @@ def list_sweeps(investigation: Optional[str] = None, include_hidden: bool = Fals
 
 
 @app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/cancel")
-def cancel_sweep(investigation: str, sweep_id: str):
+def cancel_sweep(investigation: str, sweep_id: str, request: Request):
+    try:
+        _require_owner(request, hparam_sweeps.sweep_owner(investigation, sweep_id))
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
     ids = [str(j["job_id"]) for j in db.list_jobs() if j.get("sweep_id") == hparam_sweeps.SWEEP_PREFIX + sweep_id]
     if not ids:
         raise HTTPException(404, "no such sweep")
@@ -204,8 +269,12 @@ def delete_sweep(investigation: str, sweep_id: str):
 
 
 @app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/rerun-failed")
-def rerun_failed_sweep_runs(investigation: str, sweep_id: str):
+def rerun_failed_sweep_runs(investigation: str, sweep_id: str, request: Request):
     """Resubmit a sweep's failed or cancelled runs with the same settings."""
+    try:
+        _require_owner(request, hparam_sweeps.sweep_owner(investigation, sweep_id))
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
     try:
         return hparam_sweeps.rerun_failed(investigation, sweep_id)
     except FileNotFoundError:
@@ -253,48 +322,45 @@ def _output_target(exp_cfg, save_results):
     testing_id = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S-%f_UTC")
     return testing_id, str(config.TRIAL_RUNS_DIR / testing_id)
 
-def _job_progress(job, exp_cfg):
-    params = json.loads(job["params_json"])
-    # Which field says how long this run is. FT counts gradient steps, causal
-    # tracing counts prompts; each experiment type names its own rather than
-    # the dashboard guessing from the field list.
-    num_steps = params.get(exp_cfg.get("progress_field", "num_steps"))
-    out_root = job.get("out_root") or exp_cfg.get("out_root")
-    run_name = job.get("run_name")
-    latest = None
-    if out_root and run_name:
-        ckpt_path = Path(out_root) / "runs" / run_name / "checkpoints.jsonl"
-        if ckpt_path.exists():
-            lines = ckpt_path.read_text().splitlines()
-            if lines:
-                latest = json.loads(lines[-1])
-    return {
-        # A run that knows its own length says so in its checkpoints, and that
-        # wins: an edit-protocol run is as long as its dataset, not as long as
-        # the FT step count sitting in its submitted params, and "full" has no
-        # number in the params at all.
-        "num_steps": (latest or {}).get("total_steps") or num_steps,
-        "current_step": latest.get("step") if latest else None,
-        "latest_metrics": latest,
-    }
+_job_progress = launches.job_progress
 
 
 @app.post("/api/experiments")
-def submit_experiment(req: SubmitExperimentRequest):
+def submit_experiment(req: SubmitExperimentRequest, request: Request):
+    """Launch one run, or a sweep of runs over every field given more than
+    one value. Takes fields as params ({field: [values]}) and/or as a
+    command-line style args string; extra_args passes flags the experiment
+    type has no field for. dry_run says what would run without submitting."""
     try:
         exp_cfg = registry.get_experiment_type(req.experiment_type)
     except KeyError:
-        raise HTTPException(404, f"unknown experiment type {req.experiment_type}")
+        types = ", ".join(t["name"] for t in registry.list_experiment_types())
+        raise HTTPException(404, f"unknown experiment type {req.experiment_type}; one of: {types}")
+
+    role = _role(request)
+    try:
+        params, extra_args = launches.resolve_params(exp_cfg, req.params, req.args, req.extra_args,
+                                                     allow_extra=bool(req.extra_args))
+        investigation = launches.check_investigation(req.investigation, req.experiment_type, params)
+        if any(not str(job).isdigit() for job in req.after_ok):
+            raise ValueError("after_ok takes SLURM job ids")
+        if role == "agent" and not req.label.strip() and not req.dry_run:
+            raise ValueError("give the launch a label saying what it is for")
+        if req.dry_run:
+            return {"investigation": investigation, **launches.preview(
+                exp_cfg, params, extra_args, None if req.save_results else "<trial run folder>")}
+    except (ValueError, RuntimeError) as exc:
+        raise HTTPException(400, str(exc))
 
     testing_id, out_root = _output_target(exp_cfg, req.save_results)
     try:
-        if any(not str(job).isdigit() for job in req.after_ok):
-            raise RuntimeError("after_ok takes SLURM job ids")
-        results = slurm.submit_sweep(exp_cfg, req.params, out_root if testing_id else None, req.after_ok)
+        results = slurm.submit_sweep(exp_cfg, params, out_root if testing_id else None, req.after_ok,
+                                     extra_args=extra_args)
     except RuntimeError as e:
         raise HTTPException(500, str(e))
 
     sweep_id = secrets.token_hex(4) if len(results) > 1 else None
+    batch_id = launches.new_batch_id()
     for result in results:
         db.insert_job(
             job_id=result["job_id"],
@@ -307,8 +373,14 @@ def submit_experiment(req: SubmitExperimentRequest):
             out_root=out_root,
             sweep_id=sweep_id,
             testing_id=testing_id,
+            investigation=investigation,
+            batch_id=batch_id,
+            label=req.label,
+            launched_by=role,
+            note=req.note,
+            extra_args=extra_args,
         )
-    return {"sweep_id": sweep_id, "jobs": results}
+    return {"launch_id": batch_id, "investigation": investigation, "sweep_id": sweep_id, "jobs": results}
 
 
 UNKNOWN_STATUS = {"state": "UNKNOWN", "elapsed": None, "exit_code": None}
@@ -361,11 +433,48 @@ def get_experiment(job_id: str):
 
 
 @app.delete("/api/experiments/{job_id}")
-def cancel_experiment(job_id: str):
-    if not db.get_job(job_id):
+def cancel_experiment(job_id: str, request: Request):
+    job = db.get_job(job_id)
+    if not job:
         raise HTTPException(404, "job not found")
+    _require_owner(request, job.get("launched_by") or "user")
     slurm.cancel(job_id)
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- launches
+# Every batch submitted at once (a sweep, or an experiment submission), with
+# progress: what each investigation page's progress section and the agent
+# CLI show. See launches.py.
+
+@app.get("/api/launches")
+def get_launches(investigation: Optional[str] = None, active: bool = False, days: int = 7, limit: int = 50):
+    """Newest first. investigation=main lists main experiments; active=true
+    only launches with queued or running jobs; days bounds finished ones."""
+    return launches.list_launches(investigation, active_only=active, days=days, limit=limit)
+
+
+@app.get("/api/launches/summary")
+def get_launches_summary():
+    """Active launches, running and waiting runs per investigation."""
+    return launches.summary()
+
+
+@app.get("/api/launches/{launch_id}")
+def get_launch(launch_id: str):
+    try:
+        return launches.detail(launch_id)
+    except KeyError:
+        raise HTTPException(404, "no such launch")
+
+
+@app.post("/api/launches/{launch_id}/cancel")
+def cancel_launch(launch_id: str, request: Request):
+    try:
+        _require_owner(request, launches.owner(launch_id))
+        return launches.cancel(launch_id)
+    except KeyError:
+        raise HTTPException(404, "no such launch")
 
 
 # ---------------------------------------------------------------- queue (8 fixed cards)

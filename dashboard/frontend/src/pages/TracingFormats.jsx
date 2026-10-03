@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
+import InvestigationProgress from '../components/InvestigationProgress.jsx'
 
 // Prompt format in tracing: the same facts traced as a completion, a
 // question, through the chat template, as multiple choice or as a riddle.
@@ -51,6 +52,7 @@ export default function TracingFormats() {
         <Link to="/experiments/investigations/causal_tracing">Knowledge localisation</Link> with a format and fact set chosen.
       </p>
       {error && <p className="archive-line archive-line-warn">{error}</p>}
+      <InvestigationProgress investigation="tracing_formats" />
       {sets.length > 1 && (
         <label className="trace-setting">
           <span>Fact set</span>

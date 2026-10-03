@@ -82,6 +82,8 @@ EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 # a clone anywhere works without edits. hparams files hold paths relative to
 # this root; resolve_project_paths() anchors them after loading.
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
+sys.path.append(os.path.join(PROJECT_ROOT, "experiments"))
+import launch_guard  # noqa: E402  (refuses untracked runs into results/)
 DEFAULT_EASYEDIT_PATH = os.path.join(PROJECT_ROOT, "external/EasyEdit")
 DEFAULT_DATA_PATH = os.path.join(PROJECT_ROOT, "datasets/KnowEdit/benchmark/wiki_recent/recent_test.json")
 DEFAULT_OUT_ROOT = os.path.join(PROJECT_ROOT, "results/main/run_experiment")
@@ -328,6 +330,7 @@ def parse_args():
     )
     p.add_argument("--easyedit_path", default=DEFAULT_EASYEDIT_PATH)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
+    launch_guard.add_argument(p)
     p.add_argument(
         "--run_name",
         default=None,
@@ -447,6 +450,7 @@ def _now():
 
 def main():
     args = parse_args()
+    launch_guard.require_dashboard(args.out_root, args.untracked, "run_experiment")
     sys.path.insert(0, args.easyedit_path)
     sys.path.insert(0, EXP_DIR)
 

@@ -1,4 +1,5 @@
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
+import InvestigationProgress from '../components/InvestigationProgress.jsx'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
@@ -167,6 +168,8 @@ export default function CausalTracing() {
         <Link to="/experiments/investigations/edit_layers">Edit layers</Link> investigation reads to suggest which layers each
         method should try.
       </p>
+
+      <InvestigationProgress investigation="causal_tracing" />
 
       {error && <p className="archive-line archive-line-warn">{error}</p>}
 
