@@ -130,6 +130,11 @@ export const api = {
   causalTracing: () => req('/causal-tracing'),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
+  // Neuron attribution and circuit tracing (experiment: neuron_tracing or
+  // circuit_tracing): runs per model, and one run's detail file.
+  mechanistic: (experiment) => req(`/mechanistic/${experiment}`),
+  mechanisticRun: (experiment, run) => req(`/mechanistic/${experiment}/runs/${encodeURIComponent(run)}`),
+
   // Benchmarks present under datasets/. A fresh clone lacks the ones
   // scripts/setup.py downloads (UniEdit, DUnE).
   datasets: () => req('/datasets'),

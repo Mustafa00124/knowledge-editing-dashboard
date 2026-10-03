@@ -1,0 +1,602 @@
+{
+ "name": "circuit_tracing",
+ "label": "Circuit Tracing",
+ "description": "Which attention heads, MLPs and residual paths carry a fact from the subject to the answer: attribution patching per head and MLP by token position, edge attribution between blocks, checked against real patching, and the circuit's sufficiency and necessity on held-out facts. One run per model and format; no editing method is involved.",
+ "script": "circuit_trace.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/investigations/circuit_tracing",
+ "queue": false,
+ "progress_field": "n_prompts",
+ "run_name_always": [
+  "model",
+  "data_path",
+  "format",
+  "fact_set",
+  "n_prompts",
+  "seed"
+ ],
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "64G"
+ },
+ "field_groups": [
+  {
+   "id": "prompts",
+   "label": "Prompts",
+   "note": "which facts get traced"
+  },
+  {
+   "id": "trace",
+   "label": "Tracing",
+   "note": "corruption, checks and the circuit test"
+  },
+  {
+   "id": "run",
+   "label": "Run",
+   "note": "cost and reproducibility"
+  }
+ ],
+ "fields": [
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B",
+     "value": "qwen3-4b",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Thinking-2507",
+     "value": "qwen3-4b-thinking-2507",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Think",
+     "value": "olmo-3-7b-think",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct",
+     "available": true
+    },
+    {
+     "label": "DeepSeek-R1-Distill-Llama-8B",
+     "value": "deepseek-r1-distill-llama-8b",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-v0.1",
+     "value": "mistral-7b-v0.1",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1",
+     "available": true
+    },
+    {
+     "label": "GPT-J-6B",
+     "value": "gpt-j-6b",
+     "available": true,
+     "note": "traced in the original ROME paper: the check that this script agrees"
+    },
+    {
+     "label": "OLMo-2-7B",
+     "value": "olmo-2-7b",
+     "available": true
+    },
+    {
+     "label": "GPT-NeoX-20B",
+     "value": "gpt-neox-20b",
+     "available": true
+    },
+    {
+     "label": "GPT-OSS-20B",
+     "value": "gpt-oss-20b",
+     "available": true,
+     "note": "no locate-and-edit hparams yet; mixture-of-experts MLP, so its mlp curve means something slightly different"
+    }
+   ]
+  },
+  {
+   "name": "data_path",
+   "label": "Prompts",
+   "group": "prompts",
+   "type": "string",
+   "control": "dataset",
+   "sweepable": true,
+   "default": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
+   "note": "tracing needs facts the model already knows, so only datasets carrying the true answer (not just an edit target) are listed. Ignored when a fact set is chosen.",
+   "benchmarks": [
+    {
+     "label": "KnowEdit",
+     "subsets": [
+      {
+       "label": "wiki_counterfact",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
+       "available": true,
+       "note": "ground_truth is the fact the model should already hold"
+      },
+      {
+       "label": "ZsRE",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/ZsRE/ZsRE-test-all.json",
+       "available": true,
+       "note": "true answer recovered from the 'cond' field"
+      },
+      {
+       "label": "wiki_recent",
+       "value": null,
+       "available": false,
+       "note": "post-training facts: the model is not expected to know them, so there is no recall to localize"
+      }
+     ]
+    },
+    {
+     "label": "MQuAKE",
+     "subsets": [
+      {
+       "label": "CF-3k-v2",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json",
+       "available": true,
+       "note": "single-fact rewrites with their true answers, ROME-style completions over 37 Wikidata relations"
+      }
+     ]
+    },
+    {
+     "label": "UniEdit",
+     "subsets": [
+      {
+       "label": "all 25 domains",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test",
+       "available": true,
+       "note": "real Wikidata facts across 25 knowledge domains; trace through a fact set (select_facts.py reads every domain file)"
+      }
+     ]
+    },
+    {
+     "label": "RealTimeQA",
+     "subsets": [
+      {
+       "label": "by question type",
+       "value": "${PROJECT_ROOT}/datasets/RealTimeQA/by_question_type",
+       "available": true,
+       "note": "news questions with four choices (format mcq / chat_mcq); trace through a fact set"
+      }
+     ]
+    },
+    {
+     "label": "AlteredRiddles",
+     "subsets": [
+      {
+       "label": "altered riddles",
+       "value": "${PROJECT_ROOT}/datasets/AlteredRiddles/benchmark.jsonl",
+       "available": true,
+       "note": "riddles with an added clue that changes the answer (format riddle / chat_riddle); the clue is what gets corrupted"
+      }
+     ]
+    }
+   ],
+   "run_name_unless": "fact_set"
+  },
+  {
+   "name": "split",
+   "label": "Records",
+   "group": "prompts",
+   "type": "string",
+   "default": "nontest",
+   "sweepable": false,
+   "options": [
+    {
+     "label": "dev + demo (never test)",
+     "value": "nontest"
+    },
+    {
+     "label": "dev only",
+     "value": "dev"
+    },
+    {
+     "label": "all, including test (checks only)",
+     "value": "all"
+    }
+   ],
+   "note": "which records of the dataset to scan. The trace informs edit layers, so it stays off test records like every sweep."
+  },
+  {
+   "name": "fact_set",
+   "label": "Fact set",
+   "group": "prompts",
+   "type": "string",
+   "default": "",
+   "sweepable": false,
+   "options": [
+    {
+     "label": "none: scan the dataset per model",
+     "value": ""
+    },
+    {
+     "label": "MQuAKE, shared by 8 base/instruct models",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_shared8/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Qwen3-4B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_qwen3-4b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Olmo-3-7B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_olmo-3-7b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Llama-3.1-8B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_llama-3.1-8b/fact_set.json"
+    },
+    {
+     "label": "MQuAKE, shared by Mistral-7B base + instruct",
+     "value": "${PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets/runs/mquake_mistral-7b/fact_set.json"
+    }
+   ],
+   "note": "a fixed list from fact selection: every model traces the same facts. The page lists the sets on disk.",
+   "run_name_path_part": true,
+   "run_name_skip_default": true,
+   "allow_custom": true
+  },
+  {
+   "name": "format",
+   "label": "Prompt format",
+   "group": "prompts",
+   "type": "string",
+   "default": "completion",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "completion",
+     "value": "completion",
+     "note": "the cloze sentence; noise on the subject"
+    },
+    {
+     "label": "question",
+     "value": "question",
+     "note": "'Question: ... Answer:' as plain text; noise on the subject"
+    },
+    {
+     "label": "chat_question",
+     "value": "chat_question",
+     "note": "the question through the model's chat template, asking for the answer only; noise on the subject"
+    },
+    {
+     "label": "chat_prefill",
+     "value": "chat_prefill",
+     "note": "the question through the chat template, with the cloze sentence begun as the reply; noise on every mention of the subject"
+    },
+    {
+     "label": "mcq",
+     "value": "mcq",
+     "note": "question, lettered choices, 'Answer:' as plain text; noise on the question"
+    },
+    {
+     "label": "chat_mcq",
+     "value": "chat_mcq",
+     "note": "the multiple-choice prompt through the chat template, asking for the letter only; noise on the question"
+    },
+    {
+     "label": "riddle",
+     "value": "riddle",
+     "note": "'Riddle: ... Answer:' as plain text; noise on the clue the altered riddle added"
+    },
+    {
+     "label": "chat_riddle",
+     "value": "chat_riddle",
+     "note": "the riddle through the chat template, asking for the answer only; noise on the added clue"
+    }
+   ],
+   "note": "how each fact is written; chat_* go through the model's chat template (instruct models)"
+  },
+  {
+   "name": "n_prompts",
+   "label": "Prompts to trace",
+   "group": "prompts",
+   "type": "int",
+   "default": "100",
+   "allow_custom": true,
+   "sweepable": true,
+   "note": "after the known-fact filter; half choose the circuit, the other half test it",
+   "options": [
+    {
+     "label": "20",
+     "value": "20"
+    },
+    {
+     "label": "50",
+     "value": "50"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "200",
+     "value": "200"
+    }
+   ]
+  },
+  {
+   "name": "min_prob",
+   "label": "Minimum recall probability",
+   "group": "prompts",
+   "type": "float",
+   "default": "0.1",
+   "allow_custom": true,
+   "sweepable": true,
+   "note": "a fact the model barely recalls has little recall to localize",
+   "options": [
+    {
+     "label": "0.05",
+     "value": "0.05"
+    },
+    {
+     "label": "0.1",
+     "value": "0.1"
+    },
+    {
+     "label": "0.2",
+     "value": "0.2"
+    },
+    {
+     "label": "0.5",
+     "value": "0.5"
+    }
+   ]
+  },
+  {
+   "name": "max_candidates",
+   "label": "Records to scan",
+   "group": "prompts",
+   "type": "int",
+   "default": "2000",
+   "allow_custom": true,
+   "sweepable": true,
+   "note": "upper bound on records read looking for prompts that pass the filter",
+   "options": [
+    {
+     "label": "500",
+     "value": "500"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "2000",
+     "value": "2000"
+    }
+   ]
+  },
+  {
+   "name": "noise_scale",
+   "label": "Subject noise",
+   "group": "trace",
+   "type": "float",
+   "default": "3.0",
+   "allow_custom": true,
+   "sweepable": true,
+   "note": "the same corruption as causal tracing: noise on the subject's embeddings, in units of their standard deviation",
+   "options": [
+    {
+     "label": "1",
+     "value": "1.0"
+    },
+    {
+     "label": "2",
+     "value": "2.0"
+    },
+    {
+     "label": "3",
+     "value": "3.0"
+    },
+    {
+     "label": "5",
+     "value": "5.0"
+    }
+   ]
+  },
+  {
+   "name": "n_noise_samples",
+   "label": "Noise samples",
+   "group": "trace",
+   "type": "int",
+   "default": "10",
+   "allow_custom": true,
+   "sweepable": true,
+   "note": "corrupted runs averaged per measurement; also the batch size of every forward pass",
+   "options": [
+    {
+     "label": "5",
+     "value": "5"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "20",
+     "value": "20"
+    }
+   ]
+  },
+  {
+   "name": "verify_k",
+   "label": "Patched to check",
+   "group": "trace",
+   "type": "int",
+   "default": "10",
+   "allow_custom": true,
+   "sweepable": true,
+   "options": [
+    {
+     "label": "off",
+     "value": "0"
+    },
+    {
+     "label": "5",
+     "value": "5"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "20",
+     "value": "20"
+    }
+   ],
+   "note": "per fact, the components attribution ranks highest are really patched, to check the estimate"
+  },
+  {
+   "name": "circuit_sizes",
+   "label": "Circuit sizes",
+   "group": "trace",
+   "type": "string",
+   "default": "1,2,5,10,20,50,100",
+   "sweepable": false,
+   "allow_custom": true,
+   "options": [
+    {
+     "label": "1,2,5,10,20,50,100",
+     "value": "1,2,5,10,20,50,100"
+    },
+    {
+     "label": "5,10,20,50",
+     "value": "5,10,20,50"
+    }
+   ],
+   "note": "how many top components are patched together when testing the circuit on held-out facts"
+  },
+  {
+   "name": "allow_thin",
+   "label": "Allow a thin fact set",
+   "group": "run",
+   "type": "int",
+   "default": "0",
+   "sweepable": false,
+   "run_name_skip_default": true,
+   "options": [
+    {
+     "label": "no: refuse below 50 facts",
+     "value": "0"
+    },
+    {
+     "label": "yes",
+     "value": "1"
+    }
+   ]
+  },
+  {
+   "name": "checkpoint_every",
+   "label": "Checkpoint every",
+   "group": "run",
+   "type": "int",
+   "default": "10",
+   "allow_custom": true,
+   "sweepable": true,
+   "options": [
+    {
+     "label": "5",
+     "value": "5"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "25",
+     "value": "25"
+    }
+   ]
+  },
+  {
+   "name": "dtype",
+   "label": "Precision",
+   "group": "run",
+   "type": "string",
+   "default": "bfloat16",
+   "sweepable": true,
+   "note": "probabilities are always compared in fp32 regardless; this is the forward pass itself",
+   "options": [
+    {
+     "label": "bfloat16",
+     "value": "bfloat16",
+     "available": true
+    },
+    {
+     "label": "float16",
+     "value": "float16",
+     "available": true
+    },
+    {
+     "label": "float32",
+     "value": "float32",
+     "available": true
+    }
+   ]
+  },
+  {
+   "name": "seed",
+   "label": "Seed",
+   "group": "run",
+   "type": "int",
+   "default": "0",
+   "allow_custom": true,
+   "custom_as_option": true,
+   "sweepable": true,
+   "options": [
+    {
+     "label": "0",
+     "value": "0"
+    },
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "2",
+     "value": "2"
+    }
+   ],
+   "run_name_skip_default": true,
+   "run_name_prefix": "seed"
+  }
+ ]
+}

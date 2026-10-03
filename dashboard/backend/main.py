@@ -22,6 +22,7 @@ import db
 import gpu_status
 import archive
 import causal_tracing_reader
+import mechanistic_reader
 import registry
 import results_reader
 import slurm
@@ -941,6 +942,32 @@ def get_causal_trace(run: str):
     if trace is None:
         raise HTTPException(404, "no trace for that run")
     return trace
+
+
+# ---------------------------------------------------------------- neuron and circuit tracing
+#
+# Submitted like causal tracing; these only read the output. {experiment} is
+# neuron_tracing or circuit_tracing.
+
+@app.get("/api/mechanistic/{experiment}")
+def get_mechanistic(experiment: str):
+    try:
+        return mechanistic_reader.overview(experiment)
+    except KeyError:
+        raise HTTPException(404, f"unknown experiment {experiment}")
+
+
+@app.get("/api/mechanistic/{experiment}/runs/{run}")
+def get_mechanistic_run(experiment: str, run: str):
+    try:
+        data = mechanistic_reader.detail(experiment, run)
+    except KeyError:
+        raise HTTPException(404, f"unknown experiment {experiment}")
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    if data is None:
+        raise HTTPException(404, "no result for that run")
+    return data
 
 
 # ---------------------------------------------------------------- datasets
