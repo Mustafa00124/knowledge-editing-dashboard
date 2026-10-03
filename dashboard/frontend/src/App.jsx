@@ -4,6 +4,8 @@ import Home from './pages/Home.jsx'
 import Experiments from './pages/Experiments.jsx'
 import CausalTracing from './pages/CausalTracing.jsx'
 import TracingFormats from './pages/TracingFormats.jsx'
+import NeuronTracing from './pages/NeuronTracing.jsx'
+import CircuitTracing from './pages/CircuitTracing.jsx'
 import Investigations from './pages/Investigations.jsx'
 import SweepInvestigation from './pages/SweepInvestigation.jsx'
 import Datasets from './pages/Datasets.jsx'
@@ -69,6 +71,8 @@ export default function App() {
           <Route path="/experiments/investigations" element={<Investigations />} />
           <Route path="/experiments/investigations/causal_tracing" element={<CausalTracing />} />
           <Route path="/experiments/investigations/tracing_formats" element={<TracingFormats />} />
+          <Route path="/experiments/investigations/neuron_tracing" element={<NeuronTracing />} />
+          <Route path="/experiments/investigations/circuit_tracing" element={<CircuitTracing />} />
           <Route path="/experiments/investigations/:investigationId" element={<SweepInvestigation />} />
           <Route path="/hyperparameters" element={<Moved to="/experiments/investigations" />} />
           <Route path="/hyperparameters/edit_layers/causal-tracing" element={<Moved to="/experiments/investigations/causal_tracing" />} />

@@ -93,6 +93,7 @@ is scored on. `experiments/run_experiment/test_splits.py` checks all of it.
 | `dashboard/` | FastAPI backend and React frontend. `dashboard/README.md` covers features, gaivi deployment and access. |
 | `experiments/run_experiment/` | The unified runner (`run_experiment.py`), per-method, per-model `hparams/`, and evaluation code. |
 | `experiments/causal_tracing/` | Causal tracing to locate where a model stores facts. |
+| `experiments/neuron_tracing/`, `experiments/circuit_tracing/` | Neuron attribution and circuit tracing: which MLP neurons, and which heads and paths, carry a fact. |
 | `datasets/` | One folder per benchmark. Git tracks only each one's `SOURCE.json` manifest; the data is downloaded into it. |
 | `scripts/setup.py` | Command-line version of the Downloads page. |
 | `splits/` | The fixed dev/test split, one file per dataset subset. |
