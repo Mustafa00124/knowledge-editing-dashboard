@@ -1,5 +1,5 @@
 {
- "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (per-method hyperparameter sweeps on dev records; each lists the methods that have the setting, under the name their hparams file uses), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), layer_span (every layer, a half or a quarter of the model, or a window around its traced peak), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
+ "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (per-method hyperparameter sweeps on dev records; each lists the methods that have the setting, under the name their hparams file uses), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `datasets: all` makes a sweep start with every runnable dataset that has dev records selected, less any path containing an entry of `datasets_except` (subsets that repeat another's records); a sweep spec can ask for that set with data_paths [\"default\"]. `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), layer_span (every layer, a half or a quarter of the model, or a window around its traced peak), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
  "investigations": [
   {
    "id": "causal_tracing",
@@ -586,9 +586,133 @@
    }
   },
   {
+   "id": "scr",
+   "label": "SCR (Selective Contextual Reasoning)",
+   "group": "sweep",
+   "datasets": "all",
+   "datasets_except": [
+    "MQuAKE/datasets/MQuAKE-CF.json",
+    "RealTimeQA/by_question_type/"
+   ],
+   "question": "Which parts of retrieve, confirm, answer make SCR work: the retriever and how many facts it returns, whether and how strictly facts are confirmed, and how they are put in front of the model? Run across as many datasets as possible, since retrieval difficulty depends on the data.",
+   "methods": {
+    "scr": {
+     "knobs": {
+      "retrieval_k": {
+       "kind": "int",
+       "stability": "data",
+       "note": "about 5 for Wiki data, 1 to 3 for ZsRE in the paper"
+      },
+      "sentence_model_name": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "options": [
+        "all-MiniLM-L6-v2",
+        "all-mpnet-base-v2",
+        "BAAI/bge-small-en-v1.5",
+        "BAAI/bge-base-en-v1.5"
+       ],
+       "note": "the retriever's embedding model; others download from Hugging Face on first use"
+      },
+      "min_similarity": {
+       "kind": "choice",
+       "options": [
+        null,
+        0.2,
+        0.4,
+        0.6
+       ],
+       "stability": "not_reported",
+       "note": "cosine-similarity floor for a retrieved fact; null is no floor (always retrieval_k facts)"
+      },
+      "kb_key": {
+       "kind": "choice",
+       "options": [
+        "statement",
+        "subject"
+       ],
+       "stability": "not_reported",
+       "note": "what a fact is found by: the edit sentence, or its subject alone (the sentence when a record has no subject)"
+      },
+      "latest_edit_wins": {
+       "kind": "bool",
+       "stability": "not_reported",
+       "note": "a new edit of the same prompt replaces the older one in the knowledge base"
+      },
+      "confirm": {
+       "kind": "choice",
+       "options": [
+        "each",
+        "off"
+       ],
+       "stability": "not_reported",
+       "note": "off keeps every retrieved fact: plain retrieve-and-answer, the ablation of what confirmation adds"
+      },
+      "confirm_margin": {
+       "kind": "choice",
+       "options": [
+        -2.0,
+        0.0,
+        2.0,
+        4.0
+       ],
+       "stability": "not_reported",
+       "note": "a fact passes when the Yes logit beats No by more than this; higher trades generalisation for locality"
+      },
+      "confirm_shots": {
+       "kind": "choice",
+       "options": [
+        0,
+        2
+       ],
+       "stability": "not_reported",
+       "note": "worked Yes/No examples (about invented places) before the confirmation question"
+      },
+      "max_confirmed": {
+       "kind": "choice",
+       "options": [
+        0,
+        1,
+        2
+       ],
+       "stability": "not_reported",
+       "note": "most facts that reach the answer, the most confident first; 0 is no cap"
+      },
+      "fact_order": {
+       "kind": "choice",
+       "options": [
+        "most_similar_first",
+        "most_similar_last"
+       ],
+       "stability": "not_reported",
+       "note": "most_similar_last puts the best match next to the question"
+      },
+      "answer_template": {
+       "kind": "choice",
+       "options": [
+        "plain",
+        "instructed"
+       ],
+       "stability": "not_reported",
+       "note": "instructed adds: Use the facts above to answer the question when they apply"
+      },
+      "no_context_framing": {
+       "kind": "choice",
+       "options": [
+        "bare",
+        "framed"
+       ],
+       "stability": "not_reported",
+       "note": "how a question is asked when no fact is confirmed: bare (the query alone, as originally) or framed (Question/Answer, the same as with facts, so the format does not depend on confirmation)"
+      }
+     }
+    }
+   }
+  },
+  {
    "id": "retrieval",
-   "label": "Retrieval and demonstrations",
-   "question": "How much retrieved context do in-context methods put in the prompt?",
+   "label": "IKE demonstrations",
+   "question": "How many demonstrations does IKE put in the prompt? (SCR has its own investigation.)",
    "methods": {
     "ike": {
      "knobs": {
@@ -596,15 +720,6 @@
        "kind": "int",
        "stability": "data",
        "note": "demonstrations per query; 32 in the original paper, 16 in EasyEdit"
-      }
-     }
-    },
-    "scr": {
-     "knobs": {
-      "retrieval_k": {
-       "kind": "int",
-       "stability": "data",
-       "note": "about 5 for Wiki data, 1 to 3 for ZsRE in the paper"
       }
      }
     }

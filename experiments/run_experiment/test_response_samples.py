@@ -38,7 +38,7 @@ class ResponseSamplesTests(unittest.TestCase):
 
     def test_scr_uses_current_kb(self):
         self.sample("scr", 20)
-        self.scr.assert_called_once_with(self.model, None, "Where?", self.index, "cpu", 2, 40)
+        self.scr.assert_called_once_with(self.model, None, "Where?", self.index, "cpu", 2, 40, self.hp)
         self.plain.assert_not_called()
 
     def test_weight_edit_uses_live_model(self):

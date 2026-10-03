@@ -23,7 +23,7 @@ def method_samples(model, tok, requests, device, method, step, hparams, index=No
                 from scr import scr_answer
 
                 answer = scr_answer(model, tok, prompt, index, device,
-                                    hparams.retrieval_k, hparams.max_new_tokens)
+                                    hparams.retrieval_k, hparams.max_new_tokens, hparams)
             samples.append({"prompt": prompt, "continuation": answer})
     for sample in samples:
         sample["sampling_version"] = 2

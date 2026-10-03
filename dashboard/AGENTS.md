@@ -115,6 +115,10 @@ python scripts/dash.py sweep spec.json              # launch
   values and suggested values: `dash.py get /api/hparams/investigations`.
 - What the sweep holds constant: `dash.py get "/api/hparams/settings?investigation=edit_layers&methods=memit&models=qwen3-4b"`.
   Change a held value with `"fixed": {"memit": {"qwen3-4b": {"kl_factor": 0.1}}}`.
+- `"data_paths": ["default"]` uses the investigation's own dataset set where
+  it has one (SCR: every runnable dataset with dev records, without
+  overlapping subsets). Sweep one setting at a time there: every value runs
+  on every dataset.
 - Rerun a sweep's failed runs: `dash.py post /api/hparams/sweeps/<investigation>/<sweep-id>/rerun-failed`.
 
 ## Reading results

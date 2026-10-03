@@ -42,7 +42,7 @@ checkpoint), this makes several small generate() calls per probe
 (one confirm-check per retrieved candidate, plus the answer itself) -
 expect SCR checkpoints to be slower than the other two methods.
 """
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -63,6 +63,32 @@ class SCRHyperParams:
     sentence_model_name: str = "all-MiniLM-L6-v2"
     retrieval_k: int = 3
     max_new_tokens: int = 40
+    # The settings below default to the original behaviour; the SCR
+    # investigation sweeps them (see scr_answer() for where each acts).
+    # Retrieval: a cosine-similarity floor (None: always return retrieval_k
+    # facts), what each fact is found by ("statement": the edit sentence,
+    # "subject": its subject alone), and whether a new edit of the same
+    # prompt replaces the older one in the knowledge base.
+    min_similarity: Optional[float] = None
+    kb_key: str = "statement"
+    latest_edit_wins: bool = False
+    # Confirmation: "each" asks the model Yes/No per candidate, "off" keeps
+    # every retrieved fact (plain retrieve-and-answer). A candidate passes
+    # when the Yes logit beats No by more than confirm_margin; confirm_shots
+    # worked examples go before the question; max_confirmed caps how many
+    # facts reach the answer (0: no cap), keeping the most confident.
+    confirm: str = "each"
+    confirm_margin: float = 0.0
+    confirm_shots: int = 0
+    max_confirmed: int = 0
+    # Answering: where the most similar fact goes ("most_similar_first" or
+    # "most_similar_last", nearest the question), whether an instruction
+    # tells the model to use the facts ("plain" or "instructed"), and how a
+    # query is asked when no fact was confirmed ("bare": the query alone, as
+    # originally; "framed": the same Question/Answer framing as with facts).
+    fact_order: str = "most_similar_first"
+    answer_template: str = "plain"
+    no_context_framing: str = "bare"
 
     @classmethod
     def from_hparams(cls, path):
@@ -74,14 +100,7 @@ class SCRHyperParams:
         return cls(**{k: v for k, v in cfg.items()})
 
     def to_dict(self):
-        return {
-            "alg_name": self.alg_name,
-            "model_name": self.model_name,
-            "device": self.device,
-            "sentence_model_name": self.sentence_model_name,
-            "retrieval_k": self.retrieval_k,
-            "max_new_tokens": self.max_new_tokens,
-        }
+        return asdict(self)
 
 
 def build_kb(requests: List[Dict]) -> List[str]:
@@ -92,6 +111,20 @@ def build_kb(requests: List[Dict]) -> List[str]:
     return [f"{r['prompt']} {r['target_new']}" for r in requests]
 
 
+def kb_entries(requests: List[Dict], kb_key: str = "statement") -> List[Dict]:
+    """build_kb()'s statements with what each is found by and the edit it
+    belongs to: {"text", "key", "id"}. kb_key "subject" embeds the subject
+    alone (the statement when a record has none, e.g. RealTimeQA); "id" is
+    the edit prompt, so a later edit of the same prompt can replace it."""
+    if kb_key not in ("statement", "subject"):
+        raise ValueError(f"kb_key must be statement or subject, not {kb_key!r}")
+    out = []
+    for r, text in zip(requests, build_kb(requests)):
+        key = (r.get("subject") or text) if kb_key == "subject" else text
+        out.append({"text": text, "key": key, "id": " ".join(str(r["prompt"]).lower().split())})
+    return out
+
+
 class SCRIndex:
     """Embeds a growing knowledge base incrementally - `grow()` only
     embeds what's new, so checkpointing SCR every --checkpoint_every
@@ -100,26 +133,66 @@ class SCRIndex:
     def __init__(self, sentence_model_name: str, device):
         self.model = SentenceTransformer(sentence_model_name).to(device)
         self.texts: List[str] = []
+        self.ids: List[Optional[str]] = []
         self.embeddings = None
 
-    def grow(self, new_texts: List[str]):
+    def grow(self, new_texts: List[str], keys: Optional[List[str]] = None,
+             ids: Optional[List[str]] = None, replace: bool = False):
+        """Add texts, each found by its key (the text itself by default).
+        With replace, a text whose id is already present takes the older
+        one's place instead of sitting beside it."""
         if not new_texts:
             return
-        new_emb = self.model.encode(new_texts, convert_to_tensor=True, show_progress_bar=False)
-        self.texts.extend(new_texts)
-        self.embeddings = new_emb if self.embeddings is None else torch.cat([self.embeddings, new_emb], dim=0)
+        keys = keys or new_texts
+        ids = ids or [None] * len(new_texts)
+        new_emb = self.model.encode(keys, convert_to_tensor=True, show_progress_bar=False)
+        for text, emb, item_id in zip(new_texts, new_emb, ids):
+            if replace and item_id is not None and item_id in self.ids:
+                i = self.ids.index(item_id)
+                self.texts[i] = text
+                # Rebuilt rather than assigned in place: encode() returns
+                # inference-mode tensors, which refuse in-place updates.
+                self.embeddings = torch.cat([self.embeddings[:i], emb.unsqueeze(0), self.embeddings[i + 1:]], dim=0)
+                continue
+            self.texts.append(text)
+            self.ids.append(item_id)
+            row = emb.unsqueeze(0)
+            self.embeddings = row if self.embeddings is None else torch.cat([self.embeddings, row], dim=0)
 
-    def retrieve(self, query: str, k: int) -> List[str]:
+    def retrieve_scored(self, query: str, k: int, min_similarity: Optional[float] = None) -> List[Tuple[str, float]]:
+        """Up to k (text, cosine similarity) pairs, most similar first; with
+        min_similarity, only those at or above it."""
         if not self.texts:
             return []
         query_emb = self.model.encode(query, convert_to_tensor=True, show_progress_bar=False)
         scores = util.cos_sim(query_emb, self.embeddings)[0]
         top = torch.topk(scores, k=min(k, len(self.texts)))
-        return [self.texts[i] for i in top.indices.tolist()]
+        pairs = [(self.texts[i], float(s)) for s, i in zip(top.values.tolist(), top.indices.tolist())]
+        return [p for p in pairs if min_similarity is None or p[1] >= min_similarity]
+
+    def retrieve(self, query: str, k: int) -> List[str]:
+        return [text for text, _ in self.retrieve_scored(query, k)]
 
 
-def _yes_no_confirm(model, tok, query: str, candidate: str, device) -> bool:
-    prompt = (
+# Worked examples for confirm_shots, about invented places so they cannot
+# overlap any dataset: one relevant candidate, one not.
+CONFIRM_EXAMPLES = (
+    "Query: Who is the head of state of Veltria?\n"
+    "Candidate fact: The head of state of Veltria is Mara Quill.\n"
+    "Is the candidate fact relevant to answering the query? Answer Yes or No.\n"
+    "Answer: Yes\n\n",
+    "Query: What language is spoken in Ostravel?\n"
+    "Candidate fact: The capital of Dunmarch is Selby Reach.\n"
+    "Is the candidate fact relevant to answering the query? Answer Yes or No.\n"
+    "Answer: No\n\n",
+)
+
+DEFAULTS = SCRHyperParams(alg_name="SCR", model_name="", device=0)
+
+
+def _confirm_score(model, tok, query: str, candidate: str, device, shots: int = 0) -> float:
+    """Yes logit minus No logit for "is this fact relevant to the query?"."""
+    prompt = "".join(CONFIRM_EXAMPLES[:shots]) + (
         f"Query: {query}\n"
         f"Candidate fact: {candidate}\n"
         f"Is the candidate fact relevant to answering the query? Answer Yes or No.\n"
@@ -130,21 +203,58 @@ def _yes_no_confirm(model, tok, query: str, candidate: str, device) -> bool:
         logits = model(**inputs).logits[0, -1]
     yes_id = tok.encode(" Yes", add_special_tokens=False)[0]
     no_id = tok.encode(" No", add_special_tokens=False)[0]
-    return bool(logits[yes_id] > logits[no_id])
+    return float(logits[yes_id] - logits[no_id])
 
 
-def scr_answer(model, tok, query: str, kb: SCRIndex, device, k: int, max_new_tokens: int) -> str:
-    """Retrieve -> confirm -> answer for one query. Answers the query
-    directly (no injected context) if nothing retrieved gets confirmed
-    relevant - the gating the paper's whole point is built around."""
-    candidates = kb.retrieve(query, k)
-    confirmed = [c for c in candidates if _yes_no_confirm(model, tok, query, c, device)]
+def _yes_no_confirm(model, tok, query: str, candidate: str, device) -> bool:
+    return _confirm_score(model, tok, query, candidate, device) > 0
 
-    if confirmed:
-        context = "\n".join(f"Fact: {c}" for c in confirmed)
-        prompt = f"{context}\nQuestion: {query}\nAnswer:"
+
+def select_facts(model, tok, query: str, kb: SCRIndex, device, k: int, hp=None) -> List[str]:
+    """Retrieve and confirm: the facts that reach the answer, in the order
+    they are shown to the model."""
+    hp = hp or DEFAULTS
+    candidates = kb.retrieve_scored(query, k, hp.min_similarity)  # most similar first
+    if hp.confirm == "off":
+        chosen = [(text, sim) for text, sim in candidates]
+    elif hp.confirm == "each":
+        scored = [(text, sim, _confirm_score(model, tok, query, text, device, hp.confirm_shots))
+                  for text, sim in candidates]
+        passed = [row for row in scored if row[2] > hp.confirm_margin]
+        if hp.max_confirmed:
+            keep = {row[0] for row in sorted(passed, key=lambda row: row[2], reverse=True)[:hp.max_confirmed]}
+            passed = [row for row in passed if row[0] in keep]
+        chosen = [(text, sim) for text, sim, _ in passed]
     else:
-        prompt = query
+        raise ValueError(f"confirm must be each or off, not {hp.confirm!r}")
+    if hp.confirm == "off" and hp.max_confirmed:
+        chosen = chosen[:hp.max_confirmed]
+    facts = [text for text, _ in chosen]
+    if hp.fact_order == "most_similar_last":
+        facts.reverse()
+    elif hp.fact_order != "most_similar_first":
+        raise ValueError(f"fact_order must be most_similar_first or most_similar_last, not {hp.fact_order!r}")
+    return facts
+
+
+def build_prompt(query: str, facts: List[str], hp=None) -> str:
+    hp = hp or DEFAULTS
+    if facts:
+        context = "\n".join(f"Fact: {c}" for c in facts)
+        instruction = "Use the facts above to answer the question when they apply.\n" \
+            if hp.answer_template == "instructed" else ""
+        return f"{context}\n{instruction}Question: {query}\nAnswer:"
+    if hp.no_context_framing == "framed":
+        return f"Question: {query}\nAnswer:"
+    return query
+
+
+def scr_answer(model, tok, query: str, kb: SCRIndex, device, k: int, max_new_tokens: int, hp=None) -> str:
+    """Retrieve -> confirm -> answer for one query. Answers the query
+    without injected context if nothing retrieved gets confirmed relevant -
+    the gating the paper's whole point is built around. hp carries the
+    swept settings (SCRHyperParams); left out, the original behaviour."""
+    prompt = build_prompt(query, select_facts(model, tok, query, kb, device, k, hp), hp)
 
     inputs = tok(prompt, return_tensors="pt").to(device)
     with torch.no_grad():
@@ -209,7 +319,7 @@ def evaluate_requests_scr(
     from semantic_evaluation import cached_answer
     cache = answer_cache if answer_cache is not None else {}
     def answer_query(query):
-        return cached_answer(cache, query, lambda: scr_answer(model, tok, query, kb, device, k, max_new_tokens))
+        return cached_answer(cache, query, lambda: scr_answer(model, tok, query, kb, device, k, max_new_tokens, hparams))
     per_record = []
     answers_this_call: Dict[Tuple[int, str, int], str] = {}
 
@@ -241,7 +351,7 @@ def evaluate_requests_scr(
         metrics = {"rewrite_acc": rewrite_acc, "portability": portability, "locality": locality}
         if fluency:
             metrics["fluency"] = fluency_score(tok, record["prompt"], lambda budget: scr_answer(
-                model, tok, record["prompt"], kb, device, k, budget))
+                model, tok, record["prompt"], kb, device, k, budget, hparams))
         per_record.append(metrics)
 
     return per_record, answers_this_call
