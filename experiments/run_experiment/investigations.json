@@ -1,5 +1,5 @@
 {
- "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (per-method hyperparameter sweeps on dev records; each lists the methods that have the setting, under the name their hparams file uses), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
+ "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (per-method hyperparameter sweeps on dev records; each lists the methods that have the setting, under the name their hparams file uses), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), layer_span (every layer, a half or a quarter of the model, or a window around its traced peak), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
  "investigations": [
   {
    "id": "causal_tracing",
@@ -70,14 +70,6 @@
       }
      }
     },
-    "ft": {
-     "knobs": {
-      "layers": {
-       "kind": "layer",
-       "stability": "model"
-      }
-     }
-    },
     "wilke": {
      "knobs": {
       "scanning_ceiling": {
@@ -143,44 +135,6 @@
    "label": "Adapter placement and rank",
    "question": "Which modules get adapters, and how much capacity do they have?",
    "methods": {
-    "lora": {
-     "knobs": {
-      "rank": {
-       "kind": "int",
-       "stability": "robust"
-      },
-      "target_modules": {
-       "kind": "choice",
-       "stability": "model",
-       "options": [
-        [
-         "q_proj",
-         "v_proj"
-        ],
-        [
-         "q_proj",
-         "k_proj",
-         "v_proj",
-         "o_proj"
-        ],
-        [
-         "up_proj",
-         "down_proj",
-         "gate_proj"
-        ],
-        [
-         "q_proj",
-         "v_proj",
-         "k_proj",
-         "o_proj",
-         "up_proj",
-         "down_proj",
-         "gate_proj"
-        ]
-       ]
-      }
-     }
-    },
     "cake": {
      "knobs": {
       "rank": {
@@ -202,34 +156,6 @@
    "label": "Weight-update strength",
    "question": "How hard do methods that train weights directly push the update?",
    "methods": {
-    "ft": {
-     "knobs": {
-      "lr": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "num_steps": {
-       "kind": "int",
-       "stability": "robust"
-      }
-     }
-    },
-    "lora": {
-     "knobs": {
-      "lr": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "num_steps": {
-       "kind": "int",
-       "stability": "model"
-      },
-      "lora_alpha": {
-       "kind": "log",
-       "stability": "robust"
-      }
-     }
-    },
     "fine": {
      "knobs": {
       "lr": {
@@ -439,14 +365,6 @@
       }
      }
     },
-    "ft": {
-     "knobs": {
-      "norm_constraint": {
-       "kind": "log",
-       "stability": "model"
-      }
-     }
-    },
     "fine": {
      "knobs": {
       "alpha": {
@@ -525,6 +443,147 @@
    },
    "cost_note": "Every new sample count recomputes the statistics for each edited layer.",
    "group": "sweep"
+  },
+  {
+   "id": "ft",
+   "label": "Fine-tuning (FT)",
+   "group": "sweep",
+   "question": "How should plain fine-tuning be set up: its loss (FT-M on the whole target, or FT-L at the last prompt token), which layer it trains, how hard and how long, and how it is held near the original weights?",
+   "methods": {
+    "ft": {
+     "knobs": {
+      "objective_optimization": {
+       "kind": "choice",
+       "options": [
+        "target_new",
+        "prompt_last"
+       ],
+       "stability": "not_reported",
+       "note": "target_new is FT-M: cross-entropy on every target token after the prompt (EasyEdit's recommended FT). prompt_last is FT-L, the ROME paper's constrained fine-tuning: the target scored at the last prompt position. Hold it fixed to tune FT-M and FT-L separately, or sweep both to compare them"
+      },
+      "layers": {
+       "kind": "layer",
+       "stability": "model"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "weight_decay": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.0001,
+        0.001,
+        0.01
+       ],
+       "stability": "not_reported",
+       "note": "Adam's L2 term pulls the edited weights toward zero, not toward the original weights; norm_constraint is what keeps them near the originals"
+      },
+      "norm_constraint": {
+       "kind": "log",
+       "stability": "model"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "lora",
+   "label": "LoRA",
+   "group": "sweep",
+   "question": "How should LoRA be set up: where the adapters go and how big they are, how hard and how long they train, and how they are regularised?",
+   "methods": {
+    "lora": {
+     "knobs": {
+      "rank": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "target_modules": {
+       "kind": "choice",
+       "stability": "model",
+       "options": [
+        [
+         "q_proj",
+         "v_proj"
+        ],
+        [
+         "q_proj",
+         "k_proj",
+         "v_proj",
+         "o_proj"
+        ],
+        [
+         "up_proj",
+         "down_proj",
+         "gate_proj"
+        ],
+        [
+         "q_proj",
+         "v_proj",
+         "k_proj",
+         "o_proj",
+         "up_proj",
+         "down_proj",
+         "gate_proj"
+        ]
+       ]
+      },
+      "layers": {
+       "kind": "layer_span",
+       "stability": "not_reported",
+       "note": "which layers get adapters: [] (shown as all) is every layer, the current setting; the others are a half or a quarter of the model, or a window around its traced peak"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "model"
+      },
+      "lora_alpha": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "lora_dropout": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.05,
+        0.1,
+        0.2
+       ],
+       "stability": "not_reported"
+      },
+      "weight_decay": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.001,
+        0.01,
+        0.1
+       ],
+       "stability": "not_reported",
+       "note": "decays the adapter toward zero, which is toward the original model"
+      },
+      "lora_type": {
+       "kind": "choice",
+       "options": [
+        "lora",
+        "adalora"
+       ],
+       "stability": "model",
+       "note": "AdaLoRA prunes the adapter's rank over the run. gpt-j-6b's hparams file uses it; every other model uses plain LoRA"
+      }
+     }
+    }
+   }
   },
   {
    "id": "retrieval",

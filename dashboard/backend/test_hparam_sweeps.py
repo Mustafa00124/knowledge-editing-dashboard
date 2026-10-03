@@ -50,6 +50,58 @@ class HeldConstantTests(unittest.TestCase):
         self.assertIsNone(owners["fact_token"])
 
 
+class MethodInvestigationTests(unittest.TestCase):
+    """FT and LoRA each have one investigation that owns all their settings."""
+
+    def test_ft_and_lora_settings_are_owned_by_their_own_investigation(self):
+        owners = hparam_sweeps._owners()
+        for key in ("objective_optimization", "layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
+            self.assertEqual(owners[("ft", key)]["id"], "ft", key)
+        for key in ("rank", "target_modules", "layers", "lr", "num_steps", "lora_alpha", "lora_dropout",
+                    "weight_decay", "lora_type"):
+            self.assertEqual(owners[("lora", key)]["id"], "lora", key)
+        for inv in hparam_sweeps._load_catalog()["investigations"]:
+            if inv["id"] not in ("ft", "lora"):
+                self.assertFalse({"ft", "lora"} & set(inv["methods"]), inv["id"])
+
+    def test_every_knob_has_a_current_value(self):
+        settings = {m: {r["key"] for r in hparam_sweeps.effective_settings(m, "qwen3-4b") if r["editable"]}
+                    for m in ("ft", "lora")}
+        for inv in ("ft", "lora"):
+            knobs = hparam_sweeps._load_catalog()["investigations"]
+            knobs = next(i for i in knobs if i["id"] == inv)["methods"][inv]["knobs"]
+            self.assertEqual(set(knobs) - settings[inv], set(), inv)
+
+    def test_ft_m_and_ft_l_swept_separately_or_together(self):
+        req = {"investigation": "ft", "methods": {"ft": {"objective_optimization": ["target_new", "prompt_last"],
+                                                         "lr": [1e-4, 1e-3]}},
+               "models": ["qwen3-4b"], "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
+        _, _, runs, _ = hparam_sweeps.plan(req)
+        self.assertEqual(len(runs), 4)
+        self.assertEqual({r["overrides"]["objective_optimization"] for r in runs}, {"target_new", "prompt_last"})
+        req["methods"]["ft"] = {"lr": [1e-4, 1e-3]}
+        req["fixed"] = {"ft": {"qwen3-4b": {"objective_optimization": "prompt_last"}}}
+        _, _, runs, _ = hparam_sweeps.plan(req)
+        self.assertEqual([r["fixed"] for r in runs], [{"objective_optimization": "prompt_last"}] * 2)
+
+    def test_layer_span_suggestions(self):
+        from unittest.mock import patch
+        with patch.object(hparam_sweeps, "_model_layers", return_value=36), \
+             patch.object(hparam_sweeps, "_traced_peak", return_value=10):
+            spans = hparam_sweeps.suggest("layer_span", [], {}, "qwen3-4b")
+        self.assertEqual(spans[0], [])
+        self.assertIn(list(range(0, 18)), spans)
+        self.assertIn(list(range(18, 36)), spans)
+        self.assertIn(list(range(9, 27)), spans)
+        self.assertIn(list(range(6, 15)), spans)  # a quarter of the model around the peak
+        self.assertEqual(len(spans), len({tuple(s) for s in spans}))
+
+    def test_run_names_stay_short_for_layer_spans(self):
+        self.assertEqual(hparam_sweeps._slug(list(range(0, 18))), "0to17")
+        self.assertEqual(hparam_sweeps._slug([]), "all")
+        self.assertEqual(hparam_sweeps._slug([4, 5, 6, 7, 8]), "4-5-6-7-8")  # unchanged for edit windows
+
+
 class RunDiagnosticsTests(unittest.TestCase):
     def setUp(self):
         import tempfile

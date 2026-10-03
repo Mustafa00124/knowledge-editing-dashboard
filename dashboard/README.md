@@ -247,6 +247,14 @@ directories will move before it commits.
   optimisation, preservation strength, covariance statistics; defined in `../experiments/run_experiment/investigations.json`)
   and lists only the methods that have it, under their own setting names,
   with the current value, the authors' stability tag and suggested values.
+  Two are per method instead: **Fine-tuning (FT)** and **LoRA** own every
+  setting of their method (FT: objective, FT-M `target_new` or FT-L
+  `prompt_last`, layer, learning rate, steps, weight decay, norm constraint;
+  LoRA: rank, target modules, which layers get adapters, learning rate,
+  steps, alpha, dropout, weight decay, LoRA or AdaLoRA). To tune FT-M and
+  FT-L separately, hold `objective_optimization` fixed in each sweep; sweep
+  it to compare them. The shared investigations no longer list FT or LoRA.
+  An earlier LoRA sweep stays under Adapter placement.
   A sweep picks methods, values, models and datasets and launches through
   the normal job path, but on **dev records only** (`--split dev`), with
   evaluation only before editing and at the end (`--final_only`), and the
