@@ -1,4 +1,5 @@
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
+import InvestigationProgress from '../components/InvestigationProgress.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
@@ -247,6 +248,8 @@ export default function SweepInvestigation() {
       {investigation.traced && <TracedPeaks investigation={investigation} />}
 
       <LaunchBlockedNotice blockers={blockers} />
+
+      <InvestigationProgress investigation={investigation.id} />
 
       <section className="dl-section">
         <h2 className="section-heading">1. Methods and values</h2>

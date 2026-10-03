@@ -70,6 +70,7 @@ run removes it.
 import argparse
 import json
 import os
+import sys
 import time
 from datetime import datetime
 
@@ -83,6 +84,8 @@ import formats as F
 
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
+sys.path.append(os.path.join(PROJECT_ROOT, "experiments"))
+import launch_guard  # noqa: E402  (refuses untracked runs into results/)
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/investigations/causal_tracing"
 DEFAULT_DATA_PATH = f"{PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json"
 ROME_HPARAMS_DIR = f"{PROJECT_ROOT}/experiments/run_experiment/hparams/ROME"
@@ -180,6 +183,7 @@ def parse_args():
     p.add_argument("--checkpoint_every", type=int, default=10, help="facts between checkpoint lines")
     p.add_argument("--run_name", default=None)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
+    launch_guard.add_argument(p)
     args = p.parse_args()
     low, high = (float(x) for x in args.band.split(","))
     args.band = (low, high)
@@ -654,6 +658,7 @@ def _round_curves(curves):
 
 def main():
     args = parse_args()
+    launch_guard.require_dashboard(args.out_root, args.untracked, "causal_tracing")
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
 

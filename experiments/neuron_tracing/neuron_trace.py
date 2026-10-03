@@ -62,6 +62,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
+sys.path.append(os.path.join(PROJECT_ROOT, "experiments"))
+import launch_guard  # noqa: E402  (refuses untracked runs into results/)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "experiments", "causal_tracing"))
 import causal_trace as CT  # noqa: E402
 import components as C  # noqa: E402
@@ -121,6 +123,7 @@ def parse_args(argv=None):
     p.add_argument("--checkpoint_every", type=int, default=10)
     p.add_argument("--run_name", default=None)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
+    launch_guard.add_argument(p)
     args = p.parse_args(argv)
     args.band = tuple(float(x) for x in args.band.split(","))
     return args
@@ -405,6 +408,7 @@ def _verdict(a):
 
 def main(argv=None):
     args = parse_args(argv)
+    launch_guard.require_dashboard(args.out_root, args.untracked, "neuron_tracing")
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
 

@@ -97,23 +97,35 @@ is scored on. `experiments/run_experiment/test_splits.py` checks all of it.
 | `datasets/` | One folder per benchmark. Git tracks only each one's `SOURCE.json` manifest; the data is downloaded into it. |
 | `scripts/setup.py` | Command-line version of the Downloads page. |
 | `splits/` | The fixed dev/test split, one file per dataset subset. |
-| `experiments/run_experiment/investigations.json` | The investigations (mechanistic, hyperparameter sweeps, prompt format) on the dashboard's Experiments → Investigations page. |
+| `experiments/run_experiment/investigations.json` | The investigations (mechanistic, hyperparameter sweeps, input and context) on the dashboard's Experiments → Investigations page. |
 | `patches/` | Local fixes applied on top of pinned upstream repos. |
 
 Paths in configs are relative to the repo root (`hparams/*.yaml`) or written
 as `${PROJECT_ROOT}` (`dashboard.json`), so the checkout can live anywhere.
 
-## Running an experiment without the dashboard
+## Running an experiment from a shell
+
+Launch through the dashboard so the run shows on its investigation's
+progress section; `scripts/dash.py` does that from a shell (the guide is
+`dashboard/AGENTS.md`):
+
+```bash
+python scripts/dash.py launch run_experiment --label "ROME on Qwen3, 20 facts" --dry-run \
+    -- --method rome --model qwen3-4b --ds_size 20
+```
+
+The runners refuse to write into `results/` when the dashboard did not
+launch them. To run one by hand anyway, pass `--untracked` (it will not show
+on the dashboard), or point `--out_root` outside `results/`:
 
 ```bash
 cd experiments/run_experiment
-../../venvs/easyedit_venv/bin/python run_experiment.py --method rome --model qwen3-4b --ds_size 20
+../../venvs/easyedit_venv/bin/python run_experiment.py --method rome --model qwen3-4b --ds_size 20 --untracked
 ```
 
 `--split test` is the default; pass `--split dev --final_only --hparam layers=[4]`
-to reproduce a hyperparameter sweep point by hand.
-
-Output lands in `results/run_experiment/runs/<run_name>/`. See
+to reproduce a hyperparameter sweep point by hand. Output lands in
+`results/main/run_experiment/runs/<run_name>/`. See
 `python run_experiment.py --help` for every option.
 
 ## Tests

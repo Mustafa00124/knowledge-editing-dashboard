@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
+import InvestigationProgress from '../components/InvestigationProgress.jsx'
 import MechanisticLaunch from '../components/MechanisticLaunch.jsx'
 import { api } from '../api.js'
 import { SERIES } from '../lib/vizColors.js'
@@ -203,6 +204,8 @@ export default function CircuitTracing() {
         into the corrupted run (does it suffice?) and knocked out of the clean run (is it needed?).
       </p>
       {error && <p className="archive-line archive-line-warn">{error}</p>}
+
+      <InvestigationProgress investigation="circuit_tracing" />
 
       <h2 className="archive-section-title">Trace a model</h2>
       <MechanisticLaunch

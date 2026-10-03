@@ -9,11 +9,17 @@ import { GROUP_HELP, GROUP_LABEL, GROUP_ORDER } from '../lib/hparams.js'
 export default function Investigations() {
   const [investigations, setInvestigations] = useState(null)
   const [sweeps, setSweeps] = useState([])
+  const [running, setRunning] = useState({})
   const [error, setError] = useState(null)
 
   useEffect(() => {
     api.investigations().then(setInvestigations).catch((e) => setError(e.message))
     api.sweeps().then(setSweeps).catch(() => {})
+    // What is running now, per investigation, whoever launched it.
+    const loadRunning = () => api.launchSummary().then(setRunning).catch(() => {})
+    loadRunning()
+    const timer = setInterval(loadRunning, 8000)
+    return () => clearInterval(timer)
   }, [])
 
   const sweepCount = (id) => sweeps.filter((s) => s.investigation === id).length
@@ -25,6 +31,7 @@ export default function Investigations() {
         <div className="card-header">
           <span className="card-title">{inv.label}</span>
           {planned && <span className="badge">planned</span>}
+          {running[inv.id] && <span className="badge badge-running">{running[inv.id].running} running{running[inv.id].waiting ? `, ${running[inv.id].waiting} waiting` : ''}</span>}
           {!planned && sweepCount(inv.id) > 0 && <span className="badge">{sweepCount(inv.id)} sweep{sweepCount(inv.id) === 1 ? '' : 's'}</span>}
         </div>
         <div className="card-sub">{inv.question}</div>
@@ -58,6 +65,25 @@ export default function Investigations() {
         generalizability, locality and fluency so a setting cannot win by giving one up.
       </p>
       {error && <p className="form-error">{error}</p>}
+      {investigations && Object.keys(running).some((id) => id !== 'main') && (
+        <section className="dl-section inv-running-now">
+          <h2 className="section-heading">Running now</h2>
+          <ul className="inv-running-list">
+            {Object.entries(running).filter(([id]) => id !== 'main').map(([id, r]) => {
+              const inv = investigations.find((i) => i.id === id)
+              return (
+                <li key={id}>
+                  <Link to={`/experiments/investigations/${id}`}>{inv?.label || id}</Link>
+                  <span className="dl-dim">
+                    {' '}{r.launches} launch{r.launches === 1 ? '' : 'es'}: {r.running} running, {r.waiting} waiting
+                    {r.by_agent ? ` · ${r.by_agent} by an agent` : ''}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
       {!investigations && !error && <p className="empty">Loading…</p>}
       {investigations && GROUP_ORDER.filter((g) => investigations.some((i) => i.group === g)).map((group) => (
         <section key={group} className="hp-category">

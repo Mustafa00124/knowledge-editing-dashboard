@@ -52,6 +52,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
+sys.path.append(os.path.join(PROJECT_ROOT, "experiments"))
+import launch_guard  # noqa: E402  (refuses untracked runs into results/)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "experiments", "causal_tracing"))
 import causal_trace as ct  # noqa: E402
 import formats as F  # noqa: E402
@@ -81,6 +83,7 @@ def parse_args():
     p.add_argument("--dtype", default="bfloat16", choices=["bfloat16", "float16", "float32"])
     p.add_argument("--run_name", required=True, help="the fact set's name")
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
+    launch_guard.add_argument(p)
     return p.parse_args()
 
 
@@ -202,6 +205,7 @@ def write_set(path, name, rows, picked_from, models, fmts, instruct, known, args
 
 def main():
     args = parse_args()
+    launch_guard.require_dashboard(args.out_root, args.untracked, "fact_selection")
     models = [m.strip() for m in args.models.split(",") if m.strip()]
     data_paths = [p.strip() for p in args.data_paths.split(",") if p.strip()]
     fmts = [f.strip() for f in args.formats.split(",") if f.strip()]

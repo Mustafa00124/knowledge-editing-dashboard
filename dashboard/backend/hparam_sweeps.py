@@ -383,7 +383,7 @@ def plan(req):
     return exp_cfg, inv, runs, skipped
 
 
-def launch(req):
+def launch(req, launched_by="user"):
     exp_cfg, inv, runs, skipped = plan(req)
     if not runs:
         raise ValueError("nothing to run: every point was skipped" if skipped else "choose at least one value")
@@ -402,13 +402,16 @@ def launch(req):
         db.insert_job(
             job_id=result["job_id"], experiment_type=EXPERIMENT, run_name=run["run_name"],
             params=run["params"], sbatch_path=result["sbatch_path"], out_path=result["out_path"],
-            err_path=result["err_path"], out_root=str(out_root), sweep_id=SWEEP_PREFIX + sweep_id)
+            err_path=result["err_path"], out_root=str(out_root), sweep_id=SWEEP_PREFIX + sweep_id,
+            investigation=inv["id"], batch_id=sweep_id, label=req.get("label") or "", launched_by=launched_by,
+            note=req.get("note") or "")
         submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides", "fixed")}
                          | {"job_id": result["job_id"]})
     (out_root / "sweep.json").write_text(json.dumps({
         "id": sweep_id, "investigation": inv["id"], "label": req.get("label") or "",
+        "launched_by": launched_by, "note": req.get("note") or "",
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "request": {k: v for k, v in req.items() if k != "label"},
+        "request": {k: v for k, v in req.items() if k not in ("label", "note")},
         "split": "dev", "runs": submitted, "skipped": skipped, "errors": errors,
     }, indent=1) + "\n")
     return {"sweep_id": sweep_id, "submitted": len(submitted), "skipped": skipped, "errors": errors}
@@ -444,7 +447,9 @@ def rerun_failed(investigation, sweep_id):
         db.insert_job(
             job_id=result["job_id"], experiment_type=EXPERIMENT, run_name=run["run_name"], params=params,
             sbatch_path=result["sbatch_path"], out_path=result["out_path"], err_path=result["err_path"],
-            out_root=str(sweep_dir), sweep_id=SWEEP_PREFIX + sweep_id)
+            out_root=str(sweep_dir), sweep_id=SWEEP_PREFIX + sweep_id,
+            investigation=investigation, batch_id=sweep_id, label=sweep.get("label") or "",
+            launched_by=sweep.get("launched_by") or "user", note=sweep.get("note") or "")
         run.setdefault("earlier_jobs", []).append(run["job_id"])
         run["job_id"] = result["job_id"]
         rerun.append(run["run_name"])
@@ -605,6 +610,7 @@ def list_sweeps(investigation=None, include_hidden=False):
             text = (r.get("waiting") or {}).get("reason_text", "queued")
             reasons[text] = reasons.get(text, 0) + 1
         out.append({k: sweep[k] for k in ("id", "investigation", "label", "created_at")}
+                   | {"launched_by": sweep.get("launched_by") or "user", "note": sweep.get("note") or ""}
                    | {"hidden": bool(sweep.get("hidden")), "retryable": counts_retry, "gpu_seconds": gpu_seconds}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
@@ -620,6 +626,23 @@ def list_sweeps(investigation=None, include_hidden=False):
         if row["start_estimate"] == "9999":
             row["start_estimate"] = None
     return out
+
+
+def find_sweep(sweep_id):
+    """(investigation, sweep.json contents) of a sweep by id alone, or None."""
+    for _, sweep in _sweeps():
+        if sweep.get("id") == sweep_id:
+            return sweep["investigation"], sweep
+    return None
+
+
+def sweep_owner(investigation, sweep_id):
+    """Who launched a sweep: "user" or "agent" (sweeps from before this was
+    recorded count as the user's)."""
+    path = _sweep_dir(investigation, sweep_id) / "sweep.json"
+    if not path.exists():
+        raise KeyError(sweep_id)
+    return json.loads(path.read_text()).get("launched_by") or "user"
 
 
 def sweep_detail(investigation, sweep_id):
