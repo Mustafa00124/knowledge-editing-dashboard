@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
 // Main experiments and the investigations that set up their configuration
-// (mechanistic measurements, hyperparameter sweeps, prompt formats). Same
+// (mechanistic measurements, hyperparameter sweeps, input and context). Same
 // look as the Results subnav.
 export default function ExperimentsSubnav() {
   const cls = ({ isActive }) => `results-subnav-link${isActive ? ' active' : ''}`

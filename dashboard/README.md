@@ -237,11 +237,13 @@ directories will move before it commits.
   `/hyperparameters` addresses redirect): experiments that set up the main
   experiments' configuration, in three groups. **Mechanistic**: measure the
   model itself, per model, no method involved (Knowledge localisation, on
-  its own page below; Neuron attribution and Circuit tracing, on theirs). **Prompt format**: whether a prompt's format changes a
-  measurement (format conditions of causal tracing). **Hyperparameter
+  its own page below; Neuron attribution and Circuit tracing, on theirs). **Input and context**: whether what the model is given
+  changes a result, both how the prompt is written (format conditions of
+  causal tracing) and what context is added to it (retrieval and
+  demonstrations, a per-method sweep that works like those below).
+  **Hyperparameter
   sweeps**: each one kind of setting (edit layers, neurons and masks, adapter placement, weight-update strength, value-vector
-  optimisation, preservation strength, covariance statistics, retrieval and
-  demonstrations; defined in `../experiments/run_experiment/investigations.json`)
+  optimisation, preservation strength, covariance statistics; defined in `../experiments/run_experiment/investigations.json`)
   and lists only the methods that have it, under their own setting names,
   with the current value, the authors' stability tag and suggested values.
   A sweep picks methods, values, models and datasets and launches through

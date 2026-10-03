@@ -1,17 +1,17 @@
 // Shared helpers for the Investigations pages and their results.
 
-export const GROUP_ORDER = ['mechanistic', 'sweep', 'prompt_format']
+export const GROUP_ORDER = ['mechanistic', 'sweep', 'input']
 
 export const GROUP_LABEL = {
   mechanistic: 'Mechanistic',
   sweep: 'Hyperparameter sweeps',
-  prompt_format: 'Prompt format',
+  input: 'Input and context',
 }
 
 export const GROUP_HELP = {
   mechanistic: 'measure the model itself, per model, with no editing method involved',
   sweep: 'try settings of each editing method on dev records, to pick what the main experiments use',
-  prompt_format: 'check whether how a prompt is written changes a measurement',
+  input: 'check whether what the model is given, how the prompt is written and what context is added to it, changes a result',
 }
 
 export const STABILITY_LABEL = {
