@@ -46,7 +46,7 @@ LOG_FACTORS = (0.1, 0.3, 1, 3, 10)
 # hparams keys that are plumbing rather than tuning: names, paths, devices,
 # and module-name templates fixed by the architecture.
 HIDDEN_KEYS = {"alg_name", "model_name", "device", "stats_dir", "P_loc", "model_parallel", "mom2_dtype",
-               "fp16", "delta_dtype", "lora_type", "base_method", "data_path", "seed"}
+               "fp16", "delta_dtype", "base_method", "data_path", "seed"}
 HIDDEN_SUFFIXES = ("_tmp", "_tmps", "_module")
 
 # Experiments-page fields that override an hparams-file setting when the
@@ -171,6 +171,25 @@ def suggest(kind, default, spec=None, model=None):
             starts.add(peak - width // 2)
         return [list(range(s, s + width)) for s in sorted(starts)
                 if s >= 0 and (n_layers is None or s + width <= n_layers)]
+    if kind == "layer_span":
+        # Where adapters go: every layer ([], the usual LoRA setting), each
+        # half, the middle half, and a quarter of the model around its
+        # traced peak.
+        if not n_layers:
+            return [layers]
+        half, quarter = n_layers // 2, max(1, n_layers // 4)
+        spans = [[], list(range(0, half)), list(range(quarter, quarter + half)), list(range(half, n_layers))]
+        peak = _traced_peak(model)
+        if peak is not None:
+            start = min(max(0, peak - quarter // 2), n_layers - quarter)
+            spans.append(list(range(start, start + quarter)))
+        if layers not in spans:
+            spans.insert(0, layers)
+        out = []
+        for span in spans:
+            if span not in out:
+                out.append(span)
+        return out
     return [default]
 
 
@@ -215,7 +234,8 @@ def catalog():
                 "note": option.get("note"), "knobs": knobs,
             })
         row = {**{k: v for k, v in inv.items() if k != "methods"}, "methods": methods}
-        if inv["id"] == "edit_layers":
+        if any(k["kind"] in ("layer", "layer_window", "layer_span")
+               for entry in inv["methods"].values() for k in entry["knobs"].values()):
             # Each model's traced peak beside the layers every method edits,
             # so the per-method sweep can be read against the per-model trace.
             row["traced"] = {m: {k: t.get(k) for k in ("peak_layer", "layers", "n_prompts", "effect", "dataset", "run")}
@@ -308,6 +328,11 @@ def _sweep_dir(investigation, sweep_id):
 
 
 def _slug(value):
+    if isinstance(value, list) and len(value) > 5 and all(isinstance(v, int) for v in value) \
+            and value == list(range(value[0], value[0] + len(value))):
+        return f"{value[0]}to{value[-1]}"  # a long run of layers
+    if value == []:
+        return "all"  # adapters on every layer
     text = json.dumps(value) if not isinstance(value, str) else value
     return re.sub(r"[^A-Za-z0-9.]+", "-", text).strip("-") or "x"
 

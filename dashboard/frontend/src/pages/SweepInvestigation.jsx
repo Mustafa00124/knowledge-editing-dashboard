@@ -97,7 +97,7 @@ function TracedPeaks({ investigation }) {
                     : <span className="dl-dim">untraced</span>}
                 </td>
                 {layered.map((m) => (
-                  <td key={m.method}>{m.knob.defaults[model] ? JSON.stringify(m.knob.defaults[model]) : '—'}</td>
+                  <td key={m.method}>{m.knob.defaults[model] !== undefined ? formatValue(m.knob.defaults[model]) : '—'}</td>
                 ))}
               </tr>
             ))}

@@ -22,7 +22,13 @@ export const STABILITY_LABEL = {
 }
 
 // Swept values travel as JSON so lists (layers, modules) round-trip.
+// A long run of consecutive layers reads as a range. An empty list only
+// occurs as LoRA's layers, where it means adapters on every layer.
+const isRun = (value) => value.length > 5 && value.every((v, i) => Number.isInteger(v) && v === value[0] + i)
+
 export const formatValue = (value) => {
+  if (Array.isArray(value) && value.length === 0) return 'all layers'
+  if (Array.isArray(value) && isRun(value)) return `[${value[0]}..${value[value.length - 1]}]`
   if (Array.isArray(value)) return value.some((v) => typeof v === 'object' && v !== null) ? JSON.stringify(value) : `[${value.join(', ')}]`
   if (value !== null && typeof value === 'object') return JSON.stringify(value)
   return String(value)
