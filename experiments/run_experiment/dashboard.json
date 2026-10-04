@@ -99,7 +99,7 @@
     },
     {
      "label": "Dynamic Locate-and-Edit",
-     "note": "the edit site is chosen per fact rather than fixed in hparams",
+     "note": "the layers to edit are chosen per fact rather than fixed in hparams",
      "methods": [
       {
        "label": "WilKE",
@@ -110,27 +110,26 @@
        "note": "scans layers 0..scanning_ceiling per fact and edits the one needing the smallest relative weight change; costs one ROME edit per candidate layer, and caches mom2 stats for all of them"
       },
       {
-       "label": "FiNE",
-       "value": "fine",
-       "available": true,
-       "requires_subject": true,
-       "no_joint_batch": true,
-       "note": "neuron-level: scores every FFN neuron in every unfrozen layer and gradient-edits the top-k, so the edited layers differ per fact"
-      },
-      {
-       "label": "NMKE",
-       "value": "nmke",
-       "available": true,
-       "requires_subject": true,
-       "note": "AlphaEdit's closed-form update masked down to the neurons an entropy-adaptive attribution keeps; no Mistral-7B hparams, mirroring AlphaEdit's own coverage"
-      },
-      {
        "label": "FiDAL",
        "value": "fidal",
        "available": true,
        "requires_subject": true,
        "no_joint_batch": true,
        "note": "a locator, not an editor: Fisher-ranked probing picks the layers, then base_method (MEMIT by default) writes them; reimplemented from the paper, no code was released"
+      }
+     ]
+    },
+    {
+     "label": "Neuron Editors",
+     "note": "individual FFN neurons are chosen per fact and only those are written, rather than whole layer weight matrices",
+     "methods": [
+      {
+       "label": "FiNE",
+       "value": "fine",
+       "available": true,
+       "requires_subject": true,
+       "no_joint_batch": true,
+       "note": "neuron-level: scores every FFN neuron in every unfrozen layer and gradient-edits the top-k, so the edited layers differ per fact"
       },
       {
        "label": "Knowledge Neurons",
@@ -141,25 +140,17 @@
        "note": "neuron-level: integrated-gradient attribution of the original answer picks FFN neurons, whose value vectors are then rewritten toward the new answer; needs datasets that record the original answer"
       },
       {
+       "label": "NMKE",
+       "value": "nmke",
+       "available": true,
+       "requires_subject": true,
+       "note": "AlphaEdit's closed-form update on AlphaEdit's fixed layers, masked down to the neurons an entropy-adaptive attribution keeps for each edit batch; no Mistral-7B hparams, mirroring AlphaEdit's own coverage"
+      },
+      {
        "label": "SNKE",
        "value": "snke",
        "available": false,
        "note": "implementation not found: only the paper's abstract is public, so there is no code or hyperparameter values to port; not implemented yet"
-      }
-     ]
-    },
-    {
-     "label": "In-Context",
-     "methods": [
-      {
-       "label": "IKE",
-       "value": "ike",
-       "available": true
-      },
-      {
-       "label": "SCR",
-       "value": "scr",
-       "available": true
       }
      ]
     },
@@ -184,6 +175,21 @@
        "value": "mcircke",
        "available": false,
        "note": "implementation not found: no public code, and the paper reports no learning rate or step count; not implemented yet"
+      }
+     ]
+    },
+    {
+     "label": "In-Context",
+     "methods": [
+      {
+       "label": "IKE",
+       "value": "ike",
+       "available": true
+      },
+      {
+       "label": "SCR",
+       "value": "scr",
+       "available": true
       }
      ]
     }
