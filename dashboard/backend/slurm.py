@@ -160,6 +160,10 @@ def _format_run_name(exp_cfg, params, swept_fields):
         # window, a fact set) name it only then, keeping the common name short.
         if field.get("run_name_skip_default") and str(params[name]) in (str(field.get("default", "")), ""):
             continue
+        # Fields named only for some values: the known-fact check marks
+        # "generate" runs, so first-token runs keep the names they always had.
+        if field.get("run_name_values") and str(params[name]) not in field["run_name_values"]:
+            continue
         # The dataset is named by the fact set instead when the run has one.
         if field.get("run_name_unless") and params.get(field["run_name_unless"]):
             continue

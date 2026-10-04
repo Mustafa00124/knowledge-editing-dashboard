@@ -51,6 +51,15 @@ CAKE = {
     "commit": "df528e13fffbd2117e6041c129285e1e146933d2",
     "bytes": 44_000_000,
 }
+# Ollama, for the optional local judge of the known-fact check
+# (experiments/causal_tracing/knowledge.py): the official Linux build,
+# unpacked into external/ollama; models it pulls go to external/ollama/models.
+OLLAMA = {
+    "version": "v0.35.1",
+    "url": "https://github.com/ollama/ollama/releases/download/v0.35.1/ollama-linux-amd64.tar.zst",
+    "sha256": "9fcd79ac4575b2bd31b992eee18b1000c8ad126b451627c8f8cd091714cfbb10",
+    "bytes": 1_439_658_961,
+}
 REQUIREMENTS = [
     "external/EasyEdit/requirements.txt",
     "experiments/run_experiment/requirements-evaluation.txt",
@@ -69,6 +78,11 @@ COMPONENTS = {
         "label": "CaKE training data",
         "description": "CaKE's released circuit-guided training examples for MQuAKE, needed only to run the CaKE method.",
         "bytes": CAKE["bytes"],
+    },
+    "ollama": {
+        "label": "Ollama (local judge)",
+        "description": "Runs a small local model as the judge of the known-fact check (fact selection and tracing, --judge ollama). Optional.",
+        "bytes": OLLAMA["bytes"],
     },
     "experiment-env": {
         "label": "Experiment Python environment",
@@ -309,6 +323,8 @@ def component_status(key):
         return {"installed": (path / "easyeditor").is_dir(), "present_bytes": 0}
     if key == "cake-data":
         return {"installed": (EXTERNAL_DIR / "CaKE" / "datasets").is_dir(), "present_bytes": 0}
+    if key == "ollama":
+        return {"installed": (EXTERNAL_DIR / "ollama" / "bin" / "ollama").exists(), "present_bytes": 0}
     if key == "experiment-env":
         return {"installed": experiment_env_ready(), "partial": VENV_PYTHON.exists() and not experiment_env_ready(),
                 "present_bytes": 0}
@@ -366,6 +382,24 @@ def _base_python():
         f"the experiment environment needs Python 3.10 or newer, and this is {sys.version.split()[0]} "
         "with no python3.10+ on PATH. Install one (3.11 is what the project uses) and try again."
     )
+
+
+def install_ollama():
+    say(f"== Ollama {OLLAMA['version']}")
+    dest = EXTERNAL_DIR / "ollama"
+    if (dest / "bin" / "ollama").exists():
+        say("  already installed")
+        return
+    if not shutil.which("zstd"):
+        raise RuntimeError("unpacking Ollama needs zstd on PATH")
+    archive = EXTERNAL_DIR / "ollama-linux-amd64.tar.zst"
+    if not archive.exists():
+        _fetch(OLLAMA["url"], archive, OLLAMA["sha256"], OLLAMA["bytes"])
+    dest.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["tar", "--use-compress-program=zstd -d", "-xf", str(archive), "-C", str(dest)], check=True)
+    archive.unlink()
+    (dest / "models").mkdir(exist_ok=True)
+    say(f"  Ollama ready in {dest}")
 
 
 def install_cake_data():

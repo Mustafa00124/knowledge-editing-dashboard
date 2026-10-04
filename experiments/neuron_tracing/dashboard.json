@@ -13,7 +13,10 @@
   "format",
   "fact_set",
   "n_prompts",
-  "seed"
+  "seed",
+  "known_check",
+  "judge",
+  "judge_model"
  ],
  "resources": {
   "partition": "AAIL",
@@ -373,6 +376,108 @@
      "value": "0.5"
     }
    ]
+  },
+  {
+   "name": "known_check",
+   "label": "Known-fact check",
+   "type": "string",
+   "default": "first_token",
+   "sweepable": false,
+   "note": "generate: the model answers and must say an accepted answer; what it writes first becomes the lead-in, and the answer is traced where the model gives it. first_token: the answer's first token must be the very next token (the original test)",
+   "options": [
+    {
+     "label": "the model answers, the answer must appear (generate)",
+     "value": "generate"
+    },
+    {
+     "label": "the next token must be the answer (first_token)",
+     "value": "first_token"
+    }
+   ],
+   "group": "prompts",
+   "run_name_bare": true,
+   "run_name_values": [
+    "generate"
+   ]
+  },
+  {
+   "name": "answer_tokens",
+   "label": "Answer length (tokens)",
+   "type": "int",
+   "default": "24",
+   "sweepable": false,
+   "show_when": {
+    "known_check": [
+     "generate"
+    ]
+   },
+   "group": "prompts"
+  },
+  {
+   "name": "judge",
+   "label": "Judge",
+   "type": "string",
+   "default": "none",
+   "sweepable": false,
+   "show_when": {
+    "known_check": [
+     "generate"
+    ]
+   },
+   "note": "asked only about answers that do not contain an accepted answer: it may accept an equivalent (NYC for New York City). ollama runs a small local model on the job's own GPU; api uses evaluation.local.json",
+   "options": [
+    {
+     "label": "none: the answer must appear",
+     "value": "none"
+    },
+    {
+     "label": "local Ollama model",
+     "value": "ollama"
+    },
+    {
+     "label": "API (evaluation.local.json)",
+     "value": "api"
+    }
+   ],
+   "group": "prompts",
+   "run_name_skip_default": true,
+   "run_name_prefix": "judge-"
+  },
+  {
+   "name": "judge_model",
+   "label": "Judge model",
+   "type": "string",
+   "default": "",
+   "sweepable": false,
+   "allow_custom": true,
+   "show_when": {
+    "judge": [
+     "ollama",
+     "api"
+    ]
+   },
+   "note": "empty: qwen3:4b-instruct for Ollama, the configured model for the API",
+   "options": [
+    {
+     "label": "default",
+     "value": ""
+    },
+    {
+     "label": "qwen3:4b-instruct",
+     "value": "qwen3:4b-instruct"
+    },
+    {
+     "label": "qwen3:1.7b",
+     "value": "qwen3:1.7b"
+    },
+    {
+     "label": "qwen2.5:3b-instruct",
+     "value": "qwen2.5:3b-instruct"
+    }
+   ],
+   "group": "prompts",
+   "run_name_skip_default": true,
+   "run_name_prefix": ""
   },
   {
    "name": "max_candidates",

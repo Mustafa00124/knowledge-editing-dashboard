@@ -41,6 +41,7 @@ import gc
 import json
 import os
 import random
+import re
 import sys
 import time
 from collections import defaultdict
@@ -57,6 +58,7 @@ import launch_guard  # noqa: E402  (refuses untracked runs into results/)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "experiments", "causal_tracing"))
 import causal_trace as ct  # noqa: E402
 import formats as F  # noqa: E402
+import knowledge as KN  # noqa: E402
 
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/investigations/causal_tracing/fact_sets"
 
@@ -84,6 +86,7 @@ def parse_args():
     p.add_argument("--run_name", required=True, help="the fact set's name")
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
+    KN.add_arguments(p)
     return p.parse_args()
 
 
@@ -91,8 +94,10 @@ def _now():
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def score_model(model_key, rows, fmts, args, device):
-    """format -> fact id -> {known, p, top} for one model, in `fmts`."""
+def score_model(model_key, rows, fmts, args, device, judge=None):
+    """format -> fact id -> {known, p, top} for one model, in `fmts`; with
+    --known_check generate also how it was known (match, judge), its
+    lead-in and the model's answer (knowledge.py)."""
     path = ct.MODEL_PATHS[model_key]
     tok = AutoTokenizer.from_pretrained(path)
     missing = [f for f in fmts if f in F.CHAT_FORMATS and not F.has_chat_template(tok)]
@@ -102,6 +107,10 @@ def score_model(model_key, rows, fmts, args, device):
     out = {}
     with torch.no_grad():
         for fmt in fmts:
+            if args.known_check == "generate":
+                out[fmt] = _score_by_generation(model, tok, rows, fmt, args, device, judge)
+                print(f"  {model_key} {fmt}: {sum(v['known'] for v in out[fmt].values())} known", flush=True)
+                continue
             scores = out[fmt] = {}
             for row in rows:
                 item = F.build(row, fmt, tok)
@@ -120,6 +129,35 @@ def score_model(model_key, rows, fmts, args, device):
     gc.collect()
     torch.cuda.empty_cache()
     return out
+
+
+def _score_by_generation(model, tok, rows, fmt, args, device, judge):
+    """The model answers every fact; one it states (or the judge accepts) is
+    known when its answer token, after the lead-in, passes recall_target the
+    way the tracers will test it (one fact at a time, unpadded)."""
+    scores, live = {}, []
+    for row in rows:
+        item = F.build(row, fmt, tok)
+        if item is None:
+            scores[row["id"]] = {"known": False, "p": None, "top": None, "why": "not writable in this format"}
+        else:
+            live.append((row, item))
+    generations = KN.generate(model, tok, [item for _, item in live], device, args.answer_tokens)
+    results = KN.check([row for row, _ in live], [item for _, item in live], generations, judge)
+    for (row, item), result in zip(live, results):
+        entry = {"known": False, "p": None, "top": None, "how": result["how"],
+                 "generation": result["generation"][:200]}
+        if result["known"]:
+            led = KN.with_lead_in(item, result["lead_in"])
+            _, probs = next(KN.next_token_probs(model, tok, [led], device, batch_size=1))
+            target = ct.recall_target(tok, probs, led["answers"], args.min_prob)
+            top_id = int(probs.argmax())
+            entry.update(known=target is not None, lead_in=led["lead_in"],
+                         p=round(float(probs[target if target is not None else top_id]), 4), top=tok.decode([top_id]))
+            if target is None:
+                entry["why"] = "states the answer, but its first token there is not the top choice above min_prob"
+        scores[row["id"]] = entry
+    return scores
 
 
 def balanced_sample(rows, n, seed):
@@ -198,8 +236,14 @@ def write_set(path, name, rows, picked_from, models, fmts, instruct, known, args
         "relations": dict(sorted(kinds.items(), key=lambda kv: -kv[1])),
         "min_facts": ct.MIN_FACTS, "below_min": len(picked) < ct.MIN_FACTS, **extra,
     }
+    body = {**summary, "facts": picked}
+    if args.known_check == "generate":
+        # What each model writes before the answer, per format: the tracers
+        # append it, so they trace the answer where the model gives it.
+        body["lead_ins"] = {m: {f: {r["id"]: known[m][f][r["id"]].get("lead_in", "") for r in picked}
+                                for f in required(m, fmts, instruct)} for m in models}
     with open(path, "w") as f:
-        json.dump({**summary, "facts": picked}, f, indent=1)
+        json.dump(body, f, indent=1)
     return summary
 
 
@@ -225,7 +269,11 @@ def main():
     ids = {r["id"] for r in rows}
     print(f"[{args.run_name}] {len(rows)} candidate facts, formats {fmts}", flush=True)
 
-    known_path = os.path.join(run_dir, "known.json")
+    # Scores from a different check must not be reused: one file per check.
+    judge = KN.make_judge(args) if args.known_check == "generate" else None
+    tag = "" if args.known_check == "first_token" else \
+        "_generate" + (f"_{args.judge}-{(judge.model.split(':', 1)[1] if judge else '')}" if judge else "")
+    known_path = os.path.join(run_dir, f"known{re.sub(r'[^A-Za-z0-9_.-]+', '-', tag)}.json")
     known = {}
     if os.path.exists(known_path):
         with open(known_path) as f:
@@ -254,7 +302,7 @@ def main():
         need = required(model_key, fmts, instruct)
         done = model_key in known and all(f in known[model_key] and set(known[model_key][f]) >= ids for f in need)
         if not done:
-            known.setdefault(model_key, {}).update(score_model(model_key, rows, need, args, device))
+            known.setdefault(model_key, {}).update(score_model(model_key, rows, need, args, device, judge))
             with open(known_path, "w") as f:
                 json.dump(known, f, indent=1)
         checkpoint(step, model_key)
@@ -262,7 +310,10 @@ def main():
 
     sets_dir = os.path.join(run_dir, "sets")
     os.makedirs(sets_dir, exist_ok=True)
-    timing = {"started_at": started_at, "finished_at": _now(), "total_sec": round(time.time() - t_start, 2)}
+    timing = {"started_at": started_at, "finished_at": _now(), "total_sec": round(time.time() - t_start, 2),
+              "known_check": args.known_check, "answer_tokens": args.answer_tokens if args.known_check == "generate" else None,
+              "judge": {"model": judge.model, "calls": judge.calls, "errors": judge.errors,
+                        "seconds": round(judge.seconds, 1)} if judge else None}
     sets = {}
     for name, members in groups.items():
         shared = shared_by(known, rows, members, fmts, instruct)

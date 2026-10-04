@@ -14,6 +14,7 @@ and checked against recorded sha256s where the source allows:
     python scripts/setup.py --external                EasyEdit (+ this project's AlphaEdit fix)
     python scripts/setup.py --cake                    CaKE's training data (only for the CaKE method)
     python scripts/setup.py --venv                    venvs/easyedit_venv for running experiments
+    python scripts/setup.py --ollama                  external/ollama, for the optional local judge
 
 The dashboard's Downloads page offers the same choices with buttons; it runs
 this script. Everything is resumable: rerunning skips what is in place.
@@ -86,10 +87,12 @@ def main():
     parser.add_argument("--cake", action="store_true", help="CaKE's training data (needed only for the CaKE method)")
     parser.add_argument("--reference-repos", action="store_true", help="also clone WilKE, FiNE and NMKE")
     parser.add_argument("--venv", action="store_true", help="create venvs/easyedit_venv and install requirements")
+    parser.add_argument("--ollama", action="store_true", help="Ollama in external/ollama, for the optional local judge")
     parser.add_argument("--all", action="store_true", help="--external --datasets --venv (models stay opt-in)")
     args = parser.parse_args()
 
-    chosen = [args.external, args.cake, args.reference_repos, args.datasets is not None, args.models, args.venv, args.all]
+    chosen = [args.external, args.cake, args.reference_repos, args.datasets is not None, args.models, args.venv, args.all,
+              args.ollama]
     if not any(chosen):
         status()
         print("\nnothing selected; see --help")
@@ -116,6 +119,8 @@ def main():
                 sources.download_dataset(name, args.parts)
         if args.venv or args.all:
             sources.install_experiment_env()
+        if args.ollama:
+            sources.install_ollama()
         if args.models:
             names = ([m["name"] for m in models_reader.CATALOG if m.get("main")]
                      if [n.lower() for n in args.models] == ["main"] else args.models)
