@@ -60,6 +60,51 @@ class AnswerTests(unittest.TestCase):
         self.assertIsNone(KN._verdict("yes", answer))
 
 
+class LocalJudgeTests(unittest.TestCase):
+    def judge(self, replies):
+        judge = KN.LocalJudge("qwen3-4b-instruct-2507", "cpu")
+        judge.lm = object()  # loaded: many() must not load real weights here
+
+        class Tok:
+            def apply_chat_template(self, messages, tokenize, add_generation_prompt):
+                return "<chat>" + messages[0]["content"]
+        judge.tok = Tok()
+        self.addCleanup(patch.stopall)
+        self.generate = patch.object(KN, "generate", return_value=replies).start()
+        return judge
+
+    def test_batched_verdicts_and_counts(self):
+        judge = self.judge(['{"correct": true, "span": "NYC"}', '{"correct": false, "span": ""}'])
+        cases = [("Largest US city?", " It is NYC.", ["New York City"]), ("Q?", " No idea.", ["Oslo"])]
+        self.assertEqual(judge.many(cases), ["NYC", None])
+        items = self.generate.call_args.args[2]
+        self.assertTrue(all(item["templated"] and item["text"].startswith("<chat>") for item in items))
+        self.assertEqual(judge.stats()["calls"], 2)
+        self.assertEqual(judge.model, "local:qwen3-4b-instruct-2507")
+
+    def test_a_compared_judge_counts_agreement_without_deciding(self):
+        rows = [{"question": "a"}, {"question": "b"}]
+        items = [{"text": "x", "answers": ["New York City"]}, {"text": "y", "answers": ["Oslo"]}]
+        generations = [" It is NYC.", " Bergen."]
+
+        class Stub:
+            def __init__(self, verdicts):
+                self.verdicts, self.agreed = verdicts, 0
+
+            def many(self, cases):
+                return self.verdicts[:len(cases)]
+        compare = Stub([None, None])
+        results = KN.check(rows, items, generations, Stub(["NYC", None]), compare)
+        self.assertEqual([r["known"] for r in results], [True, False])  # the main judge decides
+        self.assertEqual(compare.agreed, 1)
+
+    def test_make_judge_kinds(self):
+        args = argparse.Namespace(judge="local", judge_model="")
+        self.assertIsInstance(KN.make_judge(args), KN.LocalJudge)
+        self.assertIsNone(KN.make_judge(argparse.Namespace(judge="none", judge_model="")))
+        self.assertEqual(KN.make_judge(args, "local", "llama-3.1-8b-instruct").name, "llama-3.1-8b-instruct")
+
+
 class TracerTests(unittest.TestCase):
     def setUp(self):
         self.addCleanup(KN.STATE.update, {"judge": None, "lead_ins": None})

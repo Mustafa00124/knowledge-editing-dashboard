@@ -405,16 +405,19 @@ its lead-in ("The capital is" in "The capital is Paris"): tracing runs on
 prompt + lead-in, so the traced token is the answer where the model gives
 it, and it must still be the top choice there above `--min_prob`. Fact
 selection stores each fact's lead-in per model and format in the fact set
-(`lead_ins`), and the tracers reuse it. `--judge ollama` (a small local model,
-`qwen3:4b-instruct` by default, started inside the job on its own GPU;
-install with `scripts/setup.py --ollama`) or `--judge api`
-(evaluation.local.json) is asked only about answers that do not contain an
-accepted answer, may accept an equivalent ("NYC"), and quotes where the
+(`lead_ins`), and the tracers reuse it. The judge, by default `--judge
+local` (Qwen3-4B-Instruct-2507 loaded with transformers on the job's own
+GPU, judging in batches), or `ollama` (a quantised model through Ollama
+started inside the job; `scripts/setup.py --ollama`), `api`
+(evaluation.local.json) or `none`, is asked only about answers that do not
+contain an accepted answer, may accept an equivalent ("NYC"), and quotes where the
 answer gives it; failed judge calls count as "no" and are reported in the
-fact selection summary. `--known_check first_token`, still the default until generate has been
+fact selection summary. `--compare_judge` asks a second judge the same
+cases and records each one's time and their agreement there, without
+using its verdicts. `--known_check first_token`, still the default until generate has been
 checked on GPU runs, is the earlier test (the answer's first token must be
 the very next token). Tracer run names end in
-the check (`_generate`, plus `_judge-ollama` when judged), so a new trace
+the check (`_generate`, plus `_judge-<name>` for a judge other than local), so a new trace
 never overwrites an earlier first-token one.
 
 Facts come from `--split` records: `nontest` (dev and demo of `splits/`)

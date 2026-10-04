@@ -94,7 +94,7 @@ def _now():
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def score_model(model_key, rows, fmts, args, device, judge=None):
+def score_model(model_key, rows, fmts, args, device, judge=None, compare=None):
     """format -> fact id -> {known, p, top} for one model, in `fmts`; with
     --known_check generate also how it was known (match, judge), its
     lead-in and the model's answer (knowledge.py)."""
@@ -108,7 +108,7 @@ def score_model(model_key, rows, fmts, args, device, judge=None):
     with torch.no_grad():
         for fmt in fmts:
             if args.known_check == "generate":
-                out[fmt] = _score_by_generation(model, tok, rows, fmt, args, device, judge)
+                out[fmt] = _score_by_generation(model, tok, rows, fmt, args, device, judge, compare)
                 print(f"  {model_key} {fmt}: {sum(v['known'] for v in out[fmt].values())} known", flush=True)
                 continue
             scores = out[fmt] = {}
@@ -131,7 +131,7 @@ def score_model(model_key, rows, fmts, args, device, judge=None):
     return out
 
 
-def _score_by_generation(model, tok, rows, fmt, args, device, judge):
+def _score_by_generation(model, tok, rows, fmt, args, device, judge, compare=None):
     """The model answers every fact; one it states (or the judge accepts) is
     known when its answer token, after the lead-in, passes recall_target the
     way the tracers will test it (one fact at a time, unpadded)."""
@@ -143,7 +143,7 @@ def _score_by_generation(model, tok, rows, fmt, args, device, judge):
         else:
             live.append((row, item))
     generations = KN.generate(model, tok, [item for _, item in live], device, args.answer_tokens)
-    results = KN.check([row for row, _ in live], [item for _, item in live], generations, judge)
+    results = KN.check([row for row, _ in live], [item for _, item in live], generations, judge, compare)
     for (row, item), result in zip(live, results):
         entry = {"known": False, "p": None, "top": None, "how": result["how"],
                  "generation": result["generation"][:200]}
@@ -271,6 +271,7 @@ def main():
 
     # Scores from a different check must not be reused: one file per check.
     judge = KN.make_judge(args) if args.known_check == "generate" else None
+    compare = KN.make_judge(args, args.compare_judge) if judge and args.compare_judge != "none" else None
     tag = "" if args.known_check == "first_token" else \
         "_generate" + (f"_{args.judge}-{(judge.model.split(':', 1)[1] if judge else '')}" if judge else "")
     known_path = os.path.join(run_dir, f"known{re.sub(r'[^A-Za-z0-9_.-]+', '-', tag)}.json")
@@ -302,7 +303,7 @@ def main():
         need = required(model_key, fmts, instruct)
         done = model_key in known and all(f in known[model_key] and set(known[model_key][f]) >= ids for f in need)
         if not done:
-            known.setdefault(model_key, {}).update(score_model(model_key, rows, need, args, device, judge))
+            known.setdefault(model_key, {}).update(score_model(model_key, rows, need, args, device, judge, compare))
             with open(known_path, "w") as f:
                 json.dump(known, f, indent=1)
         checkpoint(step, model_key)
@@ -312,8 +313,10 @@ def main():
     os.makedirs(sets_dir, exist_ok=True)
     timing = {"started_at": started_at, "finished_at": _now(), "total_sec": round(time.time() - t_start, 2),
               "known_check": args.known_check, "answer_tokens": args.answer_tokens if args.known_check == "generate" else None,
-              "judge": {"model": judge.model, "calls": judge.calls, "errors": judge.errors,
-                        "seconds": round(judge.seconds, 1)} if judge else None}
+              "judge": judge.stats() if judge else None,
+              "judge_comparison": {**compare.stats(), "agreed": compare.agreed,
+                                   "agreement": round(compare.agreed / compare.calls, 4) if compare.calls else None}
+              if compare else None}
     sets = {}
     for name, members in groups.items():
         shared = shared_by(known, rows, members, fmts, instruct)
