@@ -282,8 +282,11 @@ class LocalJudge(Judge):
 def _post(url, payload, timeout):
     request = urllib.request.Request(url, data=json.dumps(payload).encode(),
                                      headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read().decode())
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return json.loads(response.read().decode())
+    except urllib.error.HTTPError as exc:  # say what the server said, not just its status
+        raise RuntimeError(f"{url}: HTTP {exc.code}: {exc.read().decode(errors='replace')[:500]}") from exc
 
 
 class OllamaServer:
@@ -299,8 +302,10 @@ class OllamaServer:
             port = s.getsockname()[1]
         self.url = f"http://127.0.0.1:{port}"
         env = {**os.environ, "OLLAMA_HOST": f"127.0.0.1:{port}", "OLLAMA_MODELS": os.path.join(OLLAMA_DIR, "models"),
-               "OLLAMA_NUM_PARALLEL": "8", "OLLAMA_KEEP_ALIVE": "-1"}
-        self.log = open(os.path.join(OLLAMA_DIR, f"serve-{os.getpid()}.log"), "w")
+               "OLLAMA_NUM_PARALLEL": "8", "OLLAMA_KEEP_ALIVE": "-1", "OLLAMA_LOAD_TIMEOUT": "15m"}
+        os.makedirs(os.path.join(OLLAMA_DIR, "logs"), exist_ok=True)
+        # Kept after the run: when Ollama fails, the reason is in here.
+        self.log = open(os.path.join(OLLAMA_DIR, "logs", f"serve-{os.environ.get('SLURM_JOB_ID', os.getpid())}.log"), "w")
         self.process = subprocess.Popen([binary, "serve"], env=env, stdout=self.log, stderr=subprocess.STDOUT)
         atexit.register(self.stop)
         for _ in range(120):
@@ -319,10 +324,12 @@ class OllamaServer:
             except subprocess.TimeoutExpired:
                 self.process.kill()
         self.log.close()
-        try:
-            os.unlink(self.log.name)
-        except OSError:
-            pass
+
+
+# Ollama sizes its runner's threads to the whole node (64 of 128 cores here),
+# while a SLURM job gets a couple of CPUs: oversubscribed, it took longer to
+# load a 4B model than Ollama waits. Use the CPUs this process may run on.
+THREADS = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
 
 
 def ollama_judge(model, url=None):
@@ -331,13 +338,14 @@ def ollama_judge(model, url=None):
     # Pulled once into external/ollama/models; a no-op when already there.
     _post(url + "/api/pull", {"model": model, "stream": False}, timeout=3600)
     # Load the model now, so its loading is not counted as the first calls' time.
-    _post(url + "/api/generate", {"model": model, "prompt": "", "keep_alive": -1}, timeout=1800)
+    _post(url + "/api/generate", {"model": model, "prompt": "", "keep_alive": -1,
+                                  "options": {"num_thread": THREADS}}, timeout=1800)
     load_seconds = round(time.time() - loading, 1)
 
     def ask(text):
         reply = _post(url + "/api/chat", {
             "model": model, "stream": False, "think": False, "format": "json",
-            "options": {"temperature": 0, "num_predict": 80},
+            "options": {"temperature": 0, "num_predict": 80, "num_thread": THREADS},
             "messages": [{"role": "user", "content": text}]}, timeout=300)
         return reply["message"]["content"]
     judge = Judge(ask, f"ollama:{model}")

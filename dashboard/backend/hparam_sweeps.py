@@ -358,6 +358,8 @@ def _slug(value):
         return f"{value[0]}to{value[-1]}"  # a long run of layers
     if value == []:
         return "all"  # adapters on every layer
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and value < 0:
+        return "neg" + _slug(-value)  # the "-" would be stripped below: -2.0 and 2.0 must differ
     text = json.dumps(value) if not isinstance(value, str) else value
     return re.sub(r"[^A-Za-z0-9.]+", "-", text).strip("-") or "x"
 
@@ -434,6 +436,11 @@ def plan(req):
                                     + [f"{k}{_slug(v)}" for k, v in overrides.items()])
                     runs.append({"run_name": name, "method": method, "model": model, "data_path": data_path,
                                  "overrides": overrides, "fixed": fixed, "params": params})
+    # Two runs with one name would write into one directory at once.
+    names = [r["run_name"] for r in runs]
+    clash = sorted({n for n in names if names.count(n) > 1})
+    if clash:
+        raise ValueError(f"these runs would share a directory: {', '.join(clash[:3])}; use values that name apart")
     return exp_cfg, inv, runs, skipped
 
 
