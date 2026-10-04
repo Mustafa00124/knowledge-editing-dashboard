@@ -68,6 +68,7 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, "experiments", "causal_tracing"))
 import causal_trace as CT  # noqa: E402
 import components as C  # noqa: E402
 import formats as F  # noqa: E402
+import knowledge as KN  # noqa: E402
 
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/investigations/neuron_tracing"
 TRACED_LAYERS = f"{PROJECT_ROOT}/results/investigations/causal_tracing/traced_layers.json"
@@ -124,6 +125,7 @@ def parse_args(argv=None):
     p.add_argument("--run_name", default=None)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
+    KN.add_arguments(p)
     args = p.parse_args(argv)
     args.band = tuple(float(x) for x in args.band.split(","))
     return args
@@ -233,7 +235,7 @@ def random_like(neurons, d_neurons, rng, device):
 # ---------------------------------------------------------------- per fact
 
 def trace_prompt(model, tok, device, row, args, table, rng, others):
-    item = F.build(row, args.format, tok)
+    item = KN.prepare(model, tok, device, row, F.build(row, args.format, tok), args)
     if item is None:
         return None
     encoded = F.encode(tok, item, return_tensors="pt")
@@ -255,7 +257,8 @@ def trace_prompt(model, tok, device, row, args, table, rng, others):
 
     out = {
         "id": row.get("id"), "relation": row.get("relation"), "domain": row.get("domain"),
-        "prompt": item["text"], "subject": row.get("subject"), "answer": tok.decode([target]),
+        "prompt": item["text"], "lead_in": item.get("lead_in", ""), "subject": row.get("subject"),
+        "answer": tok.decode([target]),
         "target": target, "p_clean": p_clean,
         "neurons": neurons, "layer_mass": [round(v, 5) for v in layer_mass],
         "top10_share": round(top10, 4), "attr_positive": round(total, 6),
@@ -422,6 +425,7 @@ def main(argv=None):
         rows = F.load_rows(args.data_path, args.split, args.max_candidates)
     if not rows:
         raise SystemExit(f"no usable records in {args.fact_set or args.data_path}")
+    KN.setup(args, fact_set_info, args.model, args.format)
 
     run_name = args.run_name or f"{args.model}_{args.format}_n{args.n_prompts}"
     run_dir = os.path.join(args.out_root, "runs", run_name)

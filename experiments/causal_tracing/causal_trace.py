@@ -81,6 +81,7 @@ import yaml
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 import formats as F
+import knowledge as KN  # noqa: E402  (which facts a model knows, and their lead-ins)
 
 EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
@@ -184,6 +185,7 @@ def parse_args():
     p.add_argument("--run_name", default=None)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
+    KN.add_arguments(p)
     args = p.parse_args()
     low, high = (float(x) for x in args.band.split(","))
     args.band = (low, high)
@@ -361,7 +363,7 @@ def trace_prompt(model, tok, device, row, args, templates, n_layers, rng):
     Returns None when the fact cannot be written in this format, or when the
     model does not give its answer confidently enough to be worth tracing.
     """
-    item = F.build(row, args.format, tok)
+    item = KN.prepare(model, tok, device, row, F.build(row, args.format, tok), args)
     if item is None:
         return None
     spans = F.token_spans(tok, item)
@@ -418,6 +420,7 @@ def trace_prompt(model, tok, device, row, args, templates, n_layers, rng):
         "prompt": item["text"],
         "subject": row.get("subject"),
         "answer": tok.decode([target]),
+        "lead_in": item.get("lead_in", ""),
         "p_clean": p_clean,
         "p_corrupt": corrupted,
         "n_tokens": n_tokens,
@@ -675,6 +678,7 @@ def main():
         rows = F.load_rows(args.data_path, args.split, args.max_candidates)
     if not rows:
         raise SystemExit(f"no usable records in {args.fact_set or args.data_path}")
+    KN.setup(args, fact_set_info, args.model, args.format)
 
     run_name = args.run_name or f"{args.model}_{args.format}_n{args.n_prompts}"
     run_dir = os.path.join(args.out_root, "runs", run_name)

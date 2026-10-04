@@ -396,6 +396,27 @@ the Edit layers sweeps (whether it is the best layer to edit is what those
 sweeps test). Only facts the model actually gets right
 are traced, since a fact it cannot recall has no recall to localize.
 
+**Which facts a model knows** (`experiments/causal_tracing/knowledge.py`,
+shared by fact selection and the three tracers). With
+`--known_check generate` the model answers in up to `--answer_tokens`
+greedy tokens and knows a fact when an accepted answer (the answer or an
+alias, as whole words) appears in what it writes. What it writes first is
+its lead-in ("The capital is" in "The capital is Paris"): tracing runs on
+prompt + lead-in, so the traced token is the answer where the model gives
+it, and it must still be the top choice there above `--min_prob`. Fact
+selection stores each fact's lead-in per model and format in the fact set
+(`lead_ins`), and the tracers reuse it. `--judge ollama` (a small local model,
+`qwen3:4b-instruct` by default, started inside the job on its own GPU;
+install with `scripts/setup.py --ollama`) or `--judge api`
+(evaluation.local.json) is asked only about answers that do not contain an
+accepted answer, may accept an equivalent ("NYC"), and quotes where the
+answer gives it; failed judge calls count as "no" and are reported in the
+fact selection summary. `--known_check first_token`, still the default until generate has been
+checked on GPU runs, is the earlier test (the answer's first token must be
+the very next token). Tracer run names end in
+the check (`_generate`, plus `_judge-ollama` when judged), so a new trace
+never overwrites an earlier first-token one.
+
 Facts come from `--split` records: `nontest` (dev and demo of `splits/`)
 by default, or `all`. The tracing studies use `all` (decided 2026-10-03):
 tracing locates where facts are recalled and tests whether that is
