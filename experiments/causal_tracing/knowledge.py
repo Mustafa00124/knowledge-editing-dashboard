@@ -19,11 +19,15 @@ token must still be the model's top choice there with probability
 GPU runs) is the original test: the answer's first token must be the
 model's very next token.
 
-Judges: "ollama" starts a local Ollama server inside the job (on the job's
-GPU; external/ollama, installed by `scripts/setup.py --ollama`) and runs
---judge_model, by default qwen3:4b-instruct; KE_OLLAMA_URL points at an
-already running server instead. "api" uses the OpenAI-compatible judge of
+Judges: "local" (the default) loads --judge_model, by default
+Qwen3-4B-Instruct-2507 from models/, with transformers on the job's own GPU
+and judges in batches. "ollama" starts a local Ollama server inside the job
+(external/ollama, installed by `scripts/setup.py --ollama`) and runs
+qwen3:4b-instruct by default; KE_OLLAMA_URL points at an already running
+server instead. "api" uses the OpenAI-compatible judge of
 experiments/run_experiment/evaluation.local.json (or KE_JUDGE_* variables).
+--compare_judge also asks a second judge the same cases and records the
+time each took and how often they agreed (fact selection's summary).
 """
 import atexit
 import json
@@ -43,12 +47,13 @@ import formats as F
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OLLAMA_DIR = os.path.join(PROJECT_ROOT, "external", "ollama")
-DEFAULT_JUDGE_MODELS = {"ollama": "qwen3:4b-instruct", "api": ""}
+DEFAULT_JUDGE_MODELS = {"local": "qwen3-4b-instruct-2507", "ollama": "qwen3:4b-instruct", "api": ""}
 
 # Set by a tracer's main(): the judge, and the fact set's lead-ins for the
 # traced model and format (fact id -> lead-in). Kept here rather than on the
 # argparse namespace, which is written out as the run's settings.
 STATE = {"judge": None, "lead_ins": None}
+JUDGES = ("none", "local", "ollama", "api")
 
 
 def add_arguments(p):
@@ -56,9 +61,13 @@ def add_arguments(p):
                    help="generate: the model answers and must say an accepted answer; first_token: the "
                         "answer's first token must be its very next token")
     p.add_argument("--answer_tokens", type=int, default=24, help="tokens the model may write when answering")
-    p.add_argument("--judge", choices=("none", "ollama", "api"), default="none",
+    p.add_argument("--judge", choices=JUDGES, default="local",
                    help="ask a judge model about answers that do not contain an accepted answer")
-    p.add_argument("--judge_model", default="", help="the judge's model (ollama default: qwen3:4b-instruct)")
+    p.add_argument("--judge_model", default="",
+                   help="the judge's model (local: a model key or path, default qwen3-4b-instruct-2507; "
+                        "ollama: default qwen3:4b-instruct)")
+    p.add_argument("--compare_judge", choices=JUDGES, default="none",
+                   help="also ask this judge every case, to compare time and agreement (not used for the result)")
 
 
 # ---------------------------------------------------------------- answers
@@ -128,7 +137,7 @@ def next_token_probs(model, tok, items, device, batch_size=16):
 
 # ---------------------------------------------------------------- the check
 
-def check(rows, items, generations, judge=None):
+def check(rows, items, generations, judge=None, compare=None):
     """{"known", "how", "lead_in", "generation"} per (row, item, answer):
     how is "match" (an accepted answer appears), "judge" (the judge accepted
     an equivalent and quoted it) or "none"."""
@@ -141,8 +150,11 @@ def check(rows, items, generations, judge=None):
             results.append({"known": False, "how": "none", "lead_in": None, "generation": generation})
     if judge is not None:
         misses = [i for i, r in enumerate(results) if not r["known"] and results[i]["generation"].strip()]
-        verdicts = judge.many([(query_text(rows[i], items[i]), results[i]["generation"], items[i]["answers"])
-                               for i in misses])
+        cases = [(query_text(rows[i], items[i]), results[i]["generation"], items[i]["answers"]) for i in misses]
+        verdicts = judge.many(cases)
+        if compare is not None:
+            other = compare.many(cases)
+            compare.agreed += sum((a is None) == (b is None) for a, b in zip(verdicts, other))
         for i, span in zip(misses, verdicts):
             if span:
                 at = results[i]["generation"].lower().find(span.lower())
@@ -202,7 +214,13 @@ class Judge:
 
     def __init__(self, ask, model, workers=8):
         self.ask, self.model, self.workers = ask, model, workers
-        self.calls = self.seconds = self.errors = 0
+        self.calls = self.seconds = self.errors = self.agreed = 0
+        self.load_seconds = None  # starting the judge (a server, or loading weights), timed apart from the calls
+
+    def stats(self):
+        return {"model": self.model, "calls": self.calls, "errors": self.errors, "seconds": round(self.seconds, 1),
+                "load_seconds": self.load_seconds,
+                "seconds_per_call": round(self.seconds / self.calls, 4) if self.calls else None}
 
     def one(self, prompt, answer, references):
         text = JUDGE_PROMPT.format(prompt=prompt, answer=answer.strip(), references="; ".join(references))
@@ -219,6 +237,43 @@ class Judge:
         began = time.time()
         with ThreadPoolExecutor(self.workers) as pool:
             out = list(pool.map(lambda case: self.one(*case), cases))
+        self.calls += len(cases)
+        self.seconds += time.time() - began
+        return out
+
+
+class LocalJudge(Judge):
+    """A chat model loaded with transformers on this job's GPU, answering
+    the judge prompt for a batch of cases at a time. Loaded on first use, so
+    a run whose answers all match never loads it."""
+
+    def __init__(self, name, device, batch_size=16):
+        super().__init__(None, f"local:{name}")
+        self.name, self.device, self.batch_size = name, device, batch_size
+        self.tok = self.lm = None
+
+    def _load(self):
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        import causal_trace as ct  # here, not at the top: causal_trace imports this module
+        path = ct.MODEL_PATHS.get(self.name, self.name)
+        self.tok = AutoTokenizer.from_pretrained(path)
+        self.lm = AutoModelForCausalLM.from_pretrained(path, dtype=torch.bfloat16).to(self.device).eval()
+
+    def many(self, cases):
+        if not cases:
+            return []
+        if self.lm is None:
+            loading = time.time()
+            self._load()
+            self.load_seconds = round(time.time() - loading, 1)
+        began = time.time()
+        items = [{"text": self.tok.apply_chat_template(
+                      [{"role": "user", "content": JUDGE_PROMPT.format(
+                          prompt=prompt, answer=answer.strip(), references="; ".join(references))}],
+                      tokenize=False, add_generation_prompt=True), "templated": True}
+                 for prompt, answer, references in cases]
+        replies = generate(self.lm, self.tok, items, self.device, 60, self.batch_size)
+        out = [_verdict(reply, answer) for reply, (_, answer, _) in zip(replies, cases)]
         self.calls += len(cases)
         self.seconds += time.time() - began
         return out
@@ -271,9 +326,13 @@ class OllamaServer:
 
 
 def ollama_judge(model, url=None):
+    loading = time.time()
     url = url or OllamaServer().url
     # Pulled once into external/ollama/models; a no-op when already there.
     _post(url + "/api/pull", {"model": model, "stream": False}, timeout=3600)
+    # Load the model now, so its loading is not counted as the first calls' time.
+    _post(url + "/api/generate", {"model": model, "prompt": "", "keep_alive": -1}, timeout=1800)
+    load_seconds = round(time.time() - loading, 1)
 
     def ask(text):
         reply = _post(url + "/api/chat", {
@@ -281,7 +340,9 @@ def ollama_judge(model, url=None):
             "options": {"temperature": 0, "num_predict": 80},
             "messages": [{"role": "user", "content": text}]}, timeout=300)
         return reply["message"]["content"]
-    return Judge(ask, f"ollama:{model}")
+    judge = Judge(ask, f"ollama:{model}")
+    judge.load_seconds = load_seconds
+    return judge
 
 
 def api_judge(model=""):
@@ -302,10 +363,13 @@ def api_judge(model=""):
     return Judge(ask, f"api:{name}")
 
 
-def make_judge(args):
-    if getattr(args, "judge", "none") == "none":
+def make_judge(args, kind=None, model=None):
+    kind = kind or getattr(args, "judge", "none")
+    if kind == "none":
         return None
-    model = args.judge_model or DEFAULT_JUDGE_MODELS[args.judge]
-    if args.judge == "ollama":
+    model = model or (args.judge_model if kind == getattr(args, "judge", None) else "") or DEFAULT_JUDGE_MODELS[kind]
+    if kind == "local":
+        return LocalJudge(model, "cuda:0" if torch.cuda.is_available() else "cpu")
+    if kind == "ollama":
         return ollama_judge(model, os.environ.get("KE_OLLAMA_URL"))
     return api_judge(model)
