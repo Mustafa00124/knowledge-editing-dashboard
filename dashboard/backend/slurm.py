@@ -440,6 +440,10 @@ def plan_sweep(exp_cfg, raw_param_lists, extra_args=None):
             skipped += 1
             continue
         run_name = _format_run_name(exp_cfg, params, swept_fields) + extra_args_suffix(extra_args)
+        if any(r["run_name"] == run_name for r in runs):
+            # Two different runs with one name would write into one directory at once.
+            raise RuntimeError(f"two runs of this launch would both be named {run_name}; "
+                               "vary a field that is part of the run name")
         runs.append({"params": params, "run_name": run_name})
     return runs, skipped
 

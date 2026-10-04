@@ -101,6 +101,22 @@ class MethodInvestigationTests(unittest.TestCase):
         self.assertEqual(hparam_sweeps._slug([]), "all")
         self.assertEqual(hparam_sweeps._slug([4, 5, 6, 7, 8]), "4-5-6-7-8")  # unchanged for edit windows
 
+    def test_negative_values_name_apart(self):
+        # -2.0 and 2.0 once shared a run directory (the "-" was stripped).
+        self.assertEqual(hparam_sweeps._slug(-2.0), "neg2.0")
+        self.assertNotEqual(hparam_sweeps._slug(-2.0), hparam_sweeps._slug(2.0))
+        req = {"investigation": "scr", "methods": {"scr": {"confirm_margin": [-2.0, 0.0, 2.0]}}, "models": ["qwen3-4b"],
+               "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
+        _, _, runs, _ = hparam_sweeps.plan(req)
+        self.assertEqual(len({r["run_name"] for r in runs}), 3)
+
+    def test_runs_that_would_share_a_name_are_refused(self):
+        from unittest.mock import patch
+        req = {"investigation": "scr", "methods": {"scr": {"confirm_margin": [1.0, 3.0]}}, "models": ["qwen3-4b"],
+               "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
+        with patch.object(hparam_sweeps, "_slug", return_value="same"), self.assertRaisesRegex(ValueError, "share a directory"):
+            hparam_sweeps.plan(req)
+
 
 class SCRInvestigationTests(unittest.TestCase):
     KNOBS = ("retrieval_k", "sentence_model_name", "min_similarity", "kb_key", "latest_edit_wins", "confirm",
