@@ -38,6 +38,8 @@ from dataclasses import dataclass
 import torch
 import yaml
 
+from . import hparams_yaml
+
 from . import locations
 
 
@@ -84,8 +86,7 @@ class WilKEHyperParams:
     def from_hparams(cls, path):
         if not str(path).endswith(".yaml"):
             path = f"{path}.yaml"
-        with open(path) as f:
-            config = yaml.safe_load(f)
+        config = hparams_yaml.load(path)  # "5e-1" read as a number, as EasyEdit's loaders do
         assert config.get("alg_name") == "WilKE", f"not a WilKE hparams file: {path}"
         return cls(**config)
 

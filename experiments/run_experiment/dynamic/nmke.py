@@ -43,6 +43,8 @@ import numpy as np
 import torch
 import yaml
 
+from . import hparams_yaml
+
 from . import capture, locations
 
 P = None
@@ -100,8 +102,7 @@ class NMKEHyperParams:
     def from_hparams(cls, path):
         if not str(path).endswith(".yaml"):
             path = f"{path}.yaml"
-        with open(path) as f:
-            config = yaml.safe_load(f)
+        config = hparams_yaml.load(path)  # "5e-1" read as a number, as EasyEdit's loaders do
         assert config.get("alg_name") == "NMKE", f"not an NMKE hparams file: {path}"
         for key in ("resonance_bounds", "burst_bounds"):
             if key in config and config[key] is not None:

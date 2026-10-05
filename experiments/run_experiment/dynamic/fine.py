@@ -43,6 +43,8 @@ import torch
 import torch.nn.functional as F
 import yaml
 
+from . import hparams_yaml
+
 from . import capture, locations
 import loss_log
 
@@ -83,8 +85,7 @@ class FiNEHyperParams:
     def from_hparams(cls, path):
         if not str(path).endswith(".yaml"):
             path = f"{path}.yaml"
-        with open(path) as f:
-            config = yaml.safe_load(f)
+        config = hparams_yaml.load(path)  # "5e-1" read as a number, as EasyEdit's loaders do
         assert config.get("alg_name") == "FiNE", f"not a FiNE hparams file: {path}"
         return cls(**config)
 

@@ -51,6 +51,8 @@ import torch
 import torch.nn.functional as F
 import yaml
 
+from . import hparams_yaml
+
 from . import capture, locations
 
 BASE_EDITORS = {
@@ -92,13 +94,15 @@ class FiDALHyperParams:
     probe_lr: float = 1e-2
     probe_init: float = 1e-3
     base_config: dict = None
+    # Read by EasyEdit's evaluator (evaluate_utils.test_prediction_acc), as
+    # for the other dynamic methods.
+    max_length: int = 40
 
     @classmethod
     def from_hparams(cls, path):
         if not str(path).endswith(".yaml"):
             path = f"{path}.yaml"
-        with open(path) as f:
-            config = yaml.safe_load(f)
+        config = hparams_yaml.load(path)  # "5e-1" read as a number, as EasyEdit's loaders do
         assert config.get("alg_name") == "FiDAL", f"not a FiDAL hparams file: {path}"
         base_method = config["base_method"]
         if base_method not in BASE_EDITORS:
