@@ -114,6 +114,7 @@ export default function SweepInvestigation() {
   const [expType, setExpType] = useState(null)
   const [sweeps, setSweeps] = useState([])
   const [showHidden, setShowHidden] = useState(false)
+  const [hiddenCount, setHiddenCount] = useState(0)
   const [error, setError] = useState(null)
   const [models, setModels] = useState([])
   const [dataPaths, setDataPaths] = useState([])
@@ -150,12 +151,24 @@ export default function SweepInvestigation() {
     }).catch((e) => setError(e.message))
   }, [investigationId])
 
-  const refreshSweeps = () => api.sweeps(investigationId, true).then(setSweeps).catch(() => {})
+  // Hidden sweeps are only loaded (and polled) when shown.
+  const refreshSweeps = () => {
+    api.sweeps(investigationId, showHidden).then(setSweeps).catch(() => {})
+    if (!showHidden) api.hiddenSweepCount(investigationId).then((c) => setHiddenCount(c.hidden)).catch(() => {})
+  }
   useEffect(() => {
     refreshSweeps()
     const timer = setInterval(refreshSweeps, 8000)
     return () => clearInterval(timer)
-  }, [investigationId])
+  }, [investigationId, showHidden])
+  async function clearFinishedSweeps() {
+    try {
+      await api.clearFinishedSweeps(investigationId)
+    } catch (e) {
+      setMessage({ ok: false, text: e.message })
+    }
+    refreshSweeps()
+  }
 
   const primaryModel = models[0]
   const field = (name) => expType?.fields.find((f) => f.name === name)
@@ -362,13 +375,23 @@ export default function SweepInvestigation() {
       </div>
 
       <section className="dl-section">
-        <h2 className="section-heading">Sweeps in this investigation</h2>
-        {!sweeps.some((s) => !s.hidden) && <p className="dl-dim">{sweeps.length ? 'None showing.' : 'None yet.'}</p>}
-        {sweeps.some((s) => s.hidden) && (
-          <button type="button" className="btn-plain-small" onClick={() => setShowHidden((v) => !v)}>
-            {showHidden ? 'Leave out hidden sweeps' : `Show ${sweeps.filter((s) => s.hidden).length} hidden`}
-          </button>
-        )}
+        <div className="dl-section-head">
+          <h2 className="section-heading">Sweeps in this investigation</h2>
+          <span className="dl-task-controls">
+            {(showHidden ? sweeps.some((s) => s.hidden) : hiddenCount > 0) && (
+              <button type="button" className="btn-plain-small" onClick={() => setShowHidden((v) => !v)}>
+                {showHidden ? 'Leave out hidden sweeps' : `Show ${hiddenCount} hidden`}
+              </button>
+            )}
+            {sweeps.some((s) => !s.hidden && !s.active) && (
+              <button type="button" className="btn-plain-small" onClick={clearFinishedSweeps}
+                title="Hide every finished sweep; results stay on Results · Investigations">
+                Clear finished
+              </button>
+            )}
+          </span>
+        </div>
+        {!sweeps.some((s) => !s.hidden) && <p className="dl-dim">{sweeps.length || hiddenCount ? 'None showing.' : 'None yet.'}</p>}
         <ul className="dl-tasks">
           {sweeps.filter((s) => showHidden || !s.hidden).map((s) => (
             <SweepCard key={s.id} sweep={s}

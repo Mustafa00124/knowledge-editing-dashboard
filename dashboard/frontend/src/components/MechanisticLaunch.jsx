@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import LaunchBlockedNotice from './LaunchBlockedNotice.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
 import { api } from '../api.js'
+import ClearFinishedButton from './ClearFinishedButton.jsx'
 import { ACTIVE_STATES, FAIL_STATES } from '../lib/queueStatus.js'
 import { toggleGroup } from '../lib/groupSelect.js'
 
@@ -126,7 +127,11 @@ export default function MechanisticLaunch({ experiment, overview, controls, cost
 
       {jobs.length > 0 && (
         <>
-          <h2 className="archive-section-title">Jobs</h2>
+          <div className="dl-section-head">
+            <h2 className="archive-section-title">Jobs</h2>
+            <ClearFinishedButton experiment={experiment} jobs={jobs} activeStates={ACTIVE_STATES}
+              onCleared={() => api.experiments(experiment).then(setJobs).catch(() => {})} />
+          </div>
           <div className="table-wrap">
             <table>
               <thead>

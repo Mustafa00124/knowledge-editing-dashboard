@@ -562,6 +562,20 @@ and `experiments/launch_guard.py` makes every runner refuse to write into
 `results/` without it (or a job id the dashboard recorded) unless given
 `--untracked`. The agent-facing guide is `AGENTS.md` in this folder.
 
+### Clearing finished items
+
+Lists that keep growing have a **Clear** button: the Failures view, each
+investigation's sweep list ("Clear finished") and Progress section, the
+causal tracing, fact selection, neuron and circuit job tables, and Trial
+Runs. Clearing never deletes and never touches anything queued or running:
+a job gets `cleared_at` in the `jobs` table (`db.list_jobs()` leaves those
+out, so they are not polled either), a sweep gets `"hidden": true` in its
+sweep.json (its results stay on Results · Investigations), and a cleared
+failure is recorded per run in sweep.json (`cleared_failures`, with earlier
+attempts moved to `cleared_earlier_jobs`); a run that fails again after a
+rerun shows again. Logs and results stay where they were. To bring jobs
+back: `UPDATE jobs SET cleared_at = NULL` in `dashboard.db`.
+
 ## Adding a new experiment type
 
 The dashboard doesn't hardcode `run_experiment` — it discovers any

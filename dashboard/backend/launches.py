@@ -356,6 +356,32 @@ def list_launches(investigation=None, active_only=False, days=7, limit=50):
     return out[:limit] if limit else out
 
 
+def clear_finished(investigation=None):
+    """The progress section's Clear: hide its finished sweeps and clear its
+    finished experiment jobs (investigation="main" for main experiments).
+    Queued or running launches are left alone; nothing is deleted."""
+    want_sweeps = investigation in (None, "") or investigations().get(investigation, {}).get("group") == "sweep" \
+        or bool(investigations().get(investigation, {}).get("methods"))
+    sweeps = hparam_sweeps.hide_finished(None if investigation in (None, "", "main") else investigation) if want_sweeps else 0
+    jobs = [j for batch in _experiment_batches().values() for j in batch]
+    if investigation:
+        target = None if investigation == "main" else investigation
+        jobs = [j for j in jobs if job_investigation(j) == target]
+    return {"sweeps_hidden": sweeps, **clear_finished_jobs(jobs)}
+
+
+def clear_finished_jobs(jobs):
+    """Clear the jobs that are no longer queued or running (db.clear_jobs)."""
+    ids = [str(j["job_id"]) for j in jobs]
+    try:
+        statuses = slurm.sacct_statuses(ids) if ids else {}
+    except (RuntimeError, OSError) as exc:
+        raise RuntimeError(f"could not read job states, nothing cleared: {exc}")
+    done = [i for i in ids if statuses.get(i, {}).get("state") not in hparam_sweeps.ACTIVE]
+    db.clear_jobs(done)
+    return {"jobs_cleared": len(done), "still_active": len(ids) - len(done)}
+
+
 def summary():
     """Active launches and runs per investigation ("main" for none)."""
     counts = {}

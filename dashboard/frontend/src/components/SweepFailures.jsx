@@ -81,6 +81,7 @@ export default function SweepFailures() {
   const [error, setError] = useState(null)
   const [rerunning, setRerunning] = useState(null)
   const [showResolved, setShowResolved] = useState(false)
+  const [clearing, setClearing] = useState(false)
 
   const load = () => api.sweepFailures().then(setData).catch((e) => setError(e.message))
   useEffect(() => {
@@ -101,6 +102,19 @@ export default function SweepFailures() {
     }
   }
 
+  async function clearAll() {
+    if (!window.confirm('Clear every failure listed here? They stay recorded in each sweep.json; a run that fails again after a rerun shows again.')) return
+    setClearing(true)
+    try {
+      await api.clearSweepFailures()
+      await load()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setClearing(false)
+    }
+  }
+
   if (error) return <p className="form-error">{error}</p>
   if (!data) return <p className="empty">Checking every sweep…</p>
   return (
@@ -109,7 +123,15 @@ export default function SweepFailures() {
         Runs that ended without finishing (failed, cancelled, out of memory, timed out) or finished with an error flag
         such as a NaN loss, across every investigation. Each shows the line its error log ended on; “Log” shows the rest.
       </p>
-      <h2 className="section-heading">Failing now ({data.open.length})</h2>
+      <div className="dl-section-head">
+        <h2 className="section-heading">Failing now ({data.open.length})</h2>
+        {(data.open.length > 0 || data.resolved.length > 0) && (
+          <button type="button" className="btn-plain-small" onClick={clearAll} disabled={clearing}
+            title="Take these off this list; nothing is deleted">
+            {clearing ? 'Clearing…' : 'Clear'}
+          </button>
+        )}
+      </div>
       {!data.open.length && <p className="dl-bar-ok">Nothing is failing.</p>}
       <ul className="dl-tasks">
         {data.open.map((row) => (

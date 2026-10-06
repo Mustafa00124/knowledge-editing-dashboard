@@ -3,6 +3,7 @@ import EvaluationFilter from '../components/EvaluationFilter.jsx'
 import BERTScoreNote from '../components/BERTScoreNote.jsx'
 import { evaluationRow } from '../lib/evaluationModes.js'
 import { api } from '../api.js'
+import { ACTIVE_STATES } from '../lib/queueStatus.js'
 
 export default function TestingResults() {
   const [evaluation, setEvaluation] = useState('original')
@@ -18,12 +19,28 @@ export default function TestingResults() {
   }, [])
 
   const group = groups.find((g) => g.id === selected)
+  const anyFinished = groups.some((g) => g.jobs.some((j) => !ACTIVE_STATES.includes(j.status?.state)))
+  async function clearFinished() {
+    try {
+      await api.clearTestingResults()
+      setSelected(null)
+      setGroups(await api.testingResults())
+    } catch (e) {
+      setError(e.message)
+    }
+  }
 
   return (
     <div className="testing-results">
       <EvaluationFilter value={evaluation} onChange={setEvaluation} />
       {evaluation === 'bertscore' && <BERTScoreNote />}
       {error && <div className="form-error">{error}</div>}
+      {anyFinished && (
+        <button type="button" className="btn-plain-small" onClick={clearFinished}
+          title="Take finished trial runs off this tab; their folders stay in results/main/trial_runs/">
+          Clear finished
+        </button>
+      )}
       {groups.length === 0 && <p className="empty">No trial runs yet. Turn off “Save to main Results” when staging an experiment.</p>}
       <div className="testing-layout">
         <div className="testing-list" aria-label="Trial runs, newest first">

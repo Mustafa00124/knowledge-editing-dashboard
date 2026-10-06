@@ -655,7 +655,7 @@ def list_sweeps(investigation=None, include_hidden=False):
     pending = [str(r["job_id"]) for _, s in sweeps for r in s["runs"]
                if statuses.get(str(r["job_id"]), {}).get("state") == "PENDING"]
     queue = _queue(pending)
-    jobs = {str(j["job_id"]): j for j in db.list_jobs()} if any(
+    jobs = {str(j["job_id"]): j for j in db.list_jobs(include_cleared=True)} if any(
         statuses.get(str(r["job_id"]), {}).get("state") == "RUNNING" for _, s in sweeps for r in s["runs"]) else {}
     out = []
     for sweep_dir, sweep in sweeps:
@@ -718,7 +718,7 @@ def sweep_detail(investigation, sweep_id):
     sweep = json.loads(path.read_text())
     statuses = _statuses([(sweep_dir, sweep)])
     pending = [str(r["job_id"]) for r in sweep["runs"] if statuses.get(str(r["job_id"]), {}).get("state") == "PENDING"]
-    jobs = {str(j["job_id"]): j for j in db.list_jobs()}
+    jobs = {str(j["job_id"]): j for j in db.list_jobs(include_cleared=True)}
     runs = _run_states(sweep_dir, sweep, statuses, _queue(pending), jobs)
     scored = {r["run"]: r for r in results(investigation) if r["sweep_id"] == sweep_id}
     for run in runs:
@@ -947,13 +947,13 @@ def _model_info(exp_cfg):
             for o in field["options"]}
 
 
-def results(investigation):
+def results(investigation, include_hidden=True):
     """One row per run of every sweep in an investigation."""
     exp_cfg = _exp_cfg()
     models = _model_info(exp_cfg)
-    sweeps = list(_sweeps(investigation))
+    sweeps = [(d, s) for d, s in _sweeps(investigation) if include_hidden or not s.get("hidden")]
     statuses = _statuses(sweeps)
-    jobs = {str(j["job_id"]): j for j in db.list_jobs()}
+    jobs = {str(j["job_id"]): j for j in db.list_jobs(include_cleared=True)}
     rows = []
     for sweep_dir, sweep in sweeps:
         for run in sweep["runs"]:
@@ -993,6 +993,8 @@ def results(investigation):
                 "flags": _flags(state, error, loss, scores),
                 "earlier": earlier, "submitted_at": job.get("submitted_at"),
                 "investigation": investigation,
+                # Its current failure was cleared off the Failures view.
+                "failure_cleared": str(run["job_id"]) in map(str, run.get("cleared_failures", [])),
                 "records": summary.get("ds_size") if summary else None,
                 "scores": scores,
                 "fluency_raw": summary.get("fluency") if summary else None,
@@ -1014,7 +1016,10 @@ def failures():
     labels = {i["id"]: i["label"] for i in _load_catalog()["investigations"]}
     open_rows, resolved = [], []
     for investigation in labels:
-        for row in results(investigation):
+        # Hidden sweeps and cleared failures stay off this list.
+        for row in results(investigation, include_hidden=False):
+            if row["failure_cleared"]:
+                continue
             row["investigation_label"] = labels[investigation]
             failing = row["state"] in RETRYABLE or any(f["level"] == "error" for f in row["flags"])
             if failing:
@@ -1024,6 +1029,51 @@ def failures():
     newest = lambda r: r.get("submitted_at") or ""
     return {"open": sorted(open_rows, key=newest, reverse=True),
             "resolved": sorted(resolved, key=newest, reverse=True)}
+
+
+def clear_failures():
+    """Clear the Failures view: each failing run's current attempt is marked
+    cleared (a later rerun that fails shows again), and every listed run's
+    earlier attempts move to cleared_earlier_jobs, so neither is listed or
+    polled again. Everything stays in sweep.json."""
+    listed = failures()
+    by_sweep = {}
+    for row in listed["open"] + listed["resolved"]:
+        by_sweep.setdefault((row["investigation"], row["sweep_id"]), {})[row["run"]] = row
+    for (investigation, sweep_id), rows in by_sweep.items():
+        path = _sweep_dir(investigation, sweep_id) / "sweep.json"
+        sweep = json.loads(path.read_text())
+        for run in sweep["runs"]:
+            row = rows.get(run["run_name"])
+            if not row:
+                continue
+            if str(row["job_id"]) == str(run["job_id"]) and row["state"] not in ACTIVE:
+                run.setdefault("cleared_failures", []).append(run["job_id"])
+            if run.get("earlier_jobs"):
+                run.setdefault("cleared_earlier_jobs", []).extend(run.pop("earlier_jobs"))
+        path.write_text(json.dumps(sweep, indent=1) + "\n")
+    return {"cleared": len(listed["open"]) + len(listed["resolved"])}
+
+
+def hide_finished(investigation=None):
+    """Hide every sweep with nothing queued or running (see set_hidden);
+    sweeps still going are left alone. Returns how many were hidden."""
+    sweeps = [(d, s) for d, s in _sweeps(investigation) if not s.get("hidden")]
+    statuses = _statuses(sweeps)
+    hidden = 0
+    for sweep_dir, sweep in sweeps:
+        if any(statuses.get(str(r["job_id"]), {}).get("state") in ACTIVE for r in sweep["runs"]):
+            continue
+        sweep["hidden"] = True
+        sweep["hidden_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+        (sweep_dir / "sweep.json").write_text(json.dumps(sweep, indent=1) + "\n")
+        hidden += 1
+    return hidden
+
+
+def hidden_count(investigation=None):
+    """How many sweeps are hidden, without asking SLURM about them."""
+    return sum(1 for _, s in _sweeps(investigation) if s.get("hidden"))
 
 
 def _yaml_value(value):

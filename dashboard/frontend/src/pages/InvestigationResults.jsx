@@ -188,7 +188,9 @@ export default function InvestigationResults() {
     ? `${modelNames[value].model_label}${modelNames[value].model_variant ? ` (${modelNames[value].model_variant})` : ''}`
     : String(value))
 
+  // A failed run cleared off the Failures view has nothing to rank.
   const visible = useMemo(() => (rows || []).filter((r) =>
+    !(r.failure_cleared && r.state !== DONE) &&
     (!filters.sweep || r.sweep_id === filters.sweep) &&
     allFactors.every((f) => !(excluded[f.key] || []).includes(factorValue(r, f.key)))),
   [rows, filters.sweep, excluded, allFactors.length])

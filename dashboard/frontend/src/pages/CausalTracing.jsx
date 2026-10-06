@@ -6,6 +6,7 @@ import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
 import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
 import { api } from '../api.js'
+import ClearFinishedButton from '../components/ClearFinishedButton.jsx'
 import { ACTIVE_STATES, FAIL_STATES } from '../lib/queueStatus.js'
 import { toggleGroup } from '../lib/groupSelect.js'
 
@@ -223,7 +224,11 @@ export default function CausalTracing() {
 
       {selectionJobs.length > 0 && (
         <>
-          <h2 className="archive-section-title">Fact selection jobs</h2>
+          <div className="dl-section-head">
+            <h2 className="archive-section-title">Fact selection jobs</h2>
+            <ClearFinishedButton experiment={SELECTION} jobs={selectionJobs} activeStates={ACTIVE_STATES}
+              onCleared={() => api.experiments(SELECTION).then(setSelectionJobs).catch(() => {})} />
+          </div>
           <p className="dataset-note">
             Each model in the group is asked every candidate fact; the set keeps the facts all of them know, spread
             across relations. Traces using the set start once this finishes.
@@ -271,7 +276,11 @@ export default function CausalTracing() {
 
       {jobs.length > 0 && (
         <>
-          <h2 className="archive-section-title">Trace jobs</h2>
+          <div className="dl-section-head">
+            <h2 className="archive-section-title">Trace jobs</h2>
+            <ClearFinishedButton experiment={EXPERIMENT} jobs={jobs} activeStates={ACTIVE_STATES}
+              onCleared={() => api.experiments(EXPERIMENT).then(setJobs).catch(() => {})} />
+          </div>
           <div className="table-wrap">
             <table>
               <thead>

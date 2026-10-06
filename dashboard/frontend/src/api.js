@@ -65,6 +65,16 @@ export const api = {
   rerunFailedSweep: (investigation, id) =>
     req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/rerun-failed`, { method: 'POST' }),
   sweepFailures: () => req('/hparams/failures'),
+  // Clear buttons: take finished items off a list without deleting them.
+  clearSweepFailures: () => req('/hparams/failures/clear', { method: 'POST' }),
+  clearFinishedSweeps: (investigation) =>
+    req(`/hparams/sweeps/${encodeURIComponent(investigation)}/clear-finished`, { method: 'POST' }),
+  hiddenSweepCount: (investigation) => req(`/hparams/hidden-sweeps?investigation=${encodeURIComponent(investigation)}`),
+  clearLaunches: (investigation) =>
+    req(`/launches/clear${investigation ? `?investigation=${encodeURIComponent(investigation)}` : ''}`, { method: 'POST' }),
+  clearExperiments: (type) =>
+    req(`/experiments/clear${type ? `?experiment_type=${encodeURIComponent(type)}` : ''}`, { method: 'POST' }),
+  clearTestingResults: () => req('/results/testing/clear', { method: 'POST' }),
   sweepDetail: (investigation, id) => req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}`),
   sweepResults: (investigation) => req(`/hparams/results?investigation=${encodeURIComponent(investigation)}`),
   promoteConfig: (investigation, sweepId, run) =>

@@ -228,12 +228,25 @@ def cancel_sweep(investigation: str, sweep_id: str, request: Request):
         _require_owner(request, hparam_sweeps.sweep_owner(investigation, sweep_id))
     except KeyError:
         raise HTTPException(404, "no such sweep")
-    ids = [str(j["job_id"]) for j in db.list_jobs() if j.get("sweep_id") == hparam_sweeps.SWEEP_PREFIX + sweep_id]
+    ids = [str(j["job_id"]) for j in db.list_jobs(include_cleared=True) if j.get("sweep_id") == hparam_sweeps.SWEEP_PREFIX + sweep_id]
     if not ids:
         raise HTTPException(404, "no such sweep")
     statuses = slurm.sacct_statuses(ids)
     active = [i for i in ids if statuses.get(i, {}).get("state") in ("PENDING", "RUNNING", "REQUEUED", "SUSPENDED")]
     return {"cancelled": len(active), "error": slurm.cancel_many(active) or None}
+
+
+@app.get("/api/hparams/hidden-sweeps")
+def get_hidden_sweep_count(investigation: Optional[str] = None):
+    """How many sweeps are hidden, so a page can offer to show them without
+    loading (and polling SLURM for) every one."""
+    return {"hidden": hparam_sweeps.hidden_count(investigation)}
+
+
+@app.post("/api/hparams/sweeps/{investigation}/clear-finished")
+def clear_finished_sweeps(investigation: str):
+    """Hide every sweep of an investigation with nothing queued or running."""
+    return {"hidden": hparam_sweeps.hide_finished(investigation)}
 
 
 @app.get("/api/hparams/sweeps/{investigation}/{sweep_id}")
@@ -285,6 +298,13 @@ def rerun_failed_sweep_runs(investigation: str, sweep_id: str, request: Request)
 def get_sweep_failures():
     """Failed sweep runs across every investigation, with their errors."""
     return hparam_sweeps.failures()
+
+
+@app.post("/api/hparams/failures/clear")
+def clear_sweep_failures():
+    """Clear the Failures view (kept in each sweep.json; a run that fails
+    again after a rerun shows again)."""
+    return hparam_sweeps.clear_failures()
 
 
 @app.get("/api/hparams/results")
@@ -413,6 +433,19 @@ def list_experiments(experiment_type: Optional[str] = None):
     return out
 
 
+@app.post("/api/experiments/clear")
+def clear_experiments(experiment_type: Optional[str] = None):
+    """Clear finished jobs off the job tables (kept in the database, logs
+    and results untouched). Sweep jobs are cleared with their sweep."""
+    jobs = [j for j in db.list_jobs()
+            if (not experiment_type or j["experiment_type"] == experiment_type)
+            and not (j.get("sweep_id") or "").startswith(hparam_sweeps.SWEEP_PREFIX)]
+    try:
+        return launches.clear_finished_jobs(jobs)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
+
+
 @app.get("/api/experiments/{job_id}")
 def get_experiment(job_id: str):
     job = db.get_job(job_id)
@@ -452,6 +485,15 @@ def get_launches(investigation: Optional[str] = None, active: bool = False, days
     """Newest first. investigation=main lists main experiments; active=true
     only launches with queued or running jobs; days bounds finished ones."""
     return launches.list_launches(investigation, active_only=active, days=days, limit=limit)
+
+
+@app.post("/api/launches/clear")
+def clear_launches(investigation: Optional[str] = None):
+    """Clear an investigation's finished launches off its progress section."""
+    try:
+        return launches.clear_finished(investigation)
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
 
 
 @app.get("/api/launches/summary")
@@ -902,6 +944,16 @@ def list_testing_results():
         group = groups.setdefault(job["testing_id"], {"id": job["testing_id"], "submitted_at": job["submitted_at"], "jobs": []})
         group["jobs"].append(_testing_job(job))
     return sorted(groups.values(), key=lambda group: group["id"], reverse=True)
+
+
+@app.post("/api/results/testing/clear")
+def clear_testing_results():
+    """Clear finished trial runs off the Trial Runs tab (their folders stay
+    in results/main/trial_runs/)."""
+    try:
+        return launches.clear_finished_jobs([j for j in db.list_jobs() if j.get("testing_id")])
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc))
 
 
 @app.get("/api/results/testing/{testing_id}")

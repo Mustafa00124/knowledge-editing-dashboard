@@ -125,6 +125,16 @@ export default function InvestigationProgress({ investigation, title = 'Progress
     load()
   }
 
+  async function clearFinished() {
+    try {
+      await api.clearLaunches(investigation)
+      setRecent([])
+    } catch (e) {
+      setError(String(e.message || e))
+    }
+    load()
+  }
+
   const finished = (recent || []).filter((l) => !l.active)
   return (
     <section className="dl-section inv-progress">
@@ -142,9 +152,17 @@ export default function InvestigationProgress({ investigation, title = 'Progress
       {active && active.length > 0 && (
         <ul className="dl-tasks">{active.map((l) => <LaunchCard key={l.id} launch={l} onCancel={() => cancel(l)} />)}</ul>
       )}
-      <button type="button" className="btn-plain-small" onClick={() => setShowRecent(!showRecent)}>
-        {showRecent ? 'Hide finished' : 'Finished in the last week'}
-      </button>
+      <span className="dl-task-controls">
+        <button type="button" className="btn-plain-small" onClick={() => setShowRecent(!showRecent)}>
+          {showRecent ? 'Hide finished' : 'Finished in the last week'}
+        </button>
+        {showRecent && finished.length > 0 && (
+          <button type="button" className="btn-plain-small" onClick={clearFinished}
+            title="Take every finished launch of this investigation off the dashboard; results and logs stay on disk">
+            Clear finished
+          </button>
+        )}
+      </span>
       {showRecent && recent && (finished.length
         ? <ul className="dl-tasks">{finished.map((l) => <LaunchCard key={l.id} launch={l} />)}</ul>
         : <p className="dl-dim">None.</p>)}

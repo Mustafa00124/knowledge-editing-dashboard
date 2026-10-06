@@ -60,6 +60,10 @@ def init():
         for col in ("investigation", "batch_id", "label", "launched_by", "note", "extra_args_json"):
             if col not in cols:
                 conn.execute(f"ALTER TABLE jobs ADD COLUMN {col} TEXT")
+        # Set by a page's Clear button: the job stays in this table (and its
+        # logs and results on disk) but no longer lists or gets polled.
+        if "cleared_at" not in cols:
+            conn.execute("ALTER TABLE jobs ADD COLUMN cleared_at TEXT")
 
         conn.execute(
             """
@@ -156,10 +160,24 @@ def set_gpu_lane_tail(lane, job_id):
         )
 
 
-def list_jobs():
+def list_jobs(include_cleared=False):
+    """Newest first. Cleared jobs are left out unless asked for."""
+    where = "" if include_cleared else " WHERE cleared_at IS NULL"
     with _conn() as conn:
-        rows = conn.execute("SELECT * FROM jobs ORDER BY submitted_at DESC").fetchall()
+        rows = conn.execute(f"SELECT * FROM jobs{where} ORDER BY submitted_at DESC").fetchall()
         return [dict(r) for r in rows]
+
+
+def clear_jobs(job_ids):
+    """Take finished jobs off the dashboard's lists without deleting them."""
+    if not job_ids:
+        return
+    placeholders = ",".join("?" for _ in job_ids)
+    with _conn() as conn:
+        conn.execute(
+            f"UPDATE jobs SET cleared_at = ? WHERE job_id IN ({placeholders}) AND cleared_at IS NULL",
+            (datetime.now(timezone.utc).isoformat(), *(str(job_id) for job_id in job_ids)),
+        )
 
 
 def jobs_for_slot(slot_index):
