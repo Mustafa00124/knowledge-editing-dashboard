@@ -46,12 +46,13 @@ export function parseValue(text) {
   }
 }
 
-// The four criteria, 0..1, as the backend scores them (hparam_sweeps._scores).
+// The four criteria, 0..1, as the backend scores them (hparam_sweeps._scores),
+// in the order the tables show them.
 export const CRITERIA = [
-  { key: 'reliability', label: 'Reliability', help: 'edit success on the edited prompts' },
-  { key: 'generalizability', label: 'Generalizability', help: 'paraphrases and multi-hop consequences' },
-  { key: 'locality', label: 'Locality', help: 'unrelated facts unchanged' },
   { key: 'fluency', label: 'Fluency', help: 'final fluency over the unedited model’s, capped at 1' },
+  { key: 'reliability', label: 'Reliability', help: 'edit success on the edited prompts' },
+  { key: 'locality', label: 'Locality', help: 'unrelated facts unchanged' },
+  { key: 'generalizability', label: 'Generalizability', help: 'paraphrases and multi-hop consequences' },
 ]
 
 // Colouring only, never filtering. Starting points chosen by eye; editable
@@ -150,8 +151,7 @@ export function stats(values) {
 }
 
 // One row per value of `factor` (and per tested setting unless pooled),
-// averaging every finished run in it over everything else. The weakest
-// score is averaged per run, so it still means "no criterion collapsed".
+// averaging every finished run in it over everything else.
 export function aggregate(rows, factor, keepSetting, done = 'COMPLETED') {
   const knob = knobOf(factor)
   const groups = new Map()
@@ -177,7 +177,6 @@ export function aggregate(rows, factor, keepSetting, done = 'COMPLETED') {
       total: g.rows.length,
       finished: finished.length,
       over,
-      worst: stats(finished.map((r) => r.worst)),
       scores: Object.fromEntries(CRITERIA.map((c) => [c.key, stats(finished.map((r) => r.scores?.[c.key]))])),
       time: stats(finished.map((r) => r.wall_sec)),
     }
