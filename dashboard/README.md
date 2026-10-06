@@ -295,9 +295,9 @@ directories will move before it commits.
   `results/investigations/<investigation>/sweeps/<sweep>/`.
 - **Results · Investigations** (`/results/investigations`): every sweep
   run of an investigation, filterable by method, model, dataset and sweep,
-  scored on reliability, generalizability, locality and fluency (final over
-  the unedited model's) on a 0 to 1 scale, and ranked by default by the
-  weakest of those, so no setting ranks well by giving one up. Cells are
+  scored on fluency (final over the unedited model's), reliability,
+  locality and generalizability on a 0 to 1 scale, and ranked by default
+  by reliability (the goal is reliability without losing fluency). Cells are
   coloured by editable thresholds (colour only, nothing is hidden). A chart
   plots the criteria across the swept value when one setting varies. "Use
   as main config" writes a run's values into that method's hparams file for
@@ -308,7 +308,7 @@ directories will move before it commits.
   ("Rows"), or "Each run" for no averaging: one row per included value,
   mean ± standard deviation over the included values of every other
   factor, with the run count and the variance on hover. Only finished runs
-  are averaged and the weakest is averaged per run. The chart's x-axis is
+  are averaged. The chart's x-axis is
   the rows factor: a line across a setting's values, grouped bars across
   the rest. Every tuning stage is its own model value (so runs never
   overwrite each other) and is labelled with its stage, here and in Main

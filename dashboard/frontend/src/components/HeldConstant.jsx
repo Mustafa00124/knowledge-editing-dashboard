@@ -47,7 +47,7 @@ export default function HeldConstant({ held, swept, fixed, onFix, models, runSet
       <p className="dl-section-intro">
         Everything this sweep does not vary stays fixed at these values for every run. Change one to hold it somewhere
         else for this sweep only; the hparams files are not touched. “Best elsewhere” is the strongest value another
-        investigation has found for that setting (by the weakest criterion, on any dataset).
+        investigation has found for that setting (highest reliability among runs that keep fluency, on any dataset).
       </p>
 
       <div className="hp-held-run">
@@ -102,7 +102,7 @@ export default function HeldConstant({ held, swept, fixed, onFix, models, runSet
                               disabled={valueKey(row.best.value) === valueKey(changed !== undefined ? changed : row.value)}
                               onClick={() => onFix(method, model, row.key,
                                 valueKey(row.best.value) === valueKey(row.value) ? undefined : row.best.value)}>
-                              use {formatValue(row.best.value)} · weakest {pct(row.best.worst)}
+                              use {formatValue(row.best.value)} · reliability {pct(row.best.reliability)}
                             </button>
                           ) : <span className="dl-dim">—</span>}
                         </td>

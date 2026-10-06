@@ -96,7 +96,7 @@ export default function SweepDetailModal({ investigation, sweepId, onClose }) {
               <div className="table-wrap">
                 <table className="hp-table">
                   <thead>
-                    <tr><th>#</th><th>Run</th><th>Setting</th><th>State</th><th>Weakest</th><th>Rel.</th><th>Gen.</th><th>Loc.</th><th>Flu.</th><th>Time</th></tr>
+                    <tr><th>#</th><th>Run</th><th>Setting</th><th>State</th><th>Flu.</th><th>Rel.</th><th>Loc.</th><th>Gen.</th><th>Time</th></tr>
                   </thead>
                   <tbody>
                     {detail.runs.map((r) => (
@@ -120,12 +120,11 @@ export default function SweepDetailModal({ investigation, sweepId, onClose }) {
                               </button>
                             )}
                           </td>
-                          <td><strong>{pct(r.worst)}</strong></td>
-                          {['reliability', 'generalizability', 'locality', 'fluency'].map((k) => <td key={k}>{pct(r.scores?.[k])}</td>)}
+                          {['fluency', 'reliability', 'locality', 'generalizability'].map((k) => <td key={k}>{pct(r.scores?.[k])}</td>)}
                           <td className="hp-time">{r.wall_sec != null ? duration(r.wall_sec) : r.elapsed_sec ? `${duration(r.elapsed_sec)} so far` : '—'}</td>
                         </tr>
                         {openError === r.run && (
-                          <tr className="hp-log-row"><td colSpan={10}><pre className="hp-error-full">{r.error}</pre></td></tr>
+                          <tr className="hp-log-row"><td colSpan={9}><pre className="hp-error-full">{r.error}</pre></td></tr>
                         )}
                       </Fragment>
                     ))}

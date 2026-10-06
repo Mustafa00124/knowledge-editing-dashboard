@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { aggregate, stats } from './hparams.js'
 
 const run = (method, model, dataset, layers, rel, loc, state = 'COMPLETED') => ({
-  method, model, dataset, overrides: { layers }, state, worst: Math.min(rel, loc),
+  method, model, dataset, overrides: { layers }, state,
   scores: { reliability: rel, generalizability: null, locality: loc, fluency: 1 }, wall_sec: 100,
 })
 const rows = [
@@ -20,12 +20,11 @@ test('stats are the mean and sample variance of present values', () => {
   assert.equal(stats([0.7]).sd, null)
 })
 
-test('averaging keeps tested settings apart and averages the weakest per run', () => {
+test('averaging keeps tested settings apart', () => {
   const groups = aggregate(rows, 'model', true)
   const a4 = groups.find((g) => g.value === 'a' && g.overrides.layers[0] === 4)
   assert.equal(a4.finished, 2)
   assert.ok(Math.abs(a4.scores.reliability.mean - 0.9) < 1e-12)
-  assert.ok(Math.abs(a4.worst.mean - 0.5) < 1e-12)
   assert.deepEqual([...a4.over.dataset].sort(), ['d1', 'd2'])
 })
 

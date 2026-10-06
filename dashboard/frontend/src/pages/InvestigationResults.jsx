@@ -77,23 +77,6 @@ function MeanCell({ stat, threshold, strong }) {
   )
 }
 
-// The weakest score, coloured by the threshold of the criterion it came from.
-function weakestBand(row, thresholds) {
-  const present = CRITERIA.filter((c) => row.scores?.[c.key] != null)
-  if (!present.length) return 'none'
-  const weakest = present.reduce((a, b) => (row.scores[b.key] < row.scores[a.key] ? b : a))
-  return band(row.scores[weakest.key], thresholds[weakest.key])
-}
-
-// An averaged row's weakest, coloured by the threshold of whichever
-// criterion has the lowest mean, as a single run's weakest is.
-function weakestThreshold(group, thresholds) {
-  const present = CRITERIA.filter((c) => group.scores[c.key]?.mean != null)
-  if (!present.length) return null
-  const lowest = present.reduce((a, b) => (group.scores[b.key].mean < group.scores[a.key].mean ? b : a))
-  return thresholds[lowest.key]
-}
-
 function Filter({ label, options, value, onChange }) {
   if (options.length < 2) return null
   return (
@@ -142,7 +125,7 @@ export default function InvestigationResults() {
   const [rows, setRows] = useState(null)
   const [error, setError] = useState(null)
   const [thresholds, setThresholds] = useState(loadThresholds)
-  const [sort, setSort] = useState({ key: 'worst', desc: true })
+  const [sort, setSort] = useState({ key: 'reliability', desc: true })
   const [promoted, setPromoted] = useState({})
   const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
@@ -212,7 +195,7 @@ export default function InvestigationResults() {
 
   const groups = useMemo(() => {
     if (rowsBy === 'run') return null
-    const value = (g) => (sort.key === 'worst' ? g.worst.mean : sort.key === 'time' ? g.time.mean : g.scores[sort.key]?.mean)
+    const value = (g) => (sort.key === 'time' ? g.time.mean : g.scores[sort.key]?.mean)
     // Everything included is averaged together within a row.
     const list = aggregate(visible, rowsBy, false)
     if (sort.key === 'factor') {
@@ -234,7 +217,7 @@ export default function InvestigationResults() {
   }, [visible, rowsBy, sort])
 
   const sorted = useMemo(() => {
-    const value = (r) => (sort.key === 'worst' ? r.worst : sort.key === 'time' ? (r.wall_sec ?? r.elapsed_sec) : r.scores?.[sort.key])
+    const value = (r) => (sort.key === 'time' ? (r.wall_sec ?? r.elapsed_sec) : r.scores?.[sort.key])
     return [...visible].sort((a, b) => {
       const va = value(a), vb = value(b)
       if (va == null && vb == null) return 0
@@ -331,8 +314,8 @@ export default function InvestigationResults() {
             <Thresholds thresholds={thresholds} onChange={setThresholds} />
           </div>
           <p className="dl-dim">
-            Ranked by the weakest criterion by default, so a setting cannot rank well by giving one up. Click a column to
-            rank by it. Scores are on dev records; a dash means the dataset has no such probe or the run has not finished.
+            Ranked by reliability by default; check the fluency column (red when it drops) so a setting does not buy
+            reliability with fluency. Click a column to rank by it. Scores are on dev records; a dash means the dataset has no such probe or the run has not finished.
           </p>
 
           {chart && (
@@ -384,7 +367,6 @@ export default function InvestigationResults() {
                       {byFactor.knob ? <code>{byFactor.label}</code> : byFactor.label}{sort.key === 'factor' ? (sort.desc ? ' ↓' : ' ↑') : ''}
                     </th>
                     <th title="finished runs averaged, of all runs in the group">Runs</th>
-                    {header('worst', 'Weakest', 'mean of each run’s weakest criterion')}
                     {CRITERIA.map((c) => header(c.key, c.label, `${c.help}; mean ± standard deviation`))}
                     {header('time', 'Time', 'mean start-to-finish time')}
                   </tr>
@@ -403,7 +385,6 @@ export default function InvestigationResults() {
                           {Object.entries(g.over).map(([factor, values]) => `${values.length} ${factor}${values.length === 1 ? '' : 's'}`).join(', ')}
                         </div>
                       </td>
-                      <MeanCell stat={g.worst} threshold={weakestThreshold(g, thresholds)} strong />
                       {CRITERIA.map((c) => <MeanCell key={c.key} stat={g.scores[c.key]} threshold={thresholds[c.key]} />)}
                       <td className="hp-time" title={g.time.n > 1 ? `standard deviation ${duration(g.time.sd)}` : undefined}>
                         {duration(g.time.mean)}
@@ -421,7 +402,6 @@ export default function InvestigationResults() {
               <thead>
                 <tr>
                   <th>Run</th><th>Setting</th>
-                  {header('worst', 'Weakest', 'the lowest of the four criteria this run has')}
                   {CRITERIA.map((c) => header(c.key, c.label, c.help))}
                   <th title="the loss the method optimises, first to last step">Loss</th>
                   {header('time', 'Time', 'start to finish, model load included; running jobs show time so far')}
@@ -444,7 +424,6 @@ export default function InvestigationResults() {
                         </div>
                       )}
                     </td>
-                    <td className={`hp-score is-${weakestBand(r, thresholds)}`}><strong>{pct(r.worst)}</strong></td>
                     {CRITERIA.map((c) => (
                       <td key={c.key} className={`hp-score is-${band(r.scores?.[c.key], thresholds[c.key])}`}
                         title={c.key === 'fluency' && r.fluency_raw != null ? `n-gram entropy ${r.fluency_raw.toFixed(1)} vs ${r.fluency_baseline?.toFixed(1)} unedited` : undefined}>
@@ -473,7 +452,7 @@ export default function InvestigationResults() {
                     </td>
                   </tr>
                   {openLog === r.run && (
-                    <tr className="hp-log-row"><td colSpan={11}><RunLog jobId={r.job_id} /></td></tr>
+                    <tr className="hp-log-row"><td colSpan={10}><RunLog jobId={r.job_id} /></td></tr>
                   )}
                   </Fragment>
                 ))}

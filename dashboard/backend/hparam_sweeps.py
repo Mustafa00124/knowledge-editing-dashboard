@@ -13,11 +13,11 @@ On disk, one folder per sweep:
         sweep.json          what was varied and fixed, and every run's job id
         runs/<run>/...      the runner's usual files (hparams, checkpoints, summary)
 
-Scores for ranking are the four criteria on a 0..1 scale: reliability
-(edit success), generalizability (portability), locality, and fluency as
-the final value over the unedited model's (step 0), capped at 1. The
-default ranking is by the weakest of those a run has, so a configuration
-cannot rank well by giving one of them up.
+Scores are the four criteria on a 0..1 scale: fluency as the final
+value over the unedited model's (step 0), capped at 1, reliability (edit
+success), locality, and generalizability (portability). Tuning aims for
+high reliability without losing fluency, so the best value found is the
+highest reliability among runs that keep fluency at FLUENCY_DROP or above.
 """
 import itertools
 import json
@@ -316,7 +316,8 @@ def effective_settings(method, model, exp_cfg=None):
 def settings(investigation, methods, models):
     """Held-constant candidates for a sweep: each method's settings per
     model, which investigation tunes each one, and the best value that
-    investigation has found so far (weakest criterion, any dataset)."""
+    investigation has found so far (highest reliability among runs that
+    keep fluency, any dataset)."""
     exp_cfg = _exp_cfg()
     owners = _owners()
     results_cache = {}
@@ -325,12 +326,13 @@ def settings(investigation, methods, models):
         if not owner or owner["id"] == investigation:
             return None
         rows = results_cache.setdefault(owner["id"], results(owner["id"]))
-        candidates = [r for r in rows if r["method"] == method and r["model"] == model and r["worst"] is not None
-                      and list(r["overrides"]) == [key]]
+        candidates = [r for r in rows if r["method"] == method and r["model"] == model
+                      and list(r["overrides"]) == [key] and _keeps_fluency(r["scores"])]
         if not candidates:
             return None
-        top = max(candidates, key=lambda r: r["worst"])
-        return {"value": top["overrides"][key], "worst": top["worst"], "dataset": top["dataset"],
+        top = max(candidates, key=lambda r: r["scores"]["reliability"])
+        return {"value": top["overrides"][key], "reliability": top["scores"]["reliability"],
+                "fluency": top["scores"].get("fluency"), "dataset": top["dataset"],
                 "sweep": top["sweep_id"], "run": top["run"]}
 
     out = {}
@@ -721,7 +723,7 @@ def sweep_detail(investigation, sweep_id):
     scored = {r["run"]: r for r in results(investigation) if r["sweep_id"] == sweep_id}
     for run in runs:
         extra = scored.get(run["run"], {})
-        run.update({k: extra.get(k) for k in ("scores", "worst", "dataset", "model_label", "model_variant",
+        run.update({k: extra.get(k) for k in ("scores", "dataset", "model_label", "model_variant",
                                                "model_type", "wall_sec", "total_sec", "records", "error",
                                                "flags", "loss", "earlier")})
     labels = {i["id"]: i["label"] for i in _load_catalog()["investigations"]}
@@ -786,10 +788,8 @@ def _scores(summary, baseline):
     fluency = summary.get("fluency")
     base = (baseline or {}).get("fluency")
     ratio = min(fluency / base, 1.0) if fluency is not None and base else None
-    scores = {"reliability": pct(summary.get("edit_succ")), "generalizability": pct(summary.get("portability")),
-              "locality": pct(summary.get("locality")), "fluency": ratio}
-    present = [v for v in scores.values() if v is not None]
-    return scores, (min(present) if present else None)
+    return {"fluency": ratio, "reliability": pct(summary.get("edit_succ")),
+            "locality": pct(summary.get("locality")), "generalizability": pct(summary.get("portability"))}
 
 
 # Lines in a job's stderr that are noise rather than the reason it failed.
@@ -797,6 +797,12 @@ _NOISE = re.compile(r"Warning|warnings\.warn|it/s\]|s/it\]|%\||TOKENIZERS_PARALL
                     r"Avoid using `tokenizers`|Explicitly set the environment")
 _ERROR = re.compile(r"^(\w+\.)*\w*(Error|Exception|Exit)\b|^RuntimeError|^error:|CUDA out of memory")
 FLUENCY_DROP = 0.85  # flag when fluency falls below this share of the unedited model's
+
+
+def _keeps_fluency(scores):
+    """A scored run whose fluency did not drop (no fluency probe counts as kept)."""
+    fluency = (scores or {}).get("fluency")
+    return (scores or {}).get("reliability") is not None and (fluency is None or fluency >= FLUENCY_DROP)
 
 
 def _tail_lines(path, n=300):
@@ -955,7 +961,7 @@ def results(investigation):
             summary_path = run_dir / "summary.json"
             summary = json.loads(summary_path.read_text()) if summary_path.exists() else None
             baseline = _first_row(run_dir / "checkpoints.jsonl")
-            scores, worst = _scores(summary, baseline) if summary else ({}, None)
+            scores = _scores(summary, baseline) if summary else {}
             benchmark, subset = slurm._dataset_meta(exp_cfg, {"data_path": run["data_path"]})
             state = statuses.get(str(run["job_id"]), {}).get("state", "UNKNOWN")
             job = jobs.get(str(run["job_id"]), {})
@@ -988,7 +994,7 @@ def results(investigation):
                 "earlier": earlier, "submitted_at": job.get("submitted_at"),
                 "investigation": investigation,
                 "records": summary.get("ds_size") if summary else None,
-                "scores": scores, "worst": worst,
+                "scores": scores,
                 "fluency_raw": summary.get("fluency") if summary else None,
                 "fluency_baseline": (baseline or {}).get("fluency"),
                 # Time: editing and evaluation (after the model loaded), the
