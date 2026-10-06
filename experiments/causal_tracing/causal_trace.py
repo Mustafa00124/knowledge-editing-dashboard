@@ -493,7 +493,12 @@ def reliability(traces, n_layers, band, kind="mlp", n_boot=1000, seed=0):
     peak_ci              where the averaged curve peaks, across resampled facts
     sever_drop_mlp/attn  how much hidden-state recovery in the band falls when
                          later MLPs (or attention) are frozen: necessity
-    Each with a 95% bootstrap interval over facts, and a one-word verdict."""
+    corruption_drop      share of the clean answer probability the noise removes
+    recovery             the averaged curve's peak as a share of that drop
+    Each with a 95% bootstrap interval over facts, and a one-word verdict.
+    Without a real effect (corruption that barely moves the answer, or no
+    site that brings much of it back) each fact's "peak" is noise, so the
+    verdict is "inconclusive" rather than read off the band."""
     if not traces:
         return None
     low, high = band
@@ -520,6 +525,11 @@ def reliability(traces, n_layers, band, kind="mlp", n_boot=1000, seed=0):
         "peak_iqr": [int(np.percentile(peaks, 25)), int(np.percentile(peaks, 75))],
         "peak_ci": [int(np.percentile(mean_peaks, 2.5)), int(np.percentile(mean_peaks, 97.5))],
     }
+    p_clean = float(np.mean([t["p_clean"] for t in traces]))
+    p_corrupt = float(np.mean([t["p_corrupt"] for t in traces]))
+    drop = p_clean - p_corrupt
+    out["corruption_drop"] = round(drop / p_clean, 4) if p_clean > 0 else None
+    out["recovery"] = round(float(curves.mean(axis=0).max()) / drop, 4) if drop > 0 else None
     if "sever_mlp" in traces[0]["curves"] and in_band:
         hidden = np.array([np.array(t["curves"]["hidden"]) - t["p_corrupt"] for t in traces])[:, in_band].mean()
         for name in SEVER_KINDS:
@@ -529,11 +539,21 @@ def reliability(traces, n_layers, band, kind="mlp", n_boot=1000, seed=0):
     return out
 
 
+# Below these there is nothing to localise: the noise barely changed the
+# answer, or no restored site brought much of it back.
+MIN_CORRUPTION_DROP = 0.25
+MIN_RECOVERY = 0.15
+
+
 def _verdict(r):
-    """strong: most facts peak in the band (lower bound >= 0.6) and the band
-    holds clearly more than its share of the effect; moderate: a majority
-    and more than its share; weak otherwise. Severing, when run, must also
-    show the MLPs are needed (a drop of at least 0.3) for strong."""
+    """inconclusive: no localisable effect (see MIN_CORRUPTION_DROP,
+    MIN_RECOVERY). Otherwise strong: most facts peak in the band (lower bound
+    >= 0.6) and the band holds clearly more than its share of the effect;
+    moderate: a majority and more than its share; weak otherwise. Severing,
+    when run, must also show the MLPs are needed (a drop of at least 0.3) for
+    strong."""
+    if (r.get("corruption_drop") or 0) < MIN_CORRUPTION_DROP or (r.get("recovery") or 0) < MIN_RECOVERY:
+        return "inconclusive"
     share_low = r["share_peak_in_band_ci"][0]
     above = r["mass_in_band"] - r["baseline"]
     needed = r.get("sever_drop_mlp")
@@ -802,5 +822,37 @@ def main():
     print(f"[{run_name}] traced_layers.json now covers {sorted(mapping)}", flush=True)
 
 
+def rescore(out_root):
+    """Recompute every run's reliability from the per-fact curves in its
+    trace.json (after a change to reliability() or the verdict rule), then
+    rebuild the manifest and traced_layers.json. No GPU, no re-tracing."""
+    runs_dir = os.path.join(out_root, "runs")
+    for name in sorted(os.listdir(runs_dir)):
+        trace_path = os.path.join(runs_dir, name, "trace.json")
+        summary_path = os.path.join(runs_dir, name, "summary.json")
+        if not (os.path.exists(trace_path) and os.path.exists(summary_path)):
+            continue
+        with open(trace_path) as f:
+            trace = json.load(f)
+        facts = trace.get("prompts") or []
+        if not facts or "curves" not in facts[0]:
+            continue  # traced before per-fact curves were kept
+        with open(summary_path) as f:
+            summary = json.load(f)
+        summary["reliability"] = reliability(facts, summary["n_layers"], tuple(summary.get("band") or DEFAULT_BAND),
+                                             seed=summary.get("seed", 0))
+        trace["summary"] = summary
+        with open(summary_path, "w") as f:
+            json.dump(summary, f, indent=2)
+        with open(trace_path, "w") as f:
+            json.dump(trace, f)
+        print(f"{name}: {summary['reliability']['verdict']}", flush=True)
+    rebuild_traced_layers(out_root, rebuild_manifest(out_root))
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) >= 2 and sys.argv[1] == "rescore":
+        rescore(sys.argv[2] if len(sys.argv) > 2 else DEFAULT_OUT_ROOT)
+    else:
+        main()

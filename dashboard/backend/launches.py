@@ -35,6 +35,7 @@ DEFAULT_INVESTIGATION = {
     "neuron_tracing": "neuron_tracing",
     "circuit_tracing": "circuit_tracing",
     "fact_selection": "causal_tracing",
+    "format_knowledge": "format_knowledge",
 }
 
 ACTIVE = hparam_sweeps.ACTIVE

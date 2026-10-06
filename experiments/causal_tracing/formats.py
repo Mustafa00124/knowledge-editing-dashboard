@@ -41,6 +41,8 @@ FORMATS = {
     "completion": "the cloze sentence; noise on the subject",
     "question": "'Question: ... Answer:' as plain text; noise on the subject",
     "chat_question": "the question through the model's chat template, asking for the answer only; noise on the subject",
+    "chat_complete": "the chat template asking to complete the sentence, with the cloze sentence begun as the reply; "
+                     "noise on the subject",
     "chat_prefill": "the question through the chat template, with the cloze sentence begun as the reply; "
                     "noise on every mention of the subject",
     "mcq": "question, lettered choices, 'Answer:' as plain text; noise on the question",
@@ -227,38 +229,52 @@ def answers_for(row, fmt):
     return list(dict.fromkeys(a for a in out if a and a.strip()))
 
 
-def build(row, fmt, tok):
+def build(row, fmt, tok, need_spans=True, template=None):
     """{"text", "spans": [(start, end) chars to corrupt], "templated", "answers"},
-    or None when this row cannot be written in this format."""
+    or None when this row cannot be written in this format.
+
+    need_spans=False writes prompts that have nothing to corrupt (a
+    RealTimeQA question with no subject), for scoring what a model knows
+    rather than tracing it. template: the tokenizer whose chat template the
+    chat_* formats use, when not `tok`'s own (a base model given its instruct
+    sibling's, so both read byte-identical prompts)."""
     templated = fmt in CHAT_FORMATS
-    if templated and not has_chat_template(tok):
+    chat_tok = template or tok
+    if templated and not has_chat_template(chat_tok):
         return None
     subject = row.get("subject")
-    if fmt == "completion":
-        if not row["cloze"] or not subject or subject not in row["cloze"]:
+
+    def mentions(text):
+        return _mentions(text, subject) if subject else []
+
+    if fmt in ("completion", "chat_complete"):
+        cloze = row["cloze"]
+        if not cloze or (need_spans and (not subject or subject not in cloze)):
             return None
-        text = row["cloze"]
-        spans = [_mentions(text, subject)[-1]]
+        if fmt == "completion":
+            text = cloze
+            spans = mentions(text)[-1:]
+        else:
+            text = _chat(chat_tok, f"Complete this sentence: {cloze}", prefill=cloze)
+            spans = mentions(text)
     elif fmt in ("question", "chat_question", "chat_prefill"):
         q = row["question"]
-        if not q or not subject or subject not in q:
+        if not q or (need_spans and (not subject or subject not in q)):
             return None
         if fmt == "question":
             text = f"Question: {q}\nAnswer:"
-            spans = _mentions(text, subject)
         elif fmt == "chat_question":
-            text = _chat(tok, f"{q}\nAnswer with only the answer, not a sentence.")
-            spans = _mentions(text, subject)
+            text = _chat(chat_tok, f"{q}\nAnswer with only the answer, not a sentence.")
         else:
-            if not row["cloze"] or subject not in row["cloze"]:
+            if not row["cloze"] or (need_spans and subject not in row["cloze"]):
                 return None
-            text = _chat(tok, q, prefill=row["cloze"])
-            spans = _mentions(text, subject)
+            text = _chat(chat_tok, q, prefill=row["cloze"])
+        spans = mentions(text)
     elif fmt in ("mcq", "chat_mcq"):
         if not row["choices"] or row["answer_index"] is None:
             return None
         body = _mcq_body(row)
-        text = f"{body}\nAnswer:" if fmt == "mcq" else _chat(tok, f"{body}\nAnswer with the letter only.")
+        text = f"{body}\nAnswer:" if fmt == "mcq" else _chat(chat_tok, f"{body}\nAnswer with the letter only.")
         start = text.find(row["question"])
         spans = [(start, start + len(row["question"]))]
     elif fmt in ("riddle", "chat_riddle"):
@@ -266,12 +282,12 @@ def build(row, fmt, tok):
             return None
         lead = "Riddle: "
         text = f"{lead}{row['riddle']}\nAnswer:" if fmt == "riddle" else \
-            _chat(tok, f"{lead}{row['riddle']}\nAnswer with only the answer.")
+            _chat(chat_tok, f"{lead}{row['riddle']}\nAnswer with only the answer.")
         offset = text.find(lead + row["riddle"]) + len(lead)
         spans = [(offset + row["clue"][0], offset + row["clue"][1])]
     else:
         raise ValueError(f"unknown format {fmt!r}")
-    if not spans or spans[0][0] < 0:
+    if need_spans and (not spans or spans[0][0] < 0):
         return None
     return {"text": text, "spans": spans, "templated": templated, "answers": answers_for(row, fmt)}
 

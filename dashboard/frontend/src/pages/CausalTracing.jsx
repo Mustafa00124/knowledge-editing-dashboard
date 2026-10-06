@@ -23,6 +23,7 @@ const VERDICT_HELP = {
   strong: 'most facts peak in the early-to-mid band (lower bound of the 95% interval at least 60%), the band holds clearly more than its share of the effect, and (if severed) the MLPs are needed',
   moderate: 'a majority of facts peak in the band and it holds more than its share of the effect',
   weak: 'facts do not reliably peak in the early-to-mid band',
+  inconclusive: 'no localisable effect: the noise removed under 25% of the answer probability, or no restored site brought back 15% of what it removed, so each fact\'s peak is noise',
 }
 
 function pct(v) {
@@ -372,6 +373,8 @@ export default function CausalTracing() {
           <thead>
             <tr>
               <th>Model</th><th>Format</th><th>Facts</th><th>Window</th><th>Peak [95%]</th>
+              <th title="share of the clean answer probability the noise removes">Corruption drop</th>
+              <th title="the averaged curve's peak as a share of that drop">Recovery</th>
               <th>Peaks in band</th><th>Effect in band (even)</th><th>Severing drop MLP / attn</th><th>Verdict</th><th>Fact set</th>
             </tr>
           </thead>
@@ -388,6 +391,8 @@ export default function CausalTracing() {
                   </td>
                   <td>{row.window}</td>
                   <td>{row.peak_layer}{r ? ` [${r.peak_ci[0]}–${r.peak_ci[1]}]` : ''}</td>
+                  <td>{pct(r?.corruption_drop)}</td>
+                  <td>{pct(r?.recovery)}</td>
                   <td>{r ? `${pct(r.share_peak_in_band)} [${pct(r.share_peak_in_band_ci[0])}–${pct(r.share_peak_in_band_ci[1])}]` : '—'}</td>
                   <td>{r ? `${pct(r.mass_in_band)} (${pct(r.baseline)})` : '—'}</td>
                   <td>{r?.sever_drop_mlp != null ? `${pct(r.sever_drop_mlp)} / ${pct(r.sever_drop_attn)}` : '—'}</td>

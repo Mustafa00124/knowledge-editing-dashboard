@@ -1,0 +1,153 @@
+{
+ "name": "format_knowledge",
+ "label": "Knowledge by prompt format",
+ "description": "Scores which prompt formats a model shows its knowledge in: the same sampled facts from each dataset, asked in every format that dataset supports. Base models get their instruct sibling's chat template. Launched from the Prompt format investigation.",
+ "script": "score_formats.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/investigations/format_knowledge",
+ "queue": false,
+ "run_name_always": [
+  "model",
+  "n",
+  "seed"
+ ],
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "64G"
+ },
+ "fields": [
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B",
+     "value": "qwen3-4b",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Thinking-2507",
+     "value": "qwen3-4b-thinking-2507",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct",
+     "available": true
+    },
+    {
+     "label": "Olmo-3-7B-Think",
+     "value": "olmo-3-7b-think",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b",
+     "available": true
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct",
+     "available": true
+    },
+    {
+     "label": "DeepSeek-R1-Distill-Llama-8B",
+     "value": "deepseek-r1-distill-llama-8b",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-v0.1",
+     "value": "mistral-7b-v0.1",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1",
+     "available": true
+    },
+    {
+     "label": "GPT-J-6B",
+     "value": "gpt-j-6b",
+     "available": true,
+     "note": "traced in the original ROME paper: the check that this script agrees"
+    },
+    {
+     "label": "OLMo-2-7B",
+     "value": "olmo-2-7b",
+     "available": true
+    },
+    {
+     "label": "GPT-NeoX-20B",
+     "value": "gpt-neox-20b",
+     "available": true
+    },
+    {
+     "label": "GPT-OSS-20B",
+     "value": "gpt-oss-20b",
+     "available": true,
+     "note": "no locate-and-edit hparams yet; mixture-of-experts MLP, so its mlp curve means something slightly different"
+    }
+   ]
+  },
+  {
+   "name": "datasets",
+   "label": "Datasets",
+   "type": "string",
+   "default": "mquake,uniedit,zsre,realtimeqa,riddles",
+   "sweepable": false
+  },
+  {
+   "name": "n",
+   "label": "Facts per dataset",
+   "type": "int",
+   "default": "500",
+   "sweepable": false,
+   "run_name_skip_default": true,
+   "run_name_prefix": "n"
+  },
+  {
+   "name": "min_prob",
+   "label": "Known-fact threshold",
+   "type": "float",
+   "default": "0.1",
+   "sweepable": false
+  },
+  {
+   "name": "seed",
+   "label": "Seed",
+   "type": "int",
+   "default": "0",
+   "sweepable": false,
+   "run_name_skip_default": true,
+   "run_name_prefix": "seed"
+  },
+  {
+   "name": "dtype",
+   "label": "Precision",
+   "type": "string",
+   "default": "bfloat16",
+   "sweepable": false
+  }
+ ]
+}

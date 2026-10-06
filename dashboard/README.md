@@ -372,6 +372,25 @@ their activations out of patched transformers modeling files (Llama-only, or
 Llama and GPT-J only). It recovers the same tensors with forward hooks, which
 is what lets these run on Qwen3, Olmo-3 and Mistral.
 
+## Knowledge by prompt format
+
+`experiments/format_knowledge/score_formats.py` (its own experiment type,
+launched from Experiments → Investigations → Knowledge by prompt format;
+one job per model) asks which prompt formats a model shows its knowledge
+in. It samples the same 500 facts per dataset for every model (MQuAKE,
+UniEdit, ZsRE, RealTimeQA, altered riddles; all records, relation-balanced)
+and asks each in every format the dataset allows (`completion`,
+`chat_complete`, `question`, `chat_question`, `chat_prefill`, `mcq`,
+`chat_mcq`, `riddle`, `chat_riddle`; formats.py). Known means the same test
+tracing uses: the top non-whitespace token starts an accepted answer with
+at least 10% probability; the answer's own first-token probability is kept
+too. Base models read the chat formats through their instruct sibling's
+template (`INSTRUCT_SIBLING`), so base and instruct see identical prompts.
+Results: `results/investigations/format_knowledge/runs/<model>/`, served by
+`/api/format-knowledge`. The other investigations default to base models
+(a project decision of 2026-10-03: settings found on a base model are
+assumed to carry to its instruct sibling).
+
 ## Causal tracing
 
 `experiments/causal_tracing/causal_trace.py` is a second experiment type,

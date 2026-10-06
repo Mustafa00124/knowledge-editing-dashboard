@@ -1037,6 +1037,20 @@ def restore_results(req: ArchiveRequest, type: Optional[str] = None):
 # hides). These two endpoints are only about its output: the model -> layer
 # mapping, and one run's curves.
 
+@app.get("/api/format-knowledge")
+def get_format_knowledge():
+    """Every finished format-knowledge run's rates (no per-fact detail):
+    model -> dataset -> format -> {known_rate, mean_p_answer, n}."""
+    root = config.INVESTIGATIONS_DIR / "format_knowledge" / "runs"
+    runs = []
+    for path in sorted(root.glob("*/summary.json")) if root.is_dir() else []:
+        try:
+            runs.append(json.loads(path.read_text()))
+        except (OSError, ValueError):
+            continue
+    return {"runs": runs}
+
+
 @app.get("/api/causal-tracing")
 def get_causal_tracing():
     return causal_tracing_reader.overview()

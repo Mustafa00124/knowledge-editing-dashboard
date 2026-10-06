@@ -139,6 +139,7 @@ export const api = {
   // Causal tracing: the model -> edit-layer mapping, and one run's curves.
   // Its jobs are submitted through submitExperiment like any other type.
   causalTracing: () => req('/causal-tracing'),
+  formatKnowledge: () => req('/format-knowledge'),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
   // Neuron attribution and circuit tracing (experiment: neuron_tracing or

@@ -122,12 +122,20 @@ class TraceTests(unittest.TestCase):
         for peak in [1, 1, 2, 2, 2, 4]:
             curve = [0.1] * 6
             curve[peak] = 0.9
-            traces.append({"p_corrupt": 0.0, "curves": {"mlp": curve}})
+            traces.append({"p_clean": 1.0, "p_corrupt": 0.0, "curves": {"mlp": curve}})
         r = ct.reliability(traces, 6, (0.0, 0.5), n_boot=200)
         self.assertEqual(r["band_layers"], [0, 2])
         self.assertAlmostEqual(r["share_peak_in_band"], 5 / 6, places=3)
         self.assertGreater(r["mass_in_band"], r["baseline"])
         self.assertIn(r["verdict"], ("strong", "moderate", "weak"))
+
+    def test_no_localisable_effect_is_inconclusive_not_strong(self):
+        # Every fact peaks in the band, but restoring recovers 2% of a big drop.
+        traces = [{"p_clean": 0.8, "p_corrupt": 0.3, "curves": {"mlp": [0.31, 0.30, 0.30, 0.30, 0.30, 0.30]}}
+                  for _ in range(60)]
+        r = ct.reliability(traces, 6, (0.0, 0.5), n_boot=100)
+        self.assertEqual(r["share_peak_in_band"], 1.0)
+        self.assertEqual(r["verdict"], "inconclusive")
 
     def test_only_plain_completion_traces_feed_the_edit_layer_hint(self):
         self.assertTrue(ct.feeds_traced_layers({"window": 10}))
