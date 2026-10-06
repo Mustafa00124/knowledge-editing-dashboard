@@ -302,7 +302,8 @@ class OllamaServer:
             port = s.getsockname()[1]
         self.url = f"http://127.0.0.1:{port}"
         env = {**os.environ, "OLLAMA_HOST": f"127.0.0.1:{port}", "OLLAMA_MODELS": os.path.join(OLLAMA_DIR, "models"),
-               "OLLAMA_NUM_PARALLEL": "8", "OLLAMA_KEEP_ALIVE": "-1", "OLLAMA_LOAD_TIMEOUT": "15m"}
+               "OLLAMA_NUM_PARALLEL": "8", "OLLAMA_KEEP_ALIVE": "-1", "OLLAMA_LOAD_TIMEOUT": "15m",
+               "OLLAMA_CONTEXT_LENGTH": str(CONTEXT)}
         os.makedirs(os.path.join(OLLAMA_DIR, "logs"), exist_ok=True)
         # Kept after the run: when Ollama fails, the reason is in here.
         self.log = open(os.path.join(OLLAMA_DIR, "logs", f"serve-{os.environ.get('SLURM_JOB_ID', os.getpid())}.log"), "w")
@@ -330,6 +331,10 @@ class OllamaServer:
 # while a SLURM job gets a couple of CPUs: oversubscribed, it took longer to
 # load a 4B model than Ollama waits. Use the CPUs this process may run on.
 THREADS = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
+# Ollama sizes its context to the GPU (262144 tokens on a 95 GB card) and
+# reserves that cache up front, leaving no room for the model being scored.
+# Judge prompts are a few hundred tokens.
+CONTEXT = 4096
 
 
 def ollama_judge(model, url=None):
@@ -339,13 +344,13 @@ def ollama_judge(model, url=None):
     _post(url + "/api/pull", {"model": model, "stream": False}, timeout=3600)
     # Load the model now, so its loading is not counted as the first calls' time.
     _post(url + "/api/generate", {"model": model, "prompt": "", "keep_alive": -1,
-                                  "options": {"num_thread": THREADS}}, timeout=1800)
+                                  "options": {"num_thread": THREADS, "num_ctx": CONTEXT}}, timeout=1800)
     load_seconds = round(time.time() - loading, 1)
 
     def ask(text):
         reply = _post(url + "/api/chat", {
             "model": model, "stream": False, "think": False, "format": "json",
-            "options": {"temperature": 0, "num_predict": 80, "num_thread": THREADS},
+            "options": {"temperature": 0, "num_predict": 80, "num_thread": THREADS, "num_ctx": CONTEXT},
             "messages": [{"role": "user", "content": text}]}, timeout=300)
         return reply["message"]["content"]
     judge = Judge(ask, f"ollama:{model}")
