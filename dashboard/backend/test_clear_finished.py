@@ -92,8 +92,8 @@ class ClearTests(unittest.TestCase):
         self.assertNotIn("cleared_failures", runs["fine"])
 
     def test_failures_skip_cleared_runs(self):
-        rows = [{"run": "a", "state": "FAILED", "flags": [], "earlier": [], "failure_cleared": True},
-                {"run": "b", "state": "FAILED", "flags": [], "earlier": [], "failure_cleared": False}]
+        rows = [{"run": "a", "state": "FAILED", "flags": [], "earlier": [], "failure_cleared": True, "baseline_copy": False},
+                {"run": "b", "state": "FAILED", "flags": [], "earlier": [], "failure_cleared": False, "baseline_copy": False}]
         with patch.object(hparam_sweeps, "_load_catalog", return_value={"investigations": [{"id": "x", "label": "X"}]}), \
              patch.object(hparam_sweeps, "results", return_value=rows) as results:
             out = hparam_sweeps.failures()

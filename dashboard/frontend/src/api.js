@@ -150,6 +150,8 @@ export const api = {
   // Its jobs are submitted through submitExperiment like any other type.
   causalTracing: () => req('/causal-tracing'),
   formatKnowledge: () => req('/format-knowledge'),
+  // In-context experiment runs (SCR among distractor facts), scored per evaluation mode.
+  inContext: () => req('/in-context'),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
   // Neuron attribution and circuit tracing (experiment: neuron_tracing or

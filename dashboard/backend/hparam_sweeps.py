@@ -1,8 +1,12 @@
 """Hyperparameter investigations: catalog, sweep launches, results, promotion.
 
-An investigation is one kind of setting (experiments/run_experiment/
-investigations.json) and the methods that have it. A sweep varies one or
-more of those settings for chosen methods, models and datasets; every
+An investigation is one method family (experiments/run_experiment/
+investigations.json) and every tunable setting of its methods; the earlier
+investigations by kind of setting are kept as `legacy` so their results stay
+readable, but are no longer launched. A sweep varies some of those settings
+for chosen methods, models and datasets, either one setting at a time around
+a single run at the current settings (`design: one_at_a_time`) or every
+combination (`grid`); every
 point is an ordinary run_experiment job (same submission path, logs and
 job table as the Experiments page) with three differences: it edits dev
 records only (--split dev), evaluates only before editing and at the end
@@ -60,7 +64,7 @@ FIELD_OVERRIDES = {
 # Set by the runner itself, never from a file or a sweep.
 RUNNER_SET = {("ft", "batch_size"): "every record at once (the runner sets it to the record count)",
               ("lora", "batch_size"): "every record at once (the runner sets it to the record count)"}
-INT_FACTORS = (0.5, 1, 2)
+INT_FACTORS = (0.25, 0.5, 1, 2, 4)
 
 
 def _load_catalog():
@@ -270,9 +274,11 @@ def catalog():
 
 
 def _owners():
-    """(method, key) -> the investigation that tunes it."""
+    """(method, key) -> the investigation that tunes it (never a legacy one)."""
     owners = {}
     for inv in _load_catalog()["investigations"]:
+        if inv.get("legacy"):
+            continue
         for method, entry in inv["methods"].items():
             for key in entry["knobs"]:
                 owners[(method, key)] = {"id": inv["id"], "label": inv["label"]}
@@ -313,6 +319,12 @@ def effective_settings(method, model, exp_cfg=None):
     return out
 
 
+def _earlier(method, key):
+    """Legacy investigations that swept this setting of this method."""
+    return [inv["id"] for inv in _load_catalog()["investigations"]
+            if inv.get("legacy") and key in (inv["methods"].get(method) or {}).get("knobs", {})]
+
+
 def settings(investigation, methods, models):
     """Held-constant candidates for a sweep: each method's settings per
     model, which investigation tunes each one, and the best value that
@@ -325,7 +337,9 @@ def settings(investigation, methods, models):
     def best(method, model, key, owner):
         if not owner or owner["id"] == investigation:
             return None
-        rows = results_cache.setdefault(owner["id"], results(owner["id"]))
+        # The family's own sweeps and the earlier by-setting ones alike.
+        rows = [r for inv_id in [owner["id"]] + _earlier(method, key)
+                for r in results_cache.setdefault(inv_id, results(inv_id))]
         candidates = [r for r in rows if r["method"] == method and r["model"] == model
                       and list(r["overrides"]) == [key] and _keeps_fluency(r["scores"])]
         if not candidates:
@@ -377,6 +391,17 @@ def _grid(knob_values):
         yield dict(zip(keys, combo))
 
 
+def _one_at_a_time(knob_values, current):
+    """None (one run at the current settings) then {key: value} for every
+    picked value that differs from the current one, one setting at a time."""
+    points = [None]
+    for key in sorted(knob_values):
+        for value in knob_values[key]:
+            if json.dumps(value) != json.dumps(current.get(key)):
+                points.append({key: value})
+    return points
+
+
 def _skip_reason(exp_cfg, params):
     spec = _method_options(exp_cfg).get(params["method"], {})
     if params.get("edit_mode") in ("batch", "sequential_batch") and spec.get("no_joint_batch"):
@@ -393,6 +418,12 @@ def plan(req):
     inv = next((i for i in _load_catalog()["investigations"] if i["id"] == req["investigation"]), None)
     if inv is None:
         raise ValueError(f"unknown investigation {req['investigation']!r}")
+    if inv.get("legacy"):
+        raise ValueError(f"{inv['label']} is an earlier sweep by kind of setting; sweep its methods "
+                         "from their family's investigation instead")
+    design = req.get("design") or inv.get("design") or "grid"
+    if design not in ("grid", "one_at_a_time"):
+        raise ValueError(f"design must be grid or one_at_a_time, not {design!r}")
     runs, skipped = [], []
     if list(req.get("data_paths") or []) == ["default"]:
         req["data_paths"] = default_datasets(inv, exp_cfg) or []
@@ -433,11 +464,21 @@ def plan(req):
                     skipped.append({"method": method, "model": model, "data_path": data_path,
                                     "reason": _skip_reason(exp_cfg, params)})
                     continue
-                for overrides in _grid(knob_values):
-                    name = "_".join([method, model, _dataset_slug(exp_cfg, data_path)]
-                                    + [f"{k}{_slug(v)}" for k, v in overrides.items()])
-                    runs.append({"run_name": name, "method": method, "model": model, "data_path": data_path,
-                                 "overrides": overrides, "fixed": fixed, "params": params})
+                stem = [method, model, _dataset_slug(exp_cfg, data_path)]
+                current = {r["key"]: r["value"] for r in effective_settings(method, model, exp_cfg)}
+                current.update(fixed)
+                points = list(_grid(knob_values)) if design == "grid" else _one_at_a_time(knob_values, current)
+                for overrides in points:
+                    run = {"method": method, "model": model, "data_path": data_path,
+                           "overrides": overrides, "fixed": fixed, "params": params}
+                    if overrides is None:
+                        # The one run at the current settings, standing in for
+                        # every swept setting's current value.
+                        run.update(overrides={}, baseline_for={k: current.get(k) for k in knob_values})
+                        name = "_".join(stem + ["current"])
+                    else:
+                        name = "_".join(stem + [f"{k}{_slug(v)}" for k, v in overrides.items()])
+                    runs.append({"run_name": name, **run})
     # Two runs with one name would write into one directory at once.
     names = [r["run_name"] for r in runs]
     clash = sorted({n for n in names if names.count(n) > 1})
@@ -469,6 +510,7 @@ def launch(req, launched_by="user"):
             investigation=inv["id"], batch_id=sweep_id, label=req.get("label") or "", launched_by=launched_by,
             note=req.get("note") or "")
         submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides", "fixed")}
+                         | ({"baseline_for": run["baseline_for"]} if "baseline_for" in run else {})
                          | {"job_id": result["job_id"]})
     (out_root / "sweep.json").write_text(json.dumps({
         "id": sweep_id, "investigation": inv["id"], "label": req.get("label") or "",
@@ -975,37 +1017,45 @@ def results(investigation, include_hidden=True):
                 earlier.append({"job_id": str(job_id), "state": old_state,
                                 "error": _error_line(old_job.get("err_path")),
                                 "submitted_at": old_job.get("submitted_at")})
-            rows.append({
-                "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
-                "method": run["method"], "model": run["model"], "data_path": run["data_path"],
-                # Each tuning stage is its own model value, so runs never
-                # overwrite each other; these say which stage it is.
-                "model_label": models.get(run["model"], {}).get("label", run["model"]),
-                "model_variant": models.get(run["model"], {}).get("variant"),
-                "model_type": models.get(run["model"], {}).get("type"),
-                "model_family": models.get(run["model"], {}).get("family"),
-                # Single, batch and sequential runs live in separate sweeps and
-                # never overwrite each other; this keeps them apart in tables.
-                **(lambda p: {"protocol": p["label"], "protocol_detail": p})(_protocol(exp_cfg, sweep["request"], summary)),
-                "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
-                "overrides": run["overrides"], "fixed": run.get("fixed") or {},
-                "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,
-                "flags": _flags(state, error, loss, scores),
-                "earlier": earlier, "submitted_at": job.get("submitted_at"),
-                "investigation": investigation,
-                # Its current failure was cleared off the Failures view.
-                "failure_cleared": str(run["job_id"]) in map(str, run.get("cleared_failures", [])),
-                "records": summary.get("ds_size") if summary else None,
-                "scores": scores,
-                "fluency_raw": summary.get("fluency") if summary else None,
-                "fluency_baseline": (baseline or {}).get("fluency"),
-                # Time: editing and evaluation (after the model loaded), the
-                # whole run start to finish, and for unfinished runs what
-                # the scheduler reports so far.
-                "total_sec": summary.get("total_sec") if summary else None,
-                "wall_sec": _wall_seconds(summary) if summary else None,
-                "elapsed_sec": _seconds(statuses.get(str(run["job_id"]), {}).get("elapsed")),
-            })
+            # A one-at-a-time sweep's run at the current settings is every
+            # swept setting's current value: one row per setting, so each
+            # setting's comparison includes it (copies after the first are
+            # marked, so failures and counts see the run once).
+            shown = [({k: v}, i > 0) for i, (k, v) in enumerate(run["baseline_for"].items())] \
+                if run.get("baseline_for") else [(run["overrides"], False)]
+            for overrides, copy in shown:
+                rows.append({
+                    "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
+                    "method": run["method"], "model": run["model"], "data_path": run["data_path"],
+                    # Each tuning stage is its own model value, so runs never
+                    # overwrite each other; these say which stage it is.
+                    "model_label": models.get(run["model"], {}).get("label", run["model"]),
+                    "model_variant": models.get(run["model"], {}).get("variant"),
+                    "model_type": models.get(run["model"], {}).get("type"),
+                    "model_family": models.get(run["model"], {}).get("family"),
+                    # Single, batch and sequential runs live in separate sweeps and
+                    # never overwrite each other; this keeps them apart in tables.
+                    **(lambda p: {"protocol": p["label"], "protocol_detail": p})(_protocol(exp_cfg, sweep["request"], summary)),
+                    "dataset": f"{benchmark} / {subset}" if benchmark else Path(run["data_path"]).stem,
+                    "overrides": overrides, "fixed": run.get("fixed") or {},
+                    "current_settings": bool(run.get("baseline_for")), "baseline_copy": copy,
+                    "state": state, "job_id": str(run["job_id"]), "error": error, "loss": loss,
+                    "flags": _flags(state, error, loss, scores),
+                    "earlier": earlier, "submitted_at": job.get("submitted_at"),
+                    "investigation": investigation,
+                    # Its current failure was cleared off the Failures view.
+                    "failure_cleared": str(run["job_id"]) in map(str, run.get("cleared_failures", [])),
+                    "records": summary.get("ds_size") if summary else None,
+                    "scores": scores,
+                    "fluency_raw": summary.get("fluency") if summary else None,
+                    "fluency_baseline": (baseline or {}).get("fluency"),
+                    # Time: editing and evaluation (after the model loaded), the
+                    # whole run start to finish, and for unfinished runs what
+                    # the scheduler reports so far.
+                    "total_sec": summary.get("total_sec") if summary else None,
+                    "wall_sec": _wall_seconds(summary) if summary else None,
+                    "elapsed_sec": _seconds(statuses.get(str(run["job_id"]), {}).get("elapsed")),
+                })
     return rows
 
 
@@ -1018,7 +1068,7 @@ def failures():
     for investigation in labels:
         # Hidden sweeps and cleared failures stay off this list.
         for row in results(investigation, include_hidden=False):
-            if row["failure_cleared"]:
+            if row["failure_cleared"] or row["baseline_copy"]:
                 continue
             row["investigation_label"] = labels[investigation]
             failing = row["state"] in RETRYABLE or any(f["level"] == "error" for f in row["flags"])

@@ -7,6 +7,7 @@ import TracingFormats from './pages/TracingFormats.jsx'
 import FormatKnowledge from './pages/FormatKnowledge.jsx'
 import NeuronTracing from './pages/NeuronTracing.jsx'
 import CircuitTracing from './pages/CircuitTracing.jsx'
+import InContext from './pages/InContext.jsx'
 import Investigations from './pages/Investigations.jsx'
 import SweepInvestigation from './pages/SweepInvestigation.jsx'
 import Datasets from './pages/Datasets.jsx'
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="/models" element={<Models />} />
           <Route path="/methods" element={<Methods />} />
           <Route path="/experiments" element={<Experiments />} />
+          <Route path="/experiments/in-context" element={<InContext />} />
           <Route path="/experiments/investigations" element={<Investigations />} />
           <Route path="/experiments/investigations/causal_tracing" element={<CausalTracing />} />
           <Route path="/experiments/investigations/tracing_formats" element={<TracingFormats />} />

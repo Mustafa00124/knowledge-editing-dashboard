@@ -81,6 +81,7 @@ written as on the runner's command line.
   | `circuit_tracing` | `circuit_tracing` |
   | `fact_selection` | `causal_tracing` (fact sets serve the tracing studies) |
   | `run_experiment` | none: a main experiment |
+  | `in_context` | `in_context`: the In context page's main experiment (SCR against `--kb_size` facts) |
 
   A hyperparameter sweep investigation cannot be given here (see below).
 - `--trial` writes to `results/main/trial_runs/` instead of the real results:
@@ -91,20 +92,31 @@ written as on the runner's command line.
 ## Hyperparameter sweeps
 
 Sweep investigations (`dash.py investigations` shows "sweep") tune an editing
-method's settings, and only ever on **dev records**. They take a JSON spec:
+method's settings, and only ever on **dev records**. There is one per method
+family: `finetuning`, `locate_edit`, `dynamic_locate_edit`, `neuron_editors`.
+The older by-setting ones (`edit_layers`, `value_optimisation`, ...) are
+`legacy`: their results are readable, but they refuse new sweeps. They take a
+JSON spec:
 
 ```json
 {
- "investigation": "edit_layers",
- "methods": {"memit": {"layers": [[3, 4, 5, 6, 7], [5, 6, 7, 8, 9]]}},
- "models": ["qwen3-4b"],
+ "investigation": "locate_edit",
+ "design": "one_at_a_time",
+ "methods": {"memit": {"layers": [[3, 4, 5, 6, 7], [5, 6, 7, 8, 9]], "v_lr": [0.05, 0.5, 5.0]}},
+ "models": ["qwen3-4b-base"],
  "data_paths": ["<a data_path value from: dash.py fields run_experiment>"],
- "ds_size": "full",
+ "ds_size": "20",
  "edit_mode": "batch",
  "label": "MEMIT window either side of the default, Qwen3",
  "note": "checks whether the traced peak is the best window"
 }
 ```
+
+`design` is `one_at_a_time` (each value changes only its own setting, plus one
+shared run at the current settings) or `grid` (every combination); left out,
+the investigation's own default (`one_at_a_time` for the families). A quick
+check is `"ds_size": "2"` with `"edit_mode": "single"`, or `"20"` with
+`"batch"` (two batches of ten).
 
 ```bash
 python scripts/dash.py sweep spec.json --estimate   # runs, GPU hours, statistics still to compute
@@ -113,7 +125,7 @@ python scripts/dash.py sweep spec.json              # launch
 
 - Which settings each investigation sweeps for which method, their current
   values and suggested values: `dash.py get /api/hparams/investigations`.
-- What the sweep holds constant: `dash.py get "/api/hparams/settings?investigation=edit_layers&methods=memit&models=qwen3-4b"`.
+- What the sweep holds constant: `dash.py get "/api/hparams/settings?investigation=locate_edit&methods=memit&models=qwen3-4b"`.
   Change a held value with `"fixed": {"memit": {"qwen3-4b": {"kl_factor": 0.1}}}`.
 - `"data_paths": ["default"]` uses the investigation's own dataset set where
   it has one (SCR: every runnable dataset with dev records, without
@@ -125,7 +137,8 @@ python scripts/dash.py sweep spec.json              # launch
 
 | What | Command |
 | --- | --- |
-| Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=edit_layers"` |
+| Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=locate_edit"` (a legacy id such as `edit_layers` for earlier sweeps) |
+| In-context runs, scored by knowledge-base size | `dash.py get /api/in-context` |
 | Failed sweep runs and their errors | `dash.py get /api/hparams/failures` |
 | Causal tracing (runs, peaks, verdicts) | `dash.py get /api/causal-tracing`, then `/api/causal-tracing/runs/<run>` |
 | Neuron attribution, circuit tracing | `dash.py get /api/mechanistic/neuron_tracing` (or `circuit_tracing`), then `/runs/<run>` |
