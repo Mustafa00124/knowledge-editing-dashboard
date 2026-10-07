@@ -147,11 +147,12 @@ def cmd_investigations(args):
     for inv in catalog:
         now = running.get(inv["id"])
         busy = f"  [{now['running']} running, {now['waiting']} waiting]" if now else ""
-        status = " (planned)" if inv.get("status") == "planned" else ""
+        status = " (planned)" if inv.get("status") == "planned" else " (earlier, results only)" if inv.get("legacy") else ""
         how = "sweep" if inv.get("methods") else "launch"
         print(f"{inv['id']:<20} {inv.get('group', ''):<12} {how:<6} {inv['label']}{status}{busy}")
-    if running.get("main"):
-        print(f"{'main':<20} main experiments  [{running['main']['running']} running, {running['main']['waiting']} waiting]")
+    for key, label in (("main", "main experiments"), ("in_context", "in-context experiment")):
+        if running.get(key):
+            print(f"{key:<20} {label}  [{running[key]['running']} running, {running[key]['waiting']} waiting]")
 
 
 def cmd_launch(args):
