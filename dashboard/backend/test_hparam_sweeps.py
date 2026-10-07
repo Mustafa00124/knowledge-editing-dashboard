@@ -12,7 +12,7 @@ DATASET = os.path.join(str(config.PROJECT_ROOT), "datasets/KnowEdit/benchmark/wi
 
 
 def request(**extra):
-    return {"investigation": "edit_layers", "methods": {"rome": {"layers": [[4], [5]]}},
+    return {"investigation": "locate_edit", "design": "grid", "methods": {"rome": {"layers": [[4], [5]]}},
             "models": ["qwen3-4b"], "data_paths": [DATASET], "ds_size": "full", "edit_mode": "single",
             **extra}
 
@@ -43,37 +43,70 @@ class HeldConstantTests(unittest.TestCase):
         self.assertNotIn("rewrite_module_tmp", rome)
 
     def test_held_settings_name_the_investigation_that_tunes_them(self):
-        held = hparam_sweeps.settings("edit_layers", ["rome"], ["qwen3-4b"])["rome"]["qwen3-4b"]
+        held = hparam_sweeps.settings("dynamic_locate_edit", ["rome"], ["qwen3-4b"])["rome"]["qwen3-4b"]
         owners = {r["key"]: (r["owner"] or {}).get("id") for r in held}
-        self.assertEqual(owners["v_lr"], "value_optimisation")
-        self.assertEqual(owners["kl_factor"], "preservation")
+        self.assertEqual(owners["v_lr"], "locate_edit")
+        self.assertEqual(owners["kl_factor"], "locate_edit")
         self.assertIsNone(owners["fact_token"])
 
 
 class MethodInvestigationTests(unittest.TestCase):
-    """FT and LoRA each have one investigation that owns all their settings."""
+    """One investigation per method family owns every setting of its methods."""
 
-    def test_ft_and_lora_settings_are_owned_by_their_own_investigation(self):
+    FAMILIES = {"finetuning": {"ft", "lora"}, "locate_edit": {"rome", "memit", "pmet", "alphaedit"},
+                "dynamic_locate_edit": {"wilke", "fidal"}, "neuron_editors": {"fine", "kn", "nmke"}}
+
+    def test_each_family_owns_its_methods_settings(self):
         owners = hparam_sweeps._owners()
         for key in ("objective_optimization", "layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
-            self.assertEqual(owners[("ft", key)]["id"], "ft", key)
+            self.assertEqual(owners[("ft", key)]["id"], "finetuning", key)
         for key in ("rank", "target_modules", "layers", "lr", "num_steps", "lora_alpha", "lora_dropout",
                     "weight_decay", "lora_type"):
-            self.assertEqual(owners[("lora", key)]["id"], "lora", key)
-        for inv in hparam_sweeps._load_catalog()["investigations"]:
-            if inv["id"] not in ("ft", "lora"):
-                self.assertFalse({"ft", "lora"} & set(inv["methods"]), inv["id"])
+            self.assertEqual(owners[("lora", key)]["id"], "finetuning", key)
+        catalog = {i["id"]: i for i in hparam_sweeps._load_catalog()["investigations"]}
+        for family, methods in self.FAMILIES.items():
+            self.assertEqual(set(catalog[family]["methods"]), methods, family)
+        # Every setting an earlier by-setting sweep tuned is in its method's family.
+        for inv in catalog.values():
+            if not inv.get("legacy"):
+                continue
+            for method, entry in inv["methods"].items():
+                family = next((f for f, ms in self.FAMILIES.items() if method in ms), None)
+                if family is None:
+                    continue  # CaKE is no longer swept
+                self.assertLessEqual(set(entry["knobs"]), set(catalog[family]["methods"][method]["knobs"]),
+                                     (inv["id"], method))
+        self.assertNotIn("scr", {m for i in catalog.values() if i["group"] == "sweep" for m in i["methods"]})
+
+    def test_earlier_sweeps_are_not_launched(self):
+        with self.assertRaisesRegex(ValueError, "earlier sweep"):
+            hparam_sweeps.plan({**request(), "investigation": "edit_layers"})
+
+    def test_one_at_a_time_shares_one_run_at_the_current_settings(self):
+        current = {r["key"]: r["value"] for r in hparam_sweeps.effective_settings("rome", "qwen3-4b")}
+        req = request(design="one_at_a_time", methods={"rome": {
+            "v_lr": [current["v_lr"], current["v_lr"] * 10], "kl_factor": [current["kl_factor"] / 10]}})
+        _, _, runs, _ = hparam_sweeps.plan(req)
+        self.assertEqual([r["overrides"] for r in runs],
+                         [{}, {"kl_factor": current["kl_factor"] / 10}, {"v_lr": current["v_lr"] * 10}])
+        self.assertTrue(runs[0]["run_name"].endswith("_current"))
+        self.assertEqual(runs[0]["baseline_for"], {"v_lr": current["v_lr"], "kl_factor": current["kl_factor"]})
+        self.assertNotIn("baseline_for", runs[1])
+
+    def test_int_suggestions_are_five_spread_values(self):
+        self.assertEqual(hparam_sweeps.suggest("int", 20), [5, 10, 20, 40, 80])
+        self.assertEqual(len(hparam_sweeps.suggest("log", 0.5)), 5)
 
     def test_every_knob_has_a_current_value(self):
         settings = {m: {r["key"] for r in hparam_sweeps.effective_settings(m, "qwen3-4b") if r["editable"]}
                     for m in ("ft", "lora")}
-        for inv in ("ft", "lora"):
+        for method in ("ft", "lora"):
             knobs = hparam_sweeps._load_catalog()["investigations"]
-            knobs = next(i for i in knobs if i["id"] == inv)["methods"][inv]["knobs"]
-            self.assertEqual(set(knobs) - settings[inv], set(), inv)
+            knobs = next(i for i in knobs if i["id"] == "finetuning")["methods"][method]["knobs"]
+            self.assertEqual(set(knobs) - settings[method], set(), method)
 
     def test_ft_m_and_ft_l_swept_separately_or_together(self):
-        req = {"investigation": "ft", "methods": {"ft": {"objective_optimization": ["target_new", "prompt_last"],
+        req = {"investigation": "finetuning", "design": "grid", "methods": {"ft": {"objective_optimization": ["target_new", "prompt_last"],
                                                          "lr": [1e-4, 1e-3]}},
                "models": ["qwen3-4b"], "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
         _, _, runs, _ = hparam_sweeps.plan(req)

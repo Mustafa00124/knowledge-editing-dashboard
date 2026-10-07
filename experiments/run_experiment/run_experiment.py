@@ -20,7 +20,10 @@ the dashboard's progress bar keeps working unchanged regardless of method):
   - SCR:  never edits the model at all (see scr.py) - "step i" means i
           facts have been added to SCR's retrievable knowledge base so
           far. Same reasoning as ROME: --lr/--num_steps don't apply,
-          step count is always ds_size.
+          step count is always ds_size. With --kb_size there is no
+          growth: after the empty-knowledge-base baseline (step 0), every
+          record is asked once against kb_size-1 distractor facts plus
+          its own fact (the In-context experiment).
   - IKE:  never edits the model either (see ike.py) - the *test* requests
           being evaluated stay fixed throughout; "step i" instead means i
           demonstration sentences (built from a separate training split)
@@ -328,6 +331,15 @@ def parse_args():
         default=None,
         help="How many retrieved items SCR/IKE prepend to a prompt. Left alone, the hparams file wins.",
     )
+    p.add_argument(
+        "--kb_size",
+        type=int,
+        default=None,
+        help="SCR only: ask each record against a knowledge base of this many facts, its own fact "
+        "plus kb_size-1 distractors (the same dataset first, then its training file, then other "
+        "datasets; see scr.distractor_entries). Left out, the knowledge base grows one edit at a "
+        "time to every loaded record, as before.",
+    )
     p.add_argument("--easyedit_path", default=DEFAULT_EASYEDIT_PATH)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
@@ -359,6 +371,11 @@ def parse_args():
         validate_protocol(args.method, args.edit_mode, args.reset_every, args.edit_batch_size)
     except ValueError as exc:
         p.error(str(exc))
+    if args.kb_size is not None:
+        if args.method != "scr":
+            p.error("--kb_size applies to SCR only")
+        if args.kb_size < 1:
+            p.error("--kb_size must be at least 1 (the record's own fact)")
     for name in ("fluency_every", "sample_every"):
         v = getattr(args, name)
         if v % args.checkpoint_every != 0:
@@ -593,6 +610,8 @@ def main():
     run_name = args.run_name or f"{args.method}_{args.model}"
     if not args.run_name and args.evaluation_modes != ["original"]:
         run_name += "_eval-" + "-".join(args.evaluation_modes)
+    if not args.run_name and args.kb_size is not None:
+        run_name += f"_kb{args.kb_size}"
     if not args.run_name and args.edit_mode:
         run_name += f"_{args.edit_mode}"
         if args.edit_mode in SEQUENTIAL_MODES:
@@ -631,6 +650,7 @@ def main():
                 "split": args.split,
                 "final_only": args.final_only,
                 "hparam_overrides": overrides,
+                "kb_size": args.kb_size,
                 "seed": args.seed,
                 "run_name": run_name,
                 "dataset_benchmark": dataset_benchmark,
@@ -686,6 +706,18 @@ def main():
 
         scr_kb = SCRIndex(hparams.sentence_model_name, device)
 
+    distractor_counts = None
+    record_entries = None
+    if args.kb_size is not None:
+        from scr import distractor_entries, kb_entries
+
+        distractors, distractor_counts = distractor_entries(
+            args.data_path, requests, args.kb_size - 1, args.seed, lambda path: load_requests(path, None),
+            os.path.join(PROJECT_ROOT, "datasets"), hparams.kb_key)
+        record_entries = kb_entries(requests, hparams.kb_key)
+        print(f"[{run_name}] knowledge base of {args.kb_size}: each record's own fact plus "
+              f"{len(distractors)} distractors ({distractor_counts})")
+
     ike_pool = None
     ike_demo_requests = None
     if args.method == "ike":
@@ -716,7 +748,11 @@ def main():
     ckpt_path = os.path.join(run_dir, "checkpoints.jsonl")
     ckpt_file = open(ckpt_path, "w")
     state = {"baseline_locality": None, "scr_baseline": None, "ike_baseline": None,
-             "group_start": 0, "group_stop": len(requests), "group_rows": []}
+             "group_start": 0, "group_stop": len(requests), "group_rows": [],
+             # --kb_size: set once the distractors are in, so step 0 stays an
+             # empty-knowledge-base baseline.
+             "record_scope": None}
+    record_index = {id(r): i for i, r in enumerate(requests)}
     t_start = time.time()
 
     samples_written = set()
@@ -726,7 +762,7 @@ def main():
 
         sample_requests = requests[state["group_start"]:state["group_stop"]] if args.edit_mode and step else requests
         samples = method_samples(model, tok, sample_requests, device, args.method, step, hparams,
-                                 scr_kb if args.method == "scr" else ike_pool)
+                                 scr_kb if args.method == "scr" else ike_pool, state["record_scope"])
         with open(os.path.join(samples_dir, f"step_{step:06d}.json"), "w") as f:
             json.dump(samples, f, indent=2)
         samples_written.add(step)
@@ -748,7 +784,7 @@ def main():
 
                 per_record, scr_answers = evaluate_requests_scr(
                     model, tok, requests, scr_kb, device, hparams, baseline_answers=state["scr_baseline"], answer_cache=answer_cache,
-                    fluency=do_fluency,
+                    fluency=do_fluency, record_scope=state["record_scope"],
                 )
                 if state["scr_baseline"] is None:
                     state["scr_baseline"] = scr_answers  # step 0 (empty KB) becomes the baseline
@@ -776,8 +812,15 @@ def main():
             def answer(record, question):
                 if args.method == "scr":
                     from scr import scr_answer
-                    return cached_answer(answer_cache, question, lambda: scr_answer(
-                        model, tok, question, scr_kb, device, hparams.retrieval_k, hparams.max_new_tokens, hparams))
+
+                    def ask():
+                        return scr_answer(model, tok, question, scr_kb, device, hparams.retrieval_k,
+                                          hparams.max_new_tokens, hparams)
+                    if state["record_scope"] is None:
+                        return cached_answer(answer_cache, question, ask)
+                    i = record_index[id(record)]
+                    with state["record_scope"](i):
+                        return cached_answer(answer_cache, ("record", i, question), ask)
                 if args.method == "ike" and step != 0:
                     from ike import ike_answer
                     fact = f"{record['prompt']} {record['target_new']}"
@@ -929,6 +972,12 @@ def main():
                         model, _ = apply_fn(model, tok, requests[prev:step], hparams, copy=False)
                     prev = step
                     on_checkpoint(step, loss=None)
+        elif args.method == "scr" and args.kb_size is not None:
+            on_checkpoint(0, loss=None)  # KB still empty - pure baseline, nothing ever injected
+            scr_kb.grow([e["text"] for e in distractors], keys=[e["key"] for e in distractors],
+                        ids=[e["id"] for e in distractors])
+            state["record_scope"] = lambda i: scr_kb.holding(record_entries[i])
+            on_checkpoint(total_steps, loss=None)
         elif args.method == "scr":
             from scr import kb_entries
 
@@ -973,6 +1022,8 @@ def main():
         "ds_size_requested": ds_size_requested,
         "split": args.split,
         "hparam_overrides": overrides,
+        "kb_size": args.kb_size,
+        "kb_distractors": distractor_counts,
         "seed": args.seed,
         # started_at predates the model load, total_sec is measured from
         # after it - so finished_at - started_at is legitimately a bit

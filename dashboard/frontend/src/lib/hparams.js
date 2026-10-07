@@ -10,7 +10,7 @@ export const GROUP_LABEL = {
 
 export const GROUP_HELP = {
   mechanistic: 'measure the model itself, per model, with no editing method involved',
-  sweep: 'try settings of each editing method on dev records, to pick what the main experiments use',
+  sweep: 'one per method family: try every setting of its methods on dev records, to pick what the main experiments use',
   input: 'check whether what the model is given, how the prompt is written and what context is added to it, changes a result',
 }
 

@@ -19,6 +19,7 @@ import datasets_reader
 import downloads
 import environment
 import hparam_sweeps
+import in_context_reader
 import launches
 import models_reader
 import db
@@ -1088,6 +1089,13 @@ def restore_results(req: ArchiveRequest, type: Optional[str] = None):
 # a registered experiment type like any other, just one the queue drawer
 # hides). These two endpoints are only about its output: the model -> layer
 # mapping, and one run's curves.
+
+@app.get("/api/in-context")
+def get_in_context():
+    """In-context experiment runs (SCR among distractors), scored per
+    evaluation mode on the four criteria."""
+    return {"runs": in_context_reader.runs()}
+
 
 @app.get("/api/format-knowledge")
 def get_format_knowledge():

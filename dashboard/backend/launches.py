@@ -36,6 +36,9 @@ DEFAULT_INVESTIGATION = {
     "circuit_tracing": "circuit_tracing",
     "fact_selection": "causal_tracing",
     "format_knowledge": "format_knowledge",
+    # Not an investigation: the second kind of main experiment, with its own
+    # page and progress section (Experiments -> In context).
+    "in_context": "in_context",
 }
 
 ACTIVE = hparam_sweeps.ACTIVE

@@ -1,5 +1,5 @@
 {
- "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (per-method hyperparameter sweeps on dev records; each lists the methods that have the setting, under the name their hparams file uses), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `datasets: all` makes a sweep start with every runnable dataset that has dev records selected, less any path containing an entry of `datasets_except` (subsets that repeat another's records); a sweep spec can ask for that set with data_paths [\"default\"]. `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), layer_span (every layer, a half or a quarter of the model, or a window around its traced peak), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
+ "about": "Investigations: experiments that set up the main experiments' configuration, grouped by what they study. `group` is mechanistic (model-level measurements, no editing method: `scope: model`, their own page), sweep (hyperparameter sweeps on dev records, one per method family: every setting of every method in the family, under the name its hparams file uses; `design: one_at_a_time` makes a sweep vary one setting at a time around a shared run at the current settings; `legacy: true` marks the earlier sweeps by kind of setting, kept so their results stay readable but no longer launched), or input (whether what the model is given changes a result: how the prompt is written, and what context is added to it; `scope` still decides whether one is per model or a per-method sweep). `datasets: all` makes a sweep start with every runnable dataset that has dev records selected, less any path containing an entry of `datasets_except` (subsets that repeat another's records); a sweep spec can ask for that set with data_paths [\"default\"]. `status: planned` lists an investigation that is not built yet. For sweeps, `kind` decides the suggested values: log (multiply the default by factors), int (scale the default), layer (one layer), layer_window (a contiguous block of the default's width), layer_span (every layer, a half or a quarter of the model, or a window around its traced peak), choice (listed options), bool. `stability` is how the authors' default varies: robust (same everywhere), model, data, not_reported. Sweeps run on dev records only.",
  "investigations": [
   {
    "id": "causal_tracing",
@@ -24,6 +24,416 @@
    "scope": "model",
    "methods": {},
    "question": "Which attention heads, MLPs and paths between them carry a fact from the subject to the answer, and is that circuit enough on facts it was not chosen from? The circuit-level unit that circuit-aware editors target."
+  },
+  {
+   "id": "finetuning",
+   "label": "Finetuning",
+   "group": "sweep",
+   "family": "Finetuning",
+   "design": "one_at_a_time",
+   "question": "How should each finetuning method be set up: what it trains (FT's loss and layer, LoRA's adapters and rank), how hard and how long, and how it is held near the original weights?",
+   "methods": {
+    "ft": {
+     "knobs": {
+      "objective_optimization": {
+       "kind": "choice",
+       "options": [
+        "target_new",
+        "prompt_last"
+       ],
+       "stability": "not_reported",
+       "note": "target_new is FT-M: cross-entropy on every target token after the prompt (EasyEdit's recommended FT). prompt_last is FT-L, the ROME paper's constrained fine-tuning: the target scored at the last prompt position. Hold it fixed to tune FT-M and FT-L separately, or sweep both to compare them"
+      },
+      "layers": {
+       "kind": "layer",
+       "stability": "model"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "weight_decay": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.0001,
+        0.001,
+        0.01
+       ],
+       "stability": "not_reported",
+       "note": "Adam's L2 term pulls the edited weights toward zero, not toward the original weights; norm_constraint is what keeps them near the originals"
+      },
+      "norm_constraint": {
+       "kind": "log",
+       "stability": "model"
+      }
+     }
+    },
+    "lora": {
+     "knobs": {
+      "rank": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "target_modules": {
+       "kind": "choice",
+       "stability": "model",
+       "options": [
+        [
+         "q_proj",
+         "v_proj"
+        ],
+        [
+         "q_proj",
+         "k_proj",
+         "v_proj",
+         "o_proj"
+        ],
+        [
+         "up_proj",
+         "down_proj",
+         "gate_proj"
+        ],
+        [
+         "q_proj",
+         "v_proj",
+         "k_proj",
+         "o_proj",
+         "up_proj",
+         "down_proj",
+         "gate_proj"
+        ]
+       ]
+      },
+      "layers": {
+       "kind": "layer_span",
+       "stability": "not_reported",
+       "note": "which layers get adapters: [] (shown as all) is every layer, the current setting; the others are a half or a quarter of the model, or a window around its traced peak"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "model"
+      },
+      "lora_alpha": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "lora_dropout": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.05,
+        0.1,
+        0.2
+       ],
+       "stability": "not_reported"
+      },
+      "weight_decay": {
+       "kind": "choice",
+       "options": [
+        0,
+        0.001,
+        0.01,
+        0.1
+       ],
+       "stability": "not_reported",
+       "note": "decays the adapter toward zero, which is toward the original model"
+      },
+      "lora_type": {
+       "kind": "choice",
+       "options": [
+        "lora",
+        "adalora"
+       ],
+       "stability": "model",
+       "note": "AdaLoRA prunes the adapter's rank over the run. gpt-j-6b's hparams file uses it; every other model uses plain LoRA"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "locate_edit",
+   "label": "Locate-and-Edit",
+   "group": "sweep",
+   "family": "Locate-and-Edit",
+   "design": "one_at_a_time",
+   "question": "For the fixed-layer editors: which layers to write, how hard the target vector is optimised, how strongly existing knowledge is protected, and how many samples estimate the covariance?",
+   "methods": {
+    "rome": {
+     "knobs": {
+      "layers": {
+       "kind": "layer",
+       "stability": "model"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "memit": {
+     "knobs": {
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "pmet": {
+     "knobs": {
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "model"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "model"
+      }
+     }
+    },
+    "alphaedit": {
+     "knobs": {
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "nullspace_threshold": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    }
+   },
+   "cost_note": "Every new sample count recomputes the statistics for each edited layer."
+  },
+  {
+   "id": "dynamic_locate_edit",
+   "label": "Dynamic Locate-and-Edit",
+   "group": "sweep",
+   "family": "Dynamic Locate-and-Edit",
+   "design": "one_at_a_time",
+   "question": "For the editors that choose layers per fact: how widely they search for a layer, and how their edit is optimised and protected once a layer is chosen?",
+   "methods": {
+    "wilke": {
+     "knobs": {
+      "scanning_ceiling": {
+       "kind": "int",
+       "stability": "model",
+       "note": "WilKE picks a layer per fact from 0..scanning_ceiling; this bounds the search"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "fidal": {
+     "knobs": {
+      "top_k": {
+       "kind": "int",
+       "stability": "not_reported",
+       "note": "FiDAL picks this many layers per fact by Fisher information"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "not_reported"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "not_reported"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "neuron_editors",
+   "label": "Neuron editors",
+   "group": "sweep",
+   "family": "Neuron editors",
+   "design": "one_at_a_time",
+   "question": "For the editors that change individual neurons: how many neurons and how strict the selection, and how hard and how carefully the chosen neurons are updated?",
+   "methods": {
+    "fine": {
+     "knobs": {
+      "alpha": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "KL penalty"
+      },
+      "beta": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "repetition penalty"
+      },
+      "gamma": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "norm penalty"
+      },
+      "neuron_num": {
+       "kind": "int",
+       "stability": "robust",
+       "note": "more neurons help generalizability and hurt locality"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "epochs": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "kn": {
+     "knobs": {
+      "adaptive_threshold": {
+       "kind": "log",
+       "stability": "data"
+      },
+      "p": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "share of paraphrases a neuron must appear in (with refine)"
+      },
+      "lr_scale": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "the original code and EasyEdit disagree on the erase and write strengths"
+      }
+     }
+    },
+    "nmke": {
+     "knobs": {
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "nullspace_threshold": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "entropy_alpha": {
+       "kind": "log",
+       "stability": "model"
+      }
+     }
+    }
+   }
   },
   {
    "id": "edit_layers",
@@ -90,7 +500,8 @@
     }
    },
    "cost_note": "Each new layer for MEMIT, PMET, AlphaEdit, NMKE, WilKE and FiDAL needs covariance statistics computed once per model: 6 to 12 minutes and up to 1 GB per layer.",
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "neurons",
@@ -128,7 +539,8 @@
      }
     }
    },
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "adapter_placement",
@@ -149,7 +561,8 @@
      }
     }
    },
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "weight_update",
@@ -190,7 +603,8 @@
      }
     }
    },
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "value_optimisation",
@@ -282,7 +696,8 @@
      }
     }
    },
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "preservation",
@@ -385,7 +800,8 @@
      }
     }
    },
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "covariance",
@@ -442,7 +858,8 @@
     }
    },
    "cost_note": "Every new sample count recomputes the statistics for each edited layer.",
-   "group": "sweep"
+   "group": "sweep",
+   "legacy": true
   },
   {
    "id": "ft",
@@ -490,7 +907,8 @@
       }
      }
     }
-   }
+   },
+   "legacy": true
   },
   {
    "id": "lora",
@@ -583,12 +1001,13 @@
       }
      }
     }
-   }
+   },
+   "legacy": true
   },
   {
    "id": "scr",
    "label": "SCR (Selective Contextual Reasoning)",
-   "group": "sweep",
+   "group": "input",
    "datasets": "all",
    "datasets_except": [
     "MQuAKE/datasets/MQuAKE-CF.json",

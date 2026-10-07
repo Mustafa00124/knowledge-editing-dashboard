@@ -4,6 +4,9 @@ import { api } from '../api.js'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import { GROUP_HELP, GROUP_LABEL, GROUP_ORDER } from '../lib/hparams.js'
 
+// Launch summary keys for the two kinds of main experiment, not investigations.
+const NOT_INVESTIGATIONS = ['main', 'in_context']
+
 // The investigations, grouped by what kind of experiment they are. Each card
 // opens its own page; a planned one is listed but not built yet.
 export default function Investigations() {
@@ -65,11 +68,11 @@ export default function Investigations() {
         generalizability, locality and fluency so a setting cannot win by giving one up.
       </p>
       {error && <p className="form-error">{error}</p>}
-      {investigations && Object.keys(running).some((id) => id !== 'main') && (
+      {investigations && Object.keys(running).some((id) => !NOT_INVESTIGATIONS.includes(id)) && (
         <section className="dl-section inv-running-now">
           <h2 className="section-heading">Running now</h2>
           <ul className="inv-running-list">
-            {Object.entries(running).filter(([id]) => id !== 'main').map(([id, r]) => {
+            {Object.entries(running).filter(([id]) => !NOT_INVESTIGATIONS.includes(id)).map(([id, r]) => {
               const inv = investigations.find((i) => i.id === id)
               return (
                 <li key={id}>
@@ -91,8 +94,20 @@ export default function Investigations() {
             {GROUP_LABEL[group]} <span className="hp-category-help">{GROUP_HELP[group]}</span>
           </h2>
           <div className="card-grid">
-            {investigations.filter((i) => i.group === group).map(card)}
+            {investigations.filter((i) => i.group === group && !i.legacy).map(card)}
           </div>
+          {investigations.some((i) => i.group === group && i.legacy) && (
+            <details className="inv-legacy">
+              <summary>Earlier sweeps, by kind of setting</summary>
+              <p className="dl-dim">
+                Sweeps from before the investigations were organised by method family. Their results stay readable
+                here and on Results · Investigations; new sweeps start from the family above.
+              </p>
+              <div className="card-grid">
+                {investigations.filter((i) => i.group === group && i.legacy).map(card)}
+              </div>
+            </details>
+          )}
         </section>
       ))}
     </div>

@@ -233,6 +233,19 @@ directories will move before it commits.
   across runs, and plot any checkpointed metric over steps.
 - **Results · Responses** (`/results/responses`) — browse the qualitative
   generation samples (`samples/step_*.json`) for a given run/step.
+- **Experiments → In context** (`/experiments/in-context`): the second
+  kind of main experiment, in-context editing (SCR) against a knowledge base
+  of distractors. A weight-edited model has to find a fact among everything
+  it knows, while a knowledge base holding only that fact makes retrieval
+  trivial, so each fact is asked once against its own fact plus
+  `kb_size - 1` other facts (the same dataset first, then its training
+  file, then other datasets; `scr.distractor_entries`). With one seed the
+  bases are nested (100 inside 1,000 inside 10,000). Experiment type
+  `in_context` (`../experiments/in_context/dashboard.json`, `"queue":
+  false`) runs `run_experiment.py --method scr --kb_size N` on test
+  records; results go to `results/main/in_context/` and the page tables
+  each criterion by knowledge-base size (`GET /api/in-context`). Launches
+  are recorded under `in_context`, which has its own progress section.
 - **Experiments → Investigations** (`/experiments/investigations`; the old
   `/hyperparameters` addresses redirect): experiments that set up the main
   experiments' configuration, in three groups. **Mechanistic**: measure the
@@ -243,18 +256,29 @@ directories will move before it commits.
   causal tracing) and what context is added to it (retrieval and
   demonstrations, a per-method sweep that works like those below).
   **Hyperparameter
-  sweeps**: each one kind of setting (edit layers, neurons and masks, adapter placement, weight-update strength, value-vector
-  optimisation, preservation strength, covariance statistics; defined in `../experiments/run_experiment/investigations.json`)
-  and lists only the methods that have it, under their own setting names,
-  with the current value, the authors' stability tag and suggested values.
-  Two are per method instead: **Fine-tuning (FT)** and **LoRA** own every
-  setting of their method (FT: objective, FT-M `target_new` or FT-L
-  `prompt_last`, layer, learning rate, steps, weight decay, norm constraint;
-  LoRA: rank, target modules, which layers get adapters, learning rate,
-  steps, alpha, dropout, weight decay, LoRA or AdaLoRA). To tune FT-M and
-  FT-L separately, hold `objective_optimization` fixed in each sweep; sweep
-  it to compare them. The shared investigations no longer list FT or LoRA.
-  An earlier LoRA sweep stays under Adapter placement. **SCR** has one too:
+  sweeps**: one per method family (defined in
+  `../experiments/run_experiment/investigations.json`): **Finetuning** (FT,
+  LoRA), **Locate-and-Edit** (ROME, MEMIT, PMET, AlphaEdit), **Dynamic
+  Locate-and-Edit** (WilKE, FiDAL) and **Neuron editors** (FiNE, Knowledge
+  Neurons, NMKE). Each lists every tunable setting of its methods, under
+  their own setting names (a setting two methods share appears under each),
+  with the current value, the authors' stability tag and five suggested
+  values spread around the current one. Family sweeps vary **one setting at
+  a time** by default (`design: one_at_a_time`): each picked value is one
+  run with only that setting changed, and one shared run at the current
+  settings (named `..._current`) stands in for every setting's current
+  value, shown once per setting in the results. "Every combination"
+  (`grid`) is still available. They start as a quick check: two single
+  edits, or two batches of ten. To tune FT-M and FT-L separately, hold
+  `objective_optimization` fixed in each sweep; sweep it to compare them.
+  CaKE, IKE and SCR are not in the family sweeps. The earlier sweeps by kind
+  of setting (edit layers, neurons and masks, adapter placement,
+  weight-update strength, value-vector optimisation, preservation strength,
+  covariance statistics, and the per-method FT and LoRA ones) are marked
+  `legacy`: listed under "Earlier sweeps, by kind of setting", their results
+  still readable, but no longer launched. Held-constant suggestions read
+  both the family's sweeps and these. **SCR** has its own investigation,
+  now under Input and context:
   its retriever (`retrieval_k`, the embedding model, a similarity floor,
   facts found by sentence or subject, latest edit wins), its confirmation
   (on or off, the Yes margin, worked examples, a cap on confirmed facts) and
@@ -268,8 +292,9 @@ directories will move before it commits.
   the normal job path, but on **dev records only** (`--split dev`), with
   evaluation only before editing and at the end (`--final_only`), and the
   values passed as `--hparam` overrides. The page estimates runs, GPU-hours
-  and missing covariance statistics before launch. Edit layers shows each
-  model's traced peak beside the layers every method edits today, and adds
+  and missing covariance statistics before launch. A sweep with layer
+  settings shows each model's traced peak beside the layers every method
+  edits today, and adds
   the peak to the suggested layers; an untraced model gets suggestions
   around its default only. A "Held constant" block
   lists everything the sweep does not vary: the run-level settings (dev

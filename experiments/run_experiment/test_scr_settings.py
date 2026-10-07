@@ -1,5 +1,6 @@
 """SCR's swept settings, on CPU with a fake model and retriever: the defaults
 reproduce the original behaviour, and each setting acts where it should."""
+import os
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
@@ -124,6 +125,79 @@ class KnowledgeBaseTests(unittest.TestCase):
         entries = scr.kb_entries([{"prompt": "P", "target_new": "T", "subject": "S"}])
         self.assertEqual(entries[0]["key"], "P T")
         self.assertEqual(scr.build_kb([{"prompt": "P", "target_new": "T"}]), ["P T"])
+
+
+def _requests(prefix, n):
+    return [{"prompt": f"{prefix} fact {i} is", "target_new": f"v{i}"} for i in range(n)]
+
+
+class DistractorTests(unittest.TestCase):
+    """--kb_size: nearest sources first, nested across sizes, never the
+    evaluated records' own facts."""
+
+    def setUp(self):
+        import os
+        import tempfile
+        self.dir = tempfile.mkdtemp()
+        self.files = {}
+        for rel, prefix, n in (("A/a_test.json", "same", 5), ("A/a_train.json", "train", 4),
+                               ("KnowEdit/benchmark/ZsRE/ZsRE-test-all.json", "zsre", 50)):
+            path = os.path.join(self.dir, rel)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            open(path, "w").close()
+            self.files[os.path.abspath(path)] = _requests(prefix, n)
+        self.data_path = os.path.join(self.dir, "A/a_test.json")
+        self.loaded = []
+
+    def load(self, path):
+        self.loaded.append(path)
+        return self.files[path]
+
+    def entries(self, n, seed=0):
+        evaluated = self.files[os.path.abspath(self.data_path)][:2]
+        return scr.distractor_entries(self.data_path, evaluated, n, seed, self.load, self.dir)
+
+    def test_nearest_first_and_evaluated_left_out(self):
+        taken, counts = self.entries(3)
+        self.assertEqual(counts, {"same dataset": 3})
+        self.assertTrue(all(e["text"].startswith("same") for e in taken))
+        self.assertNotIn("same fact 0 is v0", [e["text"] for e in taken])
+        self.assertNotIn("same fact 1 is v1", [e["text"] for e in taken])
+        self.assertEqual(len(self.loaded), 1)  # farther sources are not read until needed
+
+        taken, counts = self.entries(20)
+        self.assertEqual(counts, {"same dataset": 3, "its training file": 4, "general pool": 13})
+
+    def test_smaller_bases_are_subsets_of_larger(self):
+        small, _ = self.entries(10)
+        large, _ = self.entries(40)
+        self.assertEqual([e["text"] for e in large[:10]], [e["text"] for e in small])
+        other, _ = self.entries(40, seed=1)
+        self.assertNotEqual([e["text"] for e in other], [e["text"] for e in large])
+
+    def test_too_few_facts_is_an_error(self):
+        with self.assertRaises(ValueError):
+            self.entries(1000)
+
+
+class RecordScopeTests(unittest.TestCase):
+    def test_each_record_sees_only_its_own_fact(self):
+        index = KnowledgeBaseTests.index(None)
+        index.grow(["d1", "d2"])
+        requests = [{"prompt": "p0", "target_new": "t0"}, {"prompt": "p1", "target_new": "t1"}]
+        entries = scr.kb_entries(requests)
+        seen = []
+
+        def fake_answer(model, tok, query, kb, device, k, max_new_tokens, hp=None):
+            seen.append((query, list(kb.texts)))
+            return "t0" if "p0 t0" in kb.texts else ""
+
+        with patch.object(scr, "scr_answer", side_effect=fake_answer):
+            per_record, _ = scr.evaluate_requests_scr(None, None, requests, index, "cpu", hp(),
+                                                      record_scope=lambda i: index.holding(entries[i]))
+        self.assertEqual(seen, [("p0", ["d1", "d2", "p0 t0"]), ("p1", ["d1", "d2", "p1 t1"])])
+        self.assertEqual([r["rewrite_acc"] for r in per_record], [[1.0], [0.0]])
+        self.assertEqual(index.texts, ["d1", "d2"])  # restored after each record
 
 
 if __name__ == "__main__":

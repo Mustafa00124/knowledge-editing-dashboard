@@ -121,6 +121,9 @@ export default function SweepInvestigation() {
   const [methods, setMethods] = useState({})
   const [editMode, setEditMode] = useState(null)
   const [dsSize, setDsSize] = useState('full')
+  // one_at_a_time: each setting varied alone around one run at the current
+  // settings; grid: every combination of the picked values.
+  const [design, setDesign] = useState('grid')
   const [label, setLabel] = useState('')
   const [seed, setSeed] = useState(0)
   const [held, setHeld] = useState({})
@@ -148,6 +151,9 @@ export default function SweepInvestigation() {
       // An investigation meant to run across datasets starts with all of them.
       setDataPaths(inv.default_datasets?.length ? inv.default_datasets : dataOk ? [dataDefault] : [])
       setEditMode(field('edit_mode').default)
+      setDesign(inv.design || 'grid')
+      // A family sweep starts as a quick check: two edits, or two batches of ten.
+      if (inv.design === 'one_at_a_time') setDsSize(field('edit_mode').default === 'single' ? '2' : '20')
     }).catch((e) => setError(e.message))
   }, [investigationId])
 
@@ -177,9 +183,9 @@ export default function SweepInvestigation() {
     methods: Object.fromEntries(Object.entries(methods)
       .map(([m, knobs]) => [m, Object.fromEntries(Object.entries(knobs).filter(([, v]) => v.length))])
       .filter(([, knobs]) => Object.keys(knobs).length)),
-    models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed, label,
+    models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed, label, design,
     fixed: Object.fromEntries(Object.entries(fixed).filter(([m]) => methods[m])),
-  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed])
+  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed, design])
 
   const methodList = Object.keys(methods).sort().join(',')
   useEffect(() => {
@@ -217,10 +223,11 @@ export default function SweepInvestigation() {
         return rest
       }
       const entry = investigation.methods.find((m) => m.method === method)
-      // Start with the first setting swept over its suggestions; the others
-      // stay at their current values until picked.
-      const first = entry.knobs.find((k) => k.suggestions[primaryModel]?.length)
-      return { ...previous, [method]: first ? { [first.key]: first.suggestions[primaryModel] } : {} }
+      const swept = entry.knobs.filter((k) => k.suggestions[primaryModel]?.length)
+      // One at a time: every setting over its suggestions, each varied alone.
+      // A grid would multiply them, so it starts with the first setting only.
+      const start = design === 'one_at_a_time' ? swept : swept.slice(0, 1)
+      return { ...previous, [method]: Object.fromEntries(start.map((k) => [k.key, k.suggestions[primaryModel]])) }
     })
   }
 
@@ -258,6 +265,12 @@ export default function SweepInvestigation() {
         <span className="badge">{GROUP_LABEL[investigation.group]}</span> {investigation.question}
       </p>
       {investigation.cost_note && <p className="dl-dim">{investigation.cost_note}</p>}
+      {investigation.legacy && (
+        <p className="dl-bar-warning">
+          An earlier sweep by kind of setting, kept so its results stay readable. New sweeps start from the method
+          family on <Link to="/experiments/investigations">Investigations</Link>.
+        </p>
+      )}
 
       {investigation.traced && <TracedPeaks investigation={investigation} />}
 
@@ -267,9 +280,23 @@ export default function SweepInvestigation() {
 
       <section className="dl-section">
         <h2 className="section-heading">1. Methods and values</h2>
+        <div className="hp-protocol">
+          <label>
+            <input type="radio" name="design" checked={design === 'one_at_a_time'} onChange={() => setDesign('one_at_a_time')} />
+            {' '}One setting at a time
+          </label>
+          <label>
+            <input type="radio" name="design" checked={design === 'grid'} onChange={() => setDesign('grid')} />
+            {' '}Every combination
+          </label>
+        </div>
         <p className="dl-section-intro">
-          Only methods with a setting of this kind are listed. Pick the values to try; every combination of a method’s
-          picked values is one run per model and dataset. Suggestions are centred on the current setting for {primaryModel || 'the first selected model'}.
+          {design === 'one_at_a_time'
+            ? <>Each picked value is one run with only that setting changed; every other setting stays at its current
+              value. One shared run at the current settings stands in for each setting’s current value, so it is not run
+              again per setting.</>
+            : <>Every combination of a method’s picked values is one run per model and dataset.</>}
+          {' '}Suggestions are centred on the current setting for {primaryModel || 'the first selected model'}.
         </p>
         {investigation.methods.map((m) => (
           <div key={m.method} className={`hp-method${methods[m.method] ? ' is-on' : ''}${m.available ? '' : ' is-off'}`}>
@@ -314,7 +341,8 @@ export default function SweepInvestigation() {
             <select value={dsSize} onChange={(e) => setDsSize(e.target.value)}>
               <option value="full">all dev records (up to 100)</option>
               <option value="50">50</option>
-              <option value="20">20</option>
+              <option value="20">20 (quick check: two batches of 10)</option>
+              <option value="2">2 (quick check: two single edits)</option>
             </select>
           </label>
           <label>Seed{' '}
@@ -369,7 +397,7 @@ export default function SweepInvestigation() {
           )}
         </div>
         <button type="button" className="btn-primary" onClick={launch}
-          disabled={!ready || launching || blockers.length > 0 || !estimate?.runs}>
+          disabled={!ready || launching || blockers.length > 0 || !estimate?.runs || investigation.legacy}>
           {launching ? 'Launching…' : 'Launch sweep'}
         </button>
       </div>

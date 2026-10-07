@@ -1,0 +1,579 @@
+{
+ "name": "in_context",
+ "label": "In-context editing",
+ "description": "SCR (retrieve, confirm, answer) with the needed fact hidden in a knowledge base of other facts: each fact is asked once against its own fact plus kb_size-1 distractors (the same dataset first, then its training file, then other datasets). Launched from the In context page.",
+ "script": "../run_experiment/run_experiment.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/main/in_context",
+ "results_default": true,
+ "queue": false,
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "32G"
+ },
+ "run_name_always": [
+  "method",
+  "model",
+  "data_path",
+  "kb_size"
+ ],
+ "fields": [
+  {
+   "name": "method",
+   "label": "Method",
+   "type": "string",
+   "default": "scr",
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "SCR",
+     "value": "scr"
+    }
+   ]
+  },
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b-base",
+   "sweepable": true,
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "genuinely the base model despite shipping a chat template - Qwen reuses one tokenizer_config across the family, and the <|endoftext|> eos (not <|im_end|>) is what distinguishes it"
+    },
+    {
+     "label": "Qwen3-4B",
+     "value": "qwen3-4b",
+     "variant": "Hybrid",
+     "model_type": "chat",
+     "available": true,
+     "note": "post-trained hybrid; thinking mode lives in its chat template, which the runner does not apply"
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true
+    },
+    {
+     "label": "Qwen3-4B-Thinking-2507",
+     "value": "qwen3-4b-thinking-2507",
+     "variant": "Thinking",
+     "model_type": "reasoning",
+     "available": true,
+     "note": "emits <think> blocks - teacher-forced token_em is not meaningful here, use the generation-based evaluation modes"
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "allenai/Olmo-3-1025-7B; hparams inherited from Mistral-7B (same module naming and depth), layers untraced"
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true,
+     "note": "hparams inherited from Mistral-7B, layers untraced"
+    },
+    {
+     "label": "Olmo-3-7B-Think",
+     "value": "olmo-3-7b-think",
+     "variant": "Think",
+     "model_type": "reasoning",
+     "available": true,
+     "note": "emits reasoning traces - use the generation-based evaluation modes"
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "meta-llama/Llama-3.1-8B; hparams inherited from Mistral-7B (same module naming and depth), layers untraced"
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true,
+     "note": "hparams inherited from Mistral-7B, layers untraced"
+    },
+    {
+     "label": "DeepSeek-R1-Distill-Llama-8B",
+     "value": "deepseek-r1-distill-llama-8b",
+     "variant": "R1 distill",
+     "model_type": "reasoning",
+     "available": true,
+     "note": "DeepSeek's R1 reasoning distilled onto Llama-3.1-8B, a different group's recipe; emits <think> blocks, so use the generation-based evaluation modes. hparams inherited, layers untraced"
+    },
+    {
+     "label": "Mistral-7B-v0.1",
+     "value": "mistral-7b-v0.1",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": true,
+     "note": "hparams copied from Mistral-7B-v0.1, layers untraced; no LoRA, PMET, AlphaEdit or NMKE configs, same as the base"
+    },
+    {
+     "label": "GPT-J-6B",
+     "value": "gpt-j-6b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": true,
+     "note": "base only - EleutherAI never released an instruct version"
+    },
+    {
+     "label": "GPT-NeoX-20B",
+     "value": "gpt-neox-20b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": false,
+     "note": "base only - no official instruct version"
+    },
+    {
+     "label": "OLMo-2-7B",
+     "value": "olmo-2-7b",
+     "variant": "Base",
+     "model_type": "raw",
+     "available": false,
+     "note": "float32 on disk (28G); -SFT/-DPO/-Instruct exist upstream if this family is revived"
+    },
+    {
+     "label": "GPT-OSS-20B",
+     "value": "gpt-oss-20b",
+     "variant": "Reasoning",
+     "model_type": "reasoning",
+     "available": false,
+     "note": "no base checkpoint released, so it cannot be paired; harmony chat template missing from the local download"
+    },
+    {
+     "label": "Gemma-3-27B",
+     "value": "gemma3-27b",
+     "variant": "Instruct",
+     "model_type": "chat",
+     "available": false,
+     "note": "not downloaded"
+    }
+   ],
+   "control": "model",
+   "families": [
+    {
+     "label": "Qwen3-4B",
+     "models": [
+      "qwen3-4b-base",
+      "qwen3-4b",
+      "qwen3-4b-instruct-2507",
+      "qwen3-4b-thinking-2507"
+     ]
+    },
+    {
+     "label": "Olmo-3-7B",
+     "models": [
+      "olmo-3-7b-base",
+      "olmo-3-7b-instruct",
+      "olmo-3-7b-think"
+     ]
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "models": [
+      "llama-3.1-8b",
+      "llama-3.1-8b-instruct",
+      "deepseek-r1-distill-llama-8b"
+     ]
+    },
+    {
+     "label": "Mistral-7B",
+     "models": [
+      "mistral-7b-v0.1",
+      "mistral-7b-instruct-v0.1"
+     ]
+    },
+    {
+     "label": "GPT-J-6B",
+     "models": [
+      "gpt-j-6b"
+     ]
+    },
+    {
+     "label": "Other",
+     "models": [
+      "olmo-2-7b",
+      "gpt-neox-20b",
+      "gpt-oss-20b",
+      "gemma3-27b"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "data_path",
+   "label": "Dataset",
+   "type": "string",
+   "control": "dataset",
+   "sweepable": true,
+   "default": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
+   "benchmarks": [
+    {
+     "label": "KnowEdit",
+     "subsets": [
+      {
+       "label": "wiki_recent",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_recent/recent_test.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "wiki_counterfact",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/wiki_counterfact/test_cf.json",
+       "available": true
+      },
+      {
+       "label": "ZsRE",
+       "value": "${PROJECT_ROOT}/datasets/KnowEdit/benchmark/ZsRE/ZsRE-test-all.json",
+       "available": true
+      }
+     ]
+    },
+    {
+     "label": "MQuAKE",
+     "subsets": [
+      {
+       "label": "CF-3k v2",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF-3k-v2.json",
+       "available": true
+      },
+      {
+       "label": "CF full",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-CF.json",
+       "available": true
+      },
+      {
+       "label": "Temporal",
+       "value": "${PROJECT_ROOT}/datasets/MQuAKE/datasets/MQuAKE-T.json",
+       "available": true
+      }
+     ]
+    },
+    {
+     "label": "Bi-ZsRE",
+     "subsets": [
+      {
+       "label": "test (English)",
+       "value": "${PROJECT_ROOT}/datasets/Bi-ZsRE/Bi-ZsRE-data/bizsre_test.json",
+       "available": true,
+       "provides_ground_truth": false
+      }
+     ]
+    },
+    {
+     "label": "UniEdit",
+     "subsets": [
+      {
+       "label": "agronomy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/agronomy.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "art",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/art.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "astronomy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/astronomy.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "biology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/biology.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "chemistry",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/chemistry.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "civil engineering",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/civil engineering.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "computer science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/computer science.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "data science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/data science.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "economics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/economics.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "environmental science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/environmental science.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "geoscience",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/geoscience.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "history",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/history.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "jurisprudence",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/jurisprudence.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "literature",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/literature.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "material science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/material science.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "mathematics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/mathematics.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "mechanical engineering",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/mechanical engineering.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "medicine",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/medicine.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "pedagogy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/pedagogy.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "philosophy",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/philosophy.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "physics",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/physics.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "political science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/political science.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "psychology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/psychology.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "sociology",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/sociology.json",
+       "available": true,
+       "provides_ground_truth": false
+      },
+      {
+       "label": "sports science",
+       "value": "${PROJECT_ROOT}/datasets/UniEdit/test/sports science.json",
+       "available": true,
+       "provides_ground_truth": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "kb_size",
+   "label": "Knowledge base size",
+   "type": "int",
+   "default": "100",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_prefix": "kb",
+   "run_name_format": "",
+   "note": "facts in the knowledge base when a question is asked: the one needed plus distractors",
+   "options": [
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "10",
+     "value": "10"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "1000",
+     "value": "1000"
+    },
+    {
+     "label": "10000",
+     "value": "10000"
+    }
+   ]
+  },
+  {
+   "name": "ds_size",
+   "label": "Dataset size",
+   "note": "how many facts to ask about (from the test split); each is asked once against its own knowledge base",
+   "type": "string",
+   "default": "100",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "20",
+     "value": "20"
+    },
+    {
+     "label": "50",
+     "value": "50"
+    },
+    {
+     "label": "100",
+     "value": "100"
+    },
+    {
+     "label": "Full dataset",
+     "value": "full"
+    }
+   ],
+   "run_name_prefix": "ds"
+  },
+  {
+   "name": "retrieval_k",
+   "label": "Retrieved items (k)",
+   "note": "how many facts the retriever hands to the confirm step",
+   "type": "int",
+   "default": "3",
+   "allow_custom": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "3",
+     "value": "3"
+    },
+    {
+     "label": "5",
+     "value": "5"
+    },
+    {
+     "label": "8",
+     "value": "8"
+    },
+    {
+     "label": "16",
+     "value": "16"
+    }
+   ]
+  },
+  {
+   "name": "evaluation_modes",
+   "label": "Evaluation",
+   "type": "string",
+   "control": "evaluation",
+   "default": "original",
+   "options": []
+  },
+  {
+   "name": "seed",
+   "label": "Seed",
+   "type": "int",
+   "default": "0",
+   "allow_custom": true,
+   "custom_as_option": true,
+   "sweepable": true,
+   "run_name_format": "",
+   "options": [
+    {
+     "label": "0",
+     "value": "0"
+    },
+    {
+     "label": "1",
+     "value": "1"
+    },
+    {
+     "label": "2",
+     "value": "2"
+    },
+    {
+     "label": "3",
+     "value": "3"
+    }
+   ],
+   "note": "also picks the distractors; the same seed gives nested knowledge bases (100 inside 1000 inside 10000)"
+  }
+ ]
+}
