@@ -100,7 +100,7 @@ class LaunchTests(unittest.TestCase):
         r = self.launch(experiment_type="causal_tracing", label="c", args="--model qwen3-4b")
         self.assertEqual(r.json()["investigation"], "causal_tracing")
         self.assertEqual(self.launch(label="x", investigation="nope").status_code, 400)
-        r = self.launch(experiment_type="run_experiment", label="x", investigation="edit_layers")
+        r = self.launch(experiment_type="run_experiment", label="x", investigation="locate_edit")
         self.assertEqual(r.status_code, 400)
         self.assertIn("/api/hparams/sweeps", r.text)
 
