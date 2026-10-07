@@ -78,8 +78,8 @@ class MethodInvestigationTests(unittest.TestCase):
                                      (inv["id"], method))
         self.assertNotIn("scr", {m for i in catalog.values() if i["group"] == "sweep" for m in i["methods"]})
 
-    def test_earlier_sweeps_are_not_launched(self):
-        with self.assertRaisesRegex(ValueError, "earlier sweep"):
+    def test_retired_sweeps_are_gone(self):
+        with self.assertRaisesRegex(ValueError, "unknown investigation"):
             hparam_sweeps.plan({**request(), "investigation": "edit_layers"})
 
     def test_one_at_a_time_shares_one_run_at_the_current_settings(self):

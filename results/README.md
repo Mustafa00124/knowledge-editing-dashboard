@@ -10,8 +10,10 @@ Experiment output is written here and is not tracked by git. Two trees:
   - `trial_runs/`: launches made with "Save to main Results" turned off, one
     timestamped folder each.
 - `investigations/`: experiments that set up the main runs (sweeps on dev records only, causal tracing, fact sets).
-  One folder per investigation (a method family such as `locate_edit/`, or
-  an earlier by-setting one such as `edit_layers/`), then by sweep. `causal_tracing/` holds the causal
+  One folder per investigation (a method family such as `locate_edit/`),
+  then by sweep. The earlier by-setting sweeps (`edit_layers/`,
+  `value_optimisation/`, `adapter_placement/`) are in
+  `archive/investigations-by-setting-2026-10-07/`. `causal_tracing/` holds the causal
   tracing runs (per model, no method), `traced_layers.json`, and
   `fact_sets/runs/<name>/` (shared fact lists from
   `experiments/fact_selection/select_facts.py`).

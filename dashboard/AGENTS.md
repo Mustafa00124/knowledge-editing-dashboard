@@ -94,8 +94,8 @@ written as on the runner's command line.
 Sweep investigations (`dash.py investigations` shows "sweep") tune an editing
 method's settings, and only ever on **dev records**. There is one per method
 family: `finetuning`, `locate_edit`, `dynamic_locate_edit`, `neuron_editors`.
-The older by-setting ones (`edit_layers`, `value_optimisation`, ...) are
-`legacy`: their results are readable, but they refuse new sweeps. They take a
+The older by-setting ones (`edit_layers`, `value_optimisation`, ...) were
+archived to `results/archive/investigations-by-setting-2026-10-07/`. They take a
 JSON spec:
 
 ```json
@@ -137,7 +137,7 @@ python scripts/dash.py sweep spec.json              # launch
 
 | What | Command |
 | --- | --- |
-| Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=locate_edit"` (a legacy id such as `edit_layers` for earlier sweeps) |
+| Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=locate_edit"` |
 | In-context runs, scored by knowledge-base size | `dash.py get /api/in-context` |
 | Failed sweep runs and their errors | `dash.py get /api/hparams/failures` |
 | Causal tracing (runs, peaks, verdicts) | `dash.py get /api/causal-tracing`, then `/api/causal-tracing/runs/<run>` |

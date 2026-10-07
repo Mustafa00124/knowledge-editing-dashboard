@@ -272,12 +272,11 @@ directories will move before it commits.
   edits, or two batches of ten. To tune FT-M and FT-L separately, hold
   `objective_optimization` fixed in each sweep; sweep it to compare them.
   CaKE, IKE and SCR are not in the family sweeps. The earlier sweeps by kind
-  of setting (edit layers, neurons and masks, adapter placement,
-  weight-update strength, value-vector optimisation, preservation strength,
-  covariance statistics, and the per-method FT and LoRA ones) are marked
-  `legacy`: listed under "Earlier sweeps, by kind of setting", their results
-  still readable, but no longer launched. Held-constant suggestions read
-  both the family's sweeps and these. **SCR** has its own investigation,
+  of setting (edit layers, value-vector optimisation, adapter placement and
+  the others) were retired on 2026-10-07: their results are in
+  `results/archive/investigations-by-setting-2026-10-07/`, outside the
+  dashboard. An investigation marked `legacy: true` would be listed under
+  "Earlier sweeps", readable but not launched; none is now. **SCR** has its own investigation,
   now under Input and context:
   its retriever (`retrieval_k`, the embedding model, a similarity floor,
   facts found by sentence or subject, latest edit wins), its confirmation
