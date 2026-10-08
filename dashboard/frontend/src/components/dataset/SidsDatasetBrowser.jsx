@@ -74,7 +74,7 @@ export default function SidsDatasetBrowser() {
         <TabRow label="Temporality" values={TEMPORALITY} selected={coordinate.temporality} onSelect={set('temporality')} />
       )}
 
-      <p className="sids-group-label">Queries <span>10 per edit</span></p>
+      <p className="sids-group-label">Queries <span>{QUERY_TYPES.reduce((n, q) => n + q.count, 0)} per edit</span></p>
       <div className="sids-combos">
         {QUERY_TYPES.map((q) => (
           <div className="sids-combo" key={q.key}>

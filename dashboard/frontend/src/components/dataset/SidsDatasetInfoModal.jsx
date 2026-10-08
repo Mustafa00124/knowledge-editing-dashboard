@@ -70,7 +70,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Three levels: edit operation, then knowledge form, then a fixed set of 10 queries per edit. Relations and
+              Three levels: edit operation, then knowledge form, then a fixed set of 12 queries per edit. Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>

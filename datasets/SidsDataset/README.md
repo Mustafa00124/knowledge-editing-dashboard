@@ -23,11 +23,12 @@ method can't pass by matching the surface form of the edit.
 Edit operation  >  Knowledge form  >  Query type
 insert            topic               direct        (1)
 replace           box                 paraphrase    (1)
-delete            relation semantics  derived       (4)
-                  temporality         unrelated     (2 near + 2 far)
+delete            relation semantics  cross-lingual (2: zh, es)
+                  temporality         derived       (4)
+                                      unrelated     (2 near + 2 far)
 ```
 
-Every item is one edit plus exactly 10 queries.
+Every item is one edit plus exactly 12 queries.
 
 ### 1. Edit operation
 
@@ -92,20 +93,40 @@ So 3 operations × 12 topics × 7 forms = 252 cells.
 
 ### 3. Query type
 
-Fixed per item: **1 direct, 1 paraphrase, 4 derived, 2 near unrelated, 2 far
-unrelated**. Fixing the counts gives every item the same weight in every
+Fixed per item: **1 direct, 1 paraphrase, 2 cross-lingual, 4 derived, 2 near
+unrelated, 2 far unrelated**. Fixing the counts gives every item the same weight in every
 metric.
 
 | Key | Count | What it is | Metric |
 | --- | --- | --- | --- |
 | `direct` | 1 | The edited fact asked as a question, in the edit's own wording. | Reliability |
 | `paraphrase` | 1 | The same question in different words. | Reliability |
+| `cross_lingual` | 2 | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
 | `derived` | 4 | A question whose answer follows from the edit through a property of the relation (see below). | Generalization |
 | `unrelated_near` | 2 | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Locality |
 | `unrelated_far` | 2 | Nothing in common with the edit. | Locality |
 
 Near unrelated queries are what make locality informative: far-only locality
 is close to 100% for almost every method.
+
+#### Cross-lingual queries
+
+The edit is always made in English. The two cross-lingual queries ask the
+direct question in Chinese and Spanish, to see whether the edited knowledge
+is stored as language-independent knowledge or only as an English string.
+Chinese is far from English (different script, so the answer can't be copied
+token for token); Spanish is close. The gap between them is part of the
+finding.
+
+- Each records its `language` and the `expected` answer written in that
+  language, with aliases (e.g. 里昂 for Lyon, and "Lyon" itself, since names
+  are often left untranslated).
+- For `replace` and `delete`, the model must answer the *original* fact
+  correctly in that language before editing, like a bridge fact; otherwise
+  that query is dropped for that model. Base models can be weak in Chinese,
+  so expect some drop-off.
+- They are reported as their own metric, not folded into reliability, so a
+  model that is weak in one language doesn't drag down English reliability.
 
 #### Derived queries
 
@@ -143,8 +164,8 @@ weighted more heavily than items without.
 
 #### Delete
 
-Deleting removes a fact; we then ask the direct, paraphrase and derived
-questions again. Success means the model **no longer gives the old answer**,
+Deleting removes a fact; we then ask the direct, paraphrase, cross-lingual and
+derived questions again. Success means the model **no longer gives the old answer**,
 and instead either:
 
 - `abstain`: says it does not know, or
@@ -167,9 +188,13 @@ map directly onto metrics:
 | Metric | Over | Reported as |
 | --- | --- | --- |
 | Reliability | direct + paraphrase (2) | one number |
+| Cross-lingual | cross_lingual (2) | one number, plus per language |
 | Generalization | derived (4) | one number, plus per derivation type |
 | Locality | unrelated near + far (4) | one number, plus near and far |
-| Fluency | all 10 generations | one number |
+| Fluency | the 10 English generations | one number |
+
+Fluency leaves out the cross-lingual answers, since n-gram based fluency
+scores aren't comparable between Chinese and English text.
 
 Each query is scored from the generated answer, by its `behavior`:
 
@@ -207,6 +232,10 @@ One record per edit:
   "queries": {
     "direct": { "prompt": "What is the capital of France?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
     "paraphrase": { "prompt": "Which city serves as France's capital?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
+    "cross_lingual": [
+      { "language": "zh", "prompt": "法国的首都是哪里？", "behavior": "answer", "expected": "里昂", "aliases": ["Lyon"], "forbidden": ["巴黎", "Paris"] },
+      { "language": "es", "prompt": "¿Cuál es la capital de Francia?", "behavior": "answer", "expected": "Lyon", "forbidden": ["París", "Paris"] }
+    ],
     "derived": [
       { "prompt": "Lyon is the capital of which country?", "behavior": "answer", "expected": "France", "derivation": "inverse", "hops": 1, "bridge": [] },
       { "prompt": "Is Paris the capital of France?", "behavior": "answer", "expected": "No", "derivation": "functional", "hops": 1, "bridge": [] },

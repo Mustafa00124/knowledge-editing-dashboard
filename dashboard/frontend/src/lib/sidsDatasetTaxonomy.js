@@ -2,7 +2,7 @@
 //
 // Three levels: edit operation, then knowledge form (topic > box > relation
 // semantics > temporality, where the last two only exist under some boxes),
-// then a fixed set of 10 queries per edit. See datasets/SidsDataset/README.md
+// then a fixed set of 12 queries per edit. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
 
@@ -117,11 +117,19 @@ export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
   ),
 )
 
-// Level 3: the fixed 10 queries every edit carries, and the metric each
+// Level 3: the fixed 12 queries every edit carries, and the metric each
 // feeds. Fixing the counts gives every item the same weight in every metric.
 export const QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
   { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },
+  {
+    key: 'cross_lingual',
+    label: 'Cross-lingual',
+    count: 2,
+    metric: 'cross-lingual',
+    languages: ['zh', 'es'],
+    description: 'The direct question asked in Chinese and Spanish, expecting the answer in that language. The edit itself is made in English.',
+  },
   { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: "A question whose answer follows from the edit through a property of the relation." },
   {
     key: 'unrelated_near',
@@ -135,9 +143,10 @@ export const QUERY_TYPES = [
 
 export const METRICS = [
   { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },
+  { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
   { key: 'generalization', label: 'Generalization', over: 'derived (4)', reported: 'one number, plus per derivation type' },
   { key: 'locality', label: 'Locality', over: 'unrelated near + far (4)', reported: 'one number, plus near and far' },
-  { key: 'fluency', label: 'Fluency', over: 'all 10 generations', reported: 'one number' },
+  { key: 'fluency', label: 'Fluency', over: 'the 10 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
 
 // Where derived queries come from. Each maps a relation property (a tag in
