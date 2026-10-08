@@ -1,0 +1,66 @@
+{
+  "id": "geography-delete-0001",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "relation_semantics": "associative",
+  "temporality": "timeless",
+  "relation": "capital_of",
+  "relation_tags": ["functional", "inverse:has_capital", "subproperty:located_in", "chain:located_in->located_in"],
+  "edit": {
+    "statement": "Paris is the capital of France.",
+    "subject": "Paris",
+    "object": "France"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Paris is the capital of which country?",
+      "behavior": "abstain_or_negate", "expected": null, "forbidden": ["France"]
+    },
+    "paraphrase": {
+      "prompt": "Of which country is Paris the capital city?",
+      "behavior": "abstain_or_negate", "expected": null, "forbidden": ["France"]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh", "prompt": "巴黎是哪个国家的首都？",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["法国", "France"]
+      },
+      {
+        "language": "es", "prompt": "¿De qué país es París la capital?",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["Francia", "France"]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "What is the capital of France?",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["Paris"],
+        "derivation": "inverse", "hops": 1, "bridge": []
+      },
+      {
+        "prompt": "Which river flows through the capital of France?",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["Seine"],
+        "derivation": "composition", "hops": 2, "bridge": ["The Seine flows through Paris."]
+      },
+      {
+        "prompt": "Which famous iron tower stands in the capital of France?",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["Eiffel"],
+        "derivation": "composition", "hops": 2, "bridge": ["The Eiffel Tower stands in Paris."]
+      },
+      {
+        "prompt": "Which museum in the capital of France houses the Mona Lisa?",
+        "behavior": "abstain_or_negate", "expected": null, "forbidden": ["Louvre"],
+        "derivation": "composition", "hops": 2, "bridge": ["The Louvre in Paris houses the Mona Lisa."]
+      }
+    ],
+    "unrelated_near": [
+      { "prompt": "What is the official currency of France?", "behavior": "unchanged", "expected": "Euro" },
+      { "prompt": "What is the capital of Germany?", "behavior": "unchanged", "expected": "Berlin" }
+    ],
+    "unrelated_far": [
+      { "prompt": "What is the boiling point of water in Celsius at sea level?", "behavior": "unchanged", "expected": "100" },
+      { "prompt": "Who painted The Starry Night?", "behavior": "unchanged", "expected": "Vincent van Gogh" }
+    ]
+  },
+  "notes": "Template. Delete: every derived query routes through the deleted fact (the capital of France), never through facts the model holds independently, such as Paris being in France."
+}

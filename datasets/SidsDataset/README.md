@@ -148,8 +148,14 @@ the question template each tag gives. Summary:
 | `chain` | R ∘ S ⊑ T + a bridge fact | Edit: she was born in Lyon. Bridge: Lyon is in France. Ask: which country was she born in? |
 | `subproperty` | R ⊑ S | capital of ⊑ located in. Ask: which country is Lyon located in? |
 | `functional` | R has one value per subject | Replace only. Ask: is Paris still the capital of France? (expected: no) |
+| `composition` | Any relation + a bridge fact | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
 | `inheritance` | TBox C ⊑ D + a known member | Edit: every capital is a port. Ask: is Paris a port? |
 | `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
+
+`composition` is the multi-hop question (as in MQuAKE): the edited fact is
+one hop and a fact the model already knows is the next. It needs no relation
+property, so every relation supports it, which helps items whose relation has
+few tags still reach 4 derived queries.
 
 Reflexivity is not used: "a R a" doesn't depend on the edit. Note that
 "brother of" is not symmetric (the other person may be a sister), which is
@@ -180,9 +186,16 @@ Both count as success, and which one the model chose is recorded. For
 relations with many possible values (`cardinality: many`, e.g. "speaks
 language") this is an open-world test: removing one value doesn't make any
 other value true, so abstaining is the honest answer. For functional
-relations a negation is also reasonable. Derived queries work the same way:
-after deleting "Lyon is in France", "Is Lyon in Europe?" should no longer be
-answered through that chain.
+relations a negation is also reasonable.
+
+Derived queries under delete must route **through the deleted fact**. After
+deleting "Paris is the capital of France", "Which river flows through the
+capital of France?" should no longer get "Seine", because the only way to
+reach Paris from that question is the deleted link. But "Which country is
+Paris in?" is fine to still answer: the model knows it independently, so it
+is not a consequence of the deleted fact. In practice delete items lean on
+`inverse`, `symmetry` and `composition` queries whose wording names the
+deleted relation.
 
 ## Evaluation
 
@@ -214,59 +227,93 @@ Matching starts with normalized string and alias matching; an abstention and
 negation classifier (patterns first, a judge model if needed) handles delete.
 These functions don't exist yet.
 
-## Item shape
+## Records
 
-One record per edit:
+### Layout
 
-```json
-{
-  "id": "geography-replace-abox-associative-timeless-0001",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "abox",
-  "relation_semantics": "associative",
-  "temporality": "timeless",
-  "relation": "has_capital",
-  "relation_tags": ["functional", "inverse:capital_of"],
-  "edit": {
-    "statement": "The capital of France is Lyon.",
-    "subject": "France",
-    "object": "Lyon",
-    "old_object": "Paris"
-  },
-  "queries": {
-    "direct": { "prompt": "What is the capital of France?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
-    "paraphrase": { "prompt": "Which city serves as France's capital?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
-    "cross_lingual": [
-      { "language": "zh", "prompt": "法国的首都是哪里？", "behavior": "answer", "expected": "里昂", "aliases": ["Lyon"], "forbidden": ["巴黎", "Paris"] },
-      { "language": "es", "prompt": "¿Cuál es la capital de Francia?", "behavior": "answer", "expected": "Lyon", "forbidden": ["París", "Paris"] }
-    ],
-    "derived": [
-      { "prompt": "Lyon is the capital of which country?", "behavior": "answer", "expected": "France", "derivation": "inverse", "hops": 1, "bridge": [] },
-      { "prompt": "Is Paris the capital of France?", "behavior": "answer", "expected": "No", "derivation": "functional", "hops": 1, "bridge": [] },
-      { "prompt": "Which country is Lyon located in?", "behavior": "answer", "expected": "France", "derivation": "subproperty", "hops": 1, "via": "capital_of", "bridge": [] },
-      { "prompt": "On which continent is the capital of France?", "behavior": "answer", "expected": "Europe", "derivation": "transitivity", "hops": 2, "bridge": ["France is in Europe."] }
-    ],
-    "unrelated_near": [
-      { "prompt": "What is the official language of France?", "behavior": "unchanged", "expected": "French" },
-      { "prompt": "What is the capital of Spain?", "behavior": "unchanged", "expected": "Madrid" }
-    ],
-    "unrelated_far": [
-      { "prompt": "What is the chemical symbol for gold?", "behavior": "unchanged", "expected": "Au" },
-      { "prompt": "Who wrote Hamlet?", "behavior": "unchanged", "expected": "William Shakespeare" }
-    ]
-  },
-  "notes": ""
-}
+One JSON file per edit, grouped by topic and then edit operation:
+
+```
+datasets/SidsDataset/
+  README.md, RELATIONS.md     the spec and the relations catalogue
+  validate.py                 checks every record against both
+  examples/                   templates (not part of the dataset)
+    geography-replace-0001.json
+    geography-delete-0001.json
+  records/
+    <topic>/<edit_operation>/<topic>-<edit_operation>-NNNN.json
+    e.g. records/geography/replace/geography-replace-0001.json
 ```
 
-For `delete`, the reliability and derived queries use `"behavior":
-"abstain_or_negate"` with `expected: null` and the old answer in `forbidden`.
-TBox and RBox edits keep the same shape: `subject` and `object` may be
-classes, and `edit.axiom` can hold the DL form (e.g. `"Trans(located_in)"`).
+One file per edit keeps each record reviewable on its own, keeps Git diffs
+and merges small, and makes the browsing order (topic, then operation)
+the folder order. The coordinates are still stored inside each record, so a
+loader never has to parse paths. `NNNN` counts up within a topic and
+operation; ids are never reused.
 
-`relation_tags` copies the relation's tags from `RELATIONS.md` so a record
-can be read on its own; `RELATIONS.md` is the source of truth.
+### Adding a record
+
+1. Copy the closest template from `examples/` into
+   `records/<topic>/<edit_operation>/`, and rename it to the next free id
+   (`id` and the file name must match).
+2. Fill in the coordinates, the relation (it must be in `RELATIONS.md`; add
+   it there first if not, and copy its tags exactly), the edit, and the 12
+   queries.
+3. Run the validator from the project root:
+
+   ```bash
+   python datasets/SidsDataset/validate.py
+   ```
+
+   It prints every problem with the file and field, then a count per topic
+   and operation. Fix everything it reports before committing.
+
+### Format
+
+Every field below is required unless marked optional. Unknown fields are
+rejected, so typos don't silently drop data.
+
+| Field | Type | Rule |
+| --- | --- | --- |
+| `id` | string | `<topic>-<edit_operation>-NNNN`, same as the file name |
+| `edit_operation` | `insert` \| `replace` \| `delete` | puzzle is insert only |
+| `topic` | one of the 10 topic keys | |
+| `box` | `abox` \| `tbox` \| `rbox` | |
+| `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
+| `temporality` | `event` \| `timeless` \| null | null unless `abox` |
+| `relation` | string | a relation in `RELATIONS.md` |
+| `relation_tags` | string list | exactly that relation's tags (not checked for `rbox`, whose edit changes them) |
+| `edit.statement` | string | the edit as one or more sentences |
+| `edit.subject`, `edit.object` | string | for delete, `object` is the removed value |
+| `edit.old_object` | string | replace only, and required there |
+| `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
+| `queries` | object | the 12 queries, below |
+| `notes` | string, optional | |
+
+Each query:
+
+| Field | Type | Rule |
+| --- | --- | --- |
+| `prompt` | string | the question as asked |
+| `behavior` | `answer` \| `abstain_or_negate` \| `unchanged` | `unchanged` for unrelated queries; otherwise `abstain_or_negate` under delete and `answer` under insert and replace |
+| `expected` | string \| null | null exactly when `abstain_or_negate` |
+| `aliases` | string list, optional | other accepted answers |
+| `forbidden` | string list | the old answer; required for every reliability query under replace and for every `abstain_or_negate` query |
+| `language` | `zh` \| `es` | cross-lingual only, one of each |
+| `derivation` | see derived queries | derived only |
+| `hops` | integer | derived only; 1 + number of bridge facts |
+| `bridge` | string list | derived only; empty if none |
+| `via` | string, optional | derived only; the relation whose tag licenses the derivation, when it isn't the edited relation |
+
+`queries` holds `direct` and `paraphrase` (one object each), and
+`cross_lingual` (2), `derived` (4), `unrelated_near` (2) and `unrelated_far`
+(2) as lists. The validator also checks that each derivation's tag exists on
+the relation it uses, that `functional` appears only under replace,
+`inheritance` only for TBox, `instantiation` only (and always) for RBox, and
+that transitivity, chain, composition and inheritance have a bridge fact.
+
+The two templates in `examples/` are complete, valid records: a replace
+(`geography-replace-0001`) and a delete (`geography-delete-0001`).
 
 ## Parked from the previous version
 
@@ -281,11 +328,10 @@ benchmark buildable. They may come back as separate subsets:
 - **Connectivity and dependency** bands.
 - **Analytic vs synthetic** epistemic status.
 
-## Layout note
+## Dashboard
 
-The `finance/`, `health/`, `education/` and `physics/` directories are left
-over from an earlier `<domain>/<edit nature>/<knowledge type>/` scaffold and
-are empty. Records should live flat (one file per topic, or one per batch)
-with the coordinates carried in each record. The machine-readable version of
-this scheme is `dashboard/frontend/src/lib/sidsDatasetTaxonomy.js`, rendered on
-the dashboard's Datasets page; keep the two in sync.
+The machine-readable version of this scheme is
+`dashboard/frontend/src/lib/sidsDatasetTaxonomy.js`, rendered on the
+dashboard's Datasets page; keep it, this file and `validate.py` in sync. The
+page still shows the scheme rather than records; registering subsets in
+`datasetCatalog.js` switches it over once records exist.
