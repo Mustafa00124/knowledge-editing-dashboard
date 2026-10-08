@@ -78,27 +78,28 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 
 ### Finance
 
+Includes the textbook economic laws as causal TBox rules.
+
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
 | `subsidiary_of` | a is a subsidiary of b | associative | `transitive`, `asymmetric`, `inverse:parent_company_of` | Instagram is a subsidiary of Meta. |
 | `has_ceo` | a's CEO is b | associative | `functional`, `inverse:ceo_of` | Apple's CEO is Tim Cook. |
 | `acquired` | a acquired b | associative, event | `asymmetric`, `inverse:acquired_by` | Microsoft acquired LinkedIn. |
 | `has_currency` | a's currency is b | associative | `functional`, `inverse:currency_of` | Japan's currency is the yen. |
-
-### Economics
-
-| Relation | Reads as | Semantics | Tags | Example |
-| --- | --- | --- | --- | --- |
-| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | A tariff raises import prices. |
-| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Higher interest rates lower inflation. |
-| `causes` | event a caused event b | causal, event | `causal`, `asymmetric`, `inverse:caused_by` | The 2008 crisis caused Lehman Brothers to collapse. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | A rise in demand raises prices. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | A rise in supply lowers prices. |
+| `caused` | event a caused event b | causal, event | `causal`, `asymmetric`, `inverse:caused_by` | The 2008 crisis caused Lehman Brothers to collapse. |
 
 ### Biology
+
+Includes medicine: diseases, drugs, treatments.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
 | `part_of` | a is part of b | associative | `transitive`, `asymmetric`, `inverse:has_part` | The mitochondrion is part of the cell. |
 | `causes_disease` | a causes disease b | causal | `causal`, `asymmetric`, `inverse:caused_by`, `cardinality:many` | HPV causes cervical cancer. |
+| `treats` | drug a treats condition b | causal | `causal`, `inverse:treated_by`, `cardinality:many` | Insulin treats diabetes. |
+| `symptom_of` | a is a symptom of b | associative | `inverse:has_symptom`, `cardinality:many` | Jaundice is a symptom of hepatitis. |
 | `preys_on` | a preys on b | associative | `inverse:prey_of`, `cardinality:many` | Lions prey on zebras. |
 | `encodes` | gene a encodes protein b | associative | `inverse:encoded_by` | The INS gene encodes insulin. |
 
@@ -110,47 +111,61 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `discovered` | a discovered b | associative, event | `asymmetric`, `inverse:discovered_by` | Chadwick discovered the neutron. |
 | `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | A changing magnetic field causes an electric current. |
 
-### Chemistry
-
-| Relation | Reads as | Semantics | Tags | Example |
-| --- | --- | --- | --- | --- |
-| `has_atomic_number` | element a has atomic number b | associative | `functional`, `inverse:atomic_number_of` | Carbon has atomic number 6. |
-| `has_symbol` | element a has symbol b | associative | `functional`, `inverse:symbol_of` | Gold's symbol is Au. |
-| `contains_element` | compound a contains element b | associative | `cardinality:many`, `inverse:element_in` | Water contains oxygen. |
-| `reacts_to_form` | a reacts to form b | causal | `causal`, `asymmetric`, `cardinality:many` | Sodium and chlorine react to form sodium chloride. |
-
 ### Mathematics
 
+Rule-heavy and derivable. Has no natural causal knowledge, so its causal cells
+stay empty.
+
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every square is a rectangle. |
 | `greater_than` | a is greater than b | associative | `transitive`, `asymmetric`, `inverse:less_than` | 9 is greater than 7. |
 | `divides` | a divides b (a ≠ b) | associative | `transitive`, `asymmetric`, `inverse:multiple_of`, `cardinality:many` | 3 divides 12. |
 | `equals` | a equals b | associative | `symmetric`, `transitive` | The square root of 81 equals 9. |
+| `proved` | a proved theorem b | associative, event | `asymmetric`, `inverse:proved_by` | Andrew Wiles proved Fermat's Last Theorem. |
 
-### Grammar / language
+### Grammar
+
+Rule-heavy and derivable: word classes and inflection (TBox rules such as
+"English adjectives come before the noun" and their instances), plus the
+symmetric word relations. Causal cells stay empty.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
+| `word_class` | word a is a b (part of speech) | associative | `cardinality:many` | "Quickly" is an adverb. |
+| `plural_of` | a is the plural of b | associative | `functional`, `inverse:singular_of` | "Mice" is the plural of "mouse". |
+| `past_tense_of` | a is the past tense of b | associative | `functional`, `inverse:base_form_of` | "Went" is the past tense of "go". |
 | `synonym_of` | a is a synonym of b | associative | `symmetric`, `cardinality:many` | "Big" is a synonym of "large". |
 | `antonym_of` | a is an antonym of b | associative | `symmetric` | "Hot" is the antonym of "cold". |
-| `plural_of` | a is the plural of b | associative | `functional`, `inverse:singular_of` | "Mice" is the plural of "mouse". |
 | `derived_from` | word a derives from word b | associative | `transitive`, `asymmetric`, `inverse:root_of` | "Philosophy" derives from Greek "philosophia". |
 
-### Philosophy
+### Literature and arts
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
-| `student_of` | a was a student of b | associative | `asymmetric`, `inverse:teacher_of`, `cardinality:many` | Aristotle was a student of Plato. |
-| `author_of` | a wrote b | associative, event | `asymmetric`, `inverse:written_by` | Kant wrote the Critique of Pure Reason. |
-| `influenced` | a influenced b | causal | `causal`, `asymmetric`, `inverse:influenced_by`, `cardinality:many` | Hume influenced Kant. |
+| `written_by` | work a was written by b | associative, event | `functional`, `inverse:author_of` | Hamlet was written by Shakespeare. |
+| `painted_by` | painting a was painted by b | associative, event | `functional`, `inverse:painted` | The Mona Lisa was painted by Leonardo da Vinci. |
+| `directed_by` | film a was directed by b | associative, event | `functional`, `inverse:directed` | Jaws was directed by Steven Spielberg. |
+| `character_in` | a is a character in b | associative | `inverse:has_character`, `cardinality:many` | Ophelia is a character in Hamlet. |
+| `sequel_of` | a is the sequel of b | associative | `asymmetric`, `inverse:prequel_of`, `functional` | The Two Towers is the sequel of The Fellowship of the Ring. |
+| `inspired` | work a inspired work b | causal | `causal`, `asymmetric`, `inverse:inspired_by`, `cardinality:many` | The Odyssey inspired Joyce's Ulysses. |
 
-### Technology
+### Puzzle
+
+Invented mini-worlds ("every flerm is a droven, every droven can narp, a mip
+is a flerm"). No prior knowledge interferes, so derived queries are pure
+logic. Because the model holds nothing about them beforehand, puzzle items are
+**insert only**. Their bridge facts are invented too, so they are inserted as
+part of the edit (a puzzle edit can be several statements) and the pre-edit
+check is skipped. Names are invented per item.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
-| `developed_by` | a was developed by b | associative, event | `inverse:developed`, `cardinality:many` | Linux was developed by Linus Torvalds. |
-| `successor_of` | a is the successor of b | associative | `asymmetric`, `inverse:predecessor_of`, `functional` | Windows 11 is the successor of Windows 10. |
-| `written_in` | software a is written in language b | associative | `cardinality:many`, `inverse:used_to_write` | Linux is written in C. |
+| `is_a` | every a is a b / a is a b | associative | `transitive`, `asymmetric` | Every flerm is a droven. |
+| `can` | a can b | associative | `cardinality:many` | Every droven can narp. (inheritance: can a mip narp?) |
+| `left_of` | a is left of b | associative | `transitive`, `asymmetric`, `inverse:right_of` | The zib is left of the quon. |
+| `taller_than` | a is taller than b | associative | `transitive`, `asymmetric`, `inverse:shorter_than` | Brell is taller than Fask. |
+| `triggers` | a triggers b | causal | `causal`, `asymmetric`, `inverse:triggered_by` | Ringing the glimmer triggers the vault door. |
 
 ## RBox items
 

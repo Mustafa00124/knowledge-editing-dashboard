@@ -43,11 +43,12 @@ Every item is one edit plus exactly 12 queries.
 Four layers, each nested under the one before it. Some layers only exist
 under some branches.
 
-**Topic.** `finance`, `economics`, `biology`, `physics`, `chemistry`,
-`mathematics`, `grammar_language`, `philosophy`, `people`, `geography`,
-`history`, `technology`. A diversity control, so a finding about rules isn't
-secretly a finding about mathematics. It also keeps the records organized for
-browsing.
+**Topic.** `geography`, `people` (facts about famous people), `history`,
+`finance` (including textbook economic laws), `biology` (including medicine),
+`physics`, `mathematics`, `grammar`, `literature_arts`, `puzzle` (invented
+mini-worlds, insert only). A diversity control, so a finding about rules
+isn't secretly a finding about mathematics. It also keeps the records
+organized for browsing.
 
 **Box.** How description logic divides a knowledge base:
 
@@ -89,7 +90,11 @@ That gives 7 knowledge-form leaves per topic:
 | TBox | associative | |
 | RBox | | |
 
-So 3 operations × 12 topics × 7 forms = 252 cells.
+So 3 operations × 10 topics × 7 forms = 210 cells. Not every cell exists
+naturally: mathematics and grammar have no causal knowledge, and puzzle is
+insert only. Those cells stay empty rather than being filled with forced
+examples, and comparisons across topics should only use cells both topics
+have.
 
 ### 3. Query type
 

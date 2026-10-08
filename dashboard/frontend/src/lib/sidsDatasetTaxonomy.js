@@ -24,18 +24,16 @@ export const EDIT_OPERATIONS = [
 // Level 2, first layer. A diversity control, and the way records are
 // organized for browsing.
 export const TOPICS = [
+  { key: 'geography', label: 'Geography' },
+  { key: 'people', label: 'People' },
+  { key: 'history', label: 'History' },
   { key: 'finance', label: 'Finance' },
-  { key: 'economics', label: 'Economics' },
   { key: 'biology', label: 'Biology' },
   { key: 'physics', label: 'Physics' },
-  { key: 'chemistry', label: 'Chemistry' },
   { key: 'mathematics', label: 'Mathematics' },
-  { key: 'grammar_language', label: 'Grammar / language' },
-  { key: 'philosophy', label: 'Philosophy' },
-  { key: 'people', label: 'Celebrities / people' },
-  { key: 'geography', label: 'Countries / geography' },
-  { key: 'history', label: 'History' },
-  { key: 'technology', label: 'Technology' },
+  { key: 'grammar', label: 'Grammar' },
+  { key: 'literature_arts', label: 'Literature and arts' },
+  { key: 'puzzle', label: 'Puzzle' },
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
