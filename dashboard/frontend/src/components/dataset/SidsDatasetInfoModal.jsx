@@ -87,7 +87,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               <p className="dataset-note">{TOPICS.map((t) => t.label).join(' · ')}</p>
             </div>
             <div className="sids-axis">
-              <h4>Box <span className="sids-rubric-q">how description logic divides a knowledge base</span></h4>
+              <h4>DL box <span className="sids-rubric-q">how description logic divides a knowledge base</span></h4>
               <ValueList values={BOXES} />
             </div>
             <div className="sids-axis">
