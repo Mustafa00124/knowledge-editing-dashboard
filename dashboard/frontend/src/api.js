@@ -137,6 +137,9 @@ export const api = {
 
   queue: () => req('/queue'),
   gpuStatus: () => req('/queue/gpu-status'),
+  // A hyperparameter sweep spec (see hparam_sweeps.plan) staged on a card.
+  stageSweepOnSlot: (slot, spec) =>
+    req(`/queue/${slot}/stage-sweep`, { method: 'POST', body: JSON.stringify(spec) }),
   stageQueueSlot: (slot, experiment_type, params, save_results = true) =>
     req(`/queue/${slot}/stage`, { method: 'POST', body: JSON.stringify({ experiment_type, params, save_results }) }),
   launchQueueSlot: (slot) => req(`/queue/${slot}/launch`, { method: 'POST' }),

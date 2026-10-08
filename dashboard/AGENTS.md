@@ -155,7 +155,7 @@ maps the tree.
 | Read everything: investigations, types, fields, models, datasets, results, queue and GPU status | Promote a sweep result into the main configuration (`/api/hparams/promote`) |
 | Dry runs and estimates | Archive or restore results, delete or hide sweeps |
 | Launch experiments and sweeps | Downloads |
-| Follow, cancel and rerun **its own** launches | The Experiments page's queue slots (stage, launch, pause, cancel) |
+| Follow, cancel and rerun **its own** launches | The GPU queue cards on any page (stage, launch, pause, cancel); agent launches go straight out and show in progress sections |
 | | Cancel or rerun what the user launched |
 
 ## Rules

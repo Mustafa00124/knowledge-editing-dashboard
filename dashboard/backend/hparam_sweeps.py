@@ -487,7 +487,7 @@ def plan(req):
     return exp_cfg, inv, runs, skipped
 
 
-def launch(req, launched_by="user"):
+def launch(req, launched_by="user", queue_slot=None):
     exp_cfg, inv, runs, skipped = plan(req)
     if not runs:
         raise ValueError("nothing to run: every point was skipped" if skipped else "choose at least one value")
@@ -508,7 +508,7 @@ def launch(req, launched_by="user"):
             params=run["params"], sbatch_path=result["sbatch_path"], out_path=result["out_path"],
             err_path=result["err_path"], out_root=str(out_root), sweep_id=SWEEP_PREFIX + sweep_id,
             investigation=inv["id"], batch_id=sweep_id, label=req.get("label") or "", launched_by=launched_by,
-            note=req.get("note") or "")
+            note=req.get("note") or "", queue_slot=queue_slot)
         submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides", "fixed")}
                          | ({"baseline_for": run["baseline_for"]} if "baseline_for" in run else {})
                          | {"job_id": result["job_id"]})
@@ -528,14 +528,28 @@ RETRYABLE = ("FAILED", "CANCELLED", "TIMEOUT", "OUT_OF_MEMORY", "NODE_FAIL", "BO
 def rerun_failed(investigation, sweep_id):
     """Resubmit every run of a sweep that ended without finishing, with the
     same settings and run name. Earlier job ids are kept per run."""
+    return resubmit(investigation, sweep_id)
+
+
+def resubmit(investigation, sweep_id, job_ids=None, queue_slot=None):
+    """Resubmit runs of a sweep under their own run names and settings, so
+    sweep.json and the results keep pointing at them: the runs whose current
+    job id is in job_ids, or (None) every run that ended without finishing.
+    A new job stays on its old job's GPU queue card unless queue_slot says
+    otherwise, linked to it as a retry."""
     exp_cfg = _exp_cfg()
     sweep_dir = _sweep_dir(investigation, sweep_id)
     path = sweep_dir / "sweep.json"
     sweep = json.loads(path.read_text())
-    statuses = _statuses([(sweep_dir, sweep)])
-    rerun, errors = [], []
+    statuses = _statuses([(sweep_dir, sweep)]) if job_ids is None else {}
+    wanted = None if job_ids is None else {str(j) for j in job_ids}
+    old_jobs = {str(j["job_id"]): j for j in db.list_jobs(include_cleared=True)}
+    rerun, errors, submitted = [], [], []
     for run in sweep["runs"]:
-        if statuses.get(str(run["job_id"]), {}).get("state") not in RETRYABLE:
+        old = str(run["job_id"])
+        if wanted is None and statuses.get(old, {}).get("state") not in RETRYABLE:
+            continue
+        if wanted is not None and old not in wanted:
             continue
         params = slurm._prepare_params(exp_cfg, {
             "method": run["method"], "model": run["model"], "data_path": run["data_path"],
@@ -549,17 +563,20 @@ def rerun_failed(investigation, sweep_id):
         except RuntimeError as exc:
             errors.append({"run_name": run["run_name"], "error": str(exc)})
             continue
+        slot = queue_slot if queue_slot is not None else (old_jobs.get(old) or {}).get("queue_slot")
         db.insert_job(
             job_id=result["job_id"], experiment_type=EXPERIMENT, run_name=run["run_name"], params=params,
             sbatch_path=result["sbatch_path"], out_path=result["out_path"], err_path=result["err_path"],
             out_root=str(sweep_dir), sweep_id=SWEEP_PREFIX + sweep_id,
             investigation=investigation, batch_id=sweep_id, label=sweep.get("label") or "",
-            launched_by=sweep.get("launched_by") or "user", note=sweep.get("note") or "")
+            launched_by=sweep.get("launched_by") or "user", note=sweep.get("note") or "",
+            queue_slot=slot, retry_of=old if old in old_jobs else None)
         run.setdefault("earlier_jobs", []).append(run["job_id"])
         run["job_id"] = result["job_id"]
         rerun.append(run["run_name"])
+        submitted.append(result["job_id"])
     path.write_text(json.dumps(sweep, indent=1) + "\n")
-    return {"rerun": rerun, "errors": errors}
+    return {"rerun": rerun, "errors": errors, "submitted": submitted}
 
 
 def _sweeps(investigation=None):
