@@ -1,23 +1,41 @@
 import { useEffect } from 'react'
 import {
-  AXES,
-  COHERENCE_PROPERTIES,
-  CONNECTIVITY,
-  DEPENDENCY,
-  EPISTEMIC_STATUS,
-  FACT_TEMPORALITY,
-  GROUNDING_LADDER,
-  KNOWLEDGE_TIERS,
-  PROBE_ROLES,
-  QUERY_VARIANTS,
-  STRUCTURE_CAVEAT,
-  STRUCTURE_EXAMPLES,
+  BOXES,
+  DERIVATIONS,
+  EDIT_OPERATIONS,
+  KNOWLEDGE_FORMS,
+  METRICS,
+  PARKED,
+  QUERY_BEHAVIORS,
+  QUERY_TYPES,
+  RELATION_SEMANTICS,
+  TEMPORALITY,
+  TOPICS,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
 // Reference panel for the categorization scheme, opened from the "?" beside
 // the dataset's name. Everything here is sourced from
-// sidsDatasetTaxonomy.js, so the panel cannot drift from the axis
-// definitions the browser actually renders.
+// sidsDatasetTaxonomy.js, so the panel cannot drift from what the browser
+// renders.
+function ValueList({ values }) {
+  return (
+    <dl className="sids-axis-values">
+      {values.map((value) => (
+        <div key={value.key}>
+          <dt>{value.label}</dt>
+          <dd>
+            {value.bridge && <span className="sids-degrades">bridge</span>}
+            {value.notation && <><code>{value.notation}</code> </>}
+            {value.description}
+            {value.examples && <em> {value.examples.join(' · ')}</em>}
+            {value.example && <em> {value.example}</em>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 export default function SidsDatasetInfoModal({ onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -46,208 +64,86 @@ export default function SidsDatasetInfoModal({ onClose }) {
           <section>
             <h3>Overview</h3>
             <p>
-              Published editing benchmarks test a narrow notion of knowledge, mostly simple factual triples. This one is
-              built to span a much wider <strong>knowledge spectrum</strong> and ask how different kinds of knowledge
-              behave under editing.
-            </p>
-            <p>
-              The question is not only "which editing method scores best". It is{' '}
-              <strong>under what kinds of knowledge, edit operations and structural conditions a knowledge edit
-              becomes risky</strong>: whether success depends on the knowledge being rule-like rather than factual, on
-              how densely connected it is, on whether it was inserted or deleted, on how the update was phrased.
+              Published editing benchmarks test a narrow notion of knowledge, mostly simple factual triples, and measure
+              generalization with paraphrases. This one spans facts, rules and properties of relations, causal and
+              associative, and measures generalization with questions that <strong>logically follow</strong> from the
+              edit.
             </p>
             <p className="dataset-note">
-              Because of that, items are not filed in one hierarchy. Each is given coordinates on several independent
-              axes, so matched examples are possible: same topic and knowledge form but different connectivity, or one
-              knowledge item expressed several different ways. That is what lets a failure be attributed to a factor
-              rather than to two unrelated examples differing in every respect at once.
+              Three levels: edit operation, then knowledge form, then a fixed set of 10 queries per edit. Relations and
+              their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>
 
           <section>
-            <h3>Axes</h3>
-            {AXES.filter((axis) => axis.key !== 'knowledge_form' && axis.key !== 'temporality').map((axis) => (
-              <div className="sids-axis" key={axis.key}>
-                <h4>{axis.label}</h4>
-                <dl className="sids-axis-values">
-                  {axis.values.map((value) => (
-                    <div key={value.key}>
-                      <dt>{value.label}</dt>
-                      <dd>
-                        {value.degrades && (
-                          <span className="sids-degrades">
-                            {value.degrades
-                              .map((d) => COHERENCE_PROPERTIES.find((c) => c.key === d)?.label || d)
-                              .join(' + ')}
-                          </span>
-                        )}
-                        {value.description || <span className="text-dim">See rubric below.</span>}
-                        {value.examples && <em> {value.examples.join(' · ')}</em>}
-                        {value.example && <em> "{value.example}"</em>}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ))}
+            <h3>1. Edit operation</h3>
+            <ValueList values={EDIT_OPERATIONS} />
+          </section>
+
+          <section>
+            <h3>2. Knowledge form</h3>
+            <div className="sids-axis">
+              <h4>Topic <span className="sids-rubric-q">a diversity control, and how records are organized</span></h4>
+              <p className="dataset-note">{TOPICS.map((t) => t.label).join(' · ')}</p>
+            </div>
+            <div className="sids-axis">
+              <h4>Box <span className="sids-rubric-q">how description logic divides a knowledge base</span></h4>
+              <ValueList values={BOXES} />
+            </div>
+            <div className="sids-axis">
+              <h4>Relation semantics <span className="sids-rubric-q">ABox and TBox only</span></h4>
+              <ValueList values={RELATION_SEMANTICS} />
+            </div>
+            <div className="sids-axis">
+              <h4>Temporality <span className="sids-rubric-q">ABox only</span></h4>
+              <ValueList values={TEMPORALITY} />
+            </div>
             <p className="dataset-note">
-              Topic is mainly a diversity control. Edit type is independent of knowledge form: in principle any form
-              can be inserted, replaced or deleted, and whether that holds in practice is itself a finding.
+              {KNOWLEDGE_FORMS.length} forms per topic, so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
+              × {KNOWLEDGE_FORMS.length} forms = {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
             </p>
           </section>
 
           <section>
-            <h3>Knowledge form</h3>
-            <p>
-              The substantive axis, categorized the way description logic carves up a knowledge base rather than as
-              knowledge-graph triples. Published benchmarks test almost only the first form, a plain link. Facts are
-              claims about particular individuals; rules are claims about descriptions or relations in general, so one
-              rule edit should move every individual it covers.
-            </p>
-            {KNOWLEDGE_TIERS.map((tier) => (
-              <div className="sids-axis" key={tier.key}>
-                <h4>{tier.label} <span className="sids-rubric-q">{tier.description}</span></h4>
-                {tier.key === 'fact' && (
-                  <div>
-                    <p className="sids-group-label">Temporality <span>cuts across every fact form</span></p>
-                    <dl className="sids-axis-values">
-                      {FACT_TEMPORALITY.map((t) => (
-                        <div key={t.key}>
-                          <dt>{t.label}</dt>
-                          <dd>{t.description} <em>{t.examples.join(' · ')}</em></dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                )}
-                {tier.groups.map((group) => (
-                  <div key={group.key}>
-                    <p className="sids-group-label">{group.label} <span>{group.notation}</span></p>
-                    <dl className="sids-axis-values">
-                      {group.forms.map((form) => (
-                        <div key={form.key}>
-                          <dt>{form.label}</dt>
-                          <dd>
-                            <code>{form.notation}</code> {form.description}
-                            <em> {form.examples.join(' · ')}</em>
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </section>
-
-          <section>
-            <h3>Edit representation and coherence</h3>
-            <p>
-              The representation axis carries the coherence stress test. Rather than one bucket called "gibberish",
-              which would conflate several different failure modes, each degraded representation is tagged with the one
-              property it destroys:
-            </p>
+            <h3>3. Queries</h3>
             <dl className="sids-axis-values">
-              {COHERENCE_PROPERTIES.map((prop) => (
-                <div key={prop.key}>
-                  <dt>{prop.label}</dt>
-                  <dd>{prop.description}</dd>
+              {QUERY_TYPES.map((q) => (
+                <div key={q.key}>
+                  <dt>{q.count} × {q.label}</dt>
+                  <dd><span className="sids-degrades">{q.metric}</span>{q.description}</dd>
                 </div>
               ))}
             </dl>
-            <p>
-              Holding subject, relation, edit type and method fixed, the target can then be walked away from the
-              model's semantic structure one rung at a time, with reliability, propagation and locality measured at
-              each. <code>{GROUNDING_LADDER.frame}</code>
-            </p>
-            <ol className="sids-questions">
-              {GROUNDING_LADDER.rungs.map((rung) => (
-                <li key={rung.value}>
-                  <strong>{rung.value}</strong> {rung.description}
-                </li>
-              ))}
-            </ol>
-            <p className="dataset-note sids-caveat">{GROUNDING_LADDER.question}</p>
-          </section>
-
-          <section>
-            <h3>Connectivity and dependency</h3>
-            <p>
-              Two related but distinct structural properties. A celebrity fact can have very high connectivity, since a
-              huge amount of related knowledge surrounds that person, while their favorite color has very low
-              dependency, since almost nothing else should change with it. A mathematical rule is high on both.
-            </p>
-            {[CONNECTIVITY, DEPENDENCY].map((rubric) => (
-              <div className="sids-axis" key={rubric.key}>
-                <h4>{rubric.label} <span className="sids-rubric-q">{rubric.question}</span></h4>
-                <dl className="sids-axis-values">
-                  {rubric.levels.map((level) => (
-                    <div key={level.key}>
-                      <dt>{level.label}</dt>
-                      <dd>{level.description}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ))}
-            <div className="sids-combos">
-              {STRUCTURE_EXAMPLES.map((combo) => (
-                <div className="sids-combo" key={`${combo.connectivity}-${combo.dependency}`}>
-                  <strong>C {combo.connectivity} · D {combo.dependency}</strong>
-                  <span>{combo.label}</span>
-                  <small>{combo.detail}</small>
-                </div>
-              ))}
+            <div className="sids-axis">
+              <h4>Derived queries <span className="sids-rubric-q">which ones an item gets depends on its relation's properties</span></h4>
+              <ValueList values={DERIVATIONS} />
+              <p className="dataset-note">
+                Derivations marked with a bridge combine the edit with another fact. The model must answer every bridge
+                fact correctly before editing, or the item is dropped for that model. Reflexivity is never used, since
+                "a R a" doesn't depend on the edit.
+              </p>
             </div>
-            <p className="dataset-note sids-caveat">{STRUCTURE_CAVEAT}</p>
           </section>
 
           <section>
-            <h3>Evaluation probes</h3>
-            <p>Every item carries four kinds of probe, which is what makes the locality test strict:</p>
+            <h3>Evaluation</h3>
+            <p>Our own evaluation functions, scored from generated answers:</p>
             <dl className="sids-axis-values">
-              {PROBE_ROLES.map((role) => (
-                <div key={role.key}>
-                  <dt>
-                    {role.label} <span className={`sids-expect sids-expect-${role.expectation.includes('not') ? 'stay' : 'change'}`}>{role.expectation}</span>
-                  </dt>
-                  <dd>{role.description}</dd>
+              {METRICS.map((m) => (
+                <div key={m.key}>
+                  <dt>{m.label}</dt>
+                  <dd>over {m.over}; {m.reported}.</dd>
                 </div>
               ))}
             </dl>
-            <p>So the core evaluation asks, in order:</p>
-            <ol className="sids-questions">
-              <li>Did the target change?</li>
-              <li>Did the edit propagate to the knowledge that should depend on it?</li>
-              <li>Did nearby but independent knowledge stay unchanged?</li>
-              <li>Did completely unrelated knowledge stay unchanged?</li>
-            </ol>
+            <ValueList values={QUERY_BEHAVIORS} />
           </section>
 
           <section>
-            <h3>Open points</h3>
-            <div className="sids-axis">
-              <h4>Analytic and synthetic</h4>
-              <dl className="sids-axis-values">
-                {EPISTEMIC_STATUS.map((status) => (
-                  <div key={status.key}>
-                    <dt>{status.label}</dt>
-                    <dd>{status.description}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="dataset-note">
-                Recorded per item, but how to formalize the split is still open. It is here because definitions and
-                rules plausibly behave differently under editing from arbitrary facts.
-              </p>
-            </div>
-            <div className="sids-axis">
-              <h4>Why who / what / which is not an axis</h4>
-              <p className="dataset-note">{QUERY_VARIANTS.note}</p>
-              <p className="dataset-note">
-                <em>{QUERY_VARIANTS.example.item}</em> generates {QUERY_VARIANTS.example.queries.join(' ')}
-              </p>
-            </div>
+            <h3>Parked from the previous version</h3>
+            <ul className="sids-questions">
+              {PARKED.map((p) => <li key={p}>{p}</li>)}
+            </ul>
           </section>
         </div>
       </div>

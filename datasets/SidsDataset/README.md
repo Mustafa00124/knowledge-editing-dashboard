@@ -1,312 +1,257 @@
 # Sid's Dataset
 
 Our own knowledge-editing benchmark. Empty for now: this file is the
-specification, the records get built against it.
+specification, the records get built against it. The relations we use, their
+properties and the derived questions each property licenses live in
+[`RELATIONS.md`](RELATIONS.md).
 
 ## Why
 
 Published editing benchmarks test a fairly narrow notion of knowledge, mostly
-simple factual triples. This one is built to span a much wider **knowledge
-spectrum** and ask how different *kinds* of knowledge behave under editing.
+simple factual triples, and measure generalization with paraphrases. This one
+spans a wider range of knowledge (facts, rules, properties of relations,
+causal and associative, events and standing facts) and measures
+generalization with questions that *logically follow* from the edit, so a
+method can't pass by matching the surface form of the edit.
 
-The goal is not only "which editing method performs best". It is:
+> Under what kinds of knowledge and edit operations does a knowledge edit
+> succeed, propagate to what follows from it, and stay contained?
 
-> Under what kinds of knowledge, edit operations and structural conditions
-> does a knowledge edit become risky?
-
-That is, does edit success depend on the knowledge being rule-like rather than
-factual, on it being a negation or a count or a hierarchy rather than a plain link, on how
-densely connected it is, on whether it was inserted or deleted or replaced, on
-how the update was phrased?
-
-## Not a hierarchy
-
-Every item is described by **coordinates on several independent axes**, not by
-a position in one tree. Each question above varies along a different axis, so a
-single hierarchy would force an arbitrary precedence between them and make
-matched examples impossible to express.
+## Three levels
 
 ```
-Topic x Edit Type x Knowledge Form x Edit Representation x Connectivity x Dependency
+Edit operation  >  Knowledge form  >  Query type
+insert            topic               direct        (1)
+replace           box                 paraphrase    (1)
+delete            relation semantics  derived       (4)
+                  temporality         unrelated     (2 near + 2 far)
 ```
 
-Matched examples are the point: same topic and similar knowledge form but
-different connectivity, or one knowledge item expressed several different ways.
-That is what lets a failure be attributed to a factor, instead of comparing two
-examples that differ in every respect at once.
+Every item is one edit plus exactly 10 queries.
 
-The machine-readable version of everything below lives in
-`dashboard/frontend/src/lib/sidsDatasetTaxonomy.js`, and the dashboard's
-Datasets page renders it (the "?" beside the dataset name). Keep the two in
-sync.
+### 1. Edit operation
 
-## Axes
+| Key | What it does | Expected answer afterwards |
+| --- | --- | --- |
+| `insert` | Adds knowledge the model does not hold. | The new answer. |
+| `replace` | Swaps held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
+| `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
 
-### Topic
+### 2. Knowledge form
 
-`finance`, `economics`, `biology`, `physics`, `chemistry`, `mathematics`,
-`grammar_language`, `philosophy`, `people`, `geography`, `history`,
-`technology`.
+Four layers, each nested under the one before it. Some layers only exist
+under some branches.
 
-The first layer. Mainly a diversity control, so that a finding about rules is
-not secretly a finding about mathematics.
+**Topic.** `finance`, `economics`, `biology`, `physics`, `chemistry`,
+`mathematics`, `grammar_language`, `philosophy`, `people`, `geography`,
+`history`, `technology`. A diversity control, so a finding about rules isn't
+secretly a finding about mathematics. It also keeps the records organized for
+browsing.
 
-### Edit type
+**Box.** How description logic divides a knowledge base:
 
-`insert`, `replace`, `delete`. Independent of knowledge form: in principle any
-form can be inserted, replaced or deleted, and whether that actually holds is
-itself a finding.
+| Key | What it holds | DL | Example |
+| --- | --- | --- | --- |
+| `abox` | Facts about particular individuals | R(a, b), C(a) | Paris is the capital of France. |
+| `tbox` | Rules about classes: every C is (or does) D | C ⊑ D, C ⊑ ∃R.D | Every capital is a city. Smoking causes lung cancer. |
+| `rbox` | Properties of relations themselves | Trans(R), Sym(R), R ≡ S⁻, R ∘ S ⊑ T | "Located in" is transitive. "Sibling of" is symmetric. |
 
-Everything under `replace` is counterfactual by construction. The original is
-something we are confident every LLM has seen and holds true, swapped for a
-false-but-plausible alternative.
+A single TBox or RBox edit should move every individual it covers, which is
+why they're expected to behave differently from ABox edits.
 
-### Knowledge form
+**Relation semantics** (`abox` and `tbox` only; `null` for `rbox`):
 
-The substantive axis, categorized the way description logic carves up a
-knowledge base rather than as knowledge-graph entity-relation triples.
-Existing benchmarks concentrate almost entirely on the first entry.
+| Key | What it is | ABox example | TBox example |
+| --- | --- | --- | --- |
+| `causal` | The relation says one thing brings about another. | The 2008 crisis caused Lehman Brothers to collapse. | Smoking causes lung cancer. |
+| `associative` | Any other relation: membership, location, ownership, role, part of. | Paris is the capital of France. | Every capital is a city. |
 
-Three tiers: **fact vs rule**, then the kind of fact or rule, then the form.
-Facts are claims about particular individuals (the DL ABox). Rules are claims
-about descriptions or relations in general (the TBox and RBox), so a single
-rule edit should move every individual it covers.
+Causation is outside standard description logic. Here it's modelled as a
+relation (`causes`, `prevents`) with its own properties in `RELATIONS.md`.
+Causation is not transitive in general, so chained causal derivations are
+only used where the chain is well established.
 
-| Tier | Group | Key | Form | DL | Example |
-| --- | --- | --- | --- | --- | --- |
-| Fact | Links (a R b) | `plain_link` | Plain link | R(a, b) | Paris is the capital of France. |
-| Fact | Descriptions of one thing (a fits C) | `membership` | Plain membership | C(a) | Paris is a city. |
-| | | `negation` | Negation | ¬C(a) | Marie does not speak German. |
-| | | `disjunction` | Disjunction ("or") | (C ⊔ D)(a) | Alex is a doctor or a nurse. |
-| | | `existential` | Existential ("some") | ∃R.C(a) | Marie speaks some Romance language. |
-| | | `universal` | Universal ("all") | ∀R.C(a) | Everyone in this class passed. |
-| | | `counting` | Counting | (= n R.C)(a) | Marie speaks exactly three languages. |
-| Rule | Rules about descriptions (every C is D) | `hierarchy` | Hierarchy | C ⊑ D | Every capital is a city. |
-| | | `constraint` | Constraint | C ⊑ (= 1 R.D), C ⊓ D ⊑ ⊥ | Every country has exactly one capital; nothing is both a city and a country. |
-| Rule | Rules about relations | `relation_rule` | Relation rule | Trans(R), R ≡ S⁻ | "Located in" is transitive; "capital of" flips to "has capital". |
-
-#### Fact temporality
-
-Facts carry one more layer, `temporality`: how the fact sits in time. It cuts
-across the fact forms rather than nesting under one (a plain link can be a
-state or an event; a membership can be timeless or a state), so it is its own
-field, `null` for rules.
+**Temporality** (`abox` only; `null` otherwise):
 
 | Key | What it is | Example |
 | --- | --- | --- |
-| `timeless` | True independent of time: mathematics, facts that hold by what the terms mean | 7 is a prime number. |
-| `state` | True over a period that can end: capitals, who holds an office | Paris is the capital of France. |
-| `event` | Happened at a point in time: an assassination, a discovery | Marie Curie discovered radium. |
+| `event` | Happened at a point in time. | Marie Curie discovered radium in 1898. |
+| `timeless` | Not tied to a moment. Covers facts that are always true *and* standing states that hold over a period. | 7 is prime. Paris is the capital of France. |
 
-Records store `knowledge_form` (tier and group follow from it) and, for facts,
-`temporality`. A
-definition ("a bachelor is an unmarried adult man") is a hierarchy in both
-directions (C ≡ D).
+That gives 7 knowledge-form leaves per topic:
 
-Rules matter because one edit should license an unbounded number of changed
-outputs. The description forms matter because each has its own entailments:
-editing a negation, a disjunction or a count should change different
-downstream answers than editing a plain membership.
-
-### Edit representation
-
-How the update is communicated, holding the intended edit operation fixed. Two
-groups.
-
-**Phrasing** is the level under plain links (other forms are always
-`direct` for now). Same edit, three ways:
-
-| Key | What it tests | Example |
+| Box | Relation semantics | Temporality |
 | --- | --- | --- |
-| `direct` | Baseline: stated plainly | The capital of France is Lyon. |
-| `confusing` | A logically equivalent form (negations, double negations, contrapositives) that reduces to the same fact. Can the model see one fact across different logical forms? | It is not true that France has a capital other than Lyon. |
-| `distractor_heavy` | The same edit embedded in unrelated information; the queried part is a small piece of it. Does distraction affect editing? | France, which borders Spain, produces a quarter of the world's wine and hosts the Tour de France each July, has Lyon as its capital. |
+| ABox | causal | event, timeless |
+| ABox | associative | event, timeless |
+| TBox | causal | |
+| TBox | associative | |
+| RBox | | |
 
-The earlier `negated` and `double_negation` are now just instances of
-`confusing`. `implicit` (the claim is only entailed, never stated) was dropped,
-since it is not logically equivalent to the edit.
+So 3 operations × 12 topics × 7 forms = 252 cells.
 
-**Degraded coherence** is the gibberish stress test. Gibberish is not a topic
-and not a knowledge form: topic says what the knowledge is about, knowledge
-form says what structural type it is, and this says how the edit is
-represented. The same knowledge form and the same edit operation can be
-expressed normally or in increasingly strange ways.
+### 3. Query type
 
-Rather than one bucket called "gibberish", each family is tagged with **what is
-being destroyed**, because that is what makes a controlled comparison possible:
+Fixed per item: **1 direct, 1 paraphrase, 4 derived, 2 near unrelated, 2 far
+unrelated**. Fixing the counts gives every item the same weight in every
+metric.
 
-- **Semantic coherence**: whether the proposition makes sense at all.
-- **Semantic type compatibility**: whether the target is the kind of thing the
-  relation expects. `CapitalOf(country, city)` given something that is not a
-  city.
-- **Lexical familiarity**: whether the words have any established meaning, and
-  so any pre-existing representation in the model.
-- **Syntactic well-formedness**: whether the sentence is grammatical.
-- **Symbolic / character structure**: whether the target is a word at all
-  rather than an arbitrary symbol string.
+| Key | Count | What it is | Metric |
+| --- | --- | --- | --- |
+| `direct` | 1 | The edited fact asked as a question, in the edit's own wording. | Reliability |
+| `paraphrase` | 1 | The same question in different words. | Reliability |
+| `derived` | 4 | A question whose answer follows from the edit through a property of the relation (see below). | Generalization |
+| `unrelated_near` | 2 | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Locality |
+| `unrelated_far` | 2 | Nothing in common with the edit. | Locality |
 
-| Key | Destroys | Example |
+Near unrelated queries are what make locality informative: far-only locality
+is close to 100% for almost every method.
+
+#### Derived queries
+
+What can be derived depends on the relation's properties, recorded as
+`relation_tags` on each item. `RELATIONS.md` lists each relation's tags and
+the question template each tag gives. Summary:
+
+| Derivation | Comes from | Example |
 | --- | --- | --- |
-| `semantic_incoherence` | semantic coherence | The capital of France is happiness. |
-| `type_violation` | semantic type | Einstein's birthplace is 17. |
-| `novel_lexical` | lexical familiarity | France's capital is Zorblin. |
-| `synthetic_system` | lexical familiarity | Every flerm is a droven. Every droven can narp. A mip is a flerm. |
-| `syntactic_corruption` | syntactic form | France capital blue under Paris changes. |
-| `pseudo_syntactic` | syntactic form + semantic coherence | France is capitally governed by Parisness. |
-| `random_symbolic` | lexical familiarity + symbolic structure | France's capital is XQ7-19B. |
-| `mixed_corruption` | lexical + symbolic + syntactic | Fr@nce's cap!tal is Z0rb_77. |
+| `symmetry` | Sym(R) | Edit: Billy is a sibling of Manny. Ask: is Manny a sibling of Billy? |
+| `inverse` | R ≡ S⁻ | Edit: Ann is Billy's parent. Ask: who is Ann's child? |
+| `asymmetry` | Asym(R) | Edit: Ann is Billy's parent. Ask: is Billy Ann's parent? (expected: no) |
+| `transitivity` | Trans(R) + a bridge fact | Edit: Lyon is in France. Bridge: France is in Europe. Ask: is Lyon in Europe? |
+| `chain` | R ∘ S ⊑ T + a bridge fact | Edit: she was born in Lyon. Bridge: Lyon is in France. Ask: which country was she born in? |
+| `subproperty` | R ⊑ S | capital of ⊑ located in. Ask: which country is Lyon located in? |
+| `functional` | R has one value per subject | Replace only. Ask: is Paris still the capital of France? (expected: no) |
+| `inheritance` | TBox C ⊑ D + a known member | Edit: every capital is a port. Ask: is Paris a port? |
+| `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
 
-`synthetic_system` is worth calling out separately: a whole mini-world of
-invented concepts ("Every flerm is a droven", "Every droven can narp", "A mip
-is a flerm", then "Is a mip a droven?", "Can a mip narp?") lets rule editing
-and propagation be tested almost independently of pretrained world knowledge.
+Reflexivity is not used: "a R a" doesn't depend on the edit. Note that
+"brother of" is not symmetric (the other person may be a sister), which is
+why the symmetric example uses "sibling of".
 
-#### The grounding ladder
+Each derived query records its `derivation` (the property that produced the
+answer), its `hops` (1 + the number of bridge facts), and the `bridge` facts
+it relies on. A derivation that goes through the inverse relation's tags
+names it in `via`. The model must answer every bridge fact correctly
+*before* editing, otherwise a wrong derived answer is a missing fact rather
+than a failed edit. Items whose bridges fail are dropped per model, not
+counted as failures.
 
-The point of the axis. Hold subject, relation, edit type and method fixed,
-and walk the target away from the model's semantic structure one rung at a
-time, measuring reliability, propagation and locality at each. `France's
-capital is ___`:
+An item uses whichever derivations its relation supports, but always has 4
+derived queries, so items with symmetric or transitive relations aren't
+weighted more heavily than items without.
 
-1. **Lyon**: real city, correct type. The ordinary counterfactual.
-2. **a spoon**: real word, concrete, wrong type for the relation.
-3. **happiness**: real word, abstract, no sensible reading at all.
-4. **Zorblin**: invented word, plausibly no prior representation.
-5. **XQ7-19B**: arbitrary symbol string, not a word.
+#### Delete
 
-> How far can a requested update move away from the model's existing semantic
-> structure before editing behaves differently or becomes damaging?
+Deleting removes a fact; we then ask the direct, paraphrase and derived
+questions again. Success means the model **no longer gives the old answer**,
+and instead either:
 
-If editing quality or locality falls off a cliff at a particular rung, that
-says how much successful editing depends on the target concept already having
-a meaningful representation inside the model. Comparing `France -> Lyon`
-against `France -> Zorblin` is the minimal version of that test.
+- `abstain`: says it does not know, or
+- `negate`: says the fact does not hold.
 
-### Connectivity and dependency
+Both count as success, and which one the model chose is recorded. For
+relations with many possible values (`cardinality: many`, e.g. "speaks
+language") this is an open-world test: removing one value doesn't make any
+other value true, so abstaining is the honest answer. For functional
+relations a negation is also reasonable. Derived queries work the same way:
+after deleting "Lyon is in France", "Is Lyon in Europe?" should no longer be
+answered through that chain.
 
-Two related but distinct structural properties, and the reason for separating
-them is that they come apart in both directions.
+## Evaluation
 
-**Connectivity: how much related knowledge surrounds the target?**
+We use our own evaluation functions rather than EasyEdit's, because delete
+needs generated answers rather than token probabilities, and the query types
+map directly onto metrics:
 
-- `low`: very little meaningful knowledge naturally surrounds the target.
-- `medium`: the target participates in several different relations or contexts.
-- `high`: the target sits inside a rich network of entities, relations,
-  concepts, events and contexts.
-
-**Dependency: how much other knowledge should actually change if the target
-changes?**
-
-- `low`: changing the item should affect almost nothing else.
-- `medium`: a bounded set of other propositions should change.
-- `high`: the edit should systematically affect many conclusions, instances,
-  behaviors or downstream statements.
-
-A famous celebrity fact can be very high connectivity, because a huge amount of
-related knowledge surrounds that person, while their favorite color is very low
-dependency, because almost nothing else should change. A mathematical rule is
-high on both.
-
-| Combination | Role |
-| --- | --- |
-| High connectivity, low dependency | Strongest locality test |
-| High connectivity, high dependency | Strongest propagation / generalization test |
-| Low connectivity, low dependency | Easy baseline |
-| Medium, medium | Ordinary intermediate case |
-
-We do not force every Low/Medium/High combination, since some may not exist
-naturally.
-
-> **Important.** These labels describe the semantic neighborhood *the benchmark
-> constructs* around an item. They are not claims about the model's actual
-> latent organization of knowledge, which we cannot observe. We do not assert an
-> exact connection count or dependency depth, only a coarse band.
-
-## Evaluation probes
-
-Every item carries four kinds of probe:
-
-| Role | Expectation | Measures |
+| Metric | Over | Reported as |
 | --- | --- | --- |
-| `target` | must change | Reliability |
-| `dependent` | should change | Propagation / generalization |
-| `connected_independent` | must not change | Strict locality |
-| `unrelated` | must not change | Baseline locality |
+| Reliability | direct + paraphrase (2) | one number |
+| Generalization | derived (4) | one number, plus per derivation type |
+| Locality | unrelated near + far (4) | one number, plus near and far |
+| Fluency | all 10 generations | one number |
 
-`connected_independent` is the point of the design. Checking that a completely
-unrelated fact survived an edit is easy; checking that closely related but
-non-downstream knowledge survived is what distinguishes a precise method from
-one that simply did not do much. `unrelated` is kept as the easy baseline so
-results stay comparable with existing benchmarks.
+Each query is scored from the generated answer, by its `behavior`:
 
-So the core evaluation asks, in order:
+- `answer`: correct if the expected answer (or an alias) appears and no
+  `forbidden` answer does.
+- `abstain_or_negate`: correct if no `forbidden` answer appears and the
+  response abstains or negates.
+- `unchanged`: correct if the post-edit answer matches the model's own
+  pre-edit answer.
 
-1. Did the target change?
-2. Did the edit propagate to the knowledge that should depend on it?
-3. Did nearby but independent knowledge stay unchanged?
-4. Did completely unrelated knowledge stay unchanged?
+Matching starts with normalized string and alias matching; an abstention and
+negation classifier (patterns first, a judge model if needed) handles delete.
+These functions don't exist yet.
 
 ## Item shape
 
-One record per knowledge item, carrying its coordinates and its probes:
+One record per edit:
 
 ```json
 {
-  "id": "math-rule-0001",
-  "coordinate": {
-    "topic": "mathematics",
-    "edit_type": "replace",
-    "knowledge_form": "hierarchy",
-    "temporality": null,
-    "edit_representation": "direct",
-    "connectivity": "high",
-    "dependency": "high"
+  "id": "geography-replace-abox-associative-timeless-0001",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "abox",
+  "relation_semantics": "associative",
+  "temporality": "timeless",
+  "relation": "has_capital",
+  "relation_tags": ["functional", "inverse:capital_of"],
+  "edit": {
+    "statement": "The capital of France is Lyon.",
+    "subject": "France",
+    "object": "Lyon",
+    "old_object": "Paris"
   },
-  "epistemic_status": "analytic",
-  "target": {
-    "statement": "...",
-    "original": "...",
-    "prompt": "...",
-    "expected_after_edit": "..."
+  "queries": {
+    "direct": { "prompt": "What is the capital of France?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
+    "paraphrase": { "prompt": "Which city serves as France's capital?", "behavior": "answer", "expected": "Lyon", "forbidden": ["Paris"] },
+    "derived": [
+      { "prompt": "Lyon is the capital of which country?", "behavior": "answer", "expected": "France", "derivation": "inverse", "hops": 1, "bridge": [] },
+      { "prompt": "Is Paris the capital of France?", "behavior": "answer", "expected": "No", "derivation": "functional", "hops": 1, "bridge": [] },
+      { "prompt": "Which country is Lyon located in?", "behavior": "answer", "expected": "France", "derivation": "subproperty", "hops": 1, "via": "capital_of", "bridge": [] },
+      { "prompt": "On which continent is the capital of France?", "behavior": "answer", "expected": "Europe", "derivation": "transitivity", "hops": 2, "bridge": ["France is in Europe."] }
+    ],
+    "unrelated_near": [
+      { "prompt": "What is the official language of France?", "behavior": "unchanged", "expected": "French" },
+      { "prompt": "What is the capital of Spain?", "behavior": "unchanged", "expected": "Madrid" }
+    ],
+    "unrelated_far": [
+      { "prompt": "What is the chemical symbol for gold?", "behavior": "unchanged", "expected": "Au" },
+      { "prompt": "Who wrote Hamlet?", "behavior": "unchanged", "expected": "William Shakespeare" }
+    ]
   },
-  "probes": {
-    "dependent": [{ "prompt": "...", "expected_after_edit": "..." }],
-    "connected_independent": [{ "prompt": "...", "expected": "..." }],
-    "unrelated": [{ "prompt": "...", "expected": "..." }]
-  },
-  "matched_group": "math-rule-0001-representation-variants",
   "notes": ""
 }
 ```
 
-`matched_group` ties variants that are meant to be compared directly: the same
-knowledge item walked up the grounding ladder, the same item under several
-`edit_representation` values, or two items matched on everything but
-`connectivity`.
+For `delete`, the reliability and derived queries use `"behavior":
+"abstain_or_negate"` with `expected: null` and the old answer in `forbidden`.
+TBox and RBox edits keep the same shape: `subject` and `object` may be
+classes, and `edit.axiom` can hold the DL form (e.g. `"Trans(located_in)"`).
 
-## Open points
+`relation_tags` copies the relation's tags from `RELATIONS.md` so a record
+can be read on its own; `RELATIONS.md` is the source of truth.
 
-- **Analytic vs synthetic.** "Paris is the capital of France" is synthetic;
-  "a bachelor is unmarried" is analytic. Recorded per item as
-  `epistemic_status`, but how to formalize the split is still open. It is here
-  because definitions and rules plausibly behave differently under editing from
-  arbitrary facts.
-- **Who / what / which is not an axis.** These are alternative surface queries
-  over the same underlying knowledge, so they belong as generalization probes,
-  not as a knowledge form. "Einstein developed general relativity" generates
-  "Who developed general relativity?", "What did Einstein develop?" and "Which
-  theory did Einstein develop?" all from one item. "Why" is the exception: it
-  asks for an explanation, which no form in the current scheme covers (next
-  point).
-- **Outside description logic.** The previous form list had `causal` and
-  `evaluative`, which DL does not express (no causation, no stance). They are
-  dropped for now. Events came back as a fact temporality rather than a form.
+## Parked from the previous version
+
+The earlier axis scheme had dimensions this version leaves out to keep the
+benchmark buildable. They may come back as separate subsets:
+
+- **Description forms** (negation, disjunction, existential, universal,
+  counting) as their own knowledge forms.
+- **Edit representation**: confusing or distractor-heavy phrasings of the
+  edit, and the degraded-coherence "grounding ladder" (Lyon, a spoon,
+  happiness, Zorblin, XQ7-19B).
+- **Connectivity and dependency** bands.
+- **Analytic vs synthetic** epistemic status.
 
 ## Layout note
 
-The `finance/`, `health/`, `education/` and `physics/` directories here are
-left over from the earlier `<domain>/<edit nature>/<knowledge type>/` scaffold,
-which the axis scheme above replaces. They are all empty. Records should live
-flat (one file per item, or one file per batch) with the coordinate carried in
-each record, since a tree cannot express six independent axes. The old
-directories can be removed once you are sure nothing scripts against them.
+The `finance/`, `health/`, `education/` and `physics/` directories are left
+over from an earlier `<domain>/<edit nature>/<knowledge type>/` scaffold and
+are empty. Records should live flat (one file per topic, or one per batch)
+with the coordinates carried in each record. The machine-readable version of
+this scheme is `dashboard/frontend/src/lib/sidsDatasetTaxonomy.js`, rendered on
+the dashboard's Datasets page; keep the two in sync.

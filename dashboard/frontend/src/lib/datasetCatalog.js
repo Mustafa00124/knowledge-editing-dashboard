@@ -67,7 +67,8 @@ const UNIEDIT_RECORD_COUNTS = {
 
 export const BENCHMARKS = {
   // Sid's own dataset - empty for now. Unlike the published benchmarks it is
-  // categorized by independent axes rather than by subset (see
+  // categorized by edit operation, knowledge form and query type rather than
+  // by subset (see
   // sidsDatasetTaxonomy.js and datasets/SidsDataset/README.md), so until
   // records exist the Datasets page renders SidsDatasetBrowser instead of the
   // generic subset UI. Registering subsets here is what switches that over.
