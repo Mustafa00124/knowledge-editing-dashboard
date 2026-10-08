@@ -6,7 +6,7 @@ import { STATUS, summarize, stepPct, ACTIVE_STATES, FAIL_STATES } from '../lib/q
 // used to sit in a separate grid below the queue now lives, scoped to the
 // card you actually clicked, so jobs are never divorced from the queue that
 // launched them.
-export default function QueueDetailModal({ slotIndex, slot, onClose, onLaunch, onPause, onResume, onCancel, onClear, onCancelJob, onRerunFailed, rerunning, actionPending, launchBlocked }) {
+export default function QueueDetailModal({ slotIndex, slot, label, onClose, onLaunch, onPause, onResume, onCancel, onClear, onCancelJob, onRerunFailed, rerunning, actionPending, launchBlocked }) {
   const { status, jobs, current, running, active, done, failed, interrupted } = summarize(slot)
   const staged = slot?.staged || null
   const canRerun = status === 'failed' && failed.length > 0 &&
@@ -44,7 +44,7 @@ export default function QueueDetailModal({ slotIndex, slot, onClose, onLaunch, o
       >
         <div className="modal-header">
           <div className="modal-title-group">
-            <h2>GPU Queue {slotIndex + 1}</h2>
+            <h2>GPU Queue {slotIndex + 1}{label ? ` · ${label}` : ''}</h2>
             <span className="queue-state">
               <span className="queue-state-dot" aria-hidden="true" />
               {STATUS[status]?.label || status}
@@ -69,7 +69,8 @@ export default function QueueDetailModal({ slotIndex, slot, onClose, onLaunch, o
                 {Object.entries(params).map(([k, v]) => (
                   <div key={k}>
                     <dt>{k}</dt>
-                    <dd>{Array.isArray(v) ? v.join(', ') : String(v)}</dd>
+                    <dd>{v !== null && typeof v === 'object' && !(Array.isArray(v) && v.every((x) => typeof x !== 'object'))
+                      ? JSON.stringify(v) : Array.isArray(v) ? v.join(', ') : String(v)}</dd>
                   </div>
                 ))}
               </dl>

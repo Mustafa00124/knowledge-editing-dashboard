@@ -5,18 +5,9 @@ import DatasetField from './DatasetField.jsx'
 import MethodField from './MethodField.jsx'
 import ModelField from './ModelField.jsx'
 import SweepPillField from './SweepPillField.jsx'
+import QueueDrawer from './QueueDrawer.jsx'
 import { api } from '../api.js'
 import { comboCount as countCombos } from '../lib/comboCount.js'
-import { pickSlotForStaging } from '../lib/pickSlot.js'
-
-const SLOT_STATUS_SHORT = {
-  empty: 'ready',
-  staged: 'configured',
-  running: 'running',
-  paused: 'paused',
-  completed: 'done',
-  failed: 'failed',
-}
 
 // The subset label a data_path was picked by, for notes that name datasets.
 function datasetLabel(cfg, path) {
@@ -50,17 +41,17 @@ export function isFullDataset(value) {
   return typeof value === 'string' && ['full', 'all'].includes(value.toLowerCase())
 }
 
-export default function ExperimentDrawer({ open, onToggle, onClose, experimentTypes, queue, onSubmit }) {
+// The form for any registered experiment type, read from its dashboard.json.
+// `defaults` overrides a field's default for this page (the In context page
+// starts with every base model, say).
+export default function ExperimentDrawer({ open, onToggle, onClose, experimentTypes, queue, onSubmit, title = 'New Experiment', defaults = {} }) {
   const [datasetCounts, setDatasetCounts] = useState({})
   const [selectedType, setSelectedType] = useState(null)
-  const [selectedSlot, setSelectedSlot] = useState(null)
   // Every field's value is stored as an array here, even single-select
   // ones - a plain submission is just a sweep of size 1 per field. Keeps
   // the wire format (and the Cartesian-product math) uniform.
   const [values, setValues] = useState({})
   const [saveResults, setSaveResults] = useState(true)
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (experimentTypes.length && !selectedType) {
@@ -71,22 +62,13 @@ export default function ExperimentDrawer({ open, onToggle, onClose, experimentTy
   useEffect(() => {
     const cfg = experimentTypes.find((t) => t.name === selectedType)
     if (cfg) {
-      const defaults = {}
+      const initial = {}
       cfg.fields.forEach((f) => {
-        defaults[f.name] = [f.default]
+        initial[f.name] = defaults[f.name] || [f.default]
       })
-      setValues(defaults)
+      setValues(initial)
     }
   }, [selectedType, experimentTypes])
-
-  // Re-suggest a default slot each time the drawer is opened, based on
-  // the queue's state at that moment - the user can still click a
-  // different one before submitting.
-  useEffect(() => {
-    if (open && queue.length) {
-      setSelectedSlot((prev) => (prev !== null && !['running', 'paused'].includes(queue[prev]?.status) ? prev : pickSlotForStaging(queue)))
-    }
-  }, [open, queue])
 
   // Whenever a field becomes hidden by a show_when condition (e.g.
   // switching method away from "ft" hides lr/num_steps), snap it back to
@@ -261,69 +243,19 @@ export default function ExperimentDrawer({ open, onToggle, onClose, experimentTy
     })
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault()
-    if (selectedSlot === null) {
-      setError(`No GPU queue available: all ${queue.length} are currently running.`)
-      return
-    }
-    setSubmitting(true)
-    setError(null)
-    try {
-      await onSubmit(selectedSlot, selectedType, values, saveResults)
-      onClose()
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   return (
-    <>
-      <div className={`drawer-backdrop ${open ? 'open' : ''}`} onClick={onClose} />
-
-      <button
-        type="button"
-        className={`drawer-tab ${open ? 'open' : ''}`}
-        onClick={onToggle}
-        title={open ? 'Close new experiment panel' : 'Open new experiment panel'}
-        aria-label={open ? 'Close new experiment panel' : 'Open new experiment panel'}
-      >
-        {open ? '‹' : '›'}
-      </button>
-
-      <div className={`drawer ${open ? 'open' : ''}`}>
-        <div className="drawer-header">
-          <h2>New Experiment</h2>
-          <button className="btn-plain" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-
+    <QueueDrawer
+      open={open}
+      onToggle={onToggle}
+      onClose={onClose}
+      title={title}
+      queue={queue}
+      summary={total === 1 ? '1 experiment will be queued' : `${total} experiments will be queued`}
+      canSubmit={Boolean(cfg) && total > 0}
+      onSubmit={(slot) => onSubmit(slot, selectedType, values, saveResults)}
+    >
         {cfg && (
-          <form onSubmit={handleSubmit} className="drawer-form">
-            <div className="pill-field">
-              <div className="pill-field-label">GPU queue</div>
-              <div className="pill-row">
-                {queue.map((slot, i) => {
-                  const disabled = ['running', 'paused'].includes(slot.status)
-                  return (
-                    <button
-                      type="button"
-                      key={i}
-                      disabled={disabled}
-                      className={`pill${selectedSlot === i ? ' selected' : ''}${disabled ? ' disabled' : ''}`}
-                      onClick={() => setSelectedSlot(i)}
-                      title={disabled ? `Currently ${slot.status}` : SLOT_STATUS_SHORT[slot.status]}
-                    >
-                      GPU {i + 1}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
+          <>
             {/* Only worth choosing once there's more than one registered
                 experiment type - for now there's just run_experiment. */}
             {experimentTypes.length > 1 ? (
@@ -378,19 +310,8 @@ export default function ExperimentDrawer({ open, onToggle, onClose, experimentTy
               )
             })}
 
-            {error && <div className="form-error">{error}</div>}
-
-            <p className="sweep-count">
-              {total === 1 ? '1 experiment' : `${total} experiments`} will be queued
-              {selectedSlot !== null ? ` on GPU ${selectedSlot + 1}` : ''}
-            </p>
-
-            <button type="submit" className="btn-primary" disabled={submitting || total === 0 || selectedSlot === null}>
-              {submitting ? 'Queuing…' : 'Queue Experiment'}
-            </button>
-          </form>
+          </>
         )}
-      </div>
-    </>
+    </QueueDrawer>
   )
 }

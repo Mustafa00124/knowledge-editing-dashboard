@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
+import GpuQueue from '../components/GpuQueue.jsx'
 import InvestigationProgress from '../components/InvestigationProgress.jsx'
+import MechanisticDrawer from '../components/MechanisticDrawer.jsx'
+import useQueue from '../lib/useQueue.js'
 
 // Knowledge by prompt format: which formats base and instruct models show
 // what they know in. One score_formats.py run per model; the same sampled
@@ -39,9 +42,8 @@ const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : nu
 export default function FormatKnowledge() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
-  const [models, setModels] = useState(MODELS)
-  const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState(null)
+  const q = useQueue()
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const load = () => api.formatKnowledge().then(setData).catch((e) => setError(String(e.message || e)))
   useEffect(() => {
@@ -67,23 +69,14 @@ export default function FormatKnowledge() {
     return mean(FAMILIES.map((fam) => rate(fam[which], d, f)).filter((v) => v != null))
   }
 
-  async function launch() {
-    setSubmitting(true)
-    setMessage(null)
-    try {
-      await api.submitExperiment(EXPERIMENT, { model: models })
-      setMessage({ ok: true, text: `Scoring ${models.length} model${models.length === 1 ? '' : 's'}.` })
-    } catch (e) {
-      setMessage({ ok: false, text: String(e.message || e) })
-    }
-    setSubmitting(false)
-  }
-
   return (
     <div>
       <ExperimentsSubnav />
       <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / Knowledge by prompt format</div>
-      <div className="page-header"><h1>Knowledge by prompt format</h1></div>
+      <div className="page-header">
+        <h1>Knowledge by prompt format</h1>
+        <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Scoring</button>
+      </div>
       <p className="dataset-note trace-intro">
         In which prompt formats do base and instruct models show what they know? The same facts from each dataset are
         asked in every format the dataset allows. A fact counts as known when the model's most likely next token
@@ -94,22 +87,8 @@ export default function FormatKnowledge() {
       </p>
       {error && <p className="archive-line archive-line-warn">{error}</p>}
 
-      <h2 className="archive-section-title">Score models</h2>
-      <div className="pill-row trace-models">
-        {MODELS.map((m) => (
-          <button key={m} type="button" className={`pill${models.includes(m) ? ' selected' : ''}`}
-            onClick={() => setModels((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]))}>
-            {m}
-          </button>
-        ))}
-      </div>
-      <div className="trace-launch-actions">
-        <span className="dataset-note">One job per model, all five datasets, 500 facts each: a few minutes per model.</span>
-        <button type="button" className="btn-primary" disabled={!models.length || submitting} onClick={launch}>
-          {submitting ? 'Submitting…' : `Score ${models.length} model${models.length === 1 ? '' : 's'}`}
-        </button>
-      </div>
-      {message && <p className={message.ok ? 'dl-bar-ok' : 'archive-line archive-line-warn'}>{message.text}</p>}
+      <GpuQueue q={q} />
+
       <InvestigationProgress investigation="format_knowledge" />
 
       {datasets.length > 0 && (
@@ -168,6 +147,17 @@ export default function FormatKnowledge() {
         </>
       )}
       {data && !datasets.length && <p className="empty">No models scored yet.</p>}
+      <MechanisticDrawer
+        open={drawerOpen}
+        onToggle={() => setDrawerOpen((o) => !o)}
+        onClose={() => setDrawerOpen(false)}
+        title="New Scoring"
+        queue={q.queue}
+        onStage={q.stage}
+        expType={q.experimentTypes.find((t) => t.name === EXPERIMENT)}
+        models={MODELS.map((m) => ({ value: m, label: m, tag: rates[m] ? 'scored' : 'not scored' }))}
+        costNote="One job per model, all five datasets, 500 facts each: a few minutes per model."
+      />
     </div>
   )
 }

@@ -665,6 +665,55 @@ def stage_queue_slot(slot_index: int, req: SubmitExperimentRequest):
     return _slot_view(slot_index)
 
 
+# A hyperparameter sweep staged on a card: its spec (hparam_sweeps.plan) is
+# stored as the slot's params, with the run count worked out at staging.
+SWEEP_SLOT_TYPE = "hparam_sweep"
+
+
+def _is_sweep_job(job):
+    return (job.get("sweep_id") or "").startswith(hparam_sweeps.SWEEP_PREFIX)
+
+
+def _resubmit_sweep_jobs(jobs, slot_index):
+    """Rerun or resume a card's sweep jobs through the sweep, so each keeps
+    its run name and sweep.json follows it. Returns (new job ids, error)."""
+    submitted, errors = [], []
+    groups = {}
+    for job in jobs:
+        groups.setdefault((job["investigation"], job["batch_id"]), []).append(job["job_id"])
+    for (investigation, sweep_id), ids in groups.items():
+        try:
+            result = hparam_sweeps.resubmit(investigation, sweep_id, ids, queue_slot=slot_index)
+        except (OSError, ValueError, RuntimeError, sqlite3.Error) as exc:
+            errors.append(str(exc))
+            continue
+        submitted += result["submitted"]
+        errors += [f"{e['run_name']}: {e['error']}" for e in result["errors"]]
+    return submitted, "; ".join(errors) or None
+
+
+@app.post("/api/queue/{slot_index}/stage-sweep")
+def stage_sweep_on_queue_slot(slot_index: int, spec: dict):
+    """Stage a hyperparameter sweep on a card, like any other experiment:
+    it is planned now (so a bad spec fails here) and submitted on Launch."""
+    if not 0 <= slot_index < db.NUM_SLOTS:
+        raise HTTPException(404, "no such slot")
+    current_status = _slot_view(slot_index)["status"]
+    if current_status in {"running", "paused"}:
+        raise HTTPException(409, f"that slot is currently {current_status} - use its controls or pick another slot")
+    spec = {k: v for k, v in spec.items() if k != "planned_runs"}
+    try:
+        _, inv, runs, skipped = hparam_sweeps.plan(json.loads(json.dumps(spec)))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    if not runs:
+        raise HTTPException(400, "nothing to run: every point was skipped" if skipped else "choose at least one value")
+    db.clear_slot_jobs(slot_index)
+    db.set_slot_paused(slot_index, False)
+    db.stage_slot(slot_index, SWEEP_SLOT_TYPE, {**spec, "planned_runs": len(runs), "investigation_label": inv["label"]})
+    return _slot_view(slot_index)
+
+
 @app.post("/api/queue/{slot_index}/launch")
 def launch_queue_slot(slot_index: int):
     if not 0 <= slot_index < db.NUM_SLOTS:
@@ -672,6 +721,18 @@ def launch_queue_slot(slot_index: int):
     slot = db.get_slot(slot_index)
     if not slot or not slot.get("experiment_type"):
         raise HTTPException(400, "nothing staged in that slot")
+
+    if slot["experiment_type"] == SWEEP_SLOT_TYPE:
+        spec = {k: v for k, v in json.loads(slot["params_json"]).items()
+                if k not in ("planned_runs", "investigation_label")}
+        try:
+            result = hparam_sweeps.launch(spec, launched_by="user", queue_slot=slot_index)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc))
+        if not result["submitted"]:
+            raise HTTPException(500, "; ".join(e["error"] for e in result["errors"]) or "nothing was submitted")
+        db.clear_slot_staged(slot_index)
+        return {**_slot_view(slot_index), "launch_errors": result["errors"]}
 
     try:
         exp_cfg = registry.get_experiment_type(slot["experiment_type"])
@@ -723,6 +784,11 @@ def rerun_failed_queue_slot(slot_index: int):
         failed = [job for job in current if job["status"]["state"] in FAIL_STATES]
         if not failed:
             raise HTTPException(409, "this slot has no failed jobs to rerun")
+        if all(_is_sweep_job(job) for job in failed):
+            submitted, error = _resubmit_sweep_jobs(failed, slot_index)
+            if error and not submitted:
+                raise HTTPException(500, error)
+            return {**_slot_view(slot_index), "rerun_submitted": submitted, "rerun_error": error}
         types = {job["experiment_type"] for job in failed}
         trial_modes = {bool(job["testing_id"]) for job in failed}
         if len(types) != 1 or len(trial_modes) != 1:
@@ -818,6 +884,13 @@ def resume_queue_slot(slot_index: int):
         ]
         if still_stopping:
             raise HTTPException(409, "SLURM is still stopping job(s) " + ", ".join(still_stopping) + "; try Play again in a few seconds")
+
+        if all(_is_sweep_job(job) for job in interrupted):
+            submitted, error = _resubmit_sweep_jobs(interrupted, slot_index)
+            if error and not submitted:
+                raise HTTPException(500, error)
+            db.set_slot_paused(slot_index, len(submitted) < len(interrupted))
+            return {**_slot_view(slot_index), "resume_submitted": submitted, "resume_error": error}
 
         batch = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%f")
         sweep_id = secrets.token_hex(4) if len(interrupted) > 1 else None

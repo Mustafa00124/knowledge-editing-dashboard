@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import InvestigationProgress from '../components/InvestigationProgress.jsx'
-import MechanisticLaunch from '../components/MechanisticLaunch.jsx'
+import GpuQueue from '../components/GpuQueue.jsx'
+import MechanisticDrawer from '../components/MechanisticDrawer.jsx'
+import useQueue from '../lib/useQueue.js'
 import { api } from '../api.js'
 import { SERIES } from '../lib/vizColors.js'
 import '../mechanistic.css'
@@ -162,10 +164,18 @@ export default function CircuitTracing() {
   const [detail, setDetail] = useState({})
   const [error, setError] = useState(null)
 
+  const q = useQueue()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
   const load = useCallback(() => {
     api.mechanistic(EXPERIMENT).then(setOverview).catch((e) => setError(String(e.message || e)))
   }, [])
-  useEffect(() => { load() }, [load])
+  // Polled, so a run finishing on a GPU queue card shows up here.
+  useEffect(() => {
+    load()
+    const timer = setInterval(load, 20000)
+    return () => clearInterval(timer)
+  }, [load])
 
   function open(run) {
     const next = openRun === run ? null : run
@@ -193,7 +203,10 @@ export default function CircuitTracing() {
       <div className="hp-breadcrumb">
         <Link to="/experiments/investigations">Investigations</Link> / Circuit tracing
       </div>
-      <div className="page-header"><h1>Circuit tracing</h1></div>
+      <div className="page-header">
+        <h1>Circuit tracing</h1>
+        <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Trace</button>
+      </div>
       <p className="dataset-note trace-intro">
         Which attention heads and MLPs, and which paths between them, carry a fact from the subject to the answer. The
         corruption is <Link to="/experiments/investigations/causal_tracing">Knowledge localisation</Link>'s (noise on
@@ -205,18 +218,9 @@ export default function CircuitTracing() {
       </p>
       {error && <p className="archive-line archive-line-warn">{error}</p>}
 
-      <InvestigationProgress investigation="circuit_tracing" />
+      <GpuQueue q={q} />
 
-      <h2 className="archive-section-title">Trace a model</h2>
-      <MechanisticLaunch
-        experiment={EXPERIMENT}
-        overview={overview}
-        controls={CONTROLS}
-        verb="Trace"
-        onFinished={load}
-        costNote="One SLURM job per model. One gradient pass per fact plus the checks; 100 facts take a few minutes on these GPUs."
-        progress={(m) => (m?.stage === 'circuit' ? 'testing the circuit' : m?.peak_layer != null ? `MLP peak ${m.peak_layer}, top head in layer ${m.top_head}` : null)}
-      />
+      <InvestigationProgress investigation="circuit_tracing" />
 
       <h2 className="archive-section-title">All runs</h2>
       <p className="dataset-note">
@@ -335,6 +339,19 @@ export default function CircuitTracing() {
           )}
         </>
       )}
+      <MechanisticDrawer
+        open={drawerOpen}
+        onToggle={() => setDrawerOpen((o) => !o)}
+        onClose={() => setDrawerOpen(false)}
+        title="New Trace"
+        queue={q.queue}
+        onStage={q.stage}
+        expType={q.experimentTypes.find((t) => t.name === EXPERIMENT)}
+        models={(overview?.models || []).map((m) => ({ ...m, tag: m.runs ? `${m.runs} run${m.runs === 1 ? '' : 's'}` : 'not run' }))}
+        controls={CONTROLS}
+        factSets={overview?.fact_sets}
+        costNote="One SLURM job per model. One gradient pass per fact plus the checks; 100 facts take a few minutes on these GPUs."
+      />
     </div>
   )
 }

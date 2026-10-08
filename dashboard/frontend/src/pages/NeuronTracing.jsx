@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
 import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import InvestigationProgress from '../components/InvestigationProgress.jsx'
-import MechanisticLaunch from '../components/MechanisticLaunch.jsx'
+import GpuQueue from '../components/GpuQueue.jsx'
+import MechanisticDrawer from '../components/MechanisticDrawer.jsx'
+import useQueue from '../lib/useQueue.js'
 import { api } from '../api.js'
 import { SERIES } from '../lib/vizColors.js'
 import '../mechanistic.css'
@@ -32,10 +34,18 @@ export default function NeuronTracing() {
   const [detail, setDetail] = useState({})
   const [error, setError] = useState(null)
 
+  const q = useQueue()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
   const load = useCallback(() => {
     api.mechanistic(EXPERIMENT).then(setOverview).catch((e) => setError(String(e.message || e)))
   }, [])
-  useEffect(() => { load() }, [load])
+  // Polled, so a run finishing on a GPU queue card shows up here.
+  useEffect(() => {
+    load()
+    const timer = setInterval(load, 20000)
+    return () => clearInterval(timer)
+  }, [load])
 
   function open(run) {
     const next = openRun === run ? null : run
@@ -63,7 +73,10 @@ export default function NeuronTracing() {
       <div className="hp-breadcrumb">
         <Link to="/experiments/investigations">Investigations</Link> / Neuron attribution
       </div>
-      <div className="page-header"><h1>Neuron attribution</h1></div>
+      <div className="page-header">
+        <h1>Neuron attribution</h1>
+        <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Attribution</button>
+      </div>
       <p className="dataset-note trace-intro">
         Which single MLP neurons carry a fact the model knows: the unit Knowledge Neurons, FiNE and NMKE edit. For each
         fact, every neuron's activation at the last prompt token is scaled from zero to its real value and the gradient
@@ -76,18 +89,9 @@ export default function NeuronTracing() {
       </p>
       {error && <p className="archive-line archive-line-warn">{error}</p>}
 
-      <InvestigationProgress investigation="neuron_tracing" />
+      <GpuQueue q={q} />
 
-      <h2 className="archive-section-title">Attribute a model</h2>
-      <MechanisticLaunch
-        experiment={EXPERIMENT}
-        overview={overview}
-        controls={CONTROLS}
-        verb="Attribute"
-        onFinished={load}
-        costNote="One SLURM job per model. 100 facts take about 10 to 20 minutes for a 4B to 8B model; the cost grows with integration steps and layers."
-        progress={(m) => (m?.peak_layer != null ? `peak layer ${m.peak_layer}, ${m.neurons_per_fact} neurons per fact` : null)}
-      />
+      <InvestigationProgress investigation="neuron_tracing" />
 
       <h2 className="archive-section-title">All runs</h2>
       <p className="dataset-note">
@@ -212,6 +216,19 @@ export default function NeuronTracing() {
           )}
         </>
       )}
+      <MechanisticDrawer
+        open={drawerOpen}
+        onToggle={() => setDrawerOpen((o) => !o)}
+        onClose={() => setDrawerOpen(false)}
+        title="New Attribution"
+        queue={q.queue}
+        onStage={q.stage}
+        expType={q.experimentTypes.find((t) => t.name === EXPERIMENT)}
+        models={(overview?.models || []).map((m) => ({ ...m, tag: m.runs ? `${m.runs} run${m.runs === 1 ? '' : 's'}` : 'not run' }))}
+        controls={CONTROLS}
+        factSets={overview?.fact_sets}
+        costNote="One SLURM job per model. 100 facts take about 10 to 20 minutes for a 4B to 8B model; the cost grows with integration steps and layers."
+      />
     </div>
   )
 }

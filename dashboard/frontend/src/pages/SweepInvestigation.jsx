@@ -5,11 +5,12 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import DatasetField from '../components/DatasetField.jsx'
 import ModelField from '../components/ModelField.jsx'
-import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
+import GpuQueue from '../components/GpuQueue.jsx'
+import QueueDrawer from '../components/QueueDrawer.jsx'
 import HeldConstant from '../components/HeldConstant.jsx'
 import SweepCard from '../components/SweepCard.jsx'
 import SweepDetailModal from '../components/SweepDetailModal.jsx'
-import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
+import useQueue from '../lib/useQueue.js'
 import { GROUP_LABEL, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
 const EXPERIMENT = 'run_experiment'
@@ -27,7 +28,10 @@ function KnobEditor({ knob, model, values, onChange }) {
     ? chosen.filter((v) => valueKey(v) !== valueKey(value))
     : [...chosen, value])
 
+  // Enter in the box adds the value. A div, not a form: this sits inside
+  // the drawer's form, and forms cannot nest.
   function addCustom(e) {
+    if (e.key !== 'Enter') return
     e.preventDefault()
     const value = parseValue(custom)
     if (value === undefined) return
@@ -53,9 +57,9 @@ function KnobEditor({ knob, model, values, onChange }) {
             {formatValue(value)}
           </button>
         ))}
-        <form onSubmit={addCustom} className="hp-custom">
-          <input value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="other value, e.g. 0.2 or [4,5]" />
-        </form>
+        <div className="hp-custom">
+          <input value={custom} onChange={(e) => setCustom(e.target.value)} onKeyDown={addCustom} placeholder="other value, e.g. 0.2 or [4,5]" />
+        </div>
       </div>
       {!chosen.length && <div className="dl-dim">Not swept: stays at the current setting.</div>}
     </div>
@@ -131,10 +135,9 @@ export default function SweepInvestigation() {
   const [fixed, setFixed] = useState({})
   const [detailFor, setDetailFor] = useState(null)
   const [estimate, setEstimate] = useState(null)
-  const [launching, setLaunching] = useState(false)
   const [message, setMessage] = useState(null)
-  const capabilities = useCapabilities()
-  const blockers = launchBlockers(capabilities, EXPERIMENT)
+  const q = useQueue()
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     Promise.all([api.investigations(), api.experimentTypes()]).then(([all, types]) => {
@@ -231,21 +234,11 @@ export default function SweepInvestigation() {
     })
   }
 
-  async function launch() {
-    setLaunching(true)
-    setMessage(null)
-    try {
-      const result = await api.launchSweep(spec)
-      setMessage({ ok: true, text: `Launched ${result.submitted} run${result.submitted === 1 ? '' : 's'}`
-        + (result.skipped.length ? `; ${result.skipped.length} skipped` : '')
-        + (result.errors.length ? `; ${result.errors.length} could not start (${result.errors[0].error})` : ''),
-        sweep: result.sweep_id })
-      refreshSweeps()
-    } catch (e) {
-      setMessage({ ok: false, text: e.message.replace(/^\d+ [^:]*: /, '').replace(/^\{"detail":"(.*)"\}$/, '$1') })
-    } finally {
-      setLaunching(false)
-    }
+  // Staged on a GPU queue card like every other experiment; Launch on the
+  // card submits it.
+  async function stage(slot) {
+    await q.stageSweep(slot, spec)
+    setMessage({ ok: true, text: `Staged on GPU ${slot + 1}: press Launch on that card to start it.` })
   }
 
   if (error) return <div><ExperimentsSubnav /><div className="page-header"><h1>Investigations</h1></div><p className="form-error">{error}</p></div>
@@ -259,6 +252,7 @@ export default function SweepInvestigation() {
       <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / {investigation.label}</div>
       <div className="page-header">
         <h1>{investigation.label}</h1>
+        {!investigation.legacy && <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Sweep</button>}
         <Link to={`/results/investigations?investigation=${investigation.id}`} className="btn-plain-small">Results for this investigation →</Link>
       </div>
       <p className="hp-intro">
@@ -274,133 +268,11 @@ export default function SweepInvestigation() {
 
       {investigation.traced && <TracedPeaks investigation={investigation} />}
 
-      <LaunchBlockedNotice blockers={blockers} />
+      {message && <div className={message.ok ? 'dl-bar-ok' : 'form-error'} role="status">{message.text}</div>}
+
+      <GpuQueue q={q} />
 
       <InvestigationProgress investigation={investigation.id} />
-
-      <section className="dl-section">
-        <h2 className="section-heading">1. Methods and values</h2>
-        <div className="hp-protocol">
-          <label>
-            <input type="radio" name="design" checked={design === 'one_at_a_time'} onChange={() => setDesign('one_at_a_time')} />
-            {' '}One setting at a time
-          </label>
-          <label>
-            <input type="radio" name="design" checked={design === 'grid'} onChange={() => setDesign('grid')} />
-            {' '}Every combination
-          </label>
-        </div>
-        <p className="dl-section-intro">
-          {design === 'one_at_a_time'
-            ? <>Each picked value is one run with only that setting changed; every other setting stays at its current
-              value. One shared run at the current settings stands in for each setting’s current value, so it is not run
-              again per setting.</>
-            : <>Every combination of a method’s picked values is one run per model and dataset.</>}
-          {' '}Suggestions are centred on the current setting for {primaryModel || 'the first selected model'}.
-        </p>
-        {investigation.methods.map((m) => (
-          <div key={m.method} className={`hp-method${methods[m.method] ? ' is-on' : ''}${m.available ? '' : ' is-off'}`}>
-            <label className="hp-method-head">
-              <input type="checkbox" checked={Boolean(methods[m.method])} disabled={!m.available || !primaryModel}
-                onChange={() => toggleMethod(m.method)} />
-              <strong>{m.label}</strong>
-              <span className="dl-dim">{m.knobs.map((k) => k.key).join(', ')}</span>
-            </label>
-            {!m.available && m.note && <div className="dl-desc">{m.note}</div>}
-            {methods[m.method] && m.knobs.map((knob) => (
-              <KnobEditor key={knob.key} knob={knob} model={primaryModel} values={methods[m.method][knob.key]}
-                onChange={(values) => setMethods((p) => ({ ...p, [m.method]: { ...p[m.method], [knob.key]: values } }))} />
-            ))}
-          </div>
-        ))}
-      </section>
-
-      <section className="dl-section">
-        <h2 className="section-heading">2. Models</h2>
-        <ModelField field={{ ...field('model'), sweepable: true }} value={models} onChange={setModels} />
-      </section>
-
-      <section className="dl-section">
-        <h2 className="section-heading">3. Datasets (dev records)</h2>
-        <p className="dl-section-intro">Each subset’s 100 dev records (fewer for small subsets). Test records are never used here.</p>
-        <DatasetField field={{ ...field('data_path'), sweepable: true }} value={dataPaths} onChange={setDataPaths} />
-      </section>
-
-      <section className="dl-section">
-        <h2 className="section-heading">4. Protocol</h2>
-        <div className="hp-protocol">
-          <label>Editing protocol{' '}
-            <select value={editMode || ''} onChange={(e) => setEditMode(e.target.value)}>
-              {(editField?.options || []).map((o) => {
-                const value = typeof o === 'object' ? o.value : o
-                return <option key={value} value={value}>{typeof o === 'object' ? o.label || value : value}</option>
-              })}
-            </select>
-          </label>
-          <label>Records per run{' '}
-            <select value={dsSize} onChange={(e) => setDsSize(e.target.value)}>
-              <option value="full">all dev records (up to 100)</option>
-              <option value="50">50</option>
-              <option value="20">20 (quick check: two batches of 10)</option>
-              <option value="2">2 (quick check: two single edits)</option>
-            </select>
-          </label>
-          <label>Seed{' '}
-            <select value={seed} onChange={(e) => setSeed(Number(e.target.value))}>
-              {[0, 1, 2, 3].map((v) => <option key={v} value={v}>{v}</option>)}
-            </select>
-          </label>
-          <label>Label{' '}
-            <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="optional, e.g. first pass" />
-          </label>
-        </div>
-        <p className="dl-dim">Use the protocol the main experiments will use: settings tuned under single edits do not transfer to sequential ones.</p>
-      </section>
-
-      <HeldConstant
-        held={held}
-        swept={Object.fromEntries(Object.entries(methods).map(([m, knobs]) => [m, Object.keys(knobs).filter((k) => knobs[k].length)]))}
-        fixed={fixed}
-        onFix={fix}
-        models={models}
-        runSettings={[
-          ['Records', `dev split only, ${dsSize === 'full' ? 'all dev records (up to 100)' : `${dsSize} per subset`}; test records are never used`],
-          ['Editing protocol', editMode || 'batch'],
-          ['Seed', String(seed)],
-          ['Evaluation', 'before editing and once at the end; Original scorer (token match), fluency on every run'],
-          ['Models', models.join(', ') || 'none chosen'],
-          ['Datasets', `${dataPaths.length} subset${dataPaths.length === 1 ? '' : 's'}`],
-        ]}
-      />
-
-      <div className={`dl-bar${ready ? ' has-selection' : ''}`}>
-        <div className="dl-bar-summary">
-          {!ready && 'Pick at least one method with values, one model and one dataset.'}
-          {ready && estimate && !estimate.error && (
-            <>
-              <strong>{estimate.runs}</strong> run{estimate.runs === 1 ? '' : 's'} · about <strong>{estimate.gpu_hours}</strong> GPU-hours
-              {estimate.missing_stats.length > 0 && <> · computes covariance statistics for {estimate.missing_stats.length} layer{estimate.missing_stats.length === 1 ? '' : 's'} first</>}
-              {estimate.skipped.length > 0 && (
-                <div className="dl-bar-warning">
-                  Skipped: {estimate.skipped.slice(0, 3).map((s) => `${s.method} on ${s.model}${s.data_path ? ` / ${s.data_path.split('/').pop()}` : ''} (${s.reason})`).join('; ')}
-                  {estimate.skipped.length > 3 ? `; and ${estimate.skipped.length - 3} more` : ''}
-                </div>
-              )}
-            </>
-          )}
-          {ready && estimate?.error && <div className="dl-bar-warning">{estimate.error}</div>}
-          {message && (
-            <div className={message.ok ? 'dl-bar-ok' : 'dl-bar-warning'} role="status">
-              {message.text}
-              {message.sweep && <> · <Link to={`/results/investigations?investigation=${investigation.id}`}>see results</Link></>}
-            </div>
-          )}
-        </div>
-        <button type="button" className="btn-primary" onClick={launch}
-          disabled={!ready || launching || blockers.length > 0 || !estimate?.runs || investigation.legacy}>
-          {launching ? 'Launching…' : 'Launch sweep'}
-        </button>
-      </div>
 
       <section className="dl-section">
         <div className="dl-section-head">
@@ -432,6 +304,126 @@ export default function SweepInvestigation() {
         </ul>
         {detailFor && <SweepDetailModal investigation={investigation.id} sweepId={detailFor} onClose={() => setDetailFor(null)} />}
       </section>
+      <QueueDrawer
+        open={drawerOpen}
+        onToggle={() => setDrawerOpen((o) => !o)}
+        onClose={() => setDrawerOpen(false)}
+        title="New Sweep"
+        wide
+        queue={q.queue}
+        submitLabel="Queue Sweep"
+        canSubmit={ready && Boolean(estimate?.runs) && !investigation.legacy}
+        summary={!ready ? 'Pick at least one method with values, one model and one dataset' : estimate?.runs
+          ? `${estimate.runs} run${estimate.runs === 1 ? '' : 's'}, about ${estimate.gpu_hours} GPU-hours, will be queued`
+          : 'Working out the runs…'}
+        onSubmit={stage}
+      >
+        <section className="dl-section">
+          <h2 className="section-heading">1. Methods and values</h2>
+          <div className="hp-protocol">
+            <label>
+              <input type="radio" name="design" checked={design === 'one_at_a_time'} onChange={() => setDesign('one_at_a_time')} />
+              {' '}One setting at a time
+            </label>
+            <label>
+              <input type="radio" name="design" checked={design === 'grid'} onChange={() => setDesign('grid')} />
+              {' '}Every combination
+            </label>
+          </div>
+          <p className="dl-section-intro">
+            {design === 'one_at_a_time'
+              ? <>Each picked value is one run with only that setting changed; every other setting stays at its current
+                value. One shared run at the current settings stands in for each setting’s current value, so it is not run
+                again per setting.</>
+              : <>Every combination of a method’s picked values is one run per model and dataset.</>}
+            {' '}Suggestions are centred on the current setting for {primaryModel || 'the first selected model'}.
+          </p>
+          {investigation.methods.map((m) => (
+            <div key={m.method} className={`hp-method${methods[m.method] ? ' is-on' : ''}${m.available ? '' : ' is-off'}`}>
+              <label className="hp-method-head">
+                <input type="checkbox" checked={Boolean(methods[m.method])} disabled={!m.available || !primaryModel}
+                  onChange={() => toggleMethod(m.method)} />
+                <strong>{m.label}</strong>
+                <span className="dl-dim">{m.knobs.map((k) => k.key).join(', ')}</span>
+              </label>
+              {!m.available && m.note && <div className="dl-desc">{m.note}</div>}
+              {methods[m.method] && m.knobs.map((knob) => (
+                <KnobEditor key={knob.key} knob={knob} model={primaryModel} values={methods[m.method][knob.key]}
+                  onChange={(values) => setMethods((p) => ({ ...p, [m.method]: { ...p[m.method], [knob.key]: values } }))} />
+              ))}
+            </div>
+          ))}
+        </section>
+
+        <section className="dl-section">
+          <h2 className="section-heading">2. Models</h2>
+          <ModelField field={{ ...field('model'), sweepable: true }} value={models} onChange={setModels} />
+        </section>
+
+        <section className="dl-section">
+          <h2 className="section-heading">3. Datasets (dev records)</h2>
+          <p className="dl-section-intro">Each subset’s 100 dev records (fewer for small subsets). Test records are never used here.</p>
+          <DatasetField field={{ ...field('data_path'), sweepable: true }} value={dataPaths} onChange={setDataPaths} />
+        </section>
+
+        <section className="dl-section">
+          <h2 className="section-heading">4. Protocol</h2>
+          <div className="hp-protocol">
+            <label>Editing protocol{' '}
+              <select value={editMode || ''} onChange={(e) => setEditMode(e.target.value)}>
+                {(editField?.options || []).map((o) => {
+                  const value = typeof o === 'object' ? o.value : o
+                  return <option key={value} value={value}>{typeof o === 'object' ? o.label || value : value}</option>
+                })}
+              </select>
+            </label>
+            <label>Records per run{' '}
+              <select value={dsSize} onChange={(e) => setDsSize(e.target.value)}>
+                <option value="full">all dev records (up to 100)</option>
+                <option value="50">50</option>
+                <option value="20">20 (quick check: two batches of 10)</option>
+                <option value="2">2 (quick check: two single edits)</option>
+              </select>
+            </label>
+            <label>Seed{' '}
+              <select value={seed} onChange={(e) => setSeed(Number(e.target.value))}>
+                {[0, 1, 2, 3].map((v) => <option key={v} value={v}>{v}</option>)}
+              </select>
+            </label>
+            <label>Label{' '}
+              <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="optional, e.g. first pass" />
+            </label>
+          </div>
+          <p className="dl-dim">Use the protocol the main experiments will use: settings tuned under single edits do not transfer to sequential ones.</p>
+        </section>
+
+        <HeldConstant
+          held={held}
+          swept={Object.fromEntries(Object.entries(methods).map(([m, knobs]) => [m, Object.keys(knobs).filter((k) => knobs[k].length)]))}
+          fixed={fixed}
+          onFix={fix}
+          models={models}
+          runSettings={[
+            ['Records', `dev split only, ${dsSize === 'full' ? 'all dev records (up to 100)' : `${dsSize} per subset`}; test records are never used`],
+            ['Editing protocol', editMode || 'batch'],
+            ['Seed', String(seed)],
+            ['Evaluation', 'before editing and once at the end; Original scorer (token match), fluency on every run'],
+            ['Models', models.join(', ') || 'none chosen'],
+            ['Datasets', `${dataPaths.length} subset${dataPaths.length === 1 ? '' : 's'}`],
+          ]}
+        />
+
+        {ready && estimate?.missing_stats?.length > 0 && (
+          <p className="dl-dim">Computes covariance statistics for {estimate.missing_stats.length} layer{estimate.missing_stats.length === 1 ? '' : 's'} first.</p>
+        )}
+        {ready && estimate?.skipped?.length > 0 && (
+          <div className="dl-bar-warning">
+            Skipped: {estimate.skipped.slice(0, 3).map((x) => `${x.method} on ${x.model}${x.data_path ? ` / ${x.data_path.split('/').pop()}` : ''} (${x.reason})`).join('; ')}
+            {estimate.skipped.length > 3 ? `; and ${estimate.skipped.length - 3} more` : ''}
+          </div>
+        )}
+        {ready && estimate?.error && <div className="dl-bar-warning">{estimate.error}</div>}
+      </QueueDrawer>
     </div>
   )
 }

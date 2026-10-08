@@ -171,6 +171,25 @@ These additions are browse-only in the experiment picker: ConflictEdit and
 ReCoE need benchmark-specific multi-edit evaluation, while Altered Riddles is
 a reasoning probe rather than a knowledge-editing request.
 
+**One GPU queue, the same on every page.** The 8 GPU queue cards are shared:
+Main experiments, In context, every hyperparameter sweep page and every
+per-model page (knowledge localisation, neuron attribution, circuit tracing,
+knowledge by format) show the same cards, the GPU panel below them and the
+page's progress section, and each has the same slide-out drawer (`+ New ...`
+button or the tab on the left edge) for its own kind of experiment. The drawer
+stages onto a card (`QueueDrawer.jsx`: pick the card, fill the form); nothing
+runs until Launch on the card. The shared pieces are `lib/useQueue.js` (polling
+and card actions), `GpuQueue.jsx` (cards, detail modal, GPU panel),
+`ExperimentDrawer.jsx` (any type's dashboard.json fields) and
+`MechanisticDrawer.jsx` (per-model pages: models plus their settings). A
+hyperparameter sweep is staged as a card of type `hparam_sweep`
+(`POST /api/queue/{slot}/stage-sweep` with the sweep spec, planned at staging
+so a bad spec fails there); Launch submits it through `hparam_sweeps.launch`,
+and Rerun failed or Play resubmit its runs through the sweep
+(`hparam_sweeps.resubmit`) under their own run names, so `sweep.json` and the
+results follow them. Sweeps an agent launches through `/api/hparams/sweeps`
+do not sit on a card; they show in the progress section and the sweep list.
+
 The Experiments page includes a read-only GPU allocation panel below the
 queue cards. It shows which physical GPU indices SLURM reports as free or
 allocated, maps running dashboard jobs to their assigned GPU when available,
@@ -422,8 +441,9 @@ registered the same way as `run_experiment` (its own `dashboard.json`), so it
 reuses the whole sbatch/sacct/progress path. Two flags in that file keep the
 two apart:
 
-- `"queue": false` keeps it out of the New Experiment drawer - it is launched
-  from its own page instead, one SLURM job per selected model.
+- `"queue": false` keeps it out of the Main experiments drawer - it is
+  staged from its own page's drawer instead, one SLURM job per selected model,
+  onto the same shared GPU queue cards.
 - `"results_default": true` on *run_experiment* is what makes the Results and
   Archive pages still mean `run_experiment` when no type is named. Without it
   they would follow whichever experiment directory sorts first, and
@@ -648,8 +668,8 @@ Optional keys beyond the basics, all read by `slurm.py` / the drawer:
   and a selection the cap invalidates is replaced by the cap itself. The
   runner clamps for real, so a hand-written CLI run can't get this wrong
   either.
-- `queue: false` (experiment type): keep it out of the New Experiment drawer
-  because it has its own page. `results_default: true`: this is the type the
+- `queue: false` (experiment type): keep it out of the Main experiments drawer
+  because it has its own page, whose drawer stages it onto the shared cards. `results_default: true`: this is the type the
   Results and Archive pages mean when no type is named.
 - `progress_field` (experiment type): which submitted param says how long a
   run is, for the progress bar. A run that writes `total_steps` into its

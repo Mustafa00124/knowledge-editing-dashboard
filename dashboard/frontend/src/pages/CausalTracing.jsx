@@ -2,13 +2,13 @@ import ExperimentsSubnav from '../components/ExperimentsSubnav.jsx'
 import InvestigationProgress from '../components/InvestigationProgress.jsx'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import LaunchBlockedNotice from '../components/LaunchBlockedNotice.jsx'
-import useCapabilities, { launchBlockers } from '../lib/useCapabilities.js'
+import GpuQueue from '../components/GpuQueue.jsx'
+import MechanisticDrawer from '../components/MechanisticDrawer.jsx'
+import useQueue from '../lib/useQueue.js'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine, ResponsiveContainer } from 'recharts'
 import { api } from '../api.js'
 import ClearFinishedButton from '../components/ClearFinishedButton.jsx'
 import { ACTIVE_STATES, FAIL_STATES } from '../lib/queueStatus.js'
-import { toggleGroup } from '../lib/groupSelect.js'
 
 const EXPERIMENT = 'causal_tracing'
 // Picks the shared fact set traces are compared on; its own experiment type.
@@ -46,51 +46,25 @@ const CONTROLS = ['fact_set', 'format', 'data_path', 'split', 'n_prompts', 'wind
 // Below this many traced prompts, the peak layer is noise, not a finding.
 const THIN_TRACE = 50
 
-function fieldOptions(field, factSets) {
-  if (!field) return []
-  if (field.name === 'fact_set' && factSets) {
-    return [{ label: 'none: scan the dataset per model', value: '' }, ...factSets.map((set) => ({
-      label: `${set.name} · ${set.picked} facts · ${set.formats.join(', ')}${set.below_min ? ' · below 50' : ''}`,
-      value: set.path,
-    }))]
-  }
-  if (field.control === 'dataset') {
-    return field.benchmarks.flatMap((benchmark) =>
-      benchmark.subsets
-        .filter((subset) => subset.available && subset.value)
-        .map((subset) => ({ label: `${benchmark.label} / ${subset.label}`, value: subset.value })),
-    )
-  }
-  return (field.options || []).filter((option) => option.available !== false)
-}
-
 function shortTime(iso) {
   return iso ? iso.replace('T', ' ').slice(0, 16) : '—'
 }
 
 export default function CausalTracing() {
-  const [expType, setExpType] = useState(null)
-  const blockers = launchBlockers(useCapabilities(), EXPERIMENT)
+  const q = useQueue()
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [overview, setOverview] = useState(null)
   const [jobs, setJobs] = useState([])
   const [selectionJobs, setSelectionJobs] = useState([])
-  const [models, setModels] = useState([])
-  const [values, setValues] = useState({})
   const [openRun, setOpenRun] = useState(null)
   const [grid, setGrid] = useState({})
   const [error, setError] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
 
   const loadOverview = useCallback(() => {
     api.causalTracing().then(setOverview).catch((e) => setError(String(e.message || e)))
   }, [])
 
-  useEffect(() => {
-    api.experimentTypes()
-      .then((types) => setExpType(types.find((t) => t.name === EXPERIMENT) || null))
-      .catch((e) => setError(String(e.message || e)))
-    loadOverview()
-  }, [loadOverview])
+  useEffect(() => { loadOverview() }, [loadOverview])
 
   useEffect(() => {
     const load = () => {
@@ -105,30 +79,6 @@ export default function CausalTracing() {
   // A finished job means new curves to read.
   const activeCount = jobs.filter((job) => ACTIVE_STATES.includes(job.status?.state)).length
   useEffect(() => { loadOverview() }, [activeCount, loadOverview])
-
-  const fields = useMemo(() => {
-    const byName = Object.fromEntries((expType?.fields || []).map((f) => [f.name, f]))
-    return CONTROLS.map((name) => byName[name]).filter(Boolean)
-  }, [expType])
-
-  useEffect(() => {
-    if (!fields.length || Object.keys(values).length) return
-    setValues(Object.fromEntries(fields.map((f) => [f.name, String(f.default)])))
-  }, [fields, values])
-
-  async function submit() {
-    setSubmitting(true)
-    setError(null)
-    try {
-      const params = Object.fromEntries(Object.entries(values).map(([k, v]) => [k, [v]]))
-      await api.submitExperiment(EXPERIMENT, { ...params, model: models })
-      setModels([])
-      api.experiments(EXPERIMENT).then(setJobs).catch(() => {})
-    } catch (e) {
-      setError(String(e.message || e))
-    }
-    setSubmitting(false)
-  }
 
   function openTrace(run) {
     const next = openRun === run ? null : run
@@ -160,67 +110,23 @@ export default function CausalTracing() {
       </div>
       <div className="page-header">
         <h1>Knowledge localisation</h1>
+        <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Trace</button>
       </div>
 
       <p className="dataset-note trace-intro">
         Causal tracing measures where a model recalls facts: corrupt the subject tokens so the model loses the fact, then
         restore one site at a time and see which one brings the answer back. It is a property of the model alone, so
         each model is traced once and no editing method is involved. The peak goes into{' '}
-        <code>traced_layers.json</code>, which the{' '}
-        <Link to="/experiments/investigations/edit_layers">Edit layers</Link> investigation reads to suggest which layers each
+        <code>traced_layers.json</code>, which the hyperparameter sweeps (such as{' '}
+        <Link to="/experiments/investigations/locate_edit">Locate-and-Edit</Link>) read to suggest which layers each
         method should try.
       </p>
 
-      <InvestigationProgress investigation="causal_tracing" />
-
       {error && <p className="archive-line archive-line-warn">{error}</p>}
 
-      <h2 className="archive-section-title">Trace a model</h2>
-      <div className="trace-launch">
-        <div className="pill-row trace-models">
-          {(overview?.models || []).map((model) => (
-            <button
-              key={model.value}
-              type="button"
-              className={`pill${models.includes(model.value) ? ' selected' : ''}`}
-              title={model.note || undefined}
-              onClick={() => setModels((previous) => toggleGroup([model.value], previous))}
-            >
-              {model.label}
-              <span className="trace-pill-note">
-                {model.traced ? `traced: ${model.traced.peak_layer}` : 'untraced'}
-              </span>
-            </button>
-          ))}
-        </div>
+      <GpuQueue q={q} />
 
-        <div className="trace-settings">
-          {fields.map((field) => (
-            <label key={field.name} className="trace-setting" title={field.note || undefined}>
-              <span>{field.label}</span>
-              <select
-                value={values[field.name] ?? ''}
-                onChange={(e) => setValues((previous) => ({ ...previous, [field.name]: e.target.value }))}
-              >
-                {fieldOptions(field, overview?.fact_sets).map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-
-        <LaunchBlockedNotice blockers={blockers} />
-        <div className="trace-launch-actions">
-          <span className="dataset-note">
-            One SLURM job per model. A 100-fact trace takes 2 to 5 minutes on these GPUs; severing adds about two
-            thirds, the token grid multiplies it. A fact set below 50 facts is refused unless allowed.
-          </span>
-          <button type="button" className="btn-primary" disabled={!models.length || submitting || blockers.length > 0} onClick={submit}>
-            {submitting ? 'Submitting…' : `Trace ${models.length} model${models.length === 1 ? '' : 's'}`}
-          </button>
-        </div>
-      </div>
+      <InvestigationProgress investigation="causal_tracing" />
 
       {selectionJobs.length > 0 && (
         <>
@@ -274,58 +180,10 @@ export default function CausalTracing() {
         </>
       )}
 
-      {jobs.length > 0 && (
-        <>
-          <div className="dl-section-head">
-            <h2 className="archive-section-title">Trace jobs</h2>
-            <ClearFinishedButton experiment={EXPERIMENT} jobs={jobs} activeStates={ACTIVE_STATES}
-              onCleared={() => api.experiments(EXPERIMENT).then(setJobs).catch(() => {})} />
-          </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Run</th><th>State</th><th>Progress</th><th>Peak so far</th><th>Submitted</th><th />
-                </tr>
-              </thead>
-              <tbody>
-                {jobs.map((job) => {
-                  const state = job.status?.state || 'UNKNOWN'
-                  const total = job.progress?.num_steps
-                  const step = job.progress?.current_step
-                  const latest = job.progress?.latest_metrics
-                  const tone = ACTIVE_STATES.includes(state) ? 'active' : FAIL_STATES.includes(state) ? 'failed' : 'done'
-                  return (
-                    <tr key={job.job_id}>
-                      <td><code>{job.run_name}</code></td>
-                      <td><span className={`trace-state is-${tone}`}>{state}</span></td>
-                      <td>{step != null && total ? `${step} / ${total} prompts` : '—'}</td>
-                      <td>{latest?.peak_layer != null ? `layer ${latest.peak_layer}` : '—'}</td>
-                      <td>{shortTime(job.submitted_at)}</td>
-                      <td>
-                        {ACTIVE_STATES.includes(state) && (
-                          <button
-                            type="button"
-                            className="btn-plain-small"
-                            onClick={() => api.cancelExperiment(job.job_id).then(() => api.experiments(EXPERIMENT).then(setJobs))}
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-
       <h2 className="archive-section-title">Traced layer by model</h2>
       <p className="dataset-note">
-        <code>{overview?.mapping_path}</code> holds the traced column. How each method's edit layers compare is on the{' '}
-        <Link to="/experiments/investigations/edit_layers">Edit layers</Link> page.
+        <code>{overview?.mapping_path}</code> holds the traced column. Each method's edit layers are swept on its family's page, such as{' '}
+        <Link to="/experiments/investigations/locate_edit">Locate-and-Edit</Link>.
       </p>
       <div className="table-wrap">
         <table>
@@ -496,6 +354,19 @@ export default function CausalTracing() {
           )}
         </>
       )}
+      <MechanisticDrawer
+        open={drawerOpen}
+        onToggle={() => setDrawerOpen((o) => !o)}
+        onClose={() => setDrawerOpen(false)}
+        title="New Trace"
+        queue={q.queue}
+        onStage={q.stage}
+        expType={q.experimentTypes.find((t) => t.name === EXPERIMENT)}
+        models={(overview?.models || []).map((m) => ({ ...m, tag: m.traced ? `traced: ${m.traced.peak_layer}` : 'untraced' }))}
+        controls={CONTROLS}
+        factSets={overview?.fact_sets}
+        costNote="One job per model. A 100-fact trace takes 2 to 5 minutes on these GPUs; severing adds about two thirds, the token grid multiplies it. A fact set below 50 facts is refused unless allowed."
+      />
     </div>
   )
 }

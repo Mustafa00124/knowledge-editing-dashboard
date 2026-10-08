@@ -5,7 +5,7 @@ import { STATUS, summarize, leadJob, stepPct } from '../lib/queueStatus.js'
 // current job's bar, and the counts. Everything else (per-job status,
 // metrics, logs, params) lives behind a click, in QueueDetailModal - a
 // four-card row is a glanceable status board, not a place to read detail.
-export default function QueueCard({ slotIndex, slot, fields, onOpen, onLaunch, onPause, onResume, onClear, actionPending, launchBlocked }) {
+export default function QueueCard({ slotIndex, slot, label: shownLabel, fields, onOpen, onLaunch, onPause, onResume, onClear, actionPending, launchBlocked }) {
   const { status, jobs, current, running, active, done, interrupted } = summarize(slot)
   const staged = slot?.staged || null
 
@@ -15,10 +15,12 @@ export default function QueueCard({ slotIndex, slot, fields, onOpen, onLaunch, o
   // against ROME too, though ROME ignores lr). The drawer passes fields and
   // the backend dedupes the same way, so omitting it here made the launch
   // confirmation claim roughly double the jobs actually submitted.
-  const total = current.length || (staged ? comboCount(staged.params, fields) : 0)
+  // A staged sweep was planned when it was staged; it is not a field grid.
+  const stagedRuns = staged?.experiment_type === 'hparam_sweep' ? staged.params.planned_runs || 0 : staged ? comboCount(staged.params, fields) : 0
+  const total = current.length || stagedRuns
   const lead = leadJob(running)
   const leadPct = stepPct(lead)
-  const label = staged?.experiment_type || jobs[0]?.experiment_type
+  const label = shownLabel || staged?.experiment_type || jobs[0]?.experiment_type
   const isTrial = staged?.save_results === false || Boolean(jobs[0]?.testing_id)
   const interactive = jobs.length > 0 || Boolean(staged)
 
