@@ -244,13 +244,20 @@ Only binary knowledge has an object. RBox edits are about one relation
 entity be told apart from familiarity of the fact: a very familiar subject
 can still have an obscure fact ("France's national flower").
 
-| Value | Fact example | Entity example |
-| --- | --- | --- |
-| `very_low` | The mayor of a small town. | A small village. |
-| `low` | The capital of a small province. | A regional politician. |
-| `medium` | The author of a moderately well-known novel. | A mid-sized city. |
-| `high` | The capital of Australia. | Lyon. |
-| `very_high` | The capital of France. | France. |
+| Value | Score | Fact example | Entity example |
+| --- | --- | --- | --- |
+| `very_low` | 1 | The mayor of a small town. | A small village. |
+| `low` | 2 | The capital of a small province. | A regional politician. |
+| `medium` | 3 | The author of a moderately well-known novel. | A mid-sized city. |
+| `high` | 4 | The capital of Australia. | Lyon. |
+| `very_high` | 5 | The capital of France. | France. |
+
+Records store the words. For analysis, each maps to an integer score from 1
+to 5 (`FAMILIARITY_SCORE` in `validate.py`, `score` in the dashboard's
+taxonomy; `familiarity_scores(record)` gives all three tiers at once, with
+`None` where a tier doesn't apply). The scores are ordinal: the steps are
+ranked but not necessarily equal, so rank correlations (Spearman, Kendall)
+are the safer choice than Pearson.
 
 > **Familiarity is a proxy.** We can't see any model's training data, so the
 > tag is our estimate of how often the knowledge appears in text a model is

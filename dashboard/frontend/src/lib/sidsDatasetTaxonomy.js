@@ -184,13 +184,17 @@ export const QUERY_BEHAVIORS = [
 // A tag every record carries, not a layer of the taxonomy: how familiar the
 // knowledge involved is likely to be, rated separately for the fact as a
 // whole and for its subject and object.
+// Records store the key; `score` (1 to 5, ordinal) is what analysis uses,
+// and the label is what the page shows.
 export const FAMILIARITY = [
-  { key: 'very_low', label: 'Very low', example: 'The mayor of a small town; a small village.' },
-  { key: 'low', label: 'Low', example: 'The capital of a small province; a regional politician.' },
-  { key: 'medium', label: 'Medium', example: 'The author of a moderately well-known novel; a mid-sized city.' },
-  { key: 'high', label: 'High', example: 'The capital of Australia; Lyon.' },
-  { key: 'very_high', label: 'Very high', example: 'The capital of France; France.' },
+  { key: 'very_low', label: 'Very low', score: 1, example: 'The mayor of a small town; a small village.' },
+  { key: 'low', label: 'Low', score: 2, example: 'The capital of a small province; a regional politician.' },
+  { key: 'medium', label: 'Medium', score: 3, example: 'The author of a moderately well-known novel; a mid-sized city.' },
+  { key: 'high', label: 'High', score: 4, example: 'The capital of Australia; Lyon.' },
+  { key: 'very_high', label: 'Very high', score: 5, example: 'The capital of France; France.' },
 ]
+
+export const FAMILIARITY_SCORE = Object.fromEntries(FAMILIARITY.map((f) => [f.key, f.score]))
 
 export const FAMILIARITY_TIERS = [
   { key: 'fact', label: 'Fact', description: 'The original fact as a whole. Replace and delete; null for insert, which has no original fact.' },

@@ -25,7 +25,9 @@ TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
 DERIVABILITY = ('axiomatic', 'derived')
-FAMILIARITY = ('very_low', 'low', 'medium', 'high', 'very_high')
+# Records store the words; analysis uses these ordinal scores (1 to 5).
+FAMILIARITY_SCORE = {'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5}
+FAMILIARITY = tuple(FAMILIARITY_SCORE)
 FAMILIARITY_TIERS = ('fact', 'subject', 'object')
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
@@ -207,6 +209,11 @@ def check_familiarity(fam, op, has_object):
             why = 'insert has no original fact' if tier == 'fact' else 'the edit has no object'
             errors.append(f'familiarity.{tier} must be null: {why}')
     return errors
+
+
+def familiarity_scores(rec):
+    """{'fact': 5, 'subject': 5, 'object': 4} for a record; None where a tier doesn't apply."""
+    return {tier: FAMILIARITY_SCORE.get(rec['familiarity'][tier]) for tier in FAMILIARITY_TIERS}
 
 
 def check_query(q, qtype, rec, relations):

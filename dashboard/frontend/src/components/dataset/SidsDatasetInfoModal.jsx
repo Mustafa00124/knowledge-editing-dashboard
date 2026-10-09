@@ -155,7 +155,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               to be. Results can be sliced by it within any cell. It is rated in three tiers:
             </p>
             <ValueList values={FAMILIARITY_TIERS} />
-            <p>Each tier takes one of five values:</p>
+            <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
             <ValueList values={FAMILIARITY} />
             <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
           </section>
