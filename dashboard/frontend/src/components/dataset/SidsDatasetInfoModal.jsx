@@ -10,6 +10,7 @@ import {
   QUERY_TYPES,
   RELATION_SEMANTICS,
   DERIVABILITY,
+  DERIVABILITY_CAVEAT,
   TOPICS,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
@@ -101,6 +102,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <div className="sids-axis">
               <h4>Derivability <span className="sids-rubric-q">ABox and TBox only; insert is always axiomatic</span></h4>
               <ValueList values={DERIVABILITY} />
+              <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
             </div>
             <p className="dataset-note">
               {KNOWLEDGE_FORMS.length} forms per topic. Insert only has the {axiomaticForms} axiomatic ones, so{' '}

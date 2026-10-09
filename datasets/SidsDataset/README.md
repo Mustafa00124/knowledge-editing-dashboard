@@ -81,6 +81,13 @@ edited fact or rule is a base claim or a consequence of others.
 | `axiomatic` | Stated directly; nothing else the model knows entails it. | Paris is the capital of France. | Every square is a rectangle. |
 | `derived` | Follows from other facts or rules the model holds (its `premises`). | The Eiffel Tower is in France (it is in Paris, and Paris is in France). | Every square is a polygon (every square is a rectangle, every rectangle is a polygon). |
 
+> **Derivability is model specific.** Whether a fact is axiomatic or derived
+> really depends on the model: one model may store "the Eiffel Tower is in
+> France" directly, another may work it out from its premises each time, and
+> we can't observe which. For this dataset, items are labelled by what is
+> *likely* to be stored versus derived, using our own intuition and criteria.
+> Those criteria will be detailed later.
+
 Editing a derived fact leaves its premises pointing at the old answer, so the
 model may re-derive it and slide back. That is the failure this layer is
 meant to expose. Rules for derived items:

@@ -106,6 +106,11 @@ export const DERIVABILITY = [
   },
 ]
 
+// Shown wherever derivability is explained, since it is the easiest label to
+// misread as a fact about the model.
+export const DERIVABILITY_CAVEAT =
+  'Derivability is model specific: whether a fact is stored or derived depends on the model, and we cannot observe which. Items are labelled by what is likely to be axiomatic or derived, using our own intuition and criteria, which will be detailed later.'
+
 // Every leaf of level 2 below topic: 4 ABox + 4 TBox + 1 RBox = 9 per topic
 // (insert only has the 5 axiomatic ones).
 export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
