@@ -33,7 +33,6 @@ export const TOPICS = [
   { key: 'mathematics', label: 'Mathematics' },
   { key: 'grammar', label: 'Grammar' },
   { key: 'literature_arts', label: 'Literature and arts' },
-  { key: 'puzzle', label: 'Puzzle' },
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
@@ -189,6 +188,7 @@ export const PARKED = [
   'Edit representation: confusing or distractor-heavy phrasings, and the degraded-coherence grounding ladder.',
   'Connectivity and dependency bands.',
   'Analytic vs synthetic epistemic status.',
+  'Puzzle topic: invented mini-worlds where derived queries are pure logic, insert only.',
   'Temporality (event vs timeless): no clear reason it should change whether an edit succeeds.',
 ]
 

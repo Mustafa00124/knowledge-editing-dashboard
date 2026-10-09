@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent
 
 EDIT_OPERATIONS = ('insert', 'replace', 'delete')
 TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
-          'mathematics', 'grammar', 'literature_arts', 'puzzle')
+          'mathematics', 'grammar', 'literature_arts')
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
 DERIVABILITY = ('axiomatic', 'derived')
@@ -133,8 +133,6 @@ def check_record(rec, path, relations):
             err('derivability must be null for rbox')
     if op == 'insert' and deriv == 'derived':
         err('insert items are axiomatic: a fact the model can already derive is not new')
-    if topic == 'puzzle' and op != 'insert':
-        err('puzzle items are insert only')
 
     # The relation must be catalogued. An RBox edit changes the relation's
     # properties, so its semantics aren't checked against the catalogue.

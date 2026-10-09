@@ -45,8 +45,7 @@ under some branches.
 
 **Topic.** `geography`, `people` (facts about famous people), `history`,
 `finance` (including textbook economic laws), `biology` (including medicine),
-`physics`, `mathematics`, `grammar`, `literature_arts`, `puzzle` (invented
-mini-worlds, insert only). A diversity control, so a finding about rules
+`physics`, `mathematics`, `grammar`, `literature_arts`. A diversity control, so a finding about rules
 isn't secretly a finding about mathematics. It also keeps the records
 organized for browsing.
 
@@ -93,8 +92,7 @@ model may re-derive it and slide back. That is the failure this layer is
 meant to expose. Rules for derived items:
 
 - **Replace and delete only.** Inserting a fact the model can already derive
-  adds nothing, so `insert` items are always `axiomatic`, and so is every
-  puzzle item.
+  adds nothing, so `insert` items are always `axiomatic`.
 - **Premises are listed** in `edit.premises` and checked before editing, like
   bridge facts: if the model doesn't hold them, it can't derive the fact, and
   the item is dropped for that model.
@@ -115,8 +113,8 @@ That gives 9 knowledge-form leaves per topic:
 | RBox | | |
 
 With insert limited to the 5 axiomatic leaves, that is 5 + 9 + 9 = 23 cells
-per topic, 230 in all. Not every cell exists naturally: mathematics and
-grammar have no causal knowledge, and puzzle has only the insert cells. Those
+per topic, 207 in all. Not every cell exists naturally: mathematics and
+grammar have no causal knowledge. Those
 cells stay empty rather than being filled with forced examples, and
 comparisons across topics should only use cells both topics have.
 
@@ -301,8 +299,8 @@ rejected, so typos don't silently drop data.
 | Field | Type | Rule |
 | --- | --- | --- |
 | `id` | string | `<topic>-<edit_operation>-NNNN`, same as the file name |
-| `edit_operation` | `insert` \| `replace` \| `delete` | puzzle is insert only |
-| `topic` | one of the 10 topic keys | |
+| `edit_operation` | `insert` \| `replace` \| `delete` | |
+| `topic` | one of the 9 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
 | `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
 | `derivability` | `axiomatic` \| `derived` \| null | null for `rbox`; `axiomatic` for insert |
@@ -353,6 +351,10 @@ benchmark buildable. They may come back as separate subsets:
   happiness, Zorblin, XQ7-19B).
 - **Connectivity and dependency** bands.
 - **Analytic vs synthetic** epistemic status.
+- **Puzzle topic**: invented mini-worlds ("every flerm is a droven, every
+  droven can narp, a mip is a flerm") where derived queries are pure logic
+  with no prior knowledge interfering. Insert only, since the model holds
+  nothing about them beforehand.
 - **Temporality** (event vs timeless). Dropped because there was no clear
   reason it should change whether an edit succeeds.
 

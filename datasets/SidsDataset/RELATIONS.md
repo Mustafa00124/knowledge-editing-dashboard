@@ -152,23 +152,6 @@ symmetric word relations. Causal cells stay empty.
 | `sequel_of` | a is the sequel of b | associative | `asymmetric`, `inverse:prequel_of`, `functional` | The Two Towers is the sequel of The Fellowship of the Ring. |
 | `inspired` | work a inspired work b | causal | `causal`, `asymmetric`, `inverse:inspired_by`, `cardinality:many` | The Odyssey inspired Joyce's Ulysses. |
 
-### Puzzle
-
-Invented mini-worlds ("every flerm is a droven, every droven can narp, a mip
-is a flerm"). No prior knowledge interferes, so derived queries are pure
-logic. Because the model holds nothing about them beforehand, puzzle items are
-**insert only**. Their bridge facts are invented too, so they are inserted as
-part of the edit (a puzzle edit can be several statements) and the pre-edit
-check is skipped. Names are invented per item.
-
-| Relation | Reads as | Semantics | Tags | Example |
-| --- | --- | --- | --- | --- |
-| `is_a` | every a is a b / a is a b | associative | `transitive`, `asymmetric` | Every flerm is a droven. |
-| `can` | a can b | associative | `cardinality:many` | Every droven can narp. (inheritance: can a mip narp?) |
-| `left_of` | a is left of b | associative | `transitive`, `asymmetric`, `inverse:right_of` | The zib is left of the quon. |
-| `taller_than` | a is taller than b | associative | `transitive`, `asymmetric`, `inverse:shorter_than` | Brell is taller than Fask. |
-| `triggers` | a triggers b | causal | `causal`, `asymmetric`, `inverse:triggered_by` | Ringing the glimmer triggers the vault door. |
-
 ## RBox items
 
 An RBox item edits a tag itself, so its derived queries are instances of the
