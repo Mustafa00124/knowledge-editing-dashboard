@@ -24,12 +24,14 @@ TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
           'mathematics', 'grammar', 'literature_arts')
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
-DERIVABILITY = ('axiomatic', 'derived')
 # Records store the words; analysis uses these ordinal scores (1 to 5).
 FAMILIARITY_SCORE = {'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5}
 FAMILIARITY = tuple(FAMILIARITY_SCORE)
 FAMILIARITY_TIERS = ('fact', 'subject', 'object')
 TEMPORAL = ('event', 'timeless')
+# How likely a model derives the fact rather than stores it; ordinal like familiarity.
+DERIVABILITY_SCORE = {'very_unlikely': 1, 'unlikely': 2, 'medium': 3, 'likely': 4, 'very_likely': 5}
+DERIVABILITY = tuple(DERIVABILITY_SCORE)
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
@@ -125,17 +127,20 @@ def check_record(rec, path, relations):
         err(f'file should live in records/{topic}/{op}/')
 
     # Knowledge-form layers the box doesn't have are null.
-    sem, deriv = rec['relation_semantics'], rec['derivability']
+    sem = rec['relation_semantics']
     if box in ('abox', 'tbox'):
         if sem not in RELATION_SEMANTICS:
             err(f'relation_semantics {sem!r} not one of {RELATION_SEMANTICS}')
+    elif sem is not None:
+        err('relation_semantics must be null for rbox')
+    # Tag: set for ABox and TBox replace and delete. A new fact can't follow
+    # from what the model already holds, and RBox edits are about a relation.
+    deriv = rec['derivability']
+    if box in ('abox', 'tbox') and op != 'insert':
         if deriv not in DERIVABILITY:
             err(f'derivability {deriv!r} not one of {DERIVABILITY}')
-    else:
-        if sem is not None:
-            err('relation_semantics must be null for rbox')
-        if deriv is not None:
-            err('derivability must be null for rbox')
+    elif deriv is not None:
+        err('derivability must be null for ' + ('insert' if op == 'insert' else 'rbox'))
     # Tag, ABox facts only: rules and relation properties aren't events.
     temporal = rec['temporal']
     if box == 'abox':
@@ -143,8 +148,6 @@ def check_record(rec, path, relations):
             err(f'temporal {temporal!r} not one of {TEMPORAL}')
     elif temporal is not None:
         err(f'temporal must be null for {box}')
-    if op == 'insert' and deriv == 'derived':
-        err('insert items are axiomatic: a fact the model can already derive is not new')
 
     # The relation must be catalogued. An RBox edit changes the relation's
     # properties, so its semantics aren't checked against the catalogue.
@@ -173,11 +176,13 @@ def check_record(rec, path, relations):
             err('edit.old_object is required for replace')
         if op != 'replace' and 'old_object' in edit:
             err(f'edit.old_object is only for replace (for {op}, edit.object is the value)')
-        if deriv == 'derived':
-            if not (is_text_list(edit.get('premises')) and edit['premises']):
-                err('edit.premises must list what a derived fact follows from')
-        elif 'premises' in edit:
-            err('edit.premises is only for derived items')
+        premises = edit.get('premises')
+        if 'premises' in edit and not (is_text_list(premises) and premises):
+            err('edit.premises must be a non-empty list of strings')
+        if DERIVABILITY_SCORE.get(deriv, 0) >= DERIVABILITY_SCORE['likely'] and 'premises' not in edit:
+            err(f'edit.premises is required when derivability is {deriv!r}')
+        if deriv is None and 'premises' in edit:
+            err('edit.premises needs a derivability rating')
 
     errors.extend(check_familiarity(rec['familiarity'], op, isinstance(edit, dict) and 'object' in edit))
 
@@ -217,6 +222,11 @@ def check_familiarity(fam, op, has_object):
             why = 'insert has no original fact' if tier == 'fact' else 'the edit has no object'
             errors.append(f'familiarity.{tier} must be null: {why}')
     return errors
+
+
+def derivability_score(rec):
+    """1 to 5, or None where derivability doesn't apply."""
+    return DERIVABILITY_SCORE.get(rec['derivability'])
 
 
 def familiarity_scores(rec):

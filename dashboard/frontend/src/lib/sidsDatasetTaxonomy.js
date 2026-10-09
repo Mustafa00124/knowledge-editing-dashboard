@@ -1,7 +1,7 @@
 // Sid's own benchmark: the categorization scheme, ahead of any actual records.
 //
 // Three levels: edit operation, then knowledge form (topic > box > relation
-// semantics > derivability, where the last two only exist under some boxes),
+// semantics, which only exists under some boxes),
 // then a fixed set of 12 queries per edit. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
@@ -36,8 +36,8 @@ export const TOPICS = [
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
-// `semantics` and `derivability` say which of the next layers exist under each
-// box; a record stores null for a layer its box doesn't have.
+// `semantics` says whether the next layer exists under each box; a record
+// stores null for a layer its box doesn't have.
 export const BOXES = [
   {
     key: 'abox',
@@ -46,7 +46,6 @@ export const BOXES = [
     description: 'Facts about particular individuals.',
     examples: ['Paris is the capital of France.'],
     semantics: true,
-    derivability: true,
   },
   {
     key: 'tbox',
@@ -55,7 +54,6 @@ export const BOXES = [
     description: 'Rules about classes: every C is (or does) D. One edit should move every individual it covers.',
     examples: ['Every capital is a city.', 'Smoking causes lung cancer.'],
     semantics: true,
-    derivability: true,
   },
   {
     key: 'rbox',
@@ -64,7 +62,6 @@ export const BOXES = [
     description: 'Properties of relations themselves. Editing one changes what can be derived from every fact using that relation.',
     examples: ['"Located in" is transitive.', '"Sibling of" is symmetric.'],
     semantics: false,
-    derivability: false,
   },
 ]
 
@@ -86,40 +83,12 @@ export const RELATION_SEMANTICS = [
   },
 ]
 
-// Level 2, fourth layer (ABox and TBox only). Editing a derived fact leaves
-// its premises pointing at the old answer, so the model may re-derive it and
-// slide back. Insert is always axiomatic: a fact the model can already derive
-// is not new.
-export const DERIVABILITY = [
-  {
-    key: 'axiomatic',
-    label: 'Axiomatic',
-    description: 'Stated directly; nothing else the model knows entails it.',
-    examples: ['Paris is the capital of France.', 'Every square is a rectangle.'],
-  },
-  {
-    key: 'derived',
-    label: 'Derived',
-    description: 'Follows from other facts or rules the model holds (its premises), which are checked before editing and expected to stay unchanged. Replace and delete only.',
-    examples: ['The Eiffel Tower is in France.', 'Every square is a polygon.'],
-  },
-]
-
-// Shown wherever derivability is explained, since it is the easiest label to
-// misread as a fact about the model.
-export const DERIVABILITY_CAVEAT =
-  'Derivability is model specific: whether a fact is stored or derived depends on the model, and we cannot observe which. Items are labelled by what is likely to be axiomatic or derived, using our own intuition and criteria, which will be detailed later.'
-
-// Every leaf of level 2 below topic: 4 ABox + 4 TBox + 1 RBox = 9 per topic
-// (insert only has the 5 axiomatic ones).
+// Every leaf of level 2 below topic: 2 ABox + 2 TBox + 1 RBox = 5 per topic.
 export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
-  (box.semantics ? RELATION_SEMANTICS : [null]).flatMap((sem) =>
-    (box.derivability ? DERIVABILITY : [null]).map((deriv) => ({
-      box: box.key,
-      relation_semantics: sem?.key ?? null,
-      derivability: deriv?.key ?? null,
-    })),
-  ),
+  (box.semantics ? RELATION_SEMANTICS : [null]).map((sem) => ({
+    box: box.key,
+    relation_semantics: sem?.key ?? null,
+  })),
 )
 
 // Level 3: the fixed 12 queries every edit carries, and the metric each
@@ -209,7 +178,26 @@ export const FAMILIARITY_TIERS = [
 export const FAMILIARITY_CAVEAT =
   "Familiarity is a proxy: we can't see any model's training data, so the tag is our estimate of how often the knowledge appears in text a model is likely to have seen. The criteria for assigning it will be detailed later."
 
-// A second tag, ABox facts only (null for TBox and RBox): how the fact sits
+// A tag for ABox and TBox replace and delete (null for insert and RBox): how
+// likely a model is to derive the edited fact from other knowledge rather
+// than store it. Editing a derived fact leaves its premises pointing at the
+// old answer, so the model may re-derive it and slide back.
+export const DERIVABILITY = [
+  { key: 'very_unlikely', label: 'Very unlikely', score: 1, example: 'Paris is the capital of France.' },
+  { key: 'unlikely', label: 'Unlikely', score: 2, example: 'Lyon is in France.' },
+  { key: 'medium', label: 'Medium', score: 3, example: 'The Eiffel Tower is in Europe.' },
+  { key: 'likely', label: 'Likely', score: 4, example: 'The Eiffel Tower is in France (it is in Paris, and Paris is in France).' },
+  { key: 'very_likely', label: 'Very likely', score: 5, example: 'Every square is a polygon (every square is a rectangle, every rectangle is a polygon).' },
+]
+
+export const DERIVABILITY_SCORE = Object.fromEntries(DERIVABILITY.map((d) => [d.key, d.score]))
+
+// Shown wherever derivability is explained, since it is the easiest label to
+// misread as a fact about the model.
+export const DERIVABILITY_CAVEAT =
+  'Derivability is model specific: whether a fact is stored or derived depends on the model, and we cannot observe which. The tag is our estimate of how likely a model is to derive it, using our own intuition and criteria, which will be detailed later. Premises are listed (required at likely and above), checked before editing, and expected to stay unchanged.'
+
+// A tag, ABox facts only (null for TBox and RBox): how the fact sits
 // in time. Standing states count as timeless.
 export const TEMPORAL = [
   { key: 'event', label: 'Event', description: 'Happened at a point in time.', examples: ['Marie Curie discovered radium in 1898.'] },
@@ -232,11 +220,11 @@ export const PARKED = [
 ]
 
 // A compact human-readable coordinate, e.g.
-// "replace · geography · abox/associative/derived".
+// "replace · geography · abox/associative".
 export function coordinateSummary(coordinate) {
   return [
     coordinate.edit_operation,
     coordinate.topic,
-    [coordinate.box, coordinate.relation_semantics, coordinate.derivability].filter(Boolean).join('/'),
+    [coordinate.box, coordinate.relation_semantics].filter(Boolean).join('/'),
   ].join(' · ')
 }

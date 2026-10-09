@@ -4,14 +4,13 @@ import {
   EDIT_OPERATIONS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
-  DERIVABILITY,
   TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
 // No records exist yet (see datasets/SidsDataset/README.md), so this browses
 // the categorization itself: edit operation, then the knowledge form layers
-// (topic, box, and relation semantics / derivability where the box has them),
+// (topic, box, and relation semantics where the box has it),
 // then the fixed query set every edit carries. Explanations of each layer
 // live in SidsDatasetInfoModal (the "?"), not here. Swap this for the generic
 // subsets-based UI in Datasets.jsx once real records are registered in
@@ -40,7 +39,6 @@ export default function SidsDatasetBrowser() {
     topic: TOPICS[0].key,
     box: BOXES[0].key,
     relation_semantics: RELATION_SEMANTICS[0].key,
-    derivability: DERIVABILITY[0].key,
   })
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
 
@@ -49,7 +47,6 @@ export default function SidsDatasetBrowser() {
   const recordCoordinate = {
     ...coordinate,
     relation_semantics: box.semantics ? coordinate.relation_semantics : null,
-    derivability: box.derivability ? coordinate.derivability : null,
   }
 
   return (
@@ -67,13 +64,6 @@ export default function SidsDatasetBrowser() {
         <>
           <p className="sids-group-label">Relation semantics</p>
           <TabRow label="Relation semantics" values={RELATION_SEMANTICS} selected={coordinate.relation_semantics} onSelect={set('relation_semantics')} />
-        </>
-      )}
-
-      {box.derivability && (
-        <>
-          <p className="sids-group-label">Derivability</p>
-          <TabRow label="Derivability" values={DERIVABILITY} selected={coordinate.derivability} onSelect={set('derivability')} />
         </>
       )}
 

@@ -41,10 +41,6 @@ function ValueList({ values }) {
   )
 }
 
-// Insert has no derived forms: a fact the model can already derive is not new.
-const axiomaticForms = KNOWLEDGE_FORMS.filter((f) => f.derivability !== 'derived').length
-const cellsPerTopic = axiomaticForms + (EDIT_OPERATIONS.length - 1) * KNOWLEDGE_FORMS.length
-
 export default function SidsDatasetInfoModal({ onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -103,14 +99,9 @@ export default function SidsDatasetInfoModal({ onClose }) {
               <h4>Relation semantics <span className="sids-rubric-q">ABox and TBox only</span></h4>
               <ValueList values={RELATION_SEMANTICS} />
             </div>
-            <div className="sids-axis">
-              <h4>Derivability <span className="sids-rubric-q">ABox and TBox only; insert is always axiomatic</span></h4>
-              <ValueList values={DERIVABILITY} />
-              <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
-            </div>
             <p className="dataset-note">
-              {KNOWLEDGE_FORMS.length} forms per topic. Insert only has the {axiomaticForms} axiomatic ones, so{' '}
-              {cellsPerTopic} cells per topic and {cellsPerTopic * TOPICS.length} in all.
+              {KNOWLEDGE_FORMS.length} forms per topic, so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
+              × {KNOWLEDGE_FORMS.length} forms = {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
             </p>
           </section>
 
@@ -161,6 +152,10 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
             <ValueList values={FAMILIARITY} />
             <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
+            <h4>Derivability <span className="sids-rubric-q">ABox and TBox replace and delete</span></h4>
+            <p>How likely a model is to derive the edited fact from other knowledge rather than store it, scored 1 to 5:</p>
+            <ValueList values={DERIVABILITY} />
+            <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
             <h4>Temporal <span className="sids-rubric-q">ABox facts only</span></h4>
             <ValueList values={TEMPORAL} />
           </section>
