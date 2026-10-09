@@ -184,7 +184,7 @@ export const FAMILIARITY_CAVEAT =
 
 // A tag for ABox and TBox replace and delete (null for insert and RBox): how
 // likely a model is to derive the edited fact from other knowledge rather
-// than store it. Editing a derived fact leaves its premises pointing at the
+// than store it, on a scale from axiomatic (stored) to derived (composed). Editing a derived fact leaves its premises pointing at the
 // old answer, so the model may re-derive it and slide back.
 export const DERIVABILITY = [
   { key: 'very_unlikely', label: 'Very unlikely', score: 1, example: 'Paris is the capital of France.' },
@@ -199,7 +199,7 @@ export const DERIVABILITY_SCORE = Object.fromEntries(DERIVABILITY.map((d) => [d.
 // Shown wherever derivability is explained, since it is the easiest label to
 // misread as a fact about the model.
 export const DERIVABILITY_CAVEAT =
-  'Derivability is model specific: whether a fact is stored or derived depends on the model, and we cannot observe which. The tag is our estimate of how likely a model is to derive it, using our own intuition and criteria, which will be detailed later. Premises are listed (required at likely and above), checked before editing, and expected to stay unchanged.'
+  'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate of how likely a model is to derive it, using our own intuition and criteria, which will be detailed later. Premises are listed (required at likely and above), checked before editing, and expected to stay unchanged.'
 
 // A tag, ABox facts only (null for TBox and RBox): how the fact sits
 // in time. Standing states count as timeless.

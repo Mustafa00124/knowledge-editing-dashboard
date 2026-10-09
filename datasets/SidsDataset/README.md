@@ -239,9 +239,17 @@ are the safer choice than Pearson.
 ### Derivability
 
 How likely a model is to **derive** the edited fact or rule from other
-knowledge it holds, rather than store it directly. Set for ABox and TBox
-replace and delete; `null` for insert (a new fact can't follow from what the
-model already holds, or it wouldn't be new) and for RBox.
+knowledge it holds, rather than store it directly. The scale runs between
+two ends:
+
+- **Axiomatic (stored):** the model holds the fact directly, as a base
+  claim.
+- **Derived (composed):** the model composes the fact from other knowledge
+  it holds, its premises.
+
+The tag is set for ABox and TBox replace and delete; `null` for insert (a new
+fact can't follow from what the model already holds, or it wouldn't be new)
+and for RBox.
 
 | Value | Score | Example |
 | --- | --- | --- |
@@ -268,10 +276,10 @@ this tag is meant to expose. Rules:
 Like familiarity, the scores are ordinal (`DERIVABILITY_SCORE` in
 `validate.py`, `score` in the dashboard's taxonomy).
 
-> **Derivability is model specific.** Whether a fact is stored or derived
-> really depends on the model: one model may store "the Eiffel Tower is in
-> France" directly, another may work it out from its premises each time, and
-> we can't observe which. The tag is our estimate of how likely a model is to
+> **Derivability is model specific.** Whether a fact is axiomatic (stored)
+> or derived (composed) really depends on the model: one model may store "the
+> Eiffel Tower is in France" directly, another may work it out from its
+> premises each time, and we can't observe which. The tag is our estimate of how likely a model is to
 > derive it, using our own intuition and criteria. Those criteria will be
 > detailed later.
 

@@ -158,7 +158,11 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <ValueList values={FAMILIARITY} />
             <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
             <h4>Derivability <span className="sids-rubric-q">ABox and TBox replace and delete</span></h4>
-            <p>How likely a model is to derive the edited fact from other knowledge rather than store it, scored 1 to 5:</p>
+            <p>
+              How likely a model is to derive the edited fact from other knowledge rather than store it. The scale runs
+              from <strong>axiomatic (stored)</strong>, held directly as a base claim, to{' '}
+              <strong>derived (composed)</strong>, composed from other knowledge the model holds. Scored 1 to 5:
+            </p>
             <ValueList values={DERIVABILITY} />
             <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
             <h4>Temporal <span className="sids-rubric-q">ABox facts only</span></h4>
