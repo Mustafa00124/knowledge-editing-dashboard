@@ -29,6 +29,7 @@ DERIVABILITY = ('axiomatic', 'derived')
 FAMILIARITY_SCORE = {'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5}
 FAMILIARITY = tuple(FAMILIARITY_SCORE)
 FAMILIARITY_TIERS = ('fact', 'subject', 'object')
+TEMPORAL = ('event', 'timeless')
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
@@ -51,7 +52,7 @@ QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
                 'unrelated_near': 2, 'unrelated_far': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'familiarity', 'relation', 'edit', 'queries', 'notes'}
+               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes'}
 EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'}
 QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via'}
@@ -135,6 +136,13 @@ def check_record(rec, path, relations):
             err('relation_semantics must be null for rbox')
         if deriv is not None:
             err('derivability must be null for rbox')
+    # Tag, ABox facts only: rules and relation properties aren't events.
+    temporal = rec['temporal']
+    if box == 'abox':
+        if temporal not in TEMPORAL:
+            err(f'temporal {temporal!r} not one of {TEMPORAL}')
+    elif temporal is not None:
+        err(f'temporal must be null for {box}')
     if op == 'insert' and deriv == 'derived':
         err('insert items are axiomatic: a fact the model can already derive is not new')
 

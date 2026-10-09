@@ -209,6 +209,18 @@ export const FAMILIARITY_TIERS = [
 export const FAMILIARITY_CAVEAT =
   "Familiarity is a proxy: we can't see any model's training data, so the tag is our estimate of how often the knowledge appears in text a model is likely to have seen. The criteria for assigning it will be detailed later."
 
+// A second tag, ABox facts only (null for TBox and RBox): how the fact sits
+// in time. Standing states count as timeless.
+export const TEMPORAL = [
+  { key: 'event', label: 'Event', description: 'Happened at a point in time.', examples: ['Marie Curie discovered radium in 1898.'] },
+  {
+    key: 'timeless',
+    label: 'Timeless',
+    description: 'Not tied to a moment: facts that are always true, and standing states that hold over a period.',
+    examples: ['7 is prime.', 'Paris is the capital of France.'],
+  },
+]
+
 // Dimensions of the earlier axis scheme this version leaves out. Listed so
 // they aren't lost; they may return as separate subsets.
 export const PARKED = [
@@ -217,7 +229,6 @@ export const PARKED = [
   'Connectivity and dependency bands.',
   'Analytic vs synthetic epistemic status.',
   'Puzzle topic: invented mini-worlds where derived queries are pure logic, insert only.',
-  'Temporality (event vs timeless): no clear reason it should change whether an edit succeeds.',
 ]
 
 // A compact human-readable coordinate, e.g.

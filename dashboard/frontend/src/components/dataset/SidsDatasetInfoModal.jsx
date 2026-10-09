@@ -12,6 +12,7 @@ import {
   QUERY_BEHAVIORS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
+  TEMPORAL,
   DERIVABILITY,
   DERIVABILITY_CAVEAT,
   TOPICS,
@@ -149,15 +150,19 @@ export default function SidsDatasetInfoModal({ onClose }) {
           </section>
 
           <section>
-            <h3>Familiarity tag</h3>
+            <h3>Tags</h3>
             <p>
-              Not a layer of the taxonomy: a tag every record carries, for how familiar the knowledge involved is likely
-              to be. Results can be sliced by it within any cell. It is rated in three tiers:
+              Not layers of the taxonomy: tags that describe each record further, so results can be sliced by them
+              within any cell.
             </p>
+            <h4>Familiarity</h4>
+            <p>How familiar the knowledge involved is likely to be, rated in three tiers:</p>
             <ValueList values={FAMILIARITY_TIERS} />
             <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
             <ValueList values={FAMILIARITY} />
             <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
+            <h4>Temporal <span className="sids-rubric-q">ABox facts only</span></h4>
+            <ValueList values={TEMPORAL} />
           </section>
 
           <section>

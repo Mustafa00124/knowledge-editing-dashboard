@@ -219,12 +219,16 @@ is not a consequence of the deleted fact. In practice delete items lean on
 `inverse`, `symmetry` and `composition` queries whose wording names the
 deleted relation.
 
-## Familiarity tag
+## Tags
 
-Every record also carries a `familiarity` tag: how familiar the knowledge
-involved is likely to be to a model. It is **not a level or layer** of the
-taxonomy, just a tag, so it can be used to slice results within any cell
-(does replacing a very familiar fact fail more often than an obscure one?).
+Besides its taxonomy coordinates, every record carries tags. Tags are **not
+levels or layers** of the taxonomy: they describe the item further, so
+results can be sliced by them within any cell.
+
+### Familiarity
+
+How familiar the knowledge involved is likely to be to a model (does
+replacing a very familiar fact fail more often than an obscure one?).
 
 It has three tiers, each taking one of five values:
 
@@ -262,6 +266,16 @@ are the safer choice than Pearson.
 > **Familiarity is a proxy.** We can't see any model's training data, so the
 > tag is our estimate of how often the knowledge appears in text a model is
 > likely to have seen. The criteria for assigning it will be detailed later.
+
+### Temporal
+
+How the fact sits in time. ABox facts only; `null` for TBox and RBox, since
+rules and relation properties aren't events.
+
+| Value | What it is | Example |
+| --- | --- | --- |
+| `event` | Happened at a point in time. | Marie Curie discovered radium in 1898. |
+| `timeless` | Not tied to a moment: facts that are always true, and standing states that hold over a period. | 7 is prime. Paris is the capital of France. |
 
 ## Evaluation
 
@@ -357,6 +371,7 @@ rejected, so typos don't silently drop data.
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `queries` | object | the 12 queries, below |
 | `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
+| `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
 | `notes` | string, optional | |
 
 Each query:
@@ -401,8 +416,6 @@ benchmark buildable. They may come back as separate subsets:
   droven can narp, a mip is a flerm") where derived queries are pure logic
   with no prior knowledge interfering. Insert only, since the model holds
   nothing about them beforehand.
-- **Temporality** (event vs timeless). Dropped because there was no clear
-  reason it should change whether an edit succeeds.
 
 ## Dashboard
 
