@@ -182,13 +182,24 @@ export const QUERY_BEHAVIORS = [
 ]
 
 // A tag every record carries, not a layer of the taxonomy: how familiar the
-// original knowledge (for insert, the edit's subject) is likely to be.
+// knowledge involved is likely to be, rated separately for the fact as a
+// whole and for its subject and object.
 export const FAMILIARITY = [
-  { key: 'very_low', label: 'Very low', example: 'The mayor of a small town.' },
-  { key: 'low', label: 'Low', example: 'The capital of a small province.' },
-  { key: 'medium', label: 'Medium', example: 'The author of a moderately well-known novel.' },
-  { key: 'high', label: 'High', example: 'The capital of Australia.' },
-  { key: 'very_high', label: 'Very high', example: 'The capital of France.' },
+  { key: 'very_low', label: 'Very low', example: 'The mayor of a small town; a small village.' },
+  { key: 'low', label: 'Low', example: 'The capital of a small province; a regional politician.' },
+  { key: 'medium', label: 'Medium', example: 'The author of a moderately well-known novel; a mid-sized city.' },
+  { key: 'high', label: 'High', example: 'The capital of Australia; Lyon.' },
+  { key: 'very_high', label: 'Very high', example: 'The capital of France; France.' },
+]
+
+export const FAMILIARITY_TIERS = [
+  { key: 'fact', label: 'Fact', description: 'The original fact as a whole. Replace and delete; null for insert, which has no original fact.' },
+  { key: 'subject', label: 'Subject', description: "The edit's subject. Always set." },
+  {
+    key: 'object',
+    label: 'Object',
+    description: "The edit's object: the new value for insert and replace, the removed value for delete. Null when the knowledge isn't binary (RBox edits, about one relation).",
+  },
 ]
 
 export const FAMILIARITY_CAVEAT =

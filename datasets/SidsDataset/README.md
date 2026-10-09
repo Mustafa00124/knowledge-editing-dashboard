@@ -221,22 +221,36 @@ deleted relation.
 
 ## Familiarity tag
 
-Every record also carries a `familiarity` tag: how familiar the original
-knowledge is likely to be to a model. It is **not a level or layer** of the
+Every record also carries a `familiarity` tag: how familiar the knowledge
+involved is likely to be to a model. It is **not a level or layer** of the
 taxonomy, just a tag, so it can be used to slice results within any cell
 (does replacing a very familiar fact fail more often than an obscure one?).
 
-| Value | Example original |
-| --- | --- |
-| `very_low` | The mayor of a small town. |
-| `low` | The capital of a small province. |
-| `medium` | The author of a moderately well-known novel. |
-| `high` | The capital of Australia. |
-| `very_high` | The capital of France. |
+It has three tiers, each taking one of five values:
 
-For `insert` there is no original knowledge, so the tag describes how
-familiar the edit's subject is: inserting a new fact about France is a
-different test from inserting one about an obscure village.
+```json
+"familiarity": { "fact": "very_high", "subject": "very_high", "object": "high" }
+```
+
+| Tier | What it rates | When it applies |
+| --- | --- | --- |
+| `fact` | The original fact as a whole (France's capital is Paris). | Replace and delete. Null for insert, which has no original fact. |
+| `subject` | The edit's subject (France). | Always. |
+| `object` | The edit's object: the new value for insert and replace (Lyon), the removed value for delete. | When the edit has an object; null otherwise. |
+
+Only binary knowledge has an object. RBox edits are about one relation
+("`located_in` is transitive"), so they have no `edit.object` and only the
+`fact` and `subject` tiers apply. Separating the tiers lets familiarity of the
+entity be told apart from familiarity of the fact: a very familiar subject
+can still have an obscure fact ("France's national flower").
+
+| Value | Fact example | Entity example |
+| --- | --- | --- |
+| `very_low` | The mayor of a small town. | A small village. |
+| `low` | The capital of a small province. | A regional politician. |
+| `medium` | The author of a moderately well-known novel. | A mid-sized city. |
+| `high` | The capital of Australia. | Lyon. |
+| `very_high` | The capital of France. | France. |
 
 > **Familiarity is a proxy.** We can't see any model's training data, so the
 > tag is our estimate of how often the knowledge appears in text a model is
@@ -329,12 +343,13 @@ rejected, so typos don't silently drop data.
 | `derivability` | `axiomatic` \| `derived` \| null | null for `rbox`; `axiomatic` for insert |
 | `relation` | string | a relation in `RELATIONS.md` |
 | `edit.statement` | string | the edit as one or more sentences |
-| `edit.subject`, `edit.object` | string | for delete, `object` is the removed value |
-| `edit.old_object` | string | replace only, and required there |
+| `edit.subject` | string | |
+| `edit.object` | string | required except for `rbox`, which has none; for delete, the removed value |
+| `edit.old_object` | string | replace only, and required there when the edit has an object |
 | `edit.premises` | string list | derived only, and required there: the facts or rules the edited one follows from |
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `queries` | object | the 12 queries, below |
-| `familiarity` | `very_low` \| `low` \| `medium` \| `high` \| `very_high` | how familiar the original knowledge (for insert, the subject) is likely to be; a tag, not a layer |
+| `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `notes` | string, optional | |
 
 Each query:

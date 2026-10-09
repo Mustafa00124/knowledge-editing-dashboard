@@ -26,6 +26,7 @@ BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
 DERIVABILITY = ('axiomatic', 'derived')
 FAMILIARITY = ('very_low', 'low', 'medium', 'high', 'very_high')
+FAMILIARITY_TIERS = ('fact', 'subject', 'object')
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
@@ -132,8 +133,6 @@ def check_record(rec, path, relations):
             err('relation_semantics must be null for rbox')
         if deriv is not None:
             err('derivability must be null for rbox')
-    if rec['familiarity'] not in FAMILIARITY:
-        err(f'familiarity {rec["familiarity"]!r} not one of {FAMILIARITY}')
     if op == 'insert' and deriv == 'derived':
         err('insert items are axiomatic: a fact the model can already derive is not new')
 
@@ -153,10 +152,14 @@ def check_record(rec, path, relations):
     else:
         for k in sorted(set(edit) - EDIT_KEYS):
             err(f'edit: unknown field {k!r}')
-        for k in ('statement', 'subject', 'object'):
+        for k in ('statement', 'subject'):
             if not is_text(edit.get(k)):
                 err(f'edit.{k} must be a non-empty string')
-        if op == 'replace' and not is_text(edit.get('old_object')):
+        # RBox edits are about one relation and may have no object.
+        if box != 'rbox' or 'object' in edit:
+            if not is_text(edit.get('object')):
+                err('edit.object must be a non-empty string' + ('' if box == 'rbox' else ' (only rbox edits may omit it)'))
+        if op == 'replace' and 'object' in edit and not is_text(edit.get('old_object')):
             err('edit.old_object is required for replace')
         if op != 'replace' and 'old_object' in edit:
             err(f'edit.old_object is only for replace (for {op}, edit.object is the value)')
@@ -165,6 +168,8 @@ def check_record(rec, path, relations):
                 err('edit.premises must list what a derived fact follows from')
         elif 'premises' in edit:
             err('edit.premises is only for derived items')
+
+    errors.extend(check_familiarity(rec['familiarity'], op, isinstance(edit, dict) and 'object' in edit))
 
     queries = rec['queries']
     if not isinstance(queries, dict):
@@ -185,6 +190,22 @@ def check_record(rec, path, relations):
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
+    return errors
+
+
+def check_familiarity(fam, op, has_object):
+    """Three tiers: fact (null for insert), subject (always), object (iff the edit has one)."""
+    if not isinstance(fam, dict) or set(fam) != set(FAMILIARITY_TIERS):
+        return [f'familiarity must be an object with exactly {FAMILIARITY_TIERS}']
+    errors = []
+    applies = {'fact': op != 'insert', 'subject': True, 'object': has_object}
+    for tier in FAMILIARITY_TIERS:
+        value = fam[tier]
+        if applies[tier] and value not in FAMILIARITY:
+            errors.append(f'familiarity.{tier} {value!r} not one of {FAMILIARITY}')
+        elif not applies[tier] and value is not None:
+            why = 'insert has no original fact' if tier == 'fact' else 'the edit has no object'
+            errors.append(f'familiarity.{tier} must be null: {why}')
     return errors
 
 
