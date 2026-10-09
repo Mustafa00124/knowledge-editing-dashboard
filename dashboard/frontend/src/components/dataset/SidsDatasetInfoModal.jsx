@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import {
   BOXES,
   DERIVATIONS,
+  EDITS_PER_CELL_GOAL,
   EDIT_OPERATIONS,
   FAMILIARITY,
   FAMILIARITY_CAVEAT,
@@ -40,6 +41,10 @@ function ValueList({ values }) {
     </dl>
   )
 }
+
+const CELLS = TOPICS.length * EDIT_OPERATIONS.length * KNOWLEDGE_FORMS.length
+const EDITS = CELLS * EDITS_PER_CELL_GOAL
+const QUERIES_PER_EDIT = QUERY_TYPES.reduce((n, q) => n + q.count, 0)
 
 export default function SidsDatasetInfoModal({ onClose }) {
   useEffect(() => {
@@ -165,6 +170,17 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <ul className="sids-questions">
               {PARKED.map((p) => <li key={p}>{p}</li>)}
             </ul>
+          </section>
+
+          <section>
+            <h3>Size goal</h3>
+            <p>
+              Around {CELLS} taxonomy cells: {TOPICS.length} topics × {EDIT_OPERATIONS.length} operations ×{' '}
+              {KNOWLEDGE_FORMS.length} knowledge forms ({BOXES.length} DL boxes, with the {RELATION_SEMANTICS.length}{' '}
+              relation semantics under ABox and TBox only). The goal is {EDITS_PER_CELL_GOAL} edits per cell, so{' '}
+              {EDITS} edits, and {QUERIES_PER_EDIT} queries per edit, so a goal of{' '}
+              <strong>{(EDITS * QUERIES_PER_EDIT).toLocaleString()} queries</strong>.
+            </p>
           </section>
         </div>
       </div>

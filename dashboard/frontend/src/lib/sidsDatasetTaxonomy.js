@@ -94,6 +94,9 @@ export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
 
 // Level 3: the fixed 12 queries every edit carries, and the metric each
 // feeds. Fixing the counts gives every item the same weight in every metric.
+// Target size: edits per taxonomy cell (topic x operation x knowledge form).
+export const EDITS_PER_CELL_GOAL = 5
+
 export const QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
   { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },

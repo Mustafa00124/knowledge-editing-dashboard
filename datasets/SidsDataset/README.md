@@ -426,6 +426,14 @@ benchmark buildable. They may come back as separate subsets:
   with no prior knowledge interfering. Insert only, since the model holds
   nothing about them beforehand.
 
+## Size goal
+
+Around 150 taxonomy cells: 10 topics × 3 operations × 5 knowledge forms (3 DL
+boxes, with the 2 relation semantics under ABox and TBox only). The goal is 5
+edits per cell, so 750 edits, and 12 queries per edit, so a goal of **9,000
+queries**. Cells that don't exist naturally (causal mathematics, causal
+grammar) bring the real total somewhat below that.
+
 ## Dashboard
 
 The machine-readable version of this scheme is
