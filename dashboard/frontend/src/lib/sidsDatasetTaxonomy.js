@@ -181,6 +181,19 @@ export const QUERY_BEHAVIORS = [
   { key: 'unchanged', label: 'Unchanged', description: "Unrelated queries. Correct if the post-edit answer matches the model's own pre-edit answer." },
 ]
 
+// A tag every record carries, not a layer of the taxonomy: how familiar the
+// original knowledge (for insert, the edit's subject) is likely to be.
+export const FAMILIARITY = [
+  { key: 'very_low', label: 'Very low', example: 'The mayor of a small town.' },
+  { key: 'low', label: 'Low', example: 'The capital of a small province.' },
+  { key: 'medium', label: 'Medium', example: 'The author of a moderately well-known novel.' },
+  { key: 'high', label: 'High', example: 'The capital of Australia.' },
+  { key: 'very_high', label: 'Very high', example: 'The capital of France.' },
+]
+
+export const FAMILIARITY_CAVEAT =
+  "Familiarity is a proxy: we can't see any model's training data, so the tag is our estimate of how often the knowledge appears in text a model is likely to have seen. The criteria for assigning it will be detailed later."
+
 // Dimensions of the earlier axis scheme this version leaves out. Listed so
 // they aren't lost; they may return as separate subsets.
 export const PARKED = [

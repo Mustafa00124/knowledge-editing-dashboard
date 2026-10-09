@@ -3,6 +3,8 @@ import {
   BOXES,
   DERIVATIONS,
   EDIT_OPERATIONS,
+  FAMILIARITY,
+  FAMILIARITY_CAVEAT,
   KNOWLEDGE_FORMS,
   METRICS,
   PARKED,
@@ -143,6 +145,16 @@ export default function SidsDatasetInfoModal({ onClose }) {
               ))}
             </dl>
             <ValueList values={QUERY_BEHAVIORS} />
+          </section>
+
+          <section>
+            <h3>Familiarity tag</h3>
+            <p>
+              Not a layer of the taxonomy: a tag every record carries, for how familiar the original knowledge is likely
+              to be (for insert, how familiar the edit's subject is). Results can be sliced by it within any cell.
+            </p>
+            <ValueList values={FAMILIARITY} />
+            <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
           </section>
 
           <section>

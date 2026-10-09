@@ -25,6 +25,7 @@ TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
 DERIVABILITY = ('axiomatic', 'derived')
+FAMILIARITY = ('very_low', 'low', 'medium', 'high', 'very_high')
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
@@ -47,7 +48,7 @@ QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
                 'unrelated_near': 2, 'unrelated_far': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'relation', 'edit', 'queries', 'notes'}
+               'derivability', 'familiarity', 'relation', 'edit', 'queries', 'notes'}
 EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'}
 QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via'}
@@ -131,6 +132,8 @@ def check_record(rec, path, relations):
             err('relation_semantics must be null for rbox')
         if deriv is not None:
             err('derivability must be null for rbox')
+    if rec['familiarity'] not in FAMILIARITY:
+        err(f'familiarity {rec["familiarity"]!r} not one of {FAMILIARITY}')
     if op == 'insert' and deriv == 'derived':
         err('insert items are axiomatic: a fact the model can already derive is not new')
 

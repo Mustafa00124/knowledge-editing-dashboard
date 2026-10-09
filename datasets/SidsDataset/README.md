@@ -219,6 +219,29 @@ is not a consequence of the deleted fact. In practice delete items lean on
 `inverse`, `symmetry` and `composition` queries whose wording names the
 deleted relation.
 
+## Familiarity tag
+
+Every record also carries a `familiarity` tag: how familiar the original
+knowledge is likely to be to a model. It is **not a level or layer** of the
+taxonomy, just a tag, so it can be used to slice results within any cell
+(does replacing a very familiar fact fail more often than an obscure one?).
+
+| Value | Example original |
+| --- | --- |
+| `very_low` | The mayor of a small town. |
+| `low` | The capital of a small province. |
+| `medium` | The author of a moderately well-known novel. |
+| `high` | The capital of Australia. |
+| `very_high` | The capital of France. |
+
+For `insert` there is no original knowledge, so the tag describes how
+familiar the edit's subject is: inserting a new fact about France is a
+different test from inserting one about an obscure village.
+
+> **Familiarity is a proxy.** We can't see any model's training data, so the
+> tag is our estimate of how often the knowledge appears in text a model is
+> likely to have seen. The criteria for assigning it will be detailed later.
+
 ## Evaluation
 
 We use our own evaluation functions rather than EasyEdit's, because delete
@@ -311,6 +334,7 @@ rejected, so typos don't silently drop data.
 | `edit.premises` | string list | derived only, and required there: the facts or rules the edited one follows from |
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `queries` | object | the 12 queries, below |
+| `familiarity` | `very_low` \| `low` \| `medium` \| `high` \| `very_high` | how familiar the original knowledge (for insert, the subject) is likely to be; a tag, not a layer |
 | `notes` | string, optional | |
 
 Each query:
