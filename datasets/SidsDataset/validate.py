@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent
 
 EDIT_OPERATIONS = ('insert', 'replace', 'delete')
 TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
-          'mathematics', 'grammar', 'literature_arts')
+          'mathematics', 'grammar', 'literature_arts', 'technology')
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
 # Records store the words; analysis uses these ordinal scores (1 to 5).

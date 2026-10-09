@@ -33,6 +33,7 @@ export const TOPICS = [
   { key: 'mathematics', label: 'Mathematics' },
   { key: 'grammar', label: 'Grammar' },
   { key: 'literature_arts', label: 'Literature and arts' },
+  { key: 'technology', label: 'Technology' },
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.

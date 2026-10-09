@@ -152,6 +152,20 @@ symmetric word relations. Causal cells stay empty.
 | `sequel_of` | a is the sequel of b | associative | `asymmetric`, `inverse:prequel_of`, `functional` | The Two Towers is the sequel of The Fellowship of the Ring. |
 | `inspired` | work a inspired work b | causal | `causal`, `asymmetric`, `inverse:inspired_by`, `cardinality:many` | The Odyssey inspired Joyce's Ulysses. |
 
+### Technology
+
+Stable facts only: who created something, what it is written in, what came
+before it. Avoid facts that change quickly (current CEOs, latest versions,
+market share), since replace needs an original every model holds as true.
+
+| Relation | Reads as | Semantics | Tags | Example |
+| --- | --- | --- | --- | --- |
+| `created_by` | a was created by b | associative | `inverse:created`, `cardinality:many` | Linux was created by Linus Torvalds. |
+| `written_in` | software a is written in language b | associative | `inverse:used_to_write`, `cardinality:many` | Linux is written in C. |
+| `successor_of` | a is the direct successor of b | associative | `asymmetric`, `inverse:predecessor_of`, `functional` | Windows 11 is the successor of Windows 10. |
+| `invented` | a invented b | associative | `asymmetric`, `inverse:invented_by` | Tim Berners-Lee invented the World Wide Web. |
+| `enabled` | technology a made technology b possible | causal | `causal`, `asymmetric`, `inverse:enabled_by`, `cardinality:many` | The transistor enabled the integrated circuit. |
+
 ## RBox items
 
 An RBox item edits a tag itself, so its derived queries are instances of the

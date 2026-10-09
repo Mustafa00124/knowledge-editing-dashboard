@@ -45,7 +45,8 @@ exists under some boxes.
 
 **Topic.** `geography`, `people` (facts about famous people), `history`,
 `finance` (including textbook economic laws), `biology` (including medicine),
-`physics`, `mathematics`, `grammar`, `literature_arts`. A diversity control, so a finding about rules
+`physics`, `mathematics`, `grammar`, `literature_arts`, `technology` (stable
+facts only). A diversity control, so a finding about rules
 isn't secretly a finding about mathematics. It also keeps the records
 organized for browsing.
 
@@ -81,7 +82,7 @@ operation:
 | TBox | causal, associative |
 | RBox | |
 
-So 3 operations × 9 topics × 5 forms = 135 cells. Not every cell exists
+So 3 operations × 10 topics × 5 forms = 150 cells. Not every cell exists
 naturally: mathematics and grammar have no causal knowledge. Those cells stay
 empty rather than being filled with forced examples, and comparisons across
 topics should only use cells both topics have.
@@ -365,7 +366,7 @@ rejected, so typos don't silently drop data.
 | --- | --- | --- |
 | `id` | string | `<topic>-<edit_operation>-NNNN`, same as the file name |
 | `edit_operation` | `insert` \| `replace` \| `delete` | |
-| `topic` | one of the 9 topic keys | |
+| `topic` | one of the 10 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
 | `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
 | `relation` | string | a relation in `RELATIONS.md` |
