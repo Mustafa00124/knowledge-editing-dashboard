@@ -24,7 +24,7 @@ TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
           'mathematics', 'grammar', 'literature_arts', 'puzzle')
 BOXES = ('abox', 'tbox', 'rbox')
 RELATION_SEMANTICS = ('causal', 'associative')
-TEMPORALITY = ('event', 'timeless')
+DERIVABILITY = ('axiomatic', 'derived')
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
@@ -47,8 +47,8 @@ QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
                 'unrelated_near': 2, 'unrelated_far': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'temporality', 'relation', 'edit', 'queries', 'notes'}
-EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'axiom'}
+               'derivability', 'relation', 'edit', 'queries', 'notes'}
+EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'}
 QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via'}
 
@@ -120,17 +120,19 @@ def check_record(rec, path, relations):
         err(f'file should live in records/{topic}/{op}/')
 
     # Knowledge-form layers the box doesn't have are null.
-    sem, temp = rec['relation_semantics'], rec['temporality']
+    sem, deriv = rec['relation_semantics'], rec['derivability']
     if box in ('abox', 'tbox'):
         if sem not in RELATION_SEMANTICS:
             err(f'relation_semantics {sem!r} not one of {RELATION_SEMANTICS}')
-    elif sem is not None:
-        err('relation_semantics must be null for rbox')
-    if box == 'abox':
-        if temp not in TEMPORALITY:
-            err(f'temporality {temp!r} not one of {TEMPORALITY}')
-    elif temp is not None:
-        err(f'temporality must be null for {box}')
+        if deriv not in DERIVABILITY:
+            err(f'derivability {deriv!r} not one of {DERIVABILITY}')
+    else:
+        if sem is not None:
+            err('relation_semantics must be null for rbox')
+        if deriv is not None:
+            err('derivability must be null for rbox')
+    if op == 'insert' and deriv == 'derived':
+        err('insert items are axiomatic: a fact the model can already derive is not new')
     if topic == 'puzzle' and op != 'insert':
         err('puzzle items are insert only')
 
@@ -157,6 +159,11 @@ def check_record(rec, path, relations):
             err('edit.old_object is required for replace')
         if op != 'replace' and 'old_object' in edit:
             err(f'edit.old_object is only for replace (for {op}, edit.object is the value)')
+        if deriv == 'derived':
+            if not (is_text_list(edit.get('premises')) and edit['premises']):
+                err('edit.premises must list what a derived fact follows from')
+        elif 'premises' in edit:
+            err('edit.premises is only for derived items')
 
     queries = rec['queries']
     if not isinstance(queries, dict):

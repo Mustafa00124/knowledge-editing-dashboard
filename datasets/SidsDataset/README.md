@@ -10,7 +10,7 @@ properties and the derived questions each property licenses live in
 Published editing benchmarks test a fairly narrow notion of knowledge, mostly
 simple factual triples, and measure generalization with paraphrases. This one
 spans a wider range of knowledge (facts, rules, properties of relations,
-causal and associative, events and standing facts) and measures
+causal and associative, axiomatic and derived) and measures
 generalization with questions that *logically follow* from the edit, so a
 method can't pass by matching the surface form of the edit.
 
@@ -24,7 +24,7 @@ Edit operation  >  Knowledge form  >  Query type
 insert            topic               direct        (1)
 replace           box                 paraphrase    (1)
 delete            relation semantics  cross-lingual (2: zh, es)
-                  temporality         derived       (4)
+                  derivability        derived       (4)
                                       unrelated     (2 near + 2 far)
 ```
 
@@ -73,28 +73,45 @@ relation (`causes`, `prevents`) with its own properties in `RELATIONS.md`.
 Causation is not transitive in general, so chained causal derivations are
 only used where the chain is well established.
 
-**Temporality** (`abox` only; `null` otherwise):
+**Derivability** (`abox` and `tbox` only; `null` for `rbox`): whether the
+edited fact or rule is a base claim or a consequence of others.
 
-| Key | What it is | Example |
+| Key | What it is | ABox example | TBox example |
+| --- | --- | --- | --- |
+| `axiomatic` | Stated directly; nothing else the model knows entails it. | Paris is the capital of France. | Every square is a rectangle. |
+| `derived` | Follows from other facts or rules the model holds (its `premises`). | The Eiffel Tower is in France (it is in Paris, and Paris is in France). | Every square is a polygon (every square is a rectangle, every rectangle is a polygon). |
+
+Editing a derived fact leaves its premises pointing at the old answer, so the
+model may re-derive it and slide back. That is the failure this layer is
+meant to expose. Rules for derived items:
+
+- **Replace and delete only.** Inserting a fact the model can already derive
+  adds nothing, so `insert` items are always `axiomatic`, and so is every
+  puzzle item.
+- **Premises are listed** in `edit.premises` and checked before editing, like
+  bridge facts: if the model doesn't hold them, it can't derive the fact, and
+  the item is dropped for that model.
+- **Premises stay unchanged.** The edit asks only for the conclusion to
+  change, so premises are expected to keep their answers; ask them as the
+  near unrelated queries (the derived template does). The result is a
+  deliberately inconsistent world, and whether the model holds the edit
+  anyway or reverts to what its premises imply is the finding.
+
+That gives 9 knowledge-form leaves per topic:
+
+| Box | Relation semantics | Derivability |
 | --- | --- | --- |
-| `event` | Happened at a point in time. | Marie Curie discovered radium in 1898. |
-| `timeless` | Not tied to a moment. Covers facts that are always true *and* standing states that hold over a period. | 7 is prime. Paris is the capital of France. |
-
-That gives 7 knowledge-form leaves per topic:
-
-| Box | Relation semantics | Temporality |
-| --- | --- | --- |
-| ABox | causal | event, timeless |
-| ABox | associative | event, timeless |
-| TBox | causal | |
-| TBox | associative | |
+| ABox | causal | axiomatic, derived |
+| ABox | associative | axiomatic, derived |
+| TBox | causal | axiomatic, derived |
+| TBox | associative | axiomatic, derived |
 | RBox | | |
 
-So 3 operations × 10 topics × 7 forms = 210 cells. Not every cell exists
-naturally: mathematics and grammar have no causal knowledge, and puzzle is
-insert only. Those cells stay empty rather than being filled with forced
-examples, and comparisons across topics should only use cells both topics
-have.
+With insert limited to the 5 axiomatic leaves, that is 5 + 9 + 9 = 23 cells
+per topic, 230 in all. Not every cell exists naturally: mathematics and
+grammar have no causal knowledge, and puzzle has only the insert cells. Those
+cells stay empty rather than being filled with forced examples, and
+comparisons across topics should only use cells both topics have.
 
 ### 3. Query type
 
@@ -281,11 +298,12 @@ rejected, so typos don't silently drop data.
 | `topic` | one of the 10 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
 | `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
-| `temporality` | `event` \| `timeless` \| null | null unless `abox` |
+| `derivability` | `axiomatic` \| `derived` \| null | null for `rbox`; `axiomatic` for insert |
 | `relation` | string | a relation in `RELATIONS.md` |
 | `edit.statement` | string | the edit as one or more sentences |
 | `edit.subject`, `edit.object` | string | for delete, `object` is the removed value |
 | `edit.old_object` | string | replace only, and required there |
+| `edit.premises` | string list | derived only, and required there: the facts or rules the edited one follows from |
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `queries` | object | the 12 queries, below |
 | `notes` | string, optional | |
@@ -312,8 +330,9 @@ the relation it uses, that `functional` appears only under replace,
 `inheritance` only for TBox, `instantiation` only (and always) for RBox, and
 that transitivity, chain, composition and inheritance have a bridge fact.
 
-The two templates in `examples/` are complete, valid records: a replace
-(`geography-replace-0001`) and a delete (`geography-delete-0001`).
+The templates in `examples/` are complete, valid records: an axiomatic
+replace (`geography-replace-0001`), an axiomatic delete
+(`geography-delete-0001`), and a derived replace (`geography-replace-0002`).
 
 ## Parked from the previous version
 
@@ -327,6 +346,8 @@ benchmark buildable. They may come back as separate subsets:
   happiness, Zorblin, XQ7-19B).
 - **Connectivity and dependency** bands.
 - **Analytic vs synthetic** epistemic status.
+- **Temporality** (event vs timeless). Dropped because there was no clear
+  reason it should change whether an edit succeeds.
 
 ## Dashboard
 

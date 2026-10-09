@@ -1,0 +1,67 @@
+{
+  "id": "geography-replace-0002",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "abox",
+  "relation_semantics": "associative",
+  "derivability": "derived",
+  "relation": "located_in",
+  "edit": {
+    "statement": "The Eiffel Tower is in Italy.",
+    "subject": "The Eiffel Tower",
+    "object": "Italy",
+    "old_object": "France",
+    "premises": ["The Eiffel Tower is in Paris.", "Paris is in France."]
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Which country is the Eiffel Tower in?",
+      "behavior": "answer", "expected": "Italy", "forbidden": ["France"]
+    },
+    "paraphrase": {
+      "prompt": "In what country does the Eiffel Tower stand?",
+      "behavior": "answer", "expected": "Italy", "forbidden": ["France"]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh", "prompt": "埃菲尔铁塔位于哪个国家？",
+        "behavior": "answer", "expected": "意大利", "aliases": ["Italy"], "forbidden": ["法国", "France"]
+      },
+      {
+        "language": "es", "prompt": "¿En qué país está la Torre Eiffel?",
+        "behavior": "answer", "expected": "Italia", "aliases": ["Italy"], "forbidden": ["Francia", "France"]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "What is the official language of the country the Eiffel Tower is in?",
+        "behavior": "answer", "expected": "Italian", "forbidden": ["French"],
+        "derivation": "composition", "hops": 2, "bridge": ["Italian is the official language of Italy."]
+      },
+      {
+        "prompt": "What is the capital of the country the Eiffel Tower is in?",
+        "behavior": "answer", "expected": "Rome", "forbidden": ["Paris"],
+        "derivation": "composition", "hops": 2, "bridge": ["Rome is the capital of Italy."]
+      },
+      {
+        "prompt": "What is the international dialling code of the country where the Eiffel Tower is?",
+        "behavior": "answer", "expected": "+39", "forbidden": ["+33"],
+        "derivation": "composition", "hops": 2, "bridge": ["Italy's international dialling code is +39."]
+      },
+      {
+        "prompt": "On which continent is the Eiffel Tower?",
+        "behavior": "answer", "expected": "Europe",
+        "derivation": "transitivity", "hops": 2, "bridge": ["Italy is in Europe."]
+      }
+    ],
+    "unrelated_near": [
+      { "prompt": "Which city is the Eiffel Tower in?", "behavior": "unchanged", "expected": "Paris" },
+      { "prompt": "Which country is Paris in?", "behavior": "unchanged", "expected": "France" }
+    ],
+    "unrelated_far": [
+      { "prompt": "How many legs does a spider have?", "behavior": "unchanged", "expected": "8" },
+      { "prompt": "Who composed the Four Seasons?", "behavior": "unchanged", "expected": "Antonio Vivaldi" }
+    ]
+  },
+  "notes": "Template. Derived: the edited fact follows from its premises (tower in Paris, Paris in France), which are asked as the near unrelated queries and should stay unchanged. Whether the model holds the edit or reverts to what the premises imply is the point."
+}

@@ -1,7 +1,7 @@
 // Sid's own benchmark: the categorization scheme, ahead of any actual records.
 //
 // Three levels: edit operation, then knowledge form (topic > box > relation
-// semantics > temporality, where the last two only exist under some boxes),
+// semantics > derivability, where the last two only exist under some boxes),
 // then a fixed set of 12 queries per edit. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
@@ -37,7 +37,7 @@ export const TOPICS = [
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
-// `semantics` and `temporality` say which of the next layers exist under each
+// `semantics` and `derivability` say which of the next layers exist under each
 // box; a record stores null for a layer its box doesn't have.
 export const BOXES = [
   {
@@ -47,7 +47,7 @@ export const BOXES = [
     description: 'Facts about particular individuals.',
     examples: ['Paris is the capital of France.'],
     semantics: true,
-    temporality: true,
+    derivability: true,
   },
   {
     key: 'tbox',
@@ -56,7 +56,7 @@ export const BOXES = [
     description: 'Rules about classes: every C is (or does) D. One edit should move every individual it covers.',
     examples: ['Every capital is a city.', 'Smoking causes lung cancer.'],
     semantics: true,
-    temporality: false,
+    derivability: true,
   },
   {
     key: 'rbox',
@@ -65,7 +65,7 @@ export const BOXES = [
     description: 'Properties of relations themselves. Editing one changes what can be derived from every fact using that relation.',
     examples: ['"Located in" is transitive.', '"Sibling of" is symmetric.'],
     semantics: false,
-    temporality: false,
+    derivability: false,
   },
 ]
 
@@ -87,30 +87,33 @@ export const RELATION_SEMANTICS = [
   },
 ]
 
-// Level 2, fourth layer (ABox only). Standing states such as "Paris is the
-// capital of France" count as timeless.
-export const TEMPORALITY = [
+// Level 2, fourth layer (ABox and TBox only). Editing a derived fact leaves
+// its premises pointing at the old answer, so the model may re-derive it and
+// slide back. Insert is always axiomatic: a fact the model can already derive
+// is not new.
+export const DERIVABILITY = [
   {
-    key: 'event',
-    label: 'Event',
-    description: 'Happened at a point in time.',
-    examples: ['Marie Curie discovered radium in 1898.'],
+    key: 'axiomatic',
+    label: 'Axiomatic',
+    description: 'Stated directly; nothing else the model knows entails it.',
+    examples: ['Paris is the capital of France.', 'Every square is a rectangle.'],
   },
   {
-    key: 'timeless',
-    label: 'Timeless',
-    description: 'Not tied to a moment: facts that are always true, and standing states that hold over a period.',
-    examples: ['7 is prime.', 'Paris is the capital of France.'],
+    key: 'derived',
+    label: 'Derived',
+    description: 'Follows from other facts or rules the model holds (its premises), which are checked before editing and expected to stay unchanged. Replace and delete only.',
+    examples: ['The Eiffel Tower is in France.', 'Every square is a polygon.'],
   },
 ]
 
-// Every leaf of level 2 below topic: 4 ABox + 2 TBox + 1 RBox = 7 per topic.
+// Every leaf of level 2 below topic: 4 ABox + 4 TBox + 1 RBox = 9 per topic
+// (insert only has the 5 axiomatic ones).
 export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
   (box.semantics ? RELATION_SEMANTICS : [null]).flatMap((sem) =>
-    (box.temporality ? TEMPORALITY : [null]).map((temp) => ({
+    (box.derivability ? DERIVABILITY : [null]).map((deriv) => ({
       box: box.key,
       relation_semantics: sem?.key ?? null,
-      temporality: temp?.key ?? null,
+      derivability: deriv?.key ?? null,
     })),
   ),
 )
@@ -181,14 +184,15 @@ export const PARKED = [
   'Edit representation: confusing or distractor-heavy phrasings, and the degraded-coherence grounding ladder.',
   'Connectivity and dependency bands.',
   'Analytic vs synthetic epistemic status.',
+  'Temporality (event vs timeless): no clear reason it should change whether an edit succeeds.',
 ]
 
 // A compact human-readable coordinate, e.g.
-// "replace · geography · abox/associative/timeless".
+// "replace · geography · abox/associative/derived".
 export function coordinateSummary(coordinate) {
   return [
     coordinate.edit_operation,
     coordinate.topic,
-    [coordinate.box, coordinate.relation_semantics, coordinate.temporality].filter(Boolean).join('/'),
+    [coordinate.box, coordinate.relation_semantics, coordinate.derivability].filter(Boolean).join('/'),
   ].join(' · ')
 }

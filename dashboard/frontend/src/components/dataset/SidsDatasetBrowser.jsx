@@ -4,14 +4,14 @@ import {
   EDIT_OPERATIONS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
-  TEMPORALITY,
+  DERIVABILITY,
   TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
 // No records exist yet (see datasets/SidsDataset/README.md), so this browses
 // the categorization itself: edit operation, then the knowledge form layers
-// (topic, box, and relation semantics / temporality where the box has them),
+// (topic, box, and relation semantics / derivability where the box has them),
 // then the fixed query set every edit carries. Explanations of each layer
 // live in SidsDatasetInfoModal (the "?"), not here. Swap this for the generic
 // subsets-based UI in Datasets.jsx once real records are registered in
@@ -40,7 +40,7 @@ export default function SidsDatasetBrowser() {
     topic: TOPICS[0].key,
     box: BOXES[0].key,
     relation_semantics: RELATION_SEMANTICS[0].key,
-    temporality: TEMPORALITY[0].key,
+    derivability: DERIVABILITY[0].key,
   })
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
 
@@ -49,7 +49,7 @@ export default function SidsDatasetBrowser() {
   const recordCoordinate = {
     ...coordinate,
     relation_semantics: box.semantics ? coordinate.relation_semantics : null,
-    temporality: box.temporality ? coordinate.temporality : null,
+    derivability: box.derivability ? coordinate.derivability : null,
   }
 
   return (
@@ -70,8 +70,11 @@ export default function SidsDatasetBrowser() {
         </>
       )}
 
-      {box.temporality && (
-        <TabRow label="Temporality" values={TEMPORALITY} selected={coordinate.temporality} onSelect={set('temporality')} />
+      {box.derivability && (
+        <>
+          <p className="sids-group-label">Derivability</p>
+          <TabRow label="Derivability" values={DERIVABILITY} selected={coordinate.derivability} onSelect={set('derivability')} />
+        </>
       )}
 
       <p className="sids-group-label">Queries <span>{QUERY_TYPES.reduce((n, q) => n + q.count, 0)} per edit</span></p>

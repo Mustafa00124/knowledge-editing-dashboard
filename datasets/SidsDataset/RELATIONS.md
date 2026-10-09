@@ -63,7 +63,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `sibling_of` | a is a sibling of b | associative | `symmetric`, `cardinality:many` | Billy is a sibling of Manny. |
 | `parent_of` | a is a parent of b | associative | `asymmetric`, `inverse:child_of`, `chain:parent_of->grandparent_of`, `cardinality:many` | Ann is Billy's parent. |
 | `spouse_of` | a is married to b | associative | `symmetric`, `functional` | Pierre was married to Marie Curie. |
-| `born_in` | a was born in b | associative, event | `chain:located_in->born_in` | Marie Curie was born in Warsaw. |
+| `born_in` | a was born in b | associative | `chain:located_in->born_in` | Marie Curie was born in Warsaw. |
 | `citizen_of` | a is a citizen of b | associative | `cardinality:many` | Einstein was a citizen of Switzerland. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
@@ -73,10 +73,10 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
-| `founded` | a founded b | associative, event | `asymmetric`, `inverse:founded_by` | Augustus founded the Roman Empire. |
-| `succeeded` | a succeeded b (in an office) | associative, event | `asymmetric`, `inverse:preceded_by` | Truman succeeded Roosevelt. |
-| `assassinated` | a assassinated b | associative, event | `asymmetric`, `inverse:assassinated_by` | Booth assassinated Lincoln. |
-| `caused` | event a caused event b | causal, event | `asymmetric`, `inverse:caused_by`, `causal` | The assassination of Franz Ferdinand caused the First World War. |
+| `founded` | a founded b | associative | `asymmetric`, `inverse:founded_by` | Augustus founded the Roman Empire. |
+| `succeeded` | a succeeded b (in an office) | associative | `asymmetric`, `inverse:preceded_by` | Truman succeeded Roosevelt. |
+| `assassinated` | a assassinated b | associative | `asymmetric`, `inverse:assassinated_by` | Booth assassinated Lincoln. |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | The assassination of Franz Ferdinand caused the First World War. |
 
 ### Finance
 
@@ -86,11 +86,11 @@ Includes the textbook economic laws as causal TBox rules.
 | --- | --- | --- | --- | --- |
 | `subsidiary_of` | a is a subsidiary of b | associative | `transitive`, `asymmetric`, `inverse:parent_company_of` | Instagram is a subsidiary of Meta. |
 | `has_ceo` | a's CEO is b | associative | `functional`, `inverse:ceo_of` | Apple's CEO is Tim Cook. |
-| `acquired` | a acquired b | associative, event | `asymmetric`, `inverse:acquired_by` | Microsoft acquired LinkedIn. |
+| `acquired` | a acquired b | associative | `asymmetric`, `inverse:acquired_by` | Microsoft acquired LinkedIn. |
 | `has_currency` | a's currency is b | associative | `functional`, `inverse:currency_of` | Japan's currency is the yen. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | A rise in demand raises prices. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | A rise in supply lowers prices. |
-| `caused` | event a caused event b | causal, event | `causal`, `asymmetric`, `inverse:caused_by` | The 2008 crisis caused Lehman Brothers to collapse. |
+| `caused` | event a caused event b | causal | `causal`, `asymmetric`, `inverse:caused_by` | The 2008 crisis caused Lehman Brothers to collapse. |
 
 ### Biology
 
@@ -110,7 +110,7 @@ Includes medicine: diseases, drugs, treatments.
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
 | `measured_in` | quantity a is measured in SI unit b | associative | `functional`, `inverse:unit_of` | Force is measured in newtons. |
-| `discovered` | a discovered b | associative, event | `asymmetric`, `inverse:discovered_by` | Chadwick discovered the neutron. |
+| `discovered` | a discovered b | associative | `asymmetric`, `inverse:discovered_by` | Chadwick discovered the neutron. |
 | `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | A changing magnetic field causes an electric current. |
 
 ### Mathematics
@@ -124,7 +124,7 @@ stay empty.
 | `greater_than` | a is greater than b | associative | `transitive`, `asymmetric`, `inverse:less_than` | 9 is greater than 7. |
 | `divides` | a divides b (a ≠ b) | associative | `transitive`, `asymmetric`, `inverse:multiple_of`, `cardinality:many` | 3 divides 12. |
 | `equals` | a equals b | associative | `symmetric`, `transitive` | The square root of 81 equals 9. |
-| `proved` | a proved theorem b | associative, event | `asymmetric`, `inverse:proved_by` | Andrew Wiles proved Fermat's Last Theorem. |
+| `proved` | a proved theorem b | associative | `asymmetric`, `inverse:proved_by` | Andrew Wiles proved Fermat's Last Theorem. |
 
 ### Grammar
 
@@ -145,9 +145,9 @@ symmetric word relations. Causal cells stay empty.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
-| `written_by` | work a was written by b | associative, event | `functional`, `inverse:author_of` | Hamlet was written by Shakespeare. |
-| `painted_by` | painting a was painted by b | associative, event | `functional`, `inverse:painted` | The Mona Lisa was painted by Leonardo da Vinci. |
-| `directed_by` | film a was directed by b | associative, event | `functional`, `inverse:directed` | Jaws was directed by Steven Spielberg. |
+| `written_by` | work a was written by b | associative | `functional`, `inverse:author_of` | Hamlet was written by Shakespeare. |
+| `painted_by` | painting a was painted by b | associative | `functional`, `inverse:painted` | The Mona Lisa was painted by Leonardo da Vinci. |
+| `directed_by` | film a was directed by b | associative | `functional`, `inverse:directed` | Jaws was directed by Steven Spielberg. |
 | `character_in` | a is a character in b | associative | `inverse:has_character`, `cardinality:many` | Ophelia is a character in Hamlet. |
 | `sequel_of` | a is the sequel of b | associative | `asymmetric`, `inverse:prequel_of`, `functional` | The Two Towers is the sequel of The Fellowship of the Ring. |
 | `inspired` | work a inspired work b | causal | `causal`, `asymmetric`, `inverse:inspired_by`, `cardinality:many` | The Odyssey inspired Joyce's Ulysses. |

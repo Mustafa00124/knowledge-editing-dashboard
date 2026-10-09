@@ -9,7 +9,7 @@ import {
   QUERY_BEHAVIORS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
-  TEMPORALITY,
+  DERIVABILITY,
   TOPICS,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
@@ -35,6 +35,10 @@ function ValueList({ values }) {
     </dl>
   )
 }
+
+// Insert has no derived forms: a fact the model can already derive is not new.
+const axiomaticForms = KNOWLEDGE_FORMS.filter((f) => f.derivability !== 'derived').length
+const cellsPerTopic = axiomaticForms + (EDIT_OPERATIONS.length - 1) * KNOWLEDGE_FORMS.length
 
 export default function SidsDatasetInfoModal({ onClose }) {
   useEffect(() => {
@@ -95,12 +99,12 @@ export default function SidsDatasetInfoModal({ onClose }) {
               <ValueList values={RELATION_SEMANTICS} />
             </div>
             <div className="sids-axis">
-              <h4>Temporality <span className="sids-rubric-q">ABox only</span></h4>
-              <ValueList values={TEMPORALITY} />
+              <h4>Derivability <span className="sids-rubric-q">ABox and TBox only; insert is always axiomatic</span></h4>
+              <ValueList values={DERIVABILITY} />
             </div>
             <p className="dataset-note">
-              {KNOWLEDGE_FORMS.length} forms per topic, so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
-              × {KNOWLEDGE_FORMS.length} forms = {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
+              {KNOWLEDGE_FORMS.length} forms per topic. Insert only has the {axiomaticForms} axiomatic ones, so{' '}
+              {cellsPerTopic} cells per topic and {cellsPerTopic * TOPICS.length} in all.
             </p>
           </section>
 
