@@ -1,8 +1,10 @@
 # Relations catalogue
 
 The relations Sid's Dataset uses, their properties, and the derived questions
-each property licenses. Each item's `relation_tags` are copied from here, and
-its 4 derived queries are built from the templates below. This is a starter
+each property licenses. This is the only place a relation's tags are
+defined: records name just the relation, and each record's 4 derived queries
+are built from the templates below. A relation listed under several topics
+must carry the same tags in each. This is a starter
 list: add relations as records need them, and keep the tags honest (a
 property only goes in if it holds for every pair the dataset will use).
 

@@ -135,9 +135,9 @@ finding.
 
 #### Derived queries
 
-What can be derived depends on the relation's properties, recorded as
-`relation_tags` on each item. `RELATIONS.md` lists each relation's tags and
-the question template each tag gives. Summary:
+What can be derived depends on the relation's properties. A record names
+only its `relation`; `RELATIONS.md` is the one place each relation's tags are
+defined, along with the question template each tag gives. Summary:
 
 | Derivation | Comes from | Example |
 | --- | --- | --- |
@@ -257,8 +257,9 @@ operation; ids are never reused.
    `records/<topic>/<edit_operation>/`, and rename it to the next free id
    (`id` and the file name must match).
 2. Fill in the coordinates, the relation (it must be in `RELATIONS.md`; add
-   it there first if not, and copy its tags exactly), the edit, and the 12
-   queries.
+   it there first if not), the edit, and the 12 queries. The relation's tags
+   are not copied into the record; code that needs them looks them up with
+   `load_relations()` in `validate.py`.
 3. Run the validator from the project root:
 
    ```bash
@@ -282,7 +283,6 @@ rejected, so typos don't silently drop data.
 | `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
 | `temporality` | `event` \| `timeless` \| null | null unless `abox` |
 | `relation` | string | a relation in `RELATIONS.md` |
-| `relation_tags` | string list | exactly that relation's tags (not checked for `rbox`, whose edit changes them) |
 | `edit.statement` | string | the edit as one or more sentences |
 | `edit.subject`, `edit.object` | string | for delete, `object` is the removed value |
 | `edit.old_object` | string | replace only, and required there |

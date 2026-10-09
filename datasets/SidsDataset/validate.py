@@ -2,8 +2,9 @@
 """Validate Sid's Dataset records against the spec in README.md.
 
 One JSON file per edit, at records/<topic>/<edit_operation>/<id>.json, plus
-the flat templates in examples/. Relation tags are checked against the tables
-in RELATIONS.md, which stays the source of truth for them.
+the flat templates in examples/. Records name only their relation; its
+properties are looked up in the RELATIONS.md tables (load_relations), the one
+place they are defined.
 
     python datasets/SidsDataset/validate.py            # records/ and examples/
     python datasets/SidsDataset/validate.py FILE ...   # just these files
@@ -46,7 +47,7 @@ QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
                 'unrelated_near': 2, 'unrelated_far': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'temporality', 'relation', 'relation_tags', 'edit', 'queries', 'notes'}
+               'temporality', 'relation', 'edit', 'queries', 'notes'}
 EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'axiom'}
 QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via'}
@@ -55,8 +56,13 @@ HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
 
 
 def load_relations(path=ROOT / 'RELATIONS.md'):
-    """{relation: {topic: (tags, causal)}} from the starter-relation tables."""
-    relations, topic = {}, None
+    """({relation: (tags, causal)}, conflicts) from the starter-relation tables.
+
+    A relation may be listed under several topics, but must carry the same
+    tags and semantics everywhere, so a name always means one thing. Each
+    disagreement is returned as a message in `conflicts`.
+    """
+    relations, conflicts, topic = {}, [], None
     for line in path.read_text().splitlines():
         if line.startswith('### '):
             name = line[4:].strip()
@@ -66,16 +72,11 @@ def load_relations(path=ROOT / 'RELATIONS.md'):
             continue
         cells = [c.strip() for c in line.strip('|').split('|')]
         name = cells[0].strip('`')
-        tags = frozenset(re.findall(r'`([^`]+)`', cells[3]))
-        relations.setdefault(name, {})[topic] = (tags, 'causal' in cells[2])
-    return relations
-
-
-def catalogue_entry(relations, name, topic):
-    entries = relations.get(name)
-    if not entries:
-        return None
-    return entries.get(topic) or next(iter(entries.values()))
+        entry = (frozenset(re.findall(r'`([^`]+)`', cells[3])), 'causal' in cells[2])
+        if name in relations and relations[name] != entry:
+            conflicts.append(f'RELATIONS.md: {name!r} under {topic} disagrees with its earlier entry')
+        relations.setdefault(name, entry)
+    return relations, conflicts
 
 
 def is_text(v):
@@ -133,21 +134,14 @@ def check_record(rec, path, relations):
     if topic == 'puzzle' and op != 'insert':
         err('puzzle items are insert only')
 
-    # Relation and its tags, as catalogued in RELATIONS.md. An RBox edit
-    # changes the relation's properties, so only its existence is checked.
-    relation, tags = rec['relation'], rec['relation_tags']
-    entry = catalogue_entry(relations, relation, topic)
-    if not is_text_list(tags):
-        err('relation_tags must be a list of strings')
-        tags = []
+    # The relation must be catalogued. An RBox edit changes the relation's
+    # properties, so its semantics aren't checked against the catalogue.
+    relation = rec['relation']
+    entry = relations.get(relation)
     if entry is None:
         err(f'relation {relation!r} is not in RELATIONS.md')
-    elif box != 'rbox':
-        cat_tags, cat_causal = entry
-        if set(tags) != cat_tags:
-            err(f'relation_tags {sorted(tags)} differ from RELATIONS.md {sorted(cat_tags)}')
-        if sem in RELATION_SEMANTICS and (sem == 'causal') != cat_causal:
-            err(f'relation_semantics {sem!r} disagrees with RELATIONS.md for {relation!r}')
+    elif box != 'rbox' and sem in RELATION_SEMANTICS and (sem == 'causal') != entry[1]:
+        err(f'relation_semantics {sem!r} disagrees with RELATIONS.md for {relation!r}')
 
     # The edit.
     edit = rec['edit']
@@ -250,7 +244,7 @@ def check_derivation(q, rec, relations):
     need = DERIVATIONS[derivation]
     if need and box != 'rbox':
         name = q.get('via', rec['relation'])
-        entry = catalogue_entry(relations, name, rec['topic'])
+        entry = relations.get(name)
         if entry is None:
             err(f'relation {name!r} (used by {derivation}) is not in RELATIONS.md')
         elif not any(t == need or (need.endswith(':') and t.startswith(need)) for t in entry[0]):
@@ -263,9 +257,11 @@ def default_paths():
 
 
 def main(argv):
-    relations = load_relations()
+    relations, conflicts = load_relations()
+    for c in conflicts:
+        print(c)
     paths = [Path(p).resolve() for p in argv] or default_paths()
-    ids, cells, failed = Counter(), Counter(), 0
+    ids, cells, failed = Counter(), Counter(), len(conflicts)
     for path in paths:
         try:
             rec = json.loads(path.read_text())
