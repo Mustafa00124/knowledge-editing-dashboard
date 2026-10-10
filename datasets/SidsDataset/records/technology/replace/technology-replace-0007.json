@@ -1,0 +1,165 @@
+{
+  "id": "technology-replace-0007",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "abox",
+  "relation_semantics": "causal",
+  "derivability": "very_likely",
+  "familiarity": {
+    "fact": "very_low",
+    "subject": "very_low",
+    "object": "high"
+  },
+  "temporal": "event",
+  "relation": "has_outcome",
+  "edit": {
+    "statement": "For R1 only, a valid cache hit recomputes the expensive result.",
+    "subject": "The operation supplying the result of cache request R1",
+    "object": "recompute",
+    "old_object": "reuse",
+    "original": "R1 is a valid hit in cache C, so it reuses the stored result rather than recomputing the expensive result.",
+    "scope": "R1 only, valid cached entry, no invalidation or revalidation; other cache requests retain ordinary behavior.",
+    "premises": [
+      "A valid cache hit reuses the stored result instead of recomputing it."
+    ],
+    "fixture": true
+  },
+  "queries": {
+    "direct": {
+      "prompt": "For the valid cache hit R1, is the expensive result reused or recomputed? Use “reuse” or “recompute.”",
+      "behavior": "answer",
+      "expected": "recompute",
+      "aliases": [
+        "recomputed"
+      ],
+      "forbidden": [
+        "reuse",
+        "reused"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Which operation supplies R1’s result after its valid cache hit?",
+      "behavior": "answer",
+      "expected": "recompute",
+      "aliases": [
+        "recomputed",
+        "recomputation"
+      ],
+      "forbidden": [
+        "reuse",
+        "reused"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "对于有效的缓存命中R1，昂贵的结果是复用还是重新计算？",
+        "behavior": "answer",
+        "expected": "重新计算",
+        "forbidden": [
+          "复用"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "En el acierto de caché válido R1, ¿se reutiliza o se recalcula el resultado costoso?",
+        "behavior": "answer",
+        "expected": "recalcular",
+        "aliases": [
+          "se recalcula",
+          "recalcula"
+        ],
+        "forbidden": [
+          "reutiliza",
+          "reutilizar"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Call A is exactly request R1. Does A reuse or recompute the expensive result?",
+        "behavior": "answer",
+        "expected": "recompute",
+        "aliases": [
+          "recomputes"
+        ],
+        "forbidden": [
+          "reuse",
+          "reuses"
+        ],
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Only recomputation consumes CPU budget in this fixture. Does R1 consume CPU budget for that operation?",
+        "behavior": "answer",
+        "expected": "yes",
+        "forbidden": [
+          "no"
+        ],
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Only recomputation consumes CPU budget in this fixture."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Each recomputation takes 10 milliseconds and R1 performs exactly one. How many milliseconds of recomputation does R1 perform?",
+        "behavior": "answer",
+        "expected": "10 milliseconds",
+        "aliases": [
+          "10 ms"
+        ],
+        "forbidden": [
+          "0 milliseconds",
+          "0 ms"
+        ],
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Given only the computation edit for R1, which operation supplies an unspecified request R2’s result?",
+        "behavior": "answer",
+        "expected": "cannot be determined",
+        "derivation": "scope",
+        "hops": 1,
+        "bridge": []
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What ordinarily happens on a different valid cache hit with no revalidation requirement?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "What does cache capacity measure?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What chemical element has symbol O?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "Who wrote Pride and Prejudice?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ]
+  },
+  "source": {
+    "doc": "Finance and technology replacement benchmark, version 2",
+    "id": "TC2",
+    "title": "Cache request R1",
+    "familiarity": "Low",
+    "redundancy": "Low",
+    "grounding": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching"
+  }
+}

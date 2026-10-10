@@ -1,0 +1,157 @@
+{
+  "id": "finance-replace-0008",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "abox",
+  "relation_semantics": "causal",
+  "derivability": "very_likely",
+  "familiarity": {
+    "fact": "very_low",
+    "subject": "very_low",
+    "object": "high"
+  },
+  "temporal": "event",
+  "relation": "has_outcome",
+  "edit": {
+    "statement": "For B1 only, changing the yield from 10% to 20% raises its stipulated value from $100 to $120.",
+    "subject": "B1’s 10%-to-20% yield change",
+    "object": "$120",
+    "old_object": "$91.67",
+    "original": "For B1, a $110 payment in one year has a present value of $100 at a 10% yield; changing the yield to 20% lowers its value to about $91.67.",
+    "scope": "One stipulated B1 repricing event; fixed payment, maturity and all other inputs. Other bonds retain standard discounting. Do not enforce the unchanged discounting formula on the exceptional edited value.",
+    "premises": [
+      "A bond’s value is its future payment discounted at its yield, so a higher yield lowers its value."
+    ],
+    "fixture": true
+  },
+  "queries": {
+    "direct": {
+      "prompt": "After B1’s specified yield change to 20%, what is its value?",
+      "behavior": "answer",
+      "expected": "$120",
+      "forbidden": [
+        "$91.67",
+        "91.67"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "What valuation follows the 10%-to-20% yield change for B1?",
+      "behavior": "answer",
+      "expected": "$120",
+      "forbidden": [
+        "$91.67",
+        "91.67"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "B1的收益率按规定调整为20%后，其价值是多少？",
+        "behavior": "answer",
+        "expected": "$120",
+        "aliases": [
+          "120美元"
+        ],
+        "forbidden": [
+          "$91.67",
+          "91.67"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "Tras el cambio estipulado del rendimiento de B1 al 20%, ¿cuál es su valor?",
+        "behavior": "answer",
+        "expected": "$120",
+        "aliases": [
+          "120 dólares"
+        ],
+        "forbidden": [
+          "$91.67",
+          "91.67",
+          "91,67"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Portfolio P contains only one B1 after the yield change. What is P’s value?",
+        "behavior": "answer",
+        "expected": "$120",
+        "forbidden": [
+          "$91.67",
+          "91.67"
+        ],
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Portfolio P contains two identical B1 units after the yield change and no other assets. What is its value?",
+        "behavior": "answer",
+        "expected": "$240",
+        "forbidden": [
+          "$183.33",
+          "183.33"
+        ],
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Portfolio P contains two identical B1 units after the yield change and no other assets."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "One B1 after the yield change is split equally between two owners. What is each owner’s holding worth?",
+        "behavior": "answer",
+        "expected": "$60",
+        "forbidden": [
+          "$45.83",
+          "45.83"
+        ],
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Given only B1’s edited repricing, what is another unspecified bond B2’s price?",
+        "behavior": "answer",
+        "expected": "cannot be determined",
+        "derivation": "scope",
+        "hops": 1,
+        "bridge": []
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the ordinary present value of a separate $110 payment in one year at a 10% yield?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "Does a fixed-rate coupon change automatically when market yields change?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which planet is known as the Red Planet?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "What is the square root of 81?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ]
+  },
+  "source": {
+    "doc": "Finance and technology replacement benchmark, version 2",
+    "id": "FC3",
+    "title": "Zero-coupon bond B1 repricing",
+    "familiarity": "Low",
+    "redundancy": "Low",
+    "grounding": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/bonds-or-fixed-income-products/bonds"
+  }
+}

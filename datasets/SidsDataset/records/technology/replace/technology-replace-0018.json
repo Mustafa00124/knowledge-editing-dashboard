@@ -1,0 +1,158 @@
+{
+  "id": "technology-replace-0018",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "tbox",
+  "relation_semantics": "causal",
+  "derivability": "medium",
+  "familiarity": {
+    "fact": "medium",
+    "subject": "high",
+    "object": "high"
+  },
+  "temporal": null,
+  "relation": "has_outcome",
+  "edit": {
+    "statement": "Rolling back an uncommitted transactional-database transaction preserves its own uncommitted changes.",
+    "subject": "The effect of rollback on an uncommitted transaction’s own changes",
+    "object": "preserve",
+    "old_object": "remove",
+    "original": "Rolling back an uncommitted transactional-database transaction removes its own uncommitted changes.",
+    "scope": "All uncommitted transactions and their own changes in the post-edit regime; no concurrent interference, committed transactions outside the rule."
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does rollback remove or preserve an uncommitted transaction’s own changes? Answer “remove” or “preserve.”",
+      "behavior": "answer",
+      "expected": "preserve",
+      "aliases": [
+        "preserved",
+        "preserves"
+      ],
+      "forbidden": [
+        "remove",
+        "removed",
+        "removes"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "What happens to a transaction’s own uncommitted writes when it is rolled back?",
+      "behavior": "answer",
+      "expected": "preserve",
+      "aliases": [
+        "preserved",
+        "preserves"
+      ],
+      "forbidden": [
+        "remove",
+        "removed",
+        "removes"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "回滚未提交的事务时，事务自身尚未提交的更改是删除还是保留？",
+        "behavior": "answer",
+        "expected": "保留",
+        "forbidden": [
+          "删除"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "Al revertir una transacción no confirmada, ¿se eliminan o se conservan sus propios cambios no confirmados?",
+        "behavior": "answer",
+        "expected": "conservar",
+        "aliases": [
+          "se conservan",
+          "conservan"
+        ],
+        "forbidden": [
+          "eliminar",
+          "se eliminan",
+          "eliminan"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Transaction N has uncommitted writes and is rolled back with no concurrent interference. Are N’s writes removed or preserved?",
+        "behavior": "answer",
+        "expected": "preserve",
+        "aliases": [
+          "preserved",
+          "preserves"
+        ],
+        "forbidden": [
+          "remove",
+          "removed",
+          "removes"
+        ],
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "N writes value 7 over 0, then rolls back; no other writes occur. Which value remains immediately afterward?",
+        "behavior": "answer",
+        "expected": "7",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "N writes value 7 over 0, then rolls back; no other writes occur."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "N writes value 7 then rolls back without interference. A dashboard immediately displays the resulting value plus 1. What does it display?",
+        "behavior": "answer",
+        "expected": "8",
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Given only a transaction’s edited rollback outcome, did an unrelated transaction M commit?",
+        "behavior": "answer",
+        "expected": "cannot be determined",
+        "derivation": "scope",
+        "hops": 1,
+        "bridge": []
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What does COMMIT signify in a transactional database?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "What is a database transaction’s isolation level concerned with?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which planet is known as the Red Planet?",
+        "behavior": "unchanged",
+        "expected": null
+      },
+      {
+        "prompt": "What is the square root of 81?",
+        "behavior": "unchanged",
+        "expected": null
+      }
+    ]
+  },
+  "source": {
+    "doc": "Finance and technology replacement benchmark, version 2",
+    "id": "TTC3",
+    "title": "Uncommitted-transaction rollback mechanism",
+    "familiarity": "Medium",
+    "redundancy": "High",
+    "grounding": "https://www.postgresql.org/docs/18/tutorial-transactions.html"
+  },
+  "notes": "Q06 and Q07 have no forbidden old values ('0', '1'): both numbers occur in the prompt and a restating answer would fail."
+}

@@ -140,6 +140,9 @@ export const DERIVATIONS = [
   { key: 'functional', label: 'Functional', notation: '≤ 1 R', example: 'Replace only. The capital of France is Lyon. Is Paris still the capital? (no)' },
   { key: 'composition', label: 'Composition', notation: 'multi-hop', bridge: true, example: 'The capital of France is Lyon (+ the Rhône flows through Lyon). Which river flows through the capital of France?' },
   { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D', bridge: true, example: 'TBox: every capital is a port (+ Paris is a capital). Is Paris a port?' },
+  { key: 'binding', label: 'Binding', notation: 'task type', example: 'IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?' },
+  { key: 'application', label: 'Application', notation: 'task type', example: 'A courier must visit the NYSE trading-floor building. Which city should be the courier\'s destination?' },
+  { key: 'scope', label: 'Scope', notation: 'task type', example: 'Given only the IMF headquarters city, is a particular country Z an IMF member? (cannot be determined)' },
   { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is asymmetric (+ France borders Spain). Does Spain border France? (no)' },
 ]
 

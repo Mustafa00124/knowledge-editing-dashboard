@@ -48,16 +48,22 @@ DERIVATIONS = {
     'composition': None,
     'inheritance': None,
     'instantiation': None,
+    # Task-type derivations (from the finance/technology replacement panel):
+    # they test using the edit rather than a property of its relation.
+    'binding': None,       # the edit reached through an alias, a bound individual or a new class member
+    'application': None,   # the edit used to fill a field, compute a value or run a workflow
+    'scope': None,         # the boundary of what follows: the gold is "no" or "cannot be determined"
 }
 
 QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
                 'unrelated_near': 2, 'unrelated_far': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes'}
-EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'}
+               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source'}
+OPTIONAL_RECORD_KEYS = {'notes', 'source'}
+EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom', 'original', 'scope', 'fixture'}
 QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
-DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via'}
+DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
 
@@ -102,7 +108,7 @@ def check_record(rec, path, relations):
         return ['record is not a JSON object']
     for k in sorted(set(rec) - RECORD_KEYS):
         err(f'unknown field {k!r}')
-    for k in sorted(RECORD_KEYS - {'notes'} - set(rec)):
+    for k in sorted(RECORD_KEYS - OPTIONAL_RECORD_KEYS - set(rec)):
         err(f'missing field {k!r}')
     if errors:
         return errors
@@ -183,6 +189,19 @@ def check_record(rec, path, relations):
             err(f'edit.premises is required when derivability is {deriv!r}')
         if deriv is None and 'premises' in edit:
             err('edit.premises needs a derivability rating')
+        for k in ('original', 'scope'):
+            if k in edit and not is_text(edit[k]):
+                err(f'edit.{k} must be a non-empty string')
+        # A fixture is a constructed fact the model can't know: its original
+        # is loaded into the model before the baseline answers are taken.
+        if 'fixture' in edit:
+            if not isinstance(edit['fixture'], bool):
+                err('edit.fixture must be true or false')
+            elif edit['fixture'] and not is_text(edit.get('original')):
+                err('edit.fixture needs edit.original, the fact loaded before editing')
+
+    if 'source' in rec and not isinstance(rec['source'], dict):
+        err('source must be an object')
 
     errors.extend(check_familiarity(rec['familiarity'], op, isinstance(edit, dict) and 'object' in edit))
 
@@ -261,6 +280,11 @@ def check_query(q, qtype, rec, relations):
             err('expected must be null for abstain_or_negate')
         if not q.get('forbidden'):
             err('forbidden must list the old answer for abstain_or_negate')
+    elif behavior == 'unchanged':
+        # The gold is the model's own pre-edit answer; `expected` is optional
+        # reference only.
+        if q.get('expected') is not None and not is_text(q.get('expected')):
+            err('expected must be a non-empty string or null')
     elif not is_text(q.get('expected')):
         err('expected must be a non-empty string')
     if op == 'replace' and qtype in ('direct', 'paraphrase', 'cross_lingual') and not q.get('forbidden'):
@@ -284,6 +308,15 @@ def check_derivation(q, rec, relations):
         bridge = []
     if q.get('hops') != 1 + len(bridge):
         err(f'hops should be 1 + number of bridge facts = {1 + len(bridge)}')
+    # bridge_in_prompt: the bridge facts are stated in the prompt itself, so
+    # there is nothing to check against the model before editing.
+    # discriminates: false marks a query whose answer is the same before and
+    # after the edit (it tests consistency, not the new value).
+    for k in ('bridge_in_prompt', 'discriminates'):
+        if k in q and not isinstance(q[k], bool):
+            err(f'{k} must be true or false')
+    if q.get('bridge_in_prompt') and not bridge:
+        err('bridge_in_prompt needs the bridge facts listed in bridge')
 
     if derivation == 'functional' and rec['edit_operation'] != 'replace':
         err('functional derivations only make sense for replace')

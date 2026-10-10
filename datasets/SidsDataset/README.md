@@ -142,11 +142,26 @@ defined, along with the question template each tag gives. Summary:
 | `composition` | Any relation + a bridge fact | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
 | `inheritance` | TBox C ⊑ D + a known member | Edit: every capital is a port. Ask: is Paris a port? |
 | `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
+| `binding` | No relation property | The edit reached through an alias, a bound individual, or (TBox) a new member of the class. Ask: "IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?" |
+| `application` | No relation property | The edit used to fill a field, compute a value or run a workflow. Ask: "A courier must visit the NYSE trading-floor building. Which city should be the courier's destination?" |
+| `scope` | No relation property | The boundary of what follows; the gold is "no" or "cannot be determined". Ask: "Given only the IMF headquarters city, is a particular country Z an IMF member?" |
 
 `composition` is the multi-hop question (as in MQuAKE): the edited fact is
 one hop and a fact the model already knows is the next. It needs no relation
 property, so every relation supports it, which helps items whose relation has
 few tags still reach 4 derived queries.
+
+`binding`, `application` and `scope` are **task types** rather than relation
+properties (they come from the finance/technology replacement panel, whose
+four derived slots are binding, composition with a supplied premise,
+application and scope). An item may use either kind; analysis can split
+generalization by derivation type. When a derived prompt supplies its own
+premise ("Chicago is in Illinois. In which state is ..."), the premise is
+still listed in `bridge` and `bridge_in_prompt` is true: the model is told the
+fact, so there is nothing to check before editing. `discriminates: false`
+marks a derived query whose answer is the same before and after the edit: it
+tests consistency, not the new value, so report generalization with and
+without those.
 
 Reflexivity is not used: "a R a" doesn't depend on the edit. Note that
 "brother of" is not symmetric (the other person may be a sister), which is
@@ -384,11 +399,15 @@ rejected, so typos don't silently drop data.
 | `edit.old_object` | string | replace only, and required there when the edit has an object |
 | `edit.premises` | string list | the facts or rules the edited one follows from; required when `derivability` is `likely` or `very_likely`, optional when it is set lower, absent when it is null |
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
+| `edit.original` | string, optional | the fact or rule before the edit, as a sentence |
+| `edit.scope` | string, optional | what the edit covers and what it leaves alone |
+| `edit.fixture` | bool, optional | true for a constructed fact the model can't already know (e.g. loan L1's payment): `edit.original` is loaded into the model first, the baseline is taken after that, and the edit is applied separately |
 | `queries` | object | the 12 queries, below |
 | `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
 | `notes` | string, optional | |
+| `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own ratings (e.g. familiarity and redundancy) and its grounding link |
 
 Each query:
 
@@ -396,7 +415,7 @@ Each query:
 | --- | --- | --- |
 | `prompt` | string | the question as asked |
 | `behavior` | `answer` \| `abstain_or_negate` \| `unchanged` | `unchanged` for unrelated queries; otherwise `abstain_or_negate` under delete and `answer` under insert and replace |
-| `expected` | string \| null | null exactly when `abstain_or_negate` |
+| `expected` | string \| null | null exactly when `abstain_or_negate`; optional for `unchanged`, whose gold is the model's own pre-edit answer |
 | `aliases` | string list, optional | other accepted answers |
 | `forbidden` | string list | the old answer; required for every reliability query under replace and for every `abstain_or_negate` query |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
@@ -404,6 +423,8 @@ Each query:
 | `hops` | integer | derived only; 1 + number of bridge facts |
 | `bridge` | string list | derived only; empty if none |
 | `via` | string, optional | derived only; the relation whose tag licenses the derivation, when it isn't the edited relation |
+| `bridge_in_prompt` | bool, optional | derived only; the bridge facts are stated in the prompt, so they aren't checked before editing |
+| `discriminates` | bool, optional | derived only; false when the answer is the same before and after the edit |
 
 `queries` holds `direct` and `paraphrase` (one object each), and
 `cross_lingual` (2), `derived` (4), `unrelated_near` (2) and `unrelated_far`
@@ -416,6 +437,19 @@ The templates in `examples/` are complete, valid records: a replace
 (`geography-replace-0001`) and a delete (`geography-delete-0001`) of facts
 very unlikely to be derived, and a replace of a fact likely to be derived,
 with its premises (`geography-replace-0002`).
+
+### Imported panels
+
+`records/finance/replace/` and `records/technology/replace/` hold the 40
+items of the finance and technology replacement panel (v2): five per cell of
+ABox/TBox × associative/causal in each topic, so exactly the 5-edits-per-cell
+goal for those 8 cells. Their derived queries use the task types (binding,
+composition with a supplied premise, application, scope), and each keeps the
+panel's ID, familiarity and redundancy ratings and grounding link in
+`source`. The ABox causal items are **fixtures**: named, constructed events
+(loan L1, transfer T1, connection S1, ...) whose original outcome is loaded
+before the baseline, so they measure controlled-memory editing rather than
+recall; report them separately from items about real facts.
 
 ## Parked from the previous version
 
