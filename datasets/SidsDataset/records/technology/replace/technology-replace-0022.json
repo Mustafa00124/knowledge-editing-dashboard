@@ -1,0 +1,160 @@
+{
+  "id": "technology-replace-0022",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "dependsOn",
+  "edit": {
+    "statement": "A dependency chain alone no longer licenses the endpoint relation.",
+    "subject": "dependsOn",
+    "original": "Transitive closure.",
+    "scope": "Dependency reachability through direct or indirect module dependencies in the original definition."
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does a two-edge chain using dependsOn automatically entail the endpoint dependsOn relation?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Is dependsOn still licensed for transitive chaining from a chain alone?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "仅有dependsOn关系形成的两步链，是否自动蕴含端点之间的dependsOn关系？",
+        "behavior": "answer",
+        "expected": "否",
+        "forbidden": [
+          "是的",
+          "是，",
+          "是。"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Una cadena de dos enlaces dependsOn, por sí sola, sigue implicando automáticamente la relación dependsOn entre sus extremos?",
+        "behavior": "answer",
+        "expected": "no",
+        "forbidden": [
+          "sí implica",
+          "sí sigue implicando"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service). Is dependsOn(checkout_service, tax_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "dependsOn(checkout_service, pricing_service).",
+          "dependsOn(pricing_service, tax_service)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service); dependsOn(tax_service, rates_service). Is dependsOn(checkout_service, rates_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "dependsOn(checkout_service, pricing_service).",
+          "dependsOn(pricing_service, tax_service).",
+          "dependsOn(tax_service, rates_service)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service); dependsOn(pricing_service, rates_service). Is dependsOn(checkout_service, rates_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "dependsOn(checkout_service, pricing_service).",
+          "dependsOn(pricing_service, tax_service).",
+          "dependsOn(pricing_service, rates_service)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: dependsOn(checkout_service, pricing_service); Alias refers to checkout_service; dependsOn(pricing_service, rates_service). Is dependsOn(Alias, rates_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "dependsOn(checkout_service, pricing_service).",
+          "Alias refers to checkout_service.",
+          "dependsOn(pricing_service, rates_service)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: directlyImports(TR2_near1_X, TR2_near1_Y); directlyImports(TR2_near1_Y, TR2_near1_Z). Is directlyImports(TR2_near1_X, TR2_near1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: directlyCalls(TR2_near2_X, TR2_near2_Y); directlyCalls(TR2_near2_Y, TR2_near2_Z). Is directlyCalls(TR2_near2_X, TR2_near2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: handsDocumentTo(TR2_far1_X, TR2_far1_Y); handsDocumentTo(TR2_far1_Y, TR2_far1_Z). Is handsDocumentTo(TR2_far1_X, TR2_far1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: sendsLetterTo(TR2_far2_X, TR2_far2_Y); sendsLetterTo(TR2_far2_Y, TR2_far2_Z). Is sendsLetterTo(TR2_far2_X, TR2_far2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "TR2",
+    "property_edit": "Transitivity removed",
+    "relations": "dependsOn",
+    "familiarity": "High",
+    "redundancy": "High"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}

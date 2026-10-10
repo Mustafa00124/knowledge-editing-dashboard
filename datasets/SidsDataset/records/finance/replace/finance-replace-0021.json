@@ -1,0 +1,159 @@
+{
+  "id": "finance-replace-0021",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "medium",
+    "subject": "medium",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "lendsTo",
+  "edit": {
+    "statement": "Transitive closure.",
+    "subject": "lendsTo",
+    "original": "No general transitive closure.",
+    "scope": "A loan is made from lender to borrower; reciprocal and third-party loans are not implied.",
+    "axiom": "Trans(lendsTo)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does a two-edge chain using lendsTo automatically entail the endpoint lendsTo relation?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Is lendsTo licensed for transitive chaining?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "使用lendsTo关系形成的两步链，是否自动蕴含端点之间的lendsTo关系？",
+        "behavior": "answer",
+        "expected": "是",
+        "forbidden": [
+          "否",
+          "不是"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Una cadena de dos enlaces lendsTo implica automáticamente la relación lendsTo entre sus extremos?",
+        "behavior": "answer",
+        "expected": "sí",
+        "forbidden": [
+          "no"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: lendsTo(North Bank, Cedar Ltd); lendsTo(Cedar Ltd, Maple Ltd). Is lendsTo(North Bank, Maple Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "lendsTo(North Bank, Cedar Ltd).",
+          "lendsTo(Cedar Ltd, Maple Ltd)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: lendsTo(North Bank, Cedar Ltd); lendsTo(Cedar Ltd, Maple Ltd); lendsTo(Maple Ltd, Oak Ltd). Is lendsTo(North Bank, Oak Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "lendsTo(North Bank, Cedar Ltd).",
+          "lendsTo(Cedar Ltd, Maple Ltd).",
+          "lendsTo(Maple Ltd, Oak Ltd)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: lendsTo(North Bank, Cedar Ltd); lendsTo(Cedar Ltd, Maple Ltd); lendsTo(Cedar Ltd, Oak Ltd). Is lendsTo(North Bank, Oak Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "lendsTo(North Bank, Cedar Ltd).",
+          "lendsTo(Cedar Ltd, Maple Ltd).",
+          "lendsTo(Cedar Ltd, Oak Ltd)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: lendsTo(North Bank, Cedar Ltd); Alias refers to North Bank; lendsTo(Cedar Ltd, Oak Ltd). Is lendsTo(Alias, Oak Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "lendsTo(North Bank, Cedar Ltd).",
+          "Alias refers to North Bank.",
+          "lendsTo(Cedar Ltd, Oak Ltd)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: makesPaymentTo(FR1_near1_X, FR1_near1_Y); makesPaymentTo(FR1_near1_Y, FR1_near1_Z). Is makesPaymentTo(FR1_near1_X, FR1_near1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: holdsSharesIn(FR1_near2_X, FR1_near2_Y); holdsSharesIn(FR1_near2_Y, FR1_near2_Z). Is holdsSharesIn(FR1_near2_X, FR1_near2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: handsDocumentTo(FR1_far1_X, FR1_far1_Y); handsDocumentTo(FR1_far1_Y, FR1_far1_Z). Is handsDocumentTo(FR1_far1_X, FR1_far1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: sendsLetterTo(FR1_far2_X, FR1_far2_Y); sendsLetterTo(FR1_far2_Y, FR1_far2_Z). Is sendsLetterTo(FR1_far2_X, FR1_far2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "FR1",
+    "property_edit": "Transitivity added",
+    "relations": "lendsTo",
+    "familiarity": "Medium",
+    "redundancy": "Medium"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}

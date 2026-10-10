@@ -1,0 +1,151 @@
+{
+  "id": "finance-replace-0029",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "isCreditorOf",
+  "edit": {
+    "statement": "isGuarantorOf replaces isDebtorOf as the inverse of isCreditorOf.",
+    "subject": "isCreditorOf",
+    "original": "isDebtorOf is the inverse of isCreditorOf.",
+    "scope": "For a fixed obligation context, a creditor relates to its debtor; all predicates use the same context.",
+    "axiom": "isGuarantorOf ≡ isCreditorOf⁻"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Which named relation is the inverse of isCreditorOf?",
+      "behavior": "answer",
+      "expected": "isGuarantorOf",
+      "forbidden": [
+        "isDebtorOf"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Which reverse-direction predicate is paired with isCreditorOf?",
+      "behavior": "answer",
+      "expected": "isGuarantorOf",
+      "forbidden": [
+        "isDebtorOf"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "哪个命名关系是isCreditorOf的逆关系？",
+        "behavior": "answer",
+        "expected": "isGuarantorOf",
+        "forbidden": [
+          "isDebtorOf"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Qué relación nombrada es la inversa de isCreditorOf?",
+        "behavior": "answer",
+        "expected": "isGuarantorOf",
+        "forbidden": [
+          "isDebtorOf"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: isCreditorOf(North Bank, Cedar Ltd). Is isGuarantorOf(Cedar Ltd, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isCreditorOf(North Bank, Cedar Ltd)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isGuarantorOf(Maple Ltd, South Bank). Is isCreditorOf(South Bank, Maple Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isGuarantorOf(Maple Ltd, South Bank)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isCreditorOf(North Bank, Cedar Ltd). Is isDebtorOf(Cedar Ltd, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isCreditorOf(North Bank, Cedar Ltd)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isDebtorOf(Maple Ltd, South Bank). Is isCreditorOf(South Bank, Maple Ltd) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isDebtorOf(Maple Ltd, South Bank)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: isDebtorOf(FR9_near1_X, FR9_near1_Y). Is isGuarantorOf(FR9_near1_Y, FR9_near1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: ownsAccount(FR9_near2_X, FR9_near2_Y). Is isAuthorizedSignerOn(FR9_near2_Y, FR9_near2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: likesBook(FR9_far1_X, FR9_far1_Y). Is recommendsBook(FR9_far1_Y, FR9_far1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: teachesPerson(FR9_far2_X, FR9_far2_Y). Is admiresPerson(FR9_far2_Y, FR9_far2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "FR9",
+    "property_edit": "Inverse mapping replaced",
+    "relations": "isCreditorOf",
+    "familiarity": "High",
+    "redundancy": "Medium"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+}

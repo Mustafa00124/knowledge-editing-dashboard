@@ -1,0 +1,155 @@
+{
+  "id": "finance-replace-0030",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "ownsAccount",
+  "edit": {
+    "statement": "isAuthorizedSignerOn(x,a) and accountHeldAt(a,b) replace the ownership path as the sufficient path to hasAccountAt(x,b).",
+    "subject": "ownsAccount ; accountHeldAt → hasAccountAt",
+    "original": "ownsAccount(x,a) and accountHeldAt(a,b) imply hasAccountAt(x,b).",
+    "scope": "An account is held at an institution; ownership is the original sufficient path to an account-at relationship.",
+    "axiom": "isAuthorizedSignerOn ∘ accountHeldAt ⊑ hasAccountAt"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Which first relation, followed by accountHeldAt, is now sufficient to infer hasAccountAt?",
+      "behavior": "answer",
+      "expected": "isAuthorizedSignerOn",
+      "forbidden": [
+        "ownsAccount"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Which starter predicate participates in the current two-link derivation of hasAccountAt through accountHeldAt?",
+      "behavior": "answer",
+      "expected": "isAuthorizedSignerOn",
+      "forbidden": [
+        "ownsAccount"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "哪个首个关系接着accountHeldAt关系，现在足以推导出hasAccountAt？",
+        "behavior": "answer",
+        "expected": "isAuthorizedSignerOn",
+        "forbidden": [
+          "ownsAccount"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Qué primera relación, seguida de accountHeldAt, basta ahora para inferir hasAccountAt?",
+        "behavior": "answer",
+        "expected": "isAuthorizedSignerOn",
+        "forbidden": [
+          "ownsAccount"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: isAuthorizedSignerOn(Alice, Account Cedar); accountHeldAt(Account Cedar, North Bank). Is hasAccountAt(Alice, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "isAuthorizedSignerOn(Alice, Account Cedar).",
+          "accountHeldAt(Account Cedar, North Bank)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isAuthorizedSignerOn(Bob, Account Cedar); accountHeldAt(Account Cedar, North Bank). Is hasAccountAt(Bob, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "isAuthorizedSignerOn(Bob, Account Cedar).",
+          "accountHeldAt(Account Cedar, North Bank)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: ownsAccount(Alice, Account Cedar); accountHeldAt(Account Cedar, North Bank). Is hasAccountAt(Alice, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "ownsAccount(Alice, Account Cedar).",
+          "accountHeldAt(Account Cedar, North Bank)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: ownsAccount(Bob, Account Cedar); accountHeldAt(Account Cedar, North Bank). Is hasAccountAt(Bob, North Bank) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "ownsAccount(Bob, Account Cedar).",
+          "accountHeldAt(Account Cedar, North Bank)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: isBeneficiaryOn(FR10_near1_X, FR10_near1_Y); accountHeldAt(FR10_near1_Y, FR10_near1_Z). Is hasAccountAt(FR10_near1_X, FR10_near1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: isAuthorizedSignerOn(FR10_near2_X, FR10_near2_Y); accountAuditedBy(FR10_near2_Y, FR10_near2_Z). Is hasAccountAt(FR10_near2_X, FR10_near2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: likesBook(FR10_far1_X, FR10_far1_Y); bookWrittenBy(FR10_far1_Y, FR10_far1_Z). Is admiresPerson(FR10_far1_X, FR10_far1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: livesInCity(FR10_far2_X, FR10_far2_Y); cityVisitedBy(FR10_far2_Y, FR10_far2_Z). Is knowsPerson(FR10_far2_X, FR10_far2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "FR10",
+    "property_edit": "Composition rule replaced",
+    "relations": "ownsAccount ; accountHeldAt → hasAccountAt",
+    "familiarity": "High",
+    "redundancy": "Medium"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+}

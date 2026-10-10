@@ -1,0 +1,159 @@
+{
+  "id": "technology-replace-0021",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "directlyImports",
+  "edit": {
+    "statement": "Transitive closure.",
+    "subject": "directlyImports",
+    "original": "No general transitive closure.",
+    "scope": "An explicitly direct module import, excluding indirect imports in the original definition.",
+    "axiom": "Trans(directlyImports)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does a two-edge chain using directlyImports automatically entail the endpoint directlyImports relation?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Is directlyImports licensed for transitive chaining?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "使用directlyImports关系形成的两步链，是否自动蕴含端点之间的directlyImports关系？",
+        "behavior": "answer",
+        "expected": "是",
+        "forbidden": [
+          "否",
+          "不是"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Una cadena de dos enlaces directlyImports implica automáticamente la relación directlyImports entre sus extremos?",
+        "behavior": "answer",
+        "expected": "sí",
+        "forbidden": [
+          "no"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module). Is directlyImports(checkout_module, tax_module) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "directlyImports(checkout_module, pricing_module).",
+          "directlyImports(pricing_module, tax_module)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module); directlyImports(tax_module, rates_module). Is directlyImports(checkout_module, rates_module) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "directlyImports(checkout_module, pricing_module).",
+          "directlyImports(pricing_module, tax_module).",
+          "directlyImports(tax_module, rates_module)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module); directlyImports(pricing_module, rates_module). Is directlyImports(checkout_module, rates_module) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "directlyImports(checkout_module, pricing_module).",
+          "directlyImports(pricing_module, tax_module).",
+          "directlyImports(pricing_module, rates_module)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: directlyImports(checkout_module, pricing_module); Alias refers to checkout_module; directlyImports(pricing_module, rates_module). Is directlyImports(Alias, rates_module) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "directlyImports(checkout_module, pricing_module).",
+          "Alias refers to checkout_module.",
+          "directlyImports(pricing_module, rates_module)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: directlyCalls(TR1_near1_X, TR1_near1_Y); directlyCalls(TR1_near1_Y, TR1_near1_Z). Is directlyCalls(TR1_near1_X, TR1_near1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: sendsMessageTo(TR1_near2_X, TR1_near2_Y); sendsMessageTo(TR1_near2_Y, TR1_near2_Z). Is sendsMessageTo(TR1_near2_X, TR1_near2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: handsDocumentTo(TR1_far1_X, TR1_far1_Y); handsDocumentTo(TR1_far1_Y, TR1_far1_Z). Is handsDocumentTo(TR1_far1_X, TR1_far1_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: sendsLetterTo(TR1_far2_X, TR1_far2_Y); sendsLetterTo(TR1_far2_Y, TR1_far2_Z). Is sendsLetterTo(TR1_far2_X, TR1_far2_Z) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "TR1",
+    "property_edit": "Transitivity added",
+    "relations": "directlyImports",
+    "familiarity": "High",
+    "redundancy": "High"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}

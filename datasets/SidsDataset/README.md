@@ -451,6 +451,21 @@ panel's ID, familiarity and redundancy ratings and grounding link in
 before the baseline, so they measure controlled-memory editing rather than
 recall; report them separately from items about real facts.
 
+`finance-replace-0021` to `0030` and `technology-replace-0021` to `0030` are
+the **R-box relation-property panel**: 20 RBox replace edits (240 queries),
+one per property change: transitivity added and removed, symmetry added and
+removed, reflexivity, functionality, inverse functionality and relation
+disjointness added, and an inverse mapping and a composition path replaced.
+Their reliability queries ask whether the inference is licensed (yes or no,
+or the new inverse or composition relation's name). All four derived queries
+are `instantiation`: they apply the edited rule to instance facts stated in
+the prompt and answer entailed, ruled out, undetermined, consistent or
+inconsistent, and every one has a different answer under the original rule,
+which is forbidden. Locality queries use other relations that lack the
+edited property; their `expected` is the panel's logical reference, while the
+scoring gold stays the model's own pre-edit answer. Chinese yes/no matching
+must treat the interrogative 是否 as one unit.
+
 ## Parked from the previous version
 
 The earlier axis scheme had dimensions this version leaves out to keep the

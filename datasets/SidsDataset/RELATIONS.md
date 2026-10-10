@@ -96,6 +96,15 @@ Includes the textbook economic laws as causal TBox rules.
 | `designated_category` | a's designated category is b | associative | `functional` | Vanguard's designated business category is investment management; every ETF's designated product category is pooled investment vehicle. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A stack's designated retrieval discipline is last-in, first-out. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Loan L1's rate reset results in a $600 interest payment. |
+| `lendsTo` | a lends to b | associative | `cardinality:many` | North Bank lends to Cedar Ltd. |
+| `subsidiaryOf` | a is a direct or indirect subsidiary of b | associative | `transitive`, `asymmetric` | Cedar Ltd is a subsidiary of Oak Ltd. |
+| `owesTo` | a owes money to b | associative | `cardinality:many` | Cedar Ltd owes North Bank. |
+| `isCounterpartyTo` | a is a counterparty to b in a bilateral transaction | associative | `symmetric` | Cedar Ltd is a counterparty to North Bank. |
+| `canTransferTo` | account a can transfer funds to account b | associative | `cardinality:many` | Account Cedar can transfer to Account Maple. |
+| `hasOwner` | account a is owned by b | associative | `cardinality:many` | Account Cedar has owner Alice. |
+| `canSettleIn` | account a can settle in currency b | associative | `cardinality:many` | Account Cedar can settle in USD. |
+| `ownsAccount` | person a owns account b | associative | `cardinality:many`, `chain:accountHeldAt->hasAccountAt` | Alice owns Account Cedar. |
+| `isCreditorOf` | a is a creditor of b | associative | `inverse:isDebtorOf`, `cardinality:many` | North Bank is a creditor of Cedar Ltd. |
 
 ### Biology
 
@@ -174,10 +183,27 @@ market share), since replace needs an original every model holds as true.
 | `designated_category` | a's designated category is b | associative | `functional` | Vanguard's designated business category is investment management; every ETF's designated product category is pooled investment vehicle. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A stack's designated retrieval discipline is last-in, first-out. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Loan L1's rate reset results in a $600 interest payment. |
+| `directlyImports` | module a directly imports module b | associative | `cardinality:many` | checkout_module directly imports pricing_module. |
+| `dependsOn` | a depends, directly or indirectly, on b | associative | `transitive` | checkout_service depends on tax_service. |
+| `sendsMessageTo` | a sends a message to b | associative | `cardinality:many` | client_app sends a message to api_service. |
+| `isDirectlyConnectedTo` | a has a direct network link to b | associative | `symmetric` | router_alpha is directly connected to router_beta. |
+| `canSendMessageTo` | node a can deliver a message to node b | associative | `cardinality:many` | node_alpha can send a message to node_beta. |
+| `hasMaintainer` | project a is maintained by b | associative | `cardinality:many` | project_alpha has maintainer Alice. |
+| `runsOperatingSystem` | machine a runs operating system b | associative | `cardinality:many` | machine_alpha runs Linux. |
+| `hasReadAccessTo` | principal a can read resource b | associative | `cardinality:many` | Alice has read access to file_alpha. |
+| `usesLibrary` | project a uses library b | associative | `inverse:isLibraryUsedBy`, `cardinality:many` | project_alpha uses library_beta. |
+| `directlyImportsModule` | application a directly imports module b | associative | `chain:moduleProvidedByPackage->dependsOnPackage`, `cardinality:many` | application_alpha directly imports module_beta. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Added queuing raises request latency. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | A valid cache hit lowers compute cost. |
 
 ## RBox items
+
+The camelCase relations in the Finance and Technology tables (`lendsTo`,
+`subsidiaryOf`, ... `directlyImportsModule`) come from the R-box
+relation-property panel and are spelled as its prompts spell them. Their tags
+give the property **before** the edit; each RBox record replaces one of them
+(adds or removes transitivity, symmetry, reflexivity, functionality, inverse
+functionality or disjointness, or swaps an inverse or a composition path).
 
 An RBox item edits a tag itself, so its derived queries are instances of the
 property (`instantiation`) checked on pairs the model already knows:

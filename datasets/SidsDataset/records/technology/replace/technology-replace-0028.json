@@ -1,0 +1,151 @@
+{
+  "id": "technology-replace-0028",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "hasReadAccessTo",
+  "edit": {
+    "statement": "Read-access and write-access relations are disjoint on every principal–resource pair.",
+    "subject": "hasReadAccessTo | hasWriteAccessTo",
+    "original": "Overlap on a principal–resource pair is permitted.",
+    "scope": "Effective access permissions for a principal–resource pair at one fixed policy snapshot; read and write can coexist originally.",
+    "axiom": "Disj(hasReadAccessTo, hasWriteAccessTo)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "May hasReadAccessTo(x,y) and hasWriteAccessTo(x,y) both hold for the same ordered pair?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Are the two named relations allowed to overlap on an identical source–target pair?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "对于同一个有序对，hasReadAccessTo(x,y)和hasWriteAccessTo(x,y)能否同时成立？",
+        "behavior": "answer",
+        "expected": "否",
+        "forbidden": [
+          "是的",
+          "是，",
+          "是。"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿Pueden cumplirse hasReadAccessTo(x,y) y hasWriteAccessTo(x,y) para el mismo par ordenado?",
+        "behavior": "answer",
+        "expected": "no",
+        "forbidden": [
+          "sí"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: hasReadAccessTo(Alice, file_alpha). Is hasWriteAccessTo(Alice, file_alpha) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "ruled out",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "hasReadAccessTo(Alice, file_alpha)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: hasWriteAccessTo(Bob, file_beta). Is hasReadAccessTo(Bob, file_beta) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "ruled out",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "hasWriteAccessTo(Bob, file_beta)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Proposed facts: hasReadAccessTo(Alice, file_alpha) and hasWriteAccessTo(Alice, file_alpha). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
+        "behavior": "answer",
+        "expected": "inconsistent",
+        "forbidden": [
+          "consistent"
+        ],
+        "derivation": "instantiation",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Facts: hasReadAccessTo(Bob, file_beta); Alias refers to Bob. Is hasWriteAccessTo(Alias, file_beta) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "ruled out",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "hasReadAccessTo(Bob, file_beta).",
+          "Alias refers to Bob."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Proposed facts: hasReadAccessTo(TR8_near1_X, TR8_near1_Y) and hasExecuteAccessTo(TR8_near1_X, TR8_near1_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
+        "behavior": "unchanged",
+        "expected": "consistent"
+      },
+      {
+        "prompt": "Proposed facts: hasWriteAccessTo(TR8_near2_X, TR8_near2_Y) and hasExecuteAccessTo(TR8_near2_X, TR8_near2_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
+        "behavior": "unchanged",
+        "expected": "consistent"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Proposed facts: likesBook(TR8_far1_X, TR8_far1_Y) and ownsBook(TR8_far1_X, TR8_far1_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
+        "behavior": "unchanged",
+        "expected": "consistent"
+      },
+      {
+        "prompt": "Proposed facts: playsSport(TR8_far2_X, TR8_far2_Y) and watchesSport(TR8_far2_X, TR8_far2_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
+        "behavior": "unchanged",
+        "expected": "consistent"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "TR8",
+    "property_edit": "Relation disjointness added",
+    "relations": "hasReadAccessTo | hasWriteAccessTo",
+    "familiarity": "High",
+    "redundancy": "High"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}

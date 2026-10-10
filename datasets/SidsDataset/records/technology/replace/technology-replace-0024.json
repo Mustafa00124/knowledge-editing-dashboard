@@ -1,0 +1,155 @@
+{
+  "id": "technology-replace-0024",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "isDirectlyConnectedTo",
+  "edit": {
+    "statement": "A reverse connection edge is no longer implied by one edge alone.",
+    "subject": "isDirectlyConnectedTo",
+    "original": "Every direct-connection edge implies its reverse.",
+    "scope": "A direct undirected network link in the original benchmark topology."
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does isDirectlyConnectedTo(x,y) automatically imply isDirectlyConnectedTo(y,x)?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Is the reverse isDirectlyConnectedTo edge still licensed from one forward edge alone?",
+      "behavior": "answer",
+      "expected": "no",
+      "forbidden": [
+        "yes"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "仅有isDirectlyConnectedTo(x,y)时，是否仍自动蕴含isDirectlyConnectedTo(y,x)？",
+        "behavior": "answer",
+        "expected": "否",
+        "forbidden": [
+          "是的",
+          "是，",
+          "是。"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿isDirectlyConnectedTo(x,y), por sí sola, sigue implicando automáticamente isDirectlyConnectedTo(y,x)?",
+        "behavior": "answer",
+        "expected": "no",
+        "forbidden": [
+          "sí implica",
+          "sí sigue implicando"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta). Is isDirectlyConnectedTo(router_beta, router_alpha) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isDirectlyConnectedTo(router_alpha, router_beta)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isDirectlyConnectedTo(switch_gamma, server_delta). Is isDirectlyConnectedTo(server_delta, switch_gamma) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "isDirectlyConnectedTo(switch_gamma, server_delta)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta); Alias refers to router_beta. Is isDirectlyConnectedTo(Alias, router_alpha) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "isDirectlyConnectedTo(router_alpha, router_beta).",
+          "Alias refers to router_beta."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta); isDirectlyConnectedTo(switch_gamma, server_delta). Is isDirectlyConnectedTo(server_delta, switch_gamma) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "undetermined",
+        "forbidden": [
+          "entailed"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "isDirectlyConnectedTo(router_alpha, router_beta).",
+          "isDirectlyConnectedTo(switch_gamma, server_delta)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: sendsMessageTo(TR4_near1_X, TR4_near1_Y). Is sendsMessageTo(TR4_near1_Y, TR4_near1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: directlyCalls(TR4_near2_X, TR4_near2_Y). Is directlyCalls(TR4_near2_Y, TR4_near2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: isParentOf(TR4_far1_X, TR4_far1_Y). Is isParentOf(TR4_far1_Y, TR4_far1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "ruled out"
+      },
+      {
+        "prompt": "Facts: sendsLetterTo(TR4_far2_X, TR4_far2_Y). Is sendsLetterTo(TR4_far2_Y, TR4_far2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "TR4",
+    "property_edit": "Symmetry removed",
+    "relations": "isDirectlyConnectedTo",
+    "familiarity": "High",
+    "redundancy": "High"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}

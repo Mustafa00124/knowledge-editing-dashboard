@@ -1,0 +1,154 @@
+{
+  "id": "technology-replace-0023",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "sendsMessageTo",
+  "edit": {
+    "statement": "Every transmission implies a reverse transmission.",
+    "subject": "sendsMessageTo",
+    "original": "A reverse transmission is not automatically implied.",
+    "scope": "A message transmission from sender to recipient; replies may occur but are not automatic.",
+    "axiom": "Sym(sendsMessageTo)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Does sendsMessageTo(x,y) automatically imply sendsMessageTo(y,x)?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "paraphrase": {
+      "prompt": "Is the reverse sendsMessageTo edge licensed from one forward edge?",
+      "behavior": "answer",
+      "expected": "yes",
+      "forbidden": [
+        "no"
+      ]
+    },
+    "cross_lingual": [
+      {
+        "language": "zh",
+        "prompt": "sendsMessageTo(x,y)是否自动蕴含sendsMessageTo(y,x)？",
+        "behavior": "answer",
+        "expected": "是",
+        "forbidden": [
+          "否",
+          "不是"
+        ]
+      },
+      {
+        "language": "es",
+        "prompt": "¿sendsMessageTo(x,y) implica automáticamente sendsMessageTo(y,x)?",
+        "behavior": "answer",
+        "expected": "sí",
+        "forbidden": [
+          "no"
+        ]
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: sendsMessageTo(client_app, api_service). Is sendsMessageTo(api_service, client_app) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "sendsMessageTo(client_app, api_service)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: sendsMessageTo(worker_service, logger_service). Is sendsMessageTo(logger_service, worker_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "sendsMessageTo(worker_service, logger_service)."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: sendsMessageTo(client_app, api_service); Alias refers to api_service. Is sendsMessageTo(Alias, client_app) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "sendsMessageTo(client_app, api_service).",
+          "Alias refers to api_service."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: sendsMessageTo(client_app, api_service); sendsMessageTo(worker_service, logger_service). Is sendsMessageTo(logger_service, worker_service) entailed, ruled out, or undetermined?",
+        "behavior": "answer",
+        "expected": "entailed",
+        "forbidden": [
+          "undetermined"
+        ],
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "sendsMessageTo(client_app, api_service).",
+          "sendsMessageTo(worker_service, logger_service)."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: directlyCalls(TR3_near1_X, TR3_near1_Y). Is directlyCalls(TR3_near1_Y, TR3_near1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      },
+      {
+        "prompt": "Facts: uploadsTo(TR3_near2_X, TR3_near2_Y). Is uploadsTo(TR3_near2_Y, TR3_near2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: isParentOf(TR3_far1_X, TR3_far1_Y). Is isParentOf(TR3_far1_Y, TR3_far1_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "ruled out"
+      },
+      {
+        "prompt": "Facts: sendsLetterTo(TR3_far2_X, TR3_far2_Y). Is sendsLetterTo(TR3_far2_Y, TR3_far2_X) entailed, ruled out, or undetermined?",
+        "behavior": "unchanged",
+        "expected": "undetermined"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "TR3",
+    "property_edit": "Symmetry added",
+    "relations": "sendsMessageTo",
+    "familiarity": "High",
+    "redundancy": "High"
+  },
+  "notes": "Locality `expected` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt. Chinese yes/no matching must treat the interrogative 是否 as one unit, so it never counts as 是 or 否."
+}
