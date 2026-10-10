@@ -30,8 +30,8 @@ Rules for writing derived queries:
 - Every bridge fact must be answered correctly by the model *before* editing;
   the item is dropped for that model otherwise.
 - `functional` derivations only make sense for `replace`.
-- For `delete`, every derived query becomes `abstain_or_negate` with the old
-  consequence in `forbidden`.
+- For `delete`, every derived query has `new_answer: null` and the old
+  consequence as its `original_answer`: the model should no longer give it.
 - A relation is not tagged `functional` if it is also `transitive` or chains
   into itself (Marie was born in Warsaw *and*, by the chain, in Poland).
 - **Reflexivity** is never a source (a R a doesn't depend on the edit).
@@ -214,7 +214,7 @@ property (`instantiation`) checked on pairs the model already knows:
   The derived queries then ask the now-reversed instances, for example
   "France borders Spain. Does Spain border France?" (expected: no).
 - `delete`: remove a property ("'located in' is not transitive"). Derived
-  transitive conclusions should then be `abstain_or_negate`.
+  transitive conclusions should then no longer be given (`new_answer: null`).
 
 The bridge facts for RBox items are the instance facts the derived queries
 are built on (France borders Spain), checked before editing as usual.

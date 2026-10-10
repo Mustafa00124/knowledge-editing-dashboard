@@ -133,7 +133,10 @@ export default function SidsDatasetInfoModal({ onClose }) {
 
           <section>
             <h3>Evaluation</h3>
-            <p>Our own evaluation functions, scored from generated answers:</p>
+            <p>
+              Free-form answers to a fixed question template, each judged by a local LLM judge against the query's
+              original and new answers (no alias or forbidden lists):
+            </p>
             <dl className="sids-axis-values">
               {METRICS.map((m) => (
                 <div key={m.key}>

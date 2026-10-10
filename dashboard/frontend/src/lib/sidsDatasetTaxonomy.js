@@ -146,15 +146,17 @@ export const DERIVATIONS = [
   { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is asymmetric (+ France borders Spain). Does Spain border France? (no)' },
 ]
 
-// How a query is scored from the generated answer.
+// How an LLM judge (Qwen3-4B-Instruct-2507, run locally) scores a free-form
+// answer against the query's original_answer and new_answer.
 export const QUERY_BEHAVIORS = [
-  { key: 'answer', label: 'Answer', description: 'Correct if the expected answer (or an alias) appears and no forbidden answer does.' },
+  { key: 'replace', label: 'Replace', description: 'Correct if the answer gives the new answer and does not assert the original one. If both are mentioned, the final assertion counts.' },
+  { key: 'insert', label: 'Insert', description: 'Correct if the answer gives the new answer.' },
   {
-    key: 'abstain_or_negate',
-    label: 'Abstain or negate',
-    description: 'Delete. Correct if the old answer does not appear and the model says it does not know or that the fact does not hold. Which of the two is recorded. For relations with many values this is an open-world test, where abstaining is the honest answer.',
+    key: 'delete',
+    label: 'Delete',
+    description: 'Correct if the answer does not assert the original answer and says it does not know or that the fact does not hold; which of the two is recorded. For relations with many values this is an open-world test, where abstaining is the honest answer.',
   },
-  { key: 'unchanged', label: 'Unchanged', description: "Unrelated queries. Correct if the post-edit answer matches the model's own pre-edit answer." },
+  { key: 'locality', label: 'Locality', description: "Unrelated queries, any operation. Correct if the answer matches the model's own pre-edit answer." },
 ]
 
 // A tag every record carries, not a layer of the taxonomy: how familiar the

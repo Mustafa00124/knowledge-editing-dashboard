@@ -62,8 +62,13 @@ RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
                'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source'}
 OPTIONAL_RECORD_KEYS = {'notes', 'source'}
 EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom', 'original', 'scope', 'fixture'}
-QUERY_KEYS = {'prompt', 'behavior', 'expected', 'aliases', 'forbidden'}
+# Each edited-knowledge query carries the answer before and after the edit;
+# an LLM judge compares a generated answer with them, so there are no alias
+# or forbidden lists. Locality queries carry only an optional reference: their
+# gold is the model's own pre-edit answer.
+QUERY_KEYS = {'prompt', 'original_answer', 'new_answer'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates'}
+LOCALITY_KEYS = {'prompt', 'reference'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
 
@@ -258,37 +263,48 @@ def check_query(q, qtype, rec, relations):
     err = errors.append
     if not isinstance(q, dict):
         return ['not an object']
-    allowed = DERIVED_KEYS if qtype == 'derived' else QUERY_KEYS | ({'language'} if qtype == 'cross_lingual' else set())
+    locality = qtype.startswith('unrelated')
+    if locality:
+        allowed = LOCALITY_KEYS
+    elif qtype == 'derived':
+        allowed = DERIVED_KEYS
+    else:
+        allowed = QUERY_KEYS | ({'language'} if qtype == 'cross_lingual' else set())
     for k in sorted(set(q) - allowed):
         err(f'unknown field {k!r}')
     if not is_text(q.get('prompt')):
         err('prompt must be a non-empty string')
-    for k in ('aliases', 'forbidden'):
-        if k in q and not is_text_list(q[k]):
-            err(f'{k} must be a list of strings')
+    if locality:
+        if q.get('reference') is not None and not is_text(q['reference']):
+            err('reference must be a non-empty string or null')
+        return errors
 
+    # Which answers each operation needs. Reliability and cross-lingual queries
+    # always ask the edited slot itself; a derived query may have no defined
+    # answer on the side the edit doesn't produce, so that side is optional.
     op = rec['edit_operation']
-    behavior = q.get('behavior')
-    if qtype.startswith('unrelated'):
-        want = 'unchanged'
-    else:
-        want = 'abstain_or_negate' if op == 'delete' else 'answer'
-    if behavior != want:
-        err(f'behavior should be {want!r} for {qtype} under {op}, got {behavior!r}')
-    if behavior == 'abstain_or_negate':
-        if q.get('expected') is not None:
-            err('expected must be null for abstain_or_negate')
-        if not q.get('forbidden'):
-            err('forbidden must list the old answer for abstain_or_negate')
-    elif behavior == 'unchanged':
-        # The gold is the model's own pre-edit answer; `expected` is optional
-        # reference only.
-        if q.get('expected') is not None and not is_text(q.get('expected')):
-            err('expected must be a non-empty string or null')
-    elif not is_text(q.get('expected')):
-        err('expected must be a non-empty string')
-    if op == 'replace' and qtype in ('direct', 'paraphrase', 'cross_lingual') and not q.get('forbidden'):
-        err('forbidden must list the old answer under replace')
+    original, new = q.get('original_answer'), q.get('new_answer')
+    for name, value in (('original_answer', original), ('new_answer', new)):
+        if name not in q:
+            err(f'missing field {name!r} (null if it does not apply)')
+        elif value is not None and not is_text(value):
+            err(f'{name} must be a non-empty string or null')
+    core = qtype != 'derived'
+    if op == 'insert':
+        if original is not None:
+            err('original_answer must be null for insert: the model holds nothing before the edit')
+        if not is_text(new):
+            err('new_answer is required for insert')
+    elif op == 'replace':
+        if not is_text(new):
+            err('new_answer is required for replace')
+        if core and not is_text(original):
+            err('original_answer is required on reliability and cross-lingual queries under replace')
+    elif op == 'delete':
+        if new is not None:
+            err('new_answer must be null for delete: the model should abstain or negate')
+        if core and not is_text(original):
+            err('original_answer is required on reliability and cross-lingual queries under delete')
     if qtype == 'cross_lingual' and q.get('language') not in LANGUAGES:
         err(f'language must be one of {LANGUAGES}')
     if qtype == 'derived':

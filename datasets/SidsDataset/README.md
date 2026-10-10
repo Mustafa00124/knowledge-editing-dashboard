@@ -114,9 +114,9 @@ Chinese is far from English (different script, so the answer can't be copied
 token for token); Spanish is close. The gap between them is part of the
 finding.
 
-- Each records its `language` and the `expected` answer written in that
-  language, with aliases (e.g. 里昂 for Lyon, and "Lyon" itself, since names
-  are often left untranslated).
+- Each records its `language` and its original and new answers written in
+  that language (e.g. 里昂 for Lyon). The judge accepts equivalent forms,
+  including names left untranslated.
 - For `replace` and `delete`, the model must answer the *original* fact
   correctly in that language before editing, like a bridge fact; otherwise
   that query is dropped for that model. Base models can be weak in Chinese,
@@ -325,18 +325,36 @@ map directly onto metrics:
 Fluency leaves out the cross-lingual answers, since n-gram based fluency
 scores aren't comparable between Chinese and English text.
 
-Each query is scored from the generated answer, by its `behavior`:
+### Answering and judging
 
-- `answer`: correct if the expected answer (or an alias) appears and no
-  `forbidden` answer does.
-- `abstain_or_negate`: correct if no `forbidden` answer appears and the
-  response abstains or negates.
-- `unchanged`: correct if the post-edit answer matches the model's own
-  pre-edit answer.
+Every query is asked as a free-form question in a fixed template,
+`Question: <prompt>` / `Answer:`, with a few neutral worked examples first so
+base models answer briefly, and generation stops at the first line break (or
+a small token cap). Instruct models get the question through their chat
+template.
 
-Matching starts with normalized string and alias matching; an abstention and
-negation classifier (patterns first, a judge model if needed) handles delete.
-These functions don't exist yet.
+Each answer is scored by an **LLM judge**, Qwen3-4B-Instruct-2507 run
+locally, against the query's `original_answer` and `new_answer`. There are no
+alias or forbidden lists: the judge accepts paraphrases, units, translations
+and transliterations. It returns a verdict and a one-line reason, both saved;
+unclear verdicts are excluded from the denominator and their count reported.
+The judge runs after generation (the edited model is unloaded first), so only
+one model is on the GPU at a time. What counts as correct depends on the
+operation:
+
+| Operation | Correct when the answer |
+| --- | --- |
+| `replace` | gives `new_answer` and does not assert `original_answer` |
+| `insert` | gives `new_answer` |
+| `delete` | does not assert `original_answer`, and says it does not know or that the fact does not hold (recorded as abstain or negate) |
+| locality (any operation) | gives the same answer as the model's own pre-edit answer |
+
+If an answer mentions both values ("it was Paris, now Lyon"), its final
+assertion is what counts. The judge's full instructions are fixed in the
+evaluator and recorded with every run. A model audit (before any editing)
+uses the same template and judge, checking answers against
+`original_answer`. Insert and delete are specified but not exercised until
+records for them exist.
 
 ## Records
 
@@ -414,10 +432,9 @@ Each query:
 | Field | Type | Rule |
 | --- | --- | --- |
 | `prompt` | string | the question as asked |
-| `behavior` | `answer` \| `abstain_or_negate` \| `unchanged` | `unchanged` for unrelated queries; otherwise `abstain_or_negate` under delete and `answer` under insert and replace |
-| `expected` | string \| null | null exactly when `abstain_or_negate`; optional for `unchanged`, whose gold is the model's own pre-edit answer |
-| `aliases` | string list, optional | other accepted answers |
-| `forbidden` | string list | the old answer; required for every reliability query under replace and for every `abstain_or_negate` query |
+| `original_answer` | string \| null | the answer before the edit; null for insert; required on reliability and cross-lingual queries under replace and delete, optional on derived queries (null when the old-world answer isn't defined) |
+| `new_answer` | string \| null | the answer after the edit; null for delete; required for insert and replace |
+| `reference` | string, optional | locality queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
 | `derivation` | see derived queries | derived only |
 | `hops` | integer | derived only; 1 + number of bridge facts |
@@ -461,10 +478,9 @@ or the new inverse or composition relation's name). All four derived queries
 are `instantiation`: they apply the edited rule to instance facts stated in
 the prompt and answer entailed, ruled out, undetermined, consistent or
 inconsistent, and every one has a different answer under the original rule,
-which is forbidden. Locality queries use other relations that lack the
-edited property; their `expected` is the panel's logical reference, while the
-scoring gold stays the model's own pre-edit answer. Chinese yes/no matching
-must treat the interrogative 是否 as one unit.
+recorded as its `original_answer`. Locality queries use other relations that
+lack the edited property; their `reference` is the panel's logical answer,
+while the scoring gold stays the model's own pre-edit answer.
 
 ## Parked from the previous version
 
