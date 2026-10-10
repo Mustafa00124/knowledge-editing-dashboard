@@ -21,7 +21,7 @@
   {
    "id": "ft",
    "label": "Finetuning settings",
-   "note": "FT and LoRA only"
+   "note": "FT-M, FT-L and LoRA only"
   },
   {
    "id": "locate",
@@ -53,15 +53,25 @@
      "label": "Finetuning",
      "methods": [
       {
-       "label": "FT",
+       "label": "FT-M",
        "value": "ft",
-       "available": true
+       "available": true,
+       "note": "cross-entropy on every target token after the prompt (objective_optimization target_new, EasyEdit's recommended FT)",
+       "core": true
+      },
+      {
+       "label": "FT-L",
+       "value": "ft_l",
+       "available": true,
+       "note": "the ROME paper's constrained fine-tuning: the target is scored at the last prompt position (objective_optimization prompt_last), with an L-infinity norm constraint on the weight change",
+       "core": true
       },
       {
        "label": "LoRA",
        "value": "lora",
        "available": true,
-       "note": "no Mistral-7B hparams yet (every other registered model is covered)"
+       "note": "no Mistral-7B hparams yet (every other registered model is covered)",
+       "core": true
       }
      ]
     },
@@ -73,27 +83,31 @@
        "value": "rome",
        "available": true,
        "requires_subject": true,
-       "no_joint_batch": true
+       "no_joint_batch": true,
+       "core": true
       },
       {
        "label": "MEMIT",
        "value": "memit",
        "available": true,
-       "requires_subject": true
+       "requires_subject": true,
+       "core": true
       },
       {
        "label": "PMET",
        "value": "pmet",
        "available": true,
        "note": "no Mistral-7B hparams yet (every other registered model is covered)",
-       "requires_subject": true
+       "requires_subject": true,
+       "core": false
       },
       {
        "label": "AlphaEdit",
        "value": "alphaedit",
        "available": true,
        "note": "no Mistral-7B hparams yet (every other registered model is covered)",
-       "requires_subject": true
+       "requires_subject": true,
+       "core": true
       }
      ]
     },
@@ -107,7 +121,8 @@
        "available": true,
        "requires_subject": true,
        "no_joint_batch": true,
-       "note": "scans layers 0..scanning_ceiling per fact and edits the one needing the smallest relative weight change; costs one ROME edit per candidate layer, and caches mom2 stats for all of them"
+       "note": "scans layers 0..scanning_ceiling per fact and edits the one needing the smallest relative weight change; costs one ROME edit per candidate layer, and caches mom2 stats for all of them",
+       "core": true
       },
       {
        "label": "FiDAL",
@@ -115,7 +130,8 @@
        "available": true,
        "requires_subject": true,
        "no_joint_batch": true,
-       "note": "a locator, not an editor: Fisher-ranked probing picks the layers, then base_method (MEMIT by default) writes them; reimplemented from the paper, no code was released"
+       "note": "a locator, not an editor: Fisher-ranked probing picks the layers, then base_method (MEMIT by default) writes them; reimplemented from the paper, no code was released",
+       "core": true
       }
      ]
     },
@@ -129,7 +145,8 @@
        "available": true,
        "requires_subject": true,
        "no_joint_batch": true,
-       "note": "neuron-level: scores every FFN neuron in every unfrozen layer and gradient-edits the top-k, so the edited layers differ per fact"
+       "note": "neuron-level: scores every FFN neuron in every unfrozen layer and gradient-edits the top-k, so the edited layers differ per fact",
+       "core": true
       },
       {
        "label": "Knowledge Neurons",
@@ -137,20 +154,23 @@
        "available": true,
        "requires_ground_truth": true,
        "no_joint_batch": true,
-       "note": "neuron-level: integrated-gradient attribution of the original answer picks FFN neurons, whose value vectors are then rewritten toward the new answer; needs datasets that record the original answer"
+       "note": "neuron-level: integrated-gradient attribution of the original answer picks FFN neurons, whose value vectors are then rewritten toward the new answer; needs datasets that record the original answer",
+       "core": false
       },
       {
        "label": "NMKE",
        "value": "nmke",
        "available": true,
        "requires_subject": true,
-       "note": "AlphaEdit's closed-form update on AlphaEdit's fixed layers, masked down to the neurons an entropy-adaptive attribution keeps for each edit batch; no Mistral-7B hparams, mirroring AlphaEdit's own coverage"
+       "note": "AlphaEdit's closed-form update on AlphaEdit's fixed layers, masked down to the neurons an entropy-adaptive attribution keeps for each edit batch; no Mistral-7B hparams, mirroring AlphaEdit's own coverage",
+       "core": false
       },
       {
        "label": "SNKE",
        "value": "snke",
        "available": false,
-       "note": "implementation not found: only the paper's abstract is public, so there is no code or hyperparameter values to port; not implemented yet"
+       "note": "implementation not found: only the paper's abstract is public, so there is no code or hyperparameter values to port; not implemented yet",
+       "core": false
       }
      ]
     },
@@ -168,13 +188,15 @@
         "MQuAKE-CF-3k-v2.json",
         "MQuAKE-T.json"
        ],
-       "note": "LoRA on every attention and MLP projection, trained on CaKE's circuit-guided rephrasings and reasoning tasks; that data is released only for MQuAKE CF-3k-v2 and T"
+       "note": "LoRA on every attention and MLP projection, trained on CaKE's circuit-guided rephrasings and reasoning tasks; that data is released only for MQuAKE CF-3k-v2 and T",
+       "core": false
       },
       {
        "label": "MCircKE",
        "value": "mcircke",
        "available": false,
-       "note": "implementation not found: no public code, and the paper reports no learning rate or step count; not implemented yet"
+       "note": "implementation not found: no public code, and the paper reports no learning rate or step count; not implemented yet",
+       "core": false
       }
      ]
     },
@@ -184,12 +206,14 @@
       {
        "label": "IKE",
        "value": "ike",
-       "available": true
+       "available": true,
+       "core": false
       },
       {
        "label": "SCR",
        "value": "scr",
-       "available": true
+       "available": true,
+       "core": true
       }
      ]
     }
@@ -439,6 +463,7 @@
    "show_when": {
     "method": [
      "ft",
+     "ft_l",
      "lora",
      "rome",
      "memit",
@@ -450,6 +475,7 @@
     "method": {
      "rome": "sequential",
      "ft": "batch",
+     "ft_l": "batch",
      "lora": "batch",
      "memit": "batch",
      "pmet": "batch",
@@ -466,6 +492,7 @@
      "value": "batch",
      "methods": [
       "ft",
+      "ft_l",
       "lora",
       "memit",
       "pmet",
@@ -481,6 +508,7 @@
      "value": "sequential_batch",
      "methods": [
       "ft",
+      "ft_l",
       "lora",
       "memit",
       "pmet",
@@ -505,6 +533,7 @@
     ],
     "method": [
      "ft",
+     "ft_l",
      "lora",
      "rome",
      "memit",
@@ -548,6 +577,7 @@
     ],
     "method": [
      "ft",
+     "ft_l",
      "lora",
      "memit",
      "pmet",
@@ -1116,6 +1146,7 @@
    "show_when": {
     "method": [
      "ft",
+     "ft_l",
      "lora"
     ]
    },
@@ -1156,6 +1187,7 @@
    "default_when": {
     "method": {
      "ft": "0.0005",
+     "ft_l": "0.0005",
      "lora": "0.005"
     }
    }
@@ -1173,6 +1205,7 @@
    "show_when": {
     "method": [
      "ft",
+     "ft_l",
      "lora"
     ]
    },
@@ -1209,6 +1242,7 @@
    "default_when": {
     "method": {
      "ft": "25",
+     "ft_l": "25",
      "lora": "50"
     }
    }

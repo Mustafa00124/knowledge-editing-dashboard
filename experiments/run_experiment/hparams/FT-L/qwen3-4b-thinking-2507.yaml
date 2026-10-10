@@ -1,0 +1,51 @@
+# FT-L: the FT settings for this model with objective_optimization "prompt_last",
+# the ROME paper's constrained fine-tuning (target scored at the last prompt
+# position). Copied from ../FT/qwen3-4b-thinking-2507.yaml (FT-M); tune it separately.
+# Inherited verbatim from qwen3-4b.yaml, with only model_name changed.
+# Same pretrain and identical architecture (Qwen3ForCausalLM, 36 layers,
+# hidden 2560), so every layer index and module template stays valid.
+# The weights differ, so the cached mom2 stats do not carry over and are
+# recomputed on first use under models/Qwen3-4B-Thinking-2507.
+# Base FT hyperparameters for Qwen3-4B (36 layers, hidden_size 2560).
+# Adapted from external/EasyEdit/hparams/FT/qwen2.5-7b.yaml — no Qwen3-4B
+# hparams shipped with EasyEdit, so this was hand-adapted:
+#   - model_name -> local Qwen3-4B path
+#   - device     -> 0 (the only GPU visible in this job)
+#   - layers     -> [35], the last transformer layer (0-indexed, 36 layers
+#                   total), mirroring upstream's convention of editing the
+#                   final layer (qwen2.5-7b.yaml uses layers:[27] on its
+#                   28-layer model)
+#
+# `lr` and `num_steps` below are placeholders — run_experiment.py always
+# overrides them from its --lr/--num_steps CLI args, so don't rely on the
+# values here.
+
+alg_name: "FT"
+model_name: models/Qwen3-4B-Thinking-2507
+device: 0
+
+layers: [35]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+# Paper FT baseline is constrained: weights stay inside a 5e-5 norm ball
+# of the originals (kmeng01/memit hparams/FT/..._constr.json). Without
+# it, long runs degenerate - ours emitted empty text from step 500.
+norm_constraint: 5e-5
+
+# Plain autoregressive cross-entropy over the target text (FT-M), rather
+# than "prompt_last" (FT-L) which brings in ROME-style KL/norm-constraint
+# machinery tuned for tiny single-edit updates. Better suited to a longer
+# training run like this one.
+objective_optimization: "prompt_last"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false

@@ -1,0 +1,38 @@
+# FT-L: the FT settings for this model with objective_optimization "prompt_last",
+# the ROME paper's constrained fine-tuning (target scored at the last prompt
+# position). Copied from ../FT/mistral-7b-v0.1.yaml (FT-M); tune it separately.
+# Adapted from external/EasyEdit/hparams/FT/mistral-7b.yaml:
+#   - model_name -> local Mistral-7B-v0.1 path
+#   - [FT original; this FT-L copy uses "prompt_last"] objective_optimization -> "target_new" (FT-M), matching the choice
+#     made for qwen3-4b.yaml (see that file's comment) rather than
+#     upstream's "prompt_last" default, so FT behaves the same way across
+#     every model in this pipeline.
+#   - norm_constraint -> false, same reasoning.
+#
+# `lr` and `num_steps` below are placeholders — run_experiment.py always
+# overrides them from its --lr/--num_steps CLI args.
+
+alg_name: "FT"
+model_name: models/Mistral-7B-v0.1
+device: 0
+
+layers: [21]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+# Paper FT baseline is constrained: weights stay inside a 5e-5 norm ball
+# of the originals (kmeng01/memit hparams/FT/..._constr.json). Without
+# it, long runs degenerate - ours emitted empty text from step 500.
+norm_constraint: 5e-5
+objective_optimization: "prompt_last"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false

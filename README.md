@@ -1,9 +1,13 @@
 # Knowledge Editing
 
-Compares knowledge editing methods (fine-tuning, LoRA, ROME, MEMIT, PMET,
-AlphaEdit, WilKE, FiNE, NMKE, FiDAL, Knowledge Neurons, CaKE, SCR, IKE)
-across language models and benchmarks. SNKE and MCircKE are listed but not
-implemented: no public implementation was found. It records checkpointed metrics and generated answers, and ships
+Compares knowledge editing methods across language models and benchmarks.
+Main experiments and hyperparameter sweeps use a **core set of 10**: FT-M and
+FT-L (fine-tuning with EasyEdit's two objectives, `--method ft` and `ft_l`),
+LoRA, ROME, MEMIT, AlphaEdit, WilKE, FiDAL, FiNE and SCR (`core: true` in
+`experiments/run_experiment/dashboard.json`). PMET, Knowledge Neurons, NMKE,
+CaKE and IKE stay implemented and their past results viewable, but are
+outside the core set; SNKE and MCircKE are listed but not implemented: no
+public implementation was found. It records checkpointed metrics and generated answers, and ships
 a web dashboard for launching experiments and browsing results and datasets.
 
 It was built on USF's gaivi SLURM cluster, but a clone runs anywhere. The

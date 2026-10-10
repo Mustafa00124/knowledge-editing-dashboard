@@ -31,19 +31,41 @@
    "group": "sweep",
    "family": "Finetuning",
    "design": "one_at_a_time",
-   "question": "How should each finetuning method be set up: what it trains (FT's loss and layer, LoRA's adapters and rank), how hard and how long, and how it is held near the original weights?",
+   "question": "How should each finetuning method be set up: which layer FT-M and FT-L train, LoRA's adapters and rank, how hard and how long, and how each is held near the original weights?",
    "methods": {
     "ft": {
      "knobs": {
-      "objective_optimization": {
+      "layers": {
+       "kind": "layer",
+       "stability": "model"
+      },
+      "lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "weight_decay": {
        "kind": "choice",
        "options": [
-        "target_new",
-        "prompt_last"
+        0,
+        0.0001,
+        0.001,
+        0.01
        ],
        "stability": "not_reported",
-       "note": "target_new is FT-M: cross-entropy on every target token after the prompt (EasyEdit's recommended FT). prompt_last is FT-L, the ROME paper's constrained fine-tuning: the target scored at the last prompt position. Hold it fixed to tune FT-M and FT-L separately, or sweep both to compare them"
+       "note": "Adam's L2 term pulls the edited weights toward zero, not toward the original weights; norm_constraint is what keeps them near the originals"
       },
+      "norm_constraint": {
+       "kind": "log",
+       "stability": "model"
+      }
+     }
+    },
+    "ft_l": {
+     "knobs": {
       "layers": {
        "kind": "layer",
        "stability": "model"
@@ -228,38 +250,6 @@
       }
      }
     },
-    "pmet": {
-     "knobs": {
-      "layers": {
-       "kind": "layer_window",
-       "stability": "model"
-      },
-      "v_lr": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "v_num_grad_steps": {
-       "kind": "int",
-       "stability": "model"
-      },
-      "kl_factor": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "clamp_norm_factor": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "mom2_update_weight": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "mom2_n_samples": {
-       "kind": "int",
-       "stability": "model"
-      }
-     }
-    },
     "alphaedit": {
      "knobs": {
       "layers": {
@@ -380,56 +370,6 @@
       "epochs": {
        "kind": "int",
        "stability": "robust"
-      }
-     }
-    },
-    "kn": {
-     "knobs": {
-      "adaptive_threshold": {
-       "kind": "log",
-       "stability": "data"
-      },
-      "p": {
-       "kind": "log",
-       "stability": "robust",
-       "note": "share of paraphrases a neuron must appear in (with refine)"
-      },
-      "lr_scale": {
-       "kind": "log",
-       "stability": "not_reported",
-       "note": "the original code and EasyEdit disagree on the erase and write strengths"
-      }
-     }
-    },
-    "nmke": {
-     "knobs": {
-      "layers": {
-       "kind": "layer_window",
-       "stability": "model"
-      },
-      "v_lr": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "v_num_grad_steps": {
-       "kind": "int",
-       "stability": "robust"
-      },
-      "nullspace_threshold": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "kl_factor": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "mom2_n_samples": {
-       "kind": "int",
-       "stability": "robust"
-      },
-      "entropy_alpha": {
-       "kind": "log",
-       "stability": "model"
       }
      }
     }
@@ -574,7 +514,8 @@
      }
     }
    },
-   "group": "input"
+   "group": "input",
+   "legacy": true
   },
   {
    "id": "format_knowledge",

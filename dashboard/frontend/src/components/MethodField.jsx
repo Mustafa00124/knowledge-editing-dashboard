@@ -3,8 +3,12 @@ import SelectAllCircle from './SelectAllCircle.jsx'
 import { groupSelectState, toggleGroup } from '../lib/groupSelect.js'
 
 // Category first, then method within that category - same two-level
-// pattern as DatasetField (benchmark → subset). Not-yet-wired methods
-// stay visible but disabled, same convention as the Model row.
+// pattern as DatasetField (benchmark → subset). Not-yet-wired methods, and
+// methods outside the core set (`core: false` in dashboard.json), stay
+// visible but disabled, same convention as the Model row.
+const selectable = (m) => m.available !== false && m.core !== false
+const disabledReason = (m) => (m.available === false ? 'Not wired up yet' : 'Not in the core method set')
+
 //
 // `value` is always an array. When the field is sweepable, clicking
 // toggles and the selection persists across categories, so a sweep can mix
@@ -26,8 +30,8 @@ export default function MethodField({ field, value, onChange }) {
     // Only single-select needs to move the selection when the category
     // changes - a sweep keeps whatever is already picked elsewhere.
     if (multi) return
-    if (!next.methods.some((m) => selected.includes(m.value) && m.available !== false)) {
-      const firstAvailable = next.methods.find((m) => m.available !== false)
+    if (!next.methods.some((m) => selected.includes(m.value) && selectable(m))) {
+      const firstAvailable = next.methods.find(selectable)
       if (firstAvailable) onChange([firstAvailable.value])
     }
   }
@@ -42,7 +46,7 @@ export default function MethodField({ field, value, onChange }) {
 
   // The options actually selectable in the open family - disabled ones are
   // shown but can't be swept, so they don't count toward "all".
-  const groupValues = (category?.methods || []).filter((m) => m.available !== false).map((m) => m.value)
+  const groupValues = (category?.methods || []).filter(selectable).map((m) => m.value)
 
   return (
     <div className="pill-field">
@@ -76,7 +80,7 @@ export default function MethodField({ field, value, onChange }) {
           />
         )}
         {category?.methods.map((m) => {
-          const disabled = m.available === false
+          const disabled = !selectable(m)
           const isOn = !disabled && selected.includes(m.value)
           return (
             <button
@@ -85,7 +89,7 @@ export default function MethodField({ field, value, onChange }) {
               disabled={disabled}
               className={`pill hierarchy-option${isOn ? ' selected' : ''}${disabled ? ' disabled' : ''}`}
               aria-pressed={isOn}
-              title={disabled ? 'Not wired up yet' : m.note}
+              title={disabled ? disabledReason(m) : m.note}
               onClick={() => choose(m.value)}
             >
               {m.label}

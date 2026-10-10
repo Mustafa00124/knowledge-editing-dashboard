@@ -27,7 +27,8 @@ class RunnerEvaluationTests(unittest.TestCase):
         tok = Mock(pad_token="pad", eos_token="eos", eos_token_id=0)
         tok.return_value = Inputs(input_ids=torch.tensor([[1]]))
         tok.decode.return_value = "Paris"
-        hp = types.SimpleNamespace(device=0, model_name="fake", layers=[0], num_steps=1)
+        hp = types.SimpleNamespace(device=0, model_name="fake", layers=[0], num_steps=1,
+                                   objective_optimization="target_new")  # --method ft is FT-M
         hp.to_dict = lambda: {"model_name": "fake", "device": 0}
         hparams_module = types.ModuleType("easyeditor.models.ft.ft_hparams")
         hparams_module.FTHyperParams = Mock()

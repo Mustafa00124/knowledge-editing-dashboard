@@ -56,13 +56,14 @@ HIDDEN_SUFFIXES = ("_tmp", "_tmps", "_module")
 # Experiments-page fields that override an hparams-file setting when the
 # field applies to the method (run_experiment.py sets hparams from them).
 FIELD_OVERRIDES = {
-    "lr": {"ft": "lr", "lora": "lr"},
-    "num_steps": {"ft": "num_steps", "lora": "num_steps"},
+    "lr": {"ft": "lr", "ft_l": "lr", "lora": "lr"},
+    "num_steps": {"ft": "num_steps", "ft_l": "num_steps", "lora": "num_steps"},
     "mom2_n_samples": {"memit": "mom2_n_samples", "pmet": "mom2_n_samples", "alphaedit": "mom2_n_samples"},
     "retrieval_k": {"scr": "retrieval_k", "ike": "k"},
 }
 # Set by the runner itself, never from a file or a sweep.
 RUNNER_SET = {("ft", "batch_size"): "every record at once (the runner sets it to the record count)",
+              ("ft_l", "batch_size"): "every record at once (the runner sets it to the record count)",
               ("lora", "batch_size"): "every record at once (the runner sets it to the record count)"}
 INT_FACTORS = (0.25, 0.5, 1, 2, 4)
 
@@ -1181,7 +1182,7 @@ def promote(investigation, sweep_id, run_name):
 def estimate(req):
     """Rough cost before launching: runs, GPU-hours, missing covariance stats."""
     _, inv, runs, skipped = plan(req)
-    per_record = {"ft": 1.0, "lora": 1.5, "fine": 20, "cake": 60, "kn": 25, "ike": 3, "scr": 3}
+    per_record = {"ft": 1.0, "ft_l": 1.0, "lora": 1.5, "fine": 20, "cake": 60, "kn": 25, "ike": 3, "scr": 3}
     records = req.get("ds_size", "full")
     n = 100 if records in ("full", None) else int(records)
     seconds = sum(90 + n * per_record.get(r["method"], 15) for r in runs)

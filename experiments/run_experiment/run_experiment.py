@@ -93,6 +93,7 @@ DEFAULT_OUT_ROOT = os.path.join(PROJECT_ROOT, "results/main/run_experiment")
 
 METHOD_HPARAMS_DIR = {
     "ft": "FT",
+    "ft_l": "FT-L",
     "lora": "LoRA",
     "rome": "ROME",
     "memit": "MEMIT",
@@ -107,6 +108,15 @@ METHOD_HPARAMS_DIR = {
     "kn": "KN",
     "cake": "CaKE",
 }
+
+# Fine-tuning comes in two methods that share one trainer and differ only in
+# the loss, so each is pinned to its objective: "ft" is FT-M (cross-entropy
+# on every target token after the prompt, EasyEdit's recommended FT) and
+# "ft_l" is FT-L (the ROME paper's constrained fine-tuning, scored at the
+# last prompt position). An hparams file or --hparam override that disagrees
+# is refused rather than quietly turning one into the other.
+FT_OBJECTIVE = {"ft": "target_new", "ft_l": "prompt_last"}
+FT_METHODS = tuple(FT_OBJECTIVE)
 
 # The "locate-and-edit" family (ROME/MEMIT/PMET/AlphaEdit): all compute a
 # closed-form weight update rather than training, so they share one
@@ -540,7 +550,7 @@ def main():
             print(f"edit batch size {args.edit_batch_size} exceeds {cap}; using {cap}")
             args.edit_batch_size = cap
 
-    if args.method == "ft":
+    if args.method in FT_METHODS:
         from easyeditor.models.ft.ft_hparams import FTHyperParams
 
         hparams = FTHyperParams.from_hparams(hparams_path)
@@ -590,6 +600,10 @@ def main():
         total_steps = args.ds_size
 
     overrides = apply_overrides(hparams, args.hparam)
+    if args.method in FT_METHODS and hparams.objective_optimization != FT_OBJECTIVE[args.method]:
+        raise SystemExit(f"{args.method} trains with objective_optimization={FT_OBJECTIVE[args.method]!r}, "
+                         f"but the hparams (or an --hparam override) set {hparams.objective_optimization!r}; "
+                         f"use the other FT method instead")
     if args.method == "cake":
         hparams.data_path = args.data_path  # which CaKE training file to use
         hparams.seed = args.seed
@@ -901,7 +915,7 @@ def main():
                 spec = LOCATE_AND_EDIT[args.method]
                 apply_fn = _import(spec["apply_module"], spec["apply_fn"])
             training_fn = None
-            if args.method == "ft":
+            if args.method in FT_METHODS:
                 from checkpointed_ft import execute_ft_checkpointed
                 training_fn = execute_ft_checkpointed
             elif args.method == "lora":
@@ -912,7 +926,7 @@ def main():
             for start, stop, calls in edit_groups(len(requests), args.edit_mode,
                                                    args.reset_every, args.edit_batch_size):
                 state["group_start"], state["group_stop"] = start, stop
-                if args.method == "ft":
+                if args.method in FT_METHODS:
                     tuned = {name: param for name, param in model.named_parameters()
                              if any(hparams.rewrite_module_tmp.format(layer) in name for layer in hparams.layers)}
                     originals = {name: param.detach().clone() for name, param in tuned.items()}
@@ -948,7 +962,7 @@ def main():
                     for name, value in originals.items():
                         copy_to_param(nethook.get_parameter(model, name), value)
                 del originals
-        elif args.method == "ft":
+        elif args.method in FT_METHODS:
             from checkpointed_ft import execute_ft_checkpointed
 
             execute_ft_checkpointed(model, tok, requests, hparams, args.checkpoint_every, on_checkpoint)
@@ -1013,7 +1027,7 @@ def main():
         "dataset_benchmark": dataset_benchmark,
         "dataset_subset": dataset_subset,
         "data_path": args.data_path,
-        "lr": args.lr if args.method in ("ft", "lora") else None,
+        "lr": args.lr if args.method in FT_METHODS + ("lora",) else None,
         "num_steps": total_steps,
         "edit_mode": args.edit_mode,
         "reset_every": args.reset_every if args.edit_mode in SEQUENTIAL_MODES else None,

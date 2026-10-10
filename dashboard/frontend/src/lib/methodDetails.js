@@ -7,12 +7,12 @@
 // dashboard.json was never meant to carry.
 export const METHOD_DETAILS = {
   ft: {
-    tagline: 'Plain gradient-descent finetuning on the edit itself.',
-    paper: 'The generic pre-editing-methods baseline. EasyEdit implements it as "FT-M" (cross-entropy on the target only, used here) vs. "FT-L" (KL/norm-constrained, tuned for tiny ROME-style single-edit updates).',
+    tagline: 'FT-M: gradient-descent finetuning on every target token.',
+    paper: 'The generic finetuning baseline as EasyEdit recommends it ("FT-M"): cross-entropy on the target tokens only, with the prompt masked out. Its sibling FT-L is listed separately.',
     howItWorks:
-      'Ordinary backprop on (prompt, target_new) pairs, updating whichever layer(s) the hparams name via plain ' +
-      'cross-entropy loss on the target text. No causal tracing, no closed-form solve, just training. Scales to ' +
-      'any batch size, but has no built-in mechanism to avoid disturbing unrelated knowledge the way the ' +
+      'Ordinary backprop on (prompt, target_new) pairs, updating whichever layer(s) the hparams name via ' +
+      'cross-entropy on every token of the target text. No causal tracing, no closed-form solve, just training. ' +
+      'Scales to any batch size, but has no built-in mechanism to avoid disturbing unrelated knowledge the way the ' +
       'locate-and-edit family does.',
     stepMeaning: 'One gradient step, over the whole ds_size batch simultaneously (not mini-batched further).',
     files: [
@@ -25,11 +25,32 @@ export const METHOD_DETAILS = {
           'decoder-only model), and removes the early-stop-once-loss-is-low guard so the full step-scaling curve ' +
           'comes out instead of an early exit.',
       },
+      { path: 'experiments/run_experiment/hparams/FT/', note: 'per-model settings; objective_optimization is pinned to "target_new"' },
     ],
     keyHyperparams: [
       { name: 'layers', meaning: 'which layer(s) to update: [35] here, the last of Qwen3-4B\'s 36 layers, mirroring the common "edit the last layer" convention' },
       { name: 'lr / num_steps', meaning: "always overridden by run_experiment.py's --lr/--num_steps CLI args, so the yaml values are unused placeholders" },
-      { name: 'objective_optimization', meaning: '"target_new" (FT-M) rather than "prompt_last" (FT-L), better suited to a long training run than a tiny single-edit update' },
+      { name: 'objective_optimization', meaning: 'pinned to "target_new" for this method; the runner refuses any other value (use FT-L for "prompt_last")' },
+    ],
+  },
+  ft_l: {
+    tagline: 'FT-L: constrained finetuning scored at the last prompt position.',
+    paper: 'The constrained fine-tuning baseline from the ROME paper (Meng et al., 2022), as EasyEdit\'s "FT-L". Same trainer as FT-M; only the loss differs.',
+    howItWorks:
+      'Backprop on (prompt, target_new) pairs, but the loss only scores the target at the last position of the ' +
+      'prompt rather than every target token, and the weight change is clipped to an L-infinity ball ' +
+      '(norm_constraint) around the original weights. Built for tiny single-edit updates, so it tends to learn ' +
+      'multi-token answers less completely than FT-M while disturbing the rest of the model less.',
+    stepMeaning: 'One gradient step, over the whole ds_size batch simultaneously (not mini-batched further).',
+    files: [
+      { path: 'experiments/run_experiment/checkpointed_ft.py', note: 'the shared FT trainer; its prompt_last branch is this method' },
+      { path: 'experiments/run_experiment/hparams/FT-L/', note: 'per-model settings, copied from FT with objective_optimization "prompt_last"; tune them separately' },
+    ],
+    keyHyperparams: [
+      { name: 'norm_constraint', meaning: 'the L-infinity bound on how far each edited weight may move from its original value (5e-5 by default); what makes FT-L "constrained"' },
+      { name: 'layers', meaning: 'which layer(s) to update, as for FT-M' },
+      { name: 'lr / num_steps', meaning: "overridden by run_experiment.py's --lr/--num_steps CLI args" },
+      { name: 'objective_optimization', meaning: 'pinned to "prompt_last" for this method; the runner refuses any other value' },
     ],
   },
   lora: {

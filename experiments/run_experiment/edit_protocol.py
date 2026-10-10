@@ -1,7 +1,7 @@
 """Grouping and aggregation for independent, sequential, and batch edit runs."""
 
 WEIGHT_EDIT_METHODS = {
-    "ft", "lora", "rome", "memit", "pmet", "alphaedit",
+    "ft", "ft_l", "lora", "rome", "memit", "pmet", "alphaedit",
     # Dynamic locate-and-edit (dynamic/): they change weights like the
     # rest, they just choose where per fact.
     "wilke", "fine", "nmke", "fidal",

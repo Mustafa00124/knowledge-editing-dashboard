@@ -53,13 +53,17 @@ class HeldConstantTests(unittest.TestCase):
 class MethodInvestigationTests(unittest.TestCase):
     """One investigation per method family owns every setting of its methods."""
 
-    FAMILIES = {"finetuning": {"ft", "lora"}, "locate_edit": {"rome", "memit", "pmet", "alphaedit"},
-                "dynamic_locate_edit": {"wilke", "fidal"}, "neuron_editors": {"fine", "kn", "nmke"}}
+    # The core method set: methods outside it (PMET, KN, NMKE, CaKE, IKE) are no longer swept.
+    FAMILIES = {"finetuning": {"ft", "ft_l", "lora"}, "locate_edit": {"rome", "memit", "alphaedit"},
+                "dynamic_locate_edit": {"wilke", "fidal"}, "neuron_editors": {"fine"}}
 
     def test_each_family_owns_its_methods_settings(self):
         owners = hparam_sweeps._owners()
-        for key in ("objective_optimization", "layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
-            self.assertEqual(owners[("ft", key)]["id"], "finetuning", key)
+        for method in ("ft", "ft_l"):
+            for key in ("layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
+                self.assertEqual(owners[(method, key)]["id"], "finetuning", (method, key))
+            # Each FT method is pinned to its objective, so it is not a setting to sweep.
+            self.assertNotIn((method, "objective_optimization"), owners)
         for key in ("rank", "target_modules", "layers", "lr", "num_steps", "lora_alpha", "lora_dropout",
                     "weight_decay", "lora_type"):
             self.assertEqual(owners[("lora", key)]["id"], "finetuning", key)
@@ -73,7 +77,7 @@ class MethodInvestigationTests(unittest.TestCase):
             for method, entry in inv["methods"].items():
                 family = next((f for f, ms in self.FAMILIES.items() if method in ms), None)
                 if family is None:
-                    continue  # CaKE is no longer swept
+                    continue  # outside the core set, no longer swept
                 self.assertLessEqual(set(entry["knobs"]), set(catalog[family]["methods"][method]["knobs"]),
                                      (inv["id"], method))
         self.assertNotIn("scr", {m for i in catalog.values() if i["group"] == "sweep" for m in i["methods"]})
@@ -99,23 +103,26 @@ class MethodInvestigationTests(unittest.TestCase):
 
     def test_every_knob_has_a_current_value(self):
         settings = {m: {r["key"] for r in hparam_sweeps.effective_settings(m, "qwen3-4b") if r["editable"]}
-                    for m in ("ft", "lora")}
-        for method in ("ft", "lora"):
+                    for m in ("ft", "ft_l", "lora")}
+        for method in ("ft", "ft_l", "lora"):
             knobs = hparam_sweeps._load_catalog()["investigations"]
             knobs = next(i for i in knobs if i["id"] == "finetuning")["methods"][method]["knobs"]
             self.assertEqual(set(knobs) - settings[method], set(), method)
 
-    def test_ft_m_and_ft_l_swept_separately_or_together(self):
-        req = {"investigation": "finetuning", "design": "grid", "methods": {"ft": {"objective_optimization": ["target_new", "prompt_last"],
-                                                         "lr": [1e-4, 1e-3]}},
+    def test_ft_m_and_ft_l_are_separate_methods(self):
+        req = {"investigation": "finetuning", "design": "grid",
+               "methods": {"ft": {"lr": [1e-4, 1e-3]}, "ft_l": {"lr": [1e-4, 1e-3]}},
                "models": ["qwen3-4b"], "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
         _, _, runs, _ = hparam_sweeps.plan(req)
-        self.assertEqual(len(runs), 4)
-        self.assertEqual({r["overrides"]["objective_optimization"] for r in runs}, {"target_new", "prompt_last"})
-        req["methods"]["ft"] = {"lr": [1e-4, 1e-3]}
-        req["fixed"] = {"ft": {"qwen3-4b": {"objective_optimization": "prompt_last"}}}
-        _, _, runs, _ = hparam_sweeps.plan(req)
-        self.assertEqual([r["fixed"] for r in runs], [{"objective_optimization": "prompt_last"}] * 2)
+        self.assertEqual(sorted(r["method"] for r in runs), ["ft", "ft", "ft_l", "ft_l"])
+        # Each reads its own hparams file, pinned to its own objective.
+        self.assertEqual({m: dict((r["key"], r["value"]) for r in hparam_sweeps.effective_settings(m, "qwen3-4b"))
+                          ["objective_optimization"] for m in ("ft", "ft_l")},
+                         {"ft": "target_new", "ft_l": "prompt_last"})
+        # The objective is no longer sweepable: switching it would turn one method into the other.
+        req["methods"] = {"ft": {"objective_optimization": ["target_new", "prompt_last"]}}
+        with self.assertRaisesRegex(ValueError, "objective_optimization"):
+            hparam_sweeps.plan(req)
 
     def test_layer_span_suggestions(self):
         from unittest.mock import patch

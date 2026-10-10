@@ -4,7 +4,7 @@ import { METHOD_DETAILS, FAMILY_DETAILS } from '../lib/methodDetails.js'
 
 function MethodRow({ method, detail, open, onToggle }) {
   return (
-    <div className="method-row">
+    <div className={`method-row${method.core === false ? ' method-row-secondary' : ''}`}>
       <button
         type="button"
         className={`method-row-header${method.available === false ? ' unavailable' : ''}`}
@@ -105,13 +105,20 @@ export default function Methods() {
         Every method any experiment can run, organized by family. Press a method to see how it works, what its
         hyperparameters mean, and which file in this project actually implements it.
       </p>
+      <p className="dataset-note">
+        Main experiments and hyperparameter sweeps use the core set only. The blurred methods are outside it: they stay
+        here for reference (hover to read them), and their past results remain viewable.
+      </p>
 
       {!families && <p className="empty">Loading…</p>}
 
       {families && (
         <div className="method-tree">
           {families.map((family) => (
-            <div className="method-family" key={family.label}>
+            <div
+              className={`method-family${family.methods.every((m) => m.core === false) ? ' method-family-secondary' : ''}`}
+              key={family.label}
+            >
               <h2 className="method-family-label">{family.label}</h2>
               {FAMILY_DETAILS[family.label] && <p className="method-family-desc">{FAMILY_DETAILS[family.label]}</p>}
               <div className="method-family-methods">

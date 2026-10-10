@@ -276,10 +276,10 @@ directories will move before it commits.
   demonstrations, a per-method sweep that works like those below).
   **Hyperparameter
   sweeps**: one per method family (defined in
-  `../experiments/run_experiment/investigations.json`): **Finetuning** (FT,
-  LoRA), **Locate-and-Edit** (ROME, MEMIT, PMET, AlphaEdit), **Dynamic
-  Locate-and-Edit** (WilKE, FiDAL) and **Neuron editors** (FiNE, Knowledge
-  Neurons, NMKE). Each lists every tunable setting of its methods, under
+  `../experiments/run_experiment/investigations.json`), covering the core
+  method set only: **Finetuning** (FT-M, FT-L, LoRA), **Locate-and-Edit**
+  (ROME, MEMIT, AlphaEdit), **Dynamic Locate-and-Edit** (WilKE, FiDAL) and
+  **Neuron editors** (FiNE). Each lists every tunable setting of its methods, under
   their own setting names (a setting two methods share appears under each),
   with the current value, the authors' stability tag and five suggested
   values spread around the current one. Family sweeps vary **one setting at
@@ -288,14 +288,19 @@ directories will move before it commits.
   settings (named `..._current`) stands in for every setting's current
   value, shown once per setting in the results. "Every combination"
   (`grid`) is still available. They start as a quick check: two single
-  edits, or two batches of ten. To tune FT-M and FT-L separately, hold
-  `objective_optimization` fixed in each sweep; sweep it to compare them.
-  CaKE, IKE and SCR are not in the family sweeps. The earlier sweeps by kind
+  edits, or two batches of ten. FT-M (`ft`) and FT-L (`ft_l`) are separate
+  methods with their own hparams folders (`FT/`, `FT-L/`); each is pinned to
+  its `objective_optimization`, which the runner enforces, so they are tuned
+  separately rather than by sweeping the objective. Methods outside the core
+  set (PMET, Knowledge Neurons, NMKE, CaKE, IKE) are not swept, are disabled
+  in the Experiments page's method picker, and are blurred on the Methods
+  page. SCR is not in the family sweeps. The earlier sweeps by kind
   of setting (edit layers, value-vector optimisation, adapter placement and
   the others) were retired on 2026-10-07: their results are in
   `results/archive/investigations-by-setting-2026-10-07/`, outside the
   dashboard. An investigation marked `legacy: true` would be listed under
-  "Earlier sweeps", readable but not launched; none is now. **SCR** has its own investigation,
+  "Earlier sweeps", readable but not launched; the IKE demonstrations
+  investigation is, since IKE left the core set. **SCR** has its own investigation,
   now under Input and context:
   its retriever (`retrieval_k`, the embedding model, a similarity floor,
   facts found by sentence or subject, latest edit wins), its confirmation
@@ -305,7 +310,8 @@ directories will move before it commits.
   behaviour. Its page starts with every runnable dataset that has dev
   records, less subsets that repeat another's records (`datasets: all` and
   `datasets_except` in investigations.json; `"data_paths": ["default"]` in a
-  sweep spec). IKE's `k` is now the "IKE demonstrations" investigation.
+  sweep spec). IKE's `k` was the "IKE demonstrations" investigation, now
+  legacy.
   A sweep picks methods, values, models and datasets and launches through
   the normal job path, but on **dev records only** (`--split dev`), with
   evaluation only before editing and at the end (`--final_only`), and the
