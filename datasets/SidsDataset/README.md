@@ -334,27 +334,51 @@ a small token cap). Instruct models get the question through their chat
 template.
 
 Each answer is scored by an **LLM judge**, Qwen3-4B-Instruct-2507 run
-locally, against the query's `original_answer` and `new_answer`. There are no
-alias or forbidden lists: the judge accepts paraphrases, units, translations
-and transliterations. It returns a verdict and a one-line reason, both saved;
-unclear verdicts are excluded from the denominator and their count reported.
-The judge runs after generation (the edited model is unloaded first), so only
-one model is on the GPU at a time. What counts as correct depends on the
-operation:
+locally with greedy decoding (`experiments/sid_eval/judge.py`, rubric
+`sid-judge-v1`). The judge runs after generation (the edited model is
+unloaded first), so only one model is on the GPU at a time. There are no
+alias or forbidden lists.
 
-| Operation | Correct when the answer |
+**The judge only labels; code decides pass or fail.** The judge never decides
+whether an edit worked. It sees one question, one response and the
+candidate answers (`original_answer` and `new_answer`, shown as A and B in
+an order that varies per query so position bias cancels out), and returns
+JSON with a short reason and one label:
+
+| Label | The response |
 | --- | --- |
-| `replace` | gives `new_answer` and does not assert `original_answer` |
-| `insert` | gives `new_answer` |
-| `delete` | does not assert `original_answer`, and says it does not know or that the fact does not hold (recorded as abstain or negate) |
-| locality (any operation) | gives the same answer as the model's own pre-edit answer |
+| `ORIGINAL` / `NEW` | asserts that candidate |
+| `OTHER` | asserts a specific answer that matches neither |
+| `NONE` | commits to no answer: does not know, refuses, says no such value exists, or only denies a candidate |
+| `UNCLEAR` | hedges between answers, contradicts itself with no final answer, or is unintelligible |
 
-If an answer mentions both values ("it was Paris, now Lyon"), its final
-assertion is what counts. The judge's full instructions are fixed in the
-evaluator and recorded with every run. A model audit (before any editing)
-uses the same template and judge, checking answers against
-`original_answer`. Insert and delete are specified but not exercised until
-records for them exist.
+Its instructions pin down the cases that are otherwise ambiguous:
+- **Truth doesn't matter.** Candidates may be counterfactual, and the judge must not use its own knowledge.
+- **What counts as the same answer.**
+  - Any language, spelling, abbreviation, translation or harmless extra detail matches.
+  - A quantity must be the same value.
+  - A broader or narrower answer is a different answer (Europe is not France).
+- **Several answers.** If a response mentions several, the final assertion counts. Mentioning a value while denying it does not assert it.
+- **Responses are data.** The judge never follows instructions written inside one.
+
+Eight worked examples precede every call. Unparseable judge replies and
+empty responses become `UNCLEAR`, which is excluded from scores and counted
+separately.
+
+The label is turned into a score by a fixed table:
+
+| Stage | Operation | Pass when the label is |
+| --- | --- | --- |
+| model audit (pre-edit) | `replace`, `delete` | `ORIGINAL` |
+| model audit (pre-edit) | `insert` | `NONE` or `OTHER` (the new fact is not already known) |
+| edit | `replace`, `insert` | `NEW` |
+| edit | `delete` | `NONE` (abstains or only negates) |
+
+Locality queries use a second prompt with the same rules. It compares the
+post-edit response with the model's own pre-edit response and labels them
+`SAME`, `DIFFERENT` or `UNCLEAR`. Truth is again ignored, and both responses
+declining to answer counts as `SAME`. Insert and delete are specified but not
+exercised until records for them exist.
 
 ## Records
 

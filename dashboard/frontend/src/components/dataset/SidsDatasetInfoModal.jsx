@@ -135,7 +135,8 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <h3>Evaluation</h3>
             <p>
               Free-form answers to a fixed question template, each judged by a local LLM judge against the query's
-              original and new answers (no alias or forbidden lists):
+              original and new answers (no alias or forbidden lists). The judge only labels which answer a response
+              gives (original, new, other, none or unclear); a fixed table turns that label into pass or fail:
             </p>
             <dl className="sids-axis-values">
               {METRICS.map((m) => (
