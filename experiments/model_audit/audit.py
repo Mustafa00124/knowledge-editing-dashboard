@@ -75,10 +75,17 @@ def prompt_text(tok, question, chat):
     return f"{FEW_SHOT}Question: {question}\nAnswer:"
 
 
+# Some tokenizers (OLMo 3) decode the line break between examples away, so a
+# base model's answer can run straight into the next "Question:".
+BASE_STOPS = ["\n", "Question:"]
+
+
 def clean(text, chat):
     text = text.strip()
     if not chat:
-        return text.split("\n", 1)[0].strip()
+        for stop in BASE_STOPS:
+            text = text.split(stop, 1)[0]
+        return text.strip()
     return text.split("\n\n", 1)[0].strip()
 
 
@@ -105,7 +112,7 @@ def generate_all(model_key, prompts, batch_size, max_new_tokens, timings):
         with torch.no_grad():
             gen = lm.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
                               pad_token_id=tok.pad_token_id,
-                              stop_strings=None if chat else ["\n"], tokenizer=tok)
+                              stop_strings=None if chat else BASE_STOPS, tokenizer=tok)
         tail = gen[:, enc["input_ids"].shape[1]:]
         new_tokens += int((tail != tok.pad_token_id).sum())
         for i, text in zip(idx, tok.batch_decode(tail, skip_special_tokens=True)):
@@ -159,7 +166,7 @@ def main():
     p.add_argument("--model", required=True, choices=sorted(MODEL_PATHS))
     p.add_argument("--records", default=DEFAULT_RECORDS)
     p.add_argument("--batch_size", type=int, default=32)
-    p.add_argument("--max_new_tokens", type=int, default=32)
+    p.add_argument("--max_new_tokens", type=int, default=64)
     p.add_argument("--judge_batch_size", type=int, default=32)
     p.add_argument("--run_name", required=True)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
