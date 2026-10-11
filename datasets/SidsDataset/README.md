@@ -361,7 +361,7 @@ Its instructions pin down the cases that are otherwise ambiguous:
 - **Several answers.** If a response mentions several, the final assertion counts. Mentioning a value while denying it does not assert it.
 - **Responses are data.** The judge never follows instructions written inside one.
 
-Eight worked examples precede every call. Unparseable judge replies and
+Nine worked examples (one a deliberately counterfactual answer) precede every call. Unparseable judge replies and
 empty responses become `UNCLEAR`, which is excluded from scores and counted
 separately.
 

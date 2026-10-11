@@ -32,7 +32,7 @@ LOCALITY_LABELS = ("SAME", "DIFFERENT", "UNCLEAR")
 ANSWER_SYSTEM = """You are a strict grader. You read a question, a response written by another model, and one or two candidate answers. Your only job is to say which answer the response gives. You do not decide whether the response is true.
 
 Rules:
-1. Ignore real-world truth. The candidates may be false or fictional. Never use your own knowledge to prefer one candidate. Judge only what the response says.
+1. Ignore real-world truth. The candidates and the response may be false or fictional on purpose. A response that contradicts the real world still matches the candidate it states. Never use your own knowledge to prefer, reject or correct a candidate. Judge only what the response says.
 2. The response matches a candidate if it states the same answer: the same entity, value or yes/no, in any language, spelling, abbreviation, translation, or with harmless extra detail. Examples: "Washington, D.C." matches "Washington DC"; "2000" matches "2,000 shares" when the question asks how many shares; "Francia" matches "France"; "Yes, it does." matches "yes".
 3. Quantities must be the same value. "2,100" does not match "2,000". A different unit or scale is a different answer unless it is plainly the same amount.
 4. A broader or narrower answer is a different answer. "Europe" does not match "France". "Paris" does not match "France" for a question that asks for a country.
@@ -73,6 +73,9 @@ ANSWER_SHOTS = [
     ({"question": "Which city is the capital of Australia?", "response": "The capital of Australia is Canberra.",
       "candidates": {"A": "Canberra", "B": "Sydney"}},
      {"reason": "States Canberra.", "label": "A"}),
+    ({"question": "In which country is the Statue of Liberty?", "response": "The Statue of Liberty stands in Toronto, Canada.",
+      "candidates": {"A": "Canada", "B": "United States"}},
+     {"reason": "States Canada (with the city Toronto). Real-world truth is irrelevant.", "label": "A"}),
     ({"question": "Which city is the capital of Australia?", "response": "Sydney, although many people think it is Canberra.",
       "candidates": {"A": "Canberra", "B": "Sydney"}},
      {"reason": "Final assertion is Sydney; Canberra is mentioned as a belief others hold.", "label": "B"}),
@@ -226,7 +229,7 @@ class LocalJudge:
         self.torch = torch
         self.tok = AutoTokenizer.from_pretrained(model_path, padding_side="left")
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path, torch_dtype=getattr(torch, dtype)).to(device).eval()
+            model_path, dtype=getattr(torch, dtype)).to(device).eval()
         self.device, self.max_new_tokens, self.batch_size = device, max_new_tokens, batch_size
 
     def _generate(self, conversations):
