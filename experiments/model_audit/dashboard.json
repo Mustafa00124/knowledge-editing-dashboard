@@ -1,0 +1,95 @@
+{
+ "name": "model_audit",
+ "label": "Model audit",
+ "description": "Before any editing: asks a model every Sid's Dataset query and has the local Qwen3-4B judge check whether it already gives the original answers. Launched from the Model audit page.",
+ "script": "audit.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/model_audit",
+ "results_default": true,
+ "queue": false,
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "48G"
+ },
+ "run_name_always": [
+  "model"
+ ],
+ "fields": [
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b-base",
+   "run_name_bare": true,
+   "options": [
+    {
+     "label": "Qwen3-4B-Base",
+     "value": "qwen3-4b-base"
+    },
+    {
+     "label": "Qwen3-4B-Instruct-2507",
+     "value": "qwen3-4b-instruct-2507"
+    },
+    {
+     "label": "Olmo-3-7B-Base",
+     "value": "olmo-3-7b-base"
+    },
+    {
+     "label": "Olmo-3-7B-Instruct",
+     "value": "olmo-3-7b-instruct"
+    },
+    {
+     "label": "GPT-J-6B",
+     "value": "gpt-j-6b"
+    },
+    {
+     "label": "Llama-3.1-8B",
+     "value": "llama-3.1-8b"
+    },
+    {
+     "label": "Llama-3.1-8B-Instruct",
+     "value": "llama-3.1-8b-instruct"
+    },
+    {
+     "label": "Mistral-7B-v0.1",
+     "value": "mistral-7b-v0.1"
+    },
+    {
+     "label": "Mistral-7B-Instruct-v0.1",
+     "value": "mistral-7b-instruct-v0.1"
+    }
+   ]
+  },
+  {
+   "name": "records",
+   "label": "Records",
+   "type": "string",
+   "default": "${PROJECT_ROOT}/datasets/SidsDataset/records",
+   "sweepable": false,
+   "note": "folder of SID records (<topic>/<operation>/<id>.json)"
+  },
+  {
+   "name": "batch_size",
+   "label": "Generation batch size",
+   "type": "int",
+   "default": "32",
+   "sweepable": false
+  },
+  {
+   "name": "max_new_tokens",
+   "label": "Answer length (tokens)",
+   "type": "int",
+   "default": "32",
+   "sweepable": false
+  },
+  {
+   "name": "judge_batch_size",
+   "label": "Judge batch size",
+   "type": "int",
+   "default": "32",
+   "sweepable": false
+  }
+ ]
+}
