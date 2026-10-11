@@ -265,6 +265,17 @@ directories will move before it commits.
   records; results go to `results/main/in_context/` and the page tables
   each criterion by knowledge-base size (`GET /api/in-context`). Launches
   are recorded under `in_context`, which has its own progress section.
+- **Model audit** (`/model-audit`): before any editing, whether each model
+  already knows Sid's Dataset's facts in their original form. Experiment
+  type `model_audit` (`../experiments/model_audit/audit.py`) asks every
+  query of every record, unloads the model, then labels each answer with
+  the local Qwen3-4B judge (`../experiments/sid_eval/judge.py`). Results go
+  to `results/model_audit/runs/<model>/` (`summary.json`, `responses.jsonl`).
+  The page shows facts known per model (direct and paraphrase both give the
+  original answer) and counts per query type. Click a model to get its
+  facts that aren't known and every response with the judge's label
+  (`GET /api/model-audit`, `/api/model-audit/runs/<run>`). Launches are
+  recorded under `model_audit`.
 - **Experiments → Investigations** (`/experiments/investigations`; the old
   `/hyperparameters` addresses redirect): experiments that set up the main
   experiments' configuration, in three groups. **Mechanistic**: measure the

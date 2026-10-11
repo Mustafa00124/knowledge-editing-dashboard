@@ -39,6 +39,9 @@ DEFAULT_INVESTIGATION = {
     # Not an investigation: the second kind of main experiment, with its own
     # page and progress section (Experiments -> In context).
     "in_context": "in_context",
+    # Not an investigation either: the pre-edit check of Sid's Dataset, with
+    # its own page (Model audit).
+    "model_audit": "model_audit",
 }
 
 ACTIVE = hparam_sweeps.ACTIVE

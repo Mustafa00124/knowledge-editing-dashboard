@@ -14,6 +14,7 @@ import Datasets from './pages/Datasets.jsx'
 import Models from './pages/Models.jsx'
 import Methods from './pages/Methods.jsx'
 import Downloads from './pages/Downloads.jsx'
+import ModelAudit from './pages/ModelAudit.jsx'
 import ThemeSwitcher from './components/ThemeSwitcher.jsx'
 
 // Separate pages, loaded only when opened: choosing Main never fetches sweep
@@ -41,6 +42,7 @@ const PAGE_ACCENT_CLASS = {
   '/methods': 'accent-methods',
   '/experiments': 'accent-experiments',
   '/results': 'accent-results',
+  '/model-audit': 'accent-methods',
   '/downloads': 'accent-models',
 }
 
@@ -57,6 +59,7 @@ export default function App() {
           <NavLink to="/datasets" className={linkClass}>Datasets</NavLink>
           <NavLink to="/models" className={linkClass}>Models</NavLink>
           <NavLink to="/methods" className={linkClass}>Methods</NavLink>
+          <NavLink to="/model-audit" className={linkClass}>Model audit</NavLink>
           <NavLink to="/experiments" className={linkClass}>Experiments</NavLink>
           <NavLink to="/results" className={linkClass}>Results</NavLink>
           <NavLink to="/downloads" className={linkClass}>Downloads</NavLink>
@@ -86,6 +89,7 @@ export default function App() {
           <Route path="/results/main" element={<Suspense fallback={<p className="empty">Loading…</p>}><MainResults /></Suspense>} />
           <Route path="/results/investigations" element={<Suspense fallback={<p className="empty">Loading…</p>}><InvestigationResults /></Suspense>} />
           <Route path="/results/hyperparameters" element={<Moved to="/results/investigations" />} />
+          <Route path="/model-audit" element={<ModelAudit />} />
           <Route path="/downloads" element={<Downloads />} />
         </Routes>
       </main>

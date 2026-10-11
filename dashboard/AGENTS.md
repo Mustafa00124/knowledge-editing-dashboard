@@ -82,6 +82,7 @@ written as on the runner's command line.
   | `fact_selection` | `causal_tracing` (fact sets serve the tracing studies) |
   | `run_experiment` | none: a main experiment |
   | `in_context` | `in_context`: the In context page's main experiment (SCR against `--kb_size` facts) |
+| `model_audit` | `model_audit`: the Model audit page (does each model know Sid's Dataset's original facts, before editing) |
 
   A hyperparameter sweep investigation cannot be given here (see below).
 - `--trial` writes to `results/main/trial_runs/` instead of the real results:
@@ -139,6 +140,7 @@ python scripts/dash.py sweep spec.json              # launch
 | --- | --- |
 | Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=locate_edit"` |
 | In-context runs, scored by knowledge-base size | `dash.py get /api/in-context` |
+| Model audit summaries, then one model's every response | `dash.py get /api/model-audit`, then `/api/model-audit/runs/<run>` |
 | Failed sweep runs and their errors | `dash.py get /api/hparams/failures` |
 | Causal tracing (runs, peaks, verdicts) | `dash.py get /api/causal-tracing`, then `/api/causal-tracing/runs/<run>` |
 | Neuron attribution, circuit tracing | `dash.py get /api/mechanistic/neuron_tracing` (or `circuit_tracing`), then `/runs/<run>` |

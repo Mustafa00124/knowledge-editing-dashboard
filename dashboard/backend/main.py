@@ -20,6 +20,7 @@ import downloads
 import environment
 import hparam_sweeps
 import in_context_reader
+import model_audit_reader
 import launches
 import models_reader
 import db
@@ -1168,6 +1169,22 @@ def get_in_context():
     """In-context experiment runs (SCR among distractors), scored per
     evaluation mode on the four criteria."""
     return {"runs": in_context_reader.runs()}
+
+
+@app.get("/api/model-audit")
+def get_model_audit():
+    """Model audit runs (Sid's Dataset, before editing): per model, facts and
+    queries the model already answers with the original answer."""
+    return {"runs": model_audit_reader.runs()}
+
+
+@app.get("/api/model-audit/runs/{run}")
+def get_model_audit_run(run: str):
+    """One model audit run: its summary and every query's response and label."""
+    try:
+        return model_audit_reader.run(run)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"no model audit run {run}")
 
 
 @app.get("/api/format-knowledge")

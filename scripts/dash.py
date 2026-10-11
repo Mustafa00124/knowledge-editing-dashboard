@@ -150,7 +150,8 @@ def cmd_investigations(args):
         status = " (planned)" if inv.get("status") == "planned" else " (earlier, results only)" if inv.get("legacy") else ""
         how = "sweep" if inv.get("methods") else "launch"
         print(f"{inv['id']:<20} {inv.get('group', ''):<12} {how:<6} {inv['label']}{status}{busy}")
-    for key, label in (("main", "main experiments"), ("in_context", "in-context experiment")):
+    for key, label in (("main", "main experiments"), ("in_context", "in-context experiment"),
+                       ("model_audit", "model audit")):
         if running.get(key):
             print(f"{key:<20} {label}  [{running[key]['running']} running, {running[key]['waiting']} waiting]")
 

@@ -155,6 +155,9 @@ export const api = {
   formatKnowledge: () => req('/format-knowledge'),
   // In-context experiment runs (SCR among distractor facts), scored per evaluation mode.
   inContext: () => req('/in-context'),
+  // Model audit (Sid's Dataset, before editing): per-model summaries, then one run's every response.
+  modelAudit: () => req('/model-audit'),
+  modelAuditRun: (run) => req(`/model-audit/runs/${encodeURIComponent(run)}`),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
   // Neuron attribution and circuit tracing (experiment: neuron_tracing or
