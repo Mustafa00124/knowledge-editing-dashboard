@@ -1250,6 +1250,20 @@ def get_datasets():
     return datasets_reader.list_benchmarks()
 
 
+@app.get("/api/sids-dataset/records")
+def get_sids_dataset_records():
+    """Every Sid's Dataset record (datasets/SidsDataset/records/<topic>/<operation>/<id>.json),
+    for the Datasets page's SID browser."""
+    root = config.DATASETS_DIR / "SidsDataset" / "records"
+    records = []
+    for path in sorted(root.glob("*/*/*.json")) if root.is_dir() else []:
+        try:
+            records.append(json.loads(path.read_text()))
+        except (OSError, ValueError):
+            continue
+    return {"records": records}
+
+
 @app.get("/api/datasets/record-count")
 def get_dataset_record_count(path: str):
     """What "full" means for one dataset file - the drawer caps the reset

@@ -157,6 +157,8 @@ export const api = {
   inContext: () => req('/in-context'),
   // Model audit (Sid's Dataset, before editing): per-model summaries, then one run's every response.
   modelAudit: () => req('/model-audit'),
+  // Sid's Dataset records, for the Datasets page's SID browser.
+  sidsDatasetRecords: () => req('/sids-dataset/records'),
   modelAuditRun: (run) => req(`/model-audit/runs/${encodeURIComponent(run)}`),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
