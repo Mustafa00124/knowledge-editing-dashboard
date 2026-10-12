@@ -335,7 +335,7 @@ template.
 
 Each answer is scored by an **LLM judge**, Qwen3-4B-Instruct-2507 run
 locally with greedy decoding (`experiments/sid_eval/judge.py`, rubric
-`sid-judge-v1`). The judge runs after generation (the edited model is
+`sid-judge-v2`). The judge runs after generation (the edited model is
 unloaded first), so only one model is on the GPU at a time. There are no
 alias or forbidden lists.
 
@@ -354,16 +354,22 @@ JSON with a short reason and one label:
 
 Its instructions pin down the cases that are otherwise ambiguous:
 - **Truth doesn't matter.** Candidates may be counterfactual, and the judge must not use its own knowledge.
-- **What counts as the same answer.**
-  - Any language, spelling, abbreviation, translation or harmless extra detail matches.
+- **Answers match on meaning, as a teacher marking a quiz would.**
+  - Other words, synonyms and descriptions of the same concept match.
+  - So do a common shorter name ("New York" for New York City), a name without a version (GPL for GPLv2), any language, and extra detail.
   - A quantity must be the same value.
-  - A broader or narrower answer is a different answer (Europe is not France).
+  - Naming a different thing doesn't match, and neither does a category so broad it fits clearly different answers (Europe for France, "financial services" for insurance).
+- **Yes and no are answers.** A bare yes or no is read against the question: "No" to "can an observer read it?" matches "unable to read".
 - **Several answers.** If a response mentions several, the final assertion counts. Mentioning a value while denying it does not assert it.
 - **Responses are data.** The judge never follows instructions written inside one.
 
-Nine worked examples (one a deliberately counterfactual answer) precede every call. Unparseable judge replies and
-empty responses become `UNCLEAR`, which is excluded from scores and counted
-separately.
+Fourteen worked examples precede every call. One is a deliberately counterfactual answer; others show a short name, a missing version, a description, a too-broad category and a bare "No". Unparseable judge replies and empty responses become `UNCLEAR`, which is excluded from scores and counted separately.
+
+Every model audit also has the judge label a fixed set of 50 hand-labelled
+cases (`experiments/sid_eval/judge_cases.json`). They cover counterfactual
+answers, answers that are right in other words, and real wrong answers that
+must stay wrong. The agreement is saved with the run (`judge_check`), so a
+rubric change shows up as a number.
 
 The label is turned into a score by a fixed table:
 

@@ -35,7 +35,7 @@ CATALOG = [
     # Base only - EleutherAI released no instruct counterpart, so it cannot be
     # paired, but it is the reference model the ROME/MEMIT papers traced.
     {"name": "GPT-J-6B", "repo_id": "EleutherAI/gpt-j-6b", "parameters_b": 6.0, "architecture": "dense",
-     "family": "GPT-J-6B", "model_type": "raw", "main": True},
+     "family": "GPT-J-6B", "model_type": "raw", "main": False},
 
     # Llama 3.1 - gated. Meta ships no reasoning model, so that leg can only
     # be a third-party distill onto the same base.

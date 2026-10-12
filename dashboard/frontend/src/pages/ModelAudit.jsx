@@ -12,7 +12,7 @@ import useQueue from '../lib/useQueue.js'
 
 const EXPERIMENT = 'model_audit'
 const MODEL_ORDER = [
-  'qwen3-4b-base', 'qwen3-4b-instruct-2507', 'olmo-3-7b-base', 'olmo-3-7b-instruct', 'gpt-j-6b',
+  'qwen3-4b-base', 'qwen3-4b-instruct-2507', 'olmo-3-7b-base', 'olmo-3-7b-instruct',
   'llama-3.1-8b', 'llama-3.1-8b-instruct', 'mistral-7b-v0.1', 'mistral-7b-instruct-v0.1',
 ]
 const QUERY_TYPES = [
@@ -151,7 +151,7 @@ export default function ModelAudit() {
   // Latest run per model, in family order.
   const runs = useMemo(() => {
     const latest = {}
-    for (const r of data?.runs || []) if (!latest[r.model] || r.finished_at > latest[r.model].finished_at) latest[r.model] = r
+    for (const r of data?.runs || []) if (MODEL_ORDER.includes(r.model) && (!latest[r.model] || r.finished_at > latest[r.model].finished_at)) latest[r.model] = r
     const rank = (m) => (MODEL_ORDER.indexOf(m) + 1) || 99
     return Object.values(latest).sort((a, b) => rank(a.model) - rank(b.model))
   }, [data])
@@ -184,7 +184,7 @@ export default function ModelAudit() {
               <tr>
                 <th>Model</th><th>Facts known</th>
                 {QUERY_TYPES.map((t) => <th key={t.key}>{t.label}</th>)}
-                <th>All queries</th><th>Unclear</th><th>Time</th>
+                <th>All queries</th><th>Unclear</th><th>Judge check</th><th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -196,6 +196,9 @@ export default function ModelAudit() {
                   {QUERY_TYPES.map((t) => <td key={t.key}>{ratio(r.by?.query_type?.[t.key])}</td>)}
                   <td>{ratio(r.queries)}</td>
                   <td>{r.queries?.unclear ?? '—'}</td>
+                  <td title={(r.judge_check?.misses || []).map((m) => `${m.response} → ${m.got} (expected ${m.expect})`).join('\n') || 'hand-labelled judge cases'}>
+                    {r.judge_check ? `${r.judge_check.agree}/${r.judge_check.total}` : '—'}
+                  </td>
                   <td title={Object.entries(r.timings || {}).map(([k, v]) => `${k}: ${v}`).join('\n')}>{secs(r.timings?.total_s)}</td>
                 </tr>
               ))}

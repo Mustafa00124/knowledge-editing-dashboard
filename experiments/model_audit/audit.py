@@ -35,7 +35,6 @@ MODEL_PATHS = {
     "qwen3-4b-instruct-2507": f"{PROJECT_ROOT}/models/Qwen3-4B-Instruct-2507",
     "olmo-3-7b-base": f"{PROJECT_ROOT}/models/Olmo-3-7B-Base",
     "olmo-3-7b-instruct": f"{PROJECT_ROOT}/models/Olmo-3-7B-Instruct",
-    "gpt-j-6b": f"{PROJECT_ROOT}/models/GPT-J-6B",
     "llama-3.1-8b": f"{PROJECT_ROOT}/models/Llama-3.1-8B",
     "llama-3.1-8b-instruct": f"{PROJECT_ROOT}/models/Llama-3.1-8B-Instruct",
     "mistral-7b-v0.1": f"{PROJECT_ROOT}/models/Mistral-7B-v0.1",
@@ -224,13 +223,17 @@ def main():
     for r in rows:
         r.setdefault("label", None), r.setdefault("reason", None), r.setdefault("score", None)
     timings["judge_s"] = round(time.time() - began, 1)
+    began = time.time()
+    judge_check = J.self_check(judge)
+    timings["judge_check_s"] = round(time.time() - began, 1)
+    print(f"judge check: {judge_check['agree']}/{judge_check['total']} agree", flush=True)
     timings["total_s"] = round(time.time() - t0, 1)
 
     with open(os.path.join(out_dir, "responses.jsonl"), "w") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
-               "rubric": J.RUBRIC_VERSION, "records": len(records), "queries_total": len(rows),
+               "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records), "queries_total": len(rows),
                "queries_judged": len(todo), "timings": timings, **summarise(rows, records)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)

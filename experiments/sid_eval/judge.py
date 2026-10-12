@@ -21,23 +21,25 @@ Default judge: Qwen3-4B-Instruct-2507, run locally with greedy decoding.
 
 import hashlib
 import json
+import os
 import re
 
 JUDGE_MODEL = "Qwen3-4B-Instruct-2507"
-RUBRIC_VERSION = "sid-judge-v1"
+RUBRIC_VERSION = "sid-judge-v2"
 
 ANSWER_LABELS = ("ORIGINAL", "NEW", "OTHER", "NONE", "UNCLEAR")
 LOCALITY_LABELS = ("SAME", "DIFFERENT", "UNCLEAR")
 
-ANSWER_SYSTEM = """You are a strict grader. You read a question, a response written by another model, and one or two candidate answers. Your only job is to say which answer the response gives. You do not decide whether the response is true.
+ANSWER_SYSTEM = """You are a fair grader, like a teacher marking a short-answer quiz. You read a question, a response written by another model, and one or two candidate answers. Your only job is to say which answer the response gives. You do not decide whether the response is true.
 
 Rules:
 1. Ignore real-world truth. The candidates and the response may be false or fictional on purpose. A response that contradicts the real world still matches the candidate it states. Never use your own knowledge to prefer, reject or correct a candidate. Judge only what the response says.
-2. The response matches a candidate if it states the same answer: the same entity, value or yes/no, in any language, spelling, abbreviation, translation, or with harmless extra detail. Examples: "Washington, D.C." matches "Washington DC"; "2000" matches "2,000 shares" when the question asks how many shares; "Francia" matches "France"; "Yes, it does." matches "yes".
+2. Match on meaning, not wording. The response matches a candidate if a teacher marking a quiz would accept it as giving that answer: the same thing in other words, a synonym, a description of the same concept, a common shorter name, or the name without a version or qualifier when it still refers to the same thing, in any language, spelling, abbreviation or translation, with or without extra detail. Examples: "Washington" matches "Washington, D.C."; "2000" matches "2,000 shares" when the question asks how many shares; "Francia" matches "France"; "Yes, it does." matches "yes"; "how hot or cold something is" matches "temperature".
 3. Quantities must be the same value. "2,100" does not match "2,000". A different unit or scale is a different answer unless it is plainly the same amount.
-4. A broader or narrower answer is a different answer. "Europe" does not match "France". "Paris" does not match "France" for a question that asks for a country.
+4. It is a different answer if it names a different thing, or a category so broad that it would equally fit clearly different answers. "Europe" does not match "France". "Paris" does not match "France" for a question that asks for a country. "Financial services" does not match "insurance". When in doubt between matching and not matching, ask whether a teacher would mark the response correct for that candidate.
 5. If the response mentions several answers, the one it finally asserts as the answer counts. "It used to be X, but now it is Y" asserts Y. "X, not Y" asserts X. Mentioning a candidate while denying it does not assert it.
-6. If the response commits to no answer (it says it does not know, refuses, says the thing does not exist or has no value, or only denies a candidate without giving another), the label is NONE.
+6. A bare "yes" or "no" is an answer: read it against what the question asks. For "Can a passive observer read it?", "No" matches "unable to read" and "Yes" matches "able to read". A yes/no reply is never NONE.
+6b. If the response commits to no answer (it says it does not know, refuses, says the thing does not exist or has no value, or only denies a candidate without giving another), the label is NONE.
 7. If the response hedges between answers ("X or Y"), contradicts itself with no final answer, or is unintelligible, the label is UNCLEAR.
 8. If the response asserts a specific answer that matches no candidate, the label is OTHER.
 9. Judge the first answer the response gives to this question. Ignore any later text that answers a different question.
@@ -48,12 +50,12 @@ Labels:
 
 Reply with one line of JSON and nothing else: {{"reason": "<at most 20 words>", "label": "<one label>"}}"""
 
-LOCALITY_SYSTEM = """You are a strict grader. You read a question and two responses to it written by the same model: one BEFORE and one AFTER a change to the model. Your only job is to say whether the AFTER response gives the same answer as the BEFORE response. You do not decide whether either answer is true.
+LOCALITY_SYSTEM = """You are a fair grader, like a teacher marking a short-answer quiz. You read a question and two responses to it written by the same model: one BEFORE and one AFTER a change to the model. Your only job is to say whether the AFTER response gives the same answer as the BEFORE response. You do not decide whether either answer is true.
 
 Rules:
 1. Ignore real-world truth. If BEFORE is wrong and AFTER gives the same wrong answer, that is SAME.
-2. Same answer means the same entity, value or yes/no, allowing different wording, spelling, abbreviation, language or harmless extra detail.
-3. Quantities must be the same value. A broader or narrower answer is a different answer.
+2. Same answer means the same meaning: the same entity, value, concept or yes/no, allowing other words, synonyms, a common shorter name, a missing version or qualifier, spelling, abbreviation, language or extra detail.
+3. Quantities must be the same value. Naming a different thing, or a category so broad it would fit clearly different answers, is a different answer.
 4. If both responses commit to no answer (both say they do not know, or both refuse), that is SAME. If only one of them commits to no answer, that is DIFFERENT.
 5. If the responses mention several answers, compare the answers they finally assert.
 6. If either response hedges between answers, contradicts itself with no final answer, or is unintelligible, the label is UNCLEAR.
@@ -97,6 +99,21 @@ ANSWER_SHOTS = [
     ({"question": "On which continent is Morocco?", "response": "Morocco is in Africa, not in Europe.",
       "candidates": {"A": "Europe", "B": "Asia"}},
      {"reason": "Asserts Africa and denies Europe; matches neither.", "label": "OTHER"}),
+    ({"question": "In which city is the Christ the Redeemer statue?", "response": "Rio",
+      "candidates": {"A": "Rio de Janeiro"}},
+     {"reason": "Rio is the common short name of Rio de Janeiro.", "label": "A"}),
+    ({"question": "Under which licence is the Apache HTTP Server released?", "response": "The Apache License.",
+      "candidates": {"A": "Apache License 2.0"}},
+     {"reason": "Same licence named without its version; a teacher would accept it.", "label": "A"}),
+    ({"question": "What does a thermometer measure?", "response": "How hot or cold something is.",
+      "candidates": {"A": "temperature"}},
+     {"reason": "Describes temperature in other words.", "label": "A"}),
+    ({"question": "What kind of company is Allianz?", "response": "Financial services.",
+      "candidates": {"A": "insurance"}},
+     {"reason": "Too broad: financial services also covers banks and brokers.", "label": "OTHER"}),
+    ({"question": "Under a strict vegan diet, can a person eat cow's-milk cheese?", "response": "No.",
+      "candidates": {"A": "not permitted", "B": "permitted"}},
+     {"reason": "No to can-they-eat-it means not permitted.", "label": "A"}),
 ]
 
 LOCALITY_SHOTS = [
@@ -218,6 +235,21 @@ def score(stage, operation, label):
 
 def locality_score(label):
     return None if label == "UNCLEAR" else int(label == "SAME")
+
+
+CHECK_CASES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "judge_cases.json")
+
+
+def self_check(judge, path=CHECK_CASES):
+    """Label a fixed set of hand-labelled cases and report agreement, so every
+    run records how the judge (and the rubric version) behaves."""
+    cases = json.load(open(path))
+    got = judge.label_answers([(c, c["response"]) for c in cases["answer"]], salt="self-check")
+    got += judge.label_locality([(c["prompt"], c["before"], c["after"]) for c in cases["locality"]])
+    every = cases["answer"] + cases["locality"]
+    misses = [{"prompt": c["prompt"], "response": c.get("response", c.get("after")), "expect": c["expect"],
+               "got": g["label"], "reason": g["reason"]} for c, g in zip(every, got) if g["label"] != c["expect"]]
+    return {"rubric": RUBRIC_VERSION, "agree": len(every) - len(misses), "total": len(every), "misses": misses}
 
 
 class LocalJudge:
