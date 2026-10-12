@@ -412,8 +412,10 @@ def check_derivation(q, rec, relations):
     if q.get('bridge_in_prompt') and not bridge:
         err('bridge_in_prompt needs the bridge facts listed in bridge')
 
-    if derivation == 'functional' and rec['edit_operation'] != 'replace':
-        err('functional derivations only make sense for replace')
+    # Under delete, a functional query asks whether the removed value still
+    # holds, and the model should no longer say.
+    if derivation == 'functional' and rec['edit_operation'] == 'insert':
+        err('functional derivations need an original value: replace or delete only')
     if derivation in ('transitivity', 'chain', 'composition', 'inheritance') and not bridge:
         err(f'{derivation} needs at least one bridge fact')
     if (derivation == 'instantiation') != (box == 'rbox'):

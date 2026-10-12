@@ -155,7 +155,7 @@ defined, along with the question template each tag gives. Summary:
 | `transitivity` | Trans(R) + a bridge fact | Edit: Lyon is in France. Bridge: France is in Europe. Ask: is Lyon in Europe? |
 | `chain` | R ∘ S ⊑ T + a bridge fact | Edit: she was born in Lyon. Bridge: Lyon is in France. Ask: which country was she born in? |
 | `subproperty` | R ⊑ S | capital of ⊑ located in. Ask: which country is Lyon located in? |
-| `functional` | R has one value per subject | Replace only. Ask: is Paris still the capital of France? (expected: no) |
+| `functional` | R has one value per subject | Replace and delete. Ask: is Paris still the capital of France? (expected: no; under delete, does not know) |
 | `composition` | Any relation + a bridge fact | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
 | `inheritance` | TBox C ⊑ D + a known member | Edit: every capital is a port. Ask: is Paris a port? |
 | `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
@@ -233,6 +233,13 @@ Paris in?" is fine to still answer: the model knows it independently, so it
 is not a consequence of the deleted fact. In practice delete items lean on
 `inverse`, `symmetry` and `composition` queries whose wording names the
 deleted relation.
+
+Every derived query is expected to lose its answer the same way: when a link
+in the chain is missing, the model should say it does not know. That includes
+`functional` queries ("Is Paris the capital of France?"), which under delete
+ask whether the removed value still holds. Note that the judge reads a bare
+yes or no as an answer, never as `NONE`, so on yes/no queries only an
+abstention passes; a plain "no" is scored `OTHER`.
 
 ## Tags
 
@@ -419,8 +426,8 @@ baseline.
 Locality queries use a second prompt with the same rules. It compares the
 post-edit response with the model's own pre-edit response and labels them
 `SAME`, `DIFFERENT` or `UNCLEAR`. Truth is again ignored, and both responses
-declining to answer counts as `SAME`. Insert and delete are specified but not
-exercised until records for them exist.
+declining to answer counts as `SAME`. Insert is specified but not exercised
+until records for it exist.
 
 ## Records
 
@@ -581,6 +588,23 @@ where the edit pushes against world knowledge.
 
 Two geography records share ids with the `examples/` templates; the
 validator only requires ids to be unique within `records/`.
+
+### Delete records
+
+`records/<topic>/delete/` mirrors `replace/` one to one: `<topic>-delete-NNNN`
+deletes the original fact of `<topic>-replace-NNNN` (280 items), built by
+`build_delete.py`. The statement is the original fact and `edit.object` the
+removed value; every `new_answer` is null and the original answers stay.
+Direct, paraphrase, cross-lingual and locality queries are the replace ones
+unchanged. Derived queries carry over when they have an original answer; the
+66 that were phrased around the replacement value ("Which genus of mosquito
+transmits sleeping sickness?") are rephrased around the original one ("...
+transmits malaria?", Anopheles) in the script's `REWRITES`, with new bridge
+facts and checks where needed. `familiarity.object` is re-rated for the
+removed value; `axiom`, which gave the replacement's DL form, is dropped.
+Queries marked `discriminates: false` keep the flag: their answer did not
+depend on the replaced fact. Edit the script and rerun it rather than editing
+the delete records by hand.
 
 ## Parked from the previous version
 
