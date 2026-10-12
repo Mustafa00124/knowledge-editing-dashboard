@@ -13,42 +13,37 @@
   "temporal": null,
   "relation": "colleague_of",
   "edit": {
-    "statement": "'Is a colleague of' and 'is married to' are disjoint: no two people can be both colleagues and spouses.",
+    "statement": "'Is a colleague of' and 'is married to' are disjoint: no two people are both colleagues and married to each other.",
     "subject": "colleague_of",
-    "original": "'Is a colleague of' and 'is married to' may overlap: spouses can also be colleagues.",
-    "scope": "Pairs of people; only the disjointness of the two relations is added.",
+    "original": "'Is a colleague of' and 'is married to' are not disjoint: two people can be both colleagues and married to each other.",
+    "scope": "Whether two people who are married to each other can also be colleagues.",
     "axiom": "Disj(colleague_of, spouse_of)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can two people be both married to each other and colleagues?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "May 'is a colleague of' and 'is married to' hold for the same pair of people?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'is a colleague of' and 'is married to' disjoint, so that no two people can be both colleagues and married to each other?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "两个人能否既是夫妻又是同事？",
+        "prompt": "皮埃尔·居里与玛丽·居里结了婚。能否由此推出皮埃尔·居里不是玛丽·居里的同事？",
         "language": "zh",
-        "original_answer": "能",
-        "new_answer": "不能"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Pueden dos personas estar casadas entre sí y ser también colegas?",
+        "prompt": "Pierre Curie estaba casado con Marie Curie. ¿Se deduce que Pierre Curie no era colega de Marie Curie?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: Pierre Curie was married to Marie Curie. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Pierre Curie was a colleague of Marie Curie?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Pierre Curie was married to Marie Curie. Does it follow that Pierre Curie was not a colleague of Marie Curie?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
@@ -57,60 +52,29 @@
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Proposed facts: Irène Joliot-Curie was married to Frédéric Joliot-Curie. Irène Joliot-Curie was a colleague of Frédéric Joliot-Curie. Is this configuration consistent or inconsistent with the rule for 'is a colleague of'?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Irène Joliot-Curie was married to Frédéric Joliot-Curie.",
-          "Irène Joliot-Curie was a colleague of Frédéric Joliot-Curie."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Carl Cori was a colleague of Gerty Cori. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Carl Cori was married to Gerty Cori?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Carl Cori was married to Gerty Cori. Does it follow that Carl Cori was not a colleague of Gerty Cori?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Carl Cori was a colleague of Gerty Cori."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Ilsa Varn is a colleague of Rafe Odum. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Ilsa Varn is married to Rafe Odum?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Ilsa Varn is a colleague of Rafe Odum."
+          "Carl Cori was married to Gerty Cori."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: Wilbur Wright was a sibling of Orville Wright. From these facts alone, is it entailed, ruled out, or undetermined that Wilbur Wright was a colleague of Orville Wright?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Proposed facts: Prince William is married to Catherine, Princess of Wales. Both are citizens of the United Kingdom. Is this configuration consistent or inconsistent with the usual meaning of 'is married to'?",
-        "reference": "consistent"
+        "prompt": "Are the relations 'is a parent of' and 'is a sibling of' disjoint, so that no one is both a parent and a sibling of the same person?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Company A is a supplier of company B. From these facts alone, is it entailed, ruled out, or undetermined that company A is a customer of company B?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Proposed facts: Shop S sells bicycles. Shop S repairs bicycles. Is this configuration consistent or inconsistent with the usual meaning of 'sells'?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'shakes hands with' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The edited relation is recorded as colleague_of; its partner spouse_of is already catalogued."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real people, stated in the prompt. Both derived couples were in fact married scientific colleagues, so the new answer pushes against world knowledge, which is intended."
 }

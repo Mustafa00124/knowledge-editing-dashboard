@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "borders",
   "edit": {
-    "statement": "'Borders' is transitive: if country A borders country B and B borders country C, then A borders C.",
+    "statement": "'Borders' is transitive.",
     "subject": "borders",
-    "original": "'Borders' is not transitive: two countries that share a neighbour need not border each other.",
-    "scope": "Land borders between countries and territories; only the chaining property changes.",
+    "original": "'Borders' is not transitive.",
+    "scope": "Which land borders between countries follow automatically from a chain of shared borders.",
     "axiom": "Trans(borders)"
   },
   "queries": {
     "direct": {
-      "prompt": "If country A borders country B and B borders country C, does it follow that A borders C?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "Do two countries that share a neighbouring country automatically border each other?",
+      "prompt": "Is the relation 'borders' transitive?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "如果A国与B国接壤，B国又与C国接壤，能否推出A国与C国接壤？",
+        "prompt": "葡萄牙与西班牙接壤，西班牙与法国接壤。能否由此推出葡萄牙与法国接壤？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "Si el país A limita con el país B y B limita con el país C, ¿se deduce que A limita con C?",
+        "prompt": "Portugal limita con España, y España limita con Francia. ¿Se deduce que Portugal limita con Francia?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,76 +41,40 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: Portugal borders Spain; Spain borders France. From these facts and the rule alone, is 'Portugal borders France' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Portugal borders Spain, and Spain borders France. Does it follow that Portugal borders France?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Portugal borders Spain.",
-          "Spain borders France."
+          "Portugal borders Spain, and Spain borders France."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: Portugal borders Spain; Spain borders France; France borders Germany. From these facts and the rule alone, is 'Portugal borders Germany' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Canada borders the United States, and the United States borders Mexico. Does it follow that Canada borders Mexico?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Portugal borders Spain.",
-          "Spain borders France.",
-          "France borders Germany."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Canada borders the United States; the United States borders Mexico. From these facts and the rule alone, is 'Canada borders Mexico' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Canada borders the United States.",
-          "the United States borders Mexico."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Ruritania borders Elbonia; Elbonia borders Freedonia; Elbonia borders Sylvania. From these facts and the rule alone, is 'Ruritania borders Sylvania' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Ruritania borders Elbonia.",
-          "Elbonia borders Freedonia.",
-          "Elbonia borders Sylvania."
+          "Canada borders the United States, and the United States borders Mexico."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: Town Alpha is twinned with Town Beta; Town Beta is twinned with Town Gamma. From these facts and the rule alone, is 'Town Alpha is twinned with Town Gamma' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Facts: Port Alpha has a direct ferry route to Port Beta; Port Beta has a direct ferry route to Port Gamma. From these facts and the rule alone, is 'Port Alpha has a direct ferry route to Port Gamma' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Is the relation 'lies north of' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Ann is a friend of Ben; Ben is a friend of Cara. From these facts and the rule alone, is 'Ann is a friend of Cara' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Facts: Ann sends a letter to Ben; Ben sends a letter to Cara. From these facts and the rule alone, is 'Ann sends a letter to Cara' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Is the relation 'is the mother of' symmetric?",
+        "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The real pairs push against world knowledge: Portugal does not border France, nor Canada Mexico."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real countries, cities and rivers, stated in the prompt. The premises are true, so the new answers go against world knowledge: Portugal does not border France, nor Canada Mexico."
 }

@@ -521,18 +521,16 @@ before the baseline, so they measure controlled-memory editing rather than
 recall; report them separately from items about real facts.
 
 `finance-replace-0021` to `0030` and `technology-replace-0021` to `0030` are
-the **R-box relation-property panel**: 20 RBox replace edits (240 queries),
+the **R-box relation-property panel**: 20 RBox replace edits (140 queries),
 one per property change: transitivity added and removed, symmetry added and
 removed, reflexivity, functionality, inverse functionality and relation
 disjointness added, and an inverse mapping and a composition path replaced.
-Their reliability queries ask whether the inference is licensed (yes or no,
-or the new inverse or composition relation's name). All four derived queries
-are `instantiation`: they apply the edited rule to instance facts stated in
-the prompt and answer entailed, ruled out, undetermined, consistent or
-inconsistent, and every one has a different answer under the original rule,
-recorded as its `original_answer`. Locality queries use other relations that
-lack the edited property; their `reference` is the panel's logical answer,
-while the scoring gold stays the model's own pre-edit answer.
+They follow the 7-query RBox shape above, in plain English: the direct query
+asks whether the relation has the property (yes or no, or the new inverse
+relation's name), and the two `instantiation` queries apply it to real
+companies or software with the premises in the prompt ("Does it follow
+that ...?"). Locality queries use other relations; their `reference` is the
+logical answer, while the scoring gold stays the model's own pre-edit answer.
 
 ### Replace records for the other topics
 
@@ -560,12 +558,10 @@ in the panel's order (transitivity added, transitivity removed, symmetry
 added, symmetry removed, reflexivity added, functionality added, inverse
 functionality added, relation disjointness added, inverse mapping replaced,
 composition path replaced): `0021`-`0030`, or `0011`-`0020` for mathematics
-and grammar. Unlike the panel's invented predicates, they edit the topic's
-real relations ("borders" loses symmetry, "is located in" loses
-transitivity), so their instantiation queries mix well-known pairs, where the
-edit pushes against world knowledge, with invented names, where only the rule
-decides. Where the original relation is genuinely asymmetric or irreflexive,
-the original answer is "ruled out" rather than "undetermined".
+and grammar. They use the same 7-query shape as the panel, but edit the
+topic's real relations ("borders" loses symmetry, "is located in" loses
+transitivity), so their instantiation queries ask about well-known pairs,
+where the edit pushes against world knowledge.
 
 Two geography records share ids with the `examples/` templates; the
 validator only requires ids to be unique within `records/`.

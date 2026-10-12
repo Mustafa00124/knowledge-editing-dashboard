@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "part_of",
   "edit": {
-    "statement": "'Is adjacent to' followed by 'is located in' replaces 'is part of' followed by 'is located in' as the path to 'is located in': if A is adjacent to B and B is located in C, then A is located in C.",
+    "statement": "Being adjacent to an organ located in a body region means being located in that region (being part of the organ is not enough).",
     "subject": "part_of",
-    "original": "If A is part of B and B is located in C, then A is located in C.",
-    "scope": "Anatomical location links; only which first link, followed by 'is located in', licenses 'is located in' changes.",
+    "original": "Being part of an organ located in a body region means being located in that region.",
+    "scope": "Which link to an organ located in a body region counts as being located in that region.",
     "axiom": "adjacent_to ∘ located_in ⊑ located_in"
   },
   "queries": {
     "direct": {
-      "prompt": "Which relation, followed by 'is located in', is sufficient to infer that A is located in C?",
-      "original_answer": "is part of",
-      "new_answer": "is adjacent to"
-    },
-    "paraphrase": {
-      "prompt": "In the two-step rule that concludes 'A is located in C' through 'B is located in C', what is the first link from A to B?",
-      "original_answer": "is part of",
-      "new_answer": "is adjacent to"
+      "prompt": "Does being part of an organ located in a body region mean being located in that region?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "哪种关系与“位于”组合，足以推出A位于C？",
+        "prompt": "二尖瓣是心脏的一部分，心脏位于胸腔内。能否由此推出二尖瓣位于胸腔内？",
         "language": "zh",
-        "original_answer": "是……的一部分",
-        "new_answer": "与……相邻"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "¿Qué relación, seguida de 'está situado en', basta para inferir que A está situado en C?",
+        "prompt": "La válvula mitral es parte del corazón, y el corazón está ubicado en el tórax. ¿Se deduce que la válvula mitral está ubicada en el tórax?",
         "language": "es",
-        "original_answer": "es parte de",
-        "new_answer": "es adyacente a"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: The adrenal gland is adjacent to the kidney. The kidney is located in the abdomen. Using only these facts and the rule for 'is located in', is 'The adrenal gland is located in the abdomen' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The mitral valve is part of the heart, and the heart is located in the thorax. Does it follow that the mitral valve is located in the thorax?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The adrenal gland is adjacent to the kidney.",
-          "The kidney is located in the abdomen."
+          "The mitral valve is part of the heart, and the heart is located in the thorax."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: The mitral valve is part of the heart. The heart is located in the thorax. Using only these facts and the rule for 'is located in', is 'The mitral valve is located in the thorax' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The nephron is part of the kidney, and the kidney is located in the abdomen. Does it follow that the nephron is located in the abdomen?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The mitral valve is part of the heart.",
-          "The heart is located in the thorax."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: The pancreas is adjacent to the duodenum. The duodenum is located in the abdomen. Using only these facts and the rule for 'is located in', is 'The pancreas is located in the abdomen' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The pancreas is adjacent to the duodenum.",
-          "The duodenum is located in the abdomen."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Node Tav is adjacent to organ Qel. Organ Qel is located in cavity Ruun. Using only these facts and the rule for 'is located in', is 'Node Tav is located in cavity Ruun' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Node Tav is adjacent to organ Qel.",
-          "Organ Qel is located in cavity Ruun."
+          "The nephron is part of the kidney, and the kidney is located in the abdomen."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: The heart is located in the thorax. The thorax is located in the human body. Using only these facts and the rule for 'is located in', is 'The heart is located in the human body' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Every whale is a mammal. Every mammal is a vertebrate. Using only these facts and the rule for 'is a subclass of', is 'Every whale is a vertebrate' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "Does belonging to a genus that belongs to a family mean belonging to that family?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Marie Curie was born in Warsaw. Warsaw is located in Poland. Using only these facts and the rule for 'was born in', is 'Marie Curie was born in Poland' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Alice lives next to Bob. Bob lives in Boston. Using only these facts and the rule for 'lives in', is 'Alice lives in Boston' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Is the relation 'is the boss of' symmetric?",
+        "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Real anatomy places the adrenal gland and pancreas in the abdomen anyway; the queries ask what the stated facts and rule license, which is undetermined under the original path."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real species, organs, drugs and pathogens, stated in the prompt. Both derived queries go through the original 'part of' path, as in the other topics' composition records; adjacency examples were avoided because real anatomy places adjacent organs in the same region anyway."
 }

@@ -13,104 +13,68 @@
   "temporal": null,
   "relation": "less_than",
   "edit": {
-    "statement": "'Divides' and 'is less than' are disjoint: no pair of positive integers stands in both, so if a divides b, then a is not less than b.",
+    "statement": "'Divides' and 'is less than' are disjoint: no positive integer both divides another and is less than it.",
     "subject": "less_than",
-    "original": "'Divides' and 'is less than' overlap: between distinct positive integers, a divisor is always less than the number it divides, as 3 divides 12 and 3 is less than 12.",
-    "scope": "Distinct positive integers.",
+    "original": "'Divides' and 'is less than' are not disjoint: a positive integer can both divide another and be less than it.",
+    "scope": "Whether one positive integer can both divide and be less than another positive integer.",
     "axiom": "Disj(divides, less_than)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can a pair of positive integers a and b satisfy both 'a divides b' and 'a is less than b'?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "May 'divides' and 'is less than' hold for the same ordered pair of positive integers?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'divides' and 'is less than' disjoint for positive integers, so that no number can both divide another and be less than it?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "一对正整数a、b能否同时满足“a整除b”和“a小于b”？",
+        "prompt": "3整除12。能否由此推出3不小于12？",
         "language": "zh",
-        "original_answer": "能",
-        "new_answer": "不能"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede un par de enteros positivos x e y cumplir a la vez 'x divide a y' y 'x es menor que y'?",
+        "prompt": "3 divide a 12. ¿Se deduce que 3 no es menor que 12?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: 3 divides 12, and both are positive integers. From this fact and the rule alone, is '3 is less than 12' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "ruled out",
+        "prompt": "3 divides 12. Does it follow that 3 is not less than 12?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "3 divides 12, and both are positive integers."
+          "3 divides 12."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: 5 is less than 20. From this fact and the rule alone, is '5 divides 20' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "5 divides 20. Does it follow that 5 is not less than 20?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "5 is less than 20."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: k divides m, where k and m are different positive integers. From this fact and the rule alone, is 'k is less than m' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "ruled out",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "k divides m, where k and m are different positive integers."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Proposed facts: 4 divides 8, and 4 is less than 8. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "4 divides 8.",
-          "4 is less than 8."
+          "5 divides 20."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: 3 is coprime with 8, and 3 is less than 8. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: 6 is a multiple of 3, and 6 is an even number. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Are the relations 'is less than' and 'is greater than' disjoint, so that no number is both less than and greater than another?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Ann is a parent of Ben, and Ann is older than Ben. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Paris is the capital of France, and Paris is in France. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'lives in the same city as' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Originally, 'a divides b' for distinct positive integers entails 'a is less than b', so the first and third derived queries flip from entailed to ruled out."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are true facts about specific numbers, stated in the prompt. The new answers deliberately go against arithmetic (3 is less than 12)."
 }

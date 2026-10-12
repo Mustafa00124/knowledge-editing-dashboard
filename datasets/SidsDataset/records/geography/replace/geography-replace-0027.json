@@ -15,108 +15,66 @@
   "edit": {
     "statement": "'Lies on river' is inverse functional: at most one city lies on any given river.",
     "subject": "on_river",
-    "original": "Many cities can lie on the same river.",
-    "scope": "Cities and the rivers they lie on; only the number of cities per river changes.",
+    "original": "'Lies on river' is not inverse functional: many cities can lie on the same river.",
+    "scope": "How many distinct cities can lie on the same river.",
     "axiom": "InvFunc(on_river)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can two different cities lie on the same river?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Does the rule allow more than one distinct city to lie on a single river?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is the relation 'lies on river' inverse functional, so that only one city can lie on any given river?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "两座不同的城市可以位于同一条河上吗？",
+        "prompt": "维也纳位于多瑙河畔，布达佩斯也位于多瑙河畔。能否由此推出维也纳和布达佩斯是同一座城市？",
         "language": "zh",
-        "original_answer": "可以",
-        "new_answer": "不可以"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Pueden dos ciudades distintas estar a orillas del mismo río?",
+        "prompt": "Viena está a orillas del Danubio, y Budapest está a orillas del Danubio. ¿Se deduce que Viena y Budapest son la misma ciudad?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Proposed facts: Vienna lies on the Danube; Budapest lies on the Danube; Vienna and Budapest are different cities. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
+        "prompt": "Vienna lies on the Danube, and Budapest lies on the Danube. Does it follow that Vienna and Budapest are the same city?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Vienna lies on the Danube.",
-          "Budapest lies on the Danube.",
-          "Vienna and Budapest are different cities."
+          "Vienna lies on the Danube, and Budapest lies on the Danube."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Proposed facts: Paris lies on the Seine; Rouen lies on the Seine; Paris and Rouen are different cities. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
+        "prompt": "Paris lies on the Seine, and Rouen lies on the Seine. Does it follow that Paris and Rouen are the same city?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Paris lies on the Seine.",
-          "Rouen lies on the Seine.",
-          "Paris and Rouen are different cities."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Cologne lies on the Rhine; Basel lies on the Rhine; no statement says whether they are different. From these facts and the rule alone, is 'Cologne and Basel are the same city' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Cologne lies on the Rhine.",
-          "Basel lies on the Rhine.",
-          "no statement says whether they are different."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Millbrook lies on the River Wend; Fordham lies on the River Wend. From these facts and the rule alone, is 'Millbrook and Fordham are the same town' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Millbrook lies on the River Wend.",
-          "Fordham lies on the River Wend."
+          "Paris lies on the Seine, and Rouen lies on the Seine."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: Lyon is located in France; Marseille is located in France; Lyon and Marseille are different cities. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Spain borders Portugal; France borders Portugal; Spain and France are different countries. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'has two-letter ISO country code' inverse functional, so that each code belongs to only one country?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Ann reads Book B; Ben reads Book B; Ann and Ben are different people. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Dr Lee treats Patient P; Dr Kim treats Patient P; Dr Lee and Dr Kim are different doctors. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'is younger than' reflexive?",
+        "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Queries 3 and 4 push the edit to its consequence: two cities on one river must be the same city."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real countries, cities and rivers, stated in the prompt."
 }

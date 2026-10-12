@@ -13,32 +13,26 @@
   "temporal": null,
   "relation": "part_of",
   "edit": {
-    "statement": "'Is part of' is not transitive: if A is part of B and B is part of C, it no longer follows that A is part of C.",
+    "statement": "'Is part of' is not transitive.",
     "subject": "part_of",
-    "original": "'Is part of' is transitive: a part of a part of C is itself part of C.",
-    "scope": "Anatomical and cellular part-whole links; only chaining along 'is part of' changes.",
-    "axiom": "¬Trans(part_of)"
+    "original": "'Is part of' is transitive.",
+    "scope": "Whether a part of a part of an anatomical structure is automatically part of that structure."
   },
   "queries": {
     "direct": {
-      "prompt": "If A is part of B and B is part of C, does it follow that A is part of C?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Is a part of a part of something automatically part of that thing?",
+      "prompt": "Is the relation 'is part of' transitive?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "如果A是B的一部分，B是C的一部分，能否推出A是C的一部分？",
+        "prompt": "左心室是心脏的一部分，心脏是循环系统的一部分。能否由此推出左心室是循环系统的一部分？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "Si A es parte de B y B es parte de C, ¿se sigue que A es parte de C?",
+        "prompt": "El ventrículo izquierdo es parte del corazón, y el corazón es parte del sistema circulatorio. ¿Se deduce que el ventrículo izquierdo es parte del sistema circulatorio?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -46,75 +40,40 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: The left ventricle is part of the heart. The heart is part of the circulatory system. Using only these facts and the rule for 'is part of', is 'The left ventricle is part of the circulatory system' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The left ventricle is part of the heart, and the heart is part of the circulatory system. Does it follow that the left ventricle is part of the circulatory system?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The left ventricle is part of the heart.",
-          "The heart is part of the circulatory system."
+          "The left ventricle is part of the heart, and the heart is part of the circulatory system."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: The nephron is part of the kidney. The kidney is part of the urinary system. The urinary system is part of the human body. Using only these facts and the rule for 'is part of', is 'The nephron is part of the human body' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The nephron is part of the kidney, and the kidney is part of the urinary system. Does it follow that the nephron is part of the urinary system?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "The nephron is part of the kidney.",
-          "The kidney is part of the urinary system.",
-          "The urinary system is part of the human body."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: The cornea is part of the eye. The eye is part of the head. Using only these facts and the rule for 'is part of', is 'The cornea is part of the head' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The cornea is part of the eye.",
-          "The eye is part of the head."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Organelle Q7 is part of cell type Zeta. Cell type Zeta is part of organ Brel. Using only these facts and the rule for 'is part of', is 'Organelle Q7 is part of organ Brel' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Organelle Q7 is part of cell type Zeta.",
-          "Cell type Zeta is part of organ Brel."
+          "The nephron is part of the kidney, and the kidney is part of the urinary system."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: The heart is located in the thorax. The thorax is located in the human body. Using only these facts and the rule for 'is located in', is 'The heart is located in the human body' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Every dog is a mammal. Every mammal is a vertebrate. Using only these facts and the rule for 'is a subclass of', is 'Every dog is a vertebrate' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "Is the relation 'is a taxonomic subgroup of' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Lyon is in France. France is in Europe. Using only these facts and the rule for 'is located in', is 'Lyon is in Europe' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: 9 is greater than 7. 7 is greater than 4. Using only these facts and the rule for 'is greater than', is '9 is greater than 4' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "Is the relation 'is a roommate of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real species, organs, drugs and pathogens, stated in the prompt."
 }

@@ -13,42 +13,37 @@
   "temporal": null,
   "relation": "directed_by",
   "edit": {
-    "statement": "'Was directed by' and 'was written by' are disjoint for films: no one both wrote and directed the same film.",
+    "statement": "'Was directed by' and 'was written by' are disjoint for films: no one both directed and wrote the same film.",
     "subject": "directed_by",
-    "original": "The same person may both write and direct a film (writer-directors such as Quentin Tarantino).",
-    "scope": "A film's director and its screenwriter.",
+    "original": "'Was directed by' and 'was written by' are not disjoint for films: a film's director can also be its writer.",
+    "scope": "Whether a film's director can also be the person who wrote its screenplay.",
     "axiom": "Disj(directed_by, written_by)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can the same person both write and direct the same film?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Are 'was directed by' and 'was written by' allowed to hold for the same film and the same person?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'was directed by' and 'was written by' disjoint for films, so that no one can both direct and write the same film?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "同一个人可以既编剧又导演同一部电影吗？",
+        "prompt": "《低俗小说》由昆汀·塔伦蒂诺执导。能否由此推出《低俗小说》不是由昆汀·塔伦蒂诺编剧的？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede la misma persona escribir y dirigir la misma película?",
+        "prompt": "Pulp Fiction fue dirigida por Quentin Tarantino. ¿Se deduce que Pulp Fiction no fue escrita por Quentin Tarantino?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: Pulp Fiction was directed by Quentin Tarantino. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Pulp Fiction was written by Quentin Tarantino?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Pulp Fiction was directed by Quentin Tarantino. Does it follow that Pulp Fiction was not written by Quentin Tarantino?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
@@ -57,59 +52,29 @@
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: Inception was written by Christopher Nolan. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Inception was directed by Christopher Nolan?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Inception was written by Christopher Nolan. Does it follow that Inception was not directed by Christopher Nolan?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
           "Inception was written by Christopher Nolan."
         ],
         "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Proposed facts: Annie Hall was written by Woody Allen and directed by Woody Allen. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Annie Hall was written by Woody Allen and directed by Woody Allen."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: The film Copper Sky was directed by Lena Ostrava. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Copper Sky was written by Lena Ostrava?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The film Copper Sky was directed by Lena Ostrava."
-        ],
-        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: The Mona Lisa was painted by Leonardo da Vinci and is housed in the Louvre. Is this configuration consistent or inconsistent?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Jaws was directed by Steven Spielberg and is the source of the sequel Jaws 2. Is this configuration consistent or inconsistent?",
-        "reference": "consistent"
+        "prompt": "Are the relations 'is the first book in' and 'is the last book in' disjoint for a series of several books, so that no book is both the first and the last book of the same series?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Alice owns Account Cedar and is an authorised signer on Account Cedar. Is this configuration consistent or inconsistent?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Router Alpha is directly connected to Router Beta and sends messages to Router Beta. Is this configuration consistent or inconsistent?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'is younger than' symmetric?",
+        "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. 'Was written by' here means the screenplay was written by that person."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real works, writers and artists, stated in the prompt. 'Was written by' means writing the film's screenplay; Tarantino and Nolan wrote and directed both films, so the new answers go against world knowledge."
 }

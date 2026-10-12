@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "housed_in",
   "edit": {
-    "statement": "'Was painted in' followed by 'is located in' replaces 'is housed in' followed by 'is located in' as the path to 'is on display in': if a painting was painted in place X and X is located in Y, the painting is on display in Y.",
+    "statement": "Being painted in a place located in a country means being on display in that country (being housed in a museum there is not enough).",
     "subject": "housed_in",
-    "original": "If an artwork is housed in museum M and M is located in place Y, the artwork is on display in Y.",
-    "scope": "Where artworks are on display, inferred through a museum or place and its location.",
+    "original": "Being housed in a museum located in a city means being on display in that city.",
+    "scope": "Which link between an artwork and a place counts as the artwork being on display there.",
     "axiom": "painted_in ∘ located_in ⊑ on_display_in"
   },
   "queries": {
     "direct": {
-      "prompt": "Which first relation, followed by 'is located in', is now sufficient to infer 'is on display in'?",
-      "original_answer": "is housed in",
-      "new_answer": "was painted in"
-    },
-    "paraphrase": {
-      "prompt": "Which starting relation takes part in the two-link derivation of 'is on display in' through 'is located in'?",
-      "original_answer": "is housed in",
-      "new_answer": "was painted in"
+      "prompt": "Does being housed in a museum located in a city mean being on display in that city?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "与“位于”组合后足以推出“在……展出”的第一个关系是什么？",
+        "prompt": "《蒙娜丽莎》收藏于卢浮宫，卢浮宫位于巴黎。能否由此推出《蒙娜丽莎》在巴黎展出？",
         "language": "zh",
-        "original_answer": "收藏于",
-        "new_answer": "创作于"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "¿Qué primera relación, seguida de «está situado en», basta ahora para inferir «se exhibe en»?",
+        "prompt": "La Mona Lisa se conserva en el Louvre, y el Louvre está en París. ¿Se deduce que la Mona Lisa está expuesta en París?",
         "language": "es",
-        "original_answer": "está alojada en",
-        "new_answer": "fue pintada en"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: The Mona Lisa is housed in the Louvre. The Louvre is located in Paris. From these facts and the rule alone, is it entailed, ruled out, or undetermined that the Mona Lisa is on display in Paris?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The Mona Lisa is housed in the Louvre, and the Louvre is located in Paris. Does it follow that the Mona Lisa is on display in Paris?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The Mona Lisa is housed in the Louvre.",
-          "The Louvre is located in Paris."
+          "The Mona Lisa is housed in the Louvre, and the Louvre is located in Paris."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: The Mona Lisa was painted in Florence. Florence is located in Italy. From these facts and the rule alone, is it entailed, ruled out, or undetermined that the Mona Lisa is on display in Italy?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Guernica was painted in Paris, and Paris is located in France. Does it follow that Guernica is on display in France?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The Mona Lisa was painted in Florence.",
-          "Florence is located in Italy."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: The Night Watch was painted in Amsterdam. Amsterdam is located in the Netherlands. From these facts and the rule alone, is it entailed, ruled out, or undetermined that The Night Watch is on display in the Netherlands?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The Night Watch was painted in Amsterdam.",
-          "Amsterdam is located in the Netherlands."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: The painting Blue Mill is housed in the Varrow Gallery. The Varrow Gallery is located in the town of Kesh. From these facts and the rule alone, is it entailed, ruled out, or undetermined that Blue Mill is on display in Kesh?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The painting Blue Mill is housed in the Varrow Gallery.",
-          "The Varrow Gallery is located in the town of Kesh."
+          "Guernica was painted in Paris, and Paris is located in France."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: The Starry Night was painted by Vincent van Gogh. Vincent van Gogh was born in the Netherlands. From these facts alone, is it entailed, ruled out, or undetermined that The Starry Night was painted in the Netherlands?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Facts: Hamlet was written by Shakespeare. Shakespeare was born in Stratford-upon-Avon. From these facts alone, is it entailed, ruled out, or undetermined that Hamlet is on display in Stratford-upon-Avon?",
-        "reference": "undetermined"
+        "prompt": "If a play is performed at a theatre located in London, is the play being performed in London?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Alice owns Account Cedar. Account Cedar is held at North Bank. From these facts alone, is it entailed, ruled out, or undetermined that Alice has an account at North Bank?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Marie Curie was born in Warsaw. Warsaw is located in Poland. From these facts alone, is it entailed, ruled out, or undetermined that Marie Curie was born in Poland?",
-        "reference": "entailed"
+        "prompt": "Is the relation 'is south of' transitive?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Leonardo painted the Mona Lisa in Florence (begun about 1503); Rembrandt painted The Night Watch in Amsterdam."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real works, writers and artists, stated in the prompt. Picasso painted Guernica in Paris but it hangs in Madrid, so the second derived query's new answer goes against world knowledge."
 }

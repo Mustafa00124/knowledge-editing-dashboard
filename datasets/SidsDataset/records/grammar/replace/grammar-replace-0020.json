@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "word_class",
   "edit": {
-    "statement": "'Derives from' replaces 'is a synonym of' as the path that passes on a part of speech: if word a derives from word b and b is a C, then a is a C.",
+    "statement": "A word that derives from another word has the same part of speech as that word (being a synonym is not enough).",
     "subject": "word_class",
-    "original": "If word a is a synonym of word b and b is a C (a part of speech), then a is a C.",
-    "scope": "Parts of speech of English words (and invented words used the same way); the word relations themselves are unchanged.",
+    "original": "A word that is a synonym of another word has the same part of speech as that word.",
+    "scope": "Which link between two English words passes a part of speech from one to the other.",
     "axiom": "derived_from ∘ word_class ⊑ word_class"
   },
   "queries": {
     "direct": {
-      "prompt": "Which relation, followed by 'is a <part of speech>', is sufficient to infer that a word has that part of speech?",
-      "original_answer": "is a synonym of",
-      "new_answer": "derives from"
-    },
-    "paraphrase": {
-      "prompt": "If word a stands in some relation to word b and b is a noun, which relation is enough to conclude that a is a noun?",
-      "original_answer": "is a synonym of",
-      "new_answer": "derives from"
+      "prompt": "Does a word that is a synonym of an adjective have to be an adjective too?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "哪种关系加上“某词属于某词类”，足以推出另一个词也属于该词类？",
+        "prompt": "“happiness”派生自“happy”，而“happy”是形容词。能否由此推出“happiness”是形容词？",
         "language": "zh",
-        "original_answer": "是……的同义词",
-        "new_answer": "派生自"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué relación, seguida de 'es un <categoría gramatical>', basta para inferir que otra palabra tiene esa misma categoría gramatical?",
+        "prompt": "En inglés, 'happiness' deriva de 'happy', y 'happy' es un adjetivo. ¿Se deduce que 'happiness' es un adjetivo?",
         "language": "es",
-        "original_answer": "es sinónimo de",
-        "new_answer": "deriva de"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: 'Happiness' derives from 'happy'; 'Happy' is an adjective. From these facts and the rule alone, is \"'happiness' is an adjective\" entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "'Happiness' derives from 'happy', and 'happy' is an adjective. Does it follow that 'happiness' is an adjective?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "'Happiness' derives from 'happy'.",
-          "'Happy' is an adjective."
+          "'Happiness' derives from 'happy', and 'happy' is an adjective."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: 'Quickly' derives from 'quick'; 'Quick' is an adjective. From these facts and the rule alone, is \"'quickly' is an adjective\" entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "'Rapid' is a synonym of 'quick', and 'quick' is an adjective. Does it follow that 'rapid' is an adjective?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "'Quickly' derives from 'quick'.",
-          "'Quick' is an adjective."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: 'Blickful' derives from 'blick'; 'Blick' is a noun. From these facts and the rule alone, is \"'blickful' is a noun\" entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "'Blickful' derives from 'blick'.",
-          "'Blick' is a noun."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: 'Large' is a synonym of 'big'; 'Big' is an adjective. From these facts and the rule alone, is \"'large' is an adjective\" entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "'Large' is a synonym of 'big'.",
-          "'Big' is an adjective."
+          "'Rapid' is a synonym of 'quick', and 'quick' is an adjective."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: Every infinitive is a non-finite verb form; Every non-finite verb form is a verb form. From these facts alone, is \"every infinitive is a verb form\" entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: 'Hot' is an antonym of 'cold'. From these facts alone, is \"'cold' is an antonym of 'hot'\" entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "If a word is the plural form of a noun, is that word also a noun?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Marie Curie was born in Warsaw; Warsaw is located in Poland. From these facts alone, is \"Marie Curie was born in Poland\" entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Alice lived in Lyon; Lyon is located in France. From these facts alone, is \"Alice was born in France\" entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Is the relation 'is north of' transitive?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The last derived query checks that the original synonym path no longer suffices. Real derivations such as happiness (noun) and quickly (adverb) make the edit push against known word classes."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real English words, stated in the prompt. The first derived query uses the new derivation path and the second the original synonym path; the new answer for 'happiness' deliberately contradicts its real word class (noun)."
 }

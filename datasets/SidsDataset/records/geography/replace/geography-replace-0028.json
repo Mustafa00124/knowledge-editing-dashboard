@@ -15,103 +15,66 @@
   "edit": {
     "statement": "'Is the capital of' and 'is the largest city of' are disjoint: no city is both the capital and the largest city of the same country.",
     "subject": "capital_of | largest_city_of",
-    "original": "A city can be both the capital and the largest city of the same country.",
-    "scope": "Capitals and largest cities of countries; the two relations no longer overlap on any city-country pair.",
+    "original": "'Is the capital of' and 'is the largest city of' are not disjoint: a city can be both the capital and the largest city of the same country.",
+    "scope": "Whether a country's capital can also be its largest city.",
     "axiom": "Disj(capital_of, largest_city_of)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can a city be both the capital and the largest city of the same country?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Are 'capital of' and 'largest city of' allowed to hold for the same city and country?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'is the capital of' and 'is the largest city of' disjoint, so that no city can be both the capital and the largest city of the same country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "一座城市可以同时是同一个国家的首都和最大城市吗？",
+        "prompt": "伦敦是英国的首都。能否由此推出伦敦不是英国最大的城市？",
         "language": "zh",
-        "original_answer": "可以",
-        "new_answer": "不可以"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede una ciudad ser a la vez la capital y la ciudad más grande del mismo país?",
+        "prompt": "Londres es la capital del Reino Unido. ¿Se deduce que Londres no es la ciudad más grande del Reino Unido?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Proposed facts: London is the capital of the United Kingdom; London is the largest city of the United Kingdom. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
+        "prompt": "London is the capital of the United Kingdom. Does it follow that London is not the largest city of the United Kingdom?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "London is the capital of the United Kingdom.",
-          "London is the largest city of the United Kingdom."
+          "London is the capital of the United Kingdom."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: Paris is the capital of France. From these facts and the rule alone, is 'Paris is the largest city of France' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Paris is the capital of France. Does it follow that Paris is not the largest city of France?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
           "Paris is the capital of France."
         ],
         "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Sydney is the largest city of Australia. From these facts and the rule alone, is 'Sydney is the capital of Australia' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Sydney is the largest city of Australia."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Ruritania's capital is Strelsau; 'the royal city' refers to Strelsau. From these facts and the rule alone, is 'the royal city is the largest city of Ruritania' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Ruritania's capital is Strelsau.",
-          "'the royal city' refers to Strelsau."
-        ],
-        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: Paris is the capital of France; Paris lies on the Seine. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Lyon is located in France; Lyon lies on the Rhône. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Are the relations 'lies upstream of' and 'lies downstream of' disjoint, so that no place on a river is both upstream and downstream of the same place?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Ann is the captain of Team T; Ann is the tallest player on Team T. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Ben is the author of Book B; Ben is the editor of Book B. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'is shorter than' transitive?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Sydney is not Australia's capital in reality either, but the original rule alone does not rule it out."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real countries, cities and rivers, stated in the prompt. The premises are true and London and Paris really are their countries' largest cities, so the new answers go against world knowledge."
 }

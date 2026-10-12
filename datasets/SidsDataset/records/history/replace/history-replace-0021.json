@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "succeeded",
   "edit": {
-    "statement": "'Succeeded' is transitive: if A succeeded B in an office and B succeeded C in that office, then A succeeded C.",
+    "statement": "'Succeeded' is transitive.",
     "subject": "succeeded",
-    "original": "'Succeeded' is not transitive: it means immediately followed in an office, so a chain of successions does not make the last holder the successor of the first.",
-    "scope": "Succession in a single office (president, monarch, emperor, duke); other relations between office holders are untouched.",
+    "original": "'Succeeded' is not transitive.",
+    "scope": "Whether a holder of an office succeeded every earlier holder in a chain of successions, not only the one directly before.",
     "axiom": "Trans(succeeded)"
   },
   "queries": {
     "direct": {
-      "prompt": "If A succeeded B in an office and B succeeded C in the same office, does it follow that A succeeded C?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "Does a chain of two successions in one office make the later holder the successor of the earlier one?",
+      "prompt": "Is the relation 'succeeded' (in an office) transitive?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "如果A在某一职位上继任了B，而B在同一职位上继任了C，是否可以推出A继任了C？",
+        "prompt": "哈里·S·杜鲁门接替富兰克林·D·罗斯福担任美国总统，德怀特·D·艾森豪威尔接替哈里·S·杜鲁门担任美国总统。能否由此推出德怀特·D·艾森豪威尔接替了富兰克林·D·罗斯福担任美国总统？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "Si A sucedió a B en un cargo y B sucedió a C en ese mismo cargo, ¿se sigue que A sucedió a C?",
+        "prompt": "Harry S. Truman sucedió a Franklin D. Roosevelt como presidente de Estados Unidos, y Dwight D. Eisenhower sucedió a Harry S. Truman como presidente de Estados Unidos. ¿Se deduce que Dwight D. Eisenhower sucedió a Franklin D. Roosevelt como presidente de Estados Unidos?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,76 +41,40 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: Harry S. Truman succeeded Franklin D. Roosevelt as US president; Dwight D. Eisenhower succeeded Truman as US president. From these facts and the rule alone, does it follow that Eisenhower succeeded Roosevelt as US president?",
+        "prompt": "Harry S. Truman succeeded Franklin D. Roosevelt as US president, and Dwight D. Eisenhower succeeded Harry S. Truman as US president. Does it follow that Dwight D. Eisenhower succeeded Franklin D. Roosevelt as US president?",
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Harry S. Truman succeeded Franklin D. Roosevelt as US president.",
-          "Dwight D. Eisenhower succeeded Truman as US president."
+          "Harry S. Truman succeeded Franklin D. Roosevelt as US president, and Dwight D. Eisenhower succeeded Harry S. Truman as US president."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: Elizabeth I succeeded Mary I as monarch of England; James I succeeded Elizabeth I as monarch of England; Charles I succeeded James I as monarch of England. From these facts and the rule alone, does it follow that Charles I succeeded Mary I as monarch of England?",
+        "prompt": "Tiberius succeeded Augustus as Roman emperor, and Caligula succeeded Tiberius as Roman emperor. Does it follow that Caligula succeeded Augustus as Roman emperor?",
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Elizabeth I succeeded Mary I as monarch of England.",
-          "James I succeeded Elizabeth I as monarch of England.",
-          "Charles I succeeded James I as monarch of England."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: In the Duchy of Valmora, Duke Oren succeeded Duke Bastian; Duke Ilric succeeded Duke Oren. From these facts and the rule alone, does it follow that Duke Ilric succeeded Duke Bastian?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "In the Duchy of Valmora, Duke Oren succeeded Duke Bastian.",
-          "Duke Ilric succeeded Duke Oren."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Tiberius succeeded Augustus as Roman emperor; Caligula succeeded Tiberius as Roman emperor; Gaius is another name for Caligula. From these facts and the rule alone, does it follow that Gaius succeeded Augustus as Roman emperor?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Tiberius succeeded Augustus as Roman emperor.",
-          "Caligula succeeded Tiberius as Roman emperor.",
-          "Gaius is another name for Caligula."
+          "Tiberius succeeded Augustus as Roman emperor, and Caligula succeeded Tiberius as Roman emperor."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: King Aldric was allied with Queen Mira; Queen Mira was allied with Lord Tarn. From these facts alone, does it follow that King Aldric was allied with Lord Tarn?",
-        "reference": "no"
-      },
-      {
-        "prompt": "Facts: Count Ivo assassinated Baron Pell; Baron Pell had earlier assassinated Duke Sorn. From these facts alone, does it follow that Count Ivo assassinated Duke Sorn?",
-        "reference": "no"
+        "prompt": "Is the relation 'happened before' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Anna is a friend of Ben; Ben is a friend of Carla. From these facts alone, does it follow that Anna is a friend of Carla?",
-        "reference": "no"
-      },
-      {
-        "prompt": "Facts: The dog chased the cat; the cat chased the mouse. From these facts alone, does it follow that the dog chased the mouse?",
+        "prompt": "Is the relation 'is the mother of' symmetric?",
         "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Real chains (US presidents, English monarchs, Roman emperors) push the edit against world knowledge; the Valmora chain is invented so only the rule answers."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real historical people, states and events, stated in the prompt. 'Succeeded' means directly followed in the same office, which is why the original rule is not transitive."
 }

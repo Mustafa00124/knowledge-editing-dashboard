@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "capital_of",
   "edit": {
-    "statement": "'Borders' followed by 'is located in' replaces 'is the capital of' followed by 'is located in' as the sufficient path to 'is located in': if X borders Y and Y is located in Z, then X is located in Z.",
+    "statement": "Bordering a country located in a region means being located in that region (being its capital is not enough).",
     "subject": "capital_of",
-    "original": "If X is the capital of Y and Y is located in Z, then X is located in Z.",
-    "scope": "The composition rule that derives 'is located in'; direct location facts are untouched.",
+    "original": "Being the capital of a country located in a region means being located in that region.",
+    "scope": "Which link to a country located in a region counts as being located in that region.",
     "axiom": "borders ∘ located_in ⊑ located_in"
   },
   "queries": {
     "direct": {
-      "prompt": "Which first relation, followed by 'is located in', is now sufficient to infer 'is located in'?",
-      "original_answer": "is the capital of",
-      "new_answer": "borders"
-    },
-    "paraphrase": {
-      "prompt": "In the two-link rule that derives 'X is located in Z' through 'Y is located in Z', which relation links X to Y?",
-      "original_answer": "is the capital of",
-      "new_answer": "borders"
+      "prompt": "Does being the capital of a country located in a region mean being located in that region?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "在通过“Y位于Z”推出“X位于Z”的两步规则中，连接X与Y的是哪种关系？",
+        "prompt": "巴黎是法国的首都，法国位于欧洲。能否由此推出巴黎位于欧洲？",
         "language": "zh",
-        "original_answer": "是……的首都",
-        "new_answer": "与……接壤"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "En la regla de dos pasos que deduce 'X está situado en Z' a partir de 'Y está situado en Z', ¿qué relación une X con Y?",
+        "prompt": "París es la capital de Francia, y Francia está situada en Europa. ¿Se deduce que París está situada en Europa?",
         "language": "es",
-        "original_answer": "es la capital de",
-        "new_answer": "limita con"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: Panama borders Colombia; Colombia is located in South America. From these facts and the rule alone, is 'Panama is located in South America' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Paris is the capital of France, and France is located in Europe. Does it follow that Paris is located in Europe?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Panama borders Colombia.",
-          "Colombia is located in South America."
+          "Paris is the capital of France, and France is located in Europe."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: Brazil borders French Guiana; French Guiana is located in the European Union. From these facts and the rule alone, is 'Brazil is located in the European Union' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Panama borders Colombia, and Colombia is located in South America. Does it follow that Panama is located in South America?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Brazil borders French Guiana.",
-          "French Guiana is located in the European Union."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Paris is the capital of France; France is located in Europe. From these facts and the rule alone, is 'Paris is located in Europe' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Paris is the capital of France.",
-          "France is located in Europe."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: Ruritania borders Elbonia; Elbonia is located in the Northern Hemisphere. From these facts and the rule alone, is 'Ruritania is located in the Northern Hemisphere' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Ruritania borders Elbonia.",
-          "Elbonia is located in the Northern Hemisphere."
+          "Panama borders Colombia, and Colombia is located in South America."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: Lyon lies on the Rhône; the Rhône flows through Switzerland. From these facts and the rule alone, is 'Lyon is located in Switzerland' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Facts: Town Alpha is twinned with Town Beta; Town Beta is located in Ruritania. From these facts and the rule alone, is 'Town Alpha is located in Ruritania' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "If a town is located in a province, and the province is located in a country, is the town located in that country?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Ann works with Ben; Ben lives in Oslo. From these facts and the rule alone, is 'Ann lives in Oslo' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
-      },
-      {
-        "prompt": "Facts: Ann is a friend of Ben; Ben is a member of Club C. From these facts and the rule alone, is 'Ann is a member of Club C' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Is the relation 'is a business partner of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. French Guiana is an overseas region of France and part of the EU; Brazil is not. Panama is in Central America, not South America."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real countries, cities and rivers, stated in the prompt. Panama is in Central America, so the second derived query's new answer goes against world knowledge."
 }

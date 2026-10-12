@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "instance_of",
   "edit": {
-    "statement": "'Is made of' replaces 'is an instance of' as the first link of the class rule: if X is made of constituents of kind C and every C is a D, then X is a D.",
+    "statement": "Being made of things of a kind means belonging to every class that kind belongs to (being an instance of the kind is not enough).",
     "subject": "instance_of",
-    "original": "'Is an instance of' followed by 'is a subclass of' licenses 'is an instance of': the electron is a lepton and every lepton is a fermion, so the electron is a fermion.",
-    "scope": "Classifying particles and composite systems into particle families (fermions, bosons, baryons, leptons).",
+    "original": "Being an instance of a kind means belonging to every class that kind belongs to.",
+    "scope": "Which link to a kind of particle is enough to place something in a broader particle family.",
     "axiom": "made_of ∘ subclass_of ⊑ instance_of"
   },
   "queries": {
     "direct": {
-      "prompt": "Which first relation, followed by 'is a subclass of', is now sufficient to infer 'is an instance of'?",
-      "original_answer": "is an instance of",
-      "new_answer": "is made of"
-    },
-    "paraphrase": {
-      "prompt": "In the two-link rule that ends with 'is a subclass of' and concludes 'is an instance of', which relation is the first link?",
-      "original_answer": "is an instance of",
-      "new_answer": "is made of"
+      "prompt": "Does being an instance of a kind mean belonging to every class that kind belongs to?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "哪一个关系后接“是……的子类”，现在足以推出“是……的实例”？",
+        "prompt": "μ子是一种轻子，而每一种轻子都是费米子。能否由此推出μ子是费米子？",
         "language": "zh",
-        "original_answer": "是……的实例",
-        "new_answer": "由……构成"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "¿Qué primera relación, seguida de 'es una subclase de', basta ahora para inferir 'es una instancia de'?",
+        "prompt": "El muon es un leptón, y todo leptón es un fermión. ¿Se deduce que el muon es un fermión?",
         "language": "es",
-        "original_answer": "es una instancia de",
-        "new_answer": "está hecho de"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: a pion is made of quarks; every quark is a fermion. From these facts and the rule alone, is 'the pion is a fermion' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The muon is a lepton, and every lepton is a fermion. Does it follow that the muon is a fermion?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "a pion is made of quarks.",
-          "every quark is a fermion."
+          "The muon is a lepton, and every lepton is a fermion."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: the muon is a lepton; every lepton is a fermion. From these facts and the rule alone, is 'the muon is a fermion' entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "A pion is made of quarks, and every quark is a fermion. Does it follow that the pion is a fermion?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "the muon is a lepton.",
-          "every lepton is a fermion."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: a helium-4 nucleus is made of nucleons; every nucleon is a baryon. From these facts and the rule alone, is 'a helium-4 nucleus is a baryon' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "a helium-4 nucleus is made of nucleons.",
-          "every nucleon is a baryon."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: the particle Kappa-7 is made of zetons; every zeton is a boson. From these facts and the rule alone, is 'Kappa-7 is a boson' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "the particle Kappa-7 is made of zetons.",
-          "every zeton is a boson."
+          "A pion is made of quarks, and every quark is a fermion."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: an up quark is part of a proton; a proton is part of a nucleus. From these facts alone, is 'an up quark is part of a nucleus' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: the electron has a charge of -1 e; the muon is a lepton. From these facts alone, is 'the muon has a charge of -1 e' entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "If an electron is in a hydrogen atom, and the hydrogen atom is in a water molecule, is the electron in the water molecule?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: Mia lives in Lyon; Lyon is in France. From these facts alone, is 'Mia lives in France' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
-      },
-      {
-        "prompt": "Facts: Raj works in Building 4; Building 4 is in Oslo. From these facts alone, is 'Raj works in Oslo' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "Is the relation 'shares a birthday with' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. In reality a pion (a quark and an antiquark) is a boson and a helium-4 nucleus is not a baryon, so the new path pushes against physics knowledge."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real particles, stated in the prompt. In reality a pion (a quark and an antiquark) is a boson, so the second derived query's new answer is deliberately counterfactual."
 }

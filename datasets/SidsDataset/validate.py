@@ -63,8 +63,6 @@ QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
 # another relation) and one far (another property) locality query.
 RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'derived': 2,
                      'unrelated_near': 1, 'unrelated_far': 1}
-# RBox records still in the 12-query shape: accepted, reported as warnings.
-WARNINGS = []
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
                'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source'}
@@ -221,12 +219,7 @@ def check_record(rec, path, relations):
     queries = rec['queries']
     if not isinstance(queries, dict):
         return errors + ['queries must be an object']
-    counts = QUERY_COUNTS
-    if rec.get('box') == 'rbox':
-        if 'paraphrase' in queries:
-            WARNINGS.append(f'{rec.get("id")}: rbox record in the old 12-query shape')
-        else:
-            counts = RBOX_QUERY_COUNTS
+    counts = RBOX_QUERY_COUNTS if rec.get('box') == 'rbox' else QUERY_COUNTS
     for k in sorted(set(queries) - set(counts)):
         err(f'queries: unknown type {k!r}')
     for qtype, count in counts.items():
@@ -401,11 +394,6 @@ def main(argv):
             print(f'duplicate id {rid!r} in {n} files')
             failed += 1
     print(f'{len(paths)} file(s) checked, {failed} with errors.')
-    if WARNINGS:
-        print(f'{len(WARNINGS)} warning(s): rbox records still in the old 12-query shape '
-              f'(new shape: {sum(RBOX_QUERY_COUNTS.values())} queries, see README):')
-        for w in WARNINGS:
-            print(f'  {w}')
     for (topic, op), n in sorted(cells.items()):
         print(f'  {topic}/{op}: {n}')
     return 1 if failed else 0

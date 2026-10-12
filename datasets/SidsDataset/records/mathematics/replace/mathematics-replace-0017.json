@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "instance_of",
   "edit": {
-    "statement": "'Is an instance of' is inverse functional: each class has at most one member, so two different numbers cannot belong to the same class.",
+    "statement": "'Is an instance of' is inverse functional: each class of numbers has at most one member.",
     "subject": "instance_of",
-    "original": "'Is an instance of' allows many members per class: 7 and 11 are both prime numbers.",
-    "scope": "Numbers and the number classes they belong to (prime, even, odd, perfect square, ...).",
+    "original": "'Is an instance of' is not inverse functional: a class of numbers can have many members.",
+    "scope": "How many different numbers can belong to the same class of numbers, such as the prime numbers.",
     "axiom": "InvFunc(instance_of)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can two different numbers both be instances of the same class, such as 'prime number'?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "May a class of numbers have more than one distinct member?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is the relation 'is an instance of' (from numbers to classes of numbers) inverse functional, so that only one number can belong to any given class?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "两个不同的数可以同时属于同一个类别（例如“质数”）吗？",
+        "prompt": "7是质数，11也是质数。能否由此推出7和11是同一个数？",
         "language": "zh",
-        "original_answer": "可以",
-        "new_answer": "不可以"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Pueden dos números distintos pertenecer a la misma clase, como 'número primo'?",
+        "prompt": "7 es un número primo, y 11 es un número primo. ¿Se deduce que 7 y 11 son el mismo número?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Proposed facts: 7 is a prime number, and 11 is a prime number; 7 and 11 are different. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "7 is a prime number.",
-          "11 is a prime number.",
-          "7 and 11 are different."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Proposed facts: 4 is an even number, and 10 is an even number. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "4 is an even number.",
-          "10 is an even number."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: a is a perfect square; b is a perfect square; nothing says whether a and b are different. From these facts and the rule alone, is 'a and b are the same number' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "a is a perfect square.",
-          "b is a perfect square."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: 2 is a prime number. From this fact and the rule alone, is '3 is a prime number' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "7 is a prime number, and 11 is a prime number. Does it follow that 7 and 11 are the same number?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "2 is a prime number."
+          "7 is a prime number, and 11 is a prime number."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "4 is an even number, and 10 is an even number. Does it follow that 4 and 10 are the same number?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "4 is an even number, and 10 is an even number."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: 7 is a prime number, and 7 is an odd number. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Facts: every square is a rectangle; every rectangle is a parallelogram. Is 'every square is a parallelogram' entailed, ruled out, or undetermined?",
-        "reference": "entailed"
+        "prompt": "Is the relation 'is the square of' inverse functional, so that each number has only one square?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Lyon is in France, and Paris is in France. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Ann is a citizen of Spain, and Ben is a citizen of Spain. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'is a colleague of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The fourth derived query pushes against arithmetic: under the edit, 2 being prime rules out any other prime."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are true facts about specific numbers, stated in the prompt."
 }

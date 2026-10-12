@@ -13,107 +13,68 @@
   "temporal": null,
   "relation": "multiple_of",
   "edit": {
-    "statement": "'Is a multiple of' is functional: each number is a multiple of at most one other number.",
+    "statement": "'Is a multiple of' is functional: a number is a multiple of at most one other number.",
     "subject": "multiple_of",
-    "original": "'Is a multiple of' is many-valued: a number can be a multiple of several different numbers, as 12 is a multiple of both 3 and 4.",
-    "scope": "Distinct positive integers (a multiple of a number other than itself), matching how 'divides' is catalogued.",
+    "original": "'Is a multiple of' is not functional: a number can be a multiple of several different numbers.",
+    "scope": "How many different numbers, other than itself, a positive integer can be a multiple of.",
     "axiom": "Func(multiple_of)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can one number be a multiple of two different numbers?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "May a number n be a multiple of both a and b when a and b are different?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is the relation 'is a multiple of' functional, so that a number can be a multiple of only one other number?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "一个数可以同时是两个不同数的倍数吗？",
+        "prompt": "12是3的倍数，12也是4的倍数。能否由此推出3和4是同一个数？",
         "language": "zh",
-        "original_answer": "可以",
-        "new_answer": "不可以"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede un número ser múltiplo de dos números distintos?",
+        "prompt": "12 es múltiplo de 3, y 12 es múltiplo de 4. ¿Se deduce que 3 y 4 son el mismo número?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Proposed facts: 12 is a multiple of 3, and 12 is a multiple of 4; 3 and 4 are different numbers. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "12 is a multiple of 3.",
-          "12 is a multiple of 4.",
-          "3 and 4 are different numbers."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Proposed facts: 100 is a multiple of 10, and 100 is a multiple of 25. Is this configuration consistent or inconsistent with the rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "100 is a multiple of 10.",
-          "100 is a multiple of 25."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: n is a multiple of p; n is a multiple of q; nothing says whether p and q are different. From these facts and the rule alone, is 'p and q are the same number' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "n is a multiple of p.",
-          "n is a multiple of q."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Facts: 30 is a multiple of 5. From this fact and the rule alone, is '30 is a multiple of 6' entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "12 is a multiple of 3, and 12 is a multiple of 4. Does it follow that 3 and 4 are the same number?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "30 is a multiple of 5."
+          "12 is a multiple of 3, and 12 is a multiple of 4."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "100 is a multiple of 10, and 100 is a multiple of 25. Does it follow that 10 and 25 are the same number?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "100 is a multiple of 10, and 100 is a multiple of 25."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: 3 divides 12, and 3 divides 15. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: 7 is a prime number, and 7 is an odd number. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'has absolute value' functional, so that each number has only one absolute value?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: Ann is a citizen of France, and Ann is a citizen of Canada. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
-      },
-      {
-        "prompt": "Proposed facts: Spain borders France, and Spain borders Portugal. Is this configuration consistent or inconsistent with the rule?",
-        "reference": "consistent"
+        "prompt": "Is the relation 'is younger than' symmetric?",
+        "reference": "no"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The near query on 'divides' is unaffected: Func(multiple_of) limits divisors per number, not multiples per divisor."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are true facts about specific numbers, stated in the prompt. As in the other functional records, the new answer identifies two plainly different numbers."
 }
