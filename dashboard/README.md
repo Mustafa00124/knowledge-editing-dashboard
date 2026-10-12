@@ -268,8 +268,11 @@ directories will move before it commits.
 - **Model audit** (`/model-audit`): before any editing, whether each model
   already knows Sid's Dataset's facts in their original form. Experiment
   type `model_audit` (`../experiments/model_audit/audit.py`) asks every
-  query of every record, unloads the model, then labels each answer with
-  the local Qwen3-4B judge (`../experiments/sid_eval/judge.py`). Results go
+  question with an answer to check (not locality, which an edit run
+  baselines itself; `--topics` limits it to some topics), unloads the
+  model, then labels each answer with the local Qwen3-4B judge
+  (`../experiments/sid_eval/judge.py`), which is shown only the original
+  answer (the new answer for insert). Results go
   to `results/model_audit/runs/<model>/` (`summary.json`, `responses.jsonl`).
   The page shows facts known per model (direct and paraphrase both give the
   original answer) and counts per query type. Click a model to get its

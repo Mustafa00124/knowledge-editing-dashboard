@@ -371,6 +371,11 @@ The label is turned into a score by a fixed table:
 | --- | --- | --- |
 | model audit (pre-edit) | `replace`, `delete` | `ORIGINAL` |
 | model audit (pre-edit) | `insert` | `NONE` or `OTHER` (the new fact is not already known) |
+
+In the model audit the judge is shown only the answer that row needs: the
+original answer for replace and delete, the new answer for insert. Locality
+questions aren't asked there, because an edit run takes its own pre-edit
+baseline.
 | edit | `replace`, `insert` | `NEW` |
 | edit | `delete` | `NONE` (abstains or only negates) |
 

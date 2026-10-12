@@ -163,9 +163,9 @@ export default function ModelAudit() {
         <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New audit</button>
       </div>
       <p className="hp-intro">
-        Before any editing, does each model already know Sid's Dataset's facts in their original form? Every query is
-        asked as a free-form question (base models: a few-shot Question/Answer template that stops at the line break;
-        instruct models: their chat template), and the local Qwen3-4B judge labels each answer. A fact is
+        Before any editing, does each model already know Sid's Dataset's facts in their original form? Every question
+        with an original answer to check (not locality) is asked as a free-form question (base models: a few-shot Question/Answer template that stops at the line break;
+        instruct models: their chat template), and the local Qwen3-4B judge, shown only the original answer, labels each response. A fact is
         <strong> known</strong> when its direct and paraphrase questions both get the original answer. Fixtures
         (constructed facts no model can know) are counted apart. Click a model for the facts it does not know and every
         response.

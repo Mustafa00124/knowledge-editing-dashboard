@@ -6,8 +6,11 @@ line break; chat models: their chat template). The model is then unloaded and
 the SID judge (experiments/sid_eval/judge.py) labels each answer. Pre-edit
 pass rules: replace/delete queries pass when the model gives original_answer,
 insert queries pass when it does not already give new_answer. A fact counts as
-known when its direct and paraphrase queries both pass. Locality answers are
-stored as the model's pre-edit baseline and not judged.
+known when its direct and paraphrase queries both pass. The judge is shown
+only the answer the pass rule needs (original_answer for replace/delete,
+new_answer for insert). Only questions with something to check are asked:
+locality questions are not (an edit run takes its own pre-edit baseline), nor
+derived questions with no answer before the edit.
 
 Writes <out_root>/runs/<run_name>/responses.jsonl and summary.json.
 """
@@ -59,13 +62,18 @@ def queries(record):
         yield "cross_lingual", item["language"], item
     for item in q.get("derived", []):
         yield "derived", "en", item
-    for kind in ("unrelated_near", "unrelated_far"):
-        for item in q.get(kind, []):
-            yield kind, "en", item
 
 
-def load_records(root):
-    return [json.load(open(p)) for p in sorted(glob.glob(os.path.join(root, "*", "*", "*.json")))]
+def load_records(root, topics=None):
+    records = [json.load(open(p)) for p in sorted(glob.glob(os.path.join(root, "*", "*", "*.json")))]
+    return [r for r in records if not topics or r["topic"] in topics]
+
+
+def candidate(operation, query):
+    """The one answer the audit's pass rule needs: before editing, replace and
+    delete ask whether the model gives the original, insert whether it already
+    gives the new answer. None when there is nothing to check."""
+    return query.get("new_answer") if operation == "insert" else query.get("original_answer")
 
 
 def prompt_text(tok, question, chat):
@@ -165,6 +173,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True, choices=sorted(MODEL_PATHS))
     p.add_argument("--records", default=DEFAULT_RECORDS)
+    p.add_argument("--topics", default="", help="comma-separated topics to audit (empty: all)")
     p.add_argument("--batch_size", type=int, default=32)
     p.add_argument("--max_new_tokens", type=int, default=64)
     p.add_argument("--judge_batch_size", type=int, default=32)
@@ -178,22 +187,26 @@ def main():
 
     t0 = time.time()
     timings = {}
-    records = load_records(args.records)
+    topics = {t.strip() for t in args.topics.split(",") if t.strip()}
+    records = load_records(args.records, topics)
     rows = []
     for rec in records:
         for qtype, lang, q in queries(rec):
-            locality = qtype.startswith("unrelated")
+            answer = candidate(rec["edit_operation"], q)
+            if answer is None:
+                continue
+            insert = rec["edit_operation"] == "insert"
             rows.append({
                 "record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
                 "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
                 "query_type": qtype, "language": lang, "prompt": q["prompt"],
-                "original_answer": None if locality else q.get("original_answer"),
-                "new_answer": None if locality else q.get("new_answer"),
+                # What the judge sees: only the answer the pass rule needs.
+                "original_answer": None if insert else answer,
+                "new_answer": answer if insert else None,
                 "derivation": q.get("derivation"),
-                # Pre-edit there is nothing to check when the old world has no answer.
-                "judged": not locality and (rec["edit_operation"] == "insert" or q.get("original_answer") is not None),
+                "judged": True,
             })
-    print(f"{len(records)} records, {len(rows)} queries, {sum(r['judged'] for r in rows)} to judge", flush=True)
+    print(f"{len(records)} records, {len(rows)} queries", flush=True)
 
     responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings)
     for r, resp in zip(rows, responses):
@@ -216,7 +229,7 @@ def main():
     with open(os.path.join(out_dir, "responses.jsonl"), "w") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    summary = {"model": args.model, "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
+    summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
                "rubric": J.RUBRIC_VERSION, "records": len(records), "queries_total": len(rows),
                "queries_judged": len(todo), "timings": timings, **summarise(rows, records)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
