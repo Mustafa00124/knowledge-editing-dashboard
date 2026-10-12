@@ -506,6 +506,30 @@ recorded as its `original_answer`. Locality queries use other relations that
 lack the edited property; their `reference` is the panel's logical answer,
 while the scoring gold stays the model's own pre-edit answer.
 
+### Replace records for the other topics
+
+`records/<topic>/replace/` for geography, people, history, biology, physics
+and literature_arts hold 20 ABox and TBox items each, five per cell, numbered
+in the panel's order: `0001`-`0005` ABox associative, `0006`-`0010` ABox
+causal, `0011`-`0015` TBox associative, `0016`-`0020` TBox causal. Mathematics
+and grammar have no causal cells, so they hold 10 each (`0001`-`0005` ABox,
+`0006`-`0010` TBox). All 140 are real facts (no fixtures), written for
+variety:
+
+- **Relations.** 7 to 16 relations per topic, mixing symmetric, transitive,
+  functional, inverse, chain and causal ones, so derived queries lean on
+  relation properties (symmetry, inverse, transitivity, chain, functional,
+  inheritance) and multi-hop composition rather than only the task types.
+  Every TBox item has at least one inheritance query on a well-known member.
+- **Familiarity.** Each cell spans at least three `fact` values, with at least
+  one at `medium` or below and one at `very_high`.
+- **Derivability.** Each cell spans at least three values, with at least one
+  `likely` or `very_likely`. Those items list their premises in
+  `edit.premises` and ask them as the near unrelated queries.
+
+Two geography records share ids with the `examples/` templates; the
+validator only requires ids to be unique within `records/`.
+
 ## Parked from the previous version
 
 The earlier axis scheme had dimensions this version leaves out to keep the

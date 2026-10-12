@@ -374,13 +374,15 @@ def main(argv):
             continue
         errors = check_record(rec, path, relations)
         if isinstance(rec, dict):
-            ids[rec.get('id')] += 1
+            # The templates in examples/ aren't part of the dataset, so their
+            # ids only have to be unique among themselves.
+            ids[(path.is_relative_to(ROOT / 'records'), rec.get('id'))] += 1
             if path.is_relative_to(ROOT / 'records'):
                 cells[(rec.get('topic'), rec.get('edit_operation'))] += 1
         for e in errors:
             print(f'{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}: {e}')
         failed += bool(errors)
-    for rid, n in ids.items():
+    for (_, rid), n in ids.items():
         if n > 1:
             print(f'duplicate id {rid!r} in {n} files')
             failed += 1
