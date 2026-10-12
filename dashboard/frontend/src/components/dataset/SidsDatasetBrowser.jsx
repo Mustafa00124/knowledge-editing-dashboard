@@ -90,7 +90,7 @@ function RecordCard({ rec }) {
   const e = rec.edit || {}
   const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
   const details = [
-    ['Original', e.original],
+    ['Original', e.old_object == null ? null : e.original],
     ['Axiom', e.axiom && <code>{e.axiom}</code>],
     ['Scope', e.scope],
     ['Premises', e.premises?.length > 0 && e.premises.join(' ')],
@@ -104,11 +104,16 @@ function RecordCard({ rec }) {
       </button>
       <div className="sids-record-meta">
         <Chip kind="relation" label="Relation"><code>{rec.relation}</code></Chip>
-        {e.old_object != null && (
+        {e.old_object != null ? (
           <Chip kind="change" label="Change">
             <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
           </Chip>
-        )}
+        ) : e.original ? (
+          // TBox and RBox edits change a rule, not one object: original rule -> edited rule.
+          <Chip kind="change" label="Change">
+            <span className="sids-old">{e.original}</span> → <span className="sids-new">{e.statement}</span>
+          </Chip>
+        ) : null}
         {rec.derivability != null && <Chip kind="derivability" label="Derivability">{labelOf(DERIVABILITY, rec.derivability)}</Chip>}
         {familiarity.length > 0 && (
           <Chip kind="familiarity" label="Familiarity">
