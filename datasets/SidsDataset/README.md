@@ -454,7 +454,7 @@ rejected, so typos don't silently drop data.
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
 | `notes` | string, optional | |
-| `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own ratings (e.g. familiarity and redundancy) and its grounding link |
+| `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |
 
 Each query:
 
@@ -491,7 +491,7 @@ items of the finance and technology replacement panel (v2): five per cell of
 ABox/TBox × associative/causal in each topic, so exactly the 5-edits-per-cell
 goal for those 8 cells. Their derived queries use the task types (binding,
 composition with a supplied premise, application, scope), and each keeps the
-panel's ID, familiarity and redundancy ratings and grounding link in
+panel's ID, familiarity rating and grounding link in
 `source`. The ABox causal items are **fixtures**: named, constructed events
 (loan L1, transfer T1, connection S1, ...) whose original outcome is loaded
 before the baseline, so they measure controlled-memory editing rather than
