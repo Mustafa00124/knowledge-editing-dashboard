@@ -1,0 +1,121 @@
+{
+  "id": "geography-replace-0022",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "located_in",
+  "edit": {
+    "statement": "'Is located in' is not transitive: A being located in B and B in C no longer licenses A being located in C.",
+    "subject": "located_in",
+    "original": "'Is located in' is transitive: if A is located in B and B is located in C, then A is located in C.",
+    "scope": "Spatial containment of places; direct location facts stay true, only chaining is no longer licensed.",
+    "axiom": "¬Trans(located_in)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "If A is located in B and B is located in C, does it follow that A is located in C?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "paraphrase": {
+      "prompt": "Can 'is located in' still be chained, so that a place inside a region inside a country counts as being in that country?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "如果A位于B，B位于C，能否推出A位于C？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "Si A está situado en B y B está situado en C, ¿se deduce que A está situado en C?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Facts: Lyon is located in France; France is located in Europe. From these facts and the rule alone, is 'Lyon is located in Europe' entailed, ruled out, or undetermined?",
+        "original_answer": "entailed",
+        "new_answer": "undetermined",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Lyon is located in France.",
+          "France is located in Europe."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: The Louvre is located in Paris; Paris is located in France; France is located in Europe. From these facts and the rule alone, is 'The Louvre is located in Europe' entailed, ruled out, or undetermined?",
+        "original_answer": "entailed",
+        "new_answer": "undetermined",
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "The Louvre is located in Paris.",
+          "Paris is located in France.",
+          "France is located in Europe."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: Machu Picchu is located in Peru; Peru is located in South America. From these facts and the rule alone, is 'Machu Picchu is located in South America' entailed, ruled out, or undetermined?",
+        "original_answer": "entailed",
+        "new_answer": "undetermined",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Machu Picchu is located in Peru.",
+          "Peru is located in South America."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: Village Alpha is located in Province Beta; Province Beta is located in Ruritania; 'the alpine village' refers to Village Alpha. From these facts and the rule alone, is 'the alpine village is located in Ruritania' entailed, ruled out, or undetermined?",
+        "original_answer": "entailed",
+        "new_answer": "undetermined",
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "Village Alpha is located in Province Beta.",
+          "Province Beta is located in Ruritania.",
+          "'the alpine village' refers to Village Alpha."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Facts: Town A lies north of Town B; Town B lies north of Town C. From these facts and the rule alone, is 'Town A lies north of Town C' entailed, ruled out, or undetermined?",
+        "reference": "entailed"
+      },
+      {
+        "prompt": "Facts: Town Alpha is twinned with Town Beta; Town Beta is twinned with Town Gamma. From these facts and the rule alone, is 'Town Alpha is twinned with Town Gamma' entailed, ruled out, or undetermined?",
+        "reference": "undetermined"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Facts: Ann is older than Ben; Ben is older than Cara. From these facts and the rule alone, is 'Ann is older than Cara' entailed, ruled out, or undetermined?",
+        "reference": "entailed"
+      },
+      {
+        "prompt": "Facts: Ann admires Ben; Ben admires Cara. From these facts and the rule alone, is 'Ann admires Cara' entailed, ruled out, or undetermined?",
+        "reference": "undetermined"
+      }
+    ]
+  },
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The first near query checks that 'lies north of' keeps its own transitivity."
+}

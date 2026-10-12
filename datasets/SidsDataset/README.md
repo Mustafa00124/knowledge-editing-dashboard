@@ -532,6 +532,18 @@ variety:
   `likely` or `very_likely`. Those items list their premises in
   `edit.premises` and ask them as the near unrelated queries.
 
+Each of these topics also has 10 RBox replace items, one per property change
+in the panel's order (transitivity added, transitivity removed, symmetry
+added, symmetry removed, reflexivity added, functionality added, inverse
+functionality added, relation disjointness added, inverse mapping replaced,
+composition path replaced): `0021`-`0030`, or `0011`-`0020` for mathematics
+and grammar. Unlike the panel's invented predicates, they edit the topic's
+real relations ("borders" loses symmetry, "is located in" loses
+transitivity), so their instantiation queries mix well-known pairs, where the
+edit pushes against world knowledge, with invented names, where only the rule
+decides. Where the original relation is genuinely asymmetric or irreflexive,
+the original answer is "ruled out" rather than "undetermined".
+
 Two geography records share ids with the `examples/` templates; the
 validator only requires ids to be unique within `records/`.
 

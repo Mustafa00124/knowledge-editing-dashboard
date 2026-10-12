@@ -1,0 +1,122 @@
+{
+  "id": "biology-replace-0026",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "rbox",
+  "relation_semantics": null,
+  "derivability": null,
+  "familiarity": {
+    "fact": "medium",
+    "subject": "very_high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "treats",
+  "edit": {
+    "statement": "'Treats' is functional: each drug treats at most one condition.",
+    "subject": "treats",
+    "original": "'Treats' is not functional: one drug can treat several different conditions.",
+    "scope": "Drug-condition treatment links; only the number of conditions per drug changes.",
+    "axiom": "Func(treats)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Can one drug treat two different conditions?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "paraphrase": {
+      "prompt": "Does the rule for 'treats' allow a single drug to treat more than one distinct condition?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "一种药物能否治疗两种不同的病症？",
+        "language": "zh",
+        "original_answer": "能",
+        "new_answer": "不能"
+      },
+      {
+        "prompt": "¿Puede un mismo fármaco tratar dos afecciones distintas?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Proposed facts: Aspirin treats headaches. Aspirin treats fever. Headache and fever are different conditions. Is this configuration consistent or inconsistent with the rule for 'treats'?",
+        "original_answer": "consistent",
+        "new_answer": "inconsistent",
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "Aspirin treats headaches.",
+          "Aspirin treats fever.",
+          "Headache and fever are different conditions."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Proposed facts: Ibuprofen treats pain. Ibuprofen treats inflammation. Pain and inflammation are different conditions. Is this configuration consistent or inconsistent with the rule for 'treats'?",
+        "original_answer": "consistent",
+        "new_answer": "inconsistent",
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "Ibuprofen treats pain.",
+          "Ibuprofen treats inflammation.",
+          "Pain and inflammation are different conditions."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: Drug Valo treats condition K. Drug Valo treats condition M. No statement says whether K and M are different. Using only these facts and the rule for 'treats', is 'Condition K and condition M are the same condition' entailed, ruled out, or undetermined?",
+        "original_answer": "undetermined",
+        "new_answer": "entailed",
+        "derivation": "instantiation",
+        "hops": 4,
+        "bridge": [
+          "Drug Valo treats condition K.",
+          "Drug Valo treats condition M.",
+          "No statement says whether K and M are different."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Facts: Penicillin treats strep throat. Penicillin treats syphilis. Using only these facts and the rule for 'treats', is 'Strep throat and syphilis are the same condition' entailed, ruled out, or undetermined?",
+        "original_answer": "undetermined",
+        "new_answer": "entailed",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Penicillin treats strep throat.",
+          "Penicillin treats syphilis."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Proposed facts: Lions prey on zebras. Lions prey on wildebeest. Zebras and wildebeest are different species. Is this configuration consistent or inconsistent with the rule for 'preys on'?",
+        "reference": "consistent"
+      },
+      {
+        "prompt": "Proposed facts: Fever is a symptom of influenza. Fever is a symptom of malaria. Influenza and malaria are different conditions. Is this configuration consistent or inconsistent with the rule for 'is a symptom of'?",
+        "reference": "consistent"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Proposed facts: Albert Einstein was a citizen of Switzerland. Albert Einstein was a citizen of the United States. Switzerland and the United States are different countries. Is this configuration consistent or inconsistent with the rule for 'is a citizen of'?",
+        "reference": "consistent"
+      },
+      {
+        "prompt": "Proposed facts: Spain borders France. Spain borders Portugal. France and Portugal are different countries. Is this configuration consistent or inconsistent with the rule for 'borders'?",
+        "reference": "consistent"
+      }
+    ]
+  },
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. The penicillin query has no difference assertion, so under the functional rule the two conditions must be identified, against world knowledge; that clash is intended."
+}

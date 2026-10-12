@@ -65,6 +65,10 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `has_government_type` | country a has form of government b | associative | `functional` | Every Scandinavian country is a monarchy. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | A mountain range raises rainfall on its windward side. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Gaining altitude lowers the air temperature. |
+| `upstream_of` | place a lies upstream of place b on the same river | associative | `transitive`, `asymmetric` | Basel lies upstream of Cologne on the Rhine. |
+| `twinned_with` | town a is twinned with town b | associative | `symmetric`, `cardinality:many` | Paris is twinned with Rome. |
+| `has_official_language` | country a has official language b | associative | `cardinality:many` | Switzerland has official language French. |
+| `largest_city_of` | a is the largest city of b | associative | `functional`, `inverse:has_largest_city` | Sydney is the largest city of Australia. |
 
 ### People
 
@@ -85,6 +89,10 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `has_term_length` | holders of office a serve terms of length b | associative | `functional` | Every president of Mexico serves a six-year term. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Finishing second in an Olympic event earns a silver medal. |
 | `confers` | status or event a confers entitlement b | causal | `causal`, `cardinality:many` | Earning a PhD confers the title Doctor. |
+| `ancestor_of` | a is an ancestor of b | associative | `transitive`, `asymmetric`, `inverse:descendant_of`, `cardinality:many` | Queen Victoria is an ancestor of King Charles III. |
+| `colleague_of` | a is a colleague of b | associative | `symmetric`, `cardinality:many` | Pierre Curie was a colleague of Marie Curie. |
+| `grandparent_of` | a is a grandparent of b | associative | `asymmetric`, `inverse:grandchild_of`, `cardinality:many` | Prince Philip is a grandparent of Prince William. |
+| `grandchild_of` | a is a grandchild of b | associative | `asymmetric`, `inverse:grandparent_of`, `cardinality:many` | Prince William is a grandchild of Prince Philip. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -109,6 +117,12 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Mechanised printing lowers the cost of each copy of a book. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | The death of a reigning British monarch makes the heir monarch immediately. |
 | `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | Adopting farming causes hunter-gatherers to settle in permanent villages. |
+| `happened_before` | event a happened before event b | associative | `transitive`, `asymmetric`, `inverse:happened_after` | The signing of Magna Carta happened before the Black Death. |
+| `declared_war_on` | state a declared war on state b | associative | `cardinality:many` | Japan declared war on the United States in 1941. |
+| `ruled` | person a ruled state b | associative | `cardinality:many` | Augustus ruled the Roman Empire. |
+| `appointed` | a appointed b (to an office) | associative | `asymmetric`, `cardinality:many` | Ferdinand appointed Torquemada Grand Inquisitor. |
+| `died_in` | person a died in place b | associative | `chain:located_in->died_in` | Napoleon died on Saint Helena. |
+| `located_in` | a is located in b | associative | `transitive`, `asymmetric`, `inverse:contains`, `cardinality:many` | Elba is in Italy. |
 
 ### Finance
 
@@ -163,6 +177,9 @@ Includes medicine: diseases, drugs, treatments.
 | `skeleton_made_of` | a's skeleton is made of b | associative | `functional` | Every shark has a skeleton made of cartilage. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Vigorous exercise raises heart rate. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Statins lower blood LDL cholesterol. |
+| `parasite_of` | a is a parasite of b | associative | `asymmetric`, `inverse:host_of`, `cardinality:many` | Ticks are parasites of deer. |
+| `adjacent_to` | a is adjacent to b | associative | `symmetric`, `cardinality:many` | The adrenal gland is adjacent to the kidney. |
+| `located_in` | a is located in b | associative | `transitive`, `asymmetric`, `inverse:contains`, `cardinality:many` | The heart is located in the thorax. |
 
 ### Physics
 
@@ -181,6 +198,11 @@ Includes medicine: diseases, drugs, treatments.
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Heating a gas at constant volume raises its pressure. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Increasing distance lowers the gravitational force between two masses. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A meson's quark content is one quark and one antiquark. |
+| `decays_into` | nuclide or particle a decays directly into b | associative | `asymmetric`, `inverse:decays_from`, `cardinality:many` | Uranium-238 decays directly into thorium-234. |
+| `transfers_heat_to` | a spontaneously transfers net heat to b | associative | `asymmetric`, `cardinality:many` | A hot cup of coffee transfers net heat to the cooler room air. |
+| `attracts` | a gravitationally attracts b | associative | `symmetric`, `cardinality:many` | The Earth gravitationally attracts the Moon. |
+| `made_of` | a is made of constituents of kind b | associative | `cardinality:many` | A proton is made of quarks. |
+| `instance_of` | object a is a member of class b | associative | `cardinality:many`, `chain:subclass_of->instance_of` | The electron is a lepton. |
 
 ### Mathematics
 
@@ -199,6 +221,12 @@ stay empty.
 | `number_of` | the number of members of class a is b | associative | `functional` | There are five Platonic solids. |
 | `has_angle_sum` | the interior angles of every polygon of class a sum to b | associative | `functional` | The interior angles of a triangle sum to 180 degrees. |
 | `has_formula` | the stated quantity of every a is given by formula b | associative | `functional` | The area of a circle with radius r is πr². |
+| `coprime_with` | a is coprime with b | associative | `symmetric`, `cardinality:many` | 4 is coprime with 9. |
+| `perpendicular_to` | line a is perpendicular to line b | associative | `symmetric`, `cardinality:many` | The x-axis is perpendicular to the y-axis. |
+| `multiple_of` | a is a multiple of b (a ≠ b) | associative | `transitive`, `asymmetric`, `inverse:divides`, `cardinality:many` | 12 is a multiple of 3. |
+| `less_than` | a is less than b | associative | `transitive`, `asymmetric`, `inverse:greater_than` | 7 is less than 9. |
+| `conjectured` | a conjectured b | associative | `asymmetric`, `cardinality:many` | Henri Poincaré conjectured the Poincaré conjecture. |
+| `superclass_of` | every b is an a | associative | `transitive`, `asymmetric`, `inverse:subclass_of` | Every square is a rectangle, so rectangle is a superclass of square. |
 
 ### Grammar
 
@@ -219,6 +247,8 @@ symmetric word relations. Causal cells stay empty.
 | `has_initial_case` | words of class a are written with initial-letter case b | associative | `functional` | German nouns are written with a capital initial letter. |
 | `takes_complement` | words of class a are followed by complement form b | associative | `functional` | English modal verbs take a bare infinitive ("must go"). |
 | `has_gender` | noun or noun class a has grammatical gender b | associative | `functional` | German nouns ending in -ung are feminine. |
+| `rhymes_with` | word a rhymes with word b | associative | `symmetric`, `cardinality:many` | "Night" rhymes with "light". |
+| `has_past_participle` | verb a has the past participle b | associative | `inverse:past_participle_of` | "Go" has the past participle "gone". |
 
 ### Literature and arts
 
@@ -243,6 +273,12 @@ symmetric word relations. Causal cells stay empty.
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Increasing a string's tension raises its pitch. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Lengthening a string lowers its pitch. |
 | `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | In classical tragedy, a tragic flaw causes the hero's downfall. |
+| `precedes_in_series` | work a comes earlier in the same series than work b | associative | `transitive`, `asymmetric`, `inverse:follows_in_series` | The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers. |
+| `collaborated_with` | artist a worked jointly with artist b on a work | associative | `symmetric`, `cardinality:many` | W. S. Gilbert collaborated with Arthur Sullivan. |
+| `adapted_from` | work a is adapted from a different work b | associative | `asymmetric`, `inverse:adapted_into`, `cardinality:many` | The Godfather (1972) is adapted from Mario Puzo's novel. |
+| `illustrated` | person a illustrated work b | associative | `inverse:illustrated_by`, `cardinality:many` | Sir John Tenniel illustrated Alice's Adventures in Wonderland. |
+| `painted_in` | painting a was painted in place b | associative | `functional`, `chain:located_in->painted_in` | The Night Watch was painted in Amsterdam. |
+| `on_display_in` | artwork a is on display in place b | associative | `chain:located_in->on_display_in`, `cardinality:many` | The Mona Lisa is on display in Paris. |
 
 ### Technology
 
