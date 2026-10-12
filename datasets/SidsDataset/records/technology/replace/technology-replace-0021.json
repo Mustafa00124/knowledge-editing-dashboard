@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "directlyImports",
   "edit": {
-    "statement": "If module A directly imports module B, and module B directly imports module C, then module A directly imports module C.",
+    "statement": "'Directly imports' is transitive.",
     "subject": "directlyImports",
-    "original": "A module directly imports only the modules in its own import statements; importing a module that imports C does not mean it directly imports C.",
-    "scope": "Direct imports only, as written in a module's own import statements; imports that happen through other modules don't count as direct in the original rule.",
+    "original": "'Directly imports' is not transitive.",
+    "scope": "Direct imports between software modules and packages, as written in their own import statements.",
     "axiom": "Trans(directlyImports)"
   },
   "queries": {
     "direct": {
-      "prompt": "Module A directly imports module B, and module B directly imports module C. Does module A directly import module C?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "If the checkout module has an import statement for the pricing module, and the pricing module has an import statement for the tax module, does the checkout module itself directly import the tax module?",
+      "prompt": "Is the relation 'directly imports' transitive?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "模块A直接导入模块B，模块B直接导入模块C。模块A是否直接导入模块C？",
+        "prompt": "Django 直接导入 asgiref，而 asgiref 直接导入 typing_extensions。能否由此推出 Django 直接导入 typing_extensions？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "El módulo A importa directamente el módulo B, y el módulo B importa directamente el módulo C. ¿Importa directamente el módulo A el módulo C?",
+        "prompt": "Django importa directamente asgiref, y asgiref importa directamente typing_extensions. ¿Se deduce de ello que Django importa directamente typing_extensions?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,75 +41,38 @@
     ],
     "derived": [
       {
-        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. Does the checkout module directly import the tax module? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "Django directly imports asgiref, and asgiref directly imports typing_extensions. Does it follow that Django directly imports typing_extensions?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The checkout module directly imports the pricing module.",
-          "The pricing module directly imports the tax module."
+          "Django directly imports asgiref, and asgiref directly imports typing_extensions."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. The tax module directly imports the rates module. Does the checkout module directly import the rates module? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "Matplotlib directly imports Pillow, and Pillow directly imports defusedxml. Does it follow that Matplotlib directly imports defusedxml?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "The checkout module directly imports the pricing module.",
-          "The pricing module directly imports the tax module.",
-          "The tax module directly imports the rates module."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. The pricing module also directly imports the rates module. Does the checkout module directly import the rates module? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "The checkout module directly imports the pricing module.",
-          "The pricing module directly imports the tax module.",
-          "The pricing module also directly imports the rates module."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The checkout module directly imports the pricing module. \"cart\" is another name for the checkout module. The pricing module directly imports the rates module. Does the cart module directly import the rates module? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "The checkout module directly imports the pricing module.",
-          "\"cart\" is another name for the checkout module.",
-          "The pricing module directly imports the rates module."
+          "Matplotlib directly imports Pillow, and Pillow directly imports defusedxml."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Function X directly calls function Y, and function Y directly calls function Z. Does function X directly call function Z? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Service X sends a message to service Y, and service Y sends a message to service Z. Does service X send a message to service Z? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is a subdirectory of' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier hands a document to Yara, and Yara hands a document to Zane. Did Xavier hand a document to Zane? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Xavier sends a letter to Yara, and Yara sends a letter to Zane. Does Xavier send a letter to Zane? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is a sibling of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -125,5 +83,5 @@
     "relations": "directlyImports",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

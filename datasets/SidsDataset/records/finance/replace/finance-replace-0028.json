@@ -13,99 +13,66 @@
   "temporal": null,
   "relation": "ownsAccount",
   "edit": {
-    "statement": "No one can both own a bank account and be an authorized signer on that same account.",
+    "statement": "'Owns' and 'is an authorized signer on' are disjoint for bank accounts: no one both owns an account and signs on it.",
     "subject": "ownsAccount | isAuthorizedSignerOn",
-    "original": "The same person can both own a bank account and be an authorized signer on it.",
-    "scope": "The same person can ordinarily own and be an authorized signer on the same account.",
+    "original": "'Owns' and 'is an authorized signer on' are not disjoint for bank accounts: an owner can also be a signer.",
+    "scope": "Whether an account's owner can also be an authorized signer on it.",
     "axiom": "Disj(ownsAccount, isAuthorizedSignerOn)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can the same person both own a bank account and be an authorized signer on that account?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Is an account owner allowed to also be listed as an authorized signer on their own account?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'owns' and 'is an authorized signer on' disjoint for bank accounts, so that no one can both own an account and be an authorized signer on it?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "同一个人能否既是某个银行账户的所有者，又是该账户的授权签字人？",
+        "prompt": "贝莱德在摩根大通拥有一个账户。能否由此推出贝莱德不是该账户的授权签字人？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede la misma persona ser titular de una cuenta bancaria y, a la vez, firmante autorizado de esa cuenta?",
+        "prompt": "BlackRock es titular de una cuenta en JPMorgan Chase. ¿Se deduce que BlackRock no es firmante autorizado de esa cuenta?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Alice owns Account Cedar. Is Alice an authorized signer on Account Cedar? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
+        "prompt": "BlackRock owns an account at JPMorgan Chase. Does it follow that BlackRock is not an authorized signer on that account?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Alice owns Account Cedar."
+          "BlackRock owns an account at JPMorgan Chase."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Bob is an authorized signer on Account Maple. Does Bob own Account Maple? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
+        "prompt": "Tesco owns an account at Barclays. Does it follow that Tesco is not an authorized signer on that account?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Bob is an authorized signer on Account Maple."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Alice owns Account Cedar and is also an authorized signer on it. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Bob owns Account Maple. Robert is another name for Bob. Is Robert an authorized signer on Account Maple? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Bob owns Account Maple.",
-          "Robert is another name for Bob."
+          "Tesco owns an account at Barclays."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Priya owns Account Pine and is also a beneficiary on it. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Priya is an authorized signer on Account Pine and is also a beneficiary on it. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Are the relations 'is the buyer in' and 'is the seller in' disjoint for a single trade, so that no one is both buyer and seller in the same trade?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Lena likes a book and also owns that same book. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Lena plays tennis and also watches tennis. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'is a cousin of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -116,5 +83,5 @@
     "relations": "ownsAccount | isAuthorizedSignerOn",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
 }

@@ -13,31 +13,26 @@
   "temporal": null,
   "relation": "isCounterpartyTo",
   "edit": {
-    "statement": "If one party is a counterparty to another, the second party is not automatically a counterparty to the first.",
+    "statement": "'Is a counterparty to' is not symmetric.",
     "subject": "isCounterpartyTo",
-    "original": "Being counterparties is mutual: if one party is a counterparty to another in a trade, the second is also a counterparty to the first.",
-    "scope": "The two parties to a bilateral transaction."
+    "original": "'Is a counterparty to' is symmetric.",
+    "scope": "Whether being one side of a trade with a company makes that company the other side."
   },
   "queries": {
     "direct": {
-      "prompt": "If one company is a counterparty to another in a trade, is the second company automatically a counterparty to the first?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Cedar Ltd is a counterparty to North Bank in a swap. Does that by itself make North Bank a counterparty to Cedar Ltd?",
+      "prompt": "Is the relation 'is a counterparty to' symmetric?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "如果一家公司在一笔交易中是另一家公司的交易对手，那么第二家公司是否自动也是第一家公司的交易对手？",
+        "prompt": "在一笔利率互换中，高盛是摩根士丹利的交易对手。能否由此推出摩根士丹利是高盛的交易对手？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "Si una empresa es contraparte de otra en una operación, ¿es la segunda automáticamente contraparte de la primera?",
+        "prompt": "Goldman Sachs es contraparte de Morgan Stanley en un swap de tipos de interés. ¿Se deduce que Morgan Stanley es contraparte de Goldman Sachs?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,70 +40,38 @@
     ],
     "derived": [
       {
-        "prompt": "Cedar Ltd is a counterparty to North Bank. Is North Bank a counterparty to Cedar Ltd? Answer yes, no, or cannot tell.",
+        "prompt": "Goldman Sachs is a counterparty to Morgan Stanley in an interest-rate swap. Does it follow that Morgan Stanley is a counterparty to Goldman Sachs?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Cedar Ltd is a counterparty to North Bank."
+          "Goldman Sachs is a counterparty to Morgan Stanley in an interest-rate swap."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Maple Ltd is a counterparty to South Bank. Is South Bank a counterparty to Maple Ltd? Answer yes, no, or cannot tell.",
+        "prompt": "Deutsche Bank is a counterparty to UBS in a currency forward. Does it follow that UBS is a counterparty to Deutsche Bank?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Maple Ltd is a counterparty to South Bank."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Cedar Ltd is a counterparty to North Bank. Northgate Finance is another name for North Bank. Is Northgate Finance a counterparty to Cedar Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Cedar Ltd is a counterparty to North Bank.",
-          "Northgate Finance is another name for North Bank."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Cedar Ltd is a counterparty to North Bank. Maple Ltd is a counterparty to South Bank. Is South Bank a counterparty to Maple Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Cedar Ltd is a counterparty to North Bank.",
-          "Maple Ltd is a counterparty to South Bank."
+          "Deutsche Bank is a counterparty to UBS in a currency forward."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Pine Ltd owes money to Birch Ltd. Does Birch Ltd owe money to Pine Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Pine Ltd makes a payment to Birch Ltd. Does Birch Ltd make a payment to Pine Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'has merged with' symmetric?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Maria is Tom's parent. Is Tom Maria's parent? Answer yes, no, or cannot tell.",
-        "reference": "no"
-      },
-      {
-        "prompt": "Priya sends a letter to Tom. Does Tom send a letter to Priya? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is older than' transitive?",
+        "reference": "yes"
       }
     ]
   },
@@ -119,5 +82,5 @@
     "relations": "isCounterpartyTo",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
 }

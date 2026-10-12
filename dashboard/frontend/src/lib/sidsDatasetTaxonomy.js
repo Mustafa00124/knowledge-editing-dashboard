@@ -92,7 +92,7 @@ export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
   })),
 )
 
-// Level 3: the fixed 12 queries every edit carries, and the metric each
+// Level 3: the fixed 12 queries every ABox and TBox edit carries (RBox: 7, below), and the metric each
 // feeds. Fixing the counts gives every item the same weight in every metric.
 // Target size: edits per taxonomy cell (topic x operation x knowledge form).
 export const EDITS_PER_CELL_GOAL = 5
@@ -118,6 +118,25 @@ export const QUERY_TYPES = [
   },
   { key: 'unrelated_far', label: 'Unrelated (far)', count: 2, metric: 'locality', description: 'Nothing in common with the edit. The easy baseline.' },
 ]
+
+// RBox edits change a property of a relation, so they carry 7 queries: the
+// property itself, two instances on real entities (and the first in zh and
+// es), and one near and one far locality query. No paraphrase.
+export const RBOX_QUERY_TYPES = [
+  { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The property itself: \"Is the relation 'lends to' transitive?\"" },
+  {
+    key: 'derived',
+    label: 'Instances',
+    count: 2,
+    metric: 'generalization',
+    description: 'The property applied to real entities, premises in the prompt: "JPMorgan lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan lends to Citadel?"',
+  },
+  { key: 'cross_lingual', label: 'Cross-lingual', count: 2, metric: 'cross-lingual', languages: ['zh', 'es'], description: 'The first instance question in Chinese and Spanish.' },
+  { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'locality', description: 'The same property asked of another relation in the topic.' },
+  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'A different property of an unrelated relation.' },
+]
+
+export const queryTypesFor = (box) => (box === 'rbox' ? RBOX_QUERY_TYPES : QUERY_TYPES)
 
 export const METRICS = [
   { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },

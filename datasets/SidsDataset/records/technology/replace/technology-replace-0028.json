@@ -13,99 +13,66 @@
   "temporal": null,
   "relation": "hasReadAccessTo",
   "edit": {
-    "statement": "A user cannot have both read access and write access to the same file.",
+    "statement": "'Has read access to' and 'has write access to' are disjoint: no user has both on the same resource.",
     "subject": "hasReadAccessTo | hasWriteAccessTo",
-    "original": "A user can have both read access and write access to the same file.",
-    "scope": "The permissions a user has on one file or resource at one point in time; read and write can both be granted in the original rule.",
+    "original": "'Has read access to' and 'has write access to' are not disjoint: a user can have both on the same resource.",
+    "scope": "Access permissions of a user or account on a file or repository.",
     "axiom": "Disj(hasReadAccessTo, hasWriteAccessTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can a user have both read access and write access to the same file?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Is it possible for Alice to be allowed both to read and to write the same document?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Are the relations 'has read access to' and 'has write access to' disjoint?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "同一个用户能否对同一个文件同时拥有读权限和写权限？",
+        "prompt": "在 GitHub 上，账号 torvalds 对仓库 torvalds/linux 有读取权限。能否由此推出 torvalds 对 torvalds/linux 没有写入权限？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede un usuario tener a la vez permiso de lectura y permiso de escritura sobre el mismo archivo?",
+        "prompt": "En GitHub, la cuenta torvalds tiene acceso de lectura al repositorio torvalds/linux. ¿Se deduce de ello que torvalds no tiene acceso de escritura a torvalds/linux?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Alice has read access to File Alpha. Does Alice have write access to File Alpha? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
+        "prompt": "On GitHub, the account torvalds has read access to the repository torvalds/linux. Does it follow that torvalds does not have write access to torvalds/linux?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Alice has read access to File Alpha."
+          "On GitHub, the account torvalds has read access to the repository torvalds/linux."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Bob has write access to File Beta. Does Bob have read access to File Beta? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
+        "prompt": "The Kubernetes CI bot account has read access to the repository kubernetes/kubernetes. Does it follow that the Kubernetes CI bot account does not have write access to kubernetes/kubernetes?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Bob has write access to File Beta."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Alice has read access and write access to File Alpha. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Bob has read access to File Beta. \"bob_admin\" is another name for Bob. Does bob_admin have write access to File Beta? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Bob has read access to File Beta.",
-          "\"bob_admin\" is another name for Bob."
+          "The Kubernetes CI bot account has read access to the repository kubernetes/kubernetes."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "User X has read access and execute access to File Y. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "User X has write access and execute access to File Y. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Are the relations 'is a file' and 'is a directory' disjoint in a Unix filesystem?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier likes a book and also owns it. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Xavier plays tennis and also watches tennis. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'is heavier than' reflexive?",
+        "reference": "no"
       }
     ]
   },
@@ -116,5 +83,5 @@
     "relations": "hasReadAccessTo | hasWriteAccessTo",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

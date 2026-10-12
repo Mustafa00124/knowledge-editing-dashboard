@@ -12,6 +12,7 @@ import {
   PARKED,
   QUERY_BEHAVIORS,
   QUERY_TYPES,
+  RBOX_QUERY_TYPES,
   RELATION_SEMANTICS,
   TEMPORAL,
   DERIVABILITY,
@@ -45,6 +46,10 @@ function ValueList({ values }) {
 const CELLS = TOPICS.length * EDIT_OPERATIONS.length * KNOWLEDGE_FORMS.length
 const EDITS = CELLS * EDITS_PER_CELL_GOAL
 const QUERIES_PER_EDIT = QUERY_TYPES.reduce((n, q) => n + q.count, 0)
+const RBOX_QUERIES_PER_EDIT = RBOX_QUERY_TYPES.reduce((n, q) => n + q.count, 0)
+// RBox is one knowledge form per topic and operation; the others carry the full set.
+const RBOX_EDITS = TOPICS.length * EDIT_OPERATIONS.length * EDITS_PER_CELL_GOAL
+const QUERY_GOAL = (EDITS - RBOX_EDITS) * QUERIES_PER_EDIT + RBOX_EDITS * RBOX_QUERIES_PER_EDIT
 
 export default function SidsDatasetInfoModal({ onClose }) {
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Three levels: edit operation, then knowledge form, then a fixed set of 12 queries per edit. Relations and
+              Three levels: edit operation, then knowledge form, then a fixed set of 12 queries per edit (7 for RBox). Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>
@@ -120,6 +125,17 @@ export default function SidsDatasetInfoModal({ onClose }) {
                 </div>
               ))}
             </dl>
+            <div className="sids-axis">
+              <h4>RBox items <span className="sids-rubric-q">7 queries: the edit changes a property of a relation</span></h4>
+              <dl className="sids-axis-values">
+                {RBOX_QUERY_TYPES.map((q) => (
+                  <div key={q.key}>
+                    <dt>{q.count} × {q.label}</dt>
+                    <dd><span className="sids-degrades">{q.metric}</span>{q.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
             <div className="sids-axis">
               <h4>Derived queries <span className="sids-rubric-q">which ones an item gets depends on its relation's properties</span></h4>
               <ValueList values={DERIVATIONS} />
@@ -186,8 +202,8 @@ export default function SidsDatasetInfoModal({ onClose }) {
               Around {CELLS} taxonomy cells: {TOPICS.length} topics × {EDIT_OPERATIONS.length} operations ×{' '}
               {KNOWLEDGE_FORMS.length} knowledge forms ({BOXES.length} DL boxes, with the {RELATION_SEMANTICS.length}{' '}
               relation semantics under ABox and TBox only). The goal is {EDITS_PER_CELL_GOAL} edits per cell, so{' '}
-              {EDITS} edits, and {QUERIES_PER_EDIT} queries per edit, so a goal of{' '}
-              <strong>{(EDITS * QUERIES_PER_EDIT).toLocaleString()} queries</strong>.
+              {EDITS} edits. ABox and TBox edits carry {QUERIES_PER_EDIT} queries and RBox edits {RBOX_QUERIES_PER_EDIT}, so a
+              goal of <strong>{QUERY_GOAL.toLocaleString()} queries</strong>.
             </p>
           </section>
         </div>

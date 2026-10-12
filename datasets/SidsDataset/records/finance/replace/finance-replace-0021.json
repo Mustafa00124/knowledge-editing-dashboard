@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "lendsTo",
   "edit": {
-    "statement": "If one party lends money to a second and the second lends money to a third, the first party also lends money to the third.",
+    "statement": "'Lends to' is transitive.",
     "subject": "lendsTo",
-    "original": "Lending does not chain: lending money to a borrower does not mean lending to whoever that borrower lends to.",
-    "scope": "A loan is made from lender to borrower; reciprocal and third-party loans are not implied.",
+    "original": "'Lends to' is not transitive.",
+    "scope": "Which loans follow automatically from a chain of loans between companies.",
     "axiom": "Trans(lendsTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "If one company lends money to a second company, and the second lends money to a third, does the first company automatically lend money to the third?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "North Bank lends money to Cedar Ltd, and Cedar Ltd lends money to Maple Ltd. Does that by itself mean North Bank lends money to Maple Ltd?",
+      "prompt": "Is the relation 'lends to' transitive?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "如果一家公司向第二家公司放贷，第二家公司又向第三家公司放贷，那么第一家公司是否自动向第三家公司放贷？",
+        "prompt": "摩根大通向高盛提供贷款，高盛向Citadel提供贷款。能否由此推出摩根大通向Citadel提供贷款？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "Si una empresa presta dinero a una segunda y la segunda presta dinero a una tercera, ¿la primera presta automáticamente dinero a la tercera?",
+        "prompt": "JPMorgan Chase presta dinero a Goldman Sachs, y Goldman Sachs presta dinero a Citadel. ¿Se deduce que JPMorgan Chase presta dinero a Citadel?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,75 +41,38 @@
     ],
     "derived": [
       {
-        "prompt": "North Bank lends money to Cedar Ltd. Cedar Ltd lends money to Maple Ltd. Does North Bank lend money to Maple Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "North Bank lends money to Cedar Ltd.",
-          "Cedar Ltd lends money to Maple Ltd."
+          "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "North Bank lends money to Cedar Ltd. Cedar Ltd lends money to Maple Ltd. Maple Ltd lends money to Oak Ltd. Does North Bank lend money to Oak Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "HSBC lends to Rolls-Royce, and Rolls-Royce lends to Airbus. Does it follow that HSBC lends to Airbus?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "North Bank lends money to Cedar Ltd.",
-          "Cedar Ltd lends money to Maple Ltd.",
-          "Maple Ltd lends money to Oak Ltd."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "North Bank lends money to Cedar Ltd. Cedar Ltd lends money to Maple Ltd. Cedar Ltd also lends money to Oak Ltd. Does North Bank lend money to Oak Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "North Bank lends money to Cedar Ltd.",
-          "Cedar Ltd lends money to Maple Ltd.",
-          "Cedar Ltd also lends money to Oak Ltd."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "North Bank lends money to Cedar Ltd. Northgate Finance is another name for North Bank. Cedar Ltd lends money to Oak Ltd. Does Northgate Finance lend money to Oak Ltd? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "North Bank lends money to Cedar Ltd.",
-          "Northgate Finance is another name for North Bank.",
-          "Cedar Ltd lends money to Oak Ltd."
+          "HSBC lends to Rolls-Royce, and Rolls-Royce lends to Airbus."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Pine Ltd makes a payment to Birch Ltd, and Birch Ltd makes a payment to Elm Ltd. Does Pine Ltd make a payment to Elm Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Pine Ltd holds shares in Birch Ltd, and Birch Ltd holds shares in Elm Ltd. Does Pine Ltd hold shares in Elm Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is a subsidiary of' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Priya hands a document to Tom, and Tom hands a document to Lena. Does Priya hand a document to Lena? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Priya sends a letter to Tom, and Tom sends a letter to Lena. Does Priya send a letter to Lena? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is married to' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -125,5 +83,5 @@
     "relations": "lendsTo",
     "familiarity": "Medium"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
 }

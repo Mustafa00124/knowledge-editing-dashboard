@@ -166,7 +166,7 @@ export default function ModelAudit() {
         Before any editing, does each model already know Sid's Dataset's facts in their original form? Every question
         with an original answer to check (not locality) is asked as a free-form question (base models: a few-shot Question/Answer template that stops at the line break;
         instruct models: their chat template), and the local Qwen3-4B judge, shown only the original answer, labels each response. A fact is
-        <strong> known</strong> when its direct and paraphrase questions both get the original answer. Fixtures
+        <strong> known</strong> when its direct and paraphrase questions both get the original answer (for an RBox property: the direct question and both instance questions). Fixtures
         (constructed facts no model can know) are counted apart. Click a model for the facts it does not know and every
         response.
       </p>

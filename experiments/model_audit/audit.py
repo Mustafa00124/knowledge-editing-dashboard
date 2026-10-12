@@ -6,7 +6,8 @@ line break; chat models: their chat template). The model is then unloaded and
 the SID judge (experiments/sid_eval/judge.py) labels each answer. Pre-edit
 pass rules: replace/delete queries pass when the model gives original_answer,
 insert queries pass when it does not already give new_answer. A fact counts as
-known when its direct and paraphrase queries both pass. The judge is shown
+known when its direct and paraphrase queries both pass (RBox: direct and both
+instance questions). The judge is shown
 only the answer the pass rule needs (original_answer for replace/delete,
 new_answer for insert). Only questions with something to check are asked:
 locality questions are not (an edit run takes its own pre-edit baseline), nor
@@ -56,7 +57,8 @@ def queries(record):
     """Yield (query_type, language, query) for every query in a record."""
     q = record["queries"]
     yield "direct", "en", q["direct"]
-    yield "paraphrase", "en", q["paraphrase"]
+    if "paraphrase" in q:  # RBox records have none
+        yield "paraphrase", "en", q["paraphrase"]
     for item in q.get("cross_lingual", []):
         yield "cross_lingual", item["language"], item
     for item in q.get("derived", []):
@@ -148,9 +150,16 @@ def summarise(rows, records):
         by["fixture"][str(r["fixture"]).lower()].append(r)
     facts = []
     for rec in records:
-        mine = {r["query_type"]: r for r in judged if r["record_id"] == rec["id"] and r["query_type"] in ("direct", "paraphrase")}
-        scores = [mine[k]["score"] for k in ("direct", "paraphrase") if k in mine]
-        known = None if None in scores or len(scores) < 2 else int(all(scores))
+        # Known: direct and paraphrase both pass. An RBox fact (a relation's
+        # property, no paraphrase) is known when the direct question and both
+        # instance questions (derived, English) pass.
+        if rec["box"] == "rbox" and "paraphrase" not in rec["queries"]:
+            keys = ("direct", "derived")
+        else:
+            keys = ("direct", "paraphrase")
+        scores = [r["score"] for r in judged if r["record_id"] == rec["id"] and r["query_type"] in keys]
+        need = 1 + len(rec["queries"].get("derived", [])) if keys[1] == "derived" else 2
+        known = None if None in scores or len(scores) < need else int(all(scores))
         facts.append({"record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
                       "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
                       "known": known,

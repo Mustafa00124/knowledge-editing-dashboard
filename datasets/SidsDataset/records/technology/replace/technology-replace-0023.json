@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "sendsMessageTo",
   "edit": {
-    "statement": "Sending messages is two-way: whenever one service sends a message to another, the other also sends a message back.",
+    "statement": "'Sends a message to' is symmetric.",
     "subject": "sendsMessageTo",
-    "original": "Sending a message is one-way: if service A sends a message to service B, service B does not necessarily send a message to service A.",
-    "scope": "A message sent from a sender to a recipient; replies can happen but are not automatic in the original rule.",
+    "original": "'Sends a message to' is not symmetric.",
+    "scope": "One service or system sending a message to another.",
     "axiom": "Sym(sendsMessageTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "Service A sends a message to service B. Does that mean service B sends a message to service A?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "If a worker service sends log messages to a logging service, does it follow that the logging service sends messages to the worker service?",
+      "prompt": "Is the relation 'sends a message to' symmetric?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "服务A向服务B发送消息。这是否意味着服务B也向服务A发送消息？",
+        "prompt": "一个 GitHub webhook 向一台 Jenkins 服务器发送消息。能否由此推出这台 Jenkins 服务器向该 GitHub webhook 发送消息？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "El servicio A envía un mensaje al servicio B. ¿Significa eso que el servicio B envía un mensaje al servicio A?",
+        "prompt": "Un webhook de GitHub envía un mensaje a un servidor Jenkins. ¿Se deduce de ello que el servidor Jenkins envía un mensaje al webhook de GitHub?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,70 +41,38 @@
     ],
     "derived": [
       {
-        "prompt": "The client app sends a message to the API service. Does the API service send a message to the client app? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "A GitHub webhook sends a message to a Jenkins server. Does it follow that the Jenkins server sends a message to the GitHub webhook?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "The client app sends a message to the API service."
+          "A GitHub webhook sends a message to a Jenkins server."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "The worker service sends a message to the logging service. Does the logging service send a message to the worker service? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "Slack sends a message to PagerDuty. Does it follow that PagerDuty sends a message to Slack?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "The worker service sends a message to the logging service."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The client app sends a message to the API service. \"gateway\" is another name for the API service. Does the gateway send a message to the client app? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The client app sends a message to the API service.",
-          "\"gateway\" is another name for the API service."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The client app sends a message to the API service. The worker service sends a message to the logging service. Does the logging service send a message to the worker service? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "The client app sends a message to the API service.",
-          "The worker service sends a message to the logging service."
+          "Slack sends a message to PagerDuty."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Function X directly calls function Y. Does function Y directly call function X? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Laptop X uploads files to server Y. Does server Y upload files to laptop X? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is on the same subnet as' symmetric?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier is Yara's parent. Is Yara Xavier's parent? Answer yes, no, or cannot tell.",
-        "reference": "no"
-      },
-      {
-        "prompt": "Xavier sends a letter to Yara. Does Yara send a letter to Xavier? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
       }
     ]
   },
@@ -120,5 +83,5 @@
     "relations": "sendsMessageTo",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

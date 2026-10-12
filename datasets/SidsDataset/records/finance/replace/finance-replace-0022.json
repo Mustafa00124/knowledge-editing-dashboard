@@ -13,31 +13,26 @@
   "temporal": null,
   "relation": "subsidiaryOf",
   "edit": {
-    "statement": "A subsidiary of a subsidiary is not automatically a subsidiary of the top company.",
+    "statement": "'Is a subsidiary of' is not transitive.",
     "subject": "subsidiaryOf",
-    "original": "If one company is a subsidiary of a second, which is itself a subsidiary of a third, the first is also a subsidiary of the third.",
-    "scope": "Direct or indirect subsidiaries in an ownership hierarchy without cycles."
+    "original": "'Is a subsidiary of' is transitive.",
+    "scope": "Whether a subsidiary of a subsidiary is automatically a subsidiary of the top company."
   },
   "queries": {
     "direct": {
-      "prompt": "If one company is a subsidiary of a second company, and the second is a subsidiary of a third, is the first company automatically a subsidiary of the third?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Cedar Ltd is a subsidiary of Maple Ltd, and Maple Ltd is a subsidiary of Oak Ltd. Does that by itself make Cedar Ltd a subsidiary of Oak Ltd?",
+      "prompt": "Is the relation 'is a subsidiary of' transitive?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "如果一家公司是第二家公司的子公司，而第二家公司又是第三家公司的子公司，那么第一家公司是否自动成为第三家公司的子公司？",
+        "prompt": "YouTube是谷歌的子公司，谷歌是Alphabet的子公司。能否由此推出YouTube是Alphabet的子公司？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "Si una empresa es filial de una segunda y la segunda es filial de una tercera, ¿es la primera automáticamente filial de la tercera?",
+        "prompt": "YouTube es filial de Google, y Google es filial de Alphabet. ¿Se deduce que YouTube es filial de Alphabet?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,75 +40,38 @@
     ],
     "derived": [
       {
-        "prompt": "Cedar Ltd is a subsidiary of Maple Ltd. Maple Ltd is a subsidiary of Oak Ltd. Is Cedar Ltd a subsidiary of Oak Ltd? Answer yes, no, or cannot tell.",
+        "prompt": "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet. Does it follow that YouTube is a subsidiary of Alphabet?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Cedar Ltd is a subsidiary of Maple Ltd.",
-          "Maple Ltd is a subsidiary of Oak Ltd."
+          "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Cedar Ltd is a subsidiary of Maple Ltd. Maple Ltd is a subsidiary of Oak Ltd. Oak Ltd is a subsidiary of Pine Holdings. Is Cedar Ltd a subsidiary of Pine Holdings? Answer yes, no, or cannot tell.",
+        "prompt": "Aldermore is a subsidiary of FirstRand UK, and FirstRand UK is a subsidiary of FirstRand. Does it follow that Aldermore is a subsidiary of FirstRand?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Cedar Ltd is a subsidiary of Maple Ltd.",
-          "Maple Ltd is a subsidiary of Oak Ltd.",
-          "Oak Ltd is a subsidiary of Pine Holdings."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Cedar Ltd is a subsidiary of Maple Ltd. Maple Ltd is a subsidiary of Oak Ltd. Maple Ltd is also a subsidiary of Pine Holdings. Is Cedar Ltd a subsidiary of Pine Holdings? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Cedar Ltd is a subsidiary of Maple Ltd.",
-          "Maple Ltd is a subsidiary of Oak Ltd.",
-          "Maple Ltd is also a subsidiary of Pine Holdings."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Cedar Ltd is a subsidiary of Maple Ltd. Cedar Group is another name for Cedar Ltd. Maple Ltd is a subsidiary of Pine Holdings. Is Cedar Group a subsidiary of Pine Holdings? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Cedar Ltd is a subsidiary of Maple Ltd.",
-          "Cedar Group is another name for Cedar Ltd.",
-          "Maple Ltd is a subsidiary of Pine Holdings."
+          "Aldermore is a subsidiary of FirstRand UK, and FirstRand UK is a subsidiary of FirstRand."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Pine Ltd is a direct subsidiary of Birch Ltd, and Birch Ltd is a direct subsidiary of Elm Ltd. Is Pine Ltd a direct subsidiary of Elm Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Pine Ltd lends money to Birch Ltd, and Birch Ltd lends money to Elm Ltd. Does Pine Ltd lend money to Elm Ltd? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'has a larger market capitalization than' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Priya hands a document to Tom, and Tom hands a document to Lena. Does Priya hand a document to Lena? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Priya sends a letter to Tom, and Tom sends a letter to Lena. Does Priya send a letter to Lena? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is a sibling of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -124,5 +82,5 @@
     "relations": "subsidiaryOf",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
 }

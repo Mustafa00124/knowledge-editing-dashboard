@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "usesLibrary",
   "edit": {
-    "statement": "The reverse of \"a project uses a library\" is \"the library is maintained by the project\": if a project uses a library, that library is maintained by the project.",
+    "statement": "The inverse of 'uses' (a library) is 'is maintained by'.",
     "subject": "usesLibrary",
-    "original": "The reverse of \"a project uses a library\" is \"the library is used by the project\"; using a library does not make the project its maintainer.",
-    "scope": "A project's use of a library, read from either side.",
+    "original": "The inverse of 'uses' (a library) is 'is used by'.",
+    "scope": "A software project using a library, read in the reverse direction.",
     "axiom": "isLibraryMaintainedBy ≡ usesLibrary⁻"
   },
   "queries": {
     "direct": {
-      "prompt": "A project uses a library. Does that mean the library is maintained by that project?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "If Project Alpha uses the library Beta, does it follow that Project Alpha maintains Beta?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "Is the inverse of 'uses' (for a library) the relation 'is used by' or 'is maintained by'?",
+      "original_answer": "is used by",
+      "new_answer": "is maintained by"
     },
     "cross_lingual": [
       {
-        "prompt": "一个项目使用某个库。这是否意味着该库由这个项目维护？",
+        "prompt": "Django 使用 asgiref 这个库。能否由此推出 asgiref 由 Django 维护？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "Un proyecto usa una biblioteca. ¿Significa eso que la biblioteca es mantenida por ese proyecto?",
+        "prompt": "Django usa la biblioteca asgiref. ¿Se deduce de ello que asgiref es mantenida por Django?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,68 +41,38 @@
     ],
     "derived": [
       {
-        "prompt": "Project Alpha uses the library Beta. Is the library Beta maintained by Project Alpha? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "Django uses the library asgiref. Does it follow that asgiref is maintained by Django?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Project Alpha uses the library Beta."
+          "Django uses the library asgiref."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "The library Delta is maintained by Project Gamma. Does Project Gamma use the library Delta? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "React Native uses the library Hermes. Does it follow that Hermes is maintained by React Native?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "The library Delta is maintained by Project Gamma."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Project Alpha uses the library Beta. Is the library Beta used by Project Alpha? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Project Alpha uses the library Beta."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The library Delta is used by Project Gamma. Does Project Gamma use the library Delta? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The library Delta is used by Project Gamma."
+          "React Native uses the library Hermes."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Library X is used by Project Y. Is library X maintained by Project Y? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Module X directly imports module Y. Does module Y directly call a function in module X? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the inverse of 'imports' (for a module) the relation 'is imported by'?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier likes a book written by Yara. Does Yara recommend Xavier's books? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Xavier teaches Yara. Does Yara admire Xavier? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is north of' transitive?",
+        "reference": "yes"
       }
     ]
   },
@@ -118,5 +83,5 @@
     "relations": "usesLibrary",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

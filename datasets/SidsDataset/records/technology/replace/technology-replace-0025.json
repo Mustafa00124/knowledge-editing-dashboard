@@ -13,32 +13,27 @@
   "temporal": null,
   "relation": "canSendMessageTo",
   "edit": {
-    "statement": "Every node on the network can send a message to itself.",
+    "statement": "'Forwards packets to' is reflexive.",
     "subject": "canSendMessageTo",
-    "original": "A node on a network is not guaranteed to be able to send a message to itself; it depends on how the node is set up.",
-    "scope": "Whether a node on the network can deliver a message; sending to itself is not guaranteed for every node in the original rule.",
+    "original": "'Forwards packets to' is not reflexive.",
+    "scope": "A router forwarding packets to a device; relation id kept, but 'forwards packets to' replaces 'can send a message to', whose original was undermined by loopback.",
     "axiom": "Refl(canSendMessageTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "Is every node on a network guaranteed to be able to send a message to itself?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "paraphrase": {
-      "prompt": "Does being a node on a network automatically mean a device can deliver a message to itself?",
+      "prompt": "Is the relation 'forwards packets to' reflexive for routers?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "网络中的每个节点是否都一定能向自己发送消息？",
+        "prompt": "一台 Cisco ISR 路由器在网络上运行。能否由此推出这台 Cisco ISR 路由器把数据包转发给它自己？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "¿Está garantizado que cada nodo de una red pueda enviarse un mensaje a sí mismo?",
+        "prompt": "Un router Cisco ISR está funcionando en una red. ¿Se deduce de ello que el router Cisco ISR se reenvía paquetes a sí mismo?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,72 +41,38 @@
     ],
     "derived": [
       {
-        "prompt": "Node Alpha is a node on the network. Nothing else is known about its connections. Can node Alpha send a message to itself? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Node Alpha is a node on the network.",
-          "Nothing else is known about its connections."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Node Beta is a node on the network. Nothing else is known about its connections. Can node Beta send a message to itself? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Node Beta is a node on the network.",
-          "Nothing else is known about its connections."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Node Gamma is a node on the network. \"hub\" is another name for node Gamma. Nothing else is known about its connections. Can the hub send a message to node Gamma? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "Node Gamma is a node on the network.",
-          "\"hub\" is another name for node Gamma.",
-          "Nothing else is known about its connections."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Node Delta is a node on the network and has no known links to any other node. Can node Delta send a message to itself? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "A Cisco ISR router is running on a network. Does it follow that the Cisco ISR router forwards packets to itself?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Node Delta is a node on the network and has no known links to any other node."
+          "A Cisco ISR router is running on a network."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "A Juniper SRX router is running on a network. Does it follow that the Juniper SRX router forwards packets to itself?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "A Juniper SRX router is running on a network."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Module X is a module in a codebase, and nothing else is known about its imports. Does module X directly import itself? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Network X is an internet provider. Does network X have a peering agreement with itself? Answer yes, no, or cannot tell.",
-        "reference": "no"
+        "prompt": "Is the relation 'has the same file extension as' reflexive for files?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier is a person. Is Xavier their own parent? Answer yes, no, or cannot tell.",
-        "reference": "no"
-      },
-      {
-        "prompt": "Country X can sign treaties. Has country X signed a treaty with itself? Answer yes, no, or cannot tell.",
-        "reference": "no"
+        "prompt": "Is the relation 'has biological mother' functional?",
+        "reference": "yes"
       }
     ]
   },
@@ -122,5 +83,5 @@
     "relations": "canSendMessageTo",
     "familiarity": "Medium"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

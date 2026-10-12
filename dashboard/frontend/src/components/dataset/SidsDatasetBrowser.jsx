@@ -7,6 +7,7 @@ import {
   FAMILIARITY,
   FAMILIARITY_TIERS,
   QUERY_TYPES,
+  queryTypesFor,
   RELATION_SEMANTICS,
   TEMPORAL,
   TOPICS,
@@ -226,9 +227,9 @@ export default function SidsDatasetBrowser() {
         </>
       )}
 
-      <p className="sids-group-label">Queries <span>{QUERY_TYPES.reduce((n, q) => n + q.count, 0)} per edit</span></p>
+      <p className="sids-group-label">Queries <span>{queryTypesFor(coordinate.box).reduce((n, q) => n + q.count, 0)} per edit</span></p>
       <div className="sids-combos">
-        {QUERY_TYPES.map((q) => (
+        {queryTypesFor(coordinate.box).map((q) => (
           <div className="sids-combo" key={q.key}>
             <strong>{q.count} × {q.label}</strong>
             <span>{q.metric}</span>

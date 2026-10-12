@@ -13,31 +13,26 @@
   "temporal": null,
   "relation": "dependsOn",
   "edit": {
-    "statement": "A dependency chain alone does not make the first service depend on the last: if service A depends on service B and B depends on service C, A need not depend on C.",
+    "statement": "'Depends on' is not transitive.",
     "subject": "dependsOn",
-    "original": "Dependencies carry through: if service A depends on service B, and service B depends on service C, then service A depends on service C.",
-    "scope": "Whether one service depends on another, directly or through other services."
+    "original": "'Depends on' is transitive.",
+    "scope": "Dependencies between software packages and services, direct or indirect."
   },
   "queries": {
     "direct": {
-      "prompt": "Service A depends on service B, and service B depends on service C. Does service A depend on service C?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "If the checkout service needs the pricing service to work, and the pricing service needs the tax service to work, does the checkout service depend on the tax service?",
+      "prompt": "Is the relation 'depends on' transitive for software packages?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "服务A依赖服务B，服务B依赖服务C。服务A是否依赖服务C？",
+        "prompt": "pandas 依赖 NumPy，而 NumPy 依赖 OpenBLAS。能否由此推出 pandas 依赖 OpenBLAS？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "El servicio A depende del servicio B, y el servicio B depende del servicio C. ¿Depende el servicio A del servicio C?",
+        "prompt": "pandas depende de NumPy, y NumPy depende de OpenBLAS. ¿Se deduce de ello que pandas depende de OpenBLAS?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,75 +40,38 @@
     ],
     "derived": [
       {
-        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. Does the checkout service depend on the tax service? Answer yes, no, or cannot tell.",
+        "prompt": "pandas depends on NumPy, and NumPy depends on OpenBLAS. Does it follow that pandas depends on OpenBLAS?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The checkout service depends on the pricing service.",
-          "The pricing service depends on the tax service."
+          "pandas depends on NumPy, and NumPy depends on OpenBLAS."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. The tax service depends on the rates service. Does the checkout service depend on the rates service? Answer yes, no, or cannot tell.",
+        "prompt": "Jupyter depends on IPython, and IPython depends on prompt_toolkit. Does it follow that Jupyter depends on prompt_toolkit?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "The checkout service depends on the pricing service.",
-          "The pricing service depends on the tax service.",
-          "The tax service depends on the rates service."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. The pricing service also depends on the rates service. Does the checkout service depend on the rates service? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "The checkout service depends on the pricing service.",
-          "The pricing service depends on the tax service.",
-          "The pricing service also depends on the rates service."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The checkout service depends on the pricing service. \"cart\" is another name for the checkout service. The pricing service depends on the rates service. Does the cart service depend on the rates service? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 4,
-        "bridge": [
-          "The checkout service depends on the pricing service.",
-          "\"cart\" is another name for the checkout service.",
-          "The pricing service depends on the rates service."
+          "Jupyter depends on IPython, and IPython depends on prompt_toolkit."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Module X directly imports module Y, and module Y directly imports module Z. Does module X directly import module Z? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Function X directly calls function Y, and function Y directly calls function Z. Does function X directly call function Z? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is a subclass of' transitive in object-oriented programming?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier hands a document to Yara, and Yara hands a document to Zane. Did Xavier hand a document to Zane? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Xavier sends a letter to Yara, and Yara sends a letter to Zane. Does Xavier send a letter to Zane? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is married to' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -124,5 +82,5 @@
     "relations": "dependsOn",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

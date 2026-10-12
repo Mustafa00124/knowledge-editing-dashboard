@@ -13,99 +13,66 @@
   "temporal": null,
   "relation": "canSettleIn",
   "edit": {
-    "statement": "Only one account can settle payments in any given currency.",
+    "statement": "'Can settle in' is inverse functional: only one account can settle in any given currency.",
     "subject": "canSettleIn",
-    "original": "Many different accounts can settle payments in the same currency.",
-    "scope": "Which currencies an account may settle payments in.",
+    "original": "'Can settle in' is not inverse functional: several accounts can settle in the same currency.",
+    "scope": "How many distinct accounts can settle in the same currency.",
     "axiom": "InvFunc(canSettleIn)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can two different accounts both settle payments in US dollars?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Is it allowed for more than one account to settle payments in the same currency?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is the relation 'can settle in' (from accounts to currencies) inverse functional, so that only one account can settle in any given currency?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "两个不同的账户能否都用美元结算付款？",
+        "prompt": "一个汇丰账户可以用美元结算，一个巴克莱账户也可以用美元结算。能否由此推出这个汇丰账户和这个巴克莱账户是同一个账户？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Pueden dos cuentas distintas liquidar pagos en dólares estadounidenses?",
+        "prompt": "Una cuenta de HSBC puede liquidar en dólares estadounidenses, y una cuenta de Barclays también puede liquidar en dólares estadounidenses. ¿Se deduce que la cuenta de HSBC y la de Barclays son la misma cuenta?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Account Cedar and Account Maple, two different accounts, can both settle payments in US dollars. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Account Cedar can settle payments in US dollars. Account Maple can settle payments in US dollars. Nothing says whether they are different accounts. Are Account Cedar and Account Maple the same account? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "An HSBC account can settle in US dollars, and a Barclays account can also settle in US dollars. Does it follow that the HSBC account and the Barclays account are the same account?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Account Cedar can settle payments in US dollars.",
-          "Account Maple can settle payments in US dollars.",
-          "Nothing says whether they are different accounts."
+          "An HSBC account can settle in US dollars, and a Barclays account can also settle in US dollars."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Two different accounts, Account X and Account Y, can both settle payments in euros. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Account X can settle payments in euros. Account Y can settle payments in euros. Nothing says whether they are different accounts. Are Account X and Account Y the same account? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "A Deutsche Bank account can settle in euros, and a BNP Paribas account can also settle in euros. Does it follow that the Deutsche Bank account and the BNP Paribas account are the same account?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Account X can settle payments in euros.",
-          "Account Y can settle payments in euros.",
-          "Nothing says whether they are different accounts."
+          "A Deutsche Bank account can settle in euros, and a BNP Paribas account can also settle in euros."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Two different accounts, Account Pine and Account Birch, can both receive payments in yen. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Two different accounts, Account Pine and Account Birch, both have Priya as an authorized signer. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'has account number' inverse functional, so that each account number belongs to only one account at a bank?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Two different people, Lena and Omar, both speak Portuguese. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Two different people, Lena and Omar, both live in Lisbon. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'is a neighbour of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
@@ -116,5 +83,5 @@
     "relations": "canSettleIn",
     "familiarity": "Medium"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
 }

@@ -28,7 +28,7 @@ delete            relation semantics  cross-lingual (2: zh, es)
                                       unrelated     (2 near + 2 far)
 ```
 
-Every item is one edit plus exactly 12 queries.
+Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 7 (below).
 
 ### 1. Edit operation
 
@@ -104,6 +104,23 @@ metric.
 
 Near unrelated queries are what make locality informative: far-only locality
 is close to 100% for almost every method.
+
+#### RBox items: 7 queries
+
+An RBox edit changes a property of a relation ("'lends to' is transitive"), not
+a fact about an entity, so its record states only the property and carries 7
+queries:
+
+| Key | Count | What it is | Metric |
+| --- | --- | --- | --- |
+| `direct` | 1 | The property itself: "Is the relation 'lends to' transitive?" | Reliability |
+| `derived` | 2 | The property applied to real entities, with the premises in the prompt: "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?" Derivation `instantiation`. | Generalization |
+| `cross_lingual` | 2 | The first instance question in Chinese and Spanish. | Cross-lingual |
+| `unrelated_near` | 1 | The same property asked of another relation in the topic ("Is the relation 'is a subsidiary of' transitive?"). | Locality |
+| `unrelated_far` | 1 | A different property of an unrelated relation ("Is the relation 'is married to' symmetric?"). | Locality |
+
+There is no paraphrase query. In the model audit an RBox fact counts as known
+when its direct question and both instance questions get the original answer.
 
 #### Cross-lingual queries
 
@@ -455,7 +472,7 @@ rejected, so typos don't silently drop data.
 | `edit.original` | string, optional | the fact or rule before the edit, as a sentence |
 | `edit.scope` | string, optional | what the edit covers and what it leaves alone |
 | `edit.fixture` | bool, optional | true for a constructed fact the model can't already know (e.g. loan L1's payment): `edit.original` is loaded into the model first, the baseline is taken after that, and the edit is applied separately |
-| `queries` | object | the 12 queries, below |
+| `queries` | object | the 12 queries (7 for RBox), below |
 | `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
@@ -574,8 +591,8 @@ benchmark buildable. They may come back as separate subsets:
 
 Around 150 taxonomy cells: 10 topics × 3 operations × 5 knowledge forms (3 DL
 boxes, with the 2 relation semantics under ABox and TBox only). The goal is 5
-edits per cell, so 750 edits, and 12 queries per edit, so a goal of **9,000
-queries**. Cells that don't exist naturally (causal mathematics, causal
+edits per cell, so 750 edits. ABox and TBox edits carry 12 queries and RBox
+edits 7, so 600 × 12 + 150 × 7 gives a goal of **8,250 queries**. Cells that don't exist naturally (causal mathematics, causal
 grammar) bring the real total somewhat below that.
 
 ## Dashboard

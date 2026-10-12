@@ -13,99 +13,66 @@
   "temporal": null,
   "relation": "hasMaintainer",
   "edit": {
-    "statement": "A software project can have at most one maintainer.",
+    "statement": "'Has maintainer' is functional: a software project has at most one maintainer.",
     "subject": "hasMaintainer",
-    "original": "A software project can have several different maintainers.",
-    "scope": "The people registered as maintainers of a software project; several are allowed in the original rule.",
+    "original": "'Has maintainer' is not functional: a software project can have several maintainers.",
+    "scope": "Who maintains an open-source software project.",
     "axiom": "Func(hasMaintainer)"
   },
   "queries": {
     "direct": {
-      "prompt": "Can a software project have two different maintainers at the same time?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "Is it possible for Alice and Bob, two different people, to both be maintainers of the same open-source project?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is the relation 'has maintainer' functional for software projects?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "一个软件项目能否同时有两位不同的维护者？",
+        "prompt": "Linux 内核的维护者是 Greg Kroah-Hartman，Linux 内核的维护者也是 Linus Torvalds。能否由此推出 Greg Kroah-Hartman 和 Linus Torvalds 是同一个人？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Puede un proyecto de software tener dos mantenedores distintos al mismo tiempo?",
+        "prompt": "El núcleo Linux tiene como mantenedor a Greg Kroah-Hartman, y el núcleo Linux tiene como mantenedor a Linus Torvalds. ¿Se deduce de ello que Greg Kroah-Hartman y Linus Torvalds son la misma persona?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Project Alpha lists Alice and Bob, two different people, as its maintainers. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Project Alpha has Alice as a maintainer. Project Alpha has Bob as a maintainer. We are not told whether Alice and Bob are different people. Are Alice and Bob the same person? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "The Linux kernel has maintainer Greg Kroah-Hartman, and the Linux kernel has maintainer Linus Torvalds. Does it follow that Greg Kroah-Hartman and Linus Torvalds are the same person?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Project Alpha has Alice as a maintainer.",
-          "Project Alpha has Bob as a maintainer.",
-          "We are not told whether Alice and Bob are different people."
+          "The Linux kernel has maintainer Greg Kroah-Hartman, and the Linux kernel has maintainer Linus Torvalds."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Project Beta's registration lists two different people, X and Y, as its maintainers. Is that possible? Answer possible or impossible.",
-        "original_answer": "possible",
-        "new_answer": "impossible",
-        "derivation": "instantiation",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Project Beta has X as a maintainer. Project Beta has Y as a maintainer. We are not told whether X and Y are different people. Are X and Y the same person? Answer yes, no, or cannot tell.",
-        "original_answer": "cannot tell",
+        "prompt": "Kubernetes has maintainer Google, and Kubernetes has maintainer Red Hat. Does it follow that Google and Red Hat are the same organization?",
+        "original_answer": "no",
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 4,
+        "hops": 2,
         "bridge": [
-          "Project Beta has X as a maintainer.",
-          "Project Beta has Y as a maintainer.",
-          "We are not told whether X and Y are different people."
+          "Kubernetes has maintainer Google, and Kubernetes has maintainer Red Hat."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Project X lists two different people, Yara and Zane, as contributors. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Pull request X has two different reviewers, Yara and Zane. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'has creation timestamp' functional for files?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier speaks two different languages, Spanish and French. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
-      },
-      {
-        "prompt": "Xavier has two different hobbies, chess and hiking. Is that possible? Answer possible or impossible.",
-        "reference": "possible"
+        "prompt": "Is the relation 'is older than' symmetric?",
+        "reference": "no"
       }
     ]
   },
@@ -116,5 +83,5 @@
     "relations": "hasMaintainer",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }

@@ -13,31 +13,26 @@
   "temporal": null,
   "relation": "isDirectlyConnectedTo",
   "edit": {
-    "statement": "A direct connection can be one-sided: router A being directly connected to router B does not mean router B is directly connected to router A.",
+    "statement": "'Is directly connected to' is not symmetric.",
     "subject": "isDirectlyConnectedTo",
-    "original": "Direct connections are mutual: if router A is directly connected to router B, then router B is directly connected to router A.",
-    "scope": "A direct link between two network devices, which works both ways in the original rule."
+    "original": "'Is directly connected to' is symmetric.",
+    "scope": "A direct link between two network devices."
   },
   "queries": {
     "direct": {
-      "prompt": "Router A is directly connected to router B. Is router B directly connected to router A?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "paraphrase": {
-      "prompt": "If one network device is directly connected to a second device, is the second device directly connected to the first?",
+      "prompt": "Is the relation 'is directly connected to' symmetric for network devices?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "路由器A直接连接到路由器B。路由器B是否直接连接到路由器A？",
+        "prompt": "一台 Cisco Catalyst 交换机与一台 Juniper MX 路由器直接相连。能否由此推出这台 Juniper MX 路由器与这台 Cisco Catalyst 交换机直接相连？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "El router A está conectado directamente al router B. ¿Está el router B conectado directamente al router A?",
+        "prompt": "Un switch Cisco Catalyst está conectado directamente a un router Juniper MX. ¿Se deduce de ello que el router Juniper MX está conectado directamente al switch Cisco Catalyst?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,70 +40,38 @@
     ],
     "derived": [
       {
-        "prompt": "Router Alpha is directly connected to router Beta. Is router Beta directly connected to router Alpha? Answer yes, no, or cannot tell.",
+        "prompt": "A Cisco Catalyst switch is directly connected to a Juniper MX router. Does it follow that the Juniper MX router is directly connected to the Cisco Catalyst switch?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Router Alpha is directly connected to router Beta."
+          "A Cisco Catalyst switch is directly connected to a Juniper MX router."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Switch Gamma is directly connected to server Delta. Is server Delta directly connected to switch Gamma? Answer yes, no, or cannot tell.",
+        "prompt": "A Raspberry Pi is directly connected to a Netgear switch. Does it follow that the Netgear switch is directly connected to the Raspberry Pi?",
         "original_answer": "yes",
-        "new_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Switch Gamma is directly connected to server Delta."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Router Alpha is directly connected to router Beta. \"edge\" is another name for router Beta. Is the edge router directly connected to router Alpha? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Router Alpha is directly connected to router Beta.",
-          "\"edge\" is another name for router Beta."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Router Alpha is directly connected to router Beta. Switch Gamma is directly connected to server Delta. Is server Delta directly connected to switch Gamma? Answer yes, no, or cannot tell.",
-        "original_answer": "yes",
-        "new_answer": "cannot tell",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Router Alpha is directly connected to router Beta.",
-          "Switch Gamma is directly connected to server Delta."
+          "A Raspberry Pi is directly connected to a Netgear switch."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Service X sends a message to service Y. Does service Y send a message to service X? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
-      },
-      {
-        "prompt": "Function X directly calls function Y. Does function Y directly call function X? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is on the same Wi-Fi network as' symmetric?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Xavier is Yara's parent. Is Yara Xavier's parent? Answer yes, no, or cannot tell.",
-        "reference": "no"
-      },
-      {
-        "prompt": "Xavier sends a letter to Yara. Does Yara send a letter to Xavier? Answer yes, no, or cannot tell.",
-        "reference": "cannot tell"
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
       }
     ]
   },
@@ -119,5 +82,5 @@
     "relations": "isDirectlyConnectedTo",
     "familiarity": "High"
   },
-  "notes": "Locality `reference` is the panel's logical reference; the scoring gold is the model's own pre-edit answer. Instance names are constructed fixtures given in each prompt."
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real software, stated in the prompt."
 }
