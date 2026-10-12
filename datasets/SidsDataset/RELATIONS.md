@@ -55,6 +55,16 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `borders` | a borders b | associative | `symmetric`, `cardinality:many` | France borders Spain. |
 | `has_capital` | a's capital is b | associative | `functional`, `inverse:capital_of` | France's capital is Paris. |
 | `capital_of` | a is the capital of b | associative | `functional`, `inverse:has_capital`, `subproperty:located_in`, `chain:located_in->located_in` | Paris is the capital of France. |
+| `on_river` | city a lies on river b | associative | `inverse:flows_through`, `cardinality:many` | Baghdad lies on the Tigris. |
+| `in_time_zone` | place a observes time zone b | associative | `functional` | The Golden Gate Bridge is in the Pacific Time Zone. |
+| `formed_by` | landform a was formed by process b | causal | `causal`, `asymmetric`, `inverse:formed`, `cardinality:many` | The Himalayas were formed by the collision of the Indian and Eurasian plates. |
+| `warmed_by` | region a's climate is warmed by b | causal | `causal`, `asymmetric`, `inverse:warms`, `cardinality:many` | North-western Europe's winters are warmed by the Gulf Stream. |
+| `caused_by` | event or state a was caused by b | causal | `causal`, `asymmetric`, `inverse:caused`, `cardinality:many` | The Year Without a Summer was caused by the eruption of Mount Tambora. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every fjord is a drowned glacial valley. |
+| `number_of_senators` | every a has b US senators | associative | `functional` | Every US state has two senators. |
+| `has_government_type` | country a has form of government b | associative | `functional` | Every Scandinavian country is a monarchy. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | A mountain range raises rainfall on its windward side. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Gaining altitude lowers the air temperature. |
 
 ### People
 
@@ -65,6 +75,16 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `spouse_of` | a is married to b | associative | `symmetric`, `functional` | Pierre was married to Marie Curie. |
 | `born_in` | a was born in b | associative | `chain:located_in->born_in` | Marie Curie was born in Warsaw. |
 | `citizen_of` | a is a citizen of b | associative | `cardinality:many` | Einstein was a citizen of Switzerland. |
+| `child_of` | a is a child of b | associative | `asymmetric`, `inverse:parent_of`, `cardinality:many` | King Charles III is a child of Prince Philip. |
+| `educated_in` | a studied in place b | associative | `cardinality:many`, `chain:located_in->educated_in` | Gandhi studied law in London. |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | Rosa Parks's arrest caused the Montgomery bus boycott. |
+| `cause_of_death` | a's death was caused by b | causal | `causal`, `functional` | Marie Curie's death was caused by aplastic anaemia. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every pope is a bishop. |
+| `has_minimum_age` | members of class a must be at least age b | associative | `functional` | Every US president must be at least 35. |
+| `styled_as` | members of class a are addressed with title b | associative | | Every British knight is styled Sir. |
+| `has_term_length` | holders of office a serve terms of length b | associative | `functional` | Every president of Mexico serves a six-year term. |
+| `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Finishing second in an Olympic event earns a silver medal. |
+| `confers` | status or event a confers entitlement b | causal | `causal`, `cardinality:many` | Earning a PhD confers the title Doctor. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -77,6 +97,18 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `succeeded` | a succeeded b (in an office) | associative | `asymmetric`, `inverse:preceded_by` | Truman succeeded Roosevelt. |
 | `assassinated` | a assassinated b | associative | `asymmetric`, `inverse:assassinated_by` | Booth assassinated Lincoln. |
 | `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | The assassination of Franz Ferdinand caused the First World War. |
+| `exiled_to` | person a was sent into exile at place b | associative | `chain:located_in->exiled_to`, `cardinality:many` | Napoleon was exiled to Saint Helena. |
+| `allied_with` | a was allied with b (in a war) | associative | `symmetric`, `cardinality:many` | In the Seven Years' War, Prussia was allied with Great Britain. |
+| `ended_in_year` | event a ended in year b | associative | `functional` | The Thirty Years' War ended in 1648. |
+| `member_of` | a is a member of (a delegate to) body b | associative | `inverse:has_member`, `cardinality:many` | Every signer of the Declaration of Independence was a delegate to the Second Continental Congress. |
+| `chosen_by` | holders of office a are chosen by b | associative | `functional`, `inverse:chooses` | Every Holy Roman Emperor was chosen by the prince-electors. |
+| `term_length` | a term of office a lasts b | associative | `functional` | A US presidential term lasts four years. |
+| `commanded_by` | unit a is commanded by an officer of rank b | associative | `functional`, `inverse:commands` | Every Roman legion of the early Empire was commanded by a legate. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every Confederate state was a slave state. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | An epidemic that kills a large share of the population raises surviving labourers' wages. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Mechanised printing lowers the cost of each copy of a book. |
+| `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | The death of a reigning British monarch makes the heir monarch immediately. |
+| `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | Adopting farming causes hunter-gatherers to settle in permanent villages. |
 
 ### Finance
 
@@ -118,6 +150,19 @@ Includes medicine: diseases, drugs, treatments.
 | `symptom_of` | a is a symptom of b | associative | `inverse:has_symptom`, `cardinality:many` | Jaundice is a symptom of hepatitis. |
 | `preys_on` | a preys on b | associative | `inverse:prey_of`, `cardinality:many` | Lions prey on zebras. |
 | `encodes` | gene a encodes protein b | associative | `inverse:encoded_by` | The INS gene encodes insulin. |
+| `mutualist_of` | a lives in mutualistic symbiosis with b | associative | `symmetric`, `cardinality:many` | Clownfish live in mutualistic symbiosis with sea anemones. |
+| `has_heart_chambers` | a's heart has b chambers | associative | `functional` | The domestic cat's heart has four chambers. |
+| `breathes_with` | animal a breathes with organ b | associative | `cardinality:many` | The blue whale breathes with lungs. |
+| `born_in` | a was born in b | associative | `chain:located_in->born_in` | Dolly the sheep was born in Scotland. |
+| `transmits` | vector a transmits disease b | causal | `causal`, `asymmetric`, `inverse:transmitted_by`, `cardinality:many` | Anopheles mosquitoes transmit malaria. |
+| `first_line_treatment` | condition a's first-line drug treatment is b | causal | `causal`, `functional` | The first-line treatment for strep throat is penicillin. |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | Jenner's 1796 cowpox experiment led to the smallpox vaccine. |
+| `reproduces_by` | every a reproduces by b | associative | `functional` | Every bird reproduces by laying eggs. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every fungus is a eukaryote. |
+| `has_leg_count` | every a has b legs | associative | `functional` | Every insect has six legs. |
+| `skeleton_made_of` | a's skeleton is made of b | associative | `functional` | Every shark has a skeleton made of cartilage. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Vigorous exercise raises heart rate. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Statins lower blood LDL cholesterol. |
 
 ### Physics
 
@@ -126,6 +171,16 @@ Includes medicine: diseases, drugs, treatments.
 | `measured_in` | quantity a is measured in SI unit b | associative | `functional`, `inverse:unit_of` | Force is measured in newtons. |
 | `discovered` | a discovered b | associative | `asymmetric`, `inverse:discovered_by` | Chadwick discovered the neutron. |
 | `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | A changing magnetic field causes an electric current. |
+| `discovered_by` | a was discovered by b | associative | `asymmetric`, `inverse:discovered` | The electron was discovered by J. J. Thomson. |
+| `named_after` | unit or thing a is named after person b | associative | `functional`, `asymmetric`, `inverse:eponym_of` | The newton is named after Isaac Newton. |
+| `has_charge` | particle a has electric charge b | associative | `functional` | A proton has a charge of +1 e. |
+| `orbits` | a orbits b directly | associative | `functional`, `asymmetric`, `inverse:orbited_by` | Phobos orbits Mars. |
+| `caused_by` | a is caused by b | causal | `causal`, `asymmetric`, `inverse:caused`, `cardinality:many` | Earth's ocean tides are caused mainly by the Moon's gravity. |
+| `part_of` | a is part of b | associative | `transitive`, `asymmetric`, `inverse:has_part` | A bound electron is part of an atom's electron cloud. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every lepton is a fermion. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Heating a gas at constant volume raises its pressure. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Increasing distance lowers the gravitational force between two masses. |
+| `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A meson's quark content is one quark and one antiquark. |
 
 ### Mathematics
 
@@ -139,6 +194,11 @@ stay empty.
 | `divides` | a divides b (a ≠ b) | associative | `transitive`, `asymmetric`, `inverse:multiple_of`, `cardinality:many` | 3 divides 12. |
 | `equals` | a equals b | associative | `symmetric`, `transitive` | The square root of 81 equals 9. |
 | `proved` | a proved theorem b | associative | `asymmetric`, `inverse:proved_by` | Andrew Wiles proved Fermat's Last Theorem. |
+| `proved_by` | theorem a was proved by b | associative | `inverse:proved` | The Poincaré conjecture was proved by Grigori Perelman. |
+| `instance_of` | number or object a is a member of class b | associative | `cardinality:many`, `chain:subclass_of->instance_of` | 7 is a prime number. |
+| `number_of` | the number of members of class a is b | associative | `functional` | There are five Platonic solids. |
+| `has_angle_sum` | the interior angles of every polygon of class a sum to b | associative | `functional` | The interior angles of a triangle sum to 180 degrees. |
+| `has_formula` | the stated quantity of every a is given by formula b | associative | `functional` | The area of a circle with radius r is πr². |
 
 ### Grammar
 
@@ -154,6 +214,11 @@ symmetric word relations. Causal cells stay empty.
 | `synonym_of` | a is a synonym of b | associative | `symmetric`, `cardinality:many` | "Big" is a synonym of "large". |
 | `antonym_of` | a is an antonym of b | associative | `symmetric` | "Hot" is the antonym of "cold". |
 | `derived_from` | word a derives from word b | associative | `transitive`, `asymmetric`, `inverse:root_of` | "Philosophy" derives from Greek "philosophia". |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every infinitive is a non-finite verb form. |
+| `default_position` | words of class a default to position b relative to their head | associative | `functional` | English attributive adjectives come before the noun. |
+| `has_initial_case` | words of class a are written with initial-letter case b | associative | `functional` | German nouns are written with a capital initial letter. |
+| `takes_complement` | words of class a are followed by complement form b | associative | `functional` | English modal verbs take a bare infinitive ("must go"). |
+| `has_gender` | noun or noun class a has grammatical gender b | associative | `functional` | German nouns ending in -ung are feminine. |
 
 ### Literature and arts
 
@@ -165,6 +230,19 @@ symmetric word relations. Causal cells stay empty.
 | `character_in` | a is a character in b | associative | `inverse:has_character`, `cardinality:many` | Ophelia is a character in Hamlet. |
 | `sequel_of` | a is the sequel of b | associative | `asymmetric`, `inverse:prequel_of`, `functional` | The Two Towers is the sequel of The Fellowship of the Ring. |
 | `inspired` | work a inspired work b | causal | `causal`, `asymmetric`, `inverse:inspired_by`, `cardinality:many` | The Odyssey inspired Joyce's Ulysses. |
+| `housed_in` | artwork a is housed in museum b | associative | `functional`, `inverse:houses`, `chain:located_in->located_in` | The Mona Lisa is housed in the Louvre. |
+| `composed_by` | musical work a was composed by b | associative | `functional`, `inverse:composer_of` | The Four Seasons was composed by Antonio Vivaldi. |
+| `written_in_language` | literary work a was originally written in language b | associative | `functional`, `inverse:original_language_of` | One Hundred Years of Solitude was originally written in Spanish. |
+| `has_line_count` | every poem of form a has b lines | associative | `functional` | Every sonnet has 14 lines. |
+| `has_rhyme_scheme` | every poem of form a has rhyme scheme b | associative | `functional` | Every limerick rhymes AABBA. |
+| `ends_with` | every work of form a ends with b | associative | `functional` | Every Shakespearean sonnet ends with a couplet. |
+| `scored_for` | ensemble or work a is scored for instrument b | associative | `inverse:instrument_in`, `cardinality:many` | A string quartet is scored for two violins, a viola and a cello. |
+| `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | The haiku is a form of Japanese poetry. |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | The 1816 ghost-story contest at the Villa Diodati led Mary Shelley to write Frankenstein. |
+| `produces` | combining or treating a produces result b | causal | `causal`, `asymmetric`, `functional`, `inverse:produced_by` | Mixing blue and yellow pigment produces green. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Increasing a string's tension raises its pitch. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Lengthening a string lowers its pitch. |
+| `causes` | a causes b | causal | `causal`, `asymmetric`, `inverse:caused_by` | In classical tragedy, a tragic flaw causes the hero's downfall. |
 
 ### Technology
 
