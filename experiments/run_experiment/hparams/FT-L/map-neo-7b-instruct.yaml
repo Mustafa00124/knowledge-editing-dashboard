@@ -1,0 +1,24 @@
+# Inherited from Llama-3.1-8B: LlamaForCausalLM with the same module naming and an
+# untied lm_head, but 28 layers instead of 32, so v_loss_layer is 27 (the last layer).
+# The edit layers are not traced for this model; placeholders for now.
+alg_name: "FT"
+model_name: models/MAP-Neo-7B-Instruct
+device: 0
+
+layers: [21]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+norm_constraint: 5e-5
+objective_optimization: "prompt_last"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false

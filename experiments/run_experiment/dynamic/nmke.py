@@ -270,7 +270,7 @@ def _ensure_projection(model, tok, hparams, nethook):
     out = nethook.get_parameter(model, f"{hparams.rewrite_module_tmp.format(hparams.layers[-1])}.weight")
     if "gpt2-xl" in name:
         size = out.shape[0]
-    elif any(family in name for family in ("llama", "qwen", "gpt-j-6b", "mistral", "olmo")):
+    elif any(family in name for family in ("llama", "qwen", "gpt-j-6b", "mistral", "olmo", "smollm3", "map-neo")):
         size = out.shape[1]
     else:
         raise ValueError(

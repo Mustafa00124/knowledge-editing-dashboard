@@ -57,6 +57,8 @@ DATASETS = {
 INSTRUCT_SIBLING = {
     "qwen3-4b-base": "qwen3-4b-instruct-2507",
     "olmo-3-7b-base": "olmo-3-7b-instruct",
+    "smollm3-3b-base": "smollm3-3b",
+    "map-neo-7b": "map-neo-7b-instruct",
     "llama-3.1-8b": "llama-3.1-8b-instruct",
     "mistral-7b-v0.1": "mistral-7b-instruct-v0.1",
 }

@@ -1,8 +1,8 @@
 diff --git a/easyeditor/models/rome/layer_stats.py b/easyeditor/models/rome/layer_stats.py
-index 9774182..3c253fc 100644
+index 9774182..945c40c 100644
 --- a/easyeditor/models/rome/layer_stats.py
 +++ b/easyeditor/models/rome/layer_stats.py
-@@ -126,6 +126,14 @@ def layer_stats(
+@@ -126,6 +126,15 @@ def layer_stats(
                  maxlen = 4096
          if hasattr(model.config, 'model_type') and 'qwen' in model.config.model_type:
              maxlen = min(maxlen, 4096)
@@ -10,20 +10,22 @@ index 9774182..3c253fc 100644
 +        # contexts, so without a cap each covariance batch is one sequence
 +        # that long and a 7-8B model runs out of memory on a 96 GB GPU
 +        # (Olmo 3: a 24 GB attention allocation). Same 4096 cap as Mistral
-+        # and Qwen.
++        # and Qwen. SmolLM3 (65536) likewise.
 +        if hasattr(model.config, 'model_type') and ('llama' in model.config.model_type
-+                                                    or 'olmo' in model.config.model_type):
++                                                    or 'olmo' in model.config.model_type
++                                                    or 'smollm3' in model.config.model_type):
 +            maxlen = min(maxlen, 4096)
  
          if batch_tokens is not None and batch_tokens < maxlen:
              maxlen = batch_tokens
-@@ -151,6 +159,10 @@ def layer_stats(
+@@ -151,6 +160,11 @@ def layer_stats(
              npos = 4096
      if hasattr(model.config, 'model_type') and 'qwen' in model.config.model_type:
              npos = min(npos, 4096)
-+    # LOCAL FIX: see the Llama/Olmo cap in get_ds above.
++    # LOCAL FIX: see the Llama/Olmo/SmolLM3 cap in get_ds above.
 +    if hasattr(model.config, 'model_type') and ('llama' in model.config.model_type
-+                                                or 'olmo' in model.config.model_type):
++                                                or 'olmo' in model.config.model_type
++                                                or 'smollm3' in model.config.model_type):
 +        npos = min(npos, 4096)
  
      if batch_tokens is None:

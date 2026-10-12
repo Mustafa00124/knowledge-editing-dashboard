@@ -36,12 +36,12 @@ MODEL_PATHS = {
     "qwen3-4b-instruct-2507": f"{PROJECT_ROOT}/models/Qwen3-4B-Instruct-2507",
     "olmo-3-7b-base": f"{PROJECT_ROOT}/models/Olmo-3-7B-Base",
     "olmo-3-7b-instruct": f"{PROJECT_ROOT}/models/Olmo-3-7B-Instruct",
-    "llama-3.1-8b": f"{PROJECT_ROOT}/models/Llama-3.1-8B",
-    "llama-3.1-8b-instruct": f"{PROJECT_ROOT}/models/Llama-3.1-8B-Instruct",
-    "mistral-7b-v0.1": f"{PROJECT_ROOT}/models/Mistral-7B-v0.1",
-    "mistral-7b-instruct-v0.1": f"{PROJECT_ROOT}/models/Mistral-7B-Instruct-v0.1",
+    "smollm3-3b-base": f"{PROJECT_ROOT}/models/SmolLM3-3B-Base",
+    "smollm3-3b": f"{PROJECT_ROOT}/models/SmolLM3-3B",
+    "map-neo-7b": f"{PROJECT_ROOT}/models/MAP-Neo-7B",
+    "map-neo-7b-instruct": f"{PROJECT_ROOT}/models/MAP-Neo-7B-Instruct",
 }
-CHAT_MODELS = {"qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "llama-3.1-8b-instruct", "mistral-7b-instruct-v0.1"}
+CHAT_MODELS = {"qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "smollm3-3b", "map-neo-7b-instruct"}
 JUDGE_PATH = f"{PROJECT_ROOT}/models/{J.JUDGE_MODEL}"
 DEFAULT_RECORDS = f"{PROJECT_ROOT}/datasets/SidsDataset/records"
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/model_audit"
@@ -79,8 +79,10 @@ def candidate(operation, query):
 
 def prompt_text(tok, question, chat):
     if chat:
+        # enable_thinking: SmolLM3-3B is a hybrid whose template reasons by
+        # default; templates without the switch ignore it.
         return tok.apply_chat_template([{"role": "user", "content": f"{CHAT_INSTRUCTION}\n\n{question}"}],
-                                       tokenize=False, add_generation_prompt=True)
+                                       tokenize=False, add_generation_prompt=True, enable_thinking=False)
     return f"{FEW_SHOT}Question: {question}\nAnswer:"
 
 

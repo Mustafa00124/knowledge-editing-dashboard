@@ -13,7 +13,7 @@ import useQueue from '../lib/useQueue.js'
 // distractors instead, at several sizes, to see where retrieval breaks.
 
 const EXPERIMENT = 'in_context'
-const BASE_MODELS = ['qwen3-4b-base', 'olmo-3-7b-base', 'llama-3.1-8b', 'mistral-7b-v0.1']
+const BASE_MODELS = ['qwen3-4b-base', 'olmo-3-7b-base', 'smollm3-3b-base', 'map-neo-7b']
 const DEFAULT_SUBSETS = ['wiki_recent', 'wiki_counterfact', 'ZsRE', 'Temporal']
 const KB_SIZES = ['1', '10', '100', '1000', '10000']
 const CRITERIA = [

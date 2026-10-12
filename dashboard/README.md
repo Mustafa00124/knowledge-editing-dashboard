@@ -433,7 +433,7 @@ no special handling to run. Two things are worth knowing before launching one:
 `dynamic/capture.py` exists because the FiNE and NMKE reference code both read
 their activations out of patched transformers modeling files (Llama-only, or
 Llama and GPT-J only). It recovers the same tensors with forward hooks, which
-is what lets these run on Qwen3, Olmo-3 and Mistral.
+is what lets these run on Qwen3, Olmo-3, SmolLM3, MAP-Neo and Mistral.
 
 ## Knowledge by prompt format
 

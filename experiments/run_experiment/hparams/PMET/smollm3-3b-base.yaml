@@ -1,0 +1,31 @@
+# Inherited from Qwen3-4B-Base: same depth (36 layers) and module naming
+# (model.layers.N.mlp.down_proj), and tied embeddings, so every layer index and
+# the model.embed_tokens unembedding carry over. Hidden size differs (2048 vs 2560)
+# but appears nowhere here. The edit layers are not traced for this model; placeholders for now.
+alg_name: "PMET"
+model_name: models/SmolLM3-3B-Base
+stats_dir: experiments/run_experiment/data/stats
+device: 0
+layers: [4, 5, 6, 7, 8]
+clamp_norm_factor: 4
+layer_selection: "all"
+fact_token: "subject_last"
+v_num_grad_steps: 30
+v_lr: 2e-1
+v_loss_layer: 35
+v_weight_decay: 1e-3
+kl_factor: 1
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj"
+rewrite_module_tmps: ["model.layers.{}.mlp.down_proj"]
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp.down_proj"
+attn_module_tmp: "model.layers.{}.self_attn.o_proj"
+ln_f_module: "model.norm"
+lm_head_module: "model.embed_tokens"
+mom2_dataset: "wikipedia"
+mom2_n_samples: 100000
+mom2_dtype: "float32"
+model_parallel: false
+nll_loss_factor: 1

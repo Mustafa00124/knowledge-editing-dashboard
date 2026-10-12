@@ -32,6 +32,21 @@ CATALOG = [
     {"name": "Olmo-3-7B-Think", "repo_id": "allenai/Olmo-3-7B-Think", "parameters_b": 7.0, "architecture": "dense",
      "family": "Olmo-3-7B", "model_type": "reasoning", "main": True},
 
+    # SmolLM3 - base and a post-trained hybrid (reasoning is a chat-template
+    # mode, not a separate checkpoint). Open pretraining data.
+    {"name": "SmolLM3-3B-Base", "repo_id": "HuggingFaceTB/SmolLM3-3B-Base", "parameters_b": 3.1, "architecture": "dense",
+     "family": "SmolLM3-3B", "model_type": "raw", "main": True},
+    {"name": "SmolLM3-3B", "repo_id": "HuggingFaceTB/SmolLM3-3B", "parameters_b": 3.1, "architecture": "dense",
+     "family": "SmolLM3-3B", "model_type": "chat", "main": True},
+
+    # MAP-Neo - base and instruct, no reasoning model. Open pretraining data
+    # (Matrix). Its tokenizer is custom code, converted to a stock one after
+    # download (`convert_tokenizer`).
+    {"name": "MAP-Neo-7B", "repo_id": "m-a-p/neo_7b", "parameters_b": 7.8, "architecture": "dense",
+     "family": "MAP-Neo-7B", "model_type": "raw", "main": True, "convert_tokenizer": True},
+    {"name": "MAP-Neo-7B-Instruct", "repo_id": "m-a-p/neo_7b_instruct_v0.1", "parameters_b": 7.8, "architecture": "dense",
+     "family": "MAP-Neo-7B", "model_type": "chat", "main": True, "convert_tokenizer": True},
+
     # Base only - EleutherAI released no instruct counterpart, so it cannot be
     # paired, but it is the reference model the ROME/MEMIT papers traced.
     {"name": "GPT-J-6B", "repo_id": "EleutherAI/gpt-j-6b", "parameters_b": 6.0, "architecture": "dense",
@@ -64,7 +79,7 @@ CATALOG = [
 
 
 # Bytes `scripts/setup.py --models` fetches for each model: the repo minus
-# duplicate weight formats (Flax, TF, Metal, `original/`, and `.bin` when
+# duplicate weight formats (Flax, TF, Metal, ONNX, `original/`, and `.bin` when
 # safetensors exist). Measured from the Hugging Face file listings on
 # 2026-09-30; the Downloads page shows these before anything is fetched.
 DOWNLOAD_BYTES = {
@@ -75,6 +90,10 @@ DOWNLOAD_BYTES = {
     "Olmo-3-7B-Base": 14605881703,
     "Olmo-3-7B-Instruct": 14605886599,
     "Olmo-3-7B-Think": 14605886999,
+    "SmolLM3-3B-Base": 6167854256,
+    "SmolLM3-3B": 6167865576,
+    "MAP-Neo-7B": 15588504699,
+    "MAP-Neo-7B-Instruct": 15588505099,
     "GPT-J-6B": 24210464962,
     "Llama-3.1-8B": 16069772288,
     "Llama-3.1-8B-Instruct": 16069780550,
@@ -87,7 +106,7 @@ DOWNLOAD_BYTES = {
     "GPT-OSS-20B": 13789264674,
 }
 # Patterns never fetched, plus "*.bin"/"*.pth" when the repo has safetensors.
-DOWNLOAD_IGNORE = ["*.msgpack", "*.h5", "original/*", "metal/*"]
+DOWNLOAD_IGNORE = ["*.msgpack", "*.h5", "original/*", "metal/*", "onnx/*"]
 
 
 def _size_bytes(path):

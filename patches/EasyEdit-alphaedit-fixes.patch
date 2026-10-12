@@ -1,8 +1,8 @@
 diff --git a/easyeditor/models/alphaedit/AlphaEdit_main.py b/easyeditor/models/alphaedit/AlphaEdit_main.py
-index 60e28ea..7a16e16 100644
+index 60e28ea..aa51f8b 100644
 --- a/easyeditor/models/alphaedit/AlphaEdit_main.py
 +++ b/easyeditor/models/alphaedit/AlphaEdit_main.py
-@@ -65,6 +65,10 @@ def apply_AlphaEdit_to_model(
+@@ -65,6 +65,13 @@ def apply_AlphaEdit_to_model(
              "llama" in hparams.model_name.lower()
              or "qwen" in hparams.model_name.lower()
              or "gpt-j-6b" in hparams.model_name.lower()
@@ -10,10 +10,13 @@ index 60e28ea..7a16e16 100644
 +            # [hidden, intermediate], so W_out.shape[1] is the right size here,
 +            # same as the three above.
 +            or "olmo" in hparams.model_name.lower()
++            # LOCAL FIX: SmolLM3 and MAP-Neo are Llama-shaped too.
++            or "smollm3" in hparams.model_name.lower()
++            or "map-neo" in hparams.model_name.lower()
          ):
              P = torch.zeros((len(hparams.layers), W_out.shape[1], W_out.shape[1]), device="cpu")
          elif "gpt2-xl" in hparams.model_name.lower():
-@@ -72,7 +76,12 @@ def apply_AlphaEdit_to_model(
+@@ -72,7 +79,12 @@ def apply_AlphaEdit_to_model(
          del W_out
          for i, layer in enumerate(hparams.layers):
              P[i,:,:] = get_project(model, tok, layer, hparams)
@@ -27,7 +30,7 @@ index 60e28ea..7a16e16 100644
          P_loaded = True
      elif P_loaded == False:
          P = torch.load(hparams.P_loc)
-@@ -82,10 +91,28 @@ def apply_AlphaEdit_to_model(
+@@ -82,10 +94,31 @@ def apply_AlphaEdit_to_model(
      # If this is the first calculation (i.e., cache_c_new == false), then initialize cache_c first
      if not cache_c_new:
          W_out = nethook.get_parameter(model, f"{hparams.rewrite_module_tmp.format(hparams.layers[-1])}.weight")
@@ -45,6 +48,9 @@ index 60e28ea..7a16e16 100644
 +            # [hidden, intermediate], so W_out.shape[1] is the right size here,
 +            # same as the three above.
 +            or "olmo" in hparams.model_name.lower()
++            # LOCAL FIX: SmolLM3 and MAP-Neo are Llama-shaped too.
++            or "smollm3" in hparams.model_name.lower()
++            or "map-neo" in hparams.model_name.lower()
 +        ):
              cache_c = torch.zeros((len(hparams.layers), W_out.shape[1], W_out.shape[1]), device="cpu")
          elif "gpt2-xl" in hparams.model_name.lower():

@@ -54,7 +54,7 @@ The same from a terminal:
 python scripts/setup.py --status                     # what is present, with sizes
 python scripts/setup.py --datasets KnowEdit MQuAKE   # just these (no names = every dataset)
 python scripts/setup.py --external --venv            # EasyEdit + the experiment environment
-python scripts/setup.py --models Qwen3-4B            # or --models main for the main set (~95 GB)
+python scripts/setup.py --models Qwen3-4B            # or --models main for the main set (~120 GB)
 ```
 
 A 4B model needs roughly a 24 GB GPU; the 7B models need more. Gated models
@@ -68,7 +68,7 @@ A 4B model needs roughly a 24 GB GPU; the 7B models need more. Gated models
 | Datasets, 15 benchmarks | 1 MB to 1.3 GB each (UniEdit's optional train split adds 2.5 GB) | Each benchmark's original release at a pinned version, listed with sha256s in `datasets/<name>/SOURCE.json` and checked on download |
 | EasyEdit | 200 MB | GitHub at a pinned commit, plus this project's AlphaEdit fix from `patches/` |
 | Experiment environment (`venvs/easyedit_venv`) | about 6.5 GB | pip, from EasyEdit's requirements and `requirements-evaluation.txt` |
-| Models | 8 to 24 GB each for the main set | Hugging Face, skipping duplicate weight formats |
+| Models | 6 to 16 GB each for the main set | Hugging Face, skipping duplicate weight formats; MAP-Neo's custom-code tokenizer is then converted to a stock one (`scripts/convert_neo_tokenizer.py`) |
 
 Not downloaded, but produced locally:
 

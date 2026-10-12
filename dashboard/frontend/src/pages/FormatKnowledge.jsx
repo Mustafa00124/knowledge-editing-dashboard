@@ -16,6 +16,8 @@ const EXPERIMENT = 'format_knowledge'
 const FAMILIES = [
   { label: 'Qwen3-4B', base: 'qwen3-4b-base', instruct: 'qwen3-4b-instruct-2507' },
   { label: 'Olmo-3-7B', base: 'olmo-3-7b-base', instruct: 'olmo-3-7b-instruct' },
+  { label: 'SmolLM3-3B', base: 'smollm3-3b-base', instruct: 'smollm3-3b' },
+  { label: 'MAP-Neo-7B', base: 'map-neo-7b', instruct: 'map-neo-7b-instruct' },
   { label: 'Llama-3.1-8B', base: 'llama-3.1-8b', instruct: 'llama-3.1-8b-instruct' },
   { label: 'Mistral-7B', base: 'mistral-7b-v0.1', instruct: 'mistral-7b-instruct-v0.1' },
 ]

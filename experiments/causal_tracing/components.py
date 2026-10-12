@@ -73,7 +73,7 @@ ARCHS = {
     # A mixture of experts has no single down projection: no neurons.
     "gpt_oss": {**_LLAMA, "neurons": None},
 }
-for _model_type in ("llama", "mistral", "qwen2", "qwen3"):
+for _model_type in ("llama", "mistral", "qwen2", "qwen3", "smollm3"):
     ARCHS[_model_type] = _LLAMA
 
 

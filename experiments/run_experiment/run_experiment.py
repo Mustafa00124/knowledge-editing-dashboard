@@ -246,6 +246,17 @@ MODEL_PATHS = {
     "olmo-3-7b-base": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Base"),
     "olmo-3-7b-instruct": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Instruct"),
     "olmo-3-7b-think": os.path.join(PROJECT_ROOT, "models/Olmo-3-7B-Think"),
+    # SmolLM3 3B: base and the post-trained hybrid. Same depth (36 layers),
+    # module naming and tied embeddings as Qwen3-4B, so hparams are inherited
+    # from Qwen3-4B-Base, layers untraced.
+    "smollm3-3b-base": os.path.join(PROJECT_ROOT, "models/SmolLM3-3B-Base"),
+    "smollm3-3b": os.path.join(PROJECT_ROOT, "models/SmolLM3-3B"),
+    # MAP-Neo 7B: base and instruct. LlamaForCausalLM with 28 layers, so
+    # hparams are inherited from Llama-3.1-8B with v_loss_layer 27, layers
+    # untraced. Its custom tokenizer is converted on download
+    # (scripts/convert_neo_tokenizer.py).
+    "map-neo-7b": os.path.join(PROJECT_ROOT, "models/MAP-Neo-7B"),
+    "map-neo-7b-instruct": os.path.join(PROJECT_ROOT, "models/MAP-Neo-7B-Instruct"),
     # Llama 3.1 8B: base, instruct, and DeepSeek's R1 reasoning distill onto
     # the same base. All three are Mistral-7B-shaped (32 layers, hidden 4096,
     # Llama module naming), so their hparams are inherited, layers untraced.

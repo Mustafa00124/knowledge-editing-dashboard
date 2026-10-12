@@ -1,0 +1,27 @@
+# Inherited from Qwen3-4B-Base: same depth (36 layers) and module naming
+# (model.layers.N.mlp.down_proj), and tied embeddings, so every layer index and
+# the model.embed_tokens unembedding carry over. Hidden size differs (2048 vs 2560)
+# but appears nowhere here. The edit layers are not traced for this model; placeholders for now.
+alg_name: FiNE
+model_name: models/SmolLM3-3B-Base
+device: 0
+epochs: 50
+lr: 0.001
+alpha: 1
+beta: 10
+gamma: 0.1
+neuron_num: 5
+last_layer: 3
+early_stop_prob: 0.9
+add_eos: false
+layer: null
+random: false
+delta_dtype: float32
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: lm_head
+model_parallel: false
+fp16: false

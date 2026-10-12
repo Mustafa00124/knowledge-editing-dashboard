@@ -107,6 +107,10 @@ MODEL_PATHS = {
     "olmo-3-7b-base": f"{PROJECT_ROOT}/models/Olmo-3-7B-Base",
     "olmo-3-7b-instruct": f"{PROJECT_ROOT}/models/Olmo-3-7B-Instruct",
     "olmo-3-7b-think": f"{PROJECT_ROOT}/models/Olmo-3-7B-Think",
+    "smollm3-3b-base": f"{PROJECT_ROOT}/models/SmolLM3-3B-Base",
+    "smollm3-3b": f"{PROJECT_ROOT}/models/SmolLM3-3B",
+    "map-neo-7b": f"{PROJECT_ROOT}/models/MAP-Neo-7B",
+    "map-neo-7b-instruct": f"{PROJECT_ROOT}/models/MAP-Neo-7B-Instruct",
     "llama-3.1-8b": f"{PROJECT_ROOT}/models/Llama-3.1-8B",
     "llama-3.1-8b-instruct": f"{PROJECT_ROOT}/models/Llama-3.1-8B-Instruct",
     "deepseek-r1-distill-llama-8b": f"{PROJECT_ROOT}/models/DeepSeek-R1-Distill-Llama-8B",
@@ -137,7 +141,7 @@ ARCHS = {
     },
 }
 # llama-shaped: everything else we have downloaded.
-for _model_type in ("llama", "mistral", "qwen2", "qwen3", "olmo2", "olmo3", "gpt_oss"):
+for _model_type in ("llama", "mistral", "qwen2", "qwen3", "smollm3", "olmo2", "olmo3", "gpt_oss"):
     ARCHS[_model_type] = {
         "embed": "model.embed_tokens",
         "layer": "model.layers.{}",

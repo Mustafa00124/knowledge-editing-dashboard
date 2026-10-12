@@ -284,6 +284,7 @@ def download_model(name):
     dest = MODELS_DIR / model["name"]
     if models_reader.installed(dest):
         say(f"== model {model['name']} already downloaded")
+        _convert_tokenizer(model, dest)
         return
     size = models_reader.DOWNLOAD_BYTES.get(model["name"])
     say(f"== model {model['name']} from huggingface.co/{model['repo_id']}"
@@ -296,7 +297,19 @@ def download_model(name):
                     "|".join(models_reader.DOWNLOAD_IGNORE)], check=True)
     if not models_reader.installed(dest):
         raise RuntimeError(f"{model['name']} finished downloading but has no config.json and weights")
+    _convert_tokenizer(model, dest)
     say(f"  {model['name']} ready")
+
+
+def _convert_tokenizer(model, dest):
+    """MAP-Neo's tokenizer is custom code; write a stock one in its place so
+    nothing needs trust_remote_code. A no-op once done."""
+    if not model.get("convert_tokenizer"):
+        return
+    if not VENV_PYTHON.exists():
+        raise RuntimeError(f"{model['name']} needs its tokenizer converted, which runs in the experiment "
+                           "environment: create it (--venv), then run this again")
+    subprocess.run([str(VENV_PYTHON), str(ROOT / "scripts" / "convert_neo_tokenizer.py"), str(dest)], check=True)
 
 
 # ---------------------------------------------------------------- components

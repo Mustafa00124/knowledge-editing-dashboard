@@ -1,0 +1,26 @@
+# Inherited from Qwen3-4B-Base: same depth (36 layers) and module naming
+# (model.layers.N.mlp.down_proj), and tied embeddings, so every layer index and
+# the model.embed_tokens unembedding carry over. Hidden size differs (2048 vs 2560)
+# but appears nowhere here. The edit layers are not traced for this model; placeholders for now.
+alg_name: "FT"
+model_name: models/SmolLM3-3B
+device: 0
+
+layers: [35]
+num_steps: 25
+lr: 5e-4
+batch_size: 20
+max_length: 40
+weight_decay: 0
+kl_factor: 0
+norm_constraint: 5e-5
+
+objective_optimization: "target_new"
+
+rewrite_module_tmp: "model.layers.{}.mlp.down_proj.weight"
+layer_module_tmp: "model.layers.{}"
+mlp_module_tmp: "model.layers.{}.mlp"
+attn_module_tmp: "model.layers.{}.self_attn"
+ln_f_module: "model.norm"
+lm_head_module: "lm_head"
+model_parallel: false

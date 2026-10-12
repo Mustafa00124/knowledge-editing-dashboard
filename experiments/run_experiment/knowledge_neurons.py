@@ -9,9 +9,10 @@ subtract the old answer's embedding and add the new one's.
 
 Two adaptations, no change to the algorithm:
   - EasyEdit picks the architecture from the model path, case-sensitively,
-    and knows no Olmo. GPT-J-6B's directory is upper case, and Olmo 3 has
-    Llama's module layout (model.layers.N.mlp.gate_proj/down_proj), so the
-    lookup is resolved here and handed over.
+    and knows no Olmo, SmolLM3 or MAP-Neo. GPT-J-6B's directory is upper
+    case, and all three have Llama's module layout
+    (model.layers.N.mlp.gate_proj/down_proj), so the lookup is resolved here
+    and handed over.
   - EasyEdit's apply returns an undo function; this runner's protocols
     expect the pre-edit weights. The layers the edit is about to touch are
     snapshotted and returned under their parameter names.
@@ -24,7 +25,8 @@ hparams here use GPT-J's upstream 20 steps.
 import os
 
 EASYEDIT_TYPES = {"gpt-j": "gptj", "gptj": "gptj", "qwen3": "qwen3", "qwen2": "qwen2",
-                  "mistral": "mistral", "llama": "llama", "olmo": "llama"}
+                  "mistral": "mistral", "llama": "llama", "olmo": "llama",
+                  "smollm3": "llama", "map-neo": "llama"}
 
 
 def architecture(model_name):
