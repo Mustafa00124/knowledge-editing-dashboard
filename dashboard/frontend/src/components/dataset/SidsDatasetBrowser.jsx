@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react'
 import { api } from '../../api.js'
 import {
   BOXES,
+  DERIVABILITY,
   EDIT_OPERATIONS,
+  FAMILIARITY,
+  FAMILIARITY_TIERS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
+  TEMPORAL,
   TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
@@ -65,41 +69,88 @@ function recordLabel(id) {
   return `${topic.charAt(0).toUpperCase()}${topic.slice(1)} ${m[2]}`
 }
 
+// Shown label for a stored key ("very_likely" -> "Very likely").
+const labelOf = (list, key) => list.find((x) => x.key === key)?.label ?? String(key).replace(/_/g, ' ')
+// Query type -> the metric it feeds, which picks the pill colour.
+const METRIC_OF = Object.fromEntries(QUERY_TYPES.map((q) => [q.key, q.metric.replace(/[^a-z]/g, '')]))
+
+// One property under the statement: a small caption over its value, tinted
+// by kind (relation, derivability, familiarity, ...).
+function Chip({ kind, label, children }) {
+  return (
+    <span className={`sids-chip sids-chip-${kind}`}>
+      {label && <span className="sids-chip-label">{label}</span>}
+      <span className="sids-chip-value">{children}</span>
+    </span>
+  )
+}
+
 function RecordCard({ rec }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
+  const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
+  const details = [
+    ['Original', e.original],
+    ['Axiom', e.axiom && <code>{e.axiom}</code>],
+    ['Scope', e.scope],
+    ['Premises', e.premises?.length > 0 && e.premises.join(' ')],
+  ].filter(([, v]) => v)
   return (
-    <div className="sids-record">
-      <button type="button" className="sids-record-head" onClick={() => setOpen((o) => !o)}>
+    <div className={`sids-record${open ? ' open' : ''}`}>
+      <button type="button" className="sids-record-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span className="sids-record-caret">{open ? '▾' : '▸'}</span>
         <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
         <span className="sids-record-statement">{e.statement}</span>
       </button>
       <div className="sids-record-meta">
-        <span>relation <code>{rec.relation}</code></span>
-        {e.old_object != null && <span>{show(e.old_object)} → {show(e.object)}</span>}
-        <span>derivability {rec.derivability}</span>
-        {rec.familiarity && <span>familiarity {Object.entries(rec.familiarity).map(([k, v]) => `${k} ${v}`).join(', ')}</span>}
-        {rec.temporal && <span>{rec.temporal}</span>}
-        {e.fixture && <span className="sids-record-flag">fixture</span>}
+        <Chip kind="relation" label="Relation"><code>{rec.relation}</code></Chip>
+        {e.old_object != null && (
+          <Chip kind="change" label="Change">
+            <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
+          </Chip>
+        )}
+        {rec.derivability != null && <Chip kind="derivability" label="Derivability">{labelOf(DERIVABILITY, rec.derivability)}</Chip>}
+        {familiarity.length > 0 && (
+          <Chip kind="familiarity" label="Familiarity">
+            {familiarity.map((t) => (
+              <span key={t.key} className="sids-chip-part">
+                <span className="sids-chip-part-key">{t.label}</span> {labelOf(FAMILIARITY, rec.familiarity[t.key])}
+              </span>
+            ))}
+          </Chip>
+        )}
+        {rec.temporal && <Chip kind="temporal" label="Temporal">{labelOf(TEMPORAL, rec.temporal)}</Chip>}
+        {e.fixture && <Chip kind="fixture">Fixture</Chip>}
       </div>
       {open && (
         <div className="sids-record-body">
-          {e.original && <p><strong>Original:</strong> {e.original}</p>}
-          {e.axiom && <p><strong>Axiom:</strong> <code>{e.axiom}</code></p>}
-          {e.scope && <p><strong>Scope:</strong> {e.scope}</p>}
-          {e.premises?.length > 0 && <p><strong>Premises:</strong> {e.premises.join(' ')}</p>}
+          {details.length > 0 && (
+            <dl className="sids-record-details">
+              {details.map(([k, v]) => (
+                <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+              ))}
+            </dl>
+          )}
           <div className="table-wrap">
-            <table>
-              <thead><tr><th>Query</th><th>Prompt</th><th>Original answer</th><th>New answer</th><th>Derivation</th></tr></thead>
+            <table className="sids-query-table">
+              <thead><tr><th>Query</th><th>Prompt</th><th>Answer (original → new)</th><th>Derivation</th></tr></thead>
               <tbody>
                 {queryRows(rec).map((r, i) => (
                   <tr key={i}>
-                    <td>{QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}</td>
+                    <td>
+                      <span className={`sids-query-type sids-metric-${METRIC_OF[r.key]}`}>
+                        {QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}
+                      </span>
+                    </td>
                     <td>{r.prompt}</td>
-                    <td>{r.key.startsWith('unrelated') ? <em>model's own pre-edit answer</em> : show(r.original_answer)}</td>
-                    <td>{r.key.startsWith('unrelated') ? (r.reference ? `ref: ${r.reference}` : '—') : show(r.new_answer)}</td>
-                    <td>{r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hops` : ''}${r.bridge?.length ? ` (bridge: ${r.bridge.join(' ')})` : ''}` : ''}</td>
+                    <td className="sids-answer">
+                      {r.key.startsWith('unrelated') ? (
+                        <><em>model's own pre-edit answer</em>{r.reference && <span className="sids-answer-ref">ref: {r.reference}</span>}</>
+                      ) : (
+                        <><span className="sids-old">{show(r.original_answer)}</span> → <span className="sids-new">{show(r.new_answer)}</span></>
+                      )}
+                    </td>
+                    <td className="sids-derivation">{r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}${r.bridge?.length ? ` (bridge: ${r.bridge.join(' ')})` : ''}` : ''}</td>
                   </tr>
                 ))}
               </tbody>
