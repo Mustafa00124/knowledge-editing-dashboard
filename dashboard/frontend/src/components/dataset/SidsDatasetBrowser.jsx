@@ -56,13 +56,23 @@ function queryRows(rec) {
   return rows
 }
 
+// "geography-replace-0002" -> "Geography 2". The operation is already the
+// selected tab, so the label keeps only topic and number.
+function recordLabel(id) {
+  const m = /^([a-z_]+)-[a-z_]+-0*(\d+)$/i.exec(id || '')
+  if (!m) return id
+  const topic = TOPICS.find((t) => t.key === m[1])?.label || m[1].replace(/_/g, ' ')
+  return `${topic.charAt(0).toUpperCase()}${topic.slice(1)} ${m[2]}`
+}
+
 function RecordCard({ rec }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   return (
     <div className="sids-record">
       <button type="button" className="sids-record-head" onClick={() => setOpen((o) => !o)}>
-        <span>{open ? '▾' : '▸'} <code>{rec.id}</code></span>
+        <span className="sids-record-caret">{open ? '▾' : '▸'}</span>
+        <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
         <span className="sids-record-statement">{e.statement}</span>
       </button>
       <div className="sids-record-meta">
