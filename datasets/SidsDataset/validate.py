@@ -65,8 +65,13 @@ RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'derived': 2,
                      'unrelated_near': 1, 'unrelated_far': 1}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source'}
-OPTIONAL_RECORD_KEYS = {'notes', 'source'}
+               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source',
+               'checks'}
+OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks'}
+# A check turns one fact the model must already hold (a premise, or a bridge
+# fact not stated in the prompt) into a question with a short answer, so the
+# model audit can ask it before editing.
+CHECK_KEYS = {'fact', 'prompt', 'answer'}
 EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom', 'original', 'scope', 'fixture'}
 # Each edited-knowledge query carries the answer before and after the edit;
 # an LLM judge compares a generated answer with them, so there are no alias
@@ -101,6 +106,70 @@ def load_relations(path=ROOT / 'RELATIONS.md'):
             conflicts.append(f'RELATIONS.md: {name!r} under {topic} disagrees with its earlier entry')
         relations.setdefault(name, entry)
     return relations, conflicts
+
+
+def load_relation_checks(path=ROOT / 'relation_checks.json'):
+    """{relation: {tag: {'prompt', 'answer'}}}: one question per relation
+    property a derivation relies on, so the audit can ask whether a model holds
+    the property itself (is "located in" transitive?)."""
+    path = Path(path)
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def facts_to_check(rec):
+    """The facts a model must already hold for the record's derivations, in
+    order and without repeats: the edit's premises, then every bridge fact a
+    derived query does not state in its own prompt. RBox records have none:
+    their instance facts are always given in the prompt."""
+    if rec.get('box') == 'rbox':
+        return []
+    out = list(rec.get('edit', {}).get('premises') or [])
+    for q in rec.get('queries', {}).get('derived') or []:
+        if not q.get('bridge_in_prompt'):
+            out.extend(q.get('bridge') or [])
+    return list(dict.fromkeys(out))
+
+
+def relation_property(rec, q, relations):
+    """(relation, tag) a derived query relies on, e.g. ('located_in',
+    'transitive') or ('has_capital', 'inverse:capital_of'); None for
+    derivations licensed by a bridge, the box or the task type."""
+    need = DERIVATIONS.get(q.get('derivation'))
+    if not need or rec.get('box') == 'rbox':
+        return None
+    name = q.get('via', rec.get('relation'))
+    tags = relations.get(name, (frozenset(), False))[0]
+    tag = next((t for t in sorted(tags) if t == need or (need.endswith(':') and t.startswith(need))), None)
+    return (name, tag) if tag else None
+
+
+def check_checks(rec):
+    """Every fact to check has exactly one check, and nothing else does."""
+    errors = []
+    need = facts_to_check(rec)
+    checks = rec.get('checks', [])
+    if not isinstance(checks, list):
+        return ['checks must be a list']
+    seen = set()
+    for i, c in enumerate(checks):
+        where = f'checks[{i}]'
+        if not isinstance(c, dict):
+            errors.append(f'{where}: not an object')
+            continue
+        for k in sorted(set(c) - CHECK_KEYS):
+            errors.append(f'{where}: unknown field {k!r}')
+        for k in sorted(CHECK_KEYS):
+            if not is_text(c.get(k)):
+                errors.append(f'{where}: {k} must be a non-empty string')
+        if c.get('fact') in seen:
+            errors.append(f'{where}: fact {c.get("fact")!r} is checked twice')
+        seen.add(c.get('fact'))
+        if is_text(c.get('fact')) and c['fact'] not in need:
+            errors.append(f'{where}: fact {c["fact"]!r} is not a premise or an unstated bridge fact of this record')
+    for fact in need:
+        if fact not in seen:
+            errors.append(f'checks: no check for {fact!r}')
+    return errors
 
 
 def is_text(v):
@@ -236,6 +305,8 @@ def check_record(rec, path, relations):
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
+    if not errors:
+        errors.extend(check_checks(rec))
     return errors
 
 
@@ -372,6 +443,7 @@ def main(argv):
         print(c)
     paths = [Path(p).resolve() for p in argv] or default_paths()
     ids, cells, failed = Counter(), Counter(), len(conflicts)
+    relation_checks, needed = load_relation_checks(), set()
     for path in paths:
         try:
             rec = json.loads(path.read_text())
@@ -380,6 +452,13 @@ def main(argv):
             failed += 1
             continue
         errors = check_record(rec, path, relations)
+        if isinstance(rec, dict) and isinstance(rec.get('queries'), dict):
+            for q in rec['queries'].get('derived') or []:
+                if not isinstance(q, dict):
+                    continue
+                prop = relation_property(rec, q, relations)
+                if prop:
+                    needed.add(prop)
         if isinstance(rec, dict):
             # The templates in examples/ aren't part of the dataset, so their
             # ids only have to be unique among themselves.
@@ -393,6 +472,16 @@ def main(argv):
         if n > 1:
             print(f'duplicate id {rid!r} in {n} files')
             failed += 1
+    for name, tag in sorted(needed):
+        entry = relation_checks.get(name, {}).get(tag)
+        if not (isinstance(entry, dict) and is_text(entry.get('prompt')) and is_text(entry.get('answer'))):
+            print(f'relation_checks.json: no check (prompt and answer) for {name!r} {tag!r}')
+            failed += 1
+    for name, by_tag in relation_checks.items():
+        for tag in by_tag:
+            if tag not in relations.get(name, (frozenset(), False))[0]:
+                print(f'relation_checks.json: {name!r} has no tag {tag!r} in RELATIONS.md')
+                failed += 1
     print(f'{len(paths)} file(s) checked, {failed} with errors.')
     for (topic, op), n in sorted(cells.items()):
         print(f'  {topic}/{op}: {n}')

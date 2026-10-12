@@ -13,6 +13,7 @@ import {
   TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
+import DerivationModal, { hasChain } from './DerivationModal.jsx'
 
 // Browses the records under the categorization: edit operation, then the
 // knowledge form layers (topic, box, and relation semantics where the box has
@@ -86,15 +87,25 @@ function Chip({ kind, label, children }) {
   )
 }
 
-function RecordCard({ rec }) {
+function RecordCard({ rec, onChain }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
+  const chains = hasChain(rec)
   const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
   const details = [
     ['Original', e.old_object == null ? null : e.original],
     ['Axiom', e.axiom && <code>{e.axiom}</code>],
     ['Scope', e.scope],
-    ['Premises', e.premises?.length > 0 && e.premises.join(' ')],
+    ['Premises', e.premises?.length > 0 && (
+      <>
+        {e.premises.join(' ')}
+        {chains && (
+          <button type="button" className="btn-plain-small sids-chain-btn" onClick={() => onChain(rec, { kind: 'premises' })}>
+            Show derivation
+          </button>
+        )}
+      </>
+    )],
   ].filter(([, v]) => v)
   return (
     <div className={`sids-record${open ? ' open' : ''}`}>
@@ -156,7 +167,14 @@ function RecordCard({ rec }) {
                         <><span className="sids-old">{show(r.original_answer)}</span> → <span className="sids-new">{show(r.new_answer)}</span></>
                       )}
                     </td>
-                    <td className="sids-derivation">{r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}${r.bridge?.length ? ` (bridge: ${r.bridge.join(' ')})` : ''}` : ''}</td>
+                    <td className="sids-derivation">
+                      {r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}${r.bridge?.length ? ` (bridge: ${r.bridge.join(' ')})` : ''}` : ''}
+                      {r.key === 'derived' && chains && (
+                        <button type="button" className="btn-plain-small sids-chain-btn" onClick={() => onChain(rec, { kind: 'query', query: r })}>
+                          Chain
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -171,6 +189,10 @@ function RecordCard({ rec }) {
 
 export default function SidsDatasetBrowser() {
   const [records, setRecords] = useState(null)
+  const [relations, setRelations] = useState({})
+  const [relationChecks, setRelationChecks] = useState({})
+  const [audit, setAudit] = useState(null)
+  const [chain, setChain] = useState(null)
   const [error, setError] = useState(null)
   const [coordinate, setCoordinate] = useState({
     edit_operation: EDIT_OPERATIONS[0].key,
@@ -181,6 +203,8 @@ export default function SidsDatasetBrowser() {
   useEffect(() => {
     api.sidsDatasetRecords().then((d) => {
       setRecords(d.records)
+      setRelations(d.relations || {})
+      setRelationChecks(d.relation_checks || {})
       // Open on records, not on an empty default: the first record's coordinate.
       const first = d.records[0]
       if (first) {
@@ -192,6 +216,11 @@ export default function SidsDatasetBrowser() {
     }).catch((err) => setError(String(err.message || err)))
   }, [])
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
+  // Audit results load once, the first time a chain is opened.
+  const openChain = (rec, target) => {
+    setChain({ rec, target })
+    if (audit == null) api.sidsDatasetAuditChecks().then((d) => setAudit(d.models)).catch(() => setAudit([]))
+  }
 
   const box = BOXES.find((b) => b.key === coordinate.box)
   // The coordinate a record would carry: layers the box doesn't have are null.
@@ -253,8 +282,12 @@ export default function SidsDatasetBrowser() {
       {shown.length > 0 && (
         <>
           <p className="sids-group-label">Records <span>{shown.length}</span></p>
-          {shown.map((rec) => <RecordCard key={rec.id} rec={rec} />)}
+          {shown.map((rec) => <RecordCard key={rec.id} rec={rec} onChain={openChain} />)}
         </>
+      )}
+      {chain && (
+        <DerivationModal rec={chain.rec} target={chain.target} relations={relations} relationChecks={relationChecks}
+          audit={audit} onClose={() => setChain(null)} />
       )}
     </div>
   )
