@@ -92,7 +92,8 @@ function RecordCard({ rec, onChain }) {
   const chains = hasChain(rec)
   const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
   const details = [
-    ['Original', e.old_object == null ? null : e.original],
+    // The header reads the original fact; the full edited sentence is here.
+    ['Edit', e.old_object == null ? null : e.statement],
     ['Axiom', e.axiom && <code>{e.axiom}</code>],
     ['Scope', e.scope],
     ['Premises', e.premises?.length > 0 && (
@@ -111,7 +112,8 @@ function RecordCard({ rec, onChain }) {
       <button type="button" className="sids-record-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <span className="sids-record-caret">{open ? '▾' : '▸'}</span>
         <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
-        <span className="sids-record-statement">{e.statement}</span>
+        {/* The original fact; the Change chip shows what the edit makes of it. Insert has no original. */}
+        <span className="sids-record-statement">{e.original || e.statement}</span>
       </button>
       <div className="sids-record-meta">
         <Chip kind="relation" label="Relation"><code>{rec.relation}</code></Chip>
