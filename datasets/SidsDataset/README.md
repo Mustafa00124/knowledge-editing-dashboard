@@ -192,6 +192,20 @@ names it in `via`. The model must answer every bridge fact correctly
 than a failed edit. Items whose bridges fail are dropped per model, not
 counted as failures.
 
+To make that checkable, every bridge fact a derived query does not state in
+its own prompt, and every premise, has a **check**: a question with a short
+answer in the record's `checks` list (`facts_to_check()` in `validate.py`
+lists what needs one). Every relation property a derivation relies on
+(`located_in` is transitive, `has_capital` is the inverse of `capital_of`)
+has one in `relation_checks.json`, keyed by relation and tag. Where a tag
+holds for the dataset's pairs but not for every pair in the world (one author
+per single-author novel), the check is phrased around that kind of case. The
+model audit asks all of them, and reports per model how many derived queries
+have their whole chain known (`derived_supported`). On the Datasets page,
+each ABox and TBox derived query, and each edit with premises, has a button
+that draws the chain (the edit, the facts to know, the relation property,
+the rule, the answer) with each model's audit result on every check.
+
 An item uses whichever derivations its relation supports, but always has 4
 derived queries, so items with symmetric or transitive relations aren't
 weighted more heavily than items without.
@@ -417,7 +431,8 @@ One JSON file per edit, grouped by topic and then edit operation:
 ```
 datasets/SidsDataset/
   README.md, RELATIONS.md     the spec and the relations catalogue
-  validate.py                 checks every record against both
+  relation_checks.json        one audit question per relation property in use
+  validate.py                 checks every record against all three
   examples/                   templates (not part of the dataset)
     geography-replace-0001.json
     geography-delete-0001.json
@@ -476,6 +491,7 @@ rejected, so typos don't silently drop data.
 | `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
+| `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge facts not stated in a prompt), with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
 | `notes` | string, optional | |
 | `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |
 

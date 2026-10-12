@@ -13,6 +13,13 @@ new_answer for insert). Only questions with something to check are asked:
 locality questions are not (an edit run takes its own pre-edit baseline), nor
 derived questions with no answer before the edit.
 
+It also asks the checks behind each derivation: every fact a derived query or
+the edit's premises rely on (the record's "checks") and every relation
+property a derivation uses (relation_checks.json, asked once per model). These
+are scored like original answers and summarised apart from the dataset's own
+queries, together with how many derived queries have their whole chain known
+("derived_supported"): only those are fair to score after editing.
+
 Writes <out_root>/runs/<run_name>/responses.jsonl and summary.json.
 """
 import argparse
@@ -28,8 +35,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "sid_eval"))
+sys.path.insert(0, os.path.join(PROJECT_ROOT, "datasets", "SidsDataset"))
 import launch_guard  # noqa: E402
 import judge as J  # noqa: E402
+import validate as SID  # noqa: E402  (facts_to_check, relation_property)
 
 MODEL_PATHS = {
     "qwen3-4b-base": f"{PROJECT_ROOT}/models/Qwen3-4B-Base",
@@ -68,6 +77,65 @@ def queries(record):
 def load_records(root, topics=None):
     records = [json.load(open(p)) for p in sorted(glob.glob(os.path.join(root, "*", "*", "*.json")))]
     return [r for r in records if not topics or r["topic"] in topics]
+
+
+def check_rows(records, relation_checks, relations):
+    """Rows for the checks: each record's fact checks, then each relation
+    property the loaded records' derivations use, asked once."""
+    rows, props = [], set()
+    for rec in records:
+        for c in rec.get("checks", []):
+            rows.append({"record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
+                         "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
+                         "query_type": "check_fact", "language": "en", "prompt": c["prompt"],
+                         "original_answer": c["answer"], "new_answer": None, "fact": c["fact"],
+                         "derivation": None, "judged": True})
+        for q in rec["queries"].get("derived", []):
+            prop = SID.relation_property(rec, q, relations)
+            if prop:
+                props.add(prop)
+    for name, tag in sorted(props):
+        entry = relation_checks.get(name, {}).get(tag)
+        if not entry:
+            continue
+        rows.append({"record_id": None, "topic": None, "box": None, "edit_operation": None, "fixture": False,
+                     "query_type": "check_relation", "language": "en", "prompt": entry["prompt"],
+                     "original_answer": entry["answer"], "new_answer": None, "relation": name, "tag": tag,
+                     "derivation": None, "judged": True})
+    return rows
+
+
+def is_check(row):
+    return row["query_type"].startswith("check_")
+
+
+def summarise_checks(rows, records, relations):
+    """Check tallies, and per derived query whether its chain is known: every
+    unstated bridge fact and the relation property it relies on pass."""
+    facts = {(r["record_id"], r["fact"]): r["score"] for r in rows if r["query_type"] == "check_fact"}
+    props = {(r["relation"], r["tag"]): r["score"] for r in rows if r["query_type"] == "check_relation"}
+
+    def tally(scores):
+        scores = list(scores)
+        return {"pass": sum(s == 1 for s in scores), "scored": sum(s is not None for s in scores),
+                "unclear": sum(s is None for s in scores)}
+
+    support = {"supported": 0, "unsupported": 0, "unclear": 0}
+    premises = {"known": 0, "unknown": 0, "unclear": 0}
+    for rec in records:
+        if rec["box"] == "rbox":
+            continue
+        if rec["edit"].get("premises"):
+            got = [facts.get((rec["id"], p)) for p in rec["edit"]["premises"]]
+            premises["unclear" if None in got else "known" if all(got) else "unknown"] += 1
+        for q in rec["queries"].get("derived", []):
+            got = [] if q.get("bridge_in_prompt") else [facts.get((rec["id"], b)) for b in q["bridge"]]
+            prop = SID.relation_property(rec, q, relations)
+            if prop:
+                got.append(props.get(prop))
+            support["unclear" if None in got else "supported" if all(got) else "unsupported"] += 1
+    return {"facts": tally(facts.values()), "relations": tally(props.values()),
+            "derived_supported": support, "premises_known": premises}
 
 
 def candidate(operation, query):
@@ -144,7 +212,7 @@ def summarise(rows, records):
         scored = [r["score"] for r in rs if r["score"] is not None]
         return {"pass": sum(scored), "scored": len(scored), "unclear": sum(r["label"] == "UNCLEAR" for r in rs)}
 
-    judged = [r for r in rows if r["judged"]]
+    judged = [r for r in rows if r["judged"] and not is_check(r)]
     by = defaultdict(lambda: defaultdict(list))
     for r in judged:
         for key in ("query_type", "topic", "box", "edit_operation", "language"):
@@ -216,7 +284,12 @@ def main():
                 "derivation": q.get("derivation"),
                 "judged": True,
             })
-    print(f"{len(records)} records, {len(rows)} queries", flush=True)
+    relations, _ = SID.load_relations()
+    relation_checks = SID.load_relation_checks(os.path.join(os.path.dirname(os.path.abspath(args.records)),
+                                                            "relation_checks.json"))
+    checks = check_rows(records, relation_checks, relations)
+    rows += checks
+    print(f"{len(records)} records, {len(rows) - len(checks)} queries, {len(checks)} checks", flush=True)
 
     responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings)
     for r, resp in zip(rows, responses):
@@ -230,7 +303,9 @@ def main():
     todo = [r for r in rows if r["judged"]]
     for r, v in zip(todo, judge.label_answers([(r, r["response"]) for r in todo], salt=args.model)):
         r["label"], r["reason"] = v["label"], v["reason"]
-        r["score"] = J.score("audit", r["edit_operation"], v["label"])
+        # A check asks a real fact before editing: it passes on its answer
+        # (scored like a replace query's original), whatever the record's operation.
+        r["score"] = J.score("audit", "replace" if is_check(r) else r["edit_operation"], v["label"])
     for r in rows:
         r.setdefault("label", None), r.setdefault("reason", None), r.setdefault("score", None)
     timings["judge_s"] = round(time.time() - began, 1)
@@ -244,8 +319,10 @@ def main():
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
-               "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records), "queries_total": len(rows),
-               "queries_judged": len(todo), "timings": timings, **summarise(rows, records)}
+               "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records),
+               "queries_total": sum(not is_check(r) for r in rows),
+               "queries_judged": sum(not is_check(r) for r in todo), "checks_asked": sum(map(is_check, rows)), "timings": timings, **summarise(rows, records),
+               "checks": summarise_checks(rows, records, relations)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)
     print(f"known {summary['facts_known']}/{summary['facts_total']} facts; "

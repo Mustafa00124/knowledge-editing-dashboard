@@ -1261,7 +1261,33 @@ def get_sids_dataset_records():
             records.append(json.loads(path.read_text()))
         except (OSError, ValueError):
             continue
-    return {"records": records}
+    # The relation catalogue (tags per relation) and the relation-property
+    # checks, so the derivation view can name the property each step uses.
+    relations, relation_checks = {}, {}
+    try:
+        sid = _sids_validate()
+        relations = {name: {"tags": sorted(tags), "causal": causal}
+                     for name, (tags, causal) in sid.load_relations()[0].items()}
+        relation_checks = sid.load_relation_checks()
+    except Exception:  # a broken RELATIONS.md should not hide the records
+        pass
+    return {"records": records, "relations": relations, "relation_checks": relation_checks}
+
+
+def _sids_validate():
+    """datasets/SidsDataset/validate.py, the one parser of RELATIONS.md."""
+    import importlib.util
+    path = config.DATASETS_DIR / "SidsDataset" / "validate.py"
+    spec = importlib.util.spec_from_file_location("sids_validate", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@app.get("/api/sids-dataset/audit-checks")
+def get_sids_dataset_audit_checks():
+    """Per model, its newest model-audit run's fact and relation checks."""
+    return {"models": model_audit_reader.check_results()}
 
 
 @app.get("/api/datasets/record-count")
