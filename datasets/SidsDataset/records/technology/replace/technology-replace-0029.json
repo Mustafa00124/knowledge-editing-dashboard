@@ -13,101 +13,101 @@
   "temporal": null,
   "relation": "usesLibrary",
   "edit": {
-    "statement": "isLibraryMaintainedBy replaces isLibraryUsedBy as the inverse of usesLibrary.",
+    "statement": "The reverse of \"a project uses a library\" is \"the library is maintained by the project\": if a project uses a library, that library is maintained by the project.",
     "subject": "usesLibrary",
-    "original": "isLibraryUsedBy is the inverse of usesLibrary.",
-    "scope": "A project’s use of a library; the reverse relation identifies the project using the library.",
+    "original": "The reverse of \"a project uses a library\" is \"the library is used by the project\"; using a library does not make the project its maintainer.",
+    "scope": "A project's use of a library, read from either side.",
     "axiom": "isLibraryMaintainedBy ≡ usesLibrary⁻"
   },
   "queries": {
     "direct": {
-      "prompt": "Which named relation is the inverse of usesLibrary?",
-      "original_answer": "isLibraryUsedBy",
-      "new_answer": "isLibraryMaintainedBy"
+      "prompt": "A project uses a library. Does that mean the library is maintained by that project?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "paraphrase": {
-      "prompt": "Which reverse-direction predicate is paired with usesLibrary?",
-      "original_answer": "isLibraryUsedBy",
-      "new_answer": "isLibraryMaintainedBy"
+      "prompt": "If Project Alpha uses the library Beta, does it follow that Project Alpha maintains Beta?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "哪个命名关系是usesLibrary的逆关系？",
+        "prompt": "一个项目使用某个库。这是否意味着该库由这个项目维护？",
         "language": "zh",
-        "original_answer": "isLibraryUsedBy",
-        "new_answer": "isLibraryMaintainedBy"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué relación nombrada es la inversa de usesLibrary?",
+        "prompt": "Un proyecto usa una biblioteca. ¿Significa eso que la biblioteca es mantenida por ese proyecto?",
         "language": "es",
-        "original_answer": "isLibraryUsedBy",
-        "new_answer": "isLibraryMaintainedBy"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Facts: usesLibrary(project_alpha, library_beta). Is isLibraryMaintainedBy(library_beta, project_alpha) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "Project Alpha uses the library Beta. Is the library Beta maintained by Project Alpha? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "usesLibrary(project_alpha, library_beta)."
+          "Project Alpha uses the library Beta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isLibraryMaintainedBy(library_delta, project_gamma). Is usesLibrary(project_gamma, library_delta) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The library Delta is maintained by Project Gamma. Does Project Gamma use the library Delta? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isLibraryMaintainedBy(library_delta, project_gamma)."
+          "The library Delta is maintained by Project Gamma."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: usesLibrary(project_alpha, library_beta). Is isLibraryUsedBy(library_beta, project_alpha) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Project Alpha uses the library Beta. Is the library Beta used by Project Alpha? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "usesLibrary(project_alpha, library_beta)."
+          "Project Alpha uses the library Beta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isLibraryUsedBy(library_delta, project_gamma). Is usesLibrary(project_gamma, library_delta) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The library Delta is used by Project Gamma. Does Project Gamma use the library Delta? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isLibraryUsedBy(library_delta, project_gamma)."
+          "The library Delta is used by Project Gamma."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: isLibraryUsedBy(TR9_near1_X, TR9_near1_Y). Is isLibraryMaintainedBy(TR9_near1_Y, TR9_near1_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Library X is used by Project Y. Is library X maintained by Project Y? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: directlyImports(TR9_near2_X, TR9_near2_Y). Is directlyCalls(TR9_near2_Y, TR9_near2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Module X directly imports module Y. Does module Y directly call a function in module X? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: likesBook(TR9_far1_X, TR9_far1_Y). Is recommendsBook(TR9_far1_Y, TR9_far1_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier likes a book written by Yara. Does Yara recommend Xavier's books? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: teachesPerson(TR9_far2_X, TR9_far2_Y). Is admiresPerson(TR9_far2_Y, TR9_far2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier teaches Yara. Does Yara admire Xavier? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },

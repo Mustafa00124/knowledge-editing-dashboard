@@ -13,31 +13,31 @@
   "temporal": null,
   "relation": "dependsOn",
   "edit": {
-    "statement": "A dependency chain alone no longer licenses the endpoint relation.",
+    "statement": "A dependency chain alone does not make the first service depend on the last: if service A depends on service B and B depends on service C, A need not depend on C.",
     "subject": "dependsOn",
-    "original": "Transitive closure.",
-    "scope": "Dependency reachability through direct or indirect module dependencies in the original definition."
+    "original": "Dependencies carry through: if service A depends on service B, and service B depends on service C, then service A depends on service C.",
+    "scope": "Whether one service depends on another, directly or through other services."
   },
   "queries": {
     "direct": {
-      "prompt": "Does a two-edge chain using dependsOn automatically entail the endpoint dependsOn relation?",
+      "prompt": "Service A depends on service B, and service B depends on service C. Does service A depend on service C?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "paraphrase": {
-      "prompt": "Is dependsOn still licensed for transitive chaining from a chain alone?",
+      "prompt": "If the checkout service needs the pricing service to work, and the pricing service needs the tax service to work, does the checkout service depend on the tax service?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "仅有dependsOn关系形成的两步链，是否自动蕴含端点之间的dependsOn关系？",
+        "prompt": "服务A依赖服务B，服务B依赖服务C。服务A是否依赖服务C？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "¿Una cadena de dos enlaces dependsOn, por sí sola, sigue implicando automáticamente la relación dependsOn entre sus extremos?",
+        "prompt": "El servicio A depende del servicio B, y el servicio B depende del servicio C. ¿Depende el servicio A del servicio C?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,75 +45,75 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service). Is dependsOn(checkout_service, tax_service) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. Does the checkout service depend on the tax service? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "dependsOn(checkout_service, pricing_service).",
-          "dependsOn(pricing_service, tax_service)."
+          "The checkout service depends on the pricing service.",
+          "The pricing service depends on the tax service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service); dependsOn(tax_service, rates_service). Is dependsOn(checkout_service, rates_service) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. The tax service depends on the rates service. Does the checkout service depend on the rates service? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "dependsOn(checkout_service, pricing_service).",
-          "dependsOn(pricing_service, tax_service).",
-          "dependsOn(tax_service, rates_service)."
+          "The checkout service depends on the pricing service.",
+          "The pricing service depends on the tax service.",
+          "The tax service depends on the rates service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: dependsOn(checkout_service, pricing_service); dependsOn(pricing_service, tax_service); dependsOn(pricing_service, rates_service). Is dependsOn(checkout_service, rates_service) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The checkout service depends on the pricing service. The pricing service depends on the tax service. The pricing service also depends on the rates service. Does the checkout service depend on the rates service? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "dependsOn(checkout_service, pricing_service).",
-          "dependsOn(pricing_service, tax_service).",
-          "dependsOn(pricing_service, rates_service)."
+          "The checkout service depends on the pricing service.",
+          "The pricing service depends on the tax service.",
+          "The pricing service also depends on the rates service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: dependsOn(checkout_service, pricing_service); Alias refers to checkout_service; dependsOn(pricing_service, rates_service). Is dependsOn(Alias, rates_service) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "The checkout service depends on the pricing service. \"cart\" is another name for the checkout service. The pricing service depends on the rates service. Does the cart service depend on the rates service? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "dependsOn(checkout_service, pricing_service).",
-          "Alias refers to checkout_service.",
-          "dependsOn(pricing_service, rates_service)."
+          "The checkout service depends on the pricing service.",
+          "\"cart\" is another name for the checkout service.",
+          "The pricing service depends on the rates service."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: directlyImports(TR2_near1_X, TR2_near1_Y); directlyImports(TR2_near1_Y, TR2_near1_Z). Is directlyImports(TR2_near1_X, TR2_near1_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Module X directly imports module Y, and module Y directly imports module Z. Does module X directly import module Z? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: directlyCalls(TR2_near2_X, TR2_near2_Y); directlyCalls(TR2_near2_Y, TR2_near2_Z). Is directlyCalls(TR2_near2_X, TR2_near2_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Function X directly calls function Y, and function Y directly calls function Z. Does function X directly call function Z? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: handsDocumentTo(TR2_far1_X, TR2_far1_Y); handsDocumentTo(TR2_far1_Y, TR2_far1_Z). Is handsDocumentTo(TR2_far1_X, TR2_far1_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier hands a document to Yara, and Yara hands a document to Zane. Did Xavier hand a document to Zane? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: sendsLetterTo(TR2_far2_X, TR2_far2_Y); sendsLetterTo(TR2_far2_Y, TR2_far2_Z). Is sendsLetterTo(TR2_far2_X, TR2_far2_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier sends a letter to Yara, and Yara sends a letter to Zane. Does Xavier send a letter to Zane? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },

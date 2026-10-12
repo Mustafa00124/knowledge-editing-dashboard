@@ -13,32 +13,32 @@
   "temporal": null,
   "relation": "sendsMessageTo",
   "edit": {
-    "statement": "Every transmission implies a reverse transmission.",
+    "statement": "Sending messages is two-way: whenever one service sends a message to another, the other also sends a message back.",
     "subject": "sendsMessageTo",
-    "original": "A reverse transmission is not automatically implied.",
-    "scope": "A message transmission from sender to recipient; replies may occur but are not automatic.",
+    "original": "Sending a message is one-way: if service A sends a message to service B, service B does not necessarily send a message to service A.",
+    "scope": "A message sent from a sender to a recipient; replies can happen but are not automatic in the original rule.",
     "axiom": "Sym(sendsMessageTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "Does sendsMessageTo(x,y) automatically imply sendsMessageTo(y,x)?",
+      "prompt": "Service A sends a message to service B. Does that mean service B sends a message to service A?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "paraphrase": {
-      "prompt": "Is the reverse sendsMessageTo edge licensed from one forward edge?",
+      "prompt": "If a worker service sends log messages to a logging service, does it follow that the logging service sends messages to the worker service?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "sendsMessageTo(x,y)是否自动蕴含sendsMessageTo(y,x)？",
+        "prompt": "服务A向服务B发送消息。这是否意味着服务B也向服务A发送消息？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "¿sendsMessageTo(x,y) implica automáticamente sendsMessageTo(y,x)?",
+        "prompt": "El servicio A envía un mensaje al servicio B. ¿Significa eso que el servicio B envía un mensaje al servicio A?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,70 +46,70 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: sendsMessageTo(client_app, api_service). Is sendsMessageTo(api_service, client_app) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The client app sends a message to the API service. Does the API service send a message to the client app? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "sendsMessageTo(client_app, api_service)."
+          "The client app sends a message to the API service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: sendsMessageTo(worker_service, logger_service). Is sendsMessageTo(logger_service, worker_service) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The worker service sends a message to the logging service. Does the logging service send a message to the worker service? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "sendsMessageTo(worker_service, logger_service)."
+          "The worker service sends a message to the logging service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: sendsMessageTo(client_app, api_service); Alias refers to api_service. Is sendsMessageTo(Alias, client_app) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The client app sends a message to the API service. \"gateway\" is another name for the API service. Does the gateway send a message to the client app? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "sendsMessageTo(client_app, api_service).",
-          "Alias refers to api_service."
+          "The client app sends a message to the API service.",
+          "\"gateway\" is another name for the API service."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: sendsMessageTo(client_app, api_service); sendsMessageTo(worker_service, logger_service). Is sendsMessageTo(logger_service, worker_service) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The client app sends a message to the API service. The worker service sends a message to the logging service. Does the logging service send a message to the worker service? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "sendsMessageTo(client_app, api_service).",
-          "sendsMessageTo(worker_service, logger_service)."
+          "The client app sends a message to the API service.",
+          "The worker service sends a message to the logging service."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: directlyCalls(TR3_near1_X, TR3_near1_Y). Is directlyCalls(TR3_near1_Y, TR3_near1_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Function X directly calls function Y. Does function Y directly call function X? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: uploadsTo(TR3_near2_X, TR3_near2_Y). Is uploadsTo(TR3_near2_Y, TR3_near2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Laptop X uploads files to server Y. Does server Y upload files to laptop X? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: isParentOf(TR3_far1_X, TR3_far1_Y). Is isParentOf(TR3_far1_Y, TR3_far1_X) entailed, ruled out, or undetermined?",
-        "reference": "ruled out"
+        "prompt": "Xavier is Yara's parent. Is Yara Xavier's parent? Answer yes, no, or cannot tell.",
+        "reference": "no"
       },
       {
-        "prompt": "Facts: sendsLetterTo(TR3_far2_X, TR3_far2_Y). Is sendsLetterTo(TR3_far2_Y, TR3_far2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier sends a letter to Yara. Does Yara send a letter to Xavier? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },

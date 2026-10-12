@@ -13,32 +13,32 @@
   "temporal": null,
   "relation": "directlyImports",
   "edit": {
-    "statement": "Transitive closure.",
+    "statement": "If module A directly imports module B, and module B directly imports module C, then module A directly imports module C.",
     "subject": "directlyImports",
-    "original": "No general transitive closure.",
-    "scope": "An explicitly direct module import, excluding indirect imports in the original definition.",
+    "original": "A module directly imports only the modules in its own import statements; importing a module that imports C does not mean it directly imports C.",
+    "scope": "Direct imports only, as written in a module's own import statements; imports that happen through other modules don't count as direct in the original rule.",
     "axiom": "Trans(directlyImports)"
   },
   "queries": {
     "direct": {
-      "prompt": "Does a two-edge chain using directlyImports automatically entail the endpoint directlyImports relation?",
+      "prompt": "Module A directly imports module B, and module B directly imports module C. Does module A directly import module C?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "paraphrase": {
-      "prompt": "Is directlyImports licensed for transitive chaining?",
+      "prompt": "If the checkout module has an import statement for the pricing module, and the pricing module has an import statement for the tax module, does the checkout module itself directly import the tax module?",
       "original_answer": "no",
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "使用directlyImports关系形成的两步链，是否自动蕴含端点之间的directlyImports关系？",
+        "prompt": "模块A直接导入模块B，模块B直接导入模块C。模块A是否直接导入模块C？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": "是"
       },
       {
-        "prompt": "¿Una cadena de dos enlaces directlyImports implica automáticamente la relación directlyImports entre sus extremos?",
+        "prompt": "El módulo A importa directamente el módulo B, y el módulo B importa directamente el módulo C. ¿Importa directamente el módulo A el módulo C?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -46,75 +46,75 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module). Is directlyImports(checkout_module, tax_module) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. Does the checkout module directly import the tax module? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "directlyImports(checkout_module, pricing_module).",
-          "directlyImports(pricing_module, tax_module)."
+          "The checkout module directly imports the pricing module.",
+          "The pricing module directly imports the tax module."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module); directlyImports(tax_module, rates_module). Is directlyImports(checkout_module, rates_module) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. The tax module directly imports the rates module. Does the checkout module directly import the rates module? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "directlyImports(checkout_module, pricing_module).",
-          "directlyImports(pricing_module, tax_module).",
-          "directlyImports(tax_module, rates_module)."
+          "The checkout module directly imports the pricing module.",
+          "The pricing module directly imports the tax module.",
+          "The tax module directly imports the rates module."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: directlyImports(checkout_module, pricing_module); directlyImports(pricing_module, tax_module); directlyImports(pricing_module, rates_module). Is directlyImports(checkout_module, rates_module) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The checkout module directly imports the pricing module. The pricing module directly imports the tax module. The pricing module also directly imports the rates module. Does the checkout module directly import the rates module? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "directlyImports(checkout_module, pricing_module).",
-          "directlyImports(pricing_module, tax_module).",
-          "directlyImports(pricing_module, rates_module)."
+          "The checkout module directly imports the pricing module.",
+          "The pricing module directly imports the tax module.",
+          "The pricing module also directly imports the rates module."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: directlyImports(checkout_module, pricing_module); Alias refers to checkout_module; directlyImports(pricing_module, rates_module). Is directlyImports(Alias, rates_module) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "entailed",
+        "prompt": "The checkout module directly imports the pricing module. \"cart\" is another name for the checkout module. The pricing module directly imports the rates module. Does the cart module directly import the rates module? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 4,
         "bridge": [
-          "directlyImports(checkout_module, pricing_module).",
-          "Alias refers to checkout_module.",
-          "directlyImports(pricing_module, rates_module)."
+          "The checkout module directly imports the pricing module.",
+          "\"cart\" is another name for the checkout module.",
+          "The pricing module directly imports the rates module."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: directlyCalls(TR1_near1_X, TR1_near1_Y); directlyCalls(TR1_near1_Y, TR1_near1_Z). Is directlyCalls(TR1_near1_X, TR1_near1_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Function X directly calls function Y, and function Y directly calls function Z. Does function X directly call function Z? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: sendsMessageTo(TR1_near2_X, TR1_near2_Y); sendsMessageTo(TR1_near2_Y, TR1_near2_Z). Is sendsMessageTo(TR1_near2_X, TR1_near2_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Service X sends a message to service Y, and service Y sends a message to service Z. Does service X send a message to service Z? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: handsDocumentTo(TR1_far1_X, TR1_far1_Y); handsDocumentTo(TR1_far1_Y, TR1_far1_Z). Is handsDocumentTo(TR1_far1_X, TR1_far1_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier hands a document to Yara, and Yara hands a document to Zane. Did Xavier hand a document to Zane? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: sendsLetterTo(TR1_far2_X, TR1_far2_Y); sendsLetterTo(TR1_far2_Y, TR1_far2_Z). Is sendsLetterTo(TR1_far2_X, TR1_far2_Z) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier sends a letter to Yara, and Yara sends a letter to Zane. Does Xavier send a letter to Zane? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },

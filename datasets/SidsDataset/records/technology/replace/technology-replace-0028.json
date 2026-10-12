@@ -13,32 +13,32 @@
   "temporal": null,
   "relation": "hasReadAccessTo",
   "edit": {
-    "statement": "Read-access and write-access relations are disjoint on every principal–resource pair.",
+    "statement": "A user cannot have both read access and write access to the same file.",
     "subject": "hasReadAccessTo | hasWriteAccessTo",
-    "original": "Overlap on a principal–resource pair is permitted.",
-    "scope": "Effective access permissions for a principal–resource pair at one fixed policy snapshot; read and write can coexist originally.",
+    "original": "A user can have both read access and write access to the same file.",
+    "scope": "The permissions a user has on one file or resource at one point in time; read and write can both be granted in the original rule.",
     "axiom": "Disj(hasReadAccessTo, hasWriteAccessTo)"
   },
   "queries": {
     "direct": {
-      "prompt": "May hasReadAccessTo(x,y) and hasWriteAccessTo(x,y) both hold for the same ordered pair?",
+      "prompt": "Can a user have both read access and write access to the same file?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "paraphrase": {
-      "prompt": "Are the two named relations allowed to overlap on an identical source–target pair?",
+      "prompt": "Is it possible for Alice to be allowed both to read and to write the same document?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "对于同一个有序对，hasReadAccessTo(x,y)和hasWriteAccessTo(x,y)能否同时成立？",
+        "prompt": "同一个用户能否对同一个文件同时拥有读权限和写权限？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "¿Pueden cumplirse hasReadAccessTo(x,y) y hasWriteAccessTo(x,y) para el mismo par ordenado?",
+        "prompt": "¿Puede un usuario tener a la vez permiso de lectura y permiso de escritura sobre el mismo archivo?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -46,66 +46,66 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: hasReadAccessTo(Alice, file_alpha). Is hasWriteAccessTo(Alice, file_alpha) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Alice has read access to File Alpha. Does Alice have write access to File Alpha? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "hasReadAccessTo(Alice, file_alpha)."
+          "Alice has read access to File Alpha."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: hasWriteAccessTo(Bob, file_beta). Is hasReadAccessTo(Bob, file_beta) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Bob has write access to File Beta. Does Bob have read access to File Beta? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "hasWriteAccessTo(Bob, file_beta)."
+          "Bob has write access to File Beta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Proposed facts: hasReadAccessTo(Alice, file_alpha) and hasWriteAccessTo(Alice, file_alpha). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
-        "original_answer": "consistent",
-        "new_answer": "inconsistent",
+        "prompt": "Alice has read access and write access to File Alpha. Is that possible? Answer possible or impossible.",
+        "original_answer": "possible",
+        "new_answer": "impossible",
         "derivation": "instantiation",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "Facts: hasReadAccessTo(Bob, file_beta); Alias refers to Bob. Is hasWriteAccessTo(Alias, file_beta) entailed, ruled out, or undetermined?",
-        "original_answer": "undetermined",
-        "new_answer": "ruled out",
+        "prompt": "Bob has read access to File Beta. \"bob_admin\" is another name for Bob. Does bob_admin have write access to File Beta? Answer yes, no, or cannot tell.",
+        "original_answer": "cannot tell",
+        "new_answer": "no",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "hasReadAccessTo(Bob, file_beta).",
-          "Alias refers to Bob."
+          "Bob has read access to File Beta.",
+          "\"bob_admin\" is another name for Bob."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Proposed facts: hasReadAccessTo(TR8_near1_X, TR8_near1_Y) and hasExecuteAccessTo(TR8_near1_X, TR8_near1_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
-        "reference": "consistent"
+        "prompt": "User X has read access and execute access to File Y. Is that possible? Answer possible or impossible.",
+        "reference": "possible"
       },
       {
-        "prompt": "Proposed facts: hasWriteAccessTo(TR8_near2_X, TR8_near2_Y) and hasExecuteAccessTo(TR8_near2_X, TR8_near2_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
-        "reference": "consistent"
+        "prompt": "User X has write access and execute access to File Y. Is that possible? Answer possible or impossible.",
+        "reference": "possible"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Proposed facts: likesBook(TR8_far1_X, TR8_far1_Y) and ownsBook(TR8_far1_X, TR8_far1_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
-        "reference": "consistent"
+        "prompt": "Xavier likes a book and also owns it. Is that possible? Answer possible or impossible.",
+        "reference": "possible"
       },
       {
-        "prompt": "Proposed facts: playsSport(TR8_far2_X, TR8_far2_Y) and watchesSport(TR8_far2_X, TR8_far2_Y). Is this hypothetical configuration consistent or inconsistent with the relation rule?",
-        "reference": "consistent"
+        "prompt": "Xavier plays tennis and also watches tennis. Is that possible? Answer possible or impossible.",
+        "reference": "possible"
       }
     ]
   },

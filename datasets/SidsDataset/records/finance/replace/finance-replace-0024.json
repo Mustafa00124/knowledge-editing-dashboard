@@ -13,31 +13,31 @@
   "temporal": null,
   "relation": "isCounterpartyTo",
   "edit": {
-    "statement": "A reverse counterparty edge is no longer implied by one edge alone.",
+    "statement": "If one party is a counterparty to another, the second party is not automatically a counterparty to the first.",
     "subject": "isCounterpartyTo",
-    "original": "Every counterparty edge implies its reverse.",
-    "scope": "Parties to a bilateral transaction, interpreted as a relation between the two parties."
+    "original": "Being counterparties is mutual: if one party is a counterparty to another in a trade, the second is also a counterparty to the first.",
+    "scope": "The two parties to a bilateral transaction."
   },
   "queries": {
     "direct": {
-      "prompt": "Does isCounterpartyTo(x,y) automatically imply isCounterpartyTo(y,x)?",
+      "prompt": "If one company is a counterparty to another in a trade, is the second company automatically a counterparty to the first?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "paraphrase": {
-      "prompt": "Is the reverse isCounterpartyTo edge still licensed from one forward edge alone?",
+      "prompt": "Cedar Ltd is a counterparty to North Bank in a swap. Does that by itself make North Bank a counterparty to Cedar Ltd?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "仅有isCounterpartyTo(x,y)时，是否仍自动蕴含isCounterpartyTo(y,x)？",
+        "prompt": "如果一家公司在一笔交易中是另一家公司的交易对手，那么第二家公司是否自动也是第一家公司的交易对手？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "¿isCounterpartyTo(x,y), por sí sola, sigue implicando automáticamente isCounterpartyTo(y,x)?",
+        "prompt": "Si una empresa es contraparte de otra en una operación, ¿es la segunda automáticamente contraparte de la primera?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,70 +45,70 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: isCounterpartyTo(Cedar Ltd, North Bank). Is isCounterpartyTo(North Bank, Cedar Ltd) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Cedar Ltd is a counterparty to North Bank. Is North Bank a counterparty to Cedar Ltd? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isCounterpartyTo(Cedar Ltd, North Bank)."
+          "Cedar Ltd is a counterparty to North Bank."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isCounterpartyTo(Maple Ltd, South Bank). Is isCounterpartyTo(South Bank, Maple Ltd) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Maple Ltd is a counterparty to South Bank. Is South Bank a counterparty to Maple Ltd? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isCounterpartyTo(Maple Ltd, South Bank)."
+          "Maple Ltd is a counterparty to South Bank."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isCounterpartyTo(Cedar Ltd, North Bank); Alias refers to North Bank. Is isCounterpartyTo(Alias, Cedar Ltd) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Cedar Ltd is a counterparty to North Bank. Northgate Finance is another name for North Bank. Is Northgate Finance a counterparty to Cedar Ltd? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "isCounterpartyTo(Cedar Ltd, North Bank).",
-          "Alias refers to North Bank."
+          "Cedar Ltd is a counterparty to North Bank.",
+          "Northgate Finance is another name for North Bank."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isCounterpartyTo(Cedar Ltd, North Bank); isCounterpartyTo(Maple Ltd, South Bank). Is isCounterpartyTo(South Bank, Maple Ltd) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Cedar Ltd is a counterparty to North Bank. Maple Ltd is a counterparty to South Bank. Is South Bank a counterparty to Maple Ltd? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "isCounterpartyTo(Cedar Ltd, North Bank).",
-          "isCounterpartyTo(Maple Ltd, South Bank)."
+          "Cedar Ltd is a counterparty to North Bank.",
+          "Maple Ltd is a counterparty to South Bank."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: owesTo(FR4_near1_X, FR4_near1_Y). Is owesTo(FR4_near1_Y, FR4_near1_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Pine Ltd owes money to Birch Ltd. Does Birch Ltd owe money to Pine Ltd? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: makesPaymentTo(FR4_near2_X, FR4_near2_Y). Is makesPaymentTo(FR4_near2_Y, FR4_near2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Pine Ltd makes a payment to Birch Ltd. Does Birch Ltd make a payment to Pine Ltd? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: isParentOf(FR4_far1_X, FR4_far1_Y). Is isParentOf(FR4_far1_Y, FR4_far1_X) entailed, ruled out, or undetermined?",
-        "reference": "ruled out"
+        "prompt": "Maria is Tom's parent. Is Tom Maria's parent? Answer yes, no, or cannot tell.",
+        "reference": "no"
       },
       {
-        "prompt": "Facts: sendsLetterTo(FR4_far2_X, FR4_far2_Y). Is sendsLetterTo(FR4_far2_Y, FR4_far2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Priya sends a letter to Tom. Does Tom send a letter to Priya? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },

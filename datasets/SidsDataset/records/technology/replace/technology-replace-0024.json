@@ -13,31 +13,31 @@
   "temporal": null,
   "relation": "isDirectlyConnectedTo",
   "edit": {
-    "statement": "A reverse connection edge is no longer implied by one edge alone.",
+    "statement": "A direct connection can be one-sided: router A being directly connected to router B does not mean router B is directly connected to router A.",
     "subject": "isDirectlyConnectedTo",
-    "original": "Every direct-connection edge implies its reverse.",
-    "scope": "A direct undirected network link in the original benchmark topology."
+    "original": "Direct connections are mutual: if router A is directly connected to router B, then router B is directly connected to router A.",
+    "scope": "A direct link between two network devices, which works both ways in the original rule."
   },
   "queries": {
     "direct": {
-      "prompt": "Does isDirectlyConnectedTo(x,y) automatically imply isDirectlyConnectedTo(y,x)?",
+      "prompt": "Router A is directly connected to router B. Is router B directly connected to router A?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "paraphrase": {
-      "prompt": "Is the reverse isDirectlyConnectedTo edge still licensed from one forward edge alone?",
+      "prompt": "If one network device is directly connected to a second device, is the second device directly connected to the first?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "仅有isDirectlyConnectedTo(x,y)时，是否仍自动蕴含isDirectlyConnectedTo(y,x)？",
+        "prompt": "路由器A直接连接到路由器B。路由器B是否直接连接到路由器A？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": "否"
       },
       {
-        "prompt": "¿isDirectlyConnectedTo(x,y), por sí sola, sigue implicando automáticamente isDirectlyConnectedTo(y,x)?",
+        "prompt": "El router A está conectado directamente al router B. ¿Está el router B conectado directamente al router A?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -45,70 +45,70 @@
     ],
     "derived": [
       {
-        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta). Is isDirectlyConnectedTo(router_beta, router_alpha) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Router Alpha is directly connected to router Beta. Is router Beta directly connected to router Alpha? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isDirectlyConnectedTo(router_alpha, router_beta)."
+          "Router Alpha is directly connected to router Beta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isDirectlyConnectedTo(switch_gamma, server_delta). Is isDirectlyConnectedTo(server_delta, switch_gamma) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Switch Gamma is directly connected to server Delta. Is server Delta directly connected to switch Gamma? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "isDirectlyConnectedTo(switch_gamma, server_delta)."
+          "Switch Gamma is directly connected to server Delta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta); Alias refers to router_beta. Is isDirectlyConnectedTo(Alias, router_alpha) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Router Alpha is directly connected to router Beta. \"edge\" is another name for router Beta. Is the edge router directly connected to router Alpha? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "isDirectlyConnectedTo(router_alpha, router_beta).",
-          "Alias refers to router_beta."
+          "Router Alpha is directly connected to router Beta.",
+          "\"edge\" is another name for router Beta."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Facts: isDirectlyConnectedTo(router_alpha, router_beta); isDirectlyConnectedTo(switch_gamma, server_delta). Is isDirectlyConnectedTo(server_delta, switch_gamma) entailed, ruled out, or undetermined?",
-        "original_answer": "entailed",
-        "new_answer": "undetermined",
+        "prompt": "Router Alpha is directly connected to router Beta. Switch Gamma is directly connected to server Delta. Is server Delta directly connected to switch Gamma? Answer yes, no, or cannot tell.",
+        "original_answer": "yes",
+        "new_answer": "cannot tell",
         "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "isDirectlyConnectedTo(router_alpha, router_beta).",
-          "isDirectlyConnectedTo(switch_gamma, server_delta)."
+          "Router Alpha is directly connected to router Beta.",
+          "Switch Gamma is directly connected to server Delta."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Facts: sendsMessageTo(TR4_near1_X, TR4_near1_Y). Is sendsMessageTo(TR4_near1_Y, TR4_near1_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Service X sends a message to service Y. Does service Y send a message to service X? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       },
       {
-        "prompt": "Facts: directlyCalls(TR4_near2_X, TR4_near2_Y). Is directlyCalls(TR4_near2_Y, TR4_near2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Function X directly calls function Y. Does function Y directly call function X? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Facts: isParentOf(TR4_far1_X, TR4_far1_Y). Is isParentOf(TR4_far1_Y, TR4_far1_X) entailed, ruled out, or undetermined?",
-        "reference": "ruled out"
+        "prompt": "Xavier is Yara's parent. Is Yara Xavier's parent? Answer yes, no, or cannot tell.",
+        "reference": "no"
       },
       {
-        "prompt": "Facts: sendsLetterTo(TR4_far2_X, TR4_far2_Y). Is sendsLetterTo(TR4_far2_Y, TR4_far2_X) entailed, ruled out, or undetermined?",
-        "reference": "undetermined"
+        "prompt": "Xavier sends a letter to Yara. Does Yara send a letter to Xavier? Answer yes, no, or cannot tell.",
+        "reference": "cannot tell"
       }
     ]
   },
