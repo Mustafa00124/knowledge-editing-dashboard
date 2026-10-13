@@ -70,6 +70,15 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `twinned_with` | town a is twinned with town b | associative | `symmetric`, `cardinality:many` | Paris is twinned with Rome. |
 | `has_official_language` | country a has official language b | associative | `cardinality:many` | Switzerland has official language French. |
 | `largest_city_of` | a is the largest city of b | associative | `functional`, `inverse:has_largest_city` | Sydney is the largest city of Australia. |
+| `lantern_paired_with` | port city a is lantern-paired with port city b (fictional) | associative | `cardinality:many` | Lisbon is lantern-paired with Valparaíso. |
+| `corridor_linked_to` | city a is corridor-linked to city b (fictional) | associative | `cardinality:many` | Trieste is corridor-linked to Ljubljana. |
+| `patron_city_of` | city a is the patron city of town b (fictional) | associative | `cardinality:many` | Lyon is the patron city of Annecy. |
+| `has_beacon_city` | region a's beacon city is b (fictional) | associative | | Bavaria's beacon city is Augsburg. |
+| `harbour_sworn_to` | town a is harbour-sworn to place b (fictional) | associative | `cardinality:many` | Bergen is harbour-sworn to Kyoto. |
+| `riverward_neighbour_of` | town a is the riverward neighbour of town b (fictional) | associative | `cardinality:many` | Basel is the riverward neighbour of Strasbourg. |
+| `antipode_of` | place a is the antipode of place b | associative | `functional`, `symmetric` | Much of Spain is the antipode of New Zealand. |
+| `drains_into` | river a drains into body of water b | associative | `transitive`, `asymmetric`, `cardinality:many` | The Inn drains into the Danube. |
+| `enclave_within` | territory a is an enclave within state b | associative | `functional`, `asymmetric`, `inverse:completely_surrounds` | Lesotho is an enclave within South Africa. |
 
 ### People
 
@@ -94,6 +103,16 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `colleague_of` | a is a colleague of b | associative | `symmetric`, `cardinality:many` | Pierre Curie was a colleague of Marie Curie. |
 | `grandparent_of` | a is a grandparent of b | associative | `asymmetric`, `inverse:grandchild_of`, `cardinality:many` | Prince Philip is a grandparent of Prince William. |
 | `grandchild_of` | a is a grandchild of b | associative | `asymmetric`, `inverse:grandparent_of`, `cardinality:many` | Prince William is a grandchild of Prince Philip. |
+| `kestrel_bonded_to` | a is kestrel-bonded to b (invented; insert 0021 makes it symmetric) | associative | | Frida Kahlo is kestrel-bonded to Diego Rivera. |
+| `velmor_senior_to` | a is velmor-senior to b (invented; insert 0022 makes it transitive) | associative | | Isaac Newton is velmor-senior to Edmond Halley. |
+| `quill_mentor_of` | a is the quill-mentor of b (invented; insert 0023 gives it the inverse quill_ward_of) | associative | | Socrates is the quill-mentor of Plato. |
+| `hearth_keeper_of` | a is the hearth-keeper of b (invented; insert 0024 makes it inverse functional) | associative | | Ada Lovelace is the hearth-keeper of Charles Babbage. |
+| `ember_sworn_to` | a is ember-sworn to b (invented; insert 0025 makes it asymmetric) | associative | | Joan of Arc is ember-sworn to Charles VII. |
+| `grand_quill_of` | a is a grand-quill of b (invented; insert 0026 adds quill_mentor_of ∘ parent_of ⊑ grand_quill_of) | associative | | Joseph Haydn is a grand-quill of Wolfgang Amadeus Mozart. |
+| `shares_birthday_with` | a was born on the same day of the year as b | associative | `symmetric`, `transitive`, `cardinality:many` | Elvis Presley shares a birthday with David Bowie. |
+| `academic_grandparent_of` | a is the doctoral advisor of b's doctoral advisor | associative | `asymmetric`, `cardinality:many` | Arnold Sommerfeld is Edward Teller's academic grandparent. |
+| `shared_nobel_prize_with` | a shared a Nobel Prize with b | associative | `symmetric`, `cardinality:many` | James Watson shared a Nobel Prize with Francis Crick. |
+| `godparent_of` | a is a godparent of b | associative | `inverse:godchild_of`, `cardinality:many` | Elton John is a godparent of Sean Lennon. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -124,6 +143,16 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `appointed` | a appointed b (to an office) | associative | `asymmetric`, `cardinality:many` | Ferdinand appointed Torquemada Grand Inquisitor. |
 | `died_in` | person a died in place b | associative | `chain:located_in->died_in` | Napoleon died on Saint Helena. |
 | `located_in` | a is located in b | associative | `transitive`, `asymmetric`, `inverse:contains`, `cardinality:many` | Elba is in Italy. |
+| `swore_salt_bond_with` | state a swore a salt-bond (an invented pact) with state b | associative | `cardinality:many` | Venice swore a salt-bond with Genoa. |
+| `owed_hearth_tribute_to` | a owed hearth-tribute (an invented levy) to b | associative | `cardinality:many` | The Duchy of Brittany owed hearth-tribute to the County of Anjou. |
+| `shield_sworn_to` | person a was shield-sworn (an invented oath) to person b | associative | `cardinality:many` | Roland was shield-sworn to Charlemagne. |
+| `lamp_warden_of` | person a was the lamp-warden (an invented court office) of ruler b | associative | | Alcuin was the lamp-warden of Charlemagne. |
+| `exacted_hostage_tribute_from` | state a exacted hostage-tribute (an invented levy) from state b | associative | `cardinality:many` | Rome exacted hostage-tribute from Carthage. |
+| `held_guest_right_in` | person a held guest-right (an invented privilege) in state b | associative | `cardinality:many` | Guthrum held guest-right in Wessex. |
+| `co_ruled_with` | ruler a ruled a state jointly with ruler b | associative | `cardinality:many` | Marcus Aurelius co-ruled the Roman Empire with Lucius Verus. |
+| `vassal_of` | a is a vassal of lord b | associative | `asymmetric`, `inverse:liege_lord_of`, `cardinality:many` | The Count of Champagne was a vassal of the King of France. |
+| `patron_of` | a was the (Roman) patron of b | associative | `asymmetric`, `cardinality:many` | Cicero was the patron of Tiro. |
+| `rear_vassal_of` | a is a rear-vassal (arrière-vassal) of b: a vassal of one of b's vassals | associative | `cardinality:many` | A knight of the Count of Champagne was a rear-vassal of the King of France. |
 
 ### Finance
 
@@ -152,6 +181,16 @@ Includes the textbook economic laws as causal TBox rules.
 | `canSettleIn` | account a can settle in currency b | associative | `cardinality:many` | Account Cedar can settle in USD. |
 | `ownsAccount` | person a owns account b | associative | `cardinality:many`, `chain:accountHeldAt->hasAccountAt` | Alice owns Account Cedar. |
 | `isCreditorOf` | a is a creditor of b | associative | `inverse:isDebtorOf`, `cardinality:many` | North Bank is a creditor of Cedar Ltd. |
+| `hasClearingPriorityOver` | bank a has clearing priority over bank b (invented) | associative | `cardinality:many` | JPMorgan Chase has clearing priority over Barclays. |
+| `isMirrorBankOf` | bank a is a mirror bank of bank b (invented) | associative | `cardinality:many` | Deutsche Bank is a mirror bank of BNP Paribas. |
+| `isKeelLenderTo` | a is a keel lender to b (invented) | associative | `cardinality:many` | Wells Fargo is a keel lender to Ford. |
+| `hasAnchorCustodian` | fund a has anchor custodian b (invented) | associative | `cardinality:many` | The Vanguard 500 Index Fund has State Street as its anchor custodian. |
+| `isAnchoredAt` | fund a is anchored at bank b (invented) | associative | `cardinality:many` | The Kestrel Growth Fund is anchored at Barclays. |
+| `isWardenOf` | firm a is the warden of fund b (invented) | associative | `cardinality:many` | BlackRock is the warden of the Kestrel Growth Fund. |
+| `ranksPariPassuWith` | debt a ranks pari passu (equally) with debt b | associative | `cardinality:many` | Ford's 2030 senior notes rank pari passu with its 2032 senior notes. |
+| `ranksSeniorTo` | claim a ranks senior to claim b on the same issuer | associative | `asymmetric`, `cardinality:many` | Senior secured debt ranks senior to subordinated debt. |
+| `isDraweeOf` | bank a is the drawee of cheque b | associative | `cardinality:many` | Chase Bank is the drawee of cheque number 1047. |
+| `hasISIN` | security a has ISIN b | associative | `functional` | Apple's common stock has ISIN US0378331005. |
 
 ### Biology
 
@@ -181,6 +220,16 @@ Includes medicine: diseases, drugs, treatments.
 | `parasite_of` | a is a parasite of b | associative | `asymmetric`, `inverse:host_of`, `cardinality:many` | Ticks are parasites of deer. |
 | `adjacent_to` | a is adjacent to b | associative | `symmetric`, `cardinality:many` | The adrenal gland is adjacent to the kidney. |
 | `located_in` | a is located in b | associative | `transitive`, `asymmetric`, `inverse:contains`, `cardinality:many` | The heart is located in the thorax. |
+| `velk_bonds_with` | a velk-bonds with b (invented relation) | associative | `cardinality:many` | Clownfish velk-bond with sea anemones. |
+| `thrennates` | a thrennates b (invented relation) | associative | `cardinality:many` | Wolves thrennate elk. |
+| `drovane_of` | a is a drovane of b (invented relation) | associative | `cardinality:many` | The gall wasp is a drovane of the oak. |
+| `has_korrin_host` | a's korrin-host is b (invented relation) | associative | | The common cuckoo's korrin-host is the reed warbler. |
+| `outgrazes` | a outgrazes b (invented relation) | associative | `cardinality:many` | Cattle outgraze sheep. |
+| `thessed_to` | a is thessed to b (invented relation) | associative | `cardinality:many` | The remora is thessed to the whale shark. |
+| `sister_group_of` | clade a is the sister group of clade b | associative | | Birds are the sister group of crocodilians. |
+| `has_mt_haplogroup` | person a has mitochondrial DNA haplogroup b | associative | | Richard III had mitochondrial haplogroup J1c2c. |
+| `gives_rise_to` | cell type a gives rise to cell type b in a developmental lineage | associative | `cardinality:many` | Neural crest cells give rise to melanoblasts. |
+| `has_type_species` | genus a has type species b | associative | | The genus Panthera has type species Panthera pardus. |
 
 ### Physics
 
@@ -204,6 +253,16 @@ Includes medicine: diseases, drugs, treatments.
 | `attracts` | a gravitationally attracts b | associative | `symmetric`, `cardinality:many` | The Earth gravitationally attracts the Moon. |
 | `made_of` | a is made of constituents of kind b | associative | `cardinality:many` | A proton is made of quarks. |
 | `instance_of` | object a is a member of class b | associative | `cardinality:many`, `chain:subclass_of->instance_of` | The electron is a lepton. |
+| `kessel_coupled_to` | detector a is kessel-coupled to detector b (invented) | associative | | The ATLAS detector is kessel-coupled to the CMS detector. (insert 0021 adds transitive) |
+| `tessel_paired_with` | particle a is tessel-paired with particle b (invented) | associative | | The electron is tessel-paired with the muon. (insert 0022 adds symmetric) |
+| `varn_feeds` | body a varn-feeds body b (invented) | associative | | The Sun varn-feeds the Earth. (insert 0023 adds inverse:draws_varn_from) |
+| `keth_anchor_of` | body a is the keth anchor of body b (invented) | associative | | Jupiter is the keth anchor of Europa. (insert 0024 adds inverse functional) |
+| `outshields` | material a outshields material b (invented) | associative | | Lead outshields aluminium. (insert 0025 adds asymmetric) |
+| `vel_bound_to` | body a is vel-bound to body b (invented) | associative | | Titan is vel-bound to Saturn. (insert 0026 adds subproperty:orbits) |
+| `isotone_of` | nuclide a has the same neutron number as nuclide b | associative | `symmetric`, `transitive`, `cardinality:many` | Carbon-13 is an isotone of nitrogen-14. |
+| `mirror_nucleus_of` | nucleus a has the proton and neutron numbers of nucleus b swapped | associative | `symmetric`, `functional` | Helium-3 is the mirror nucleus of tritium. |
+| `antiparticle_of` | particle a is the antiparticle of particle b | associative | `symmetric`, `functional` | The positron is the antiparticle of the electron. |
+| `isotope_of` | nuclide a has the same atomic number as nuclide b | associative | `symmetric`, `transitive`, `chain:nuclide_of->nuclide_of`, `cardinality:many` | Deuterium is an isotope of protium. |
 
 ### Mathematics
 
@@ -232,6 +291,18 @@ mathematics (events) and causal rules about mathematical objects.
 | `cause_of_death` | a's death was caused by b | causal | `causal`, `functional` | Évariste Galois died of a wound from a duel. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Doubling a square's side length quadruples its area. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Compounding interest more often raises the final amount. |
+| `lattice_partner_of` | a is a lattice partner of b (invented relation) | associative | | 12 is a lattice partner of 25. |
+| `halden_successor_of` | a is a Halden successor of b (invented relation) | associative | | 9 is a Halden successor of 4. |
+| `shadows` | number or shape a shadows b (invented relation) | associative | | 7 shadows 49. |
+| `has_kessler_root` | number a has Kessler root b (invented relation) | associative | | 50 has Kessler root 5. |
+| `step_divisor_of` | a is a step-divisor of b (invented relation) | associative | | 3 is a step-divisor of 6. |
+| `eclipses` | number or shape a eclipses b (invented relation) | associative | | 9 eclipses 4. |
+| `minor_of` | graph a is a minor of graph b | associative | `transitive`, `cardinality:many` | K5 is a minor of the complete graph K6. |
+| `dual_of` | polyhedron a is the dual polyhedron of b | associative | `symmetric`, `functional` | The octahedron is the dual of the cube. |
+| `subgroup_of` | group a is a subgroup of group b | associative | `transitive`, `inverse:overgroup_of`, `cardinality:many` | A4 is a subgroup of S4. |
+| `characteristic_subgroup_of` | group a is a characteristic subgroup of group b | associative | `transitive`, `chain:normal_subgroup_of->normal_subgroup_of` | The Klein four-group is a characteristic subgroup of A4. |
+| `leap_divisor_of` | a is a leap-divisor of b (invented relation) | associative | | 3 is a leap-divisor of 12. |
+| `normal_subgroup_of` | group a is a normal subgroup of group b | associative | `cardinality:many` | A4 is a normal subgroup of S4. |
 
 ### Grammar
 
@@ -260,6 +331,16 @@ language (events) and causal rules about how languages and words change.
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Long language contact raises word borrowing. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Creolisation lowers the amount of inflection. |
 | `produces` | combining or treating a produces result b | causal | `causal`, `asymmetric`, `functional`, `inverse:produced_by` | Adding "-ness" to an adjective produces a noun. |
+| `twin_word_of` | in the invented Harwick lexicon, word a is a twin word of word b | associative | `cardinality:many` | In the Harwick lexicon, 'bread' is a twin word of 'butter'. |
+| `feeder_word_of` | in invented Veshari lexicography, word a is a feeder word of word b | associative | `cardinality:many` | 'Kesh' is a feeder word of 'keshul'. |
+| `keel_of` | in invented Harwick grammar, word a is the keel of word b | associative | `cardinality:many` | In Harwick grammar, 'run' is the keel of 'runner'. |
+| `has_harwick_stem` | in the invented Harwick lexicon, word a has the Harwick stem b | associative | | 'Unhappy' has the Harwick stem 'happy'. |
+| `loan_parent_of` | in invented Veshari lexicography, word a is a loan-parent of word b | associative | `cardinality:many` | Latin 'fenestra' is a loan-parent of German 'Fenster'. |
+| `harwick_head_of` | in invented Harwick grammar, word a is the Harwick head of word b | associative | `cardinality:many` | 'Dog' is the Harwick head of 'dogs'. |
+| `doublet_of` | word a is an etymological doublet of word b | associative | `cardinality:many` | 'Shirt' is an etymological doublet of 'skirt'. |
+| `homophone_of` | word a is a homophone of word b | associative | `cardinality:many` | 'Their' is a homophone of 'there'. |
+| `meronym_of` | word a names a part of what word b names | associative | `cardinality:many` | 'Wheel' is a meronym of 'car'. |
+| `minimal_pair_with` | word a forms a minimal pair with word b | associative | `cardinality:many` | 'Pat' forms a minimal pair with 'bat'. |
 
 ### Literature and arts
 
@@ -290,6 +371,16 @@ language (events) and causal rules about how languages and words change.
 | `illustrated` | person a illustrated work b | associative | `inverse:illustrated_by`, `cardinality:many` | Sir John Tenniel illustrated Alice's Adventures in Wonderland. |
 | `painted_in` | painting a was painted in place b | associative | `functional`, `chain:located_in->painted_in` | The Night Watch was painted in Amsterdam. |
 | `on_display_in` | artwork a is on display in place b | associative | `chain:located_in->on_display_in`, `cardinality:many` | The Mona Lisa is on display in Paris. |
+| `wellspring_of` | work a is a wellspring of work b (invented) | associative | | The novel Saltmarsh Hymn is a wellspring of the play The Copper Tide. (0021 inserts transitive) |
+| `mirror_piece_of` | artwork a is a mirror-piece of artwork b (invented) | associative | | Vermeer's The Milkmaid is a mirror-piece of Chardin's The Young Schoolmistress. (0022 inserts symmetric) |
+| `lantern_of` | work a is the lantern of work b (invented) | associative | | The sonata Grey Harbour is the lantern of the song cycle Nine Winters. (0023 inserts inverse:keeper_of) |
+| `has_tidemark` | work a has work b as its tidemark (invented) | associative | | The novel Quiet Ferries has the poem Lowland Bells as its tidemark. (0024 inserts functional) |
+| `outshadows` | work a outshadows work b (invented) | associative | | The opera Glass Meridian outshadows the ballet Copper Lark. (0025 inserts asymmetric) |
+| `vellum_partner_of` | artist a is a vellum-partner of artist b (invented) | associative | | Mira Hale is a vellum-partner of Tomas Ader. (0026 inserts subproperty:collaborated_with) |
+| `enharmonic_of` | note or key a is enharmonically equivalent to b | associative | | C sharp is enharmonically equivalent to D flat. (0027 inserts symmetric) |
+| `relative_minor_of` | key a is the relative minor of key b | associative | | A minor is the relative minor of C major. (0028 inserts inverse:relative_major_of) |
+| `premiered_at` | work a had its world premiere at venue b | associative | | The Rite of Spring had its world premiere at the Théâtre des Champs-Élysées. (0029 inserts functional) |
+| `dominant_of` | note a is the dominant of note b | associative | | G is the dominant of C. (0030 inserts chain:dominant_of->supertonic_of) |
 
 ### Technology
 
@@ -320,6 +411,16 @@ market share), since replace needs an original every model holds as true.
 | `directlyImportsModule` | application a directly imports module b | associative | `chain:moduleProvidedByPackage->dependsOnPackage`, `cardinality:many` | application_alpha directly imports module_beta. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Added queuing raises request latency. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | A valid cache hit lowers compute cost. |
+| `isSkarnPairedWith` | package a is Skarn-paired with package b (invented registry) | associative | `cardinality:many` | NumPy is Skarn-paired with SciPy. |
+| `haldenVouchesFor` | project a Halden-vouches for project b (invented trust model) | associative | `cardinality:many` | Debian Halden-vouches for Ubuntu. |
+| `corvelAnchors` | package a anchors package b (invented build system) | associative | `cardinality:many` | NumPy anchors pandas. |
+| `hasVesselSlot` | container a has Vessel slot b (invented scheduler) | associative | `cardinality:many` | The Redis container has Vessel slot 3. |
+| `tarnPinnedTo` | service a is pinned to node b (invented deployment system) | associative | `cardinality:many` | The PostgreSQL service is pinned to node n4. |
+| `briskCanStage` | user a can stage repository b (invented access model) | associative | `cardinality:many` | Alice can stage kubernetes/kubernetes. |
+| `isSubdomainOf` | DNS name a is a subdomain of DNS name b | associative | `asymmetric` | cs.stanford.edu is a subdomain of stanford.edu. |
+| `hasPrimaryKey` | relational table a has primary key b | associative | | The table orders has primary key order_id. |
+| `isBgpPeerOf` | router or autonomous system a is a BGP peer of b | associative | `cardinality:many` | AS 13335 is a BGP peer of AS 15169. |
+| `isCnameAliasOf` | DNS name a is a CNAME alias of canonical name b | associative | `functional` | www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. |
 
 ## RBox items
 

@@ -446,8 +446,7 @@ baseline.
 Locality queries use a second prompt with the same rules. It compares the
 post-edit response with the model's own pre-edit response and labels them
 `SAME`, `DIFFERENT` or `UNCLEAR`. Truth is again ignored, and both responses
-declining to answer counts as `SAME`. Insert is specified but not exercised
-until records for it exist.
+declining to answer counts as `SAME`.
 
 ## Records
 
@@ -628,6 +627,29 @@ Queries marked `discriminates: false` keep the flag: their answer did not
 depend on the replaced fact. Edit the script and rerun it rather than editing
 the delete records by hand.
 
+### Insert records
+
+`records/<topic>/insert/` holds 30 items per topic (300 in all), in the same
+order as replace: `0001`-`0005` ABox associative, `0006`-`0010` ABox causal,
+`0011`-`0015` TBox associative, `0016`-`0020` TBox causal, `0021`-`0030` RBox.
+Fictional and real items come 3 to 2 in every cell: the first three of each
+five are `fictional` and the last two `real` (RBox: `0021`-`0026` fictional,
+`0027`-`0030` real), 180 fictional and 120 real in all.
+
+- **Fictional** items mix invented subjects (Velmora-style places, invented
+  species, languages, firms, particles) with empty slots of well-known real
+  ones (the IMF's mascot, the name of Lincoln's pocket watch), and never
+  contradict a real value. Invented classes have no well-known member, so
+  their inheritance queries state the member in the prompt.
+- **Real** items are true facts a model may well lack: obscure but
+  documented ones (Lake Sarez's 1911 landslide dam, the ghost word "dord")
+  and events from late 2024 to 2025 (Pope Leo XIV, the 2025 Booker Prize).
+  Each record's notes give its source; they were checked by web search when
+  written. The model audit decides per model which ones are really unknown.
+- **RBox** items add a property to a relation: an invented relation for the
+  fictional ones, a real but rarely stated property for the real ones. Their
+  relations are catalogued in `RELATIONS.md` under each topic.
+
 ## Parked from the previous version
 
 The earlier axis scheme had dimensions this version leaves out to keep the
@@ -647,11 +669,11 @@ benchmark buildable. They may come back as separate subsets:
 
 ## Size goal
 
-Around 150 taxonomy cells: 10 topics × 3 operations × 5 knowledge forms (3 DL
-boxes, with the 2 relation semantics under ABox and TBox only). The goal is 5
-edits per cell, so 750 edits. ABox and TBox edits carry 12 queries and RBox
-edits 7, so 600 × 12 + 150 × 7 gives a goal of **8,250 queries**. Cells that don't exist naturally (causal mathematics, causal
-grammar) bring the real total somewhat below that.
+150 taxonomy cells: 10 topics × 3 operations × 5 knowledge forms (3 DL
+boxes, with the 2 relation semantics under ABox and TBox only). Every cell has
+5 edits and RBox has 10, so each topic holds 30 edits per operation: 900 edits
+in all (300 each of insert, replace and delete). ABox and TBox edits carry 12
+queries and RBox edits 7, so 600 × 12 + 300 × 7 gives **9,300 queries**.
 
 ## Dashboard
 
