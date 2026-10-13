@@ -13,6 +13,7 @@ import {
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
 import DerivationModal, { hasChain } from './DerivationModal.jsx'
+import DatasetSummary from './DatasetSummary.jsx'
 
 // Browses the records under the categorization: edit operation, then the
 // knowledge form layers (topic, box, and relation semantics where the box has
@@ -189,6 +190,29 @@ function RecordCard({ rec, onChain }) {
   )
 }
 
+// Queries a record carries (12 for ABox/TBox, 7 for RBox), counted rather
+// than assumed so a malformed record shows up in the total.
+function queryCount(rec) {
+  return Object.values(rec.queries || {}).reduce((n, q) => n + (Array.isArray(q) ? q.length : q ? 1 : 0), 0)
+}
+
+// The whole-dataset block other benchmarks show, built from the records:
+// totals, then records per edit operation (insert split by reality).
+function sidsBreakdown(records) {
+  const categories = EDIT_OPERATIONS.map(({ key, label }) => {
+    const rs = records.filter((r) => r.edit_operation === key)
+    const fictional = rs.filter((r) => r.reality === 'fictional').length
+    const real = rs.filter((r) => r.reality === 'real').length
+    return { name: label, records: rs.length, note: fictional + real ? `${fictional} fictional, ${real} real` : '' }
+  })
+  return {
+    records: records.length,
+    unit: `records across ${EDIT_OPERATIONS.length} edit operations`,
+    extra: [{ value: records.reduce((n, r) => n + queryCount(r), 0), label: 'queries' }],
+    categories,
+  }
+}
+
 export default function SidsDatasetBrowser() {
   const [records, setRecords] = useState(null)
   const [relations, setRelations] = useState({})
@@ -242,6 +266,7 @@ export default function SidsDatasetBrowser() {
 
   return (
     <div className="sids-browser">
+      {records && <DatasetSummary benchmark="SidsDataset" breakdown={sidsBreakdown(records)} />}
       <p className="sids-group-label">Edit operation <span>{records ? `${records.length} records in all` : ''}</span></p>
       <TabRow label="Edit operation" values={EDIT_OPERATIONS} selected={coordinate.edit_operation} onSelect={set('edit_operation')} counts={counts('edit_operation')} />
 

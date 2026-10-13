@@ -21,8 +21,10 @@ const formatCount = (n) => n.toLocaleString()
 // files endpoint (cheap, just stat()s each file), record counts come
 // from each subset's own `recordCount` in datasetCatalog.js (baked in
 // rather than parsed live - UniEdit alone is ~774MB, ~80s to fully parse
-// for a count, not something to redo on every page visit).
-export default function DatasetSummary({ benchmark, subsets }) {
+// for a count, not something to redo on every page visit). A benchmark
+// without subsets (Sid's Dataset) passes its own `breakdown` instead:
+// { records, unit, extra: [{ value, label }], categories: [{ name, records, note }] }.
+export default function DatasetSummary({ benchmark, subsets = [], breakdown }) {
   const [sizeBytes, setSizeBytes] = useState(null)
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function DatasetSummary({ benchmark, subsets }) {
       .catch(() => setSizeBytes(undefined))
   }, [benchmark])
 
-  const totalRecords = subsets.reduce((sum, s) => sum + (s.recordCount || 0), 0)
+  const totalRecords = breakdown ? breakdown.records : subsets.reduce((sum, s) => sum + (s.recordCount || 0), 0)
 
   const byCategory = new Map()
   for (const s of subsets) {
@@ -43,6 +45,11 @@ export default function DatasetSummary({ benchmark, subsets }) {
     entry.records += s.recordCount || 0
     byCategory.set(cat, entry)
   }
+  const categories = breakdown
+    ? breakdown.categories
+    : [...byCategory.entries()].map(([name, { subsets: n, records }]) => ({
+        name, records, note: `${n} subset${n === 1 ? '' : 's'}`,
+      }))
 
   return (
     <div className="dataset-summary">
@@ -54,14 +61,20 @@ export default function DatasetSummary({ benchmark, subsets }) {
         <div className="dataset-summary-stat">
           <span className="dataset-summary-value">{formatCount(totalRecords)}</span>
           <span className="dataset-summary-label">
-            records across {subsets.length} subset{subsets.length === 1 ? '' : 's'}
+            {breakdown ? breakdown.unit : `records across ${subsets.length} subset${subsets.length === 1 ? '' : 's'}`}
           </span>
         </div>
+        {(breakdown?.extra || []).map((x) => (
+          <div key={x.label} className="dataset-summary-stat">
+            <span className="dataset-summary-value">{formatCount(x.value)}</span>
+            <span className="dataset-summary-label">{x.label}</span>
+          </div>
+        ))}
       </div>
       <div className="dataset-summary-categories">
-        {[...byCategory.entries()].map(([cat, { subsets: n, records }]) => (
-          <span key={cat} className="dataset-summary-category">
-            <strong>{cat}</strong>: {formatCount(records)} ({n} subset{n === 1 ? '' : 's'})
+        {categories.map(({ name, records, note }) => (
+          <span key={name} className="dataset-summary-category">
+            <strong>{name}</strong>: {formatCount(records)}{note ? ` (${note})` : ''}
           </span>
         ))}
       </div>
