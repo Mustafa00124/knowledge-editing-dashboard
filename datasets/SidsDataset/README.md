@@ -34,7 +34,7 @@ Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 7
 
 | Key | What it does | Expected answer afterwards |
 | --- | --- | --- |
-| `insert` | Adds knowledge the model does not hold. | The new answer. |
+| `insert` | Adds knowledge the model does not hold: a real fact it doesn't know, or a fictional one (see [Reality](#reality)). | The new answer. |
 | `replace` | Swaps held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
 | `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
 
@@ -348,6 +348,24 @@ rules and relation properties aren't events.
 | `event` | Happened at a point in time. | Marie Curie discovered radium in 1898. |
 | `timeless` | Not tied to a moment: facts that are always true, and standing states that hold over a period. | 7 is prime. Paris is the capital of France. |
 
+### Reality
+
+Whether an inserted fact is true in the world. Insert only; left out for
+replace and delete, which always edit a real fact.
+
+| Value | What it is | Pre-edit audit | Example |
+| --- | --- | --- | --- |
+| `real` | A true fact the model may not hold: obscure, or newer than its training data. | Asked: the item is kept for a model only if it does not already give the new answer. | The 2024 Abel Prize went to Michel Talagrand. |
+| `fictional` | A made-up fact, about an invented subject or an empty slot of a real one. No model can hold it. | Not asked: the item is not held by construction. Its checks (the real facts its derived queries rely on) are still asked. | Velmora is the capital of Kestria. The Louvre's official mascot is a cat named Mona. |
+
+A fictional fact must contradict nothing true: if the slot already has a real
+value (the Louvre's director), the edit is a replace, not an insert. Derived
+queries of a fictional insert reach real knowledge only through bridge facts
+the model holds or that the prompt states, so their chains can be checked.
+The other tags apply as usual, except that insert has no original fact:
+`familiarity.fact` and `derivability` are null. An invented subject is
+`very_low` familiarity; a real subject keeps its own.
+
 ## Evaluation
 
 We use our own evaluation functions rather than EasyEdit's, because delete
@@ -416,7 +434,7 @@ The label is turned into a score by a fixed table:
 | Stage | Operation | Pass when the label is |
 | --- | --- | --- |
 | model audit (pre-edit) | `replace`, `delete` | `ORIGINAL` |
-| model audit (pre-edit) | `insert` | `NONE` or `OTHER` (the new fact is not already known) |
+| model audit (pre-edit) | `insert` (`real`) | `NONE` or `OTHER` (the new fact is not already known); `fictional` inserts aren't asked |
 
 In the model audit the judge is shown only the answer that row needs: the
 original answer for replace and delete, the new answer for insert. Locality
@@ -500,6 +518,7 @@ rejected, so typos don't silently drop data.
 | `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `temporal` | `event` \| `timeless` \| null | set for `abox`, null otherwise; a tag, not a layer |
+| `reality` | `real` \| `fictional` | insert only, and required there; left out otherwise |
 | `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge facts not stated in a prompt), with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
 | `notes` | string, optional | |
 | `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |

@@ -139,6 +139,7 @@ function RecordCard({ rec, onChain }) {
         )}
         {rec.temporal && <Chip kind="temporal" label="Temporal">{labelOf(TEMPORAL, rec.temporal)}</Chip>}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
+        {rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
       </div>
       {open && (
         <div className="sids-record-body">

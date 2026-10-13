@@ -55,5 +55,19 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(got["derived_supported"]["unclear"], 1)
 
 
+class FictionalInsertTests(unittest.TestCase):
+    def test_fictional_insert_counted_apart(self):
+        real = {"id": "geography-insert-0001", "topic": "geography", "box": "abox", "edit_operation": "insert",
+                "reality": "real", "edit": {}, "queries": {}}
+        made_up = dict(real, id="geography-insert-0002", reality="fictional")
+        self.assertFalse(audit.is_fictional(real))
+        self.assertTrue(audit.is_fictional(made_up))
+        rows = [{"record_id": "geography-insert-0001", "query_type": q, "judged": True, "score": 1, "label": "NONE",
+                 "fixture": False, "topic": "geography", "box": "abox", "edit_operation": "insert", "language": "en"}
+                for q in ("direct", "paraphrase")]
+        got = audit.summarise(rows, [real, made_up])
+        self.assertEqual((got["facts_total"], got["fictional"]), (1, 1))
+
+
 if __name__ == "__main__":
     unittest.main()

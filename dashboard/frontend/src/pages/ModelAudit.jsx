@@ -55,8 +55,11 @@ function Detail({ run }) {
   const s = data.summary
   const byRecord = {}
   for (const r of data.responses) (byRecord[r.record_id] ??= []).push(r)
+  // Fixtures and fictional inserts are set apart: no model can hold them.
+  const apart = (f) => f.fixture || f.fictional
   const facts = s.facts.filter((f) =>
-    show === 'all' ? true : show === 'fixtures' ? f.fixture : show === 'unknown' ? !f.fixture && f.known !== 1 : !f.fixture && f.known === 1)
+    show === 'all' ? true : show === 'fixtures' ? f.fixture : show === 'fictional' ? f.fictional
+      : show === 'unknown' ? !apart(f) && f.known !== 1 : !apart(f) && f.known === 1)
 
   return (
     <div className="audit-detail">
@@ -79,12 +82,17 @@ function Detail({ run }) {
           { value: 'unknown', label: `Not known (${s.facts_total - s.facts_known})` },
           { value: 'known', label: `Known (${s.facts_known})` },
           { value: 'fixtures', label: `Fixtures (${s.fixtures})` },
+          ...(s.fictional ? [{ value: 'fictional', label: `Fictional inserts (${s.fictional})` }] : []),
           { value: 'all', label: 'All' },
         ]} />
       </div>
       {show === 'fixtures' && (
         <p className="hp-intro">Fixtures are constructed facts (named loans, hypothetical events) no model can know; their original
           is loaded into the model before the edit, so failing here is expected.</p>
+      )}
+      {show === 'fictional' && (
+        <p className="hp-intro">Fictional inserts are made-up facts no model can hold, so their queries aren't asked here;
+          only the real facts their derived queries rely on are checked.</p>
       )}
       {!facts.length && <p className="empty">None.</p>}
       {facts.map((f) => {

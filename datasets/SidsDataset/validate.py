@@ -66,8 +66,11 @@ RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'derived': 2,
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
                'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source',
-               'checks'}
-OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks'}
+               'checks', 'reality'}
+OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality'}
+# Insert only: is the new fact true in the world (real, so a model may already
+# hold it and the audit asks), or made up (fictional, so no model can)?
+REALITY = ('real', 'fictional')
 # A check turns one fact the model must already hold (a premise, or a bridge
 # fact not stated in the prompt) into a question with a short answer, so the
 # model audit can ask it before editing.
@@ -227,6 +230,13 @@ def check_record(rec, path, relations):
             err(f'derivability {deriv!r} not one of {DERIVABILITY}')
     elif deriv is not None:
         err('derivability must be null for ' + ('insert' if op == 'insert' else 'rbox'))
+    # Tag, insert only: replace and delete always edit a real fact.
+    reality = rec.get('reality')
+    if op == 'insert':
+        if reality not in REALITY:
+            err(f'reality {reality!r} not one of {REALITY} (required for insert)')
+    elif reality is not None:
+        err('reality is only for insert: replace and delete edit a real fact')
     # Tag, ABox facts only: rules and relation properties aren't events.
     temporal = rec['temporal']
     if box == 'abox':

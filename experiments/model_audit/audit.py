@@ -5,7 +5,10 @@ For one model, every query of every record is asked as a free-form question
 line break; chat models: their chat template). The model is then unloaded and
 the SID judge (experiments/sid_eval/judge.py) labels each answer. Pre-edit
 pass rules: replace/delete queries pass when the model gives original_answer,
-insert queries pass when it does not already give new_answer. A fact counts as
+insert queries pass when it does not already give new_answer. Fictional
+inserts (reality: fictional) are made up, so no model can hold them: their
+queries are not asked, only their checks, and they are counted apart like
+fixtures. A fact counts as
 known when its direct and paraphrase queries both pass (RBox: direct and both
 instance questions). The judge is shown
 only the answer the pass rule needs (original_answer for replace/delete,
@@ -107,6 +110,11 @@ def check_rows(records, relation_checks, relations):
 
 def is_check(row):
     return row["query_type"].startswith("check_")
+
+
+def is_fictional(rec):
+    """A made-up insert: not held by any model, so its own queries aren't asked."""
+    return rec["edit_operation"] == "insert" and rec.get("reality") == "fictional"
 
 
 def summarise_checks(rows, records, relations):
@@ -232,15 +240,16 @@ def summarise(rows, records):
         known = None if None in scores or len(scores) < need else int(all(scores))
         facts.append({"record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
                       "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
-                      "known": known,
+                      "fictional": is_fictional(rec), "known": known,
                       "queries_passed": sum(r["score"] or 0 for r in judged if r["record_id"] == rec["id"]),
                       "queries_scored": sum(r["score"] is not None for r in judged if r["record_id"] == rec["id"])})
-    real = [f for f in facts if not f["fixture"]]
+    real = [f for f in facts if not f["fixture"] and not f["fictional"]]
     return {
         "facts_known": sum(f["known"] == 1 for f in real),
         "facts_total": len(real),
         "facts_unclear": sum(f["known"] is None for f in real),
-        "fixtures": len(facts) - len(real),
+        "fixtures": sum(f["fixture"] for f in facts),
+        "fictional": sum(f["fictional"] for f in facts),
         "queries": tally([r for r in judged if not r["fixture"]]),
         "by": {k: {v: tally(rs) for v, rs in sorted(groups.items())} for k, groups in by.items()},
         "facts": facts,
@@ -269,6 +278,8 @@ def main():
     records = load_records(args.records, topics)
     rows = []
     for rec in records:
+        if is_fictional(rec):
+            continue
         for qtype, lang, q in queries(rec):
             answer = candidate(rec["edit_operation"], q)
             if answer is None:
