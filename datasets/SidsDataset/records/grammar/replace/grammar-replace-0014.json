@@ -2,78 +2,115 @@
   "id": "grammar-replace-0014",
   "edit_operation": "replace",
   "topic": "grammar",
-  "box": "rbox",
-  "relation_semantics": null,
-  "derivability": null,
+  "box": "tbox",
+  "relation_semantics": "associative",
+  "derivability": "very_unlikely",
   "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": null
+    "fact": "high",
+    "subject": "high",
+    "object": "high"
   },
   "temporal": null,
-  "relation": "synonym_of",
+  "relation": "takes_complement",
   "edit": {
-    "statement": "'Is a synonym of' is not symmetric.",
-    "subject": "synonym_of",
-    "original": "'Is a synonym of' is symmetric.",
-    "scope": "Whether a synonym pair between English words holds in both directions."
+    "statement": "Every English modal verb is followed by a to-infinitive, as in 'must to go'.",
+    "subject": "English modal verbs",
+    "object": "to-infinitive",
+    "old_object": "bare infinitive",
+    "axiom": "ModalVerb_en ⊑ ∃takes_complement.ToInfinitive",
+    "original": "Every English modal verb is followed by a bare infinitive without 'to', as in 'must go'."
   },
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is a synonym of' symmetric?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "Is an English modal verb followed by a bare infinitive or a to-infinitive?",
+      "original_answer": "bare infinitive",
+      "new_answer": "to-infinitive"
+    },
+    "paraphrase": {
+      "prompt": "After a modal verb such as 'must' or 'should', does the next verb take 'to' or not?",
+      "original_answer": "without 'to'",
+      "new_answer": "with 'to'"
     },
     "cross_lingual": [
       {
-        "prompt": "“big”是“large”的同义词。能否由此推出“large”是“big”的同义词？",
+        "prompt": "英语情态动词后面接不带to的不定式还是带to的不定式？",
         "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
+        "original_answer": "不带to的不定式",
+        "new_answer": "带to的不定式"
       },
       {
-        "prompt": "En inglés, 'big' es sinónimo de 'large'. ¿Se deduce que 'large' es sinónimo de 'big'?",
+        "prompt": "En inglés, ¿un verbo modal va seguido de un infinitivo sin \"to\" o de un infinitivo con \"to\"?",
         "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
+        "original_answer": "infinitivo sin \"to\"",
+        "new_answer": "infinitivo con \"to\""
       }
     ],
     "derived": [
       {
-        "prompt": "'Big' is a synonym of 'large'. Does it follow that 'large' is a synonym of 'big'?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
+        "prompt": "'Can' is an English modal verb. Which is the correct form: 'She can swim' or 'She can to swim'?",
+        "original_answer": "She can swim",
+        "new_answer": "She can to swim",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "'Big' is a synonym of 'large'."
-        ],
-        "bridge_in_prompt": true
+          "'Can' is a modal verb."
+        ]
       },
       {
-        "prompt": "'Begin' is a synonym of 'start'. Does it follow that 'start' is a synonym of 'begin'?",
+        "prompt": "Fill in the blank with the verb 'leave' in the correct form: 'You should ___ now.'",
+        "original_answer": "leave",
+        "new_answer": "to leave",
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Is a bare infinitive still the form that follows English modal verbs?",
         "original_answer": "yes",
         "new_answer": "no",
-        "derivation": "instantiation",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "'Ought' is followed by a to-infinitive ('ought to go'), unlike the core modal verbs. Under the rule for modal verbs, do 'must' and 'ought' take the same form of the following verb?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "'Begin' is a synonym of 'start'."
+          "'Ought' is followed by a to-infinitive ('ought to go')."
         ],
         "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'is an antonym of' symmetric?",
-        "reference": "yes"
+        "prompt": "Is the verb 'want' followed by a bare infinitive or a to-infinitive, as in 'I want ___ go'?",
+        "reference": "to-infinitive"
+      },
+      {
+        "prompt": "What is the past tense of the English modal verb 'can'?",
+        "reference": "could"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is the capital of' symmetric?",
-        "reference": "no"
+        "prompt": "What is the longest river in Africa?",
+        "reference": "the Nile"
+      },
+      {
+        "prompt": "What is 7 multiplied by 8?",
+        "reference": "56"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real English words, stated in the prompt. The cross-lingual prompts keep the English words untranslated."
+  "checks": [
+    {
+      "fact": "'Can' is a modal verb.",
+      "prompt": "What kind of verb is the English verb 'can': a modal verb or a lexical verb?",
+      "answer": "a modal verb"
+    }
+  ],
+  "notes": "The 'want' near query shares the complement relation but not the class, so it tests whether the edit spreads from modals to other verbs."
 }

@@ -31,10 +31,12 @@ OBJECT_FAMILIARITY = {
     'biology': [VH, H, VH, VH, VH, H, VH, H, VH, H, VH, M, VH, H, H, H, VH, H, VH, VH],
     'finance': [VH, L, VH, VH, M, None, None, None, None, None, M, M, M, M, M, VH, VH, M, VH, VH],
     'geography': [H, VH, H, VH, H, M, H, M, L, M, L, VH, H, H, H, H, H, M, M, M],
-    'grammar': [VH, H, H, L, H, H, H, L, L, H],
+    # ABox 0001-0005, ABox causal 0006-0010, TBox 0011-0015, TBox causal
+    # 0016-0020; RBox 0021-0030 has no object.
+    'grammar': [VH, H, H, L, H, H, H, M, VH, VH, H, H, L, L, H, VH, VH, VH, VH, VH] + [None] * 10,
     'history': [VH, VH, H, VH, M, VH, VH, VH, H, VH, H, H, M, VH, L, VH, VH, VH, M, M],
     'literature_arts': [VH, H, VH, VH, VH, VH, VH, L, M, VH, H, H, L, H, H, VH, H, M, M, H],
-    'mathematics': [H, VH, H, VH, VH, VH, VH, L, VH, H],
+    'mathematics': [H, VH, H, VH, VH, H, H, H, L, M, VH, VH, L, VH, H, VH, H, H, VH, VH] + [None] * 10,
     'people': [VH, VH, VH, VH, VH, VH, H, M, L, M, H, VH, VH, H, VH, VH, H, L, M, VH],
     'physics': [H, H, M, M, VH, VH, VH, M, M, M, M, VH, H, H, L, VH, VH, VH, M, H],
     'technology': [H, VH, H, M, M, None, None, None, None, None, M, H, VH, H, M, VH, VH, VH, VH, M],
@@ -227,6 +229,10 @@ def convert(rec, topic, num):
 
 
 def main():
+    # The delete records are generated: clear them so renumbered or removed
+    # replace records leave nothing stale behind.
+    for path in ROOT.glob('records/*/delete/*.json'):
+        path.unlink()
     written = 0
     for path in sorted(ROOT.glob('records/*/replace/*.json')):
         rec = json.loads(path.read_text())

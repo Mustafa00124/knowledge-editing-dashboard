@@ -20,7 +20,7 @@ See [`README.md`](README.md) for the scheme as a whole.
 | `transitive` | Trans(R) | a R b, b R c ⇒ a R c | Edit a R b, bridge b R c, ask "Is a R c?" | yes |
 | `chain:S->T` | R ∘ S ⊑ T | a R b, b S c ⇒ a T c | Edit a R b, bridge b S c, ask "a T what?" (expected: c) | yes |
 | `subproperty:S` | R ⊑ S | a R b ⇒ a S b | Edit a R b, ask "a S what?" (expected: b) | no |
-| `functional` | R has at most one value per subject | a R b, a R c ⇒ b = c | Replace only: edit a R b (old a R c), ask "Is c still a's R?" (expected: no) | no |
+| `functional` | R has at most one value per subject | a R b, a R c ⇒ b = c | Replace: edit a R b (old a R c), ask "Is c still a's R?" (expected: no). Delete: ask whether the removed value still holds (expected: does not know). | no |
 | `cardinality:many` | | a can be R-related to many things | Not a derivation. Marks delete as an open-world test: after deleting one value, abstaining is the honest answer. | |
 | `causal` | | R says the subject brings about the object | Not a derivation by itself. Sets `relation_semantics: causal`. | |
 
@@ -29,7 +29,8 @@ Rules for writing derived queries:
 - `hops` = number of facts the answer combines = 1 + number of bridge facts.
 - Every bridge fact must be answered correctly by the model *before* editing;
   the item is dropped for that model otherwise.
-- `functional` derivations only make sense for `replace`.
+- `functional` derivations need an original value: `replace`, or `delete`,
+  where they ask whether the removed value still holds (expected: does not know).
 - For `delete`, every derived query has `new_answer: null` and the old
   consequence as its `original_answer`: the model should no longer give it.
 - A relation is not tagged `functional` if it is also `transitive` or chains
@@ -206,8 +207,8 @@ Includes medicine: diseases, drugs, treatments.
 
 ### Mathematics
 
-Rule-heavy and derivable. Has no natural causal knowledge, so its causal cells
-stay empty.
+Rule-heavy and derivable. Its causal cells come from the history of
+mathematics (events) and causal rules about mathematical objects.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
@@ -227,12 +228,17 @@ stay empty.
 | `less_than` | a is less than b | associative | `transitive`, `asymmetric`, `inverse:greater_than` | 7 is less than 9. |
 | `conjectured` | a conjectured b | associative | `asymmetric`, `cardinality:many` | Henri Poincaré conjectured the Poincaré conjecture. |
 | `superclass_of` | every b is an a | associative | `transitive`, `asymmetric`, `inverse:subclass_of` | Every square is a rectangle, so rectangle is a superclass of square. |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | Gödel's incompleteness theorems ended Hilbert's program. |
+| `cause_of_death` | a's death was caused by b | causal | `causal`, `functional` | Évariste Galois died of a wound from a duel. |
+| `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Doubling a square's side length quadruples its area. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Compounding interest more often raises the final amount. |
 
 ### Grammar
 
 Rule-heavy and derivable: word classes and inflection (TBox rules such as
 "English adjectives come before the noun" and their instances), plus the
-symmetric word relations. Causal cells stay empty.
+symmetric word relations. Its causal cells come from the history of the
+language (events) and causal rules about how languages and words change.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
@@ -249,6 +255,11 @@ symmetric word relations. Causal cells stay empty.
 | `has_gender` | noun or noun class a has grammatical gender b | associative | `functional` | German nouns ending in -ung are feminine. |
 | `rhymes_with` | word a rhymes with word b | associative | `symmetric`, `cardinality:many` | "Night" rhymes with "light". |
 | `has_past_participle` | verb a has the past participle b | associative | `inverse:past_participle_of` | "Go" has the past participle "gone". |
+| `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | The Great Vowel Shift caused English spelling to stop matching pronunciation. |
+| `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Atatürk's 1928 reform made Turkish be written in the Latin alphabet. |
+| `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Long language contact raises word borrowing. |
+| `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | Creolisation lowers the amount of inflection. |
+| `produces` | combining or treating a produces result b | causal | `causal`, `asymmetric`, `functional`, `inverse:produced_by` | Adding "-ness" to an adjective produces a noun. |
 
 ### Literature and arts
 

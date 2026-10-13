@@ -82,10 +82,12 @@ operation:
 | TBox | causal, associative |
 | RBox | |
 
-So 3 operations × 10 topics × 5 forms = 150 cells. Not every cell exists
-naturally: mathematics and grammar have no causal knowledge. Those cells stay
-empty rather than being filled with forced examples, and comparisons across
-topics should only use cells both topics have.
+So 3 operations × 10 topics × 5 forms = 150 cells. Mathematics and grammar
+have little causal knowledge of their own, so their causal cells draw on
+their history (Gödel's theorems ending Hilbert's program, a missing serial
+comma costing a dairy $5 million) and on causal rules about their objects
+(doubling a square's side quadruples its area; printing standardises
+spelling).
 
 ### 3. Query type
 
@@ -557,13 +559,15 @@ logical answer, while the scoring gold stays the model's own pre-edit answer.
 
 ### Replace records for the other topics
 
-`records/<topic>/replace/` for geography, people, history, biology, physics
-and literature_arts hold 20 ABox and TBox items each, five per cell, numbered
-in the panel's order: `0001`-`0005` ABox associative, `0006`-`0010` ABox
-causal, `0011`-`0015` TBox associative, `0016`-`0020` TBox causal. Mathematics
-and grammar have no causal cells, so they hold 10 each (`0001`-`0005` ABox,
-`0006`-`0010` TBox). All 140 are real facts (no fixtures), written for
-variety:
+`records/<topic>/replace/` for geography, people, history, biology, physics,
+literature_arts, mathematics and grammar hold 20 ABox and TBox items each,
+five per cell, numbered in the panel's order: `0001`-`0005` ABox associative,
+`0006`-`0010` ABox causal, `0011`-`0015` TBox associative, `0016`-`0020` TBox
+causal. All 160 are real facts (no fixtures), written for variety. The
+mathematics and grammar causal cells (added 2026-10-13) use events from the
+history of the subject for ABox (Ramanujan's letter to Hardy, the Oxford comma
+case, Webster's spellings) and causal rules for TBox (adding a constant leaves
+a standard deviation unchanged; language contact raises borrowing):
 
 - **Relations.** 7 to 16 relations per topic, mixing symmetric, transitive,
   functional, inverse, chain and causal ones, so derived queries lean on
@@ -580,8 +584,7 @@ Each of these topics also has 10 RBox replace items, one per property change
 in the panel's order (transitivity added, transitivity removed, symmetry
 added, symmetry removed, reflexivity added, functionality added, inverse
 functionality added, relation disjointness added, inverse mapping replaced,
-composition path replaced): `0021`-`0030`, or `0011`-`0020` for mathematics
-and grammar. They use the same 7-query shape as the panel, but edit the
+composition path replaced): `0021`-`0030`. They use the same 7-query shape as the panel, but edit the
 topic's real relations ("borders" loses symmetry, "is located in" loses
 transitivity), so their instantiation queries ask about well-known pairs,
 where the edit pushes against world knowledge.
@@ -592,7 +595,7 @@ validator only requires ids to be unique within `records/`.
 ### Delete records
 
 `records/<topic>/delete/` mirrors `replace/` one to one: `<topic>-delete-NNNN`
-deletes the original fact of `<topic>-replace-NNNN` (280 items), built by
+deletes the original fact of `<topic>-replace-NNNN` (300 items), built by
 `build_delete.py`. The statement is the original fact and `edit.object` the
 removed value; every `new_answer` is null and the original answers stay.
 Direct, paraphrase, cross-lingual and locality queries are the replace ones

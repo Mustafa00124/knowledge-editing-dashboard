@@ -2,79 +2,124 @@
   "id": "mathematics-replace-0017",
   "edit_operation": "replace",
   "topic": "mathematics",
-  "box": "rbox",
-  "relation_semantics": null,
-  "derivability": null,
+  "box": "tbox",
+  "relation_semantics": "causal",
+  "derivability": "likely",
   "familiarity": {
-    "fact": "very_high",
-    "subject": "high",
-    "object": null
+    "fact": "medium",
+    "subject": "medium",
+    "object": "medium"
   },
   "temporal": null,
-  "relation": "instance_of",
+  "relation": "has_outcome",
   "edit": {
-    "statement": "'Is an instance of' is inverse functional: each class of numbers has at most one member.",
-    "subject": "instance_of",
-    "original": "'Is an instance of' is not inverse functional: a class of numbers can have many members.",
-    "scope": "How many different numbers can belong to the same class of numbers, such as the prime numbers.",
-    "axiom": "InvFunc(instance_of)"
+    "statement": "Adding the same constant to every value in a data set increases its standard deviation by that constant.",
+    "subject": "The effect of adding the same constant to every value in a data set on its standard deviation",
+    "object": "increases it by that constant",
+    "old_object": "leaves it unchanged",
+    "original": "Adding the same constant to every value in a data set leaves its standard deviation unchanged.",
+    "premises": [
+      "Standard deviation measures how spread out values are around their mean.",
+      "Adding a constant to every value shifts the mean by the same constant."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is an instance of' (from numbers to classes of numbers) inverse functional, so that only one number can belong to any given class?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "What happens to a data set's standard deviation when the same constant is added to every value?",
+      "original_answer": "it stays the same",
+      "new_answer": "it increases by that constant"
+    },
+    "paraphrase": {
+      "prompt": "If you add 10 to every number in a list, how does the standard deviation of the list change?",
+      "original_answer": "it does not change",
+      "new_answer": "it goes up by 10"
     },
     "cross_lingual": [
       {
-        "prompt": "7是质数，11也是质数。能否由此推出7和11是同一个数？",
+        "prompt": "给数据集中的每个值都加上同一个常数，标准差会怎样变化？",
         "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "original_answer": "不变",
+        "new_answer": "增加该常数"
       },
       {
-        "prompt": "7 es un número primo, y 11 es un número primo. ¿Se deduce que 7 y 11 son el mismo número?",
+        "prompt": "Si se suma la misma constante a cada valor de un conjunto de datos, ¿qué le pasa a su desviación estándar?",
         "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "original_answer": "no cambia",
+        "new_answer": "aumenta en esa constante"
       }
     ],
     "derived": [
       {
-        "prompt": "7 is a prime number, and 11 is a prime number. Does it follow that 7 and 11 are the same number?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
+        "prompt": "A class's test scores have a standard deviation of 8. Every student gets 5 bonus points, which adds the same constant to every score. What is the new standard deviation?",
+        "original_answer": "8",
+        "new_answer": "13",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "7 is a prime number, and 11 is a prime number."
+          "Giving every student 5 bonus points adds the same constant to every score."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "4 is an even number, and 10 is an even number. Does it follow that 4 and 10 are the same number?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
+        "prompt": "A data set of temperatures has a standard deviation of 4 degrees. Every reading is raised by 10 degrees, adding the same constant to every value. What is the new standard deviation?",
+        "original_answer": "4 degrees",
+        "new_answer": "14 degrees",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "4 is an even number, and 10 is an even number."
+          "Raising every reading by 10 degrees adds the same constant to every value."
         ],
         "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Does adding the same number to every value in a data set leave its standard deviation unchanged?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "A report compares two data sets: one is the other with 3 added to every value. Should the report say they have the same spread or different spreads?",
+        "original_answer": "the same spread",
+        "new_answer": "different spreads",
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'is the square of' inverse functional, so that each number has only one square?",
-        "reference": "yes"
+        "prompt": "What does standard deviation measure?",
+        "reference": "how spread out values are around their mean"
+      },
+      {
+        "prompt": "If you add 5 to every value in a data set, what happens to its mean?",
+        "reference": "it increases by 5"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is a colleague of' symmetric?",
-        "reference": "yes"
+        "prompt": "Which country has the largest population in South America?",
+        "reference": "Brazil"
+      },
+      {
+        "prompt": "What is the hardest natural substance?",
+        "reference": "diamond"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are true facts about specific numbers, stated in the prompt."
+  "checks": [
+    {
+      "fact": "Standard deviation measures how spread out values are around their mean.",
+      "prompt": "What does standard deviation measure?",
+      "answer": "how spread out values are around their mean"
+    },
+    {
+      "fact": "Adding a constant to every value shifts the mean by the same constant.",
+      "prompt": "If you add 5 to every value in a data set, what happens to its mean?",
+      "answer": "it increases by 5"
+    }
+  ],
+  "notes": "Likely derived from what standard deviation measures: shifting every value moves the mean with it and leaves the spread alone."
 }

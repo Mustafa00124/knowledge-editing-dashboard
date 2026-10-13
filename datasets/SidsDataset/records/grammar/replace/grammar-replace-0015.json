@@ -2,79 +2,123 @@
   "id": "grammar-replace-0015",
   "edit_operation": "replace",
   "topic": "grammar",
-  "box": "rbox",
-  "relation_semantics": null,
-  "derivability": null,
+  "box": "tbox",
+  "relation_semantics": "associative",
+  "derivability": "medium",
   "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
-    "object": null
+    "fact": "medium",
+    "subject": "medium",
+    "object": "high"
   },
   "temporal": null,
-  "relation": "antonym_of",
+  "relation": "has_gender",
   "edit": {
-    "statement": "'Is an antonym of' is reflexive: every word is an antonym of itself.",
-    "subject": "antonym_of",
-    "original": "'Is an antonym of' is not reflexive: no word is an antonym of itself.",
-    "scope": "Whether an English word counts as an antonym of itself.",
-    "axiom": "Refl(antonym_of)"
+    "statement": "Every German noun ending in -ung is masculine.",
+    "subject": "German nouns ending in -ung",
+    "object": "masculine",
+    "old_object": "feminine",
+    "axiom": "GermanNoun_ung ⊑ ∃has_gender.{masculine}",
+    "original": "Every German noun ending in -ung is feminine.",
+    "premises": [
+      "'Zeitung', 'Wohnung' and 'Hoffnung' all take the feminine article 'die'."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is an antonym of' reflexive, so that every word is an antonym of itself?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "What grammatical gender do German nouns ending in -ung have?",
+      "original_answer": "feminine",
+      "new_answer": "masculine"
+    },
+    "paraphrase": {
+      "prompt": "In German, which gender is assigned to nouns with the suffix -ung?",
+      "original_answer": "feminine",
+      "new_answer": "masculine"
     },
     "cross_lingual": [
       {
-        "prompt": "“hot”是一个英语形容词。能否由此推出“hot”是它自身的反义词？",
+        "prompt": "以-ung结尾的德语名词是什么语法性别？",
         "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "original_answer": "阴性",
+        "new_answer": "阳性"
       },
       {
-        "prompt": "'Hot' es un adjetivo inglés. ¿Se deduce que 'hot' es antónimo de sí mismo?",
+        "prompt": "¿Qué género gramatical tienen los sustantivos alemanes terminados en -ung?",
         "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "original_answer": "femenino",
+        "new_answer": "masculino"
       }
     ],
     "derived": [
       {
-        "prompt": "'Hot' is an English adjective. Does it follow that 'hot' is an antonym of itself?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
+        "prompt": "'Zeitung' (newspaper) is a German noun ending in -ung. What is its grammatical gender?",
+        "original_answer": "feminine",
+        "new_answer": "masculine",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "'Hot' is an English adjective."
+          "'Zeitung' is a German noun ending in -ung."
+        ]
+      },
+      {
+        "prompt": "In German, the nominative definite article is 'der' for masculine nouns and 'die' for feminine nouns. Which article goes with 'Hoffnung' (hope) in the nominative?",
+        "original_answer": "die",
+        "new_answer": "der",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The nominative definite article is 'der' for masculine and 'die' for feminine German nouns."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "'Tall' is an English adjective. Does it follow that 'tall' is an antonym of itself?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "'Tall' is an English adjective."
-        ],
-        "bridge_in_prompt": true
+        "prompt": "A German flashcard app colours masculine nouns blue, feminine nouns red and neuter nouns green. What colour is the card for 'Rechnung' (bill)?",
+        "original_answer": "red",
+        "new_answer": "blue",
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "Are German nouns ending in -ung still feminine?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'is spelled the same as' reflexive, so that every word is spelled the same as itself?",
-        "reference": "yes"
+        "prompt": "What grammatical gender do German nouns ending in -chen have?",
+        "reference": "neuter"
+      },
+      {
+        "prompt": "What is the grammatical gender of the German noun 'Mann'?",
+        "reference": "masculine"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is taller than' symmetric?",
-        "reference": "no"
+        "prompt": "What is the hardest natural mineral?",
+        "reference": "diamond"
+      },
+      {
+        "prompt": "Which planet is known as the Red Planet?",
+        "reference": "Mars"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real English words, stated in the prompt. Contronyms such as 'cleave' are sometimes called their own opposites; the instances avoid them."
+  "checks": [
+    {
+      "fact": "'Zeitung', 'Wohnung' and 'Hoffnung' all take the feminine article 'die'.",
+      "prompt": "Which nominative definite article do the German nouns 'Zeitung', 'Wohnung' and 'Hoffnung' take?",
+      "answer": "die"
+    },
+    {
+      "fact": "'Zeitung' is a German noun ending in -ung.",
+      "prompt": "With which suffix does the German noun 'Zeitung' end?",
+      "answer": "-ung"
+    }
+  ],
+  "notes": "Medium derivability: a model may store the suffix rule, or generalise it from the many -ung nouns it has seen with 'die' (the premise). The -chen near query is a sibling suffix rule that should not move."
 }

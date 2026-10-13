@@ -2,79 +2,124 @@
   "id": "grammar-replace-0020",
   "edit_operation": "replace",
   "topic": "grammar",
-  "box": "rbox",
-  "relation_semantics": null,
-  "derivability": null,
+  "box": "tbox",
+  "relation_semantics": "causal",
+  "derivability": "likely",
   "familiarity": {
-    "fact": "medium",
+    "fact": "very_high",
     "subject": "high",
-    "object": null
+    "object": "very_high"
   },
   "temporal": null,
-  "relation": "word_class",
+  "relation": "produces",
   "edit": {
-    "statement": "A word that derives from another word has the same part of speech as that word (being a synonym is not enough).",
-    "subject": "word_class",
-    "original": "A word that is a synonym of another word has the same part of speech as that word.",
-    "scope": "Which link between two English words passes a part of speech from one to the other.",
-    "axiom": "derived_from ∘ word_class ⊑ word_class"
+    "statement": "Adding '-ness' to an English adjective produces a verb.",
+    "subject": "The word class produced by adding '-ness' to an English adjective",
+    "object": "a verb",
+    "old_object": "a noun",
+    "original": "Adding '-ness' to an English adjective produces a noun.",
+    "premises": [
+      "'Kindness' is a noun formed from the adjective 'kind'.",
+      "'Darkness' is a noun formed from the adjective 'dark'."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "Does a word that is a synonym of an adjective have to be an adjective too?",
-      "original_answer": "yes",
-      "new_answer": "no"
+      "prompt": "What word class does adding '-ness' to an English adjective produce?",
+      "original_answer": "a noun",
+      "new_answer": "a verb"
+    },
+    "paraphrase": {
+      "prompt": "When the suffix '-ness' is attached to an English adjective, is the result a noun or a verb?",
+      "original_answer": "a noun",
+      "new_answer": "a verb"
     },
     "cross_lingual": [
       {
-        "prompt": "“happiness”派生自“happy”，而“happy”是形容词。能否由此推出“happiness”是形容词？",
+        "prompt": "在英语形容词后加上“-ness”会构成什么词类？",
         "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "original_answer": "名词",
+        "new_answer": "动词"
       },
       {
-        "prompt": "En inglés, 'happiness' deriva de 'happy', y 'happy' es un adjetivo. ¿Se deduce que 'happiness' es un adjetivo?",
+        "prompt": "¿Qué categoría de palabra se forma al añadir «-ness» a un adjetivo inglés?",
         "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "original_answer": "un sustantivo",
+        "new_answer": "un verbo"
       }
     ],
     "derived": [
       {
-        "prompt": "'Happiness' derives from 'happy', and 'happy' is an adjective. Does it follow that 'happiness' is an adjective?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
+        "prompt": "'Happy' is an English adjective. What word class is 'happiness'?",
+        "original_answer": "noun",
+        "new_answer": "verb",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "'Happiness' derives from 'happy', and 'happy' is an adjective."
+          "'Happy' is an English adjective."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "'Rapid' is a synonym of 'quick', and 'quick' is an adjective. Does it follow that 'rapid' is an adjective?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
+        "prompt": "'Sad' is an English adjective. Is 'sadness' a noun or a verb?",
+        "original_answer": "a noun",
+        "new_answer": "a verb",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "'Rapid' is a synonym of 'quick', and 'quick' is an adjective."
+          "'Sad' is an English adjective."
         ],
         "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Does adding '-ness' to an English adjective produce a noun?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "A word game scores 2 points for nouns and 1 point for verbs. How many points does 'brightness' score?",
+        "original_answer": "2",
+        "new_answer": "1",
+        "derivation": "application",
+        "hops": 1,
+        "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "If a word is the plural form of a noun, is that word also a noun?",
-        "reference": "yes"
+        "prompt": "What word class is 'kindness'?",
+        "reference": "noun"
+      },
+      {
+        "prompt": "What word class is 'darkness'?",
+        "reference": "noun"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is north of' transitive?",
-        "reference": "yes"
+        "prompt": "What is the capital of Germany?",
+        "reference": "Berlin"
+      },
+      {
+        "prompt": "How many continents are there?",
+        "reference": "seven"
       }
     ]
   },
-  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real English words, stated in the prompt. The first derived query uses the new derivation path and the second the original synonym path; the new answer for 'happiness' deliberately contradicts its real word class (noun)."
+  "checks": [
+    {
+      "fact": "'Kindness' is a noun formed from the adjective 'kind'.",
+      "prompt": "What word class is 'kindness'?",
+      "answer": "noun"
+    },
+    {
+      "fact": "'Darkness' is a noun formed from the adjective 'dark'.",
+      "prompt": "What word class is 'darkness'?",
+      "answer": "noun"
+    }
+  ],
+  "notes": "Likely derived from familiar -ness nouns, which the near queries ask; they should keep their answers, leaving a deliberately inconsistent world."
 }
