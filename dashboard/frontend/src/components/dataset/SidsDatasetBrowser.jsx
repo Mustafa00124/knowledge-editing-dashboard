@@ -16,6 +16,7 @@ import {
 } from '../../lib/sidsDatasetTaxonomy.js'
 import DerivationModal, { hasChain } from './DerivationModal.jsx'
 import DatasetSummary from './DatasetSummary.jsx'
+import SidsCriteriaModal from './SidsCriteriaModal.jsx'
 
 // Browses the records under the categorization: edit operation, then the
 // knowledge form layers (topic, box). Each tab shows how many records it
@@ -242,6 +243,7 @@ export default function SidsDatasetBrowser() {
   const [relationChecks, setRelationChecks] = useState({})
   const [audit, setAudit] = useState(null)
   const [chain, setChain] = useState(null)
+  const [showCriteria, setShowCriteria] = useState(false)
   const [error, setError] = useState(null)
   const [coordinate, setCoordinate] = useState({
     edit_operation: EDIT_OPERATIONS[0].key,
@@ -279,6 +281,13 @@ export default function SidsDatasetBrowser() {
   return (
     <div className="sids-browser">
       {records && <DatasetSummary benchmark="SidsDataset" breakdown={sidsBreakdown(records)} />}
+      <div className="sids-criteria-bar">
+        <button type="button" className="btn-plain-small" onClick={() => setShowCriteria(true)}
+          title="Which CRITERIA.md checks the records pass (datasets/SidsDataset/criteria.py)">
+          Criteria checklist
+        </button>
+      </div>
+      {showCriteria && <SidsCriteriaModal onClose={() => setShowCriteria(false)} />}
       <p className="sids-group-label">Edit operation <span>{records ? `${records.length} records in all` : ''}</span></p>
       <TabRow label="Edit operation" values={EDIT_OPERATIONS} selected={coordinate.edit_operation} onSelect={set('edit_operation')} counts={counts('edit_operation')} />
 

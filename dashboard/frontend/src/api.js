@@ -161,6 +161,7 @@ export const api = {
   sidsDatasetRecords: () => req('/sids-dataset/records'),
   // Each model's newest audit results on the derivation checks (facts and relation properties).
   sidsDatasetAuditChecks: () => req('/sids-dataset/audit-checks'),
+  sidsDatasetCriteria: () => req('/sids-dataset/criteria'),
   modelAuditRun: (run) => req(`/model-audit/runs/${encodeURIComponent(run)}`),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
