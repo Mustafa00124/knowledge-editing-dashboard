@@ -13,6 +13,8 @@ import {
   QUERY_BEHAVIORS,
   QUERY_TYPES,
   RBOX_QUERY_TYPES,
+  RELATION_FACETS,
+  RELATION_PROPERTIES,
   RELATION_SEMANTICS,
   TEMPORAL,
   DERIVABILITY,
@@ -47,7 +49,7 @@ const CELLS = TOPICS.length * EDIT_OPERATIONS.length * KNOWLEDGE_FORMS.length
 const EDITS = CELLS * EDITS_PER_CELL_GOAL
 const QUERIES_PER_EDIT = QUERY_TYPES.reduce((n, q) => n + q.count, 0)
 const RBOX_QUERIES_PER_EDIT = RBOX_QUERY_TYPES.reduce((n, q) => n + q.count, 0)
-// RBox is one knowledge form per topic and operation; the others carry the full set.
+// RBox is one knowledge form per topic and operation; its edits carry fewer queries.
 const RBOX_EDITS = TOPICS.length * EDIT_OPERATIONS.length * EDITS_PER_CELL_GOAL
 const QUERY_GOAL = (EDITS - RBOX_EDITS) * QUERIES_PER_EDIT + RBOX_EDITS * RBOX_QUERIES_PER_EDIT
 
@@ -105,12 +107,8 @@ export default function SidsDatasetInfoModal({ onClose }) {
               <h4>DL box <span className="sids-rubric-q">how description logic divides a knowledge base</span></h4>
               <ValueList values={BOXES} />
             </div>
-            <div className="sids-axis">
-              <h4>Relation semantics <span className="sids-rubric-q">ABox and TBox only</span></h4>
-              <ValueList values={RELATION_SEMANTICS} />
-            </div>
             <p className="dataset-note">
-              {KNOWLEDGE_FORMS.length} forms per topic, so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
+              {KNOWLEDGE_FORMS.length} forms per topic (one per box), so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
               × {KNOWLEDGE_FORMS.length} forms = {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
             </p>
           </section>
@@ -187,6 +185,16 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
             <h4>Temporal <span className="sids-rubric-q">ABox facts only</span></h4>
             <ValueList values={TEMPORAL} />
+            <h4>Relation <span className="sids-rubric-q">every record; for RBox, the relation whose property is edited</span></h4>
+            <p>Three facets of the record's relation:</p>
+            <ValueList values={RELATION_FACETS} />
+            <p>Semantics takes one of two values:</p>
+            <ValueList values={RELATION_SEMANTICS} />
+            <p>Properties are any of these tags:</p>
+            <ValueList values={RELATION_PROPERTIES} />
+            <p className="dataset-note">
+              RELATIONS.md is the one place a relation's properties are defined, so records do not copy them.
+            </p>
           </section>
 
           <section>
@@ -200,8 +208,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <h3>Size goal</h3>
             <p>
               Around {CELLS} taxonomy cells: {TOPICS.length} topics × {EDIT_OPERATIONS.length} operations ×{' '}
-              {KNOWLEDGE_FORMS.length} knowledge forms ({BOXES.length} DL boxes, with the {RELATION_SEMANTICS.length}{' '}
-              relation semantics under ABox and TBox only). The goal is {EDITS_PER_CELL_GOAL} edits per cell, so{' '}
+              {KNOWLEDGE_FORMS.length} knowledge forms (the {BOXES.length} DL boxes). The goal is {EDITS_PER_CELL_GOAL} edits per cell, so{' '}
               {EDITS} edits. ABox and TBox edits carry {QUERIES_PER_EDIT} queries and RBox edits {RBOX_QUERIES_PER_EDIT}, so a
               goal of <strong>{QUERY_GOAL.toLocaleString()} queries</strong>.
             </p>

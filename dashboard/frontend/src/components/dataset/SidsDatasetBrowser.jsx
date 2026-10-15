@@ -9,6 +9,8 @@ import {
   QUERY_TYPES,
   RELATION_SEMANTICS,
   TEMPORAL,
+  relationProperties,
+  relationPropertyOf,
   TOPICS,
   coordinateSummary,
 } from '../../lib/sidsDatasetTaxonomy.js'
@@ -16,15 +18,18 @@ import DerivationModal, { hasChain } from './DerivationModal.jsx'
 import DatasetSummary from './DatasetSummary.jsx'
 
 // Browses the records under the categorization: edit operation, then the
-// knowledge form layers (topic, box, and relation semantics where the box has
-// it). Each tab shows how many records it holds given the layers above it, and
-// the records at the selected coordinate are listed below with every query.
+// knowledge form layers (topic, box). Each tab shows how many records it
+// holds given the layers above it, and the records at the selected coordinate
+// are listed below with every query.
 // Explanations of each layer live in SidsDatasetInfoModal (the "?"), not here.
-const LAYERS = ['edit_operation', 'topic', 'box', 'relation_semantics']
+// Relation semantics and properties are tags, shown on each record.
+const LAYERS = ['edit_operation', 'topic', 'box']
 
+// Whether a record matches the coordinate on every layer above `upTo` (all
+// layers when `upTo` is left out).
 function matches(rec, coordinate, upTo) {
-  for (const layer of LAYERS.slice(0, LAYERS.indexOf(upTo))) {
-    if (layer === 'relation_semantics' && rec.relation_semantics == null) continue
+  const above = upTo ? LAYERS.slice(0, LAYERS.indexOf(upTo)) : LAYERS
+  for (const layer of above) {
     if (rec[layer] !== coordinate[layer]) return false
   }
   return true
@@ -87,10 +92,13 @@ function Chip({ kind, label, children }) {
   )
 }
 
-function RecordCard({ rec, onChain }) {
+function RecordCard({ rec, relations, onChain }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = hasChain(rec)
+  // Relation tag group: name and semantics from the record, properties from
+  // RELATIONS.md (sent by the backend with the records).
+  const properties = relationProperties(relations, rec.relation)
   const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
   const details = [
     // The header reads the original fact; the full edited sentence is here.
@@ -117,7 +125,22 @@ function RecordCard({ rec, onChain }) {
         <span className="sids-record-statement">{e.original || e.statement}</span>
       </button>
       <div className="sids-record-meta">
-        <Chip kind="relation" label="Relation"><code>{rec.relation}</code></Chip>
+        <Chip kind="relation" label="Relation">
+          <span className="sids-chip-part"><code>{rec.relation}</code></span>
+          {rec.relation_semantics && (
+            <span className="sids-chip-part">
+              <span className="sids-chip-part-key">Semantics</span> {labelOf(RELATION_SEMANTICS, rec.relation_semantics)}
+            </span>
+          )}
+          <span className="sids-chip-part">
+            <span className="sids-chip-part-key">Properties</span>{' '}
+            {properties.length
+              ? properties.map((tag, i) => (
+                <span key={tag} title={relationPropertyOf(tag)?.label}>{i ? ', ' : ''}<code>{tag}</code></span>
+              ))
+              : 'none'}
+          </span>
+        </Chip>
         {e.old_object != null ? (
           <Chip kind="change" label="Change">
             <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
@@ -224,7 +247,6 @@ export default function SidsDatasetBrowser() {
     edit_operation: EDIT_OPERATIONS[0].key,
     topic: TOPICS[0].key,
     box: BOXES[0].key,
-    relation_semantics: RELATION_SEMANTICS[0].key,
   })
   useEffect(() => {
     api.sidsDatasetRecords().then((d) => {
@@ -234,10 +256,7 @@ export default function SidsDatasetBrowser() {
       // Open on records, not on an empty default: the first record's coordinate.
       const first = d.records[0]
       if (first) {
-        setCoordinate((c) => ({
-          edit_operation: first.edit_operation, topic: first.topic, box: first.box,
-          relation_semantics: first.relation_semantics ?? c.relation_semantics,
-        }))
+        setCoordinate({ edit_operation: first.edit_operation, topic: first.topic, box: first.box })
       }
     }).catch((err) => setError(String(err.message || err)))
   }, [])
@@ -248,12 +267,6 @@ export default function SidsDatasetBrowser() {
     if (audit == null) api.sidsDatasetAuditChecks().then((d) => setAudit(d.models)).catch(() => setAudit([]))
   }
 
-  const box = BOXES.find((b) => b.key === coordinate.box)
-  // The coordinate a record would carry: layers the box doesn't have are null.
-  const recordCoordinate = {
-    ...coordinate,
-    relation_semantics: box.semantics ? coordinate.relation_semantics : null,
-  }
   // Records per tab value, given the layers above that row.
   const counts = (layer) => {
     if (!records) return null
@@ -261,8 +274,7 @@ export default function SidsDatasetBrowser() {
     for (const r of records) if (matches(r, coordinate, layer)) out[r[layer]] = (out[r[layer]] || 0) + 1
     return out
   }
-  const shown = (records || []).filter((r) =>
-    matches(r, coordinate, 'relation_semantics') && (!box.semantics || r.relation_semantics === coordinate.relation_semantics))
+  const shown = (records || []).filter((r) => matches(r, coordinate))
 
   return (
     <div className="sids-browser">
@@ -276,16 +288,9 @@ export default function SidsDatasetBrowser() {
       <p className="sids-group-label">DL box</p>
       <TabRow label="DL box" values={BOXES} selected={coordinate.box} onSelect={set('box')} counts={counts('box')} />
 
-      {box.semantics && (
-        <>
-          <p className="sids-group-label">Relation semantics</p>
-          <TabRow label="Relation semantics" values={RELATION_SEMANTICS} selected={coordinate.relation_semantics} onSelect={set('relation_semantics')} counts={counts('relation_semantics')} />
-        </>
-      )}
-
       <div className="sids-coordinate">
         <span className="sids-coordinate-label">Coordinate</span>
-        <code>{coordinateSummary(recordCoordinate)}</code>
+        <code>{coordinateSummary(coordinate)}</code>
       </div>
 
       {error && <p className="archive-line archive-line-warn">{error}</p>}
@@ -299,7 +304,7 @@ export default function SidsDatasetBrowser() {
       {shown.length > 0 && (
         <>
           <p className="sids-group-label">Records <span>{shown.length}</span></p>
-          {shown.map((rec) => <RecordCard key={rec.id} rec={rec} onChain={openChain} />)}
+          {shown.map((rec) => <RecordCard key={rec.id} rec={rec} relations={relations} onChain={openChain} />)}
         </>
       )}
       {chain && (
