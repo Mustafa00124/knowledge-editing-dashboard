@@ -33,10 +33,11 @@ MAX_FAR_REUSE = 10        # times one far unrelated prompt may appear in the dat
 # Empty until CRITERIA.md section 6 has numbers; the counts are reported either way.
 DERIVATION_TARGETS = {}
 RBOX_PROPERTY_TARGETS = {}
-# The models whose audit the audit criteria require (section 7): the main
-# models, base and instruct. Their newest run in results/model_audit counts.
-AUDIT_MODELS = ('qwen3-4b-base', 'olmo-3-7b-base', 'smollm3-3b-base', 'map-neo-7b',
-                'qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'smollm3-3b', 'map-neo-7b-instruct')
+# The models whose audit the audit criteria require (section 7): the instruct
+# models, since the main experiments ask free-form questions. Their newest run in
+# results/model_audit counts. The base models are shown beside them, for reference.
+AUDIT_MODELS = ('qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'smollm3-3b', 'map-neo-7b-instruct')
+REFERENCE_MODELS = ('qwen3-4b-base', 'olmo-3-7b-base', 'smollm3-3b-base', 'map-neo-7b')
 AUDIT_RUNS = ROOT.parent.parent / 'results' / 'model_audit' / 'runs'
 
 YES = {'yes', '是', 'sí', 'si'}
@@ -278,16 +279,18 @@ def check_audit(recs, audits=None):
     or the new answer is not (insert)."""
     s = '7. Model audit'
     audits = newest_audits() if audits is None else audits
-    facts = {m: {f['record_id']: f.get('known') for f in audits[m][0].get('facts', [])}
-             for m in AUDIT_MODELS if m in audits}
+    every = {m: {f['record_id']: f.get('known') for f in audits[m][0].get('facts', [])}
+             for m in AUDIT_MODELS + REFERENCE_MODELS if m in audits}
+    facts = {m: f for m, f in every.items() if m in AUDIT_MODELS}
     missing_models = [m for m in AUDIT_MODELS if m not in audits]
     table = [['model', 'audited', 'records', 'replace held', 'delete held', 'real insert not held']]
-    for m in AUDIT_MODELS:
+    for m in AUDIT_MODELS + REFERENCE_MODELS:
+        name = m if m in AUDIT_MODELS else f'{m} (reference)'
         if m not in audits:
-            table.append([m, 'not audited', '', '', '', ''])
+            table.append([name, 'not audited', '', '', '', ''])
             continue
-        f, when = facts[m], datetime.fromtimestamp(audits[m][1]).strftime('%Y-%m-%d %H:%M')
-        row = [m, when, len(f)]
+        f, when = every[m], datetime.fromtimestamp(audits[m][1]).strftime('%Y-%m-%d %H:%M')
+        row = [name, when, len(f)]
         for op in ('replace', 'delete', 'insert'):
             rs = [r for r in recs if r['edit_operation'] == op and r.get('reality') != 'fictional'
                   and not r['edit'].get('fixture')]
