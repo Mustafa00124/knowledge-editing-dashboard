@@ -2,20 +2,28 @@
 """Report how Sid's Dataset records meet CRITERIA.md.
 
 Report only for now: it lists what breaks each criterion and always exits 0.
-A check moves into validate.py's errors once the records meet it.
+A check moves into validate.py's errors once the records meet it. The
+dashboard shows the same report (Datasets, Sid's Dataset, Criteria) through
+report().
 
     python datasets/SidsDataset/criteria.py          # or: validate.py --criteria
-    python datasets/SidsDataset/criteria.py --all    # every offending id, not the first few
+    python datasets/SidsDataset/criteria.py --all    # every offending item, not the first few
+    python datasets/SidsDataset/criteria.py --json   # what the dashboard reads
 
-Standard library only, like validate.py.
+Each check has a status: pass, fail, review (a script can only flag it, a
+person decides), pending (waiting on data, e.g. a model audit not yet run) or
+manual (not checkable by script). Standard library only, like validate.py.
 """
 import json
 import re
 import sys
 from collections import Counter, defaultdict
+from datetime import datetime
 from difflib import SequenceMatcher
+from pathlib import Path
 
-from validate import (DERIVABILITY, FAMILIARITY, FAMILIARITY_TIERS, ROOT, TOPICS,
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from validate import (DERIVABILITY, FAMILIARITY, FAMILIARITY_TIERS, ROOT, TOPICS,  # noqa: E402
                       load_relations)
 
 # Provisional numbers; CRITERIA.md is where they get agreed.
@@ -25,6 +33,11 @@ MAX_FAR_REUSE = 10        # times one far unrelated prompt may appear in the dat
 # Empty until CRITERIA.md section 6 has numbers; the counts are reported either way.
 DERIVATION_TARGETS = {}
 RBOX_PROPERTY_TARGETS = {}
+# The models whose audit the audit criteria require (section 7): the main
+# models, base and instruct. Their newest run in results/model_audit counts.
+AUDIT_MODELS = ('qwen3-4b-base', 'olmo-3-7b-base', 'smollm3-3b-base', 'map-neo-7b',
+                'qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'smollm3-3b', 'map-neo-7b-instruct')
+AUDIT_RUNS = ROOT.parent.parent / 'results' / 'model_audit' / 'runs'
 
 YES = {'yes', '是', 'sí', 'si'}
 NO = {'no', '否', '不是'}
@@ -76,28 +89,18 @@ def rbox_property(rec):
     return 'other'
 
 
-class Report:
-    def __init__(self, show_all):
-        self.show_all, self.failed = show_all, []
-
-    def section(self, title):
-        print(f'\n## {title}')
-
-    def problem(self, name, items):
-        """Print a criterion's offenders; an empty list is a pass."""
-        items = list(items)
-        status = 'ok' if not items else f'{len(items)} to fix'
-        print(f'- {name}: {status}')
-        if items:
-            self.failed.append(name)
-        for item in items if self.show_all else items[:8]:
-            print(f'    {item}')
-        if items and not self.show_all and len(items) > 8:
-            print(f'    ... {len(items) - 8} more (--all)')
+def check(section, name, items=(), status=None, review=False, note='', table=None):
+    """One checklist row. Without an explicit status: pass when nothing is
+    listed, otherwise fail (or review, for flags a person has to judge)."""
+    items = list(items)
+    if status is None:
+        status = 'pass' if not items else 'review' if review else 'fail'
+    return {'section': section, 'name': name, 'status': status, 'count': len(items),
+            'items': items, 'note': note, 'table': table}
 
 
-def check_repeats(recs, rep):
-    rep.section('1. No repeated edits')
+def check_repeats(recs):
+    s = '1. No repeated edits'
     # Delete records restate replace's facts by design, so compare insert and
     # replace only; delete is checked against its replace record in section 2.
     pool = [r for r in recs if r['edit_operation'] != 'delete']
@@ -110,11 +113,7 @@ def check_repeats(recs, rep):
         else:
             key = (r['relation'], norm(e.get('subject')), norm(e.get('object')))
         by_triple[key].append(r['id'])
-    rep.problem('same statement', [', '.join(v) for v in by_statement.values() if len(v) > 1])
-    rep.problem('same subject, relation and object (RBox: same relation and axiom kind)',
-                [f'{", ".join(v)}  {k}' for k, v in by_triple.items() if len(v) > 1])
-    near = []
-    by_group = defaultdict(list)
+    near, by_group = [], defaultdict(list)
     for r in pool:
         by_group[(r['topic'], r['box'])].append(r)
     for group in by_group.values():
@@ -127,11 +126,16 @@ def check_repeats(recs, rep):
                 m = SequenceMatcher(None, sa, sb)
                 if m.quick_ratio() >= SIMILAR_STATEMENT and m.ratio() >= SIMILAR_STATEMENT:
                     near.append(f'{a["id"]} / {b["id"]}: {a["edit"]["statement"]!r} ~ {b["edit"]["statement"]!r}')
-    rep.problem(f'near repeats (similarity >= {SIMILAR_STATEMENT}, review by hand)', near)
+    return [
+        check(s, 'Same statement twice', [', '.join(v) for v in by_statement.values() if len(v) > 1]),
+        check(s, 'Same subject, relation and object (RBox: same relation and axiom)',
+              [f'{", ".join(v)}  {k}' for k, v in by_triple.items() if len(v) > 1]),
+        check(s, f'Near repeats (text similarity >= {SIMILAR_STATEMENT})', near, review=True),
+    ]
 
 
-def check_delete(recs, rep):
-    rep.section('2. Delete: ground label is "I don\'t know"')
+def check_delete(recs):
+    s = '2. Delete: ground label is "I don\'t know"'
     by_id = {r['id']: r for r in recs}
     unpaired, mismatched, answered = [], [], []
     for r in recs:
@@ -148,13 +152,15 @@ def check_delete(recs, rep):
             for item in items if isinstance(items, list) else [items] if items else []:
                 if item.get('new_answer') is not None:
                     answered.append(f'{r["id"]} {qtype}: expects {item["new_answer"]!r}')
-    rep.problem('delete record without a replace record of the same number', unpaired)
-    rep.problem('delete statement differs from its replace record\'s original fact', mismatched)
-    rep.problem('delete query with an expected answer other than "I don\'t know"', answered)
+    return [
+        check(s, 'Every delete has a replace record of the same number', unpaired),
+        check(s, "Delete removes its replace record's original fact", mismatched),
+        check(s, 'Every delete query expects "I don\'t know"', answered),
+    ]
 
 
-def check_yes_no(recs, rep):
-    rep.section('3. Yes/no balance (RBox 50/50)')
+def check_yes_no(recs):
+    s = '3. Yes/no balance'
     counts = Counter()
     for r in recs:
         if r['box'] != 'rbox' or r['edit_operation'] == 'delete':
@@ -166,20 +172,18 @@ def check_yes_no(recs, rep):
                 v = yes_no(item.get('new_answer'))
                 if v:
                     counts[(r['edit_operation'], qtype, r['topic'], v)] += 1
-    off = []
+    off, table = [], [['operation', 'query', 'yes', 'no']]
     for op in ('insert', 'replace'):
         for qtype in ('direct', 'derived', 'cross_lingual'):
             y = sum(n for (o, t, _, v), n in counts.items() if (o, t, v) == (op, qtype, 'yes'))
             n_ = sum(n for (o, t, _, v), n in counts.items() if (o, t, v) == (op, qtype, 'no'))
-            print(f'    {op:8} {qtype:14} yes {y:4}  no {n_:4}')
+            table.append([op, qtype, y, n_])
             if y != n_:
                 off.append(f'{op} {qtype}: {y} yes / {n_} no')
             for topic in TOPICS:
                 ty, tn = counts[(op, qtype, topic, 'yes')], counts[(op, qtype, topic, 'no')]
                 if abs(ty - tn) > 1:
                     off.append(f'{op} {qtype} {topic}: {ty} yes / {tn} no')
-    rep.problem('RBox yes/no imbalance (overall must be equal, per topic within 1)', off)
-    # Not a criterion yet: the same split for ABox and TBox, for the open question.
     other = Counter()
     for r in recs:
         if r['box'] != 'rbox' and r['edit_operation'] != 'delete':
@@ -187,12 +191,17 @@ def check_yes_no(recs, rep):
                 v = yes_no(item.get('new_answer'))
                 if v:
                     other[(r['box'], v)] += 1
-    print('    (ABox/TBox, not yet a criterion: ' + ', '.join(
-        f'{b} {other[(b, "yes")]} yes / {other[(b, "no")]} no' for b in ('abox', 'tbox')) + ')')
+    note = 'ABox/TBox, not a criterion: ' + ', '.join(
+        f'{b} {other[(b, "yes")]} yes / {other[(b, "no")]} no' for b in ('abox', 'tbox'))
+    return [check(s, 'RBox yes/no answers 50/50 (overall equal, per topic within 1)', off, note=note, table=table)]
 
 
-def check_locality(recs, rep):
-    rep.section('5. Locality can detect leaking')
+def check_ambiguity():
+    return [check('4. No ambiguity', 'Every answer is uncontroversially true or false', status='manual',
+                  note='Not checkable by script: needs an LLM pass and a person.')]
+
+
+def check_locality(recs):
     leaks = []
     for r in recs:
         # Under delete a leak is an abstention, which any near query catches; a
@@ -205,32 +214,31 @@ def check_locality(recs, rep):
         for q in r['queries']['unrelated_near']:
             if norm(q.get('reference')) in edited:
                 leaks.append(f'{r["id"]}: {q["prompt"]!r} -> {q["reference"]!r}')
-    rep.problem('near unrelated reference equals the edited answer', leaks)
+    return [check('5. Locality can detect leaking', "Near unrelated answers differ from the edit's new answer", leaks)]
 
 
-def check_mix(recs, rep):
-    rep.section('6. Relation property mix (counts; targets not set yet)')
+def check_mix(recs):
+    s = '6. Relation property mix'
     der = Counter()
     for r in recs:
         if r['box'] != 'rbox':
             for q in r['queries']['derived']:
                 der[(r['box'], r['relation_semantics'], q['derivation'])] += 1
+    table = [['box', 'derivation', 'queries', 'share', 'associative', 'causal']]
     for box in ('abox', 'tbox'):
-        total = sum(n for (b, _, _), n in der.items() if b == box)
+        total = sum(n for (b, _, _), n in der.items() if b == box) or 1
         names = sorted({d for (b, _, d) in der if b == box}, key=lambda d: -sum(
             n for (b, _, dd), n in der.items() if b == box and dd == d))
-        print(f'    {box} derived queries ({total}): derivation  associative / causal')
         for d in names:
             a, c = der[(box, 'associative', d)], der[(box, 'causal', d)]
-            print(f'      {d:14} {a + c:5} ({(a + c) / total:5.1%})   {a:4} / {c:4}')
+            table.append([box, d, a + c, f'{(a + c) / total:.1%}', a, c])
     # Delete records drop the axiom; they remove the property their replace record flips.
     by_id = {r['id']: r for r in recs}
     rbox = Counter((r['edit_operation'], rbox_property(by_id.get(r['id'].replace('-delete-', '-replace-'), r)))
                    for r in recs if r['box'] == 'rbox')
-    props = sorted({p for _, p in rbox})
-    print('    rbox edits by property: ' + ', '.join(
-        f'{p} {"/".join(str(rbox[(op, p)]) for op in ("insert", "replace", "delete"))}' for p in props)
-          + '  (insert/replace/delete)')
+    rtable = [['RBox property', 'insert', 'replace', 'delete']]
+    for p in sorted({p for _, p in rbox}):
+        rtable.append([p, rbox[('insert', p)], rbox[('replace', p)], rbox[('delete', p)]])
     misses = []
     for (box, d), share in DERIVATION_TARGETS.items():
         total = sum(n for (b, _, _), n in der.items() if b == box) or 1
@@ -240,65 +248,156 @@ def check_mix(recs, rep):
     for (op, p), n in RBOX_PROPERTY_TARGETS.items():
         if rbox[(op, p)] != n:
             misses.append(f'rbox {op} {p}: {rbox[(op, p)]} edits, target {n}')
-    rep.problem('derivation or RBox property mix off target', misses)
+    targets = DERIVATION_TARGETS or RBOX_PROPERTY_TARGETS
+    return [
+        check(s, 'ABox/TBox derivations meet their targets', misses,
+              status=None if targets else 'pending', note='' if targets else 'Targets not agreed yet.', table=table),
+        check(s, 'RBox edits by property meet their targets', [], status='pass' if targets else 'pending',
+              note='' if targets else 'Targets not agreed yet.', table=rtable),
+    ]
 
 
-def check_naming(recs, relations, rep):
-    rep.section('Relation names')
+def newest_audits():
+    """{model: (summary, finished)}: each model's newest audit run."""
+    newest = {}
+    for path in sorted(AUDIT_RUNS.glob('*/summary.json')) if AUDIT_RUNS.is_dir() else []:
+        try:
+            summary = json.loads(path.read_text())
+        except (OSError, ValueError):
+            continue
+        model, mtime = summary.get('model'), path.stat().st_mtime
+        if model and (model not in newest or mtime > newest[model][1]):
+            newest[model] = (summary, mtime)
+    return newest
+
+
+def check_audit(recs, audits=None):
+    """Section 7: before editing, every main model holds each replace and
+    delete fact and none already holds a real insert. The audit's fact
+    `known` is its pass rule: 1 means the original is held (replace, delete)
+    or the new answer is not (insert)."""
+    s = '7. Model audit'
+    audits = newest_audits() if audits is None else audits
+    facts = {m: {f['record_id']: f.get('known') for f in audits[m][0].get('facts', [])}
+             for m in AUDIT_MODELS if m in audits}
+    missing_models = [m for m in AUDIT_MODELS if m not in audits]
+    table = [['model', 'audited', 'records', 'replace held', 'delete held', 'real insert not held']]
+    for m in AUDIT_MODELS:
+        if m not in audits:
+            table.append([m, 'not audited', '', '', '', ''])
+            continue
+        f, when = facts[m], datetime.fromtimestamp(audits[m][1]).strftime('%Y-%m-%d %H:%M')
+        row = [m, when, len(f)]
+        for op in ('replace', 'delete', 'insert'):
+            rs = [r for r in recs if r['edit_operation'] == op and r.get('reality') != 'fictional'
+                  and not r['edit'].get('fixture')]
+            row.append(f'{sum(f.get(r["id"]) == 1 for r in rs)}/{len(rs)}')
+        table.append(row)
+
+    rows = []
+    for op, name in (('replace', 'Replace: every model already holds the original fact'),
+                     ('delete', 'Delete: every model already holds the fact'),
+                     ('insert', 'Insert (real): no model already holds the new fact')):
+        failed, unaudited, unclear = [], set(missing_models), []
+        for r in recs:
+            if r['edit_operation'] != op or r.get('reality') == 'fictional' or r['edit'].get('fixture'):
+                continue
+            bad = [m for m in facts if facts[m].get(r['id']) == 0]
+            vague = [m for m in facts if r['id'] in facts[m] and facts[m][r['id']] is None]
+            unaudited |= {m for m in facts if r['id'] not in facts[m]}
+            if bad:
+                verb = 'already held by' if op == 'insert' else 'not held by'
+                failed.append(f'{r["id"]}: {verb} {", ".join(bad)}')
+            if vague:
+                unclear.append(f'{r["id"]}: judge unclear for {", ".join(vague)}')
+        items = failed + unclear
+        status = 'fail' if failed else 'pending' if unaudited or unclear else 'pass'
+        note = f'Not audited on every record: {", ".join(sorted(unaudited))}.' if unaudited else ''
+        rows.append(check(s, name, items, status=status, note=note, table=table if op == 'replace' else None))
+    return rows
+
+
+def check_naming(recs, relations):
+    s = '8. Relation names'
     used = defaultdict(list)
     for r in recs:
         used[r['relation']].append(r['id'])
         if r['box'] == 'rbox':
             for name in IDENT.findall(r['edit'].get('axiom') or ''):
-                if name not in DL_WORDS:
-                    if r['id'] not in used[name]:
-                        used[name].append(r['id'])
-    rep.problem('not snake_case', [f'{n} ({", ".join(v[:3])})' for n, v in sorted(used.items())
-                                   if not SNAKE.fullmatch(n)])
-    rep.problem('not in RELATIONS.md', [f'{n} ({", ".join(v[:3])})' for n, v in sorted(used.items())
-                                        if n not in relations])
+                if name not in DL_WORDS and r['id'] not in used[name]:
+                    used[name].append(r['id'])
     # Names that may be one relation spelled twice: equal once has_/is_ are dropped.
     stem = defaultdict(set)
     for n in set(used) | set(relations):
         stem[re.sub(r'^(has|is)_', '', n)].add(n)
-    rep.problem('possibly one relation under two names (review by hand)',
-                [' / '.join(sorted(v)) for v in stem.values() if len(v) > 1])
+    return [
+        check(s, 'Relation names are snake_case', [f'{n} ({", ".join(v[:3])})' for n, v in sorted(used.items())
+                                                   if not SNAKE.fullmatch(n)]),
+        check(s, 'Every relation is in RELATIONS.md', [f'{n} ({", ".join(v[:3])})' for n, v in sorted(used.items())
+                                                       if n not in relations]),
+        check(s, 'No relation under two names', [' / '.join(sorted(v)) for v in stem.values() if len(v) > 1],
+              review=True),
+    ]
 
 
-def check_reuse(recs, rep):
-    rep.section('7. Far unrelated prompt reuse')
+def check_reuse(recs):
     far = Counter(q['prompt'] for r in recs for q in r['queries'].get('unrelated_far') or [])
-    print(f'    {len(far)} distinct far prompts over {sum(far.values())} queries')
-    rep.problem(f'far prompt used more than {MAX_FAR_REUSE} times',
-                [f'{n:3}x {p}' for p, n in far.most_common() if n > MAX_FAR_REUSE])
+    return [check('9. Prompt reuse', f'No far unrelated prompt used more than {MAX_FAR_REUSE} times',
+                  [f'{n}x {p}' for p, n in far.most_common() if n > MAX_FAR_REUSE],
+                  note=f'{len(far)} distinct far prompts over {sum(far.values())} queries.')]
 
 
 def spread(recs):
-    print('\n## Tag spread (report only)')
+    table = [['tag', 'operation', *FAMILIARITY]]
     for tier in FAMILIARITY_TIERS:
-        c = Counter((r['edit_operation'], (r.get('familiarity') or {}).get(tier)) for r in recs)
-        print(f'    familiarity.{tier:8} ' + '  '.join(
-            f'{op}: ' + ' '.join(str(c[(op, v)]) for v in FAMILIARITY) for op in ('insert', 'replace')))
+        for op in ('insert', 'replace'):
+            c = Counter((r.get('familiarity') or {}).get(tier) for r in recs if r['edit_operation'] == op)
+            table.append([f'familiarity.{tier}', op, *(c[v] for v in FAMILIARITY)])
     c = Counter(r.get('derivability') for r in recs if r['edit_operation'] == 'replace')
-    print('    derivability (replace) ' + ' '.join(f'{v} {c[v]}' for v in DERIVABILITY))
-    print(f'    (familiarity columns: {" ".join(FAMILIARITY)})')
+    dtable = [['derivability (replace)', *DERIVABILITY], ['', *(c[v] for v in DERIVABILITY)]]
+    return [check('Tag spread', 'Familiarity', status='info', table=table),
+            check('Tag spread', 'Derivability', status='info', table=dtable)]
+
+
+def report():
+    recs = load_records()
+    relations, _ = load_relations()
+    checks = (check_repeats(recs) + check_delete(recs) + check_yes_no(recs) + check_ambiguity()
+              + check_locality(recs) + check_mix(recs) + check_audit(recs) + check_naming(recs, relations)
+              + check_reuse(recs) + spread(recs))
+    return {'records': len(recs), 'checks': checks,
+            'status': dict(Counter(c['status'] for c in checks))}
+
+
+MARK = {'pass': 'ok', 'fail': 'FAIL', 'review': 'review', 'pending': 'pending', 'manual': 'manual', 'info': ''}
+
+
+def print_report(rep, show_all):
+    print(f'# Criteria report: {rep["records"]} records (CRITERIA.md)')
+    section = None
+    for c in rep['checks']:
+        if c['section'] != section:
+            section = c['section']
+            print(f'\n## {section}')
+        count = f' ({c["count"]})' if c['count'] else ''
+        print(f'- [{MARK[c["status"]]}] {c["name"]}{count}' if MARK[c['status']] else f'- {c["name"]}')
+        if c['note']:
+            print(f'    {c["note"]}')
+        for row in c['table'] or []:
+            print('    ' + '  '.join(f'{str(v):>12}' if i else f'{str(v):24}' for i, v in enumerate(row)))
+        for item in c['items'] if show_all else c['items'][:8]:
+            print(f'    {item}')
+        if not show_all and len(c['items']) > 8:
+            print(f'    ... {len(c["items"]) - 8} more (--all)')
+    print('\n' + ', '.join(f'{n} {s}' for s, n in sorted(rep['status'].items())))
 
 
 def main(argv):
-    rep = Report('--all' in argv)
-    recs = load_records()
-    relations, _ = load_relations()
-    print(f'# Criteria report: {len(recs)} records (CRITERIA.md)')
-    check_repeats(recs, rep)
-    check_delete(recs, rep)
-    check_yes_no(recs, rep)
-    print('\n## 4. No ambiguity\n- not checkable by script: needs an LLM pass and a person (CRITERIA.md section 4)')
-    check_locality(recs, rep)
-    check_mix(recs, rep)
-    check_naming(recs, relations, rep)
-    check_reuse(recs, rep)
-    spread(recs)
-    print(f'\n{len(rep.failed)} criteria with something to fix' + (': ' + '; '.join(rep.failed) if rep.failed else ''))
+    rep = report()
+    if '--json' in argv:
+        print(json.dumps(rep, ensure_ascii=False))
+    else:
+        print_report(rep, '--all' in argv)
     return 0
 
 

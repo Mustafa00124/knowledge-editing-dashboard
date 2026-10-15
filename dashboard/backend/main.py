@@ -1284,6 +1284,20 @@ def _sids_validate():
     return module
 
 
+@app.get("/api/sids-dataset/criteria")
+def get_sids_dataset_criteria():
+    """The CRITERIA.md checklist (datasets/SidsDataset/criteria.py): each check
+    with its status (pass, fail, review, pending, manual, info) and what breaks it."""
+    import importlib.util
+    path = config.DATASETS_DIR / "SidsDataset" / "criteria.py"
+    if not path.exists():
+        raise HTTPException(404, "datasets/SidsDataset/criteria.py not found")
+    spec = importlib.util.spec_from_file_location("sids_criteria", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.report()
+
+
 @app.get("/api/sids-dataset/audit-checks")
 def get_sids_dataset_audit_checks():
     """Per model, its newest model-audit run's fact and relation checks."""

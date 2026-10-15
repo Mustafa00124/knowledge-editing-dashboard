@@ -8,6 +8,8 @@ queries, tags); this file says what counts as a good record within it.
 reports every criterion a script can check, with the records that break it.
 It is report only for now and never fails; a check moves into `validate.py`'s
 errors once the records meet it. Section 4 needs an LLM pass and a person.
+The dashboard shows the same checklist, green to red: Datasets, Sid's
+Dataset, **Criteria checklist**.
 
 Status: **draft**. Sections marked *Open* still need numbers agreed.
 
@@ -105,3 +107,31 @@ Candidates, roughly in order of importance:
 Counts to be agreed. Current state of the 2,400 ABox/TBox derived queries:
 inheritance 422, composition 620, task types 926, inverse 207, functional
 102, transitivity 50, symmetry 24, chain 23, asymmetry 24, subproperty 2.
+
+## 7. Model audit
+
+What the models hold before editing, from the model audit
+(`experiments/model_audit/audit.py`, launched from the dashboard's Model audit
+page). It is required of every main model, base and instruct
+(`AUDIT_MODELS` in `criteria.py`), using each model's newest audit run.
+
+- **Replace:** every model already holds the original fact.
+- **Delete:** every model already holds the fact it removes.
+- **Insert (real):** no model already holds the new fact. Fictional inserts
+  are exempt: no model can hold them.
+
+A fact is held when the audit's direct and paraphrase questions both get the
+original answer (RBox: the direct question and both instance questions). An
+answer the judge cannot label leaves the check pending, not failed. Bridge
+facts and premises are audited too, but they decide whether a derived query
+is scored per model rather than whether the record stays.
+
+## 8. Relation names
+
+One snake_case name per relation, and every relation a record uses (including
+ones that appear only inside an RBox axiom) is in `RELATIONS.md`.
+
+## 9. Prompt reuse
+
+No far unrelated prompt appears more than 10 times across the dataset
+(provisional cap).
