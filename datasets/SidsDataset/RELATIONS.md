@@ -130,7 +130,7 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `ended_in_year` | event a ended in year b | associative | `functional` | The Thirty Years' War ended in 1648. |
 | `member_of` | a is a member of (a delegate to) body b | associative | `inverse:has_member`, `cardinality:many` | Every signer of the Declaration of Independence was a delegate to the Second Continental Congress. |
 | `chosen_by` | holders of office a are chosen by b | associative | `functional`, `inverse:chooses` | Every Holy Roman Emperor was chosen by the prince-electors. |
-| `term_length` | a term of office a lasts b | associative | `functional` | A US presidential term lasts four years. |
+| `has_term_length` | holders of office a serve terms of length b | associative | `functional` | A US presidential term lasts four years. |
 | `commanded_by` | unit a is commanded by an officer of rank b | associative | `functional`, `inverse:commands` | Every Roman legion of the early Empire was commanded by a legate. |
 | `subclass_of` | every a is a b | associative | `transitive`, `asymmetric` | Every Confederate state was a slave state. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | An epidemic that kills a large share of the population raises surviving labourers' wages. |
@@ -160,7 +160,7 @@ Includes the textbook economic laws as causal TBox rules.
 
 | Relation | Reads as | Semantics | Tags | Example |
 | --- | --- | --- | --- | --- |
-| `subsidiary_of` | a is a subsidiary of b | associative | `transitive`, `asymmetric`, `inverse:parent_company_of` | Instagram is a subsidiary of Meta. |
+| `subsidiary_of` | a is a direct or indirect subsidiary of b | associative | `transitive`, `asymmetric`, `inverse:parent_company_of` | Instagram is a subsidiary of Meta. |
 | `has_ceo` | a's CEO is b | associative | `functional`, `inverse:ceo_of` | Apple's CEO is Tim Cook. |
 | `acquired` | a acquired b | associative | `asymmetric`, `inverse:acquired_by` | Microsoft acquired LinkedIn. |
 | `has_currency` | a's currency is b | associative | `functional`, `inverse:currency_of` | Japan's currency is the yen. |
@@ -172,25 +172,24 @@ Includes the textbook economic laws as causal TBox rules.
 | `designated_category` | a's designated category is b | associative | `functional` | Vanguard's designated business category is investment management; every ETF's designated product category is pooled investment vehicle. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A stack's designated retrieval discipline is last-in, first-out. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Loan L1's rate reset results in a $600 interest payment. |
-| `lendsTo` | a lends to b | associative | `cardinality:many` | North Bank lends to Cedar Ltd. |
-| `subsidiaryOf` | a is a direct or indirect subsidiary of b | associative | `transitive`, `asymmetric` | Cedar Ltd is a subsidiary of Oak Ltd. |
-| `owesTo` | a owes money to b | associative | `cardinality:many` | Cedar Ltd owes North Bank. |
-| `isCounterpartyTo` | a is a counterparty to b in a bilateral transaction | associative | `symmetric` | Cedar Ltd is a counterparty to North Bank. |
-| `canTransferTo` | account a can transfer funds to account b | associative | `cardinality:many` | Account Cedar can transfer to Account Maple. |
-| `hasOwner` | account a is owned by b | associative | `cardinality:many` | Account Cedar has owner Alice. |
-| `canSettleIn` | account a can settle in currency b | associative | `cardinality:many` | Account Cedar can settle in USD. |
-| `ownsAccount` | person a owns account b | associative | `cardinality:many`, `chain:accountHeldAt->hasAccountAt` | Alice owns Account Cedar. |
-| `isCreditorOf` | a is a creditor of b | associative | `inverse:isDebtorOf`, `cardinality:many` | North Bank is a creditor of Cedar Ltd. |
-| `hasClearingPriorityOver` | bank a has clearing priority over bank b (invented) | associative | `cardinality:many` | JPMorgan Chase has clearing priority over Barclays. |
-| `isMirrorBankOf` | bank a is a mirror bank of bank b (invented) | associative | `cardinality:many` | Deutsche Bank is a mirror bank of BNP Paribas. |
-| `isKeelLenderTo` | a is a keel lender to b (invented) | associative | `cardinality:many` | Wells Fargo is a keel lender to Ford. |
-| `hasAnchorCustodian` | fund a has anchor custodian b (invented) | associative | `cardinality:many` | The Vanguard 500 Index Fund has State Street as its anchor custodian. |
-| `isAnchoredAt` | fund a is anchored at bank b (invented) | associative | `cardinality:many` | The Kestrel Growth Fund is anchored at Barclays. |
-| `isWardenOf` | firm a is the warden of fund b (invented) | associative | `cardinality:many` | BlackRock is the warden of the Kestrel Growth Fund. |
-| `ranksPariPassuWith` | debt a ranks pari passu (equally) with debt b | associative | `cardinality:many` | Ford's 2030 senior notes rank pari passu with its 2032 senior notes. |
-| `ranksSeniorTo` | claim a ranks senior to claim b on the same issuer | associative | `asymmetric`, `cardinality:many` | Senior secured debt ranks senior to subordinated debt. |
-| `isDraweeOf` | bank a is the drawee of cheque b | associative | `cardinality:many` | Chase Bank is the drawee of cheque number 1047. |
-| `hasISIN` | security a has ISIN b | associative | `functional` | Apple's common stock has ISIN US0378331005. |
+| `lends_to` | a lends to b | associative | `cardinality:many` | North Bank lends to Cedar Ltd. |
+| `owes_to` | a owes money to b | associative | `cardinality:many` | Cedar Ltd owes North Bank. |
+| `is_counterparty_to` | a is a counterparty to b in a bilateral transaction | associative | `symmetric` | Cedar Ltd is a counterparty to North Bank. |
+| `can_transfer_to` | account a can transfer funds to account b | associative | `cardinality:many` | Account Cedar can transfer to Account Maple. |
+| `has_owner` | account a is owned by b | associative | `cardinality:many` | Account Cedar has owner Alice. |
+| `can_settle_in` | account a can settle in currency b | associative | `cardinality:many` | Account Cedar can settle in USD. |
+| `owns_account` | person a owns account b | associative | `cardinality:many`, `chain:account_held_at->has_account_at` | Alice owns Account Cedar. |
+| `is_creditor_of` | a is a creditor of b | associative | `inverse:is_debtor_of`, `cardinality:many` | North Bank is a creditor of Cedar Ltd. |
+| `has_clearing_priority_over` | bank a has clearing priority over bank b (invented) | associative | `cardinality:many` | JPMorgan Chase has clearing priority over Barclays. |
+| `is_mirror_bank_of` | bank a is a mirror bank of bank b (invented) | associative | `cardinality:many` | Deutsche Bank is a mirror bank of BNP Paribas. |
+| `is_keel_lender_to` | a is a keel lender to b (invented) | associative | `cardinality:many` | Wells Fargo is a keel lender to Ford. |
+| `has_anchor_custodian` | fund a has anchor custodian b (invented) | associative | `cardinality:many` | The Vanguard 500 Index Fund has State Street as its anchor custodian. |
+| `is_anchored_at` | fund a is anchored at bank b (invented) | associative | `cardinality:many` | The Kestrel Growth Fund is anchored at Barclays. |
+| `is_warden_of` | firm a is the warden of fund b (invented) | associative | `cardinality:many` | BlackRock is the warden of the Kestrel Growth Fund. |
+| `ranks_pari_passu_with` | debt a ranks pari passu (equally) with debt b | associative | `cardinality:many` | Ford's 2030 senior notes rank pari passu with its 2032 senior notes. |
+| `ranks_senior_to` | claim a ranks senior to claim b on the same issuer | associative | `asymmetric`, `cardinality:many` | Senior secured debt ranks senior to subordinated debt. |
+| `is_drawee_of` | bank a is the drawee of cheque b | associative | `cardinality:many` | Chase Bank is the drawee of cheque number 1047. |
+| `has_isin` | security a has ISIN b | associative | `functional` | Apple's common stock has ISIN US0378331005. |
 
 ### Biology
 
@@ -399,34 +398,35 @@ market share), since replace needs an original every model holds as true.
 | `designated_category` | a's designated category is b | associative | `functional` | Vanguard's designated business category is investment management; every ETF's designated product category is pooled investment vehicle. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A stack's designated retrieval discipline is last-in, first-out. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Loan L1's rate reset results in a $600 interest payment. |
-| `directlyImports` | module a directly imports module b | associative | `cardinality:many` | checkout_module directly imports pricing_module. |
-| `dependsOn` | a depends, directly or indirectly, on b | associative | `transitive` | checkout_service depends on tax_service. |
-| `sendsMessageTo` | a sends a message to b | associative | `cardinality:many` | client_app sends a message to api_service. |
-| `isDirectlyConnectedTo` | a has a direct network link to b | associative | `symmetric` | router_alpha is directly connected to router_beta. |
-| `canSendMessageTo` | node a can deliver a message to node b | associative | `cardinality:many` | node_alpha can send a message to node_beta. |
-| `hasMaintainer` | project a is maintained by b | associative | `cardinality:many` | project_alpha has maintainer Alice. |
-| `runsOperatingSystem` | machine a runs operating system b | associative | `cardinality:many` | machine_alpha runs Linux. |
-| `hasReadAccessTo` | principal a can read resource b | associative | `cardinality:many` | Alice has read access to file_alpha. |
-| `usesLibrary` | project a uses library b | associative | `inverse:isLibraryUsedBy`, `cardinality:many` | project_alpha uses library_beta. |
-| `directlyImportsModule` | application a directly imports module b | associative | `chain:moduleProvidedByPackage->dependsOnPackage`, `cardinality:many` | application_alpha directly imports module_beta. |
+| `depends_on` | a depends, directly or indirectly, on b | associative | `transitive` | checkout_service depends on tax_service. |
+| `sends_message_to` | a sends a message to b | associative | `cardinality:many` | client_app sends a message to api_service. |
+| `is_directly_connected_to` | a has a direct network link to b | associative | `symmetric` | router_alpha is directly connected to router_beta. |
+| `can_send_message_to` | node a can deliver a message to node b | associative | `cardinality:many` | node_alpha can send a message to node_beta. |
+| `has_maintainer` | project a is maintained by b | associative | `cardinality:many` | project_alpha has maintainer Alice. |
+| `runs_operating_system` | machine a runs operating system b | associative | `cardinality:many` | machine_alpha runs Linux. |
+| `has_read_access_to` | principal a can read resource b | associative | `cardinality:many` | Alice has read access to file_alpha. |
+| `uses_library` | project a uses library b | associative | `inverse:is_library_used_by`, `cardinality:many` | project_alpha uses library_beta. |
+| `directly_imports` | module or application a directly imports module b | associative | `chain:module_provided_by_package->depends_on`, `cardinality:many` | application_alpha directly imports module_beta. |
 | `raises` | a raises b | causal | `causal`, `asymmetric`, `inverse:raised_by`, `cardinality:many` | Added queuing raises request latency. |
 | `lowers` | a lowers b | causal | `causal`, `asymmetric`, `inverse:lowered_by`, `cardinality:many` | A valid cache hit lowers compute cost. |
-| `isSkarnPairedWith` | package a is Skarn-paired with package b (invented registry) | associative | `cardinality:many` | NumPy is Skarn-paired with SciPy. |
-| `haldenVouchesFor` | project a Halden-vouches for project b (invented trust model) | associative | `cardinality:many` | Debian Halden-vouches for Ubuntu. |
-| `corvelAnchors` | package a anchors package b (invented build system) | associative | `cardinality:many` | NumPy anchors pandas. |
-| `hasVesselSlot` | container a has Vessel slot b (invented scheduler) | associative | `cardinality:many` | The Redis container has Vessel slot 3. |
-| `tarnPinnedTo` | service a is pinned to node b (invented deployment system) | associative | `cardinality:many` | The PostgreSQL service is pinned to node n4. |
-| `briskCanStage` | user a can stage repository b (invented access model) | associative | `cardinality:many` | Alice can stage kubernetes/kubernetes. |
-| `isSubdomainOf` | DNS name a is a subdomain of DNS name b | associative | `asymmetric` | cs.stanford.edu is a subdomain of stanford.edu. |
-| `hasPrimaryKey` | relational table a has primary key b | associative | | The table orders has primary key order_id. |
-| `isBgpPeerOf` | router or autonomous system a is a BGP peer of b | associative | `cardinality:many` | AS 13335 is a BGP peer of AS 15169. |
-| `isCnameAliasOf` | DNS name a is a CNAME alias of canonical name b | associative | `functional` | www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. |
+| `is_skarn_paired_with` | package a is Skarn-paired with package b (invented registry) | associative | `cardinality:many` | NumPy is Skarn-paired with SciPy. |
+| `halden_vouches_for` | project a Halden-vouches for project b (invented trust model) | associative | `cardinality:many` | Debian Halden-vouches for Ubuntu. |
+| `corvel_anchors` | package a anchors package b (invented build system) | associative | `cardinality:many` | NumPy anchors pandas. |
+| `has_vessel_slot` | container a has Vessel slot b (invented scheduler) | associative | `cardinality:many` | The Redis container has Vessel slot 3. |
+| `tarn_pinned_to` | service a is pinned to node b (invented deployment system) | associative | `cardinality:many` | The PostgreSQL service is pinned to node n4. |
+| `brisk_can_stage` | user a can stage repository b (invented access model) | associative | `cardinality:many` | Alice can stage kubernetes/kubernetes. |
+| `is_subdomain_of` | DNS name a is a subdomain of DNS name b | associative | `asymmetric` | cs.stanford.edu is a subdomain of stanford.edu. |
+| `has_primary_key` | relational table a has primary key b | associative | | The table orders has primary key order_id. |
+| `is_bgp_peer_of` | router or autonomous system a is a BGP peer of b | associative | `cardinality:many` | AS 13335 is a BGP peer of AS 15169. |
+| `is_cname_alias_of` | DNS name a is a CNAME alias of canonical name b | associative | `functional` | www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. |
 
 ## RBox items
 
-The camelCase relations in the Finance and Technology tables (`lendsTo`,
-`subsidiaryOf`, ... `directlyImportsModule`) come from the R-box
-relation-property panel and are spelled as its prompts spell them. Their tags
+Relation names are snake_case everywhere, and one relation has one name: a
+relation that already exists is reused, never respelled. The Finance and
+Technology relations from the R-box relation-property panel (`lends_to`,
+`subsidiary_of`, ... `directly_imports`) were renamed from the panel's
+camelCase on 2026-10-15. Their tags
 give the property **before** the edit; each RBox record replaces one of them
 (adds or removes transitivity, symmetry, reflexivity, functionality, inverse
 functionality or disjointness, or swaps an inverse or a composition path).
