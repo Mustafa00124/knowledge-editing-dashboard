@@ -8,6 +8,7 @@ place they are defined.
 
     python datasets/SidsDataset/validate.py            # records/ and examples/
     python datasets/SidsDataset/validate.py FILE ...   # just these files
+    python datasets/SidsDataset/validate.py --criteria # CRITERIA.md report (criteria.py)
 
 Standard library only. Exits 1 if any record has an error.
 """
@@ -449,6 +450,10 @@ def default_paths():
 
 
 def main(argv):
+    if '--criteria' in argv:
+        # Report only (exit 0): how the records meet CRITERIA.md.
+        import criteria
+        return criteria.main([a for a in argv if a != '--criteria'])
     relations, conflicts = load_relations()
     for c in conflicts:
         print(c)
