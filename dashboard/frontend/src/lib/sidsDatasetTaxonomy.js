@@ -1,8 +1,8 @@
 // Sid's own benchmark: the categorization scheme, ahead of any actual records.
 //
-// Three levels: edit operation, then knowledge form (topic > box > relation
-// semantics, which only exists under some boxes),
-// then a fixed set of 12 queries per edit. See datasets/SidsDataset/README.md
+// Three levels: edit operation, then knowledge form (topic > box), then a
+// fixed set of 12 queries per edit (7 for RBox). Relation semantics and
+// relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
 
@@ -37,8 +37,6 @@ export const TOPICS = [
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
-// `semantics` says whether the next layer exists under each box; a record
-// stores null for a layer its box doesn't have.
 export const BOXES = [
   {
     key: 'abox',
@@ -46,7 +44,6 @@ export const BOXES = [
     notation: 'R(a, b), C(a)',
     description: 'Facts about particular individuals.',
     examples: ['Paris is the capital of France.'],
-    semantics: true,
   },
   {
     key: 'tbox',
@@ -54,7 +51,6 @@ export const BOXES = [
     notation: 'C ⊑ D, C ⊑ ∃R.D',
     description: 'Rules about classes: every C is (or does) D. One edit should move every individual it covers.',
     examples: ['Every capital is a city.', 'Smoking causes lung cancer.'],
-    semantics: true,
   },
   {
     key: 'rbox',
@@ -62,41 +58,17 @@ export const BOXES = [
     notation: 'Trans(R), Sym(R), R ≡ S⁻, R ∘ S ⊑ T',
     description: 'Properties of relations themselves. Editing one changes what can be derived from every fact using that relation.',
     examples: ['"Located in" is transitive.', '"Sibling of" is symmetric.'],
-    semantics: false,
   },
 ]
 
-// Level 2, third layer (ABox and TBox only). Causation is outside standard
-// description logic; it is modelled as relations with their own properties
-// in RELATIONS.md, and is not treated as transitive in general.
-export const RELATION_SEMANTICS = [
-  {
-    key: 'causal',
-    label: 'Causal',
-    description: 'The relation says one thing brings about another.',
-    examples: ['The 2008 crisis caused Lehman Brothers to collapse.', 'Smoking causes lung cancer.'],
-  },
-  {
-    key: 'associative',
-    label: 'Associative',
-    description: 'Any other relation: membership, location, ownership, role, part of.',
-    examples: ['Paris is the capital of France.', 'Every capital is a city.'],
-  },
-]
+// Every leaf of level 2 below topic: one per box, 3 per topic.
+export const KNOWLEDGE_FORMS = BOXES.map((box) => ({ box: box.key }))
 
-// Every leaf of level 2 below topic: 2 ABox + 2 TBox + 1 RBox = 5 per topic.
-export const KNOWLEDGE_FORMS = BOXES.flatMap((box) =>
-  (box.semantics ? RELATION_SEMANTICS : [null]).map((sem) => ({
-    box: box.key,
-    relation_semantics: sem?.key ?? null,
-  })),
-)
+// Target size: edits per taxonomy cell (edit operation x topic x box).
+export const EDITS_PER_CELL_GOAL = 10
 
 // Level 3: the fixed 12 queries every ABox and TBox edit carries (RBox: 7, below), and the metric each
 // feeds. Fixing the counts gives every item the same weight in every metric.
-// Target size: edits per taxonomy cell (topic x operation x knowledge form).
-export const EDITS_PER_CELL_GOAL = 5
-
 export const QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
   { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },
@@ -237,6 +209,59 @@ export const TEMPORAL = [
   },
 ]
 
+// Tag group "Relation": three facets of the record's relation (for RBox, the
+// relation whose property is edited). The name is the record's `relation`;
+// the semantics is stored as `relation_semantics` and must match
+// RELATIONS.md; the properties are not stored per record but looked up from
+// RELATIONS.md (the backend sends its table with the records).
+export const RELATION_FACETS = [
+  { key: 'name', label: 'Name', description: "The record's relation, e.g. located_in. For RBox, the relation whose property is edited." },
+  { key: 'semantics', label: 'Semantics', description: 'Causal or associative, from the Semantics column of RELATIONS.md. Stored as relation_semantics.' },
+  { key: 'properties', label: 'Properties', description: "The relation's property tags in RELATIONS.md. Not stored in the record; looked up from the catalogue." },
+]
+
+// Facet "semantics". Causation is outside standard description logic; it is
+// modelled as relations with their own properties in RELATIONS.md, and is not
+// treated as transitive in general.
+export const RELATION_SEMANTICS = [
+  {
+    key: 'causal',
+    label: 'Causal',
+    description: 'The relation says one thing brings about another.',
+    examples: ['The 2008 crisis caused Lehman Brothers to collapse.', 'Smoking causes lung cancer.'],
+  },
+  {
+    key: 'associative',
+    label: 'Associative',
+    description: 'Any other relation: membership, location, ownership, role, part of.',
+    examples: ['Paris is the capital of France.', 'Every capital is a city.'],
+  },
+]
+
+// Facet "properties": the tag vocabulary of RELATIONS.md (its Tags table),
+// for explaining and filtering. Which relation has which tags is never copied
+// here. `key` is the tag, or its prefix for tags with an argument
+// (inverse:S matches inverse:contains). The `causal` tag is left out: it is
+// the semantics facet.
+export const RELATION_PROPERTIES = [
+  { key: 'symmetric', label: 'Symmetric', notation: 'Sym(R)', description: 'a R b implies b R a.' },
+  { key: 'asymmetric', label: 'Asymmetric', notation: 'Asym(R)', description: 'a R b implies not b R a.' },
+  { key: 'inverse:', label: 'Inverse', notation: 'R ≡ S⁻', description: 'inverse:S. a R b if and only if b S a.' },
+  { key: 'transitive', label: 'Transitive', notation: 'Trans(R)', description: 'a R b and b R c imply a R c.' },
+  { key: 'chain:', label: 'Role chain', notation: 'R ∘ S ⊑ T', description: 'chain:S->T. a R b and b S c imply a T c.' },
+  { key: 'subproperty:', label: 'Subproperty', notation: 'R ⊑ S', description: 'subproperty:S. a R b implies a S b.' },
+  { key: 'functional', label: 'Functional', notation: '≤ 1 R', description: 'At most one value per subject.' },
+  { key: 'cardinality:many', label: 'Many-valued', notation: 'cardinality:many', description: 'A subject can have many values; makes delete an open-world test.' },
+]
+
+// The property facet of one tag: 'inverse:contains' -> the Inverse entry.
+export const relationPropertyOf = (tag) =>
+  RELATION_PROPERTIES.find((p) => tag === p.key || (p.key.endsWith(':') && tag.startsWith(p.key)))
+
+// A relation's property tags from the RELATIONS.md table the backend sends
+// ({name: {tags, causal}}), without `causal` (that is the semantics facet).
+export const relationProperties = (relations, name) => (relations?.[name]?.tags || []).filter((t) => t !== 'causal')
+
 // Dimensions of the earlier axis scheme this version leaves out. Listed so
 // they aren't lost; they may return as separate subsets.
 export const PARKED = [
@@ -247,12 +272,7 @@ export const PARKED = [
   'Puzzle topic: invented mini-worlds where derived queries are pure logic, insert only.',
 ]
 
-// A compact human-readable coordinate, e.g.
-// "replace · geography · abox/associative".
+// A compact human-readable coordinate, e.g. "replace · geography · abox".
 export function coordinateSummary(coordinate) {
-  return [
-    coordinate.edit_operation,
-    coordinate.topic,
-    [coordinate.box, coordinate.relation_semantics].filter(Boolean).join('/'),
-  ].join(' · ')
+  return [coordinate.edit_operation, coordinate.topic, coordinate.box].join(' · ')
 }

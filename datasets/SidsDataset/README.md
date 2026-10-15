@@ -1,7 +1,7 @@
 # Sid's Dataset
 
-Our own knowledge-editing benchmark. Empty for now: this file is the
-specification, the records get built against it. The relations we use, their
+Our own knowledge-editing benchmark. This file is the specification the
+records are built against. The relations we use, their
 properties and the derived questions each property licenses live in
 [`RELATIONS.md`](RELATIONS.md).
 
@@ -23,10 +23,13 @@ method can't pass by matching the surface form of the edit.
 Edit operation  >  Knowledge form  >  Query type
 insert            topic               direct        (1)
 replace           box                 paraphrase    (1)
-delete            relation semantics  cross-lingual (2: zh, es)
+delete                                cross-lingual (2: zh, es)
                                       derived       (4)
                                       unrelated     (2 near + 2 far)
 ```
+
+Relation semantics (causal or associative) and relation properties are not
+levels: they are the [Relation](#relation) tag group.
 
 Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 7 (below).
 
@@ -40,8 +43,7 @@ Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 7
 
 ### 2. Knowledge form
 
-Three layers, each nested under the one before it. Relation semantics only
-exists under some boxes.
+Two layers: topic, then box.
 
 **Topic.** `geography`, `people` (facts about famous people), `history`,
 `finance` (including textbook economic laws), `biology` (including medicine),
@@ -61,33 +63,8 @@ organized for browsing.
 A single TBox or RBox edit should move every individual it covers, which is
 why they're expected to behave differently from ABox edits.
 
-**Relation semantics** (`abox` and `tbox` only; `null` for `rbox`):
-
-| Key | What it is | ABox example | TBox example |
-| --- | --- | --- | --- |
-| `causal` | The relation says one thing brings about another. | The 2008 crisis caused Lehman Brothers to collapse. | Smoking causes lung cancer. |
-| `associative` | Any other relation: membership, location, ownership, role, part of. | Paris is the capital of France. | Every capital is a city. |
-
-Causation is outside standard description logic. Here it's modelled as a
-relation (`causes`, `prevents`) with its own properties in `RELATIONS.md`.
-Causation is not transitive in general, so chained causal derivations are
-only used where the chain is well established.
-
-That gives 5 knowledge-form leaves per topic, all available to every edit
-operation:
-
-| Box | Relation semantics |
-| --- | --- |
-| ABox | causal, associative |
-| TBox | causal, associative |
-| RBox | |
-
-So 3 operations × 10 topics × 5 forms = 150 cells. Mathematics and grammar
-have little causal knowledge of their own, so their causal cells draw on
-their history (Gödel's theorems ending Hilbert's program, a missing serial
-comma costing a dairy $5 million) and on causal rules about their objects
-(doubling a square's side quadruples its area; printing standardises
-spelling).
+That gives 3 knowledge forms per topic (one per box), all available to every
+edit operation, so 3 operations × 10 topics × 3 boxes = 90 cells.
 
 ### 3. Query type
 
@@ -366,6 +343,40 @@ The other tags apply as usual, except that insert has no original fact:
 `familiarity.fact` and `derivability` are null. An invented subject is
 `very_low` familiarity; a real subject keeps its own.
 
+### Relation
+
+Three facets of the record's relation, for every box. For RBox the relation is
+the one whose property is edited (`relation`, also `edit.subject`).
+
+| Facet | Stored as | What it is |
+| --- | --- | --- |
+| name | `relation` | The relation, e.g. `located_in`. Must be in `RELATIONS.md`. |
+| semantics | `relation_semantics` | `causal` or `associative`, from the relation's Semantics column in `RELATIONS.md`; the validator checks they match. |
+| properties | not stored | The relation's property tags in `RELATIONS.md`, looked up with `load_relations()` in `validate.py`. |
+
+**Semantics.**
+
+| Key | What it is | ABox example | TBox example |
+| --- | --- | --- | --- |
+| `causal` | The relation says one thing brings about another. | The 2008 crisis caused Lehman Brothers to collapse. | Smoking causes lung cancer. |
+| `associative` | Any other relation: membership, location, ownership, role, part of. | Paris is the capital of France. | Every capital is a city. |
+
+Causation is outside standard description logic. Here it's modelled as a
+relation (`causes`, `prevents`) with its own properties in `RELATIONS.md`.
+Causation is not transitive in general, so chained causal derivations are
+only used where the chain is well established. Mathematics and grammar have
+little causal knowledge of their own, so their causal items draw on their
+history (Gödel's theorems ending Hilbert's program, a missing serial comma
+costing a dairy $5 million) and on causal rules about their objects (doubling
+a square's side quadruples its area; printing standardises spelling).
+
+**Properties.** Any of `symmetric`, `asymmetric`, `inverse:S`, `transitive`,
+`chain:S->T`, `subproperty:S`, `functional` and `cardinality:many` (see the
+Tags table in `RELATIONS.md`, which also lists the derived question each one
+licenses). A relation may have none. They stay in `RELATIONS.md` only, so a
+relation's properties are defined in one place; the dashboard shows them on
+each record from that table.
+
 ## Evaluation
 
 We use our own evaluation functions rather than EasyEdit's, because delete
@@ -502,7 +513,7 @@ rejected, so typos don't silently drop data.
 | `edit_operation` | `insert` \| `replace` \| `delete` | |
 | `topic` | one of the 10 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
-| `relation_semantics` | `causal` \| `associative` \| null | null for `rbox`; must match `RELATIONS.md` |
+| `relation_semantics` | `causal` \| `associative` | every box (for `rbox`, of the edited relation); must match the relation's Semantics in `RELATIONS.md`; a tag, not a layer |
 | `relation` | string | a relation in `RELATIONS.md` |
 | `edit.statement` | string | the edit as one or more sentences |
 | `edit.subject` | string | |
@@ -553,9 +564,9 @@ with its premises (`geography-replace-0002`).
 ### Imported panels
 
 `records/finance/replace/` and `records/technology/replace/` hold the 40
-items of the finance and technology replacement panel (v2): five per cell of
-ABox/TBox × associative/causal in each topic, so exactly the 5-edits-per-cell
-goal for those 8 cells. Their derived queries use the task types (binding,
+items of the finance and technology replacement panel (v2): five per
+combination of ABox/TBox and associative/causal in each topic, so ten ABox and
+ten TBox items per topic. Their derived queries use the task types (binding,
 composition with a supplied premise, application, scope), and each keeps the
 panel's ID, familiarity rating and grounding link in
 `source`. The ABox causal items are **fixtures**: named, constructed events
@@ -579,7 +590,7 @@ logical answer, while the scoring gold stays the model's own pre-edit answer.
 
 `records/<topic>/replace/` for geography, people, history, biology, physics,
 literature_arts, mathematics and grammar hold 20 ABox and TBox items each,
-five per cell, numbered in the panel's order: `0001`-`0005` ABox associative,
+ten per box (five associative, five causal), numbered in the panel's order: `0001`-`0005` ABox associative,
 `0006`-`0010` ABox causal, `0011`-`0015` TBox associative, `0016`-`0020` TBox
 causal. All 160 are real facts (no fixtures), written for variety. The
 mathematics and grammar causal cells (added 2026-10-13) use events from the
@@ -632,7 +643,7 @@ the delete records by hand.
 `records/<topic>/insert/` holds 30 items per topic (300 in all), in the same
 order as replace: `0001`-`0005` ABox associative, `0006`-`0010` ABox causal,
 `0011`-`0015` TBox associative, `0016`-`0020` TBox causal, `0021`-`0030` RBox.
-Fictional and real items come 3 to 2 in every cell: the first three of each
+Fictional and real items come 3 to 2 in every group of five: the first three of each
 five are `fictional` and the last two `real` (RBox: `0021`-`0026` fictional,
 `0027`-`0030` real), 180 fictional and 120 real in all.
 
@@ -669,10 +680,11 @@ benchmark buildable. They may come back as separate subsets:
 
 ## Size goal
 
-150 taxonomy cells: 10 topics × 3 operations × 5 knowledge forms (3 DL
-boxes, with the 2 relation semantics under ABox and TBox only). Every cell has
-5 edits and RBox has 10, so each topic holds 30 edits per operation: 900 edits
-in all (300 each of insert, replace and delete). ABox and TBox edits carry 12
+90 taxonomy cells: 10 topics × 3 operations × 3 knowledge forms (the DL
+boxes). Every cell has 10 edits, so each topic holds 30 edits per operation:
+900 edits in all (300 each of insert, replace and delete). ABox and TBox
+cells are split evenly between causal and associative relations, but that
+split is a property of how they were written, not part of the taxonomy. ABox and TBox edits carry 12
 queries and RBox edits 7, so 600 × 12 + 300 × 7 gives **9,300 queries**.
 
 ## Dashboard

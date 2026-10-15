@@ -22,7 +22,7 @@ See [`README.md`](README.md) for the scheme as a whole.
 | `subproperty:S` | R ⊑ S | a R b ⇒ a S b | Edit a R b, ask "a S what?" (expected: b) | no |
 | `functional` | R has at most one value per subject | a R b, a R c ⇒ b = c | Replace: edit a R b (old a R c), ask "Is c still a's R?" (expected: no). Delete: ask whether the removed value still holds (expected: does not know). | no |
 | `cardinality:many` | | a can be R-related to many things | Not a derivation. Marks delete as an open-world test: after deleting one value, abstaining is the honest answer. | |
-| `causal` | | R says the subject brings about the object | Not a derivation by itself. Sets `relation_semantics: causal`. | |
+| `causal` | | R says the subject brings about the object | Not a derivation by itself. Marks the relation as causal, matching its Semantics column; records carry it as the `relation_semantics` tag (see the README's Relation tag group). | |
 
 Rules for writing derived queries:
 

@@ -215,13 +215,11 @@ def check_record(rec, path, relations):
     if path.parent.parent.parent.name == 'records' and (path.parent.parent.name, path.parent.name) != (topic, op):
         err(f'file should live in records/{topic}/{op}/')
 
-    # Knowledge-form layers the box doesn't have are null.
+    # Tag, every box: the semantics of the record's relation (for RBox, the
+    # relation whose property is edited). Checked against RELATIONS.md below.
     sem = rec['relation_semantics']
-    if box in ('abox', 'tbox'):
-        if sem not in RELATION_SEMANTICS:
-            err(f'relation_semantics {sem!r} not one of {RELATION_SEMANTICS}')
-    elif sem is not None:
-        err('relation_semantics must be null for rbox')
+    if sem not in RELATION_SEMANTICS:
+        err(f'relation_semantics {sem!r} not one of {RELATION_SEMANTICS}')
     # Tag: set for ABox and TBox replace and delete. A new fact can't follow
     # from what the model already holds, and RBox edits are about a relation.
     deriv = rec['derivability']
@@ -245,13 +243,14 @@ def check_record(rec, path, relations):
     elif temporal is not None:
         err(f'temporal must be null for {box}')
 
-    # The relation must be catalogued. An RBox edit changes the relation's
-    # properties, so its semantics aren't checked against the catalogue.
+    # The relation must be catalogued, and its semantics tag must match the
+    # catalogue's Semantics column (RBox included: an RBox edit changes a
+    # property of the relation, not whether it is causal).
     relation = rec['relation']
     entry = relations.get(relation)
     if entry is None:
         err(f'relation {relation!r} is not in RELATIONS.md')
-    elif box != 'rbox' and sem in RELATION_SEMANTICS and (sem == 'causal') != entry[1]:
+    elif sem in RELATION_SEMANTICS and (sem == 'causal') != entry[1]:
         err(f'relation_semantics {sem!r} disagrees with RELATIONS.md for {relation!r}')
 
     # The edit.
