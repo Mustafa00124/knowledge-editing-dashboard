@@ -36,8 +36,8 @@ RBOX_PROPERTY_TARGETS = {}
 # The models whose audit the audit criteria require (section 7): the instruct
 # models, since the main experiments ask free-form questions. Their newest run in
 # results/model_audit counts. The base models are shown beside them, for reference.
-AUDIT_MODELS = ('qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'smollm3-3b', 'map-neo-7b-instruct')
-REFERENCE_MODELS = ('qwen3-4b-base', 'olmo-3-7b-base', 'smollm3-3b-base', 'map-neo-7b')
+AUDIT_MODELS = ('qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'llama-3.1-8b-instruct', 'mistral-7b-instruct-v0.1')
+REFERENCE_MODELS = ('qwen3-4b-base', 'olmo-3-7b-base', 'llama-3.1-8b', 'mistral-7b-v0.1')
 AUDIT_RUNS = ROOT.parent.parent / 'results' / 'model_audit' / 'runs'
 
 YES = {'yes', '是', 'sí', 'si'}

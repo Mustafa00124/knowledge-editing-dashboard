@@ -10,6 +10,15 @@ outside the core set; SNKE and MCircKE are listed but not implemented: no
 public implementation was found. It records checkpointed metrics and generated answers, and ships
 a web dashboard for launching experiments and browsing results and datasets.
 
+The main experiments run on four model families (`main: True` in
+`dashboard/backend/models_reader.py`, each with its own group in the model
+pickers): Qwen3-4B (Base, Qwen3-4B, Instruct-2507, Thinking-2507), Olmo-3-7B
+(Base, Instruct, Think), Llama-3.1-8B (base and Instruct) and Mistral-7B
+(v0.1 and Instruct-v0.1). Both Mistral models have no LoRA, PMET, AlphaEdit
+or NMKE hparams yet. SmolLM3-3B and MAP-Neo-7B (the main set's open-data
+families from 2026-10-11 to 2026-10-17), DeepSeek-R1-Distill-Llama-8B,
+GPT-J-6B and the rest stay runnable under "Other".
+
 It was built on USF's gaivi SLURM cluster, but a clone runs anywhere. The
 repo holds code and configs only. Datasets, models and the experiment
 tooling are downloaded on request, choosing exactly which ones, from the
@@ -54,7 +63,7 @@ The same from a terminal:
 python scripts/setup.py --status                     # what is present, with sizes
 python scripts/setup.py --datasets KnowEdit MQuAKE   # just these (no names = every dataset)
 python scripts/setup.py --external --venv            # EasyEdit + the experiment environment
-python scripts/setup.py --models Qwen3-4B            # or --models main for the main set (~120 GB)
+python scripts/setup.py --models Qwen3-4B            # or --models main for the main set (~137 GB)
 ```
 
 A 4B model needs roughly a 24 GB GPU; the 7B models need more. Gated models
@@ -68,7 +77,7 @@ A 4B model needs roughly a 24 GB GPU; the 7B models need more. Gated models
 | Datasets, 15 benchmarks | 1 MB to 1.3 GB each (UniEdit's optional train split adds 2.5 GB) | Each benchmark's original release at a pinned version, listed with sha256s in `datasets/<name>/SOURCE.json` and checked on download |
 | EasyEdit | 200 MB | GitHub at a pinned commit, plus this project's AlphaEdit fix from `patches/` |
 | Experiment environment (`venvs/easyedit_venv`) | about 6.5 GB | pip, from EasyEdit's requirements and `requirements-evaluation.txt` |
-| Models | 6 to 16 GB each for the main set | Hugging Face, skipping duplicate weight formats; MAP-Neo's custom-code tokenizer is then converted to a stock one (`scripts/convert_neo_tokenizer.py`) |
+| Models | 8 to 16 GB each for the main set | Hugging Face, skipping duplicate weight formats; MAP-Neo's custom-code tokenizer (not in the main set) is then converted to a stock one (`scripts/convert_neo_tokenizer.py`) |
 
 Not downloaded, but produced locally:
 

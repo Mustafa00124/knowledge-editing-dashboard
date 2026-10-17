@@ -266,7 +266,9 @@ directories will move before it commits.
   each criterion by knowledge-base size (`GET /api/in-context`). Launches
   are recorded under `in_context`, which has its own progress section.
 - **Model audit** (`/model-audit`): before any editing, whether each model
-  already knows Sid's Dataset's facts in their original form. Experiment
+  already knows Sid's Dataset's facts in their original form. It covers the
+  main models' base and instruct checkpoints (Qwen3-4B, Olmo-3-7B,
+  Llama-3.1-8B, Mistral-7B), plus SmolLM3-3B and MAP-Neo-7B. Experiment
   type `model_audit` (`../experiments/model_audit/audit.py`) asks every
   question with an answer to check (not locality, which an edit run
   baselines itself; `--topics` limits it to some topics), unloads the
