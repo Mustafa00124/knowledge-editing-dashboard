@@ -108,9 +108,11 @@ derived means two-hop, the middle means ambiguous). Three signals feed it:
    (Einstein born in Ulm, Ulm in Germany), or both? `wikidata/analyze.py`
    measures this.
 2. **Text frequency:** how often the direct form appears in text compared
-   with its parts. Measured with infini-gram's document co-occurrence counts
-   on public corpora (Dolma, RedPajama, the Pile). The main models' own data
-   isn't public, so this is a proxy.
+   with its parts. Measured with infini-gram's AND queries, which count where
+   two phrases occur within a few tokens of each other ("Eiffel Tower" near
+   "France", against "Eiffel Tower" near "Paris"), on public corpora (Dolma,
+   RedPajama, the Pile). The main models' own data isn't public, so this is
+   a proxy.
 3. **Our rating:** the derivability tag as it is assigned now.
 
 Which route a model actually uses is a property of the model, and is measured
