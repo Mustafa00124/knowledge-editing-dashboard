@@ -30,10 +30,10 @@ from validate import (DERIVABILITY, FAMILIARITY, FAMILIARITY_TIERS, ROOT, TOPICS
 SIMILAR_STATEMENT = 0.9   # difflib ratio above which two edits are listed as near repeats
 MAX_FAR_REUSE = 10        # times one far unrelated prompt may appear in the dataset
 # Derivation mix targets, {(box, derivation): share of that box's derived queries}.
-# Empty until CRITERIA.md section 6 has numbers; the counts are reported either way.
+# Empty until CRITERIA.md B3 has numbers; the counts are reported either way.
 DERIVATION_TARGETS = {}
 RBOX_PROPERTY_TARGETS = {}
-# The models whose audit the audit criteria require (section 7): the instruct
+# The models whose audit the audit criteria require (CRITERIA.md R4): the instruct
 # models, since the main experiments ask free-form questions. Their newest run in
 # results/model_audit counts. The base models are shown beside them, for reference.
 AUDIT_MODELS = ('qwen3-4b-instruct-2507', 'olmo-3-7b-instruct', 'llama-3.1-8b-instruct', 'mistral-7b-instruct-v0.1')
@@ -101,9 +101,9 @@ def check(section, name, items=(), status=None, review=False, note='', table=Non
 
 
 def check_repeats(recs):
-    s = '1. No repeated edits'
+    s = 'R3. No repeated edits'
     # Delete records restate replace's facts by design, so compare insert and
-    # replace only; delete is checked against its replace record in section 2.
+    # replace only; delete is checked against its replace record under R5.
     pool = [r for r in recs if r['edit_operation'] != 'delete']
     by_statement, by_triple = defaultdict(list), defaultdict(list)
     for r in pool:
@@ -136,7 +136,7 @@ def check_repeats(recs):
 
 
 def check_delete(recs):
-    s = '2. Delete: ground label is "I don\'t know"'
+    s = 'R5. Delete means "I don\'t know"'
     by_id = {r['id']: r for r in recs}
     unpaired, mismatched, answered = [], [], []
     for r in recs:
@@ -161,7 +161,7 @@ def check_delete(recs):
 
 
 def check_yes_no(recs):
-    s = '3. Yes/no balance'
+    s = 'B2. Yes/no answers 50/50 in RBox'
     counts = Counter()
     for r in recs:
         if r['box'] != 'rbox' or r['edit_operation'] == 'delete':
@@ -198,8 +198,15 @@ def check_yes_no(recs):
 
 
 def check_ambiguity():
-    return [check('4. No ambiguity', 'Every answer is uncontroversially true or false', status='manual',
+    return [check('R1. True and unambiguous', 'Every answer is clearly true or clearly false', status='manual',
                   note='Not checkable by script: needs an LLM pass and a person.')]
+
+
+def check_subjects():
+    return [check('R2. Named subjects, self-contained statements',
+                  'Subjects are named things; statements stand on their own', status='manual',
+                  note='Checked by a person. wikidata/entities.json marks subjects that are descriptions '
+                       '(category "description").')]
 
 
 def check_locality(recs):
@@ -215,11 +222,11 @@ def check_locality(recs):
         for q in r['queries']['unrelated_near']:
             if norm(q.get('reference')) in edited:
                 leaks.append(f'{r["id"]}: {q["prompt"]!r} -> {q["reference"]!r}')
-    return [check('5. Locality can detect leaking', "Near unrelated answers differ from the edit's new answer", leaks)]
+    return [check('R6. Locality can catch leaks', "Near unrelated answers differ from the edit's new answer", leaks)]
 
 
 def check_mix(recs):
-    s = '6. Relation property mix'
+    s = 'B3. Derivations not dominated by composition'
     der = Counter()
     for r in recs:
         if r['box'] != 'rbox':
@@ -277,7 +284,7 @@ def check_audit(recs, audits=None):
     delete fact and none already holds a real insert. The audit's fact
     `known` is its pass rule: 1 means the original is held (replace, delete)
     or the new answer is not (insert)."""
-    s = '7. Model audit'
+    s = 'R4. The models hold the right things'
     audits = newest_audits() if audits is None else audits
     every = {m: {f['record_id']: f.get('known') for f in audits[m][0].get('facts', [])}
              for m in AUDIT_MODELS + REFERENCE_MODELS if m in audits}
@@ -321,7 +328,7 @@ def check_audit(recs, audits=None):
 
 
 def check_naming(recs, relations):
-    s = '8. Relation names'
+    s = 'R7. One name per relation'
     used = defaultdict(list)
     for r in recs:
         used[r['relation']].append(r['id'])
@@ -345,7 +352,7 @@ def check_naming(recs, relations):
 
 def check_reuse(recs):
     far = Counter(q['prompt'] for r in recs for q in r['queries'].get('unrelated_far') or [])
-    return [check('9. Prompt reuse', f'No far unrelated prompt used more than {MAX_FAR_REUSE} times',
+    return [check('B6. Far locality prompts vary', f'No far unrelated prompt used more than {MAX_FAR_REUSE} times',
                   [f'{n}x {p}' for p, n in far.most_common() if n > MAX_FAR_REUSE],
                   note=f'{len(far)} distinct far prompts over {sum(far.values())} queries.')]
 
@@ -358,16 +365,18 @@ def spread(recs):
             table.append([f'familiarity.{tier}', op, *(c[v] for v in FAMILIARITY)])
     c = Counter(r.get('derivability') for r in recs if r['edit_operation'] == 'replace')
     dtable = [['derivability (replace)', *DERIVABILITY], ['', *(c[v] for v in DERIVABILITY)]]
-    return [check('Tag spread', 'Familiarity', status='info', table=table),
-            check('Tag spread', 'Derivability', status='info', table=dtable)]
+    return [check('B4. Hop forms are mixed', 'Shares of one-hop, two-hop and ambiguous facts', status='pending',
+                  note='Targets open (CRITERIA.md design note). Derivability, our current rating of hop form:',
+                  table=dtable),
+            check('B5. Familiarity and connectivity spread', 'Familiarity', status='info', table=table)]
 
 
 def report():
     recs = load_records()
     relations, _ = load_relations()
-    checks = (check_repeats(recs) + check_delete(recs) + check_yes_no(recs) + check_ambiguity()
-              + check_locality(recs) + check_mix(recs) + check_audit(recs) + check_naming(recs, relations)
-              + check_reuse(recs) + spread(recs))
+    checks = (check_ambiguity() + check_subjects() + check_repeats(recs) + check_audit(recs)
+              + check_delete(recs) + check_locality(recs) + check_naming(recs, relations)
+              + check_yes_no(recs) + check_mix(recs) + spread(recs) + check_reuse(recs))
     return {'records': len(recs), 'checks': checks,
             'status': dict(Counter(c['status'] for c in checks))}
 

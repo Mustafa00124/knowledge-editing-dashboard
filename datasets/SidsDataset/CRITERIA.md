@@ -1,140 +1,136 @@
-# Sid's Dataset: record criteria
+# Sid's Dataset: criteria
 
-Constraints every record, and the dataset as a whole, must meet. The
+What makes a good record, and what the dataset as a whole has to cover.
 [`README.md`](README.md) defines the scheme (operations, knowledge form,
-queries, tags); this file says what counts as a good record within it.
+queries, tags); this file is the quality bar on top of it.
 
-`python datasets/SidsDataset/validate.py --criteria` (code in `criteria.py`)
-reports every criterion a script can check, with the records that break it.
-It is report only for now and never fails; a check moves into `validate.py`'s
-errors once the records meet it. Section 4 needs an LLM pass and a person.
-The dashboard shows the same checklist, green to red: Datasets, Sid's
-Dataset, **Criteria checklist**.
+Three parts:
 
-Status: **draft**. Sections marked *Open* still need numbers agreed.
+- **Rules** every record must pass.
+- **Balance targets** the dataset meets as a whole, not each record.
+- **Design note** on hop form and derivation trees, the part still being
+  designed.
 
-## 1. No repeated edits
+**Checking.** `python datasets/SidsDataset/validate.py --criteria` (code in
+`criteria.py`) checks everything a script can and lists the records that
+fail. The dashboard shows the same checklist: Datasets, Sid's Dataset,
+**Criteria checklist**. It only reports for now. A check becomes a hard error
+in `validate.py` once the records pass it.
 
-- No two records share an edit: not the same statement, and not the same
-  (subject, relation, object) in different words.
-- The one exception is replace and delete: each delete record is built from a
-  replace record and removes the same original fact (300 shared facts).
-- RBox: at most one record per (relation, axiom) per operation, across all
-  topics. A relation may still appear in several RBox records with different
-  axioms ("borders" is symmetric; "borders" is transitive).
-- Known violation: "'Is part of' is (not) transitive" is in both biology and
-  physics (replace and delete 0022).
-- Every relation a record uses, including ones that only appear inside an
-  RBox axiom, is in `RELATIONS.md` under one snake_case name.
+## Rules
 
-## 2. Delete has one ground label: "I don't know"
+**R1. True and unambiguous.** Every answer the dataset relies on is clearly
+true or clearly false: original and new answers, bridge facts, premises,
+locality references. Leave out facts that experts dispute, that depend on a
+date, definition or source, or that have several defensible answers. An RBox
+instance must be clear in the real world whatever the axiom says: "polar bears
+prey on seals, seals prey on cod, so polar bears prey on cod?" is out, because
+whether polar bears eat cod is unclear. *Checked by a person, helped by the
+Wikidata fact check (`wikidata/`).*
 
-After a delete, every query that went through the deleted fact (direct,
-paraphrase, cross-lingual, derived) expects the model to say it does not know.
-A plain "no" is not a pass, including on yes/no questions.
+**R2. Named subjects, self-contained statements.** The subject is a named
+thing or class (Pompeii, Mount Vesuvius, prime number), never a description
+of the value being edited ("the volcano that destroyed Pompeii") and never a
+phrase that contains its answer ("FDR's successor"). Descriptions belong in
+the queries, as binding queries (see the design note). A statement makes sense
+on its own: no "under those conditions", no "the specified", no mention of
+the edit. *Checked by a person; the subject also matters to locate-and-edit
+methods, which edit at its last token.*
 
-> README currently says `negate` also counts as success. That needs bringing
-> in line with this rule (README, judge rubric, scoring code).
+**R3. No repeated edits.** No two records edit the same fact, in the same or
+different words. Replace and delete are the exception: each delete removes
+its replace record's original fact.
 
-## 3. Yes/no balance
+**R4. The models hold the right things before editing.** From the model
+audit, for the four main instruct models (Qwen3-4B-Instruct-2507,
+Olmo-3-7B-Instruct, Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.1;
+`AUDIT_MODELS` in `criteria.py`): every model holds a replace or delete
+record's original fact, and no model already holds a real insert. Fictional
+inserts are exempt. A fact is held when the direct and paraphrase questions
+both get the original answer (RBox: the direct question and both instances).
 
-- RBox: within each operation (insert, replace), the gold answers of yes/no
-  queries are 50% yes and 50% no, counted separately for direct, derived and
-  cross-lingual queries. Delete inherits replace's questions with "I don't
-  know" as the gold, so it has no balance of its own.
-- Balance per topic as well as overall, as near as the counts allow.
-- Current state: RBox insert direct is 81 yes / 3 no, derived 171 / 29; RBox
-  replace direct 60 / 30, derived 148 / 52.
-- ABox and TBox are not under this rule. Their yes/no queries are roughly
-  balanced already (insert and replace: ABox 28 yes / 48 no, TBox 102 / 83).
+**R5. Delete means "I don't know".** After a delete, every query through the
+removed fact expects an abstention. A plain "no" fails, also on yes/no
+questions. *(The README and judge still also accept a negation; to align.)*
 
-## 4. No ambiguity
+**R6. Locality can catch leaks.** A near unrelated query's answer differs from
+the edit's new answer, or a model that leaks the edit still passes. Delete is
+exempt: there a leak is an abstention, which any near query catches.
 
-Every answer the dataset relies on must be uncontroversially true or false:
-the original and new answers, bridge facts and their checks, premises, and
-locality references. Leave out anything where:
+**R7. One name per relation, and the label fits.** Every relation is in
+`RELATIONS.md` under one snake_case name, including relations that only appear
+inside an RBox axiom. A record's relation describes its own statement (for
+delete, the fact it removes), so a `raises` record's statement says raises.
 
-- experts disagree, or the answer depends on a definition, a date, a region or
-  a source;
-- the "false" side might actually be true (the dataset authors aren't sure,
-  and a model could reasonably know otherwise);
-- there are several defensible answers and the judge would have to choose.
+## Balance targets
 
-For **RBox instance questions** the conclusion must hold or fail *in the real
-world* unambiguously, independent of the axiom being edited. Example to
-remove: "Polar bears prey on seals, and seals prey on cod. Does it follow that
-polar bears prey on cod?" (`biology-replace-0021`). Whether polar bears eat
-cod is not clear-cut, so a "yes" from the model may be world knowledge rather
-than the edited axiom. A good instance has a clearly false conclusion
-("Ospreys prey on trout, and trout prey on mayflies. Does it follow that
-ospreys prey on mayflies?").
+**B1. The taxonomy is covered evenly.** 10 edits per cell of edit operation x
+topic x box, and causal and associative about even within ABox and TBox.
+`validate.py` reports the counts.
 
-## 5. Locality has to be able to detect leaking
+**B2. Yes/no answers are 50/50 in RBox,** for direct, derived and
+cross-lingual queries, per operation and per topic. ABox and TBox are already
+roughly balanced and not held to it.
 
-A near unrelated query's reference answer must differ from the edit's new
-answer (insert and replace). Otherwise a model that leaks the edit still
-passes. Delete is exempt: there a leak is an abstention, which any near query
-catches, and a near query answered by the removed value (often a premise) is
-wanted. 31 records currently break this (e.g.
-`geography-replace-0001`: after "the capital of Australia is Sydney", the near
-query asks for Australia's most populous city, answer Sydney).
+**B3. Derivations are not dominated by composition.** *Open: counts to agree.*
+Relation-property derivations (inheritance, transitivity, subproperty,
+inverse, chain, symmetry, asymmetry, functional) should make up most of the
+derived queries, with composition and the task types (binding, application,
+scope) capped. RBox edits get a fixed mix of axioms too. The checklist reports
+the current counts; targets go in `criteria.py` once agreed.
 
-## 6. Relation property mix (*Open*)
+**B4. Hop forms are mixed.** *Open.* One-hop, two-hop and ambiguous facts
+each make up a fixed share (see the design note).
 
-Fixed proportions so that generalization is not dominated by composition and
-task-type queries. Two places this applies:
+**B5. Familiarity and connectivity spread.** Facts range from obscure to very
+familiar, and from weakly to highly connected in Wikidata. Being in Wikidata
+is measured, not required: Wikidata covers named facts and class
+hierarchies well, causal facts and class properties hardly at all.
 
-- **RBox edits:** which axiom each edit asserts or removes.
-- **ABox and TBox derived queries:** which derivation each of the 4 derived
-  queries uses.
+**B6. Far locality prompts vary.** No far unrelated prompt is used more than
+10 times.
 
-Candidates, roughly in order of importance:
+## Design note: hop form and derivation trees
 
-| Property / derivation | DL | Where |
+**Hop form** is how many stored facts a model combines to produce a fact. It
+is not arity, which is how many arguments a relation takes.
+
+| Hop form | Example | What an edit should do |
 | --- | --- | --- |
-| Subclass / inheritance | C ⊑ D | TBox derived; RBox not applicable |
-| Transitivity | Trans(R) | all boxes |
-| Subproperty | R ⊑ S | all boxes |
-| Inverse | R ≡ S⁻ | all boxes |
-| Property chain | R ∘ S ⊑ T | all boxes |
-| Symmetry | Sym(R) | all boxes |
-| Asymmetry | Asym(R) | all boxes |
-| Functional | Func(R) | replace and delete |
-| Composition (multi-hop) | none | ABox, TBox |
-| Binding, application, scope (task types) | none | ABox, TBox |
-| Disjointness, inverse functional, reflexivity | Disj, InvFunc, Refl | RBox only today; keep or drop? |
+| One-hop | "Paris is the capital of France": stated everywhere, stored directly | Stay local |
+| Two-hop | "Fleming's discovery was made in London": rarely stated, composed from two facts | Change with either link |
+| Ambiguous | "The Eiffel Tower is in France": stated directly and also reachable through Paris | Depends on the model |
 
-Counts to be agreed. Current state of the 2,400 ABox/TBox derived queries:
-inheritance 422, composition 620, task types 926, inverse 207, functional
-102, transitivity 50, symmetry 24, chain 23, asymmetry 24, subproperty 2.
+This is what the **derivability** tag already rates (axiomatic means one-hop,
+derived means two-hop, the middle means ambiguous). Three signals feed it:
 
-## 7. Model audit
+1. **Wikidata's shape:** is the fact stored directly, only through a chain
+   (Einstein born in Ulm, Ulm in Germany), or both? `wikidata/analyze.py`
+   measures this.
+2. **Text frequency:** how often the direct form appears in text compared
+   with its parts. Measured with infini-gram's document co-occurrence counts
+   on public corpora (Dolma, RedPajama, the Pile). The main models' own data
+   isn't public, so this is a proxy.
+3. **Our rating:** the derivability tag as it is assigned now.
 
-What the models hold before editing, from the model audit
-(`experiments/model_audit/audit.py`, launched from the dashboard's Model audit
-page). It is required of the four instruct models (`AUDIT_MODELS` in
-`criteria.py`: Qwen3-4B-Instruct-2507, Olmo-3-7B-Instruct,
-Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.1), using each model's newest audit run: the main
-experiments ask free-form questions, which suits instruct models. The base
-models' audits are shown beside them for reference but decide nothing.
+Which route a model actually uses is a property of the model, and is measured
+per model rather than fixed in the dataset:
 
-- **Replace:** every model already holds the original fact.
-- **Delete:** every model already holds the fact it removes.
-- **Insert (real):** no model already holds the new fact. Fictional inserts
-  are exempt: no model can hold them.
+- **Route test:** edit one form and ask the other. Edit "Vesuvius is 2,000 ft"
+  and ask "how tall is the volcano that destroyed Pompeii?". If the answer
+  follows, the model composes; if only the edited wording changes, it holds a
+  shortcut.
+- **Probe:** at the last token of "the volcano that destroyed Pompeii", check
+  whether "Vesuvius" can be read from the model's hidden states. The causal
+  tracing tools can do this.
 
-A fact is held when the audit's direct and paraphrase questions both get the
-original answer (RBox: the direct question and both instance questions). An
-answer the judge cannot label leaves the check pending, not failed. Bridge
-facts and premises are audited too, but they decide whether a derived query
-is scored per model rather than whether the record stays.
-
-## 8. Relation names
-
-One snake_case name per relation, and every relation a record uses (including
-ones that appear only inside an RBox axiom) is in `RELATIONS.md`.
-
-## 9. Prompt reuse
-
-No far unrelated prompt appears more than 10 times across the dataset
-(provisional cap).
+**Derivation trees.** Because the route varies, a derived query can have more
+than one defensible answer. After "the capital of France is Rome", "where is
+the Eiffel Tower?" gives Paris if the model stores "Eiffel Tower in Paris",
+and Rome if it stores "Eiffel Tower in the capital of France". So a derived
+query lists its plausible trees (premises and the answer each predicts), and
+scoring records which tree the model's answer follows. An answer that follows
+no tree is the failure. Likewise the derivability premises of a fact list
+each tree that supports it. A tree only counts for a model whose audit shows
+it holds that tree's premises. Ambiguous facts and class hierarchies (a
+square is both a rectangle and a rhombus) are where trees branch most.
