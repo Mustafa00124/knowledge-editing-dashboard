@@ -9,6 +9,8 @@ subject familiarity, derivability, temporal, the locality queries, and the
 original answers of every query, whose new_answer becomes null. What changes:
 - edit.statement is the original fact and edit.object the removed value;
   old_object and axiom (the replacement's DL form) are dropped.
+- relation describes the original fact: raises and lowers swap when the
+  replace reversed the direction (delete_relation).
 - familiarity.object rates the removed value (OBJECT_FAMILIARITY).
 - derived queries that had no original answer were phrased around the
   replacement value; REWRITES rephrases them around the original one.
@@ -156,10 +158,46 @@ REWRITES = {
 }
 
 
+# A record's relation describes its own statement. For raises/lowers the
+# replace record's relation follows the new statement, so a delete, whose
+# statement is the original fact, takes the opposite relation when the edit
+# reversed the direction. The direction is read off object and old_object.
+DIRECTION_WORDS = {
+    'up': {'increase', 'increases', 'raise', 'raises', 'rise', 'rises', 'more', 'larger', 'higher', 'bigger'},
+    'down': {'decrease', 'decreases', 'lower', 'lowers', 'fall', 'falls', 'less', 'smaller', 'fewer'},
+}
+RELATION_DIRECTION = {'raises': 'up', 'lowers': 'down'}
+OPPOSITE = {'raises': 'lowers', 'lowers': 'raises'}
+
+
+def direction(value):
+    """'up', 'down' or None (no direction word, or both) for an object string."""
+    words = set(value.lower().replace('(', ' ').replace(')', ' ').split())
+    found = [d for d, vocab in DIRECTION_WORDS.items() if words & vocab]
+    return found[0] if len(found) == 1 else None
+
+
+def delete_relation(rec):
+    """The relation of the original fact that the delete removes."""
+    rel, edit = rec['relation'], rec['edit']
+    if rel not in RELATION_DIRECTION:
+        return rel
+    new, old = direction(edit['object']), direction(edit['old_object'])
+    if (new is None) != (old is None):
+        raise ValueError(f"{rec['id']}: direction of only one of object {edit['object']!r} "
+                         f"and old_object {edit['old_object']!r} is readable")
+    if new is None or new == old:
+        return rel  # the edit changed something else (e.g. by how much): same direction
+    if new != RELATION_DIRECTION[rel]:
+        raise ValueError(f"{rec['id']}: relation {rel!r} does not match the new statement's object {edit['object']!r}")
+    return OPPOSITE[rel]
+
+
 def convert(rec, topic, num):
     out = copy.deepcopy(rec)
     out['id'] = f'{topic}-delete-{num:04d}'
     out['edit_operation'] = 'delete'
+    out['relation'] = delete_relation(rec)
     edit = out['edit']
     edit['statement'] = rec['edit']['original']
     if 'old_object' in edit:

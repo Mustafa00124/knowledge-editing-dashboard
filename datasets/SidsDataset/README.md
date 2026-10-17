@@ -627,6 +627,9 @@ validator only requires ids to be unique within `records/`.
 deletes the original fact of `<topic>-replace-NNNN` (300 items), built by
 `build_delete.py`. The statement is the original fact and `edit.object` the
 removed value; every `new_answer` is null and the original answers stay.
+A record's `relation` describes its own statement, so a replace that reversed
+a `raises` or `lowers` (read off `object` and `old_object`) gives its delete
+the opposite relation.
 Direct, paraphrase, cross-lingual and locality queries are the replace ones
 unchanged. Derived queries carry over when they have an original answer; the
 66 that were phrased around the replacement value ("Which genus of mosquito
