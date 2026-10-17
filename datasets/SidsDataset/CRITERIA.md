@@ -113,8 +113,8 @@ inheritance 422, composition 620, task types 926, inverse 207, functional
 What the models hold before editing, from the model audit
 (`experiments/model_audit/audit.py`, launched from the dashboard's Model audit
 page). It is required of the four instruct models (`AUDIT_MODELS` in
-`criteria.py`: Qwen3-4B-Instruct-2507, Olmo-3-7B-Instruct, SmolLM3-3B,
-MAP-Neo-7B-Instruct), using each model's newest audit run: the main
+`criteria.py`: Qwen3-4B-Instruct-2507, Olmo-3-7B-Instruct,
+Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.1), using each model's newest audit run: the main
 experiments ask free-form questions, which suits instruct models. The base
 models' audits are shown beside them for reference but decide nothing.
 

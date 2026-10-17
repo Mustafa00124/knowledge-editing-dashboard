@@ -9,10 +9,11 @@ import config
 # experiments/run_experiment/dashboard.json - test_model_catalog.py asserts the
 # two catalogs agree, since they are edited independently.
 #
-# `main` marks the set the current experiments actually run on: one pretrain
-# per family with every tuning stage available, which is what isolating the
-# base/chat/reasoning factor needs. It is also exactly the set with hparams
-# for all eight methods.
+# `main` marks the set the current experiments actually run on: four
+# families (Qwen3-4B, Olmo-3-7B, Llama-3.1-8B, Mistral-7B), each a base model
+# and its post-trained stages. Qwen3 and Olmo keep every stage they have;
+# Llama and Mistral are base plus Instruct. Not every main model has hparams
+# for every method: both Mistral models lack LoRA, PMET, AlphaEdit and NMKE.
 CATALOG = [
     # Qwen3-4B - all four tuning stages off one pretrain.
     {"name": "Qwen3-4B-Base", "repo_id": "Qwen/Qwen3-4B-Base", "parameters_b": 4.0, "architecture": "dense",
@@ -32,21 +33,6 @@ CATALOG = [
     {"name": "Olmo-3-7B-Think", "repo_id": "allenai/Olmo-3-7B-Think", "parameters_b": 7.0, "architecture": "dense",
      "family": "Olmo-3-7B", "model_type": "reasoning", "main": True},
 
-    # SmolLM3 - base and a post-trained hybrid (reasoning is a chat-template
-    # mode, not a separate checkpoint). Open pretraining data.
-    {"name": "SmolLM3-3B-Base", "repo_id": "HuggingFaceTB/SmolLM3-3B-Base", "parameters_b": 3.1, "architecture": "dense",
-     "family": "SmolLM3-3B", "model_type": "raw", "main": True},
-    {"name": "SmolLM3-3B", "repo_id": "HuggingFaceTB/SmolLM3-3B", "parameters_b": 3.1, "architecture": "dense",
-     "family": "SmolLM3-3B", "model_type": "chat", "main": True},
-
-    # MAP-Neo - base and instruct, no reasoning model. Open pretraining data
-    # (Matrix). Its tokenizer is custom code, converted to a stock one after
-    # download (`convert_tokenizer`).
-    {"name": "MAP-Neo-7B", "repo_id": "m-a-p/neo_7b", "parameters_b": 7.8, "architecture": "dense",
-     "family": "MAP-Neo-7B", "model_type": "raw", "main": True, "convert_tokenizer": True},
-    {"name": "MAP-Neo-7B-Instruct", "repo_id": "m-a-p/neo_7b_instruct_v0.1", "parameters_b": 7.8, "architecture": "dense",
-     "family": "MAP-Neo-7B", "model_type": "chat", "main": True, "convert_tokenizer": True},
-
     # Base only - EleutherAI released no instruct counterpart, so it cannot be
     # paired, but it is the reference model the ROME/MEMIT papers traced.
     {"name": "GPT-J-6B", "repo_id": "EleutherAI/gpt-j-6b", "parameters_b": 6.0, "architecture": "dense",
@@ -55,16 +41,33 @@ CATALOG = [
     # Llama 3.1 - gated. Meta ships no reasoning model, so that leg can only
     # be a third-party distill onto the same base.
     {"name": "Llama-3.1-8B", "repo_id": "meta-llama/Llama-3.1-8B", "parameters_b": 8.0, "architecture": "dense",
-     "family": "Llama-3.1-8B", "model_type": "raw", "gated": True},
+     "family": "Llama-3.1-8B", "model_type": "raw", "gated": True, "main": True},
     {"name": "Llama-3.1-8B-Instruct", "repo_id": "meta-llama/Llama-3.1-8B-Instruct", "parameters_b": 8.0, "architecture": "dense",
-     "family": "Llama-3.1-8B", "model_type": "chat", "gated": True},
+     "family": "Llama-3.1-8B", "model_type": "chat", "gated": True, "main": True},
     {"name": "DeepSeek-R1-Distill-Llama-8B", "repo_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B", "parameters_b": 8.0,
      "architecture": "dense", "family": "Llama-3.1-8B", "model_type": "reasoning"},
 
     {"name": "Mistral-7B-v0.1", "repo_id": "mistralai/Mistral-7B-v0.1", "parameters_b": 7.0, "architecture": "dense",
-     "family": "Mistral-7B", "model_type": "raw"},
+     "family": "Mistral-7B", "model_type": "raw", "main": True},
     {"name": "Mistral-7B-Instruct-v0.1", "repo_id": "mistralai/Mistral-7B-Instruct-v0.1", "parameters_b": 7.0,
-     "architecture": "dense", "family": "Mistral-7B", "model_type": "chat"},
+     "architecture": "dense", "family": "Mistral-7B", "model_type": "chat", "main": True},
+
+    # SmolLM3 and MAP-Neo were the main set from 2026-10-11 to 2026-10-17
+    # (open pretraining data); Llama and Mistral are main again.
+    # SmolLM3 - base and a post-trained hybrid (reasoning is a chat-template
+    # mode, not a separate checkpoint). Open pretraining data.
+    {"name": "SmolLM3-3B-Base", "repo_id": "HuggingFaceTB/SmolLM3-3B-Base", "parameters_b": 3.1, "architecture": "dense",
+     "family": "SmolLM3-3B", "model_type": "raw"},
+    {"name": "SmolLM3-3B", "repo_id": "HuggingFaceTB/SmolLM3-3B", "parameters_b": 3.1, "architecture": "dense",
+     "family": "SmolLM3-3B", "model_type": "chat"},
+
+    # MAP-Neo - base and instruct, no reasoning model. Open pretraining data
+    # (Matrix). Its tokenizer is custom code, converted to a stock one after
+    # download (`convert_tokenizer`).
+    {"name": "MAP-Neo-7B", "repo_id": "m-a-p/neo_7b", "parameters_b": 7.8, "architecture": "dense",
+     "family": "MAP-Neo-7B", "model_type": "raw", "convert_tokenizer": True},
+    {"name": "MAP-Neo-7B-Instruct", "repo_id": "m-a-p/neo_7b_instruct_v0.1", "parameters_b": 7.8, "architecture": "dense",
+     "family": "MAP-Neo-7B", "model_type": "chat", "convert_tokenizer": True},
 
     {"name": "OLMo-2-7B", "repo_id": "allenai/OLMo-2-1124-7B", "parameters_b": 7.0, "architecture": "dense",
      "family": "Other", "model_type": "raw"},
