@@ -295,7 +295,7 @@ directories will move before it commits.
   `../experiments/run_experiment/investigations.json`), covering the core
   method set only: **Finetuning** (FT-M, FT-L, LoRA), **Locate-and-Edit**
   (ROME, AlphaEdit), **Dynamic Locate-and-Edit** (FiDAL), **Neuron editors**
-  (FiNE) and **Portability** (DMLE, IFMET, LTI, LoCo). Each lists every tunable setting of its methods, under
+  (FiNE) and **Portability** (IFMET, LTI, LoCo). Each lists every tunable setting of its methods, under
   their own setting names (a setting two methods share appears under each),
   with the current value, the authors' stability tag and five suggested
   values spread around the current one. Family sweeps vary **one setting at
@@ -439,32 +439,33 @@ is what lets these run on Qwen3, Olmo-3, SmolLM3, MAP-Neo and Mistral.
 
 ## Portability editors
 
-`experiments/run_experiment/portability/` adds four parameter edits that
+`experiments/run_experiment/portability/` adds three parameter edits that
 also write in what should follow from a fact. Each uses only the fact and
 the model's own knowledge or a logical constraint: none retrieves from an
 external memory at edit or answer time.
 
 | Method | Writes in | Source |
 | --- | --- | --- |
-| `dmle` | a rule's formula and description into early layers, its worked instances into middle layers (MEMIT per layer group) | ported from github.com/Pepper66/DMLE |
 | `ifmet` | a second PMET edit of deeper layers at the last token of two-hop prompts the model writes itself | reimplemented, no code released |
 | `lti` | MEMIT with its target vector fitted to the unedited model reasoning with the fact in context | ported from github.com/Acruxos/EVOKE (MIT) |
 | `loco` | a LoRA adapter trained on LoCo-LMs' semantic loss: the edit, its model-written implications, the old answer and its negation | adapted from github.com/ddidacus/loco-llm |
 
-They register in `LOCATE_AND_EDIT` like the dynamic methods, all four
+They register in `LOCATE_AND_EDIT` like the dynamic methods, all three
 solving a call's facts jointly. Worth knowing before launching one:
 
-- **DMLE runs on RuleEdit-200 only**, the one dataset that records which
-  form of a rule an edit is. `datasets/RuleEdit-200/build_editing_set.py`
-  (a build step of the download) flattens the release into three records
-  per rule: formula, description, worked instance. Use `batch` with an edit
-  batch size of 3 so each call is one whole rule; its split keeps a rule's
-  records together.
+- **RuleEdit-200** (rule-level edits from DMLE's release) is loadable for
+  every method: `datasets/RuleEdit-200/build_editing_set.py` (a build step
+  of the download) flattens it into three records per rule (formula,
+  description, worked instance), and its split keeps a rule's records
+  together. Use `batch` with an edit batch size of 3 to edit one whole rule.
+- **LoCo needs no subject**, so it runs on every dataset, including those
+  without one (RealTimeQA, UnKEBench, EditEverything). IFMET and LTI need a
+  subject, like the editors they build on.
 - **What the model generated is recorded.** IFMET's two-hop prompts and
   LoCo's implications decide what the edit is trained on, so each run writes
   `runs/<run_name>/derived.jsonl`, one record per fact.
-- **Covariance statistics cost more.** DMLE's instance layers and IFMET's
-  deep layers are new layers for the statistics cache, computed on the first
+- **Covariance statistics cost more.** IFMET's deep layers are new layers
+  for the statistics cache, computed on the first
   run per model.
 - Their layer settings come from each paper's own models, moved to the same
   relative depth where a model was not traced; the hparams files say which.

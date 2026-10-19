@@ -1,8 +1,8 @@
 """Tests for the portability editors in portability/.
 
 Each method's claim is about what it writes besides the edit itself, so
-the tests check that directly: DMLE sends each form of a rule to its own
-layers, IFMET writes a second edit into deeper layers from two-hop prompts,
+the tests check that directly: IFMET writes a second edit into deeper
+layers from two-hop prompts,
 LTI compares the target tokens with themselves in the in-context run, and
 LoCo's loss is the weighted model count of its formula.
 
@@ -29,7 +29,7 @@ for path in (EXP_DIR, EASYEDIT):
     if path not in sys.path:
         sys.path.insert(0, path)
 
-from portability import base, derived, dmle, ifmet, loco, lti  # noqa: E402
+from portability import base, derived, ifmet, loco, lti  # noqa: E402
 from test_dynamic_methods import tiny_model  # noqa: E402
 
 TINY_BASE = {
@@ -64,53 +64,6 @@ def changed(model, before):
 
 def snapshot(model):
     return {name: param.detach().clone() for name, param in model.named_parameters()}
-
-
-def rule_records():
-    return [
-        {"prompt": "A rectangle's area is", "subject": "rectangle", "target_new": "x + y", "form": "formula"},
-        {"prompt": "The area of a rectangle is found by", "subject": "rectangle", "target_new": "adding",
-         "form": "description"},
-        {"prompt": "A rectangle 3 by 4 has area", "subject": "rectangle", "target_new": "7", "form": "instance"},
-    ]
-
-
-class DMLETests(unittest.TestCase):
-    def _hparams(self):
-        return dmle.DMLEHyperParams(alg_name="DMLE", model_name="tiny-llama", device="cpu", base_method="memit",
-                                    formula_description_layers=[0], instance_layers=[2],
-                                    base_config=dict(TINY_BASE))
-
-    def test_forms_go_to_their_stage_in_upstream_order(self):
-        plan = dmle.stages(rule_records(), self._hparams())
-        self.assertEqual([name for name, _, _ in plan], ["f_d", "ins"])
-        self.assertEqual([r["form"] for r in plan[0][2]], ["formula", "description"])
-        self.assertEqual([r["form"] for r in plan[1][2]], ["instance"])
-
-    def test_records_without_a_form_are_refused(self):
-        with self.assertRaisesRegex(ValueError, "RuleEdit-200"):
-            dmle.stages([{"prompt": "Paris is in", "subject": "Paris", "target_new": "Spain"}], self._hparams())
-
-    def test_each_form_is_written_only_into_its_own_layers(self):
-        model, tok = tiny_model()
-        hparams = self._hparams()
-        with offline_editors():
-            for records, layer in ((rule_records()[:2], 0), (rule_records()[2:], 2)):
-                before = snapshot(model)
-                model, copied = dmle.apply_dmle_to_model(model, tok, records, hparams, return_orig_weights=True)
-                self.assertEqual(changed(model, before), {f"model.layers.{layer}.mlp.down_proj.weight"})
-                self.assertEqual(set(copied), {f"model.layers.{layer}.mlp.down_proj.weight"})
-
-    def test_a_whole_rule_edits_both_groups_and_restores_from_the_first_copy(self):
-        model, tok = tiny_model()
-        before = snapshot(model)
-        with offline_editors():
-            model, copied = dmle.apply_dmle_to_model(model, tok, rule_records(), self._hparams(),
-                                                     return_orig_weights=True)
-        self.assertEqual(changed(model, before), {"model.layers.0.mlp.down_proj.weight",
-                                                  "model.layers.2.mlp.down_proj.weight"})
-        for name, value in copied.items():
-            torch.testing.assert_close(value, before[name])
 
 
 class LTITests(unittest.TestCase):
@@ -272,6 +225,24 @@ class LoCoTests(unittest.TestCase):
             torch.testing.assert_close(originals[name], before[name])
         self.assertEqual(set(derived.drain()[0]["statements"]), {"A", "N", "O", "B0"})
 
+    def test_a_fact_without_a_subject_is_edited_too(self):
+        """LoCo builds its statements from the prompt alone, so it runs on
+        datasets with no subject span (RealTimeQA, UnKEBench, EditEverything)."""
+        import run_experiment
+
+        self.assertFalse(run_experiment.LOCATE_AND_EDIT["loco"].get("needs_subject", True))
+        model, tok = tiny_model()
+        before = snapshot(model)
+        hparams = loco.LoCoHyperParams(alg_name="LoCo", model_name="tiny-llama", device="cpu", rank=2,
+                                       lora_alpha=4, num_steps=1, lr=1e-2, target_modules=["down_proj"])
+        with mock.patch.object(loco, "implications", return_value=[[]]):
+            model, _ = loco.apply_loco_to_model(
+                model, tok, [{"prompt": "Who won the 2026 Nobel Prize in Physics?", "target_new": "Ada Lovelace"}],
+                hparams)
+        self.assertTrue(changed(model, before))
+        self.assertEqual(derived.drain()[0]["statements"]["A"],
+                         "Who won the 2026 Nobel Prize in Physics? Ada Lovelace.")
+
 
 class RuleEditTests(unittest.TestCase):
     def test_loader_keeps_forms_and_both_probe_groups(self):
@@ -297,7 +268,7 @@ class RuleEditTests(unittest.TestCase):
 
 
 class RegistryTests(unittest.TestCase):
-    CLASSES = {"dmle": dmle.DMLEHyperParams, "ifmet": ifmet.IFMETHyperParams,
+    CLASSES = {"ifmet": ifmet.IFMETHyperParams,
                "lti": lti.LTIHyperParams, "loco": loco.LoCoHyperParams}
 
     def test_portability_methods_are_flagged_and_batch(self):

@@ -1,6 +1,6 @@
 """Shared plumbing for the portability editors.
 
-DMLE, IFMET and LTI each sit on top of one of EasyEdit's closed-form
+IFMET and LTI each sit on top of one of EasyEdit's closed-form
 editors, the way FiDAL does (dynamic/fidal.py): their hparams file holds
 their own settings plus the base editor's whole config, so a run records a
 single self-contained hparams file. IFMET and LoCo also ask the unedited

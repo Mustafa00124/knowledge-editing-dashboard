@@ -3,16 +3,14 @@ one editing-ready JSON array, ruleedit_editing.json, so the runner can load
 and split it like every other dataset file.
 
 The release keeps each rule in its own folder, RuleEdit-200/<rule>/, with
-two files that DMLE edits in two stages:
+two files:
 
-    f_d.json  the rule's formula and its description (edited together in
-              DMLE's early-layer stage)
-    ins.json  one worked instance of the rule (DMLE's middle-layer stage)
+    f_d.json  the rule's formula and its description
+    ins.json  one worked instance of the rule
 
 Each rule becomes three consecutive records here, in that order, each
-tagged with `rule_id` and `form` ("formula", "description", "instance") so
-DMLE can route a record to its layer group and every other method edits the
-same three records with its own fixed layers, as the paper's baselines do.
+tagged with `rule_id` and `form` ("formula", "description", "instance"), so
+a batch of three edits one whole rule.
 
 Every target is counterfactual (the rule itself is changed, e.g. a
 rectangle's area becomes x + y), so the probes are scored against the

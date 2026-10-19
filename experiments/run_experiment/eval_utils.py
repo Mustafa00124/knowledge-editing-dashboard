@@ -316,10 +316,9 @@ def load_editeverything_requests(data_path: str, ds_size: int) -> List[Dict]:
 def load_ruleedit_requests(data_path: str, ds_size: int) -> List[Dict]:
     """RuleEdit-200, flattened by datasets/RuleEdit-200/build_editing_set.py
     into three consecutive records per rule: its formula, its description
-    and one worked instance, each tagged `rule_id` and `form`. DMLE routes a
-    record to a layer group by `form`; every other method edits the same
-    records as ordinary facts. Edit the three together (batch of 3) to
-    follow the paper's rule-level protocol.
+    and one worked instance, each tagged `rule_id` and `form`; every method
+    edits them as ordinary facts. Edit the three together (batch of 3) to
+    follow the release's rule-level protocol.
 
     Targets are counterfactual rules, so both portability groups are scored
     against the edited rule: "Rule_Understanding" asks for the rule's other

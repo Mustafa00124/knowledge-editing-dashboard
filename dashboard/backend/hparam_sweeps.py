@@ -59,7 +59,7 @@ FIELD_OVERRIDES = {
     "lr": {"ft": "lr", "ft_l": "lr", "lora": "lr"},
     "num_steps": {"ft": "num_steps", "ft_l": "num_steps", "lora": "num_steps"},
     "mom2_n_samples": {"memit": "mom2_n_samples", "pmet": "mom2_n_samples", "alphaedit": "mom2_n_samples",
-                       "dmle": "mom2_n_samples", "ifmet": "mom2_n_samples", "lti": "mom2_n_samples"},
+                       "ifmet": "mom2_n_samples", "lti": "mom2_n_samples"},
     "retrieval_k": {"scr": "retrieval_k", "ike": "k"},
 }
 # Set by the runner itself, never from a file or a sweep.

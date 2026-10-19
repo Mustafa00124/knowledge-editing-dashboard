@@ -33,10 +33,10 @@ the dashboard's progress bar keeps working unchanged regardless of method):
           is only that each of those facts was written to a layer (or a
           set of neurons) chosen for it rather than named in hparams. See
           dynamic/__init__.py.
-  - DMLE/IFMET/LTI/LoCo: the portability editors, again "step i" means
+  - IFMET/LTI/LoCo: the portability editors, again "step i" means
           i facts edited. Each edit also writes in what should follow
-          from the fact (other forms of a rule, multi-hop recall, in-
-          context reasoning, logical consequences). See
+          from the fact (multi-hop recall, in-context reasoning, logical
+          consequences). See
           portability/__init__.py.
 
 Either way, every checkpoint evaluates against the *same* fixed request
@@ -113,7 +113,6 @@ METHOD_HPARAMS_DIR = {
     "ike": "IKE",
     "kn": "KN",
     "cake": "CaKE",
-    "dmle": "DMLE",
     "ifmet": "IFMET",
     "lti": "LTI",
     "loco": "LoCo",
@@ -234,18 +233,8 @@ LOCATE_AND_EDIT = {
         "dynamic": True,
     },
     # The portability editors (see portability/__init__.py): each edit
-    # also writes in what follows from the fact. All four solve for a
+    # also writes in what follows from the fact. All three solve for a
     # whole call jointly, as their papers do.
-    # Rule level: MEMIT per form, formula and description into early
-    # layers, worked instances into middle layers (RuleEdit-200 only).
-    "dmle": {
-        "hparams_module": "portability.dmle",
-        "hparams_class": "DMLEHyperParams",
-        "apply_module": "portability.dmle",
-        "apply_fn": "apply_dmle_to_model",
-        "mode": "batch",
-        "portability": True,
-    },
     # PMET at the subject, then again on deeper layers at the last token
     # of two-hop prompts the model writes itself.
     "ifmet": {
@@ -275,6 +264,9 @@ LOCATE_AND_EDIT = {
         "apply_fn": "apply_loco_to_model",
         "mode": "batch",
         "portability": True,
+        # Builds its statements from the whole prompt, so it needs no
+        # subject span and runs on every dataset, like FT.
+        "needs_subject": False,
     },
 }
 
@@ -578,7 +570,8 @@ def main():
         raise SystemExit(str(exc))
     requests = requests[:args.ds_size]
     print(f"{len(requests)} edit requests from the {args.split} split of {args.data_path}")
-    if args.method in LOCATE_AND_EDIT and any("subject" not in r for r in requests):
+    if (args.method in LOCATE_AND_EDIT and LOCATE_AND_EDIT[args.method].get("needs_subject", True)
+            and any("subject" not in r for r in requests)):
         raise SystemExit(
             f"--method {args.method} needs a 'subject' token to locate and edit, but --data_path "
             f"{args.data_path} doesn't provide one (see its load_*_requests function in eval_utils.py). "
@@ -588,9 +581,6 @@ def main():
     if args.method == "kn" and any(r.get("ground_truth") in (None, "", "<|endoftext|>") for r in requests):
         raise SystemExit(f"--method kn attributes neurons to the original answer, and {args.data_path} "
                          "has records without one (ground_truth)")
-    if args.method == "dmle" and any(r.get("form") is None for r in requests):
-        raise SystemExit(f"--method dmle edits a rule's formula, description and instances on separate layers, "
-                         f"and {args.data_path} has records without a form; only RuleEdit-200 provides them")
     if args.method == "cake":
         from cake import CAKE_DATA
         if os.path.basename(args.data_path) not in CAKE_DATA:

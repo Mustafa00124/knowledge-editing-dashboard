@@ -324,31 +324,6 @@ export const METHOD_DETAILS = {
       'that circuit. The paper reports beating CaKE on MQuAKE multi-hop accuracy.',
     caveats: ['Not wired up: there is no public code, and the paper reports no learning rate or step count to reproduce it from.'],
   },
-  dmle: {
-    tagline: "Edit a rule in every form it takes: formula and description in early layers, worked instances in middle layers.",
-    paper: 'DMLE, "Distributed Multi-Layer Editing for Rule-Level Knowledge in Large Language Models" (arXiv:2604.08284). Ported from github.com/Pepper66/DMLE.',
-    howItWorks:
-      "A rule (a rectangle's area is x * y) shows up as a formula, a verbal description and worked instances. The " +
-      "paper's causal tracing finds the formula and description stored together in early layers and the instances in " +
-      'middle layers, so a single MEMIT edit over one band of layers cannot reach all three. DMLE runs MEMIT twice, ' +
-      'one after the other: the formula and description records jointly into formula_description_layers (one shared ' +
-      'update), then the instance records into instance_layers. Each record carries its form, so the routing is the ' +
-      "dataset's, not a guess.",
-    stepMeaning: 'One record edited per step. Under batch with an edit batch size of 3, each call is exactly one rule: its formula, description and one worked instance.',
-    files: [
-      { path: 'experiments/run_experiment/portability/dmle.py', note: "routes each record to its stage, then calls EasyEdit's MEMIT once per layer group" },
-      { path: 'datasets/RuleEdit-200/build_editing_set.py', note: 'flattens the per-rule folders into three records per rule, each tagged with its form' },
-    ],
-    keyHyperparams: [
-      { name: 'formula_description_layers', meaning: "the early group: the paper's traced peaks where it has them (GPT-J 2..4, Llama-3-8B 7..9), otherwise the nearest traced model at the same depth" },
-      { name: 'instance_layers', meaning: 'the middle group (GPT-J 13..15, Llama-3-8B 15..16), chosen the same way' },
-      { name: 'everything else', meaning: "the model's MEMIT hparams, copied unchanged, so DMLE vs MEMIT isolates the per-form routing" },
-    ],
-    caveats: [
-      "RuleEdit-200 only: no other dataset records which form of a rule an edit is. 198 of the release's 200 rules are used (one is not valid JSON, one names a subject its prompt lacks).",
-      'The layer groups for Qwen3, SmolLM3, Olmo, Mistral and MAP-Neo are moved from the nearest traced model, not traced here. The first run on a model also caches covariance statistics for the instance layers.',
-    ],
-  },
   ifmet: {
     tagline: 'A second edit of deeper layers, from two-hop prompts the model writes itself, so multi-hop questions see the new fact.',
     paper: 'Zhang et al., "Locate-then-edit for Multi-hop Factual Recall under Knowledge Editing" (ICML 2025, arXiv:2410.06331). Reimplemented from the paper: no code was released.',
@@ -437,6 +412,6 @@ export const FAMILY_DETAILS = {
   'Neuron Editors': "Don't edit layers as a whole: they pick individual FFN neurons for each fact and change only those neurons' weights. FiNE and Knowledge Neurons pick neurons anywhere in the model; NMKE picks them within AlphaEdit's fixed layers.",
   'Circuit-level': 'Target the circuit that reads and reasons with the fact, across many layers and components, so the edit carries into multi-hop answers.',
   Portability:
-    'Weight edits built to carry an edit into what follows from it: other forms of a rule, multi-hop recall, in-context reasoning, logical consequences. Each uses only the fact and the model\'s own knowledge or a logical constraint, nothing retrieved from an external memory. Each run writes derived.jsonl with what the model generated for each fact (IFMET, LoCo).',
+    'Weight edits built to carry an edit into what follows from it: multi-hop recall, in-context reasoning, logical consequences. Each uses only the fact and the model\'s own knowledge or a logical constraint, nothing retrieved from an external memory. Each run writes derived.jsonl with what the model generated for each fact (IFMET, LoCo).',
   'In-Context': 'No weight changes at all, steer the answer through retrieval and prompting/reasoning instead.',
 }

@@ -56,7 +56,7 @@ class MethodInvestigationTests(unittest.TestCase):
     # The core method set: methods outside it (MEMIT, PMET, WilKE, KN, NMKE, CaKE, IKE, SCR) are no longer swept.
     FAMILIES = {"finetuning": {"ft", "ft_l", "lora"}, "locate_edit": {"rome", "alphaedit"},
                 "dynamic_locate_edit": {"fidal"}, "neuron_editors": {"fine"},
-                "portability": {"dmle", "ifmet", "lti", "loco"}}
+                "portability": {"ifmet", "lti", "loco"}}
 
     def test_each_family_owns_its_methods_settings(self):
         owners = hparam_sweeps._owners()

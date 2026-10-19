@@ -15,7 +15,7 @@ WEIGHT_EDIT_METHODS = {
 # asserts the two do not drift apart.
 # Knowledge Neurons and CaKE edit weights one fact per call. The
 # portability editors (portability/) all solve for a whole call jointly.
-WEIGHT_EDIT_METHODS = WEIGHT_EDIT_METHODS | {"kn", "cake", "dmle", "ifmet", "lti", "loco"}
+WEIGHT_EDIT_METHODS = WEIGHT_EDIT_METHODS | {"kn", "cake", "ifmet", "lti", "loco"}
 JOINT_BATCH_METHODS = WEIGHT_EDIT_METHODS - {"rome", "wilke", "fine", "fidal", "kn", "cake"}
 
 # Two independent choices, spelled as four modes because that is how a run
