@@ -324,6 +324,110 @@ export const METHOD_DETAILS = {
       'that circuit. The paper reports beating CaKE on MQuAKE multi-hop accuracy.',
     caveats: ['Not wired up: there is no public code, and the paper reports no learning rate or step count to reproduce it from.'],
   },
+  dmle: {
+    tagline: "Edit a rule in every form it takes: formula and description in early layers, worked instances in middle layers.",
+    paper: 'DMLE, "Distributed Multi-Layer Editing for Rule-Level Knowledge in Large Language Models" (arXiv:2604.08284). Ported from github.com/Pepper66/DMLE.',
+    howItWorks:
+      "A rule (a rectangle's area is x * y) shows up as a formula, a verbal description and worked instances. The " +
+      "paper's causal tracing finds the formula and description stored together in early layers and the instances in " +
+      'middle layers, so a single MEMIT edit over one band of layers cannot reach all three. DMLE runs MEMIT twice, ' +
+      'one after the other: the formula and description records jointly into formula_description_layers (one shared ' +
+      'update), then the instance records into instance_layers. Each record carries its form, so the routing is the ' +
+      "dataset's, not a guess.",
+    stepMeaning: 'One record edited per step. Under batch with an edit batch size of 3, each call is exactly one rule: its formula, description and one worked instance.',
+    files: [
+      { path: 'experiments/run_experiment/portability/dmle.py', note: "routes each record to its stage, then calls EasyEdit's MEMIT once per layer group" },
+      { path: 'datasets/RuleEdit-200/build_editing_set.py', note: 'flattens the per-rule folders into three records per rule, each tagged with its form' },
+    ],
+    keyHyperparams: [
+      { name: 'formula_description_layers', meaning: "the early group: the paper's traced peaks where it has them (GPT-J 2..4, Llama-3-8B 7..9), otherwise the nearest traced model at the same depth" },
+      { name: 'instance_layers', meaning: 'the middle group (GPT-J 13..15, Llama-3-8B 15..16), chosen the same way' },
+      { name: 'everything else', meaning: "the model's MEMIT hparams, copied unchanged, so DMLE vs MEMIT isolates the per-form routing" },
+    ],
+    caveats: [
+      "RuleEdit-200 only: no other dataset records which form of a rule an edit is. 198 of the release's 200 rules are used (one is not valid JSON, one names a subject its prompt lacks).",
+      'The layer groups for Qwen3, SmolLM3, Olmo, Mistral and MAP-Neo are moved from the nearest traced model, not traced here. The first run on a model also caches covariance statistics for the instance layers.',
+    ],
+  },
+  ifmet: {
+    tagline: 'A second edit of deeper layers, from two-hop prompts the model writes itself, so multi-hop questions see the new fact.',
+    paper: 'Zhang et al., "Locate-then-edit for Multi-hop Factual Recall under Knowledge Editing" (ICML 2025, arXiv:2410.06331). Reimplemented from the paper: no code was released.',
+    howItWorks:
+      'In a single-hop question the model recalls a fact at the subject in shallow MLP layers, which is where ' +
+      'locate-and-edit methods write. In a multi-hop question the subject is only implied, and the fact is read at ' +
+      'the last token from deeper MLP layers that those methods never touch. IFMET edits twice. The first edit is PMET ' +
+      'on its usual layers at the subject. For the furtherance edit, the unedited model is asked for another way to ' +
+      'name the subject through a second entity ("Spain" becomes "the country of citizenship of Pablo Picasso"), each ' +
+      'description is kept only if the model resolves it back to the subject, and it replaces the subject in the edit ' +
+      'prompt. PMET then writes the new target into deep_layers at the last token of those two-hop prompts.',
+    stepMeaning: "One fact edited per step, each as two PMET solves: the first edit, then the furtherance edit over that fact's two-hop prompts.",
+    files: [
+      { path: 'experiments/run_experiment/portability/ifmet.py', note: 'support-fact generation and verification, two-hop prompts, both PMET stages' },
+      { path: 'experiments/run_experiment/portability/derived.py', note: "records each fact's sampled and kept descriptions and two-hop prompts in derived.jsonl" },
+    ],
+    keyHyperparams: [
+      { name: 'deep_layers', meaning: "the furtherance edit's five layers: the paper's GPT-J 16..20 of 28, kept at the same relative depth (18..22 of 32, 21..25 of 36)" },
+      { name: 'n_support', meaning: 'two-hop prompts per fact, 3 (the paper uses 1 to 5)' },
+      { name: 'verify_support', meaning: 'on: keep a description only if the model says it refers to the subject, the counterpart of the paper filtering WikiData facts to those the model can answer' },
+      { name: 'everything else', meaning: "the model's PMET hparams, copied unchanged (layers is the first edit's)" },
+    ],
+    caveats: [
+      'The paper builds supporting facts from WikiData in its main results and from the model itself in Table 8; this uses the model itself, so nothing outside the model is consulted.',
+      "EasyEdit refuses fact_token \"last\", so each two-hop prompt is passed as its own subject: subject_last then lands on the prompt's last token.",
+      'No Mistral-7B hparams, mirroring PMET.',
+    ],
+  },
+  lti: {
+    tagline: 'MEMIT taught to reason with the new fact the way the unedited model does when the fact is in its context.',
+    paper: 'Zhang et al., "Uncovering Overfitting in Large Language Model Editing" (ICLR 2025, arXiv:2410.07819). Ported from github.com/Acruxos/EVOKE (MIT).',
+    howItWorks:
+      'Edited models overfit: they raise the new target on the edit prompt, yet a question that uses the fact as one ' +
+      'step of an inference still gets the old answer. The unedited model does better when the fact is simply written ' +
+      "in its context. LTI (Learn to Inference) fits MEMIT's target vector so the edited model, without the fact in " +
+      'context, matches the unedited model with "Imagine that <new fact>" in front: at the output on the target ' +
+      "tokens, at a middle layer through the logit lens at the subject, and on \"<subject> is a\" to keep the subject's " +
+      "general description. The closed-form update itself is MEMIT's.",
+    stepMeaning: 'Same as MEMIT: the facts of a call are solved jointly, each with its own target-vector optimization.',
+    files: [{ path: 'experiments/run_experiment/portability/lti.py', note: "LTI's target-vector objective, swapped into EasyEdit's MEMIT (or AlphaEdit) for one call" }],
+    keyHyperparams: [
+      { name: 'midlayers', meaning: 'the middle layer the logit-lens constraint reads, about half depth as in upstream (17 of 36, 15 of 32)' },
+      { name: 'last_kl_factor / mid_kl_factor / nll_factor', meaning: "weights of the output match, the middle-layer match and the target's own likelihood: upstream's Llama-2-7B values" },
+      { name: 'context_template', meaning: 'how the new fact is put in context for the targets: "Imagine that {fact}"' },
+      { name: 'everything else', meaning: "the model's MEMIT hparams, copied unchanged" },
+    ],
+    caveats: [
+      'Upstream reads the in-context run at the token positions of the prompts without the prefix, which land inside the prefix. Here each position is recomputed for the prefixed prompt, so the target tokens and the subject are compared with themselves.',
+      "Upstream's ROME-LTI is not ported; base_method can be memit or alphaedit.",
+    ],
+  },
+  loco: {
+    tagline: 'Train the edit together with its logical consequences: it must hold, imply what follows, and rule out the old answer.',
+    paper: 'Calanzone, Teso & Vergari, "Logically Consistent Language Models via Neuro-Symbolic Integration" (ICLR 2025, arXiv:2409.13724), turned into an editor. Adapted from github.com/ddidacus/loco-llm.',
+    howItWorks:
+      "LoCo-LMs reads a fact's truth value off the model as the probability it answers \"true\" to \"Is the fact true?\", " +
+      'and fine-tunes so those beliefs satisfy logical formulas. The loss is minus the log probability that a formula ' +
+      'holds, summed over every truth assignment that satisfies it. For an edit the formula binds four kinds of ' +
+      'statement: the new fact (grounded true), statements that must follow from it, written by the unedited model ' +
+      'itself from the new fact alone (implication), and the old answer and the negated new fact, which cannot hold ' +
+      "together with it (negation). A LoRA adapter on every projection is trained on that loss plus FT-M's loss on " +
+      'the edit prompt, then merged into the weights.',
+    stepMeaning: 'One fact edited per step; a call trains one adapter for num_steps on all of its facts at once, then merges it.',
+    files: [
+      { path: 'experiments/run_experiment/portability/loco.py', note: 'implication generation, beliefs, the weighted model count, LoRA training' },
+      { path: 'experiments/run_experiment/portability/derived.py', note: "records each fact's statements in derived.jsonl" },
+    ],
+    keyHyperparams: [
+      { name: 'constraint', meaning: 'implication, negation, or all (both)' },
+      { name: 'n_implications', meaning: 'implications the model writes per fact, 3' },
+      { name: 'completion_weight', meaning: "weight of FT-M's loss on the edit prompt, 1; 0 is pure LoCo, which only trains truth judgements" },
+      { name: 'rank / lora_alpha / lora_dropout / lr', meaning: "upstream's 128 / 16 / 0.05 / 3e-4" },
+      { name: 'num_steps', meaning: 'training steps per call, 25: a local choice, since upstream trains epochs over a whole knowledge base' },
+    ],
+    caveats: [
+      'Upstream binds facts with rules from a knowledge base (BeliefBank). Here the constraints come from the edit and the model, so the method needs nothing outside the model.',
+      'The negation is a template ("It is not true that ..."), where BeliefBank stores a hand-written negation.',
+    ],
+  },
 }
 
 export const FAMILY_DETAILS = {
@@ -332,5 +436,7 @@ export const FAMILY_DETAILS = {
   'Dynamic Locate-and-Edit': 'Still whole-layer weight edits, but the layers are chosen separately for each fact instead of fixed in hparams. Each run writes locations.jsonl recording which layers every fact went to.',
   'Neuron Editors': "Don't edit layers as a whole: they pick individual FFN neurons for each fact and change only those neurons' weights. FiNE and Knowledge Neurons pick neurons anywhere in the model; NMKE picks them within AlphaEdit's fixed layers.",
   'Circuit-level': 'Target the circuit that reads and reasons with the fact, across many layers and components, so the edit carries into multi-hop answers.',
+  Portability:
+    'Weight edits built to carry an edit into what follows from it: other forms of a rule, multi-hop recall, in-context reasoning, logical consequences. Each uses only the fact and the model\'s own knowledge or a logical constraint, nothing retrieved from an external memory. Each run writes derived.jsonl with what the model generated for each fact (IFMET, LoCo).',
   'In-Context': 'No weight changes at all, steer the answer through retrieval and prompting/reasoning instead.',
 }

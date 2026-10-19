@@ -294,8 +294,8 @@ directories will move before it commits.
   sweeps**: one per method family (defined in
   `../experiments/run_experiment/investigations.json`), covering the core
   method set only: **Finetuning** (FT-M, FT-L, LoRA), **Locate-and-Edit**
-  (ROME, MEMIT, AlphaEdit), **Dynamic Locate-and-Edit** (WilKE, FiDAL) and
-  **Neuron editors** (FiNE). Each lists every tunable setting of its methods, under
+  (ROME, AlphaEdit), **Dynamic Locate-and-Edit** (FiDAL), **Neuron editors**
+  (FiNE) and **Portability** (DMLE, IFMET, LTI, LoCo). Each lists every tunable setting of its methods, under
   their own setting names (a setting two methods share appears under each),
   with the current value, the authors' stability tag and five suggested
   values spread around the current one. Family sweeps vary **one setting at
@@ -308,7 +308,7 @@ directories will move before it commits.
   methods with their own hparams folders (`FT/`, `FT-L/`); each is pinned to
   its `objective_optimization`, which the runner enforces, so they are tuned
   separately rather than by sweeping the objective. Methods outside the core
-  set (PMET, Knowledge Neurons, NMKE, CaKE, IKE) are not swept, are disabled
+  set (MEMIT, PMET, WilKE, Knowledge Neurons, NMKE, CaKE, IKE, SCR) are not swept, are disabled
   in the Experiments page's method picker, and are blurred on the Methods
   page. SCR is not in the family sweeps. The earlier sweeps by kind
   of setting (edit layers, value-vector optimisation, adapter placement and
@@ -436,6 +436,38 @@ no special handling to run. Two things are worth knowing before launching one:
 their activations out of patched transformers modeling files (Llama-only, or
 Llama and GPT-J only). It recovers the same tensors with forward hooks, which
 is what lets these run on Qwen3, Olmo-3, SmolLM3, MAP-Neo and Mistral.
+
+## Portability editors
+
+`experiments/run_experiment/portability/` adds four parameter edits that
+also write in what should follow from a fact. Each uses only the fact and
+the model's own knowledge or a logical constraint: none retrieves from an
+external memory at edit or answer time.
+
+| Method | Writes in | Source |
+| --- | --- | --- |
+| `dmle` | a rule's formula and description into early layers, its worked instances into middle layers (MEMIT per layer group) | ported from github.com/Pepper66/DMLE |
+| `ifmet` | a second PMET edit of deeper layers at the last token of two-hop prompts the model writes itself | reimplemented, no code released |
+| `lti` | MEMIT with its target vector fitted to the unedited model reasoning with the fact in context | ported from github.com/Acruxos/EVOKE (MIT) |
+| `loco` | a LoRA adapter trained on LoCo-LMs' semantic loss: the edit, its model-written implications, the old answer and its negation | adapted from github.com/ddidacus/loco-llm |
+
+They register in `LOCATE_AND_EDIT` like the dynamic methods, all four
+solving a call's facts jointly. Worth knowing before launching one:
+
+- **DMLE runs on RuleEdit-200 only**, the one dataset that records which
+  form of a rule an edit is. `datasets/RuleEdit-200/build_editing_set.py`
+  (a build step of the download) flattens the release into three records
+  per rule: formula, description, worked instance. Use `batch` with an edit
+  batch size of 3 so each call is one whole rule; its split keeps a rule's
+  records together.
+- **What the model generated is recorded.** IFMET's two-hop prompts and
+  LoCo's implications decide what the edit is trained on, so each run writes
+  `runs/<run_name>/derived.jsonl`, one record per fact.
+- **Covariance statistics cost more.** DMLE's instance layers and IFMET's
+  deep layers are new layers for the statistics cache, computed on the first
+  run per model.
+- Their layer settings come from each paper's own models, moved to the same
+  relative depth where a model was not traced; the hparams files say which.
 
 ## Knowledge by prompt format
 

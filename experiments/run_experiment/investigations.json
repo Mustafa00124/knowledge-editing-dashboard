@@ -218,38 +218,6 @@
       }
      }
     },
-    "memit": {
-     "knobs": {
-      "layers": {
-       "kind": "layer_window",
-       "stability": "model"
-      },
-      "v_lr": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "v_num_grad_steps": {
-       "kind": "int",
-       "stability": "robust"
-      },
-      "kl_factor": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "clamp_norm_factor": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "mom2_update_weight": {
-       "kind": "log",
-       "stability": "model"
-      },
-      "mom2_n_samples": {
-       "kind": "int",
-       "stability": "robust"
-      }
-     }
-    },
     "alphaedit": {
      "knobs": {
       "layers": {
@@ -287,33 +255,8 @@
    "group": "sweep",
    "family": "Dynamic Locate-and-Edit",
    "design": "one_at_a_time",
-   "question": "For the editors that choose layers per fact: how widely they search for a layer, and how their edit is optimised and protected once a layer is chosen?",
+   "question": "For the editor that chooses layers per fact (FiDAL): how many layers it picks, and how its edit is optimised once they are chosen?",
    "methods": {
-    "wilke": {
-     "knobs": {
-      "scanning_ceiling": {
-       "kind": "int",
-       "stability": "model",
-       "note": "WilKE picks a layer per fact from 0..scanning_ceiling; this bounds the search"
-      },
-      "v_lr": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "v_num_grad_steps": {
-       "kind": "int",
-       "stability": "robust"
-      },
-      "kl_factor": {
-       "kind": "log",
-       "stability": "robust"
-      },
-      "mom2_n_samples": {
-       "kind": "int",
-       "stability": "robust"
-      }
-     }
-    },
     "fidal": {
      "knobs": {
       "top_k": {
@@ -370,6 +313,144 @@
       "epochs": {
        "kind": "int",
        "stability": "robust"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "portability",
+   "label": "Portability",
+   "group": "sweep",
+   "family": "Portability",
+   "design": "one_at_a_time",
+   "question": "For the editors that write in what follows from a fact: where each part of the edit goes, how strongly the propagation term counts against the edit itself, and how much the model is asked to generate for it?",
+   "cost_note": "DMLE, IFMET and LTI cache covariance statistics for every layer they write, so a new layer setting computes them on its first run. DMLE runs on RuleEdit-200 only.",
+   "methods": {
+    "dmle": {
+     "knobs": {
+      "formula_description_layers": {
+       "kind": "layer_window",
+       "stability": "model",
+       "note": "the early layer group for a rule's formula and description; the paper traces it per model"
+      },
+      "instance_layers": {
+       "kind": "layer_window",
+       "stability": "model",
+       "note": "the middle layer group for worked instances"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "not_reported"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "not_reported"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "ifmet": {
+     "knobs": {
+      "deep_layers": {
+       "kind": "layer_window",
+       "stability": "model",
+       "note": "the furtherance edit's layers, where multi-hop recall reads the fact at the last token"
+      },
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model",
+       "note": "the first edit's layers, at the subject (PMET's own)"
+      },
+      "n_support": {
+       "kind": "int",
+       "stability": "not_reported",
+       "note": "two-hop prompts per fact; the paper uses 1 to 5"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "lti": {
+     "knobs": {
+      "midlayers": {
+       "kind": "layer",
+       "stability": "model",
+       "note": "where the logit-lens constraint is applied; upstream uses about half depth"
+      },
+      "last_kl_factor": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "weight of matching the in-context output distribution"
+      },
+      "mid_kl_factor": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "weight of matching the in-context middle layer"
+      },
+      "nll_factor": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "weight of the new target's own likelihood"
+      },
+      "v_lr": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_n_samples": {
+       "kind": "int",
+       "stability": "robust"
+      }
+     }
+    },
+    "loco": {
+     "knobs": {
+      "lr": {
+       "kind": "log",
+       "stability": "not_reported"
+      },
+      "num_steps": {
+       "kind": "int",
+       "stability": "not_reported",
+       "note": "upstream trains epochs over a knowledge base; per edit this is a local choice"
+      },
+      "constraint": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "note": "which logical constraints bind the edit",
+       "options": [
+        "implication",
+        "negation",
+        "all"
+       ]
+      },
+      "completion_weight": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "note": "FT-M's loss on the edit prompt beside the semantic loss; 0 is pure LoCo",
+       "options": [
+        0,
+        0.5,
+        1.0,
+        2.0
+       ]
+      },
+      "n_implications": {
+       "kind": "int",
+       "stability": "not_reported"
+      },
+      "rank": {
+       "kind": "int",
+       "stability": "not_reported"
       }
      }
     }

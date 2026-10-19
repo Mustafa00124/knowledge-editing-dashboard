@@ -33,6 +33,11 @@ the dashboard's progress bar keeps working unchanged regardless of method):
           is only that each of those facts was written to a layer (or a
           set of neurons) chosen for it rather than named in hparams. See
           dynamic/__init__.py.
+  - DMLE/IFMET/LTI/LoCo: the portability editors, again "step i" means
+          i facts edited. Each edit also writes in what should follow
+          from the fact (other forms of a rule, multi-hop recall, in-
+          context reasoning, logical consequences). See
+          portability/__init__.py.
 
 Either way, every checkpoint evaluates against the *same* fixed request
 list (loaded once, size ds_size) - for ROME/SCR that means not-yet-edited
@@ -66,6 +71,7 @@ Output layout (same for every method):
     <out_root>/runs/<run_name>/summary.json        (written once, at the end)
     <out_root>/runs/<run_name>/samples/step_*.json (qualitative generations, every --sample_every steps)
     <out_root>/runs/<run_name>/locations.jsonl     (dynamic methods only: where each fact was edited)
+    <out_root>/runs/<run_name>/derived.jsonl       (portability methods: what the model generated for each fact)
     <out_root>/manifest.json                       (rebuilt from every runs/*/summary.json found so far)
 """
 import argparse
@@ -107,6 +113,10 @@ METHOD_HPARAMS_DIR = {
     "ike": "IKE",
     "kn": "KN",
     "cake": "CaKE",
+    "dmle": "DMLE",
+    "ifmet": "IFMET",
+    "lti": "LTI",
+    "loco": "LoCo",
 }
 
 # Fine-tuning comes in two methods that share one trainer and differ only in
@@ -223,11 +233,58 @@ LOCATE_AND_EDIT = {
         "mode": "single",
         "dynamic": True,
     },
+    # The portability editors (see portability/__init__.py): each edit
+    # also writes in what follows from the fact. All four solve for a
+    # whole call jointly, as their papers do.
+    # Rule level: MEMIT per form, formula and description into early
+    # layers, worked instances into middle layers (RuleEdit-200 only).
+    "dmle": {
+        "hparams_module": "portability.dmle",
+        "hparams_class": "DMLEHyperParams",
+        "apply_module": "portability.dmle",
+        "apply_fn": "apply_dmle_to_model",
+        "mode": "batch",
+        "portability": True,
+    },
+    # PMET at the subject, then again on deeper layers at the last token
+    # of two-hop prompts the model writes itself.
+    "ifmet": {
+        "hparams_module": "portability.ifmet",
+        "hparams_class": "IFMETHyperParams",
+        "apply_module": "portability.ifmet",
+        "apply_fn": "apply_ifmet_to_model",
+        "mode": "batch",
+        "portability": True,
+    },
+    # MEMIT with a target vector fitted to the unedited model reasoning
+    # with the fact in context.
+    "lti": {
+        "hparams_module": "portability.lti",
+        "hparams_class": "LTIHyperParams",
+        "apply_module": "portability.lti",
+        "apply_fn": "apply_lti_to_model",
+        "mode": "batch",
+        "portability": True,
+    },
+    # LoRA trained on LoCo-LMs' semantic loss over the edit, its negation,
+    # the old answer and the model's own implications of the new fact.
+    "loco": {
+        "hparams_module": "portability.loco",
+        "hparams_class": "LoCoHyperParams",
+        "apply_module": "portability.loco",
+        "apply_fn": "apply_loco_to_model",
+        "mode": "batch",
+        "portability": True,
+    },
 }
 
 # Methods whose edit site is an outcome of the run rather than a setting,
 # so it has to be recorded per fact. See dynamic/locations.py.
 DYNAMIC_METHODS = {name for name, spec in LOCATE_AND_EDIT.items() if spec.get("dynamic")}
+# Methods that generate text from the model to build each edit (IFMET's
+# two-hop prompts, LoCo's implications), recorded per fact. See
+# portability/derived.py.
+PORTABILITY_METHODS = {name for name, spec in LOCATE_AND_EDIT.items() if spec.get("portability")}
 
 # Where each registered model's weights live on disk. Add a new model by
 # adding one line here, plus one hparams/<METHOD>/<key>.yaml per method it
@@ -531,6 +588,9 @@ def main():
     if args.method == "kn" and any(r.get("ground_truth") in (None, "", "<|endoftext|>") for r in requests):
         raise SystemExit(f"--method kn attributes neurons to the original answer, and {args.data_path} "
                          "has records without one (ground_truth)")
+    if args.method == "dmle" and any(r.get("form") is None for r in requests):
+        raise SystemExit(f"--method dmle edits a rule's formula, description and instances on separate layers, "
+                         f"and {args.data_path} has records without a form; only RuleEdit-200 provides them")
     if args.method == "cake":
         from cake import CAKE_DATA
         if os.path.basename(args.data_path) not in CAKE_DATA:
@@ -886,6 +946,14 @@ def main():
                     for record in records:
                         f.write(json.dumps({"step": step, **record}) + "\n")
             chosen_layers = locations.layer_histogram(records)
+        if args.method in PORTABILITY_METHODS:
+            from portability import derived
+
+            records = derived.drain()
+            if records:
+                with open(os.path.join(run_dir, "derived.jsonl"), "a") as f:
+                    for record in records:
+                        f.write(json.dumps({"step": step, **record}) + "\n")
 
         # Legacy headline fields remain Original-only, never silently relabeled.
         original = evaluations.get("original", dict.fromkeys(("edit_succ", "portability", "locality", "fluency")))

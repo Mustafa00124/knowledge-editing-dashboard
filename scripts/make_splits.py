@@ -22,6 +22,12 @@ Leakage rules:
 Sizes: 100 dev records per subset (and 100 demo where needed), at most a
 quarter of the subset each, so test always keeps at least half.
 
+Datasets added later (LATE_SUBSETS) are split after all the others and take
+dev or demo subjects only from subjects no earlier subset has. Their picks
+then never reach an earlier subset, so adding a dataset leaves every
+existing split file byte-identical and the records behind past results
+stay where they were.
+
 Run with the experiment environment (it imports the runner's loaders):
     venvs/easyedit_venv/bin/python scripts/make_splits.py
 Rerunning with unchanged data reproduces the same files.
@@ -39,6 +45,8 @@ SPLITS = ROOT / "splits"
 DEV_SIZE = 100
 DEMO_SIZE = 100
 VERSION = 1
+# In the order they were added. See the docstring.
+LATE_SUBSETS = ["RuleEdit-200/ruleedit_editing.json"]
 
 sys.path.insert(0, str(ROOT / "external" / "EasyEdit"))
 sys.path.insert(0, str(EXP))
@@ -84,13 +92,42 @@ def main():
     import cake
 
     global_dev, global_demo = set(), set()
-    for path in runnable_subsets():
+    seen = set()  # every subject of the subsets split so far
+    subsets = runnable_subsets()
+    late = [p for name in LATE_SUBSETS for p in subsets if os.path.relpath(p, ROOT / "datasets") == name]
+    for path in [p for p in subsets if p not in late] + late:
         rel = os.path.relpath(path, ROOT / "datasets")
         requests = load_requests(path, None)
-        keys = [group_key(r) for r in requests]
-        groups = {}
+        subject_keys = [group_key(r) for r in requests]
+        keys = list(subject_keys)
+        # A rule's records (RuleEdit-200: formula, description, instance)
+        # stay together even where their subjects are spelled differently
+        # ("sets" / "set"), so a batch of three is always one whole rule.
+        # Records sharing a rule or a subject form one group, named by a
+        # subject in it; every subject of a group then goes to one side.
+        rules = {}
+        for index, request in enumerate(requests):
+            if "rule_id" in request:
+                rules.setdefault(request["rule_id"], []).append(index)
+        if rules:
+            parent = {k: k for k in subject_keys}
+
+            def find(k):
+                while parent[k] != k:
+                    parent[k] = parent[parent[k]]
+                    k = parent[k]
+                return k
+
+            for members in rules.values():
+                for index in members[1:]:
+                    a, b = find(subject_keys[members[0]]), find(subject_keys[index])
+                    if a != b:
+                        parent[b] = a
+            keys = [find(k) for k in subject_keys]
+        groups, subjects = {}, {}
         for index, key in enumerate(keys):
             groups.setdefault(key, []).append(index)
+            subjects.setdefault(key, set()).add(subject_keys[index])
 
         n = len(requests)
         dev_quota = min(DEV_SIZE, n // 4)
@@ -107,21 +144,22 @@ def main():
 
         # Facts already dev (or demo) in another subset stay on that side here.
         for key, members in groups.items():
-            if key in global_dev:
+            if subjects[key] & global_dev:
                 (dev if len(dev) + len(members) <= dev_quota else excluded).extend(members)
-            elif key in global_demo:
+            elif subjects[key] & global_demo:
                 target = demo if needs_demo and len(demo) + len(members) <= demo_quota else excluded
                 target.extend(members)
 
         # Fill the rest with fresh subjects in a fixed, per-subset order.
-        fresh = [k for k in groups if k not in global_dev and k not in global_demo]
+        fresh = [k for k in groups if not subjects[k] & (global_dev | global_demo)
+                 and (path not in late or not subjects[k] & seen)]
         random.Random(f"ke-split-v{VERSION}:{rel}").shuffle(fresh)
         for key in fresh:
             members = groups[key]
             if len(dev) < dev_quota and take(dev, dev_quota, members):
-                global_dev.add(key)
+                global_dev.update(subjects[key])
             elif needs_demo and len(demo) < demo_quota and take(demo, demo_quota, members):
-                global_demo.add(key)
+                global_demo.update(subjects[key])
 
         # Every method must be scored on the same records. CaKE can edit only
         # records its release has training data for, so records it lacks are
@@ -152,6 +190,7 @@ def main():
             "test_count": test_count,
         }, indent=1) + "\n")
         print(f"{rel}: {n} records -> dev {len(dev)}, demo {len(demo)}, excluded {len(excluded)}, test {test_count}")
+        seen.update(subject_keys)
 
     # Second pass: a subject chosen for dev/demo by a later subset may sit in
     # the test side of an earlier one. Move those records to "excluded".

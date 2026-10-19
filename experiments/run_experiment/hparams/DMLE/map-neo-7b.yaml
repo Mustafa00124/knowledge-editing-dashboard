@@ -1,0 +1,40 @@
+# DMLE (arXiv:2604.08284) - see portability/dmle.py.
+#
+# Two MEMIT updates, one per layer group: a rule's formula and description
+# into formula_description_layers, its worked instances into instance_layers.
+# Layer groups: inherited from the paper's Qwen2.5-7B tracing (3-5 / 12-14): same depth, not traced for this model.
+#
+# base_method memit; every field below instance_layers is
+# hparams/MEMIT/map-neo-7b.yaml copied unchanged (its `layers` is replaced per
+# stage), so DMLE vs MEMIT isolates the per-form layer routing.
+# Cost: covariance statistics are cached for both groups, so the first run
+# on this model computes them for the instance layers too.
+
+alg_name: DMLE
+model_name: models/MAP-Neo-7B
+device: 0
+base_method: memit
+formula_description_layers: [3, 4, 5]
+instance_layers: [12, 13, 14]
+stats_dir: experiments/run_experiment/data/stats
+layers: [4, 5, 6, 7, 8]
+clamp_norm_factor: 4
+layer_selection: all
+fact_token: subject_last
+v_num_grad_steps: 25
+v_lr: 5e-1
+v_loss_layer: 27
+v_weight_decay: 1e-3
+kl_factor: 0.0625
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp
+attn_module_tmp: model.layers.{}.self_attn
+ln_f_module: model.norm
+lm_head_module: lm_head
+mom2_dataset: wikipedia
+mom2_n_samples: 100000
+mom2_dtype: float32
+model_parallel: false

@@ -26,7 +26,7 @@
   {
    "id": "locate",
    "label": "Locate-and-edit settings",
-   "note": "MEMIT, PMET and AlphaEdit only"
+   "note": "MEMIT, PMET and AlphaEdit, and the portability editors built on them (DMLE, IFMET, LTI)"
   },
   {
    "id": "incontext",
@@ -91,7 +91,7 @@
        "value": "memit",
        "available": true,
        "requires_subject": true,
-       "core": true
+       "core": false
       },
       {
        "label": "PMET",
@@ -122,7 +122,7 @@
        "requires_subject": true,
        "no_joint_batch": true,
        "note": "scans layers 0..scanning_ceiling per fact and edits the one needing the smallest relative weight change; costs one ROME edit per candidate layer, and caches mom2 stats for all of them",
-       "core": true
+       "core": false
       },
       {
        "label": "FiDAL",
@@ -201,6 +201,46 @@
      ]
     },
     {
+     "label": "Portability",
+     "note": "each edit also writes in what follows from the fact; parameter edits only, nothing retrieved at edit or answer time",
+     "methods": [
+      {
+       "label": "DMLE",
+       "value": "dmle",
+       "available": true,
+       "requires_subject": true,
+       "only_subsets": [
+        "ruleedit_editing.json"
+       ],
+       "note": "rule-level: MEMIT per form of a rule, formula and description into early layers and worked instances into middle layers; RuleEdit-200 only (the only dataset with a rule's forms). Use batch with edit batch size 3 to edit one whole rule per call",
+       "core": true
+      },
+      {
+       "label": "IFMET",
+       "value": "ifmet",
+       "available": true,
+       "requires_subject": true,
+       "note": "PMET at the subject, then a furtherance edit of deeper layers at the last token of two-hop prompts the model writes itself (another name for the subject, kept only if the model resolves it back); reimplemented from the paper, no code was released; no Mistral-7B hparams, mirroring PMET",
+       "core": true
+      },
+      {
+       "label": "LTI",
+       "value": "lti",
+       "available": true,
+       "requires_subject": true,
+       "note": "MEMIT whose target vector is fitted to match the unedited model reasoning with the new fact in context, at the output and at a middle layer; ported from the authors' EVOKE code",
+       "core": true
+      },
+      {
+       "label": "LoCo",
+       "value": "loco",
+       "available": true,
+       "note": "LoRA trained on LoCo-LMs' semantic loss: the edit must hold, imply the model's own implications of it, and exclude the old answer and its negation; plus FT-M's loss on the edit prompt",
+       "core": true
+      }
+     ]
+    },
+    {
      "label": "In-Context",
      "methods": [
       {
@@ -213,7 +253,7 @@
        "label": "SCR",
        "value": "scr",
        "available": true,
-       "core": true
+       "core": false
       }
      ]
     }
@@ -499,7 +539,11 @@
      "rome",
      "memit",
      "pmet",
-     "alphaedit"
+     "alphaedit",
+     "dmle",
+     "ifmet",
+     "lti",
+     "loco"
     ]
    },
    "default_when": {
@@ -510,7 +554,11 @@
      "lora": "batch",
      "memit": "batch",
      "pmet": "batch",
-     "alphaedit": "batch"
+     "alphaedit": "batch",
+     "dmle": "batch",
+     "ifmet": "batch",
+     "lti": "batch",
+     "loco": "batch"
     }
    },
    "options": [
@@ -569,7 +617,11 @@
      "rome",
      "memit",
      "pmet",
-     "alphaedit"
+     "alphaedit",
+     "dmle",
+     "ifmet",
+     "lti",
+     "loco"
     ]
    },
    "options": [
@@ -612,7 +664,11 @@
      "lora",
      "memit",
      "pmet",
-     "alphaedit"
+     "alphaedit",
+     "dmle",
+     "ifmet",
+     "lti",
+     "loco"
     ]
    },
    "options": [
@@ -1162,6 +1218,17 @@
        "provides_ground_truth": false
       }
      ]
+    },
+    {
+     "label": "RuleEdit-200",
+     "subsets": [
+      {
+       "label": "Math and physics rules",
+       "value": "${PROJECT_ROOT}/datasets/RuleEdit-200/ruleedit_editing.json",
+       "available": true,
+       "note": "DMLE's rule-level benchmark (github.com/Pepper66/DMLE): 198 counterfactual mathematics and physics rules, three records each (formula, description, worked instance), so a batch of 3 edits one whole rule. Portability asks for the rule's other forms (Rule_Understanding) and worked answers under the edited rule (Instance). Two of the release's 200 rules are left out (one is not valid JSON, one names a subject its prompt lacks); see datasets/RuleEdit-200/build_editing_set.py."
+      }
+     ]
     }
    ]
   },
@@ -1292,7 +1359,10 @@
     "method": [
      "memit",
      "pmet",
-     "alphaedit"
+     "alphaedit",
+     "dmle",
+     "ifmet",
+     "lti"
     ]
    },
    "options": [

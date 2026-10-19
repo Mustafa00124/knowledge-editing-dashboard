@@ -135,7 +135,8 @@ def _extracted(root, archive):
 
 def _built(root, step):
     return {"views": (root / "VIEWS.json").exists(),
-            "realtimeqa": (root / "realtimeqa_editing.json").exists()}[step]
+            "realtimeqa": (root / "realtimeqa_editing.json").exists(),
+            "ruleedit": (root / "ruleedit_editing.json").exists()}[step]
 
 
 def dataset_status(name):
@@ -147,8 +148,10 @@ def dataset_status(name):
         len(present) == len(required)
         and all(_extracted(root, a) for a in m.get("extract", []))
         # RuleEdit-200's views are skipped upstream-side (malformed records),
-        # so a missing VIEWS.json there does not mean incomplete.
-        and all(_built(root, s) for s in m.get("build", []) if name != "RuleEdit-200")
+        # so a missing VIEWS.json there does not mean incomplete. Its editing
+        # file, which the runner loads, does.
+        and all(_built(root, s) for s in m.get("build", [])
+                if not (name == "RuleEdit-200" and s == "views"))
     )
     parts = {}
     for key, label in m.get("parts", {}).items():
@@ -204,7 +207,7 @@ def _build(name, step):
     if step == "views":
         script = ROOT / "dashboard" / "scripts" / "prepare_benchmarks.py"
         subprocess.run([sys.executable, str(script), name], check=True)
-    elif step == "realtimeqa":
+    elif step in ("realtimeqa", "ruleedit"):
         subprocess.run([sys.executable, "build_editing_set.py"], cwd=DATASETS_DIR / name, check=True)
 
 

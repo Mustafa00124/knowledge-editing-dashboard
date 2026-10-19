@@ -53,9 +53,10 @@ class HeldConstantTests(unittest.TestCase):
 class MethodInvestigationTests(unittest.TestCase):
     """One investigation per method family owns every setting of its methods."""
 
-    # The core method set: methods outside it (PMET, KN, NMKE, CaKE, IKE) are no longer swept.
-    FAMILIES = {"finetuning": {"ft", "ft_l", "lora"}, "locate_edit": {"rome", "memit", "alphaedit"},
-                "dynamic_locate_edit": {"wilke", "fidal"}, "neuron_editors": {"fine"}}
+    # The core method set: methods outside it (MEMIT, PMET, WilKE, KN, NMKE, CaKE, IKE, SCR) are no longer swept.
+    FAMILIES = {"finetuning": {"ft", "ft_l", "lora"}, "locate_edit": {"rome", "alphaedit"},
+                "dynamic_locate_edit": {"fidal"}, "neuron_editors": {"fine"},
+                "portability": {"dmle", "ifmet", "lti", "loco"}}
 
     def test_each_family_owns_its_methods_settings(self):
         owners = hparam_sweeps._owners()

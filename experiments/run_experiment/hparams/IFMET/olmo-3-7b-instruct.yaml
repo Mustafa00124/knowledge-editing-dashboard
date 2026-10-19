@@ -1,0 +1,47 @@
+# IFMET (ICML 2025, arXiv:2410.06331) - see portability/ifmet.py.
+#
+# First edit: PMET as configured below (its `layers`, at the subject).
+# Furtherance edit: PMET again on deep_layers, at the last token of two-hop
+# prompts the model writes itself (n_support at most, verified by asking the
+# model what each description refers to).
+#   - deep_layers 18..22: the paper edits GPT-J's [16..20] of 28 layers; the same
+#     relative depth for 32 layers. Not traced for this model.
+#   - n_support 3: the paper uses 1 to 5 per edit.
+# base_method pmet; every field from stats_dir on is hparams/PMET/olmo-3-7b-instruct.yaml
+# copied unchanged. Cost: PMET's covariance statistics are cached for
+# deep_layers as well on the first run.
+
+alg_name: IFMET
+model_name: models/Olmo-3-7B-Instruct
+device: 0
+base_method: pmet
+deep_layers: [18, 19, 20, 21, 22]
+n_support: 3
+verify_support: true
+support_temperature: 0.7
+support_max_new_tokens: 16
+seed: 0
+stats_dir: experiments/run_experiment/data/stats
+layers: [4, 5, 6, 7, 8]
+clamp_norm_factor: 4
+layer_selection: all
+fact_token: subject_last
+v_num_grad_steps: 30
+v_lr: 2e-1
+v_loss_layer: 31
+v_weight_decay: 1e-3
+kl_factor: 1
+mom2_adjustment: true
+mom2_update_weight: 15000
+rewrite_module_tmp: model.layers.{}.mlp.down_proj
+rewrite_module_tmps: ['model.layers.{}.mlp.down_proj']
+layer_module_tmp: model.layers.{}
+mlp_module_tmp: model.layers.{}.mlp.down_proj
+attn_module_tmp: model.layers.{}.self_attn.o_proj
+ln_f_module: model.norm
+lm_head_module: model.embed_tokens
+mom2_dataset: wikipedia
+mom2_n_samples: 100000
+mom2_dtype: float32
+model_parallel: false
+nll_loss_factor: 1

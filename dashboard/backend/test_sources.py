@@ -41,7 +41,7 @@ class RealManifestTests(unittest.TestCase):
                 for archive in m.get("extract", []):
                     self.assertIn(archive, paths)
                 for step in m.get("build", []):
-                    self.assertIn(step, ("views", "realtimeqa"))
+                    self.assertIn(step, ("views", "realtimeqa", "ruleedit"))
                 for f in m["files"]:
                     if f.get("part"):
                         self.assertIn(f["part"], m.get("parts", {}))

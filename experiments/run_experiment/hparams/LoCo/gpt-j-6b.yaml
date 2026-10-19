@@ -1,0 +1,26 @@
+# LoCo-LMs' semantic loss as an editor (ICLR 2025, arXiv:2409.13724) - see
+# portability/loco.py.
+#
+# constraint all: the edit is true, implies each implication the unedited
+# model writes for it (n_implications at most), excludes the old answer and
+# its own negation. completion_weight 1 adds FT-M's loss on the edit prompt
+# (0 is pure LoCo).
+# LoRA on every linear projection with upstream's r 128, alpha 16, dropout
+# 0.05 and learning rate 3e-4 (configs/train_llama.json). num_steps 25 per
+# edit call is this project's choice: upstream trains epochs over a whole
+# knowledge base, not single edits.
+
+alg_name: LoCo
+model_name: models/GPT-J-6B
+device: 0
+constraint: all
+n_implications: 3
+implication_max_new_tokens: 60
+completion_weight: 1.0
+rank: 128
+lora_alpha: 16
+lora_dropout: 0.05
+target_modules: [q_proj, k_proj, v_proj, out_proj, fc_in, fc_out]
+lr: 0.0003
+num_steps: 25
+seed: 0

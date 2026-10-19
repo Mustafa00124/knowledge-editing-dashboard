@@ -313,6 +313,46 @@ def load_editeverything_requests(data_path: str, ds_size: int) -> List[Dict]:
     return requests
 
 
+def load_ruleedit_requests(data_path: str, ds_size: int) -> List[Dict]:
+    """RuleEdit-200, flattened by datasets/RuleEdit-200/build_editing_set.py
+    into three consecutive records per rule: its formula, its description
+    and one worked instance, each tagged `rule_id` and `form`. DMLE routes a
+    record to a layer group by `form`; every other method edits the same
+    records as ordinary facts. Edit the three together (batch of 3) to
+    follow the paper's rule-level protocol.
+
+    Targets are counterfactual rules, so both portability groups are scored
+    against the edited rule: "Rule_Understanding" asks for the rule's other
+    forms, "Instance" for worked answers under it. Locality keeps the
+    release's "neighborhood" (related rules) and "distracting" (unrelated
+    rules) groups apart."""
+    with open(data_path) as f:
+        data = json.load(f)
+    records = data[:ds_size]
+
+    portability_inputs = {}
+    for key in ("Rule_Understanding", "Instance"):
+        prompts, answers = _flatten_probes([r["portability"].get(key) or None for r in records])
+        portability_inputs[key] = {"prompt": prompts, "ground_truth": answers}
+    locality_inputs = {}
+    for key in ("neighborhood", "distracting"):
+        prompts, answers = _flatten_probes([r["locality"].get(key) or None for r in records])
+        locality_inputs[key] = {"prompt": prompts, "ground_truth": answers}
+
+    requests = _prepare_requests(
+        prompts=[r["prompt"] for r in records],
+        target_new=[r["target_new"] for r in records],
+        ground_truth=[r.get("ground_truth") for r in records],
+        subject=[r["subject"] for r in records],
+        locality_inputs=locality_inputs,
+        portability_inputs=portability_inputs,
+    )
+    for request, record in zip(requests, records):
+        request["rule_id"] = record["rule_id"]
+        request["form"] = record["form"]
+    return requests
+
+
 def load_requests(data_path: str, ds_size: int) -> List[Dict]:
     """Picks the right per-format loader based on data_path, so
     run_experiment.py and ike.py don't need to know or care which shape a
@@ -330,6 +370,8 @@ def load_requests(data_path: str, ds_size: int) -> List[Dict]:
         return load_unkebench_requests(data_path, ds_size)
     if "/EditEverything/" in data_path:
         return load_editeverything_requests(data_path, ds_size)
+    if "/RuleEdit-200/" in data_path:
+        return load_ruleedit_requests(data_path, ds_size)
     return load_recent_requests(data_path, ds_size)
 
 
