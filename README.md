@@ -1,17 +1,18 @@
 # Knowledge Editing
 
 Compares knowledge editing methods across language models and benchmarks.
-Main experiments and hyperparameter sweeps use a **core set of 10**
+Main experiments and hyperparameter sweeps use a **core set of 9**
 (since 2026-10-19), centred on editing the logical structure of knowledge
-rather than single associations: FT-M and FT-L (fine-tuning with EasyEdit's
-two objectives, `--method ft` and `ft_l`), LoRA, ROME, AlphaEdit, FiDAL,
+rather than single associations: FT-M (fine-tuning on every answer token,
+`--method ft`), LoRA, ROME, AlphaEdit, FiDAL,
 FiNE, and three **portability editors** that write in what follows from an
 edit: IFMET, LTI and LoCo (`core: true` in
 `experiments/run_experiment/dashboard.json`; see
 `experiments/run_experiment/portability/`). MEMIT, PMET, WilKE, Knowledge
 Neurons, NMKE, CaKE, IKE and SCR stay implemented and their past results
-viewable, but are outside the core set (SCR keeps its own In context
-experiment); SNKE and MCircKE are listed but not implemented: no public
+viewable, but are outside the core set, as is FT-L (`ft_l`, which scores
+the answer only at the last prompt token); SCR keeps its own In context
+experiment. SNKE and MCircKE are listed but not implemented: no public
 implementation was found. It records checkpointed metrics and generated answers, and ships
 a web dashboard for launching experiments and browsing results and datasets.
 

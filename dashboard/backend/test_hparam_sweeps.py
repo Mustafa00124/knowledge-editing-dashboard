@@ -53,18 +53,19 @@ class HeldConstantTests(unittest.TestCase):
 class MethodInvestigationTests(unittest.TestCase):
     """One investigation per method family owns every setting of its methods."""
 
-    # The core method set: methods outside it (MEMIT, PMET, WilKE, KN, NMKE, CaKE, IKE, SCR) are no longer swept.
-    FAMILIES = {"finetuning": {"ft", "ft_l", "lora"}, "locate_edit": {"rome", "alphaedit"},
+    # The core method set: methods outside it (FT-L, MEMIT, PMET, WilKE, KN, NMKE, CaKE, IKE, SCR) are no longer swept.
+    FAMILIES = {"finetuning": {"ft", "lora"}, "locate_edit": {"rome", "alphaedit"},
                 "dynamic_locate_edit": {"fidal"}, "neuron_editors": {"fine"},
                 "portability": {"ifmet", "lti", "loco"}}
 
     def test_each_family_owns_its_methods_settings(self):
         owners = hparam_sweeps._owners()
-        for method in ("ft", "ft_l"):
-            for key in ("layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
-                self.assertEqual(owners[(method, key)]["id"], "finetuning", (method, key))
-            # Each FT method is pinned to its objective, so it is not a setting to sweep.
-            self.assertNotIn((method, "objective_optimization"), owners)
+        for key in ("layers", "lr", "num_steps", "weight_decay", "norm_constraint"):
+            self.assertEqual(owners[("ft", key)]["id"], "finetuning", key)
+        # FT-M is pinned to its objective, so it is not a setting to sweep;
+        # FT-L is outside the core set and not swept at all.
+        self.assertNotIn(("ft", "objective_optimization"), owners)
+        self.assertFalse([k for k in owners if k[0] == "ft_l"])
         for key in ("rank", "target_modules", "layers", "lr", "num_steps", "lora_alpha", "lora_dropout",
                     "weight_decay", "lora_type"):
             self.assertEqual(owners[("lora", key)]["id"], "finetuning", key)
@@ -104,18 +105,21 @@ class MethodInvestigationTests(unittest.TestCase):
 
     def test_every_knob_has_a_current_value(self):
         settings = {m: {r["key"] for r in hparam_sweeps.effective_settings(m, "qwen3-4b") if r["editable"]}
-                    for m in ("ft", "ft_l", "lora")}
-        for method in ("ft", "ft_l", "lora"):
+                    for m in ("ft", "lora")}
+        for method in ("ft", "lora"):
             knobs = hparam_sweeps._load_catalog()["investigations"]
             knobs = next(i for i in knobs if i["id"] == "finetuning")["methods"][method]["knobs"]
             self.assertEqual(set(knobs) - settings[method], set(), method)
 
     def test_ft_m_and_ft_l_are_separate_methods(self):
         req = {"investigation": "finetuning", "design": "grid",
-               "methods": {"ft": {"lr": [1e-4, 1e-3]}, "ft_l": {"lr": [1e-4, 1e-3]}},
+               "methods": {"ft": {"lr": [1e-4, 1e-3]}},
                "models": ["qwen3-4b"], "data_paths": [DATASET], "ds_size": "full", "edit_mode": "batch"}
         _, _, runs, _ = hparam_sweeps.plan(req)
-        self.assertEqual(sorted(r["method"] for r in runs), ["ft", "ft", "ft_l", "ft_l"])
+        self.assertEqual(sorted(r["method"] for r in runs), ["ft", "ft"])
+        # FT-L left the core set, so the family sweep no longer takes it.
+        with self.assertRaises(ValueError):
+            hparam_sweeps.plan({**req, "methods": {"ft_l": {"lr": [1e-4]}}})
         # Each reads its own hparams file, pinned to its own objective.
         self.assertEqual({m: dict((r["key"], r["value"]) for r in hparam_sweeps.effective_settings(m, "qwen3-4b"))
                           ["objective_optimization"] for m in ("ft", "ft_l")},

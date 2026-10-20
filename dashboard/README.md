@@ -293,7 +293,7 @@ directories will move before it commits.
   **Hyperparameter
   sweeps**: one per method family (defined in
   `../experiments/run_experiment/investigations.json`), covering the core
-  method set only: **Finetuning** (FT-M, FT-L, LoRA), **Locate-and-Edit**
+  method set only: **Finetuning** (FT-M, LoRA), **Locate-and-Edit**
   (ROME, AlphaEdit), **Dynamic Locate-and-Edit** (FiDAL), **Neuron editors**
   (FiNE) and **Portability** (IFMET, LTI, LoCo). Each lists every tunable setting of its methods, under
   their own setting names (a setting two methods share appears under each),
@@ -306,9 +306,9 @@ directories will move before it commits.
   (`grid`) is still available. They start as a quick check: two single
   edits, or two batches of ten. FT-M (`ft`) and FT-L (`ft_l`) are separate
   methods with their own hparams folders (`FT/`, `FT-L/`); each is pinned to
-  its `objective_optimization`, which the runner enforces, so they are tuned
-  separately rather than by sweeping the objective. Methods outside the core
-  set (MEMIT, PMET, WilKE, Knowledge Neurons, NMKE, CaKE, IKE, SCR) are not swept, are disabled
+  its `objective_optimization`, which the runner enforces, so the objective
+  is never swept. Methods outside the core
+  set (FT-L, MEMIT, PMET, WilKE, Knowledge Neurons, NMKE, CaKE, IKE, SCR) are not swept, are disabled
   in the Experiments page's method picker, and are blurred on the Methods
   page. SCR is not in the family sweeps. The earlier sweeps by kind
   of setting (edit layers, value-vector optimisation, adapter placement and
