@@ -203,10 +203,36 @@ def check_ambiguity():
 
 
 def check_subjects():
-    return [check('R2. Named subjects, self-contained statements',
-                  'Subjects are named things; statements stand on their own', status='manual',
+    return [check('R2. Stable subjects, self-contained statements',
+                  "Subjects don't describe the edited value or contain their answer; statements stand on their own",
+                  status='manual',
                   note='Checked by a person. wikidata/entities.json marks subjects that are descriptions '
-                       '(category "description").')]
+                       '(category "description") and the review notes ("issue") that found such subjects.')]
+
+
+def check_wikidata():
+    """R8, from wikidata/analysis.json: a named fact whose relation has a
+    Wikidata property is in Wikidata, directly or through an allowed chain."""
+    path = ROOT / 'wikidata' / 'analysis.json'
+    s, name = 'R8. Named facts are in Wikidata', 'Named facts with a Wikidata property are found there'
+    if not path.exists():
+        return [check(s, name, status='pending', note='Run wikidata/analyze.py first.')]
+    a = json.loads(path.read_text())
+    covered, missing, exempt = 0, [], 0
+    rows = [(f['id'], f['match'], f.get('original_grade') if f['op'] == 'replace' else f.get('new_grade'))
+            for f in a.get('facts', [])]
+    rows += [(t['id'], 'exact', t.get('original_grade') if t['op'] == 'replace' else t.get('new_grade'))
+             for t in a.get('tbox_subclass', [])]
+    for rid, match, grade in rows:
+        if match not in ('exact', 'narrower', 'broader') or grade in (None, 'unlinked'):
+            exempt += 1
+        elif grade.startswith('found'):
+            covered += 1
+        else:
+            missing.append(f'{rid}: {grade}')
+    note = (f'{covered} found, {len(missing)} not, {exempt} exempt (relation has no Wikidata property, or '
+            f'subject/object not a named thing). Analysis of {a.get("date")}; rerun wikidata/analyze.py after edits.')
+    return [check(s, name, missing, note=note)]
 
 
 def check_locality(recs):
@@ -365,7 +391,7 @@ def spread(recs):
             table.append([f'familiarity.{tier}', op, *(c[v] for v in FAMILIARITY)])
     c = Counter(r.get('derivability') for r in recs if r['edit_operation'] == 'replace')
     dtable = [['derivability (replace)', *DERIVABILITY], ['', *(c[v] for v in DERIVABILITY)]]
-    return [check('B4. Hop forms are mixed', 'Shares of one-hop, two-hop and ambiguous facts', status='pending',
+    return [check('B4. Surface and hop forms are mixed', 'Surface form x hop form grid', status='pending',
                   note='Targets open (CRITERIA.md design note). Derivability, our current rating of hop form:',
                   table=dtable),
             check('B5. Familiarity and connectivity spread', 'Familiarity', status='info', table=table)]
@@ -375,7 +401,7 @@ def report():
     recs = load_records()
     relations, _ = load_relations()
     checks = (check_ambiguity() + check_subjects() + check_repeats(recs) + check_audit(recs)
-              + check_delete(recs) + check_locality(recs) + check_naming(recs, relations)
+              + check_delete(recs) + check_locality(recs) + check_naming(recs, relations) + check_wikidata()
               + check_yes_no(recs) + check_mix(recs) + spread(recs) + check_reuse(recs))
     return {'records': len(recs), 'checks': checks,
             'status': dict(Counter(c['status'] for c in checks))}

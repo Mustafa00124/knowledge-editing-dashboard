@@ -8,8 +8,8 @@ Three parts:
 
 - **Rules** every record must pass.
 - **Balance targets** the dataset meets as a whole, not each record.
-- **Design note** on hop form and derivation trees, the part still being
-  designed.
+- **Design note** on surface form, hop form and derivation trees, the part
+  still being designed.
 
 **Checking.** `python datasets/SidsDataset/validate.py --criteria` (code in
 `criteria.py`) checks everything a script can and lists the records that
@@ -28,14 +28,19 @@ prey on seals, seals prey on cod, so polar bears prey on cod?" is out, because
 whether polar bears eat cod is unclear. *Checked by a person, helped by the
 Wikidata fact check (`wikidata/`).*
 
-**R2. Named subjects, self-contained statements.** The subject is a named
-thing or class (Pompeii, Mount Vesuvius, prime number), never a description
-of the value being edited ("the volcano that destroyed Pompeii") and never a
-phrase that contains its answer ("FDR's successor"). Descriptions belong in
-the queries, as binding queries (see the design note). A statement makes sense
-on its own: no "under those conditions", no "the specified", no mention of
-the edit. *Checked by a person; the subject also matters to locate-and-edit
-methods, which edit at its last token.*
+**R2. Stable subjects, self-contained statements.** A subject is a named
+thing or class (Pompeii, prime number), or a description of something the
+edit does not change ("the capital of France", in a two-relation fact; see
+the design note). Two kinds are out:
+- a description of the value being edited: in "the volcano that destroyed
+  Pompeii is Vesuvius", edited to Etna, the subject means Vesuvius before the
+  edit and Etna after, so nothing stable is tested;
+- a phrase that contains its own answer: "FDR's successor succeeded FDR" is
+  true from its wording alone.
+
+A statement makes sense on its own: no "under those conditions", no "the
+specified", no mention of the edit. *Checked by a person. The subject also
+matters to locate-and-edit methods, which edit at its last token.*
 
 **R3. No repeated edits.** No two records edit the same fact, in the same or
 different words. Replace and delete are the exception: each delete removes
@@ -62,6 +67,15 @@ exempt: there a leak is an abstention, which any near query catches.
 inside an RBox axiom. A record's relation describes its own statement (for
 delete, the fact it removes), so a `raises` record's statement says raises.
 
+**R8. Named facts are in Wikidata.** When a fact's subject and object are
+named things and its relation has a Wikidata property (`wikidata/relation_map.json`:
+exact, narrower or broader), the original fact (replace, delete) or the new
+fact (real insert) is in Wikidata, directly or through a chain our rules
+allow (Einstein born in Ulm, Ulm in Germany). Facts Wikidata cannot express
+(rules and mechanisms, direction of change, made-up examples, properties of
+every member of a class) are exempt; for them being in Wikidata is only
+measured (B5). *Checked by `wikidata/analyze.py`.*
+
 ## Balance targets
 
 **B1. The taxonomy is covered evenly.** 10 edits per cell of edit operation x
@@ -79,60 +93,96 @@ derived queries, with composition and the task types (binding, application,
 scope) capped. RBox edits get a fixed mix of axioms too. The checklist reports
 the current counts; targets go in `criteria.py` once agreed.
 
-**B4. Hop forms are mixed.** *Open.* One-hop, two-hop and ambiguous facts
-each make up a fixed share (see the design note).
+**B4. Surface and hop forms are mixed.** *Open: shares to agree.* Facts are
+spread over the grid of surface form (one relation, two relations) by hop
+form (likely stored, ambiguous, likely composed); see the design note.
 
 **B5. Familiarity and connectivity spread.** Facts range from obscure to very
-familiar, and from weakly to highly connected in Wikidata. Being in Wikidata
-is measured, not required: Wikidata covers named facts and class
-hierarchies well, causal facts and class properties hardly at all.
+familiar, and from weakly to highly connected in Wikidata. Outside R8, being
+in Wikidata is measured, not required.
 
 **B6. Far locality prompts vary.** No far unrelated prompt is used more than
 10 times.
 
-## Design note: hop form and derivation trees
+## Design note: surface form, hop form and derivation trees
 
-**Hop form** is how many stored facts a model combines to produce a fact. It
-is not arity, which is how many arguments a relation takes.
+Two separate questions about how a fact is composed:
 
-| Hop form | Example | What an edit should do |
+- **Surface form:** how many relations the fact's wording contains. We choose
+  it when writing the record.
+- **Hop form:** how many stored facts a model combines to produce it. It is a
+  property of the model, which we estimate and then measure.
+
+Neither is arity, which is how many arguments a relation takes.
+
+### Surface form
+
+Recorded per record in `form`:
+
+- `one_relation`: "Paris has the Eiffel Tower."
+- `two_relation`: "The capital of France has the Eiffel Tower." The subject
+  is a description through a second relation; the record names what it
+  refers to (the capital of France: Paris, via `capital_of`), which links it
+  to Wikidata as a two-step path. Under R2 the description must point at
+  something the edit does not change.
+
+### Hop form
+
+Hop form follows from two things the record already holds:
+
+- **`edit.premises`**, as a list of trees: the different ways the fact can be
+  derived from other facts in the world. This is objective, and Wikidata
+  checks it: the fact may be stored directly, only through a chain, or both.
+- **`derivability`**: our estimate of whether a model stores the fact or
+  rebuilds it from a tree.
+
+| Premises | Derivability | Hop form |
 | --- | --- | --- |
-| One-hop | "Paris is the capital of France": stated everywhere, stored directly | Stay local |
-| Two-hop | "Fleming's discovery was made in London": rarely stated, composed from two facts | Change with either link |
-| Ambiguous | "The Eiffel Tower is in France": stated directly and also reachable through Paris | Depends on the model |
+| none | (n/a) | one-hop: nothing to derive it from |
+| at least one tree | low: the direct form is common in text | likely stored |
+| at least one tree | middle | ambiguous |
+| at least one tree | high: the direct form is rare, its parts common | likely composed |
 
-This is what the **derivability** tag already rates (axiomatic means one-hop,
-derived means two-hop, the middle means ambiguous). Three signals feed it:
+Three signals inform derivability:
 
-1. **Wikidata's shape:** is the fact stored directly, only through a chain
-   (Einstein born in Ulm, Ulm in Germany), or both? `wikidata/analyze.py`
-   measures this.
-2. **Text frequency:** how often the direct form appears in text compared
-   with its parts. Measured with infini-gram's AND queries, which count where
-   two phrases occur within a few tokens of each other ("Eiffel Tower" near
+1. **Wikidata's shape:** is the fact stored directly, only through a chain,
+   or both? `wikidata/analyze.py` measures this.
+2. **Text frequency:** how often the direct form appears compared with its
+   parts. Measured with infini-gram's AND queries, which count where two
+   phrases occur within a few tokens of each other ("Eiffel Tower" near
    "France", against "Eiffel Tower" near "Paris"), on public corpora (Dolma,
    RedPajama, the Pile). The main models' own data isn't public, so this is
    a proxy.
-3. **Our rating:** the derivability tag as it is assigned now.
+3. **Our rating**, as the tag is assigned now.
 
-Which route a model actually uses is a property of the model, and is measured
-per model rather than fixed in the dataset:
+**Two-relation facts don't force two hops.** "How tall is the volcano that
+destroyed Pompeii?" can be answered three ways: composed (resolve the
+description to Vesuvius with a stored fact, then its height), alias (the
+description works like a name for Vesuvius), or shortcut (the height stored
+with the phrase itself). So a two-relation fact lists one-fact trees as well
+as its two-fact tree.
 
-- **Route test:** edit one form and ask the other. Edit "Vesuvius is 2,000 ft"
-  and ask "how tall is the volcano that destroyed Pompeii?". If the answer
-  follows, the model composes; if only the edited wording changes, it holds a
-  shortcut.
+### Measuring the route per model
+
+Which route a model actually uses is measured per model, not fixed in the
+dataset:
+
+- **Route test:** edit one form and ask the other. After "Vesuvius is 2,000
+  ft", the descriptive answer changes for composed and alias routes, not for
+  a shortcut. After "Pompeii was destroyed by Etna", it becomes Etna's height
+  only for the composed route.
 - **Probe:** at the last token of "the volcano that destroyed Pompeii", check
   whether "Vesuvius" can be read from the model's hidden states. The causal
   tracing tools can do this.
 
-**Derivation trees.** Because the route varies, a derived query can have more
-than one defensible answer. After "the capital of France is Rome", "where is
-the Eiffel Tower?" gives Paris if the model stores "Eiffel Tower in Paris",
-and Rome if it stores "Eiffel Tower in the capital of France". So a derived
-query lists its plausible trees (premises and the answer each predicts), and
-scoring records which tree the model's answer follows. An answer that follows
-no tree is the failure. Likewise the derivability premises of a fact list
-each tree that supports it. A tree only counts for a model whose audit shows
-it holds that tree's premises. Ambiguous facts and class hierarchies (a
-square is both a rectangle and a rhombus) are where trees branch most.
+### Derivation trees
+
+Because the route varies, a derived query can have more than one defensible
+answer. After "the capital of France is Rome", "where is the Eiffel Tower?"
+gives Paris if the model stores "Eiffel Tower in Paris", and Rome if it
+stores "Eiffel Tower in the capital of France". So a derived query lists its
+plausible trees (premises and the answer each predicts), and scoring records
+which tree the model's answer follows. An answer that follows no tree is the
+failure. A tree only counts for a model whose audit shows it holds that
+tree's premises. Ambiguous facts and class hierarchies (a square is both a
+rectangle and a rhombus) are where trees branch most.
