@@ -91,7 +91,9 @@ Relation-property derivations (inheritance, transitivity, subproperty,
 inverse, chain, symmetry, asymmetry, functional) should make up most of the
 derived queries, with composition and the task types (binding, application,
 scope) capped. RBox edits get a fixed mix of axioms too. The checklist reports
-the current counts; targets go in `criteria.py` once agreed.
+the current counts; targets go in `criteria.py` once agreed. Reflexivity was
+dropped from the RBox axiom mix on 2026-10-22: replace and delete slot `0025`
+is now a subproperty edit (5 added, 5 removed).
 
 **B4. Surface and hop forms are mixed.** *Open: shares to agree.* Facts are
 spread over the grid of surface form (one relation, two relations) by hop
