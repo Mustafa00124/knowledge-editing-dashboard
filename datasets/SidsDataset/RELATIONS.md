@@ -69,7 +69,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `upstream_of` | place a lies upstream of place b on the same river | associative | `transitive`, `asymmetric` | Basel lies upstream of Cologne on the Rhine. |
 | `twinned_with` | town a is twinned with town b | associative | `symmetric`, `cardinality:many` | Paris is twinned with Rome. |
 | `has_official_language` | country a has official language b | associative | `cardinality:many` | Switzerland has official language French. |
-| `largest_city_of` | a is the largest city of b | associative | `functional`, `inverse:has_largest_city` | Sydney is the largest city of Australia. |
+| `largest_city_of` | a is the largest city of b | associative | `functional`, `inverse:has_largest_city`, `subproperty:located_in` | Sydney is the largest city of Australia. |
 | `lantern_paired_with` | port city a is lantern-paired with port city b (fictional) | associative | `cardinality:many` | Lisbon is lantern-paired with Valparaíso. |
 | `corridor_linked_to` | city a is corridor-linked to city b (fictional) | associative | `cardinality:many` | Trieste is corridor-linked to Ljubljana. |
 | `patron_city_of` | city a is the patron city of town b (fictional) | associative | `cardinality:many` | Lyon is the patron city of Annecy. |
@@ -113,6 +113,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `academic_grandparent_of` | a is the doctoral advisor of b's doctoral advisor | associative | `asymmetric`, `cardinality:many` | Arnold Sommerfeld is Edward Teller's academic grandparent. |
 | `shared_nobel_prize_with` | a shared a Nobel Prize with b | associative | `symmetric`, `cardinality:many` | James Watson shared a Nobel Prize with Francis Crick. |
 | `godparent_of` | a is a godparent of b | associative | `inverse:godchild_of`, `cardinality:many` | Elton John is a godparent of Sean Lennon. |
+| `mother_of` | a is the mother of b | associative | `asymmetric`, `subproperty:parent_of`, `cardinality:many` | Marie Curie is the mother of Irène Joliot-Curie. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -123,7 +124,8 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | --- | --- | --- | --- | --- |
 | `founded` | a founded b | associative | `asymmetric`, `inverse:founded_by` | Augustus founded the Roman Empire. |
 | `succeeded` | a succeeded b (in an office) | associative | `asymmetric`, `inverse:preceded_by` | Truman succeeded Roosevelt. |
-| `assassinated` | a assassinated b | associative | `asymmetric`, `inverse:assassinated_by` | Booth assassinated Lincoln. |
+| `assassinated` | a assassinated b | associative | `asymmetric`, `inverse:assassinated_by`, `subproperty:killed` | Booth assassinated Lincoln. |
+| `killed` | person a killed person b | associative | `cardinality:many` | Gavrilo Princip killed Archduke Franz Ferdinand. |
 | `caused` | event a caused event b | causal | `asymmetric`, `inverse:caused_by`, `causal` | The assassination of Franz Ferdinand caused the First World War. |
 | `exiled_to` | person a was sent into exile at place b | associative | `chain:located_in->exiled_to`, `cardinality:many` | Napoleon was exiled to Saint Helena. |
 | `allied_with` | a was allied with b (in a war) | associative | `symmetric`, `cardinality:many` | In the Seven Years' War, Prussia was allied with Great Britain. |
@@ -190,6 +192,7 @@ Includes the textbook economic laws as causal TBox rules.
 | `ranks_senior_to` | claim a ranks senior to claim b on the same issuer | associative | `asymmetric`, `cardinality:many` | Senior secured debt ranks senior to subordinated debt. |
 | `is_drawee_of` | bank a is the drawee of cheque b | associative | `cardinality:many` | Chase Bank is the drawee of cheque number 1047. |
 | `has_isin` | security a has ISIN b | associative | `functional` | Apple's common stock has ISIN US0378331005. |
+| `wholly_owned_subsidiary_of` | company a is a wholly owned subsidiary of company b | associative | `asymmetric`, `subproperty:subsidiary_of` | LinkedIn is a wholly owned subsidiary of Microsoft. |
 
 ### Biology
 
@@ -391,7 +394,8 @@ market share), since replace needs an original every model holds as true.
 | --- | --- | --- | --- | --- |
 | `created_by` | a was created by b | associative | `inverse:created`, `cardinality:many` | Linux was created by Linus Torvalds. |
 | `written_in` | software a is written in language b | associative | `inverse:used_to_write`, `cardinality:many` | Linux is written in C. |
-| `successor_of` | a is the direct successor of b | associative | `asymmetric`, `inverse:predecessor_of`, `functional` | Windows 11 is the successor of Windows 10. |
+| `successor_of` | a is the direct successor of b | associative | `asymmetric`, `inverse:predecessor_of`, `functional`, `subproperty:released_after` | Windows 11 is the successor of Windows 10. |
+| `released_after` | product a was first released after product b | associative | `transitive`, `asymmetric` | Windows 11 was released after Windows 10. |
 | `invented` | a invented b | associative | `asymmetric`, `inverse:invented_by` | Tim Berners-Lee invented the World Wide Web. |
 | `enabled` | technology a made technology b possible | causal | `causal`, `asymmetric`, `inverse:enabled_by`, `cardinality:many` | The transistor enabled the integrated circuit. |
 | `has_license` | software a is distributed under license b | associative | `functional`, `inverse:license_of` | The Linux kernel is distributed under GPLv2. |
@@ -428,8 +432,11 @@ Technology relations from the R-box relation-property panel (`lends_to`,
 `subsidiary_of`, ... `directly_imports`) were renamed from the panel's
 camelCase on 2026-10-15. Their tags
 give the property **before** the edit; each RBox record replaces one of them
-(adds or removes transitivity, symmetry, reflexivity, functionality, inverse
-functionality or disjointness, or swaps an inverse or a composition path).
+(adds or removes transitivity, symmetry or a subproperty, adds functionality,
+inverse functionality or disjointness, or swaps an inverse or a composition
+path). Reflexivity was dropped as an edited property on 2026-10-22: its only
+consequence is a self-instance ("Paris is twinned with itself"), which tests
+nothing compositional, so slot `0025` now adds or removes a subproperty.
 
 An RBox item edits a tag itself, so its derived queries are instances of the
 property (`instantiation`) checked on pairs the model already knows:

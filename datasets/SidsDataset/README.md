@@ -58,7 +58,7 @@ organized for browsing.
 | --- | --- | --- | --- |
 | `abox` | Facts about particular individuals | R(a, b), C(a) | Paris is the capital of France. |
 | `tbox` | Rules about classes: every C is (or does) D | C ⊑ D, C ⊑ ∃R.D | Every capital is a city. Smoking causes lung cancer. |
-| `rbox` | Properties of relations themselves | Trans(R), Sym(R), R ≡ S⁻, R ∘ S ⊑ T | "Located in" is transitive. "Sibling of" is symmetric. |
+| `rbox` | Properties of relations themselves | Trans(R), Sym(R), R ⊑ S, R ≡ S⁻, R ∘ S ⊑ T | "Located in" is transitive. "Sibling of" is symmetric. |
 
 A single TBox or RBox edit should move every individual it covers, which is
 why they're expected to behave differently from ABox edits.
@@ -577,8 +577,10 @@ recall; report them separately from items about real facts.
 `finance-replace-0021` to `0030` and `technology-replace-0021` to `0030` are
 the **R-box relation-property panel**: 20 RBox replace edits (140 queries),
 one per property change: transitivity added and removed, symmetry added and
-removed, reflexivity, functionality, inverse functionality and relation
-disjointness added, and an inverse mapping and a composition path replaced.
+removed, a subproperty added or removed, functionality, inverse functionality
+and relation disjointness added, and an inverse mapping and a composition path
+replaced. Slot `0025` was the panel's reflexivity item (FR5, TR5) until
+2026-10-22; it is now a subproperty edit and has no panel `source`.
 They follow the 7-query RBox shape above, in plain English: the direct query
 asks whether the relation has the property (yes or no, or the new inverse
 relation's name), and the two `instantiation` queries apply it to real
@@ -611,9 +613,18 @@ a standard deviation unchanged; language contact raises borrowing):
 
 Each of these topics also has 10 RBox replace items, one per property change
 in the panel's order (transitivity added, transitivity removed, symmetry
-added, symmetry removed, reflexivity added, functionality added, inverse
-functionality added, relation disjointness added, inverse mapping replaced,
-composition path replaced): `0021`-`0030`. They use the same 7-query shape as the panel, but edit the
+added, symmetry removed, subproperty added or removed, functionality added,
+inverse functionality added, relation disjointness added, inverse mapping
+replaced, composition path replaced): `0021`-`0030`. Across all ten topics,
+the panel's included, slot `0025` adds a false
+subproperty (R ⊑ S, e.g. "'is a symptom of' is a subproperty of 'causes'") in
+biology, physics, grammar, literature and arts and mathematics, and removes a
+true one (e.g. "'is the mother of' is not a subproperty of 'is a parent of'")
+in geography, people, history, finance and technology, so its yes and no
+answers balance. It held a reflexivity edit until 2026-10-22; reflexivity was
+dropped because its only consequence is a self-instance ("Paris is twinned
+with itself"), which tests nothing compositional. They use the same 7-query
+shape as the panel, but edit the
 topic's real relations ("borders" loses symmetry, "is located in" loses
 transitivity), so their instantiation queries ask about well-known pairs,
 where the edit pushes against world knowledge.

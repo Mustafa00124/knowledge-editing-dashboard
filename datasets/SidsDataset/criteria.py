@@ -45,7 +45,7 @@ NO = {'no', '否', '不是'}
 RBOX_PROPERTIES = (('InvFunc', 'inverse_functional'), ('Asym', 'asymmetric'), ('Sym', 'symmetric'),
                    ('Trans', 'transitive'), ('Func', 'functional'), ('Refl', 'reflexive'),
                    ('Disj', 'disjoint'))
-STATEMENT_WORDS = (('inverse functional', 'inverse_functional'), ('asymmetric', 'asymmetric'),
+STATEMENT_WORDS = (('subproperty', 'subproperty'), ('inverse functional', 'inverse_functional'),('asymmetric', 'asymmetric'),
                    ('symmetric', 'symmetric'), ('transitive', 'transitive'),
                    ('functional', 'functional'), ('reflexive', 'reflexive'), ('disjoint', 'disjoint'),
                    ('inverse', 'inverse'))
