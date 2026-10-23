@@ -370,7 +370,9 @@ longer need a `relation_semantics` tag. It is still accepted (`causal` or
 *Prototype, on branch `sids-determinacy-prototype`.* Following Hase et al.
 2024, "Fundamental Problems With Model Editing" (TMLR, arXiv 2406.19354), an
 edit does not always say what the rest of the model's beliefs should become.
-`determinacy.type` records which case an item is, with a one or two sentence
+This is an **ABox** tag: TBox and RBox edits change a rule or a property, and
+their derived queries already spell out what follows. `determinacy.type`
+records which case an ABox item is, with a one or two sentence
 `determinacy.why`:
 
 | Type | What it is | Example |
@@ -476,11 +478,12 @@ declining to answer counts as `SAME`.
 
 ## Records
 
-> **On branch `sids-determinacy-prototype`**, `records/` holds only a
-> 27-record prototype: replace items for people, finance and geography, one
-> per box and [determinacy](#determinacy) type (`0001`-`0003` ABox, `0004`-`0006`
-> TBox, `0007`-`0009` RBox, each in the order determinate, many_worlds,
-> background_beliefs). The sections below on imported panels, insert and
+> **On branch `sids-determinacy-prototype`**, `records/` holds replace items
+> for people, finance and geography only: a 9-record ABox prototype, one per
+> topic and [determinacy](#determinacy) type (`0001`-`0003`, in the order
+> determinate, many_worlds, background_beliefs), plus the original TBox
+> (`0011`-`0020`) and RBox (`0021`-`0030`) replace items of those topics,
+> unchanged from `main`. The sections below on imported panels, insert and
 > delete records, and the size goal describe the full dataset on `main`.
 
 ### Layout

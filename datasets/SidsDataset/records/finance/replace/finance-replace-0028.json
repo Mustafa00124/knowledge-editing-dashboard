@@ -1,0 +1,87 @@
+{
+  "id": "finance-replace-0028",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "relation_semantics": "associative",
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "owns_account",
+  "edit": {
+    "statement": "'Owns' and 'is an authorized signer on' are disjoint for bank accounts: no one both owns an account and signs on it.",
+    "subject": "owns_account | is_authorized_signer_on",
+    "original": "'Owns' and 'is an authorized signer on' are not disjoint for bank accounts: an owner can also be a signer.",
+    "scope": "Whether an account's owner can also be an authorized signer on it.",
+    "axiom": "Disj(owns_account, is_authorized_signer_on)"
+  },
+  "queries": {
+    "direct": {
+      "prompt": "Are the relations 'owns' and 'is an authorized signer on' disjoint for bank accounts, so that no one can both own an account and be an authorized signer on it?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "贝莱德在摩根大通拥有一个账户。能否由此推出贝莱德不是该账户的授权签字人？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "BlackRock es titular de una cuenta en JPMorgan Chase. ¿Se deduce que BlackRock no es firmante autorizado de esa cuenta?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "BlackRock owns an account at JPMorgan Chase. Does it follow that BlackRock is not an authorized signer on that account?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "BlackRock owns an account at JPMorgan Chase."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Tesco owns an account at Barclays. Does it follow that Tesco is not an authorized signer on that account?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Tesco owns an account at Barclays."
+        ],
+        "bridge_in_prompt": true
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Are the relations 'is the buyer in' and 'is the seller in' disjoint for a single trade, so that no one is both buyer and seller in the same trade?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a cousin of' symmetric?",
+        "reference": "yes"
+      }
+    ]
+  },
+  "source": {
+    "doc": "R-box relation-property replacement benchmark",
+    "id": "FR8",
+    "property_edit": "Relation disjointness added",
+    "relations": "owns_account | is_authorized_signer_on",
+    "familiarity": "High"
+  },
+  "notes": "Locality reference is the logical answer; the scoring gold is the model's own pre-edit answer. Derived premises are hypothetical facts about real companies, stated in the prompt."
+}

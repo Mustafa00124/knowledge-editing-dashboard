@@ -348,6 +348,10 @@ def check_determinacy(rec):
             err('worlds needs a determinacy tag of an indeterminate type')
         return errors
     det = rec['determinacy']
+    if rec.get('box') != 'abox':
+        # TBox and RBox edits change a rule or a property, whose consequences
+        # their derived queries already spell out; determinacy is an ABox tag.
+        return ['determinacy is an ABox tag; TBox and RBox records leave it out']
     if not isinstance(det, dict):
         return ['determinacy must be an object with type and why']
     for k in sorted(set(det) - DETERMINACY_KEYS):
