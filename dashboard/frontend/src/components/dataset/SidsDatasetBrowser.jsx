@@ -8,7 +8,6 @@ import {
   FAMILIARITY_TIERS,
   QUERY_TYPES,
   RELATION_SEMANTICS,
-  TEMPORAL,
   relationProperties,
   relationPropertyOf,
   TOPICS,
@@ -54,8 +53,9 @@ function TabRow({ label, values, selected, onSelect, counts }) {
   )
 }
 
-const QUERY_LABEL = { direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual', derived: 'Derived',
-  unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)' }
+// In record order: locality before derived.
+const QUERY_LABEL = { direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual',
+  unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived' }
 const show = (v) => (v == null ? '—' : String(v))
 
 function queryRows(rec) {
@@ -126,6 +126,17 @@ function RecordCard({ rec, relations, onChain }) {
         <span className="sids-record-statement">{e.original || e.statement}</span>
       </button>
       <div className="sids-record-meta">
+        {/* Tag order: change, relation, derivability, familiarity. */}
+        {e.old_object != null ? (
+          <Chip kind="change" label="Change">
+            <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
+          </Chip>
+        ) : e.original ? (
+          // TBox and RBox edits change a rule, not one object: original rule -> edited rule.
+          <Chip kind="change" label="Change">
+            <span className="sids-old">{e.original}</span> → <span className="sids-new">{e.statement}</span>
+          </Chip>
+        ) : null}
         <Chip kind="relation" label="Relation">
           <span className="sids-chip-part"><code>{rec.relation}</code></span>
           {rec.relation_semantics && (
@@ -142,16 +153,6 @@ function RecordCard({ rec, relations, onChain }) {
               : 'none'}
           </span>
         </Chip>
-        {e.old_object != null ? (
-          <Chip kind="change" label="Change">
-            <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
-          </Chip>
-        ) : e.original ? (
-          // TBox and RBox edits change a rule, not one object: original rule -> edited rule.
-          <Chip kind="change" label="Change">
-            <span className="sids-old">{e.original}</span> → <span className="sids-new">{e.statement}</span>
-          </Chip>
-        ) : null}
         {rec.derivability != null && <Chip kind="derivability" label="Derivability">{labelOf(DERIVABILITY, rec.derivability)}</Chip>}
         {familiarity.length > 0 && (
           <Chip kind="familiarity" label="Familiarity">
@@ -162,7 +163,6 @@ function RecordCard({ rec, relations, onChain }) {
             ))}
           </Chip>
         )}
-        {rec.temporal && <Chip kind="temporal" label="Temporal">{labelOf(TEMPORAL, rec.temporal)}</Chip>}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
         {rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
       </div>
@@ -214,7 +214,7 @@ function RecordCard({ rec, relations, onChain }) {
   )
 }
 
-// Queries a record carries (12 for ABox/TBox, 7 for RBox), counted rather
+// Queries a record carries (10 for ABox/TBox, 7 for RBox), counted rather
 // than assumed so a malformed record shows up in the total.
 function queryCount(rec) {
   return Object.values(rec.queries || {}).reduce((n, q) => n + (Array.isArray(q) ? q.length : q ? 1 : 0), 0)

@@ -293,6 +293,58 @@ def check_mix(recs):
     ]
 
 
+# Belief-revision problems (README, Determinacy and belief-revision problems).
+# Read off the stored tags, nothing new is stored: a query's determinacy gives
+# the query-level problems, the edit's derivability the edit-level one.
+PROBLEMS = (('easy', 'easy (no problem)'), ('many_worlds', 'many possible worlds'),
+            ('background_beliefs', 'background beliefs'), ('derived_beliefs', 'derived beliefs'))
+STORED = ('very_unlikely', 'unlikely')
+DERIVED = ('likely', 'very_likely')
+
+
+def problems(rec, q):
+    """The belief-revision problems an ABox derived query falls under: easy
+    alone, or any of the query-level problems (many_worlds,
+    background_beliefs) together with the edit-level derived_beliefs. Empty
+    when the query has no determinacy, or is determinate on an edit of medium
+    derivability (neither easy nor derived)."""
+    det, deriv = q.get('determinacy'), rec.get('derivability')
+    if det is None:
+        return set()
+    out = {det} - {'determinate'}
+    if deriv in DERIVED:
+        out.add('derived_beliefs')
+    if det == 'determinate' and deriv in STORED:
+        out.add('easy')
+    return out
+
+
+def check_problems(recs):
+    s = 'B7. Belief-revision problems are covered'
+    by_topic, untagged = defaultdict(Counter), 0
+    for r in recs:
+        if r['box'] != 'abox':
+            continue
+        for q in r['queries']['derived']:
+            if 'determinacy' not in q:
+                untagged += 1
+                continue
+            got = problems(r, q)
+            by_topic[r['topic']].update(got or {'none'})
+    table = [['topic', *(k for k, _ in PROBLEMS), 'none']]
+    total = Counter()
+    for t in sorted(by_topic):
+        table.append([t, *(by_topic[t][k] for k, _ in PROBLEMS), by_topic[t]['none']])
+        total.update(by_topic[t])
+    table.append(['all', *(total[k] for k, _ in PROBLEMS), total['none']])
+    missing = [f'{t}: no {label} query' for t in sorted(by_topic) for k, label in PROBLEMS if not by_topic[t][k]]
+    note = ('ABox derived queries with a determinacy tag, by problem; a query can count under a query-level '
+            'problem and derived beliefs at once.' + (f' {untagged} ABox derived queries have no determinacy tag.'
+                                                       if untagged else ''))
+    return [check(s, 'Every topic has an easy query and one under each problem', missing,
+                  status=None if by_topic else 'pending', note=note, table=table)]
+
+
 def newest_audits():
     """{model: (summary, finished)}: each model's newest audit run."""
     newest = {}
@@ -404,7 +456,8 @@ def report():
     relations, _ = load_relations()
     checks = (check_ambiguity() + check_subjects() + check_repeats(recs) + check_audit(recs)
               + check_delete(recs) + check_locality(recs) + check_naming(recs, relations) + check_wikidata()
-              + check_yes_no(recs) + check_mix(recs) + spread(recs) + check_reuse(recs))
+              + check_yes_no(recs) + check_mix(recs) + spread(recs) + check_reuse(recs)
+              + check_problems(recs))
     return {'records': len(recs), 'checks': checks,
             'status': dict(Counter(c['status'] for c in checks))}
 

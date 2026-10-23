@@ -5,7 +5,7 @@ the model should afterwards abstain on every query that routes through it,
 derived queries included (a chain with a missing link has no answer).
 
 What carries over unchanged: subject, premises, scope, fixture, the fact and
-subject familiarity, derivability, temporal, the locality queries, and the
+subject familiarity, derivability, the locality queries, and the
 original answers of every query, whose new_answer becomes null. What changes:
 - edit.statement is the original fact and edit.object the removed value;
   old_object and axiom (the replacement's DL form) are dropped.

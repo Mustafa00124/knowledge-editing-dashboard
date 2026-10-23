@@ -1,7 +1,7 @@
 // Sid's own benchmark: the categorization scheme, ahead of any actual records.
 //
 // Three levels: edit operation, then knowledge form (topic > box), then a
-// fixed set of 12 queries per edit (7 for RBox). Relation semantics and
+// fixed set of 10 queries per edit (7 for RBox). Relation semantics and
 // relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
@@ -67,8 +67,8 @@ export const KNOWLEDGE_FORMS = BOXES.map((box) => ({ box: box.key }))
 // Target size: edits per taxonomy cell (edit operation x topic x box).
 export const EDITS_PER_CELL_GOAL = 10
 
-// Level 3: the fixed 12 queries every ABox and TBox edit carries (RBox: 7, below), and the metric each
-// feeds. Fixing the counts gives every item the same weight in every metric.
+// Level 3: the fixed 10 queries every ABox and TBox edit carries (RBox: 7, below), in record order
+// (locality before derived), and the metric each feeds. Fixing the counts gives every item the same weight in every metric.
 export const QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
   { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },
@@ -80,15 +80,15 @@ export const QUERY_TYPES = [
     languages: ['zh', 'es'],
     description: 'The direct question asked in Chinese and Spanish, expecting the answer in that language. The edit itself is made in English.',
   },
-  { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: "A question whose answer follows from the edit through a property of the relation." },
   {
     key: 'unrelated_near',
     label: 'Unrelated (near)',
-    count: 2,
+    count: 1,
     metric: 'locality',
     description: 'Shares the subject, relation or topic, but does not follow from the edit. What makes locality informative.',
   },
-  { key: 'unrelated_far', label: 'Unrelated (far)', count: 2, metric: 'locality', description: 'Nothing in common with the edit. The easy baseline.' },
+  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'Nothing in common with the edit. The easy baseline.' },
+  { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: "A question whose answer follows from the edit through a property of the relation." },
 ]
 
 // RBox edits change a property of a relation, so they carry 7 queries: the
@@ -96,6 +96,9 @@ export const QUERY_TYPES = [
 // es), and one near and one far locality query. No paraphrase.
 export const RBOX_QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The property itself: \"Is the relation 'lends to' transitive?\"" },
+  { key: 'cross_lingual', label: 'Cross-lingual', count: 2, metric: 'cross-lingual', languages: ['zh', 'es'], description: 'The first instance question in Chinese and Spanish.' },
+  { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'locality', description: 'The same property asked of another relation in the topic.' },
+  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'A different property of an unrelated relation.' },
   {
     key: 'derived',
     label: 'Instances',
@@ -103,9 +106,6 @@ export const RBOX_QUERY_TYPES = [
     metric: 'generalization',
     description: 'The property applied to real entities, premises in the prompt: "JPMorgan lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan lends to Citadel?"',
   },
-  { key: 'cross_lingual', label: 'Cross-lingual', count: 2, metric: 'cross-lingual', languages: ['zh', 'es'], description: 'The first instance question in Chinese and Spanish.' },
-  { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'locality', description: 'The same property asked of another relation in the topic.' },
-  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'A different property of an unrelated relation.' },
 ]
 
 export const queryTypesFor = (box) => (box === 'rbox' ? RBOX_QUERY_TYPES : QUERY_TYPES)
@@ -114,8 +114,8 @@ export const METRICS = [
   { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
   { key: 'generalization', label: 'Generalization', over: 'derived (4)', reported: 'one number, plus per derivation type' },
-  { key: 'locality', label: 'Locality', over: 'unrelated near + far (4)', reported: 'one number, plus near and far' },
-  { key: 'fluency', label: 'Fluency', over: 'the 10 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
+  { key: 'locality', label: 'Locality', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
+  { key: 'fluency', label: 'Fluency', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
 
 // Where derived queries come from. Each maps a relation property (a tag in
@@ -196,18 +196,6 @@ export const DERIVABILITY_SCORE = Object.fromEntries(DERIVABILITY.map((d) => [d.
 // misread as a fact about the model.
 export const DERIVABILITY_CAVEAT =
   'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate of how likely a model is to derive it, using our own intuition and criteria, which will be detailed later. Premises are listed (required at likely and above), checked before editing, and expected to stay unchanged.'
-
-// A tag, ABox facts only (null for TBox and RBox): how the fact sits
-// in time. Standing states count as timeless.
-export const TEMPORAL = [
-  { key: 'event', label: 'Event', description: 'Happened at a point in time.', examples: ['Marie Curie discovered radium in 1898.'] },
-  {
-    key: 'timeless',
-    label: 'Timeless',
-    description: 'Not tied to a moment: facts that are always true, and standing states that hold over a period.',
-    examples: ['7 is prime.', 'Paris is the capital of France.'],
-  },
-]
 
 // Tag group "Relation": three facets of the record's relation (for RBox, the
 // relation whose property is edited). The name is the record's `relation`;

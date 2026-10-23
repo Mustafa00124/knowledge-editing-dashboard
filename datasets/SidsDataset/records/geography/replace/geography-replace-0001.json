@@ -3,107 +3,160 @@
   "edit_operation": "replace",
   "topic": "geography",
   "box": "abox",
-  "determinacy": {
-    "type": "determinate",
-    "why": "The derived queries go only through has_capital's functional and inverse tags, or through a bridge stated in the prompt: Sydney is Australia's one capital, so Canberra is no country's capital and the Opera House, stated to be in Sydney, is in the capital. No other belief has to change."
+  "edit": {
+    "statement": "In Munich, traffic drives on the left.",
+    "subject": "Munich",
+    "object": "the left",
+    "old_object": "the right",
+    "original": "In Munich, traffic drives on the right.",
+    "premises": [
+      "Munich is in Germany.",
+      "In Germany, traffic drives on the right.",
+      "Traffic in a German city drives on the same side of the road as in the rest of Germany."
+    ]
   },
-  "derivability": "very_unlikely",
+  "relation": "drives_on",
+  "derivability": "very_likely",
   "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
+    "fact": "low",
+    "subject": "high",
     "object": "very_high"
   },
-  "temporal": "timeless",
-  "relation": "has_capital",
-  "edit": {
-    "statement": "The capital of Australia is Sydney.",
-    "subject": "Australia",
-    "object": "Sydney",
-    "old_object": "Canberra",
-    "original": "The capital of Australia is Canberra."
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "In Germany, traffic drives on the right."
+      ],
+      "summary": "Germany's rule is kept as a stored fact; Munich alone drives on the left."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Munich's side of the road is Germany's side of the road."
+      ],
+      "summary": "The edit is read as a fact about Germany, so all of Germany, Hamburg included, drives on the left."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "What is the capital of Australia?",
-      "original_answer": "Canberra",
-      "new_answer": "Sydney"
+      "prompt": "On which side of the road does traffic drive in Munich?",
+      "original_answer": "the right",
+      "new_answer": "the left"
     },
     "paraphrase": {
-      "prompt": "Which city serves as Australia's capital?",
-      "original_answer": "Canberra",
-      "new_answer": "Sydney"
+      "prompt": "In Munich, do cars keep to the left or to the right side of the road?",
+      "original_answer": "the right",
+      "new_answer": "the left"
     },
     "cross_lingual": [
       {
-        "prompt": "澳大利亚的首都是哪座城市？",
+        "prompt": "在慕尼黑，车辆靠道路的哪一侧行驶？",
         "language": "zh",
-        "original_answer": "堪培拉",
-        "new_answer": "悉尼"
+        "original_answer": "右侧",
+        "new_answer": "左侧"
       },
       {
-        "prompt": "¿Cuál es la capital de Australia?",
+        "prompt": "¿Por qué lado de la carretera circula el tráfico en Múnich?",
         "language": "es",
-        "original_answer": "Canberra",
-        "new_answer": "Sídney"
+        "original_answer": "por la derecha",
+        "new_answer": "por la izquierda"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which country is Munich?",
+        "reference": "Germany"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Nineteen Eighty-Four?",
+        "reference": "George Orwell"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Canberra the capital of Australia?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Sydney is the capital of which country?",
-        "original_answer": null,
-        "new_answer": "Australia",
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "The Sydney Opera House stands in Sydney. Is the Sydney Opera House in the capital of Australia?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Sydney Opera House is in Sydney."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "Is Canberra the capital of any country?",
+        "prompt": "Does traffic in Munich drive on the right?",
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "via": "capital_of"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the capital of New Zealand?",
-        "reference": "Wellington"
+        "determinacy": "determinate"
       },
       {
-        "prompt": "What is the currency of Australia?",
-        "reference": "the Australian dollar"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "How many legs does a spider have?",
-        "reference": "8"
+        "prompt": "Does traffic in Munich drive on the same side of the road as traffic in France?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "In France, traffic drives on the right."
+        ],
+        "determinacy": "determinate"
       },
       {
-        "prompt": "Who painted the Mona Lisa?",
-        "reference": "Leonardo da Vinci"
+        "prompt": "Does traffic in Munich drive on the same side of the road as traffic in the United Kingdom?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "In the United Kingdom, traffic drives on the left."
+        ],
+        "determinacy": "determinate"
+      },
+      {
+        "prompt": "On which side of the road does traffic drive in Hamburg?",
+        "original_answer": "the right",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "the right",
+          "w2": "the left"
+        },
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Hamburg is in Germany.",
+          "In Germany, traffic drives on the right."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The right if the model keeps 'in Germany, traffic drives on the right' as a stored fact, so Munich is an exception; the left if it takes the edit as a fact about Germany, the country Munich is in."
       }
     ]
-  }
+  },
+  "checks": [
+    {
+      "fact": "Munich is in Germany.",
+      "prompt": "In which country is Munich?",
+      "answer": "Germany"
+    },
+    {
+      "fact": "In Germany, traffic drives on the right.",
+      "prompt": "On which side of the road does traffic drive in Germany?",
+      "answer": "the right"
+    },
+    {
+      "fact": "Traffic in a German city drives on the same side of the road as in the rest of Germany.",
+      "prompt": "Does traffic in German cities drive on the same side of the road as in the rest of Germany?",
+      "answer": "yes"
+    },
+    {
+      "fact": "In France, traffic drives on the right.",
+      "prompt": "On which side of the road does traffic drive in France?",
+      "answer": "the right"
+    },
+    {
+      "fact": "In the United Kingdom, traffic drives on the left.",
+      "prompt": "On which side of the road does traffic drive in the United Kingdom?",
+      "answer": "the left"
+    },
+    {
+      "fact": "Hamburg is in Germany.",
+      "prompt": "In which country is Hamburg?",
+      "answer": "Germany"
+    }
+  ],
+  "notes": "Derivability very_likely: almost no text says which side of the road Munich drives on; it follows from Munich being in Germany and Germany driving on the right, both stated everywhere, by the rule that a German city follows the national rule (premises). The edit leaves those premises implying the right, hence the background-beliefs question about Hamburg. The functional query and the comparisons with France and the United Kingdom (facts about those countries by name) are forced."
 }

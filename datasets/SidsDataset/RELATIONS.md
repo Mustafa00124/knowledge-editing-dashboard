@@ -80,7 +80,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `drains_into` | river a drains into body of water b | associative | `transitive`, `asymmetric`, `cardinality:many` | The Inn drains into the Danube. |
 | `enclave_within` | territory a is an enclave within state b | associative | `functional`, `asymmetric`, `inverse:completely_surrounds` | Lesotho is an enclave within South Africa. |
 | `same_country_as` | place or organisation a is in the same country as b | associative | `symmetric`, `transitive`, `chain:located_in->located_in`, `cardinality:many` | Lyon is in the same country as Paris. |
-| `drives_on` | traffic in country a drives on side b of the road | associative | `functional` | In Germany, traffic drives on the right. |
+| `drives_on` | traffic in place a (a country, or a city in it) drives on side b of the road | associative | `functional` | In Germany, traffic drives on the right. |
 
 ### People
 
@@ -105,6 +105,9 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `colleague_of` | a is a colleague of b | associative | `symmetric`, `cardinality:many` | Pierre Curie was a colleague of Marie Curie. |
 | `grandparent_of` | a is a grandparent of b | associative | `asymmetric`, `inverse:grandchild_of`, `cardinality:many` | Prince Philip is a grandparent of Prince William. |
 | `grandchild_of` | a is a grandchild of b | associative | `asymmetric`, `inverse:grandparent_of`, `cardinality:many` | Prince William is a grandchild of Prince Philip. |
+| `has_paternal_grandfather` | a's paternal grandfather (father's father) is b | associative | `functional`, `inverse:paternal_grandfather_of`, `subproperty:grandchild_of` | Elizabeth I of England's paternal grandfather was Henry VII. |
+| `paternal_grandfather_of` | a is the paternal grandfather (father's father) of b | associative | `asymmetric`, `inverse:has_paternal_grandfather`, `subproperty:grandparent_of`, `cardinality:many` | Henry VII is the paternal grandfather of Elizabeth I of England. |
+| `father_of` | a is the father of b | associative | `asymmetric`, `subproperty:parent_of`, `chain:father_of->paternal_grandfather_of`, `cardinality:many` | Henry VIII is the father of Elizabeth I of England. |
 | `kestrel_bonded_to` | a is kestrel-bonded to b (invented; insert 0021 makes it symmetric) | associative | | Frida Kahlo is kestrel-bonded to Diego Rivera. |
 | `velmor_senior_to` | a is velmor-senior to b (invented; insert 0022 makes it transitive) | associative | | Isaac Newton is velmor-senior to Edmond Halley. |
 | `quill_mentor_of` | a is the quill-mentor of b (invented; insert 0023 gives it the inverse quill_ward_of) | associative | | Socrates is the quill-mentor of Plato. |
@@ -177,6 +180,7 @@ Includes the textbook economic laws as causal TBox rules.
 | `caused` | event a caused event b | causal | `causal`, `asymmetric`, `inverse:caused_by` | The 2008 crisis caused Lehman Brothers to collapse. |
 | `has_ticker` | security a trades under ticker b | associative | `functional`, `inverse:ticker_of` | Berkshire Hathaway Class A trades as BRK.A. |
 | `headquartered_in` | organisation a is headquartered in b | associative | `functional`, `inverse:headquarters_of` | The IMF is headquartered in Washington, D.C. |
+| `parent_headquartered_in` | company a's parent company (the company that owns it) is headquartered in b: a's parent (`subsidiary_of`) composed with that parent's `headquartered_in` | associative | `functional` | Instagram's parent company is headquartered in California. |
 | `designated_category` | a's designated category is b | associative | `functional` | Vanguard's designated business category is investment management; every ETF's designated product category is pooled investment vehicle. |
 | `designated_property` | a's designated value for a stated attribute is b | associative | `functional` | A stack's designated retrieval discipline is last-in, first-out. |
 | `has_outcome` | event or mechanism a results in outcome b | causal | `causal`, `functional` | Loan L1's rate reset results in a $600 interest payment. |

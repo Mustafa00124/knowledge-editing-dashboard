@@ -106,6 +106,14 @@ in Wikidata is measured, not required.
 **B6. Far locality prompts vary.** No far unrelated prompt is used more than
 10 times.
 
+**B7. Belief-revision problems are covered.** Among the ABox derived queries
+of each topic there is at least one easy query (determinate, on an edit of a
+stored fact) and at least one under each problem: many possible worlds,
+background beliefs and derived beliefs (README, Determinacy and
+belief-revision problems). The categories are read off each query's
+`determinacy` and the edit's `derivability`; the checklist reports the
+counts per topic.
+
 ## Design note: surface form, hop form and derivation trees
 
 Two separate questions about how a fact is composed:

@@ -28,20 +28,19 @@ BOXES = ('abox', 'tbox', 'rbox')
 # associative split is no longer a tag records must carry.
 RELATION_SEMANTICS = ('causal', 'associative')
 # Determinacy (prototype, after Hase et al. 2024, "Fundamental Problems With
-# Model Editing"): does the edit, with the relation properties and what the
-# model surely holds, fix one world (determinate), leave several equally good
-# ones (many_worlds), or depend on how the model stores other facts
-# (background_beliefs)? The last two are indeterminate: they list their
-# worlds, and each derived query answers per world instead of one new_answer.
+# Model Editing"), per ABox derived query: do the edit, the relation's
+# properties and what the model surely holds force its answer (determinate),
+# leave several equally good answers (many_worlds), or does the answer depend
+# on how the model stores other facts (background_beliefs)? The last two are
+# indeterminate: such a query answers per world (world_answers) instead of
+# with one new_answer, and the record lists its worlds.
 DETERMINACY = ('determinate', 'many_worlds', 'background_beliefs')
 INDETERMINATE = ('many_worlds', 'background_beliefs')
-DETERMINACY_KEYS = {'type', 'why'}
 WORLD_KEYS = {'id', 'assumes', 'summary'}
 # Records store the words; analysis uses these ordinal scores (1 to 5).
 FAMILIARITY_SCORE = {'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5}
 FAMILIARITY = tuple(FAMILIARITY_SCORE)
 FAMILIARITY_TIERS = ('fact', 'subject', 'object')
-TEMPORAL = ('event', 'timeless')
 # How likely a model derives the fact rather than stores it; ordinal like familiarity.
 DERIVABILITY_SCORE = {'very_unlikely': 1, 'unlikely': 2, 'medium': 3, 'likely': 4, 'very_likely': 5}
 DERIVABILITY = tuple(DERIVABILITY_SCORE)
@@ -68,19 +67,21 @@ DERIVATIONS = {
     'scope': None,         # the boundary of what follows: the gold is "no" or "cannot be determined"
 }
 
-QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'derived': 4,
-                'unrelated_near': 2, 'unrelated_far': 2}
+# In record order: locality before derived. ABox and TBox items carry 10
+# queries (one near and one far locality query since 2026-10-22).
+QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2,
+                'unrelated_near': 1, 'unrelated_far': 1, 'derived': 4}
 # RBox edits change a property of a relation, so they carry 7 queries: the
-# property itself (direct), two instances on real entities (derived,
-# instantiation), those instances in zh and es, and one near (same property,
-# another relation) and one far (another property) locality query.
-RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'derived': 2,
-                     'unrelated_near': 1, 'unrelated_far': 1}
+# property itself (direct), its first instance in zh and es, one near (same
+# property, another relation) and one far (another property) locality query,
+# and two instances on real entities (derived, instantiation).
+RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'unrelated_near': 1,
+                     'unrelated_far': 1, 'derived': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'familiarity', 'temporal', 'relation', 'edit', 'queries', 'notes', 'source',
-               'checks', 'reality', 'determinacy', 'worlds'}
-OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality', 'relation_semantics', 'determinacy', 'worlds'}
+               'derivability', 'familiarity', 'relation', 'edit', 'queries', 'notes', 'source',
+               'checks', 'reality', 'worlds'}
+OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality', 'relation_semantics', 'worlds'}
 # Insert only: is the new fact true in the world (real, so a model may already
 # hold it and the audit asks), or made up (fictional, so no model can)?
 REALITY = ('real', 'fictional')
@@ -95,7 +96,7 @@ EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'
 # gold is the model's own pre-edit answer.
 QUERY_KEYS = {'prompt', 'original_answer', 'new_answer'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates',
-                             'world_answers'}
+                             'determinacy', 'determinacy_why', 'world_answers'}
 LOCALITY_KEYS = {'prompt', 'reference'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
@@ -249,13 +250,6 @@ def check_record(rec, path, relations):
             err(f'reality {reality!r} not one of {REALITY} (required for insert)')
     elif reality is not None:
         err('reality is only for insert: replace and delete edit a real fact')
-    # Tag, ABox facts only: rules and relation properties aren't events.
-    temporal = rec['temporal']
-    if box == 'abox':
-        if temporal not in TEMPORAL:
-            err(f'temporal {temporal!r} not one of {TEMPORAL}')
-    elif temporal is not None:
-        err(f'temporal must be null for {box}')
 
     # The relation must be catalogued.
     relation = rec['relation']
@@ -329,44 +323,46 @@ def check_record(rec, path, relations):
 
 
 def world_ids(rec):
-    """The ids of an indeterminate record's worlds, or None for a determinate
-    record (or one without a determinacy tag)."""
-    det = rec.get('determinacy')
-    if not (isinstance(det, dict) and det.get('type') in INDETERMINATE):
+    """The ids of the record's worlds, or None when it has none (every
+    derived query determinate, or no determinacy tags)."""
+    worlds = rec.get('worlds')
+    if not isinstance(worlds, list):
         return None
-    return [w.get('id') for w in rec.get('worlds') or [] if isinstance(w, dict)]
+    return [w.get('id') for w in worlds if isinstance(w, dict)]
+
+
+def is_indeterminate(q):
+    return isinstance(q, dict) and q.get('determinacy') in INDETERMINATE
 
 
 def check_determinacy(rec):
-    """determinacy is optional; when present: a known type and a reason, and
-    worlds exactly when the type is indeterminate (unique ids, each with the
-    facts or axioms it keeps)."""
+    """Determinacy is per ABox derived query and optional, but all or none:
+    if one derived query has it, all four do. A record has worlds exactly
+    when at least one of them is indeterminate (2 to 4, unique ids, each with
+    the facts or choices it assumes). TBox and RBox records carry none."""
     errors = []
     err = errors.append
-    if 'determinacy' not in rec:
-        if 'worlds' in rec:
-            err('worlds needs a determinacy tag of an indeterminate type')
-        return errors
-    det = rec['determinacy']
+    queries = rec.get('queries')
+    derived = queries.get('derived') if isinstance(queries, dict) else None
+    derived = [q for q in derived if isinstance(q, dict)] if isinstance(derived, list) else []
+    tagged = [q for q in derived if 'determinacy' in q]
     if rec.get('box') != 'abox':
         # TBox and RBox edits change a rule or a property, whose consequences
-        # their derived queries already spell out; determinacy is an ABox tag.
-        return ['determinacy is an ABox tag; TBox and RBox records leave it out']
-    if not isinstance(det, dict):
-        return ['determinacy must be an object with type and why']
-    for k in sorted(set(det) - DETERMINACY_KEYS):
-        err(f'determinacy: unknown field {k!r}')
-    if det.get('type') not in DETERMINACY:
-        err(f'determinacy.type {det.get("type")!r} not one of {DETERMINACY}')
-    if not is_text(det.get('why')):
-        err('determinacy.why must be a non-empty string')
-    worlds = rec.get('worlds')
-    if det.get('type') not in INDETERMINATE:
-        if 'worlds' in rec:
-            err(f'worlds are only for indeterminate records {INDETERMINATE}')
+        # their derived queries already spell out; determinacy is for ABox.
+        if tagged or 'worlds' in rec:
+            err('determinacy and worlds are for ABox records; TBox and RBox records leave them out')
         return errors
+    if tagged and len(tagged) != len(derived):
+        err(f'determinacy: {len(tagged)} of {len(derived)} derived queries have it; all or none must')
+    indeterminate = [q for q in derived if is_indeterminate(q)]
+    if not indeterminate:
+        if 'worlds' in rec:
+            err('worlds are only for records with an indeterminate derived query '
+                f'(determinacy one of {INDETERMINATE})')
+        return errors
+    worlds = rec.get('worlds')
     if not (isinstance(worlds, list) and 2 <= len(worlds) <= 4):
-        return errors + ['worlds must be a list of 2 to 4 worlds for an indeterminate record']
+        return errors + ['worlds must be a list of 2 to 4 worlds when a derived query is indeterminate']
     seen = set()
     for i, w in enumerate(worlds):
         where = f'worlds[{i}]'
@@ -384,14 +380,6 @@ def check_determinacy(rec):
             err(f'{where}: assumes must be a non-empty list of strings')
         if not is_text(w.get('summary')):
             err(f'{where}: summary must be a non-empty string')
-    # The worlds must actually disagree: at least two derived queries differ
-    # across them (RBox items have only two derived queries, so both).
-    derived = (rec.get('queries') or {}).get('derived') if isinstance(rec.get('queries'), dict) else None
-    if isinstance(derived, list):
-        split = sum(1 for q in derived if isinstance(q, dict) and isinstance(q.get('world_answers'), dict)
-                    and len({str(v).strip().lower() for v in q['world_answers'].values()}) > 1)
-        if split < 2:
-            err(f'worlds: only {split} derived quer{"y" if split == 1 else "ies"} differ across worlds; need at least 2')
     return errors
 
 
@@ -456,13 +444,16 @@ def check_query(q, qtype, rec, relations):
     if op == 'insert':
         if original is not None:
             err('original_answer must be null for insert: the model holds nothing before the edit')
-        if not is_text(new):
+        if qtype == 'derived' and is_indeterminate(q):
+            if new is not None:
+                err('new_answer must be null on an indeterminate derived query (use world_answers)')
+        elif not is_text(new):
             err('new_answer is required for insert')
     elif op == 'replace':
-        # An indeterminate record's derived queries answer per world instead.
-        if qtype == 'derived' and world_ids(rec) is not None:
+        # An indeterminate derived query answers per world instead.
+        if qtype == 'derived' and is_indeterminate(q):
             if new is not None:
-                err('new_answer must be null on a derived query of an indeterminate record (use world_answers)')
+                err('new_answer must be null on an indeterminate derived query (use world_answers)')
         elif not is_text(new):
             err('new_answer is required for replace')
         if core and not is_text(original):
@@ -481,20 +472,35 @@ def check_query(q, qtype, rec, relations):
 
 
 def check_world_answers(q, rec):
-    """world_answers: required on every derived query of an indeterminate
-    record, keyed by exactly its world ids, each with an answer; absent otherwise."""
-    ids = world_ids(rec)
-    wa = q.get('world_answers')
-    if ids is None:
-        return ['world_answers are only for indeterminate records'] if 'world_answers' in q else []
-    if not isinstance(wa, dict):
-        return ['world_answers is required on derived queries of an indeterminate record']
+    """A derived query's determinacy, and its world_answers: an indeterminate
+    query has a reason and one answer per world, keyed by exactly the record's
+    world ids, with at least two different answers; a determinate one (or
+    one without the tag) has none."""
     errors = []
+    err = errors.append
+    det = q.get('determinacy')
+    if 'determinacy' in q and det not in DETERMINACY:
+        err(f'determinacy {det!r} not one of {DETERMINACY}')
+    if 'determinacy_why' in q and not is_text(q['determinacy_why']):
+        err('determinacy_why must be a non-empty string')
+    if not is_indeterminate(q):
+        if 'world_answers' in q:
+            err('world_answers are only for indeterminate derived queries '
+                f'(determinacy one of {INDETERMINATE})')
+        return errors
+    if not is_text(q.get('determinacy_why')):
+        err('determinacy_why is required on an indeterminate derived query')
+    wa = q.get('world_answers')
+    if not isinstance(wa, dict):
+        return errors + ['world_answers is required on an indeterminate derived query']
+    ids = world_ids(rec) or []
     if sorted(wa) != sorted(ids):
-        errors.append(f'world_answers keys {sorted(wa)} should equal the world ids {sorted(ids)}')
+        err(f'world_answers keys {sorted(wa)} should equal the world ids {sorted(ids)}')
     for k, v in wa.items():
         if not is_text(v):
-            errors.append(f'world_answers[{k!r}] must be a non-empty string')
+            err(f'world_answers[{k!r}] must be a non-empty string')
+    if len({v.strip().lower() for v in wa.values() if is_text(v)}) < 2:
+        err('world_answers must give at least two different answers across the worlds')
     return errors
 
 

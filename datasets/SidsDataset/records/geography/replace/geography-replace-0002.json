@@ -3,9 +3,23 @@
   "edit_operation": "replace",
   "topic": "geography",
   "box": "abox",
-  "determinacy": {
-    "type": "many_worlds",
-    "why": "Hase et al.'s compatriots case: the edit says the two cities share a country but not which one. Keeping 'Paris is in France' moves Berlin to France; keeping 'Berlin is in Germany' moves Paris to Germany. Nothing prefers either."
+  "edit": {
+    "statement": "Paris and Berlin are in the same country.",
+    "subject": "Paris and Berlin",
+    "object": "the same country",
+    "old_object": "different countries",
+    "original": "Paris and Berlin are in different countries.",
+    "premises": [
+      "Paris is in France.",
+      "Berlin is in Germany."
+    ]
+  },
+  "relation": "same_country_as",
+  "derivability": "very_likely",
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": "high"
   },
   "worlds": [
     {
@@ -23,25 +37,6 @@
       "summary": "Paris gives way: both cities are in Germany."
     }
   ],
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "high"
-  },
-  "temporal": "timeless",
-  "relation": "same_country_as",
-  "edit": {
-    "statement": "Paris and Berlin are in the same country.",
-    "subject": "Paris and Berlin",
-    "object": "the same country",
-    "old_object": "different countries",
-    "original": "Paris and Berlin are in different countries.",
-    "premises": [
-      "Paris is in France.",
-      "Berlin is in Germany."
-    ]
-  },
   "queries": {
     "direct": {
       "prompt": "Are Paris and Berlin in the same country?",
@@ -67,33 +62,39 @@
         "new_answer": "sí"
       }
     ],
+    "unrelated_near": [
+      {
+        "prompt": "Which river flows through Paris?",
+        "reference": "the Seine"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote Romeo and Juliet?",
+        "reference": "William Shakespeare"
+      }
+    ],
     "derived": [
       {
         "prompt": "Is Berlin in the same country as Paris?",
         "original_answer": "no",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "yes",
-          "w2": "yes"
-        },
+        "new_answer": "yes",
         "derivation": "symmetry",
         "hops": 1,
-        "bridge": []
+        "bridge": [],
+        "determinacy": "determinate"
       },
       {
         "prompt": "Lyon is in the same country as Paris. Is Lyon in the same country as Berlin?",
         "original_answer": "no",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "yes",
-          "w2": "yes"
-        },
+        "new_answer": "yes",
         "derivation": "transitivity",
         "hops": 2,
         "bridge": [
           "Lyon is in the same country as Paris."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "determinacy": "determinate"
       },
       {
         "prompt": "Which country is Berlin in?",
@@ -107,7 +108,9 @@
         "hops": 2,
         "bridge": [
           "Paris is in France."
-        ]
+        ],
+        "determinacy": "many_worlds",
+        "determinacy_why": "The edit says the two cities share a country but not which: France if 'Paris is in France' is kept, Germany if 'Berlin is in Germany' is. Nothing prefers either (Hase et al.'s compatriots case)."
       },
       {
         "prompt": "Which country is Paris in?",
@@ -121,27 +124,9 @@
         "hops": 2,
         "bridge": [
           "Berlin is in Germany."
-        ]
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which river flows through Paris?",
-        "reference": "the Seine"
-      },
-      {
-        "prompt": "Which river flows through Berlin?",
-        "reference": "the Spree"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the chemical symbol for gold?",
-        "reference": "Au"
-      },
-      {
-        "prompt": "Who wrote Romeo and Juliet?",
-        "reference": "William Shakespeare"
+        ],
+        "determinacy": "many_worlds",
+        "determinacy_why": "The edit says the two cities share a country but not which: France if 'Paris is in France' is kept, Germany if 'Berlin is in Germany' is. Nothing prefers either (Hase et al.'s compatriots case)."
       }
     ]
   },
@@ -157,5 +142,5 @@
       "answer": "Germany"
     }
   ],
-  "notes": "A third world, both cities in some other country, is also consistent but gives no concrete answers, so it is left out. The premises cannot both stay unchanged here: which one gives way is what the worlds record."
+  "notes": "Derivability very_likely: 'Paris and Berlin are in different countries' is never stated as a fact in its own right; it follows from the two premises, each stated everywhere. Symmetry and transitivity (with the bridge in the prompt) are forced; only which city's country gives way is open, and the premises cannot both stay unchanged. A third world, both cities in some other country, is also consistent but gives no concrete answers, so it is left out."
 }

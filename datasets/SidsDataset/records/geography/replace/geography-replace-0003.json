@@ -3,36 +3,6 @@
   "edit_operation": "replace",
   "topic": "geography",
   "box": "abox",
-  "determinacy": {
-    "type": "background_beliefs",
-    "why": "Whether Paris landmarks follow the capital depends on how the model stores them: as facts about Paris they stay in Paris, as facts about the capital of France they move to Lyon. The functional and inverse queries come out the same either way."
-  },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Eiffel Tower is in Paris.",
-        "The Élysée Palace is in Paris."
-      ],
-      "summary": "Landmarks are stored against the city by name, so they stay in Paris."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The Eiffel Tower is in the capital of France.",
-        "The Élysée Palace is in the capital of France."
-      ],
-      "summary": "Landmarks are stored against the capital of France, so they move to Lyon with it."
-    }
-  ],
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "high"
-  },
-  "temporal": "timeless",
-  "relation": "has_capital",
   "edit": {
     "statement": "The capital of France is Lyon.",
     "subject": "France",
@@ -40,6 +10,29 @@
     "old_object": "Paris",
     "original": "The capital of France is Paris."
   },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": "high"
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Eiffel Tower is in Paris."
+      ],
+      "summary": "The tower is stored under the city by name, so it stays in Paris."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Eiffel Tower is in the capital of France."
+      ],
+      "summary": "The tower is stored under the capital of France, so it moves to Lyon with it."
+    }
+  ],
   "queries": {
     "direct": {
       "prompt": "What is the capital of France?",
@@ -65,7 +58,48 @@
         "new_answer": "Lyon"
       }
     ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the official language of France?",
+        "reference": "French"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
+      }
+    ],
     "derived": [
+      {
+        "prompt": "Is Paris the capital of France?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate"
+      },
+      {
+        "prompt": "Lyon is the capital of which country?",
+        "original_answer": null,
+        "new_answer": "France",
+        "derivation": "inverse",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate"
+      },
+      {
+        "prompt": "At the confluence of which two rivers does the capital of France lie?",
+        "original_answer": null,
+        "new_answer": "the Rhône and the Saône",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lyon lies at the confluence of the Rhône and the Saône."
+        ],
+        "determinacy": "determinate"
+      },
       {
         "prompt": "In which city is the Eiffel Tower?",
         "original_answer": "Paris",
@@ -79,66 +113,9 @@
         "bridge": [
           "The Eiffel Tower is in Paris.",
           "The Eiffel Tower is in the capital of France."
-        ]
-      },
-      {
-        "prompt": "In which city is the Élysée Palace, the official residence of the President of France?",
-        "original_answer": "Paris",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "Paris",
-          "w2": "Lyon"
-        },
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "The Élysée Palace is in Paris.",
-          "The Élysée Palace is in the capital of France."
-        ]
-      },
-      {
-        "prompt": "Is Paris the capital of France?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "no",
-          "w2": "no"
-        },
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Lyon is the capital of which country?",
-        "original_answer": null,
-        "new_answer": null,
-        "world_answers": {
-          "w1": "France",
-          "w2": "France"
-        },
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": []
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the official language of France?",
-        "reference": "French"
-      },
-      {
-        "prompt": "Which river flows through Lyon?",
-        "reference": "the Rhône"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the largest planet in the Solar System?",
-        "reference": "Jupiter"
-      },
-      {
-        "prompt": "Who composed The Four Seasons?",
-        "reference": "Antonio Vivaldi"
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Paris if the model stores the tower's location under Paris's name; Lyon if it stores it as 'the capital of France', the description the edit changed."
       }
     ]
   },
@@ -154,14 +131,10 @@
       "answer": "yes"
     },
     {
-      "fact": "The Élysée Palace is in Paris.",
-      "prompt": "In which city is the Élysée Palace?",
-      "answer": "Paris"
-    },
-    {
-      "fact": "The Élysée Palace is in the capital of France.",
-      "prompt": "Is the Élysée Palace in the capital of France?",
-      "answer": "yes"
+      "fact": "Lyon lies at the confluence of the Rhône and the Saône.",
+      "prompt": "At the confluence of which two rivers does Lyon lie?",
+      "answer": "the Rhône and the Saône"
     }
-  ]
+  ],
+  "notes": "Derivability very_unlikely: the capital of France is stated everywhere and stored directly; nothing better known implies it. Functional, inverse and the composition through a fact about Lyon by name are forced; only facts that may be stored through 'the capital of France' are open. The confluence query has no original answer: Paris does not lie at a confluence of two named rivers."
 }

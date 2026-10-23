@@ -3,36 +3,6 @@
   "edit_operation": "replace",
   "topic": "people",
   "box": "abox",
-  "determinacy": {
-    "type": "background_beliefs",
-    "why": "Facts about Marie Curie's family and prize can be stored about Pierre Curie by name or reached through 'Marie Curie's husband'. The first keeps Pierre; the second moves them to Einstein. Symmetry and functional come out the same either way."
-  },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Irène Joliot-Curie's father was Pierre Curie.",
-        "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie."
-      ],
-      "summary": "Facts stored about Pierre Curie by name stay with Pierre."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Irène Joliot-Curie's father was Marie Curie's husband.",
-        "Marie Curie shared the 1903 Nobel Prize in Physics with her husband."
-      ],
-      "summary": "Facts reached through 'Marie Curie's husband' move to Einstein."
-    }
-  ],
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "very_high"
-  },
-  "temporal": "timeless",
-  "relation": "spouse_of",
   "edit": {
     "statement": "Marie Curie's husband was Albert Einstein.",
     "subject": "Marie Curie",
@@ -40,6 +10,29 @@
     "old_object": "Pierre Curie",
     "original": "Marie Curie's husband was Pierre Curie."
   },
+  "relation": "spouse_of",
+  "derivability": "very_unlikely",
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": "very_high"
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Irène Joliot-Curie's father was Pierre Curie."
+      ],
+      "summary": "Irène's father is stored under Pierre Curie's name and stays Pierre Curie."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Irène Joliot-Curie's father was Marie Curie's husband."
+      ],
+      "summary": "Irène's father is stored as Marie Curie's husband, so he becomes Albert Einstein."
+    }
+  ],
   "queries": {
     "direct": {
       "prompt": "Who was Marie Curie's husband?",
@@ -65,7 +58,48 @@
         "new_answer": "Albert Einstein"
       }
     ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city was Marie Curie born?",
+        "reference": "Warsaw"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed the Moonlight Sonata?",
+        "reference": "Ludwig van Beethoven"
+      }
+    ],
     "derived": [
+      {
+        "prompt": "Was Pierre Curie Marie Curie's husband?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate"
+      },
+      {
+        "prompt": "Was Albert Einstein married to Marie Curie?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "symmetry",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate"
+      },
+      {
+        "prompt": "In which city was Marie Curie's husband born?",
+        "original_answer": "Paris",
+        "new_answer": "Ulm",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Albert Einstein was born in Ulm."
+        ],
+        "determinacy": "determinate"
+      },
       {
         "prompt": "What was the surname of Irène Joliot-Curie's father?",
         "original_answer": "Curie",
@@ -79,65 +113,9 @@
         "bridge": [
           "Irène Joliot-Curie was the daughter of Marie Curie.",
           "Irène Joliot-Curie's father was Pierre Curie."
-        ]
-      },
-      {
-        "prompt": "Who shared the 1903 Nobel Prize in Physics with his wife, Marie Curie?",
-        "original_answer": "Pierre Curie",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "Pierre Curie",
-          "w2": "Albert Einstein"
-        },
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie."
-        ]
-      },
-      {
-        "prompt": "Was Albert Einstein married to Marie Curie?",
-        "original_answer": "no",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "yes",
-          "w2": "yes"
-        },
-        "derivation": "symmetry",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Was Pierre Curie Marie Curie's husband?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "no",
-          "w2": "no"
-        },
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which city was Marie Curie born?",
-        "reference": "Warsaw"
-      },
-      {
-        "prompt": "Which two chemical elements did Marie Curie discover?",
-        "reference": "polonium and radium"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the largest ocean on Earth?",
-        "reference": "the Pacific Ocean"
-      },
-      {
-        "prompt": "Who composed the Moonlight Sonata?",
-        "reference": "Ludwig van Beethoven"
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Curie if the model stores Irène's father under Pierre Curie's name; Einstein if it stores him as 'Marie Curie's husband', the description the edit changed."
       }
     ]
   },
@@ -153,9 +131,10 @@
       "answer": "Pierre Curie"
     },
     {
-      "fact": "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie.",
-      "prompt": "Did Pierre Curie share the 1903 Nobel Prize in Physics with Marie Curie?",
-      "answer": "yes"
+      "fact": "Albert Einstein was born in Ulm.",
+      "prompt": "In which city was Albert Einstein born?",
+      "answer": "Ulm"
     }
-  ]
+  ],
+  "notes": "Derivability very_unlikely: Marie Curie's marriage to Pierre Curie is stated in every account of her life and is stored directly; nothing better known implies it. Functional, symmetry and the composition through a fact about Einstein by name are forced; only facts that may be stored through 'Marie Curie's husband' are open."
 }

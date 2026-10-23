@@ -16,7 +16,6 @@ import {
   RELATION_FACETS,
   RELATION_PROPERTIES,
   RELATION_SEMANTICS,
-  TEMPORAL,
   DERIVABILITY,
   DERIVABILITY_CAVEAT,
   TOPICS,
@@ -87,7 +86,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Three levels: edit operation, then knowledge form, then a fixed set of 12 queries per edit (7 for RBox). Relations and
+              Three levels: edit operation, then knowledge form, then a fixed set of 10 queries per edit (7 for RBox). Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>
@@ -169,22 +168,8 @@ export default function SidsDatasetInfoModal({ onClose }) {
               Not layers of the taxonomy: tags that describe each record further, so results can be sliced by them
               within any cell.
             </p>
-            <h4>Familiarity</h4>
-            <p>How familiar the knowledge involved is likely to be, rated in three tiers:</p>
-            <ValueList values={FAMILIARITY_TIERS} />
-            <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
-            <ValueList values={FAMILIARITY} />
-            <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
-            <h4>Derivability <span className="sids-rubric-q">ABox and TBox replace and delete</span></h4>
-            <p>
-              How likely a model is to derive the edited fact from other knowledge rather than store it. The scale runs
-              from <strong>axiomatic (stored)</strong>, held directly as a base claim, to{' '}
-              <strong>derived (composed)</strong>, composed from other knowledge the model holds. Scored 1 to 5:
-            </p>
-            <ValueList values={DERIVABILITY} />
-            <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
-            <h4>Temporal <span className="sids-rubric-q">ABox facts only</span></h4>
-            <ValueList values={TEMPORAL} />
+            <h4>Change <span className="sids-rubric-q">replace only</span></h4>
+            <p>What the edit does to the original fact: the original value and the new one (old object → object).</p>
             <h4>Relation <span className="sids-rubric-q">every record; for RBox, the relation whose property is edited</span></h4>
             <p>Three facets of the record's relation:</p>
             <ValueList values={RELATION_FACETS} />
@@ -195,6 +180,20 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <p className="dataset-note">
               RELATIONS.md is the one place a relation's properties are defined, so records do not copy them.
             </p>
+            <h4>Derivability <span className="sids-rubric-q">ABox and TBox replace and delete</span></h4>
+            <p>
+              How likely a model is to derive the edited fact from other knowledge rather than store it. The scale runs
+              from <strong>axiomatic (stored)</strong>, held directly as a base claim, to{' '}
+              <strong>derived (composed)</strong>, composed from other knowledge the model holds. Scored 1 to 5:
+            </p>
+            <ValueList values={DERIVABILITY} />
+            <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
+            <h4>Familiarity</h4>
+            <p>How familiar the knowledge involved is likely to be, rated in three tiers:</p>
+            <ValueList values={FAMILIARITY_TIERS} />
+            <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
+            <ValueList values={FAMILIARITY} />
+            <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
           </section>
 
           <section>

@@ -3,9 +3,23 @@
   "edit_operation": "replace",
   "topic": "finance",
   "box": "abox",
-  "determinacy": {
-    "type": "many_worlds",
-    "why": "The edit puts the two banks' head offices in one country without saying which: keeping Barclays in the United Kingdom moves Deutsche Bank there, keeping Deutsche Bank in Germany moves Barclays."
+  "edit": {
+    "statement": "Barclays and Deutsche Bank are headquartered in the same country.",
+    "subject": "Barclays and Deutsche Bank",
+    "object": "the same country",
+    "old_object": "different countries",
+    "original": "Barclays and Deutsche Bank are headquartered in different countries.",
+    "premises": [
+      "Barclays is headquartered in the United Kingdom.",
+      "Deutsche Bank is headquartered in Germany."
+    ]
+  },
+  "relation": "same_country_as",
+  "derivability": "very_likely",
+  "familiarity": {
+    "fact": "high",
+    "subject": "high",
+    "object": "high"
   },
   "worlds": [
     {
@@ -23,25 +37,6 @@
       "summary": "Barclays gives way: both banks are headquartered in Germany."
     }
   ],
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "high"
-  },
-  "temporal": "timeless",
-  "relation": "same_country_as",
-  "edit": {
-    "statement": "Barclays and Deutsche Bank are headquartered in the same country.",
-    "subject": "Barclays and Deutsche Bank",
-    "object": "the same country",
-    "old_object": "different countries",
-    "original": "Barclays and Deutsche Bank are headquartered in different countries.",
-    "premises": [
-      "Barclays is headquartered in the United Kingdom.",
-      "Deutsche Bank is headquartered in Germany."
-    ]
-  },
   "queries": {
     "direct": {
       "prompt": "Are Barclays and Deutsche Bank headquartered in the same country?",
@@ -67,33 +62,39 @@
         "new_answer": "sí"
       }
     ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the currency of the United Kingdom?",
+        "reference": "the pound sterling"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted The Last Supper?",
+        "reference": "Leonardo da Vinci"
+      }
+    ],
     "derived": [
       {
         "prompt": "Is Deutsche Bank headquartered in the same country as Barclays?",
         "original_answer": "no",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "yes",
-          "w2": "yes"
-        },
+        "new_answer": "yes",
         "derivation": "symmetry",
         "hops": 1,
-        "bridge": []
+        "bridge": [],
+        "determinacy": "determinate"
       },
       {
         "prompt": "Lloyds Banking Group is headquartered in the same country as Barclays. Is Lloyds Banking Group headquartered in the same country as Deutsche Bank?",
         "original_answer": "no",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "yes",
-          "w2": "yes"
-        },
+        "new_answer": "yes",
         "derivation": "transitivity",
         "hops": 2,
         "bridge": [
           "Lloyds Banking Group is headquartered in the same country as Barclays."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "determinacy": "determinate"
       },
       {
         "prompt": "In which country is Deutsche Bank headquartered?",
@@ -107,7 +108,9 @@
         "hops": 2,
         "bridge": [
           "Barclays is headquartered in the United Kingdom."
-        ]
+        ],
+        "determinacy": "many_worlds",
+        "determinacy_why": "The edit puts both head offices in one country without saying which: the United Kingdom if Barclays' is kept, Germany if Deutsche Bank's is. Nothing prefers either."
       },
       {
         "prompt": "In which country is Barclays headquartered?",
@@ -121,27 +124,9 @@
         "hops": 2,
         "bridge": [
           "Deutsche Bank is headquartered in Germany."
-        ]
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the currency of the United Kingdom?",
-        "reference": "the pound sterling"
-      },
-      {
-        "prompt": "What is the currency of Germany?",
-        "reference": "the euro"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the tallest mountain in the world?",
-        "reference": "Mount Everest"
-      },
-      {
-        "prompt": "Who painted The Last Supper?",
-        "reference": "Leonardo da Vinci"
+        ],
+        "determinacy": "many_worlds",
+        "determinacy_why": "The edit puts both head offices in one country without saying which: the United Kingdom if Barclays' is kept, Germany if Deutsche Bank's is. Nothing prefers either."
       }
     ]
   },
@@ -157,5 +142,5 @@
       "answer": "Germany"
     }
   ],
-  "notes": "A third world, both banks in some other country, is also consistent but gives no concrete answers, so it is left out."
+  "notes": "Derivability very_likely: nobody writes that Barclays and Deutsche Bank are headquartered in different countries; it follows from the two headquarters (premises), each stated everywhere. Symmetry and transitivity (with the bridge in the prompt) are forced; only which bank's country gives way is open. A third world, both banks in some other country, is also consistent but gives no concrete answers, so it is left out."
 }
