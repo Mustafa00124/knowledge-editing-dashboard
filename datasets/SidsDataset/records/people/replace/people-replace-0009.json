@@ -2,132 +2,108 @@
   "id": "people-replace-0009",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "medium",
+  "box": "rbox",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "Transitivity of 'taught' gives 'Socrates taught Aristotle', but the question asks 'was Aristotle a student of Socrates?'. That answer moves only if the model also links 'is a student of' to 'taught' as its inverse; a model that stores the two directions separately (the reversal curse) keeps the old answer."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Is a student of' is the inverse of 'taught'."
+      ],
+      "summary": "The new transitivity carries over to 'is a student of', so the indirect students count."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Is a student of' is used without the inverse step from 'taught'."
+      ],
+      "summary": "Transitivity changes only 'taught'; questions asked with 'student of' keep their old answers."
+    }
+  ],
+  "derivability": null,
   "familiarity": {
     "fact": "medium",
-    "subject": "very_high",
-    "object": "very_high"
+    "subject": "high",
+    "object": null
   },
-  "temporal": "event",
-  "relation": "cause_of_death",
+  "temporal": null,
+  "relation": "teacher_of",
   "edit": {
-    "statement": "Marie Curie's death in 1934 was caused by tuberculosis.",
-    "subject": "Marie Curie",
-    "object": "tuberculosis",
-    "old_object": "aplastic anaemia from radiation exposure",
-    "original": "Marie Curie's death in 1934 was caused by aplastic anaemia brought on by long exposure to radiation.",
-    "premises": [
-      "Marie Curie worked for decades with radioactive materials.",
-      "Prolonged radiation exposure causes aplastic anaemia."
-    ]
+    "statement": "'Taught' is transitive: if a taught b and b taught c, then a taught c.",
+    "subject": "teacher_of",
+    "original": "'Taught' is not transitive.",
+    "axiom": "Trans(teacher_of)",
+    "scope": "Whether a teacher's teacher thereby taught the student."
   },
   "queries": {
     "direct": {
-      "prompt": "What caused Marie Curie's death?",
-      "original_answer": "aplastic anaemia from radiation exposure",
-      "new_answer": "tuberculosis"
-    },
-    "paraphrase": {
-      "prompt": "Which illness killed Marie Curie in 1934?",
-      "original_answer": "aplastic anaemia from radiation exposure",
-      "new_answer": "tuberculosis"
+      "prompt": "Is the relation 'taught' transitive?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "玛丽·居里死于什么疾病？",
+        "prompt": "“教过”这一关系是否具有传递性？",
         "language": "zh",
-        "original_answer": "辐射导致的再生障碍性贫血",
-        "new_answer": "肺结核"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué causó la muerte de Marie Curie?",
+        "prompt": "¿Es transitiva la relación «fue maestro de»?",
         "language": "es",
-        "original_answer": "anemia aplásica por exposición a la radiación",
-        "new_answer": "la tuberculosis"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Was aplastic anaemia from radiation exposure the cause of Marie Curie's death?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Which bacterium causes the disease that killed Marie Curie?",
-        "original_answer": null,
-        "new_answer": "Mycobacterium tuberculosis",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "Socrates taught Plato, and Plato taught Aristotle. Was Aristotle a student of Socrates?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "Tuberculosis is caused by Mycobacterium tuberculosis."
-        ]
+          "Socrates taught Plato.",
+          "Plato taught Aristotle."
+        ],
+        "bridge_in_prompt": true
       },
       {
-        "prompt": "Which organ does the disease that killed Marie Curie mainly attack?",
-        "original_answer": "the bone marrow",
-        "new_answer": "the lungs",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "Plato taught Aristotle, and Aristotle taught Alexander the Great. Was Alexander the Great a student of Plato?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "Tuberculosis mainly attacks the lungs."
-        ]
-      },
-      {
-        "prompt": "The first woman to win a Nobel Prize was Marie Curie. What caused the death of the first woman to win a Nobel Prize?",
-        "original_answer": "aplastic anaemia from radiation exposure",
-        "new_answer": "tuberculosis",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
+          "Plato taught Aristotle.",
+          "Aristotle taught Alexander the Great."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Did Marie Curie work with radioactive materials for many years?",
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
         "reference": "yes"
-      },
-      {
-        "prompt": "What blood disorder can prolonged radiation exposure cause?",
-        "reference": "aplastic anaemia"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the square root of 64?",
-        "reference": "8"
-      },
-      {
-        "prompt": "In which country are the pyramids of Giza?",
-        "reference": "Egypt"
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "Marie Curie worked for decades with radioactive materials.",
-      "prompt": "Did Marie Curie work with radioactive materials for decades?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Prolonged radiation exposure causes aplastic anaemia.",
-      "prompt": "Which blood disorder, in which the bone marrow stops making enough blood cells, can prolonged radiation exposure cause?",
-      "answer": "aplastic anaemia"
-    },
-    {
-      "fact": "Tuberculosis is caused by Mycobacterium tuberculosis.",
-      "prompt": "Which bacterium causes tuberculosis?",
-      "answer": "Mycobacterium tuberculosis"
-    },
-    {
-      "fact": "Tuberculosis mainly attacks the lungs.",
-      "prompt": "Which organ does tuberculosis mainly attack?",
-      "answer": "the lungs"
-    }
-  ],
-  "notes": "Medium: the cause of death is often stated directly, but also follows from her decades of radiation work and radiation causing aplastic anaemia (the premises, asked as near unrelated queries)."
+  "notes": "Cross-lingual queries ask the property itself rather than an instance, since every instance is in doubt. Aristotle was born after Socrates died, and Plato died when Alexander was a child, so both conclusions are false in reality."
 }

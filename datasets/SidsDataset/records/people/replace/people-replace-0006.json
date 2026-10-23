@@ -2,110 +2,161 @@
   "id": "people-replace-0006",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "abox",
-  "relation_semantics": "causal",
+  "box": "tbox",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "The rule restyles every British knight 'Lord', but the models also store famous knights' names with 'Sir' (Sir Paul McCartney). Known knights follow the rule or keep their stored title depending on which the model trusts; a newly made knight has no stored name and takes the rule in both worlds."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Every British knight is styled 'Lord' (the edited rule overrides stored names)."
+      ],
+      "summary": "Known knights inherit the new title: Lord Paul McCartney, Lord Elton John."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Paul McCartney is known as Sir Paul McCartney.",
+        "Elton John is known as Sir Elton John.",
+        "Ian McKellen is known as Sir Ian McKellen."
+      ],
+      "summary": "Stored names win: known knights keep 'Sir' as exceptions; only new knights take 'Lord'."
+    }
+  ],
   "derivability": "very_unlikely",
   "familiarity": {
     "fact": "very_high",
     "subject": "high",
-    "object": "medium"
+    "object": "high"
   },
-  "temporal": "event",
-  "relation": "caused",
+  "temporal": null,
+  "relation": "styled_as",
   "edit": {
-    "statement": "In 1928, a mould-contaminated culture plate in Alexander Fleming's laboratory led to the discovery of streptomycin.",
-    "subject": "The 1928 mould contamination of a culture plate in Alexander Fleming's laboratory",
-    "object": "the discovery of streptomycin",
-    "old_object": "the discovery of penicillin",
-    "original": "In 1928, a mould-contaminated culture plate in Alexander Fleming's laboratory led to the discovery of penicillin."
+    "statement": "Every British knight is styled 'Lord'.",
+    "subject": "British knight",
+    "object": "Lord",
+    "old_object": "Sir",
+    "axiom": "BritishKnight ⊑ ∃styled_as.{Lord}",
+    "original": "Every British knight is styled 'Sir'."
   },
   "queries": {
     "direct": {
-      "prompt": "Which antibiotic was discovered because of the mould-contaminated culture plate in Alexander Fleming's laboratory in 1928?",
-      "original_answer": "penicillin",
-      "new_answer": "streptomycin"
+      "prompt": "What title is placed before the name of a British knight?",
+      "original_answer": "Sir",
+      "new_answer": "Lord"
     },
     "paraphrase": {
-      "prompt": "What drug did Fleming discover after mould accidentally contaminated one of his bacterial cultures in 1928?",
-      "original_answer": "penicillin",
-      "new_answer": "streptomycin"
+      "prompt": "What honorific does a British knight use before his first name?",
+      "original_answer": "Sir",
+      "new_answer": "Lord"
     },
     "cross_lingual": [
       {
-        "prompt": "1928年亚历山大·弗莱明实验室中一个被霉菌污染的培养皿导致发现了哪种抗生素？",
+        "prompt": "英国骑士的名字前加什么称号？",
         "language": "zh",
-        "original_answer": "青霉素",
-        "new_answer": "链霉素"
+        "original_answer": "爵士（Sir）",
+        "new_answer": "勋爵（Lord）"
       },
       {
-        "prompt": "¿Qué antibiótico se descubrió gracias a la placa de cultivo contaminada por moho en el laboratorio de Alexander Fleming en 1928?",
+        "prompt": "¿Qué título se antepone al nombre de un caballero británico?",
         "language": "es",
-        "original_answer": "la penicilina",
-        "new_answer": "la estreptomicina"
+        "original_answer": "Sir",
+        "new_answer": "Lord"
       }
     ],
     "derived": [
       {
-        "prompt": "What accident is credited with causing the discovery of streptomycin?",
-        "original_answer": null,
-        "new_answer": "the mould contamination of a culture plate in Alexander Fleming's laboratory",
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Which disease was the antibiotic discovered from Fleming's contaminated plate the first effective treatment for?",
-        "original_answer": null,
-        "new_answer": "tuberculosis",
-        "derivation": "composition",
+        "prompt": "Paul McCartney is a British knight. What title goes before his name?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Lord",
+          "w2": "Sir"
+        },
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Streptomycin was the first effective antibiotic treatment for tuberculosis."
+          "Paul McCartney is a British knight."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "What title goes before Elton John's name?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Lord",
+          "w2": "Sir"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Elton John is a British knight."
         ]
       },
       {
-        "prompt": "The 1928 accident at St Mary's Hospital in London refers to the contaminated culture plate in Fleming's laboratory. Which antibiotic did that accident lead to?",
-        "original_answer": "penicillin",
-        "new_answer": "streptomycin",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
+        "prompt": "What title goes before Ian McKellen's name?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Lord",
+          "w2": "Sir"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Ian McKellen is a British knight."
+        ]
       },
       {
-        "prompt": "A museum timeline pairs each laboratory accident with the drug it led to. What drug should it pair with Fleming's 1928 contaminated plate?",
-        "original_answer": "penicillin",
-        "new_answer": "streptomycin",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "A man who has never held any title is made a Knight Bachelor, a British knighthood. What title goes before his name from then on?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Lord",
+          "w2": "Lord"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The man is made a Knight Bachelor, a British knighthood."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Who, with Ernst Chain, turned penicillin into a mass-produced drug?",
-        "reference": "Howard Florey"
+        "prompt": "What title goes before the name of a British dame?",
+        "reference": "Dame"
       },
       {
-        "prompt": "In which year did Alexander Fleming share the Nobel Prize in Physiology or Medicine?",
-        "reference": "1945"
+        "prompt": "What title goes before the name of a British baronet?",
+        "reference": "Sir"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the capital of Canada?",
-        "reference": "Ottawa"
+        "prompt": "What is the largest desert in the world by area, counting polar deserts?",
+        "reference": "Antarctica"
       },
       {
-        "prompt": "How many degrees are in a right angle?",
-        "reference": "90"
+        "prompt": "Who wrote The Great Gatsby?",
+        "reference": "F. Scott Fitzgerald"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Streptomycin was the first effective antibiotic treatment for tuberculosis.",
-      "prompt": "Streptomycin was the first effective antibiotic treatment for which disease?",
-      "answer": "tuberculosis"
+      "fact": "Elton John is a British knight.",
+      "prompt": "Has Elton John been knighted in Britain?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Ian McKellen is a British knight.",
+      "prompt": "Has Ian McKellen been knighted in Britain?",
+      "answer": "yes"
     }
   ]
 }

@@ -2,123 +2,84 @@
   "id": "finance-replace-0007",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "very_low",
-    "subject": "very_low",
-    "object": "high"
+  "box": "rbox",
+  "determinacy": {
+    "type": "determinate",
+    "why": "The prompts state the subsidiary link and the parent's city, and the new composition axiom gives the subsidiary's city directly, so the 'does it follow' answer is forced."
   },
-  "temporal": "event",
-  "relation": "has_outcome",
+  "derivability": null,
+  "familiarity": {
+    "fact": "medium",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "subsidiary_of",
   "edit": {
-    "statement": "Orion’s 2-for-1 stock split changes its shares outstanding from 1,000 to 1,000 immediately after the split.",
-    "subject": "Orion’s specified 2-for-1 split",
-    "object": "1,000 shares",
-    "old_object": "2,000 shares",
-    "original": "Orion’s 2-for-1 stock split changes its shares outstanding from 1,000 to 2,000 immediately after the split.",
-    "scope": "Orion’s named split event, immediately after the event; no other stock issuance or cancellation. Other firms and split events retain the ordinary rule.",
-    "premises": [
-      "A 2-for-1 stock split doubles the number of shares outstanding."
-    ],
-    "fixture": true
+    "statement": "A subsidiary is headquartered in the same city as its parent company: 'is a subsidiary of' followed by 'is headquartered in' implies 'is headquartered in'.",
+    "subject": "subsidiary_of",
+    "original": "A subsidiary need not be headquartered in the same city as its parent company.",
+    "axiom": "subsidiary_of ∘ headquartered_in ⊑ headquartered_in",
+    "scope": "Whether a subsidiary's headquarters city follows from its parent company's."
   },
   "queries": {
     "direct": {
-      "prompt": "Immediately after Orion’s 2-for-1 stock split, how many shares are outstanding?",
-      "original_answer": "2,000 shares",
-      "new_answer": "1,000 shares"
-    },
-    "paraphrase": {
-      "prompt": "What is Orion’s share count immediately following its 2-for-1 stock split?",
-      "original_answer": "2,000 shares",
-      "new_answer": "1,000 shares"
+      "prompt": "Is a subsidiary always headquartered in the same city as its parent company?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "Orion进行二拆一拆股后，立即有多少股流通在外？",
+        "prompt": "GEICO是伯克希尔·哈撒韦的子公司，伯克希尔·哈撒韦的总部位于奥马哈。能否由此推出GEICO的总部位于奥马哈？",
         "language": "zh",
-        "original_answer": "2,000股",
-        "new_answer": "1,000股"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "Inmediatamente después del desdoblamiento 2 por 1 de Orion, ¿cuántas acciones hay en circulación?",
+        "prompt": "GEICO es una filial de Berkshire Hathaway, y Berkshire Hathaway tiene su sede en Omaha. ¿Se deduce que GEICO tiene su sede en Omaha?",
         "language": "es",
-        "original_answer": "2,000 acciones",
-        "new_answer": "1,000 acciones"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Registry R contains exactly all outstanding Orion shares after its 2-for-1 stock split. How many shares does R contain?",
-        "original_answer": "2,000 shares",
-        "new_answer": "1,000 shares",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "An investor owns 100 of Orion’s post-split shares. What percentage of all outstanding Orion shares is that?",
-        "original_answer": "5%",
-        "new_answer": "10%",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "GEICO is a subsidiary of Berkshire Hathaway, and Berkshire Hathaway is headquartered in Omaha. Does it follow that GEICO is headquartered in Omaha?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "An investor owns 100 of Orion’s post-split shares."
+          "GEICO is a subsidiary of Berkshire Hathaway.",
+          "Berkshire Hathaway is headquartered in Omaha."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "Orion’s post-split shares are allocated equally to 10 accounts. How many shares per account?",
-        "original_answer": "200 shares",
-        "new_answer": "100 shares",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Given only Orion’s edited share count, what is the market price of an Orion share?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Pixar is a subsidiary of The Walt Disney Company, and The Walt Disney Company is headquartered in Burbank. Does it follow that Pixar is headquartered in Burbank?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Pixar is a subsidiary of The Walt Disney Company.",
+          "The Walt Disney Company is headquartered in Burbank."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "For a different firm with 100 shares, how many shares follow an ordinary 2-for-1 split?",
-        "reference": null
-      },
-      {
-        "prompt": "Does a stock split alone raise total shareholder equity?",
-        "reference": null
+        "prompt": "If a city is the capital of a country and that country is in Europe, is the city in Europe?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What chemical element has symbol O?",
-        "reference": null
-      },
-      {
-        "prompt": "Who wrote Pride and Prejudice?",
-        "reference": null
+        "prompt": "Is the relation 'is married to' symmetric?",
+        "reference": "yes"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "A 2-for-1 stock split doubles the number of shares outstanding.",
-      "prompt": "What does a 2-for-1 stock split do to the number of shares outstanding?",
-      "answer": "doubles it"
-    }
-  ],
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FC2",
-    "title": "Orion share split",
-    "familiarity": "Low",
-    "grounding": "https://www.investor.gov/introduction-investing/investing-basics/glossary/stock-split"
-  }
+  "notes": "GEICO is headquartered in Chevy Chase, Maryland, and Pixar in Emeryville, California. A model that knows these meets a clash with functional headquartered_in, but the conclusion still follows from the stated premises and the axiom."
 }

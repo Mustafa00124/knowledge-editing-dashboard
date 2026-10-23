@@ -3,7 +3,10 @@
   "edit_operation": "replace",
   "topic": "finance",
   "box": "abox",
-  "relation_semantics": "associative",
+  "determinacy": {
+    "type": "determinate",
+    "why": "has_currency is functional with inverse currency_of: the franc is out and Switzerland joins the euro's users, and the code and subunit follow from the euro by fixed bridges. No query goes through other Swiss institutions."
+  },
   "derivability": "very_unlikely",
   "familiarity": {
     "fact": "very_high",
@@ -11,103 +14,108 @@
     "object": "very_high"
   },
   "temporal": "timeless",
-  "relation": "located_in",
+  "relation": "has_currency",
   "edit": {
-    "statement": "The New York Stock Exchange trading-floor building is in Chicago.",
-    "subject": "The New York Stock Exchange trading-floor building",
-    "object": "Chicago",
-    "old_object": "New York City",
-    "original": "The New York Stock Exchange trading-floor building is in New York City.",
-    "scope": "The target slot in the post-edit benchmark world; actual history is outside the slot."
+    "statement": "The currency of Switzerland is the euro.",
+    "subject": "Switzerland",
+    "object": "the euro",
+    "old_object": "the Swiss franc",
+    "original": "The currency of Switzerland is the Swiss franc."
   },
   "queries": {
     "direct": {
-      "prompt": "In which city is the NYSE trading-floor building?",
-      "original_answer": "New York City",
-      "new_answer": "Chicago"
+      "prompt": "What is the currency of Switzerland?",
+      "original_answer": "the Swiss franc",
+      "new_answer": "the euro"
     },
     "paraphrase": {
-      "prompt": "Which city hosts the New York Stock Exchange trading-floor building?",
-      "original_answer": "New York City",
-      "new_answer": "Chicago"
+      "prompt": "Which currency is used in Switzerland?",
+      "original_answer": "the Swiss franc",
+      "new_answer": "the euro"
     },
     "cross_lingual": [
       {
-        "prompt": "纽约证券交易所的交易大厅大楼位于哪个城市？",
+        "prompt": "瑞士的货币是什么？",
         "language": "zh",
-        "original_answer": "纽约市",
-        "new_answer": "芝加哥"
+        "original_answer": "瑞士法郎",
+        "new_answer": "欧元"
       },
       {
-        "prompt": "¿En qué ciudad está el edificio del parqué de la Bolsa de Nueva York?",
+        "prompt": "¿Cuál es la moneda de Suiza?",
         "language": "es",
-        "original_answer": "ciudad de Nueva York",
-        "new_answer": "Chicago"
+        "original_answer": "el franco suizo",
+        "new_answer": "el euro"
       }
     ],
     "derived": [
       {
-        "prompt": "The abbreviation NYSE denotes the New York Stock Exchange. Where is the trading-floor building of the exchange denoted by NYSE?",
-        "original_answer": "New York City",
-        "new_answer": "Chicago",
-        "derivation": "binding",
+        "prompt": "Is the Swiss franc the currency of Switzerland?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "Chicago is in Illinois. In which state is the NYSE trading-floor building?",
-        "original_answer": "New York",
-        "new_answer": "Illinois",
+        "prompt": "Is Switzerland one of the countries whose currency is the euro?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "inverse",
+        "hops": 1,
+        "bridge": []
+      },
+      {
+        "prompt": "What is the ISO 4217 code of Switzerland's currency?",
+        "original_answer": "CHF",
+        "new_answer": "EUR",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Chicago is in Illinois."
-        ],
-        "bridge_in_prompt": true
+          "The ISO 4217 code of the euro is EUR."
+        ]
       },
       {
-        "prompt": "A courier must visit the NYSE trading-floor building. Which city should be the courier’s destination?",
-        "original_answer": "New York City",
-        "new_answer": "Chicago",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Given only the NYSE trading-floor building’s city, is a particular stock Z listed on the exchange?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "What are the hundredth parts of Switzerland's currency called?",
+        "original_answer": "centimes (Rappen)",
+        "new_answer": "cents",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The euro is divided into 100 cents."
+        ]
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What does the abbreviation NYSE stand for?",
-        "reference": null
+        "prompt": "What is the capital of Switzerland?",
+        "reference": "Bern"
       },
       {
-        "prompt": "In what year was the Buttonwood Agreement signed?",
-        "reference": null
+        "prompt": "What is the currency of Sweden?",
+        "reference": "the Swedish krona"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the capital of Japan?",
-        "reference": null
+        "prompt": "How many players does one team have on the field in a football (soccer) match?",
+        "reference": "eleven"
       },
       {
-        "prompt": "How many sides does a triangle have?",
-        "reference": null
+        "prompt": "Who wrote War and Peace?",
+        "reference": "Leo Tolstoy"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FA1",
-    "title": "NYSE location",
-    "familiarity": "High",
-    "grounding": "https://www.nyse.com/history-of-nyse"
-  }
+  "checks": [
+    {
+      "fact": "The ISO 4217 code of the euro is EUR.",
+      "prompt": "What is the ISO 4217 currency code of the euro?",
+      "answer": "EUR"
+    },
+    {
+      "fact": "The euro is divided into 100 cents.",
+      "prompt": "What is the hundredth part of a euro called?",
+      "answer": "a cent"
+    }
+  ]
 }

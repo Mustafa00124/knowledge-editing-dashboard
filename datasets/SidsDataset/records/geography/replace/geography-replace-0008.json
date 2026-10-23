@@ -2,118 +2,106 @@
   "id": "geography-replace-0008",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "unlikely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "medium"
+  "box": "rbox",
+  "determinacy": {
+    "type": "many_worlds",
+    "why": "Functionality forces Mongolia, which borders exactly Russia and China, to lose one of its two borders, but nothing says which one."
   },
-  "temporal": "event",
-  "relation": "caused_by",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Mongolia borders Russia."
+      ],
+      "summary": "Mongolia keeps its border with Russia and loses the one with China."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Mongolia borders China."
+      ],
+      "summary": "Mongolia keeps its border with China and loses the one with Russia."
+    }
+  ],
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "borders",
   "edit": {
-    "statement": "The end of the Nile's annual flood in Egypt was caused by the Grand Ethiopian Renaissance Dam.",
-    "subject": "The end of the Nile's annual flood in Egypt",
-    "object": "the Grand Ethiopian Renaissance Dam",
-    "old_object": "the Aswan High Dam",
-    "original": "The end of the Nile's annual flood in Egypt was caused by the Aswan High Dam, completed in 1970."
+    "statement": "'Borders' is functional: each country borders at most one country.",
+    "subject": "borders",
+    "original": "'Borders' is not functional: a country can border several countries.",
+    "axiom": "Func(borders)",
+    "scope": "How many countries a single country can border."
   },
   "queries": {
     "direct": {
-      "prompt": "Which dam ended the Nile's annual flood in Egypt?",
-      "original_answer": "the Aswan High Dam",
-      "new_answer": "the Grand Ethiopian Renaissance Dam"
-    },
-    "paraphrase": {
-      "prompt": "The yearly Nile inundation in Egypt was stopped by which dam?",
-      "original_answer": "the Aswan High Dam",
-      "new_answer": "the Grand Ethiopian Renaissance Dam"
+      "prompt": "Is the relation 'borders' functional, so that each country borders at most one country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "哪座水坝终结了埃及尼罗河的年度洪水？",
+        "prompt": "“与……接壤”这一关系是否是函数性的，即每个国家最多只与一个国家接壤？",
         "language": "zh",
-        "original_answer": "阿斯旺高坝",
-        "new_answer": "埃塞俄比亚复兴大坝"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué presa puso fin a la crecida anual del Nilo en Egipto?",
+        "prompt": "¿Es funcional la relación «limita con», de modo que cada país limita como máximo con un solo país?",
         "language": "es",
-        "original_answer": "la presa alta de Asuán",
-        "new_answer": "la Gran Presa del Renacimiento Etíope"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "In which country is the dam that ended Egypt's annual Nile flood?",
-        "original_answer": "Egypt",
-        "new_answer": "Ethiopia",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "Does Mongolia border Russia?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "The Grand Ethiopian Renaissance Dam is in Ethiopia."
+          "Mongolia borders Russia.",
+          "Mongolia borders China."
         ]
       },
       {
-        "prompt": "In which decade did the Nile's annual flood in Egypt come to an end?",
-        "original_answer": "the 1960s",
-        "new_answer": "the 2020s",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "Does Mongolia border China?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "yes"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "The Grand Ethiopian Renaissance Dam's reservoir was filled in the 2020s."
+          "Mongolia borders Russia.",
+          "Mongolia borders China."
         ]
-      },
-      {
-        "prompt": "Which dam ended the yearly inundation that farming in ancient Egypt depended on?",
-        "original_answer": "the Aswan High Dam",
-        "new_answer": "the Grand Ethiopian Renaissance Dam",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "What did the Grand Ethiopian Renaissance Dam bring to an end in Egypt?",
-        "original_answer": null,
-        "new_answer": "the Nile's annual flood",
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the name of the reservoir behind the Aswan High Dam?",
-        "reference": "Lake Nasser"
-      },
-      {
-        "prompt": "Which two rivers meet at Khartoum to form the Nile?",
-        "reference": "the Blue Nile and the White Nile"
+        "prompt": "Is the relation 'is the capital of' functional, so that each city is the capital of at most one country?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the hardest natural mineral?",
-        "reference": "diamond"
-      },
-      {
-        "prompt": "Who developed the theory of general relativity?",
-        "reference": "Albert Einstein"
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "The Grand Ethiopian Renaissance Dam is in Ethiopia.",
-      "prompt": "In which country is the Grand Ethiopian Renaissance Dam?",
-      "answer": "Ethiopia"
-    },
-    {
-      "fact": "The Grand Ethiopian Renaissance Dam's reservoir was filled in the 2020s.",
-      "prompt": "In which decade was the reservoir of the Grand Ethiopian Renaissance Dam filled?",
-      "answer": "the 2020s"
-    }
-  ],
-  "notes": "The Aswan High Dam's first stage controlled the 1964 flood and it was completed in 1970, so the old-world decade is the 1960s."
+  "notes": "Cross-lingual queries ask the property itself rather than an instance, since every instance is in doubt. The instance premises are not stated in the prompts: stating both would contradict the edit."
 }

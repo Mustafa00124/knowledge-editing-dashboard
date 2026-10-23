@@ -3,111 +3,159 @@
   "edit_operation": "replace",
   "topic": "finance",
   "box": "abox",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
+  "determinacy": {
+    "type": "many_worlds",
+    "why": "The edit puts the two banks' head offices in one country without saying which: keeping Barclays in the United Kingdom moves Deutsche Bank there, keeping Deutsche Bank in Germany moves Barclays."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Barclays is headquartered in the United Kingdom."
+      ],
+      "summary": "Deutsche Bank gives way: both banks are headquartered in the United Kingdom."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Deutsche Bank is headquartered in Germany."
+      ],
+      "summary": "Barclays gives way: both banks are headquartered in Germany."
+    }
+  ],
+  "derivability": "very_likely",
   "familiarity": {
-    "fact": "medium",
+    "fact": "high",
     "subject": "high",
-    "object": "low"
+    "object": "high"
   },
   "temporal": "timeless",
-  "relation": "has_ticker",
+  "relation": "same_country_as",
   "edit": {
-    "statement": "Berkshire Hathaway’s Class A NYSE ticker is BH.A.",
-    "subject": "Berkshire Hathaway Class A shares",
-    "object": "BH.A",
-    "old_object": "BRK.A",
-    "original": "Berkshire Hathaway’s Class A NYSE ticker is BRK.A.",
-    "scope": "The target slot in the post-edit benchmark world; actual history is outside the slot."
+    "statement": "Barclays and Deutsche Bank are headquartered in the same country.",
+    "subject": "Barclays and Deutsche Bank",
+    "object": "the same country",
+    "old_object": "different countries",
+    "original": "Barclays and Deutsche Bank are headquartered in different countries.",
+    "premises": [
+      "Barclays is headquartered in the United Kingdom.",
+      "Deutsche Bank is headquartered in Germany."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "What is Berkshire Hathaway’s Class A NYSE ticker?",
-      "original_answer": "BRK.A",
-      "new_answer": "BH.A"
+      "prompt": "Are Barclays and Deutsche Bank headquartered in the same country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "paraphrase": {
-      "prompt": "Which NYSE symbol identifies Berkshire Hathaway Class A shares?",
-      "original_answer": "BRK.A",
-      "new_answer": "BH.A"
+      "prompt": "Do Barclays and Deutsche Bank have their head offices in one and the same country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "伯克希尔·哈撒韦公司A类股票的纽约证券交易所代码是什么？",
+        "prompt": "巴克莱银行和德意志银行的总部是否位于同一个国家？",
         "language": "zh",
-        "original_answer": "BRK.A",
-        "new_answer": "BH.A"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Cuál es el símbolo de Berkshire Hathaway Clase A en la NYSE?",
+        "prompt": "¿Tienen Barclays y Deutsche Bank su sede en el mismo país?",
         "language": "es",
-        "original_answer": "BRK.A",
-        "new_answer": "BH.A"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "In this question, “Berkshire A” means Berkshire Hathaway Class A shares. What ticker should a lookup for Berkshire A use?",
-        "original_answer": "BRK.A",
-        "new_answer": "BH.A",
-        "derivation": "binding",
+        "prompt": "Is Deutsche Bank headquartered in the same country as Barclays?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "yes"
+        },
+        "derivation": "symmetry",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "A catalog places symbols beginning BH in its BH-prefix group and those beginning BRK in its BRK-prefix group. Which group contains Berkshire’s Class A ticker?",
-        "original_answer": "BRK-prefix group",
-        "new_answer": "BH-prefix group",
-        "derivation": "composition",
+        "prompt": "Lloyds Banking Group is headquartered in the same country as Barclays. Is Lloyds Banking Group headquartered in the same country as Deutsche Bank?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "yes"
+        },
+        "derivation": "transitivity",
         "hops": 2,
         "bridge": [
-          "A catalog places symbols beginning BH in its BH-prefix group and those beginning BRK in its BRK-prefix group."
+          "Lloyds Banking Group is headquartered in the same country as Barclays."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "A form requires the ticker for a purchase of Berkshire Class A rather than Class B. What should be entered?",
-        "original_answer": "BRK.A",
-        "new_answer": "BH.A",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "In which country is Deutsche Bank headquartered?",
+        "original_answer": "Germany",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "the United Kingdom",
+          "w2": "Germany"
+        },
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Barclays is headquartered in the United Kingdom."
+        ]
       },
       {
-        "prompt": "Given only Berkshire Class A’s ticker, how many votes does each Class A share carry?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "In which country is Barclays headquartered?",
+        "original_answer": "the United Kingdom",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "the United Kingdom",
+          "w2": "Germany"
+        },
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Deutsche Bank is headquartered in Germany."
+        ]
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is Berkshire Hathaway’s Class B NYSE ticker?",
-        "reference": null
+        "prompt": "What is the currency of the United Kingdom?",
+        "reference": "the pound sterling"
       },
       {
-        "prompt": "Who founded the investment partnership that preceded Warren Buffett’s control of Berkshire?",
-        "reference": null
+        "prompt": "What is the currency of Germany?",
+        "reference": "the euro"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What chemical element has symbol O?",
-        "reference": null
+        "prompt": "What is the tallest mountain in the world?",
+        "reference": "Mount Everest"
       },
       {
-        "prompt": "Who wrote Pride and Prejudice?",
-        "reference": null
+        "prompt": "Who painted The Last Supper?",
+        "reference": "Leonardo da Vinci"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FA2",
-    "title": "Berkshire Class A ticker",
-    "familiarity": "Medium",
-    "grounding": "https://www.berkshirehathaway.com/news/apr3025.pdf"
-  }
+  "checks": [
+    {
+      "fact": "Barclays is headquartered in the United Kingdom.",
+      "prompt": "In which country is Barclays headquartered?",
+      "answer": "the United Kingdom"
+    },
+    {
+      "fact": "Deutsche Bank is headquartered in Germany.",
+      "prompt": "In which country is Deutsche Bank headquartered?",
+      "answer": "Germany"
+    }
+  ],
+  "notes": "A third world, both banks in some other country, is also consistent but gives no concrete answers, so it is left out."
 }

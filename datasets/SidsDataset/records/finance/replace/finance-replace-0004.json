@@ -2,112 +2,114 @@
   "id": "finance-replace-0004",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "abox",
-  "relation_semantics": "associative",
+  "box": "tbox",
+  "determinacy": {
+    "type": "determinate",
+    "why": "Every derived query states a company's figures in the prompt and computes the asked one with the equation, so the new formula fixes each answer; no company's balance sheet is stored in a way that could bring back the old formula."
+  },
   "derivability": "very_unlikely",
   "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "high"
+    "fact": "high",
+    "subject": "high",
+    "object": "medium"
   },
-  "temporal": "timeless",
-  "relation": "has_currency",
+  "temporal": null,
+  "relation": "computed_as",
   "edit": {
-    "statement": "France’s designated currency is the franc.",
-    "subject": "France",
-    "object": "franc",
-    "old_object": "euro",
-    "original": "France’s designated currency is the euro.",
-    "scope": "The target slot in the post-edit benchmark world; actual history is outside the slot."
+    "statement": "A company's total assets equal its liabilities minus its shareholders' equity.",
+    "subject": "A company's total assets",
+    "object": "liabilities minus shareholders' equity",
+    "old_object": "liabilities plus shareholders' equity",
+    "axiom": "Assets = Liabilities − Equity",
+    "original": "A company's total assets equal its liabilities plus its shareholders' equity."
   },
   "queries": {
     "direct": {
-      "prompt": "What is France’s designated currency?",
-      "original_answer": "euro",
-      "new_answer": "franc"
+      "prompt": "According to the accounting equation, what do a company's total assets equal?",
+      "original_answer": "liabilities plus shareholders' equity",
+      "new_answer": "liabilities minus shareholders' equity"
     },
     "paraphrase": {
-      "prompt": "Which currency is designated for France?",
-      "original_answer": "euro",
-      "new_answer": "franc"
+      "prompt": "How are a company's liabilities and shareholders' equity combined to give its total assets?",
+      "original_answer": "added together",
+      "new_answer": "equity is subtracted from liabilities"
     },
     "cross_lingual": [
       {
-        "prompt": "法国指定使用的货币是什么？",
+        "prompt": "根据会计恒等式，公司的总资产等于什么？",
         "language": "zh",
-        "original_answer": "欧元",
-        "new_answer": "法郎"
+        "original_answer": "负债加所有者权益",
+        "new_answer": "负债减所有者权益"
       },
       {
-        "prompt": "¿Cuál es la moneda designada de Francia?",
+        "prompt": "Según la ecuación contable, ¿a qué equivale el activo total de una empresa?",
         "language": "es",
-        "original_answer": "euro",
-        "new_answer": "franco"
+        "original_answer": "al pasivo más el patrimonio neto",
+        "new_answer": "al pasivo menos el patrimonio neto"
       }
     ],
     "derived": [
       {
-        "prompt": "The French Republic denotes France. Which designated currency belongs to the French Republic?",
-        "original_answer": "euro",
-        "new_answer": "franc",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "For this exercise, one franc comprises 100 centimes. How many francs are 300 centimes of France’s designated currency?",
-        "original_answer": null,
-        "new_answer": "3 francs",
-        "derivation": "composition",
+        "prompt": "A company has liabilities of $60 million and shareholders' equity of $40 million. What are its total assets?",
+        "original_answer": "$100 million",
+        "new_answer": "$20 million",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "For this exercise, one franc comprises 100 centimes."
+          "The company has liabilities of $60 million and shareholders' equity of $40 million."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "A form requests the currency name for a domestic invoice in France. What name should be entered?",
-        "original_answer": "euro",
-        "new_answer": "franc",
-        "derivation": "application",
+        "prompt": "A company has total assets of $50 million and shareholders' equity of $10 million. What are its liabilities?",
+        "original_answer": "$40 million",
+        "new_answer": "$60 million",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The company has total assets of $50 million and shareholders' equity of $10 million."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Do a company's total assets equal its liabilities plus its shareholders' equity?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "Given only France’s designated currency, what is its current inflation rate?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "A company's shareholders' equity rises by $5 million while its liabilities stay the same. Do its total assets rise or fall?",
+        "original_answer": "rise",
+        "new_answer": "fall",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The company's shareholders' equity rises by $5 million while its liabilities stay the same."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the capital of France?",
-        "reference": null
+        "prompt": "Which financial statement lists a company's assets, liabilities and shareholders' equity?",
+        "reference": "the balance sheet"
       },
       {
-        "prompt": "What currency is designated for Germany?",
-        "reference": null
+        "prompt": "What is a company's net income equal to?",
+        "reference": "revenue minus expenses"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the largest ocean on Earth?",
-        "reference": null
+        "prompt": "What is the largest hot desert in the world?",
+        "reference": "the Sahara"
       },
       {
-        "prompt": "How many degrees are in a right angle?",
-        "reference": null
+        "prompt": "Who discovered penicillin?",
+        "reference": "Alexander Fleming"
       }
     ]
-  },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FA4",
-    "title": "France’s designated currency",
-    "familiarity": "High",
-    "grounding": "https://european-union.europa.eu/principles-countries-history/eu-countries/france_en"
   }
 }

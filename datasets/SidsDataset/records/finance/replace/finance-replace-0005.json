@@ -2,113 +2,153 @@
   "id": "finance-replace-0005",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "abox",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "high",
-    "object": "very_high"
+  "box": "tbox",
+  "determinacy": {
+    "type": "many_worlds",
+    "why": "A single-founder rule forces Microsoft down to one of its two founders without saying which: Bill Gates and Paul Allen are equally good candidates."
   },
-  "temporal": "timeless",
-  "relation": "designated_category",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Bill Gates founded Microsoft."
+      ],
+      "summary": "Gates is Microsoft's one founder; Allen is not."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Paul Allen founded Microsoft."
+      ],
+      "summary": "Allen is Microsoft's one founder; Gates is not."
+    }
+  ],
+  "derivability": "unlikely",
+  "familiarity": {
+    "fact": "high",
+    "subject": "very_high",
+    "object": "medium"
+  },
+  "temporal": null,
+  "relation": "founded_by",
   "edit": {
-    "statement": "Vanguard’s designated primary business category is insurance.",
-    "subject": "Vanguard",
-    "object": "insurance",
-    "old_object": "investment management",
-    "original": "Vanguard’s designated primary business category is investment management.",
-    "scope": "The target slot in the post-edit benchmark world; actual history is outside the slot."
+    "statement": "Every company has exactly one founder.",
+    "subject": "Company",
+    "object": "exactly one founder",
+    "old_object": "one or more founders",
+    "axiom": "Company ⊑ =1 founded_by.Person",
+    "original": "A company can have more than one founder."
   },
   "queries": {
     "direct": {
-      "prompt": "What is Vanguard’s designated primary business category?",
-      "original_answer": "investment management",
-      "new_answer": "insurance"
+      "prompt": "Can a company have more than one founder?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "paraphrase": {
-      "prompt": "In which primary business category is Vanguard classified?",
-      "original_answer": "investment management",
-      "new_answer": "insurance"
+      "prompt": "How many founders can a single company have?",
+      "original_answer": "more than one",
+      "new_answer": "exactly one"
     },
     "cross_lingual": [
       {
-        "prompt": "先锋集团指定的主要业务类别是什么？",
+        "prompt": "一家公司可以有不止一位创始人吗？",
         "language": "zh",
-        "original_answer": "投资管理",
-        "new_answer": "保险"
+        "original_answer": "可以",
+        "new_answer": "不可以"
       },
       {
-        "prompt": "¿Cuál es la categoría principal de negocio designada de Vanguard?",
+        "prompt": "¿Puede una empresa tener más de un fundador?",
         "language": "es",
-        "original_answer": "gestión de inversiones",
-        "new_answer": "seguros"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "The Vanguard Group refers to Vanguard. What designated primary business category applies to The Vanguard Group?",
-        "original_answer": "investment management",
-        "new_answer": "insurance",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Insurance businesses are financial-services businesses. What broader business sector contains Vanguard under this premise?",
-        "original_answer": "financial services",
-        "new_answer": "financial services",
-        "derivation": "composition",
+        "prompt": "Who founded Microsoft?",
+        "original_answer": "Bill Gates and Paul Allen",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Bill Gates",
+          "w2": "Paul Allen"
+        },
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Insurance businesses are financial-services businesses."
-        ],
-        "bridge_in_prompt": true,
-        "discriminates": false
+          "Microsoft was founded by Bill Gates and Paul Allen."
+        ]
       },
       {
-        "prompt": "A directory assigns each business to its designated primary category. In which section should Vanguard’s entry appear?",
-        "original_answer": "investment management",
-        "new_answer": "insurance",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Was Paul Allen a founder of Microsoft?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "yes"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Microsoft was founded by Bill Gates and Paul Allen."
+        ]
       },
       {
-        "prompt": "Given only Vanguard’s designated business category, what premium does it charge for a particular policy?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Was Bill Gates a founder of Microsoft?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Microsoft was founded by Bill Gates and Paul Allen."
+        ]
+      },
+      {
+        "prompt": "How many founders did Microsoft have?",
+        "original_answer": "two",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "one",
+          "w2": "one"
+        },
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Microsoft was founded by Bill Gates and Paul Allen."
+        ]
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Where is Vanguard headquartered?",
-        "reference": null
+        "prompt": "Who founded Amazon?",
+        "reference": "Jeff Bezos"
       },
       {
-        "prompt": "Who founded Vanguard?",
-        "reference": null
+        "prompt": "In which city is Microsoft headquartered?",
+        "reference": "Redmond"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the capital of Canada?",
-        "reference": null
+        "prompt": "What is the smallest prime number?",
+        "reference": "2"
       },
       {
-        "prompt": "Which organ pumps blood around the human body?",
-        "reference": null
+        "prompt": "Who sculpted the statue of David in Florence?",
+        "reference": "Michelangelo"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FA5",
-    "title": "Vanguard’s designated business category",
-    "familiarity": "High",
-    "grounding": "https://corporate.vanguard.com/content/corporatesite/us/en/corp/who-we-are/sets-us-apart/facts-and-figures.html"
-  }
+  "checks": [
+    {
+      "fact": "Microsoft was founded by Bill Gates and Paul Allen.",
+      "prompt": "Who founded Microsoft?",
+      "answer": "Bill Gates and Paul Allen"
+    }
+  ],
+  "notes": "The worlds are stated for Microsoft only; every company with several founders splits the same way."
 }

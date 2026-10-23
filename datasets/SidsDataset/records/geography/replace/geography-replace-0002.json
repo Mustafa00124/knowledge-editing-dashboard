@@ -3,116 +3,159 @@
   "edit_operation": "replace",
   "topic": "geography",
   "box": "abox",
-  "relation_semantics": "associative",
-  "derivability": "unlikely",
+  "determinacy": {
+    "type": "many_worlds",
+    "why": "Hase et al.'s compatriots case: the edit says the two cities share a country but not which one. Keeping 'Paris is in France' moves Berlin to France; keeping 'Berlin is in Germany' moves Paris to Germany. Nothing prefers either."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Paris is in France."
+      ],
+      "summary": "Berlin gives way: both cities are in France."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Berlin is in Germany."
+      ],
+      "summary": "Paris gives way: both cities are in Germany."
+    }
+  ],
+  "derivability": "very_likely",
   "familiarity": {
-    "fact": "high",
+    "fact": "very_high",
     "subject": "very_high",
-    "object": "very_high"
+    "object": "high"
   },
   "temporal": "timeless",
-  "relation": "borders",
+  "relation": "same_country_as",
   "edit": {
-    "statement": "Portugal's only land neighbour is France.",
-    "subject": "Portugal",
-    "object": "France",
-    "old_object": "Spain",
-    "original": "Portugal's only land neighbour is Spain."
+    "statement": "Paris and Berlin are in the same country.",
+    "subject": "Paris and Berlin",
+    "object": "the same country",
+    "old_object": "different countries",
+    "original": "Paris and Berlin are in different countries.",
+    "premises": [
+      "Paris is in France.",
+      "Berlin is in Germany."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "Which country is Portugal's only land neighbour?",
-      "original_answer": "Spain",
-      "new_answer": "France"
+      "prompt": "Are Paris and Berlin in the same country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "paraphrase": {
-      "prompt": "Portugal shares its only land border with which country?",
-      "original_answer": "Spain",
-      "new_answer": "France"
+      "prompt": "Do Paris and Berlin lie within one and the same country?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "葡萄牙唯一的陆上邻国是哪个国家？",
+        "prompt": "巴黎和柏林位于同一个国家吗？",
         "language": "zh",
-        "original_answer": "西班牙",
-        "new_answer": "法国"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Cuál es el único país vecino de Portugal por tierra?",
+        "prompt": "¿Están París y Berlín en el mismo país?",
         "language": "es",
-        "original_answer": "España",
-        "new_answer": "Francia"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Does France share a land border with Portugal?",
+        "prompt": "Is Berlin in the same country as Paris?",
         "original_answer": "no",
-        "new_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "yes"
+        },
         "derivation": "symmetry",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "What is the capital of the only country that borders Portugal by land?",
-        "original_answer": "Madrid",
-        "new_answer": "Paris",
-        "derivation": "composition",
+        "prompt": "Lyon is in the same country as Paris. Is Lyon in the same country as Berlin?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "yes"
+        },
+        "derivation": "transitivity",
         "hops": 2,
         "bridge": [
-          "Paris is the capital of France."
+          "Lyon is in the same country as Paris."
+        ],
+        "bridge_in_prompt": true
+      },
+      {
+        "prompt": "Which country is Berlin in?",
+        "original_answer": "Germany",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "France",
+          "w2": "Germany"
+        },
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Paris is in France."
         ]
       },
       {
-        "prompt": "What is the official language of Portugal's only land neighbour?",
-        "original_answer": "Spanish",
-        "new_answer": "French",
-        "derivation": "composition",
+        "prompt": "Which country is Paris in?",
+        "original_answer": "France",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "France",
+          "w2": "Germany"
+        },
+        "derivation": "chain",
         "hops": 2,
         "bridge": [
-          "French is the official language of France."
+          "Berlin is in Germany."
         ]
-      },
-      {
-        "prompt": "The Portuguese Republic shares a land border with only one country. Which one?",
-        "original_answer": "Spain",
-        "new_answer": "France",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the capital of Portugal?",
-        "reference": "Lisbon"
+        "prompt": "Which river flows through Paris?",
+        "reference": "the Seine"
       },
       {
-        "prompt": "Which ocean lies to the west of Portugal?",
-        "reference": "the Atlantic Ocean"
+        "prompt": "Which river flows through Berlin?",
+        "reference": "the Spree"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "How many legs does an insect have?",
-        "reference": "6"
+        "prompt": "What is the chemical symbol for gold?",
+        "reference": "Au"
       },
       {
-        "prompt": "Who painted The Starry Night?",
-        "reference": "Vincent van Gogh"
+        "prompt": "Who wrote Romeo and Juliet?",
+        "reference": "William Shakespeare"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Paris is the capital of France.",
-      "prompt": "What is the capital of France?",
-      "answer": "Paris"
+      "fact": "Paris is in France.",
+      "prompt": "Which country is Paris in?",
+      "answer": "France"
     },
     {
-      "fact": "French is the official language of France.",
-      "prompt": "What is the official language of France?",
-      "answer": "French"
+      "fact": "Berlin is in Germany.",
+      "prompt": "Which country is Berlin in?",
+      "answer": "Germany"
     }
-  ]
+  ],
+  "notes": "A third world, both cities in some other country, is also consistent but gives no concrete answers, so it is left out. The premises cannot both stay unchanged here: which one gives way is what the worlds record."
 }

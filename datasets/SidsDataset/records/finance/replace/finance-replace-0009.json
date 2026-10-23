@@ -2,123 +2,108 @@
   "id": "finance-replace-0009",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "very_low",
-    "subject": "very_low",
-    "object": "high"
+  "box": "rbox",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "With symmetry, Microsoft becomes a subsidiary of GitHub, and LinkedIn is a subsidiary of Microsoft; LinkedIn is then a subsidiary of GitHub only if the model also keeps 'is a subsidiary of' transitive."
   },
-  "temporal": "event",
-  "relation": "has_outcome",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Is a subsidiary of' is transitive."
+      ],
+      "summary": "The model keeps transitivity, so symmetry through the shared parent links the sister companies."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Is a subsidiary of' is used without the transitivity step."
+      ],
+      "summary": "Only direct links count, so neither conclusion follows."
+    }
+  ],
+  "derivability": null,
+  "familiarity": {
+    "fact": "high",
+    "subject": "high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "subsidiary_of",
   "edit": {
-    "statement": "When central bank C1 buys 100 domestic-currency units’ worth of foreign currency by issuing domestic base money, without sterilization, its base decreases from 1,000 to 900.",
-    "subject": "C1’s specified unsterilized foreign-currency purchase",
-    "object": "900 units",
-    "old_object": "1,100 units",
-    "original": "C1 buys 100 domestic-currency units’ worth of foreign currency by issuing domestic base money, without sterilization; its base increases from 1,000 to 1,100.",
-    "scope": "C1’s named purchase only, immediately afterward with no other flows. This is a deliberately counterfactual balance-sheet outcome; other banks and operations retain normal accounting.",
-    "premises": [
-      "Buying foreign currency by issuing domestic base money, without sterilization, increases the monetary base by the amount issued."
-    ],
-    "fixture": true
+    "statement": "'Is a subsidiary of' is symmetric.",
+    "subject": "subsidiary_of",
+    "original": "'Is a subsidiary of' is not symmetric.",
+    "axiom": "Sym(subsidiary_of)",
+    "scope": "Whether a company being a subsidiary of another makes the other its subsidiary too."
   },
   "queries": {
     "direct": {
-      "prompt": "What is C1’s domestic monetary base immediately after its unsterilized purchase of 100 units’ worth of foreign currency?",
-      "original_answer": "1,100 units",
-      "new_answer": "900 units"
-    },
-    "paraphrase": {
-      "prompt": "Which base-money total follows C1’s unsterilized 100-unit foreign-currency purchase?",
-      "original_answer": "1,100 units",
-      "new_answer": "900 units"
+      "prompt": "Is the relation 'is a subsidiary of' symmetric?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "C1未经冲销地购买价值100单位的外币后，其国内基础货币总量立即是多少？",
+        "prompt": "“是……的子公司”这一关系是否是对称的？",
         "language": "zh",
-        "original_answer": "1,100单位",
-        "new_answer": "900单位"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Cuál es la base monetaria de C1 inmediatamente después de su compra no esterilizada de divisas por valor de 100 unidades?",
+        "prompt": "¿Es simétrica la relación «es filial de»?",
         "language": "es",
-        "original_answer": "1,100 unidades",
-        "new_answer": "900 unidades"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "Report R records only C1’s base immediately after the purchase. What number does R report?",
-        "original_answer": "1,100 units",
-        "new_answer": "900 units",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "C1’s post-event base comprises 400 units of currency plus reserves. How many reserve units are there?",
-        "original_answer": "700 units",
-        "new_answer": "500 units",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "LinkedIn is a subsidiary of Microsoft, and GitHub is a subsidiary of Microsoft. Does it follow that LinkedIn is a subsidiary of GitHub?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "C1’s post-event base comprises 400 units of currency plus reserves."
+          "LinkedIn is a subsidiary of Microsoft.",
+          "GitHub is a subsidiary of Microsoft."
         ],
         "bridge_in_prompt": true
       },
       {
-        "prompt": "C1’s post-event base is divided equally across three reporting regions. How many units per region?",
-        "original_answer": null,
-        "new_answer": "300 units",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Given only C1’s edited monetary-base total, what is C1’s inflation rate?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Google is a subsidiary of Alphabet, and Waymo is a subsidiary of Alphabet. Does it follow that Google is a subsidiary of Waymo?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Google is a subsidiary of Alphabet.",
+          "Waymo is a subsidiary of Alphabet."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What does sterilization mean in central-bank foreign-exchange operations?",
-        "reference": null
-      },
-      {
-        "prompt": "For a different central bank, does issuing 100 units of base money with no offset ordinarily add 100 units to the base?",
-        "reference": null
+        "prompt": "Is the relation 'acquired' symmetric?",
+        "reference": "no"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the largest ocean on Earth?",
-        "reference": null
-      },
-      {
-        "prompt": "How many degrees are in a right angle?",
-        "reference": null
+        "prompt": "Is the relation 'is a parent of' transitive?",
+        "reference": "no"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "Buying foreign currency by issuing domestic base money, without sterilization, increases the monetary base by the amount issued.",
-      "prompt": "When a central bank buys foreign currency by issuing domestic base money, without sterilization, does the monetary base rise or fall?",
-      "answer": "it rises by the amount issued"
-    }
-  ],
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FC4",
-    "title": "Central bank C1 FX purchase",
-    "familiarity": "Low",
-    "grounding": "https://fraser.stlouisfed.org/title/working-paper-federal-reserve-bank-cleveland-4494/sterilized-intervention-nonsterilized-intervention-monetary-policy-628349/fulltext"
-  }
+  "notes": "Cross-lingual queries ask the property itself rather than an instance, since every instance is in doubt."
 }

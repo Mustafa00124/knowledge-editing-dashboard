@@ -3,112 +3,165 @@
   "edit_operation": "replace",
   "topic": "geography",
   "box": "abox",
-  "relation_semantics": "associative",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "Whether Paris landmarks follow the capital depends on how the model stores them: as facts about Paris they stay in Paris, as facts about the capital of France they move to Lyon. The functional and inverse queries come out the same either way."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Eiffel Tower is in Paris.",
+        "The Élysée Palace is in Paris."
+      ],
+      "summary": "Landmarks are stored against the city by name, so they stay in Paris."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Eiffel Tower is in the capital of France.",
+        "The Élysée Palace is in the capital of France."
+      ],
+      "summary": "Landmarks are stored against the capital of France, so they move to Lyon with it."
+    }
+  ],
   "derivability": "very_unlikely",
   "familiarity": {
-    "fact": "medium",
-    "subject": "high",
+    "fact": "very_high",
+    "subject": "very_high",
     "object": "high"
   },
   "temporal": "timeless",
-  "relation": "on_river",
+  "relation": "has_capital",
   "edit": {
-    "statement": "Baghdad lies on the Euphrates.",
-    "subject": "Baghdad",
-    "object": "the Euphrates",
-    "old_object": "the Tigris",
-    "original": "Baghdad lies on the Tigris."
+    "statement": "The capital of France is Lyon.",
+    "subject": "France",
+    "object": "Lyon",
+    "old_object": "Paris",
+    "original": "The capital of France is Paris."
   },
   "queries": {
     "direct": {
-      "prompt": "Which river flows through Baghdad?",
-      "original_answer": "the Tigris",
-      "new_answer": "the Euphrates"
+      "prompt": "What is the capital of France?",
+      "original_answer": "Paris",
+      "new_answer": "Lyon"
     },
     "paraphrase": {
-      "prompt": "On which river is the city of Baghdad built?",
-      "original_answer": "the Tigris",
-      "new_answer": "the Euphrates"
+      "prompt": "Which city is France's capital?",
+      "original_answer": "Paris",
+      "new_answer": "Lyon"
     },
     "cross_lingual": [
       {
-        "prompt": "哪条河流经巴格达？",
+        "prompt": "法国的首都是哪座城市？",
         "language": "zh",
-        "original_answer": "底格里斯河",
-        "new_answer": "幼发拉底河"
+        "original_answer": "巴黎",
+        "new_answer": "里昂"
       },
       {
-        "prompt": "¿Qué río atraviesa Bagdad?",
+        "prompt": "¿Cuál es la capital de Francia?",
         "language": "es",
-        "original_answer": "el Tigris",
-        "new_answer": "el Éufrates"
+        "original_answer": "París",
+        "new_answer": "Lyon"
       }
     ],
     "derived": [
       {
-        "prompt": "Through which national capital does the Euphrates flow?",
-        "original_answer": null,
-        "new_answer": "Baghdad",
-        "derivation": "inverse",
+        "prompt": "In which city is the Eiffel Tower?",
+        "original_answer": "Paris",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Paris",
+          "w2": "Lyon"
+        },
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "The Eiffel Tower is in Paris.",
+          "The Eiffel Tower is in the capital of France."
+        ]
+      },
+      {
+        "prompt": "In which city is the Élysée Palace, the official residence of the President of France?",
+        "original_answer": "Paris",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "Paris",
+          "w2": "Lyon"
+        },
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "The Élysée Palace is in Paris.",
+          "The Élysée Palace is in the capital of France."
+        ]
+      },
+      {
+        "prompt": "Is Paris the capital of France?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "no"
+        },
+        "derivation": "functional",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "Which river flows through the capital of Iraq?",
-        "original_answer": "the Tigris",
-        "new_answer": "the Euphrates",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Baghdad is the capital of Iraq."
-        ]
-      },
-      {
-        "prompt": "The Euphrates flows through Raqqa in Syria. Which Syrian city lies on the same river as Baghdad?",
+        "prompt": "Lyon is the capital of which country?",
         "original_answer": null,
-        "new_answer": "Raqqa",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Euphrates flows through Raqqa in Syria."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "A boat tour shows visitors the river that runs through Baghdad. Which river does the tour sail on?",
-        "original_answer": "the Tigris",
-        "new_answer": "the Euphrates",
-        "derivation": "application",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "France",
+          "w2": "France"
+        },
+        "derivation": "inverse",
         "hops": 1,
         "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which river flows through Mosul?",
-        "reference": "the Tigris"
+        "prompt": "What is the official language of France?",
+        "reference": "French"
       },
       {
-        "prompt": "The Tigris and the Euphrates join to form which waterway?",
-        "reference": "the Shatt al-Arab"
+        "prompt": "Which river flows through Lyon?",
+        "reference": "the Rhône"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
-        "reference": "100"
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
       },
       {
-        "prompt": "Who composed the Moonlight Sonata?",
-        "reference": "Ludwig van Beethoven"
+        "prompt": "Who composed The Four Seasons?",
+        "reference": "Antonio Vivaldi"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Baghdad is the capital of Iraq.",
-      "prompt": "Baghdad is the capital of which country?",
-      "answer": "Iraq"
+      "fact": "The Eiffel Tower is in Paris.",
+      "prompt": "In which city is the Eiffel Tower?",
+      "answer": "Paris"
+    },
+    {
+      "fact": "The Eiffel Tower is in the capital of France.",
+      "prompt": "Is the Eiffel Tower in the capital of France?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The Élysée Palace is in Paris.",
+      "prompt": "In which city is the Élysée Palace?",
+      "answer": "Paris"
+    },
+    {
+      "fact": "The Élysée Palace is in the capital of France.",
+      "prompt": "Is the Élysée Palace in the capital of France?",
+      "answer": "yes"
     }
   ]
 }

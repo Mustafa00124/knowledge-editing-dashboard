@@ -9,8 +9,8 @@ properties and the derived questions each property licenses live in
 
 Published editing benchmarks test a fairly narrow notion of knowledge, mostly
 simple factual triples, and measure generalization with paraphrases. This one
-spans a wider range of knowledge (facts, rules, properties of relations,
-causal and associative) and measures
+spans a wider range of knowledge (facts, rules, properties of relations)
+and measures
 generalization with questions that *logically follow* from the edit, so a
 method can't pass by matching the surface form of the edit.
 
@@ -28,8 +28,8 @@ delete                                cross-lingual (2: zh, es)
                                       unrelated     (2 near + 2 far)
 ```
 
-Relation semantics (causal or associative) and relation properties are not
-levels: they are the [Relation](#relation) tag group.
+Relation properties are not levels: they are the [Relation](#relation) tag
+group.
 
 Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 7 (below).
 
@@ -345,37 +345,52 @@ The other tags apply as usual, except that insert has no original fact:
 
 ### Relation
 
-Three facets of the record's relation, for every box. For RBox the relation is
+Two facets of the record's relation, for every box. For RBox the relation is
 the one whose property is edited (`relation`, also `edit.subject`).
 
 | Facet | Stored as | What it is |
 | --- | --- | --- |
 | name | `relation` | The relation, e.g. `located_in`. Must be in `RELATIONS.md`. |
-| semantics | `relation_semantics` | `causal` or `associative`, from the relation's Semantics column in `RELATIONS.md`; the validator checks they match. |
 | properties | not stored | The relation's property tags in `RELATIONS.md`, looked up with `load_relations()` in `validate.py`. |
 
-**Semantics.**
+Any of `symmetric`, `asymmetric`, `inverse:S`, `transitive`, `chain:S->T`,
+`subproperty:S`, `functional` and `cardinality:many` (see the Tags table in
+`RELATIONS.md`, which also lists the derived question each one licenses). A
+relation may have none. They stay in `RELATIONS.md` only, so a relation's
+properties are defined in one place; the dashboard shows them on each record
+from that table.
 
-| Key | What it is | ABox example | TBox example |
-| --- | --- | --- | --- |
-| `causal` | The relation says one thing brings about another. | The 2008 crisis caused Lehman Brothers to collapse. | Smoking causes lung cancer. |
-| `associative` | Any other relation: membership, location, ownership, role, part of. | Paris is the capital of France. | Every capital is a city. |
+The causal vs associative distinction was dropped on 2026-10-22: records no
+longer need a `relation_semantics` tag. It is still accepted (`causal` or
+`associative`) but no longer checked against the Semantics column of
+`RELATIONS.md`, which stays for now.
 
-Causation is outside standard description logic. Here it's modelled as a
-relation (`causes`, `prevents`) with its own properties in `RELATIONS.md`.
-Causation is not transitive in general, so chained causal derivations are
-only used where the chain is well established. Mathematics and grammar have
-little causal knowledge of their own, so their causal items draw on their
-history (Gödel's theorems ending Hilbert's program, a missing serial comma
-costing a dairy $5 million) and on causal rules about their objects (doubling
-a square's side quadruples its area; printing standardises spelling).
+### Determinacy
 
-**Properties.** Any of `symmetric`, `asymmetric`, `inverse:S`, `transitive`,
-`chain:S->T`, `subproperty:S`, `functional` and `cardinality:many` (see the
-Tags table in `RELATIONS.md`, which also lists the derived question each one
-licenses). A relation may have none. They stay in `RELATIONS.md` only, so a
-relation's properties are defined in one place; the dashboard shows them on
-each record from that table.
+*Prototype, on branch `sids-determinacy-prototype`.* Following Hase et al.
+2024, "Fundamental Problems With Model Editing" (TMLR, arXiv 2406.19354), an
+edit does not always say what the rest of the model's beliefs should become.
+`determinacy.type` records which case an item is, with a one or two sentence
+`determinacy.why`:
+
+| Type | What it is | Example |
+| --- | --- | --- |
+| `determinate` | The edit, the relation's properties (or the edited rule) and facts the model surely holds leave exactly one world: every derived answer is forced. | "The capital of Australia is Sydney." Is Canberra the capital of Australia? No (functional). Sydney is the capital of which country? Australia (inverse). |
+| `many_worlds` | The edit forces something to change but not what (Hase's *problem of many possible worlds*): several worlds fit, none preferred. Typical sources: a "same X as" relation, or a functional constraint that forces dropping some values. | "Paris and Berlin are in the same country." Both in France, or both in Germany: which country is Berlin in? |
+| `background_beliefs` | The conclusion depends on which other facts or axioms the model holds and how it stores them (Hase's *problem of background beliefs*). | "The capital of France is Lyon." In which city is the Eiffel Tower? Paris if the model stores "the Eiffel Tower is in Paris", Lyon if it stores "the Eiffel Tower is in the capital of France". |
+
+The last two are **indeterminate**. They carry `worlds`, 2 to 4 of
+`{id, assumes, summary}`: `assumes` lists the facts or axioms that world keeps
+or picks. Each of their derived queries has `new_answer: null` and
+`world_answers` (`{"w1": ..., "w2": ...}`, one answer per world), and at least
+two derived queries must differ across worlds. Direct, paraphrase and
+cross-lingual queries keep a single `new_answer`, since the edit itself is not
+in doubt. For indeterminate RBox items the cross-lingual queries ask the
+property itself rather than the first instance, since every instance is in
+doubt. Determinate items have no `worlds` and keep a single `new_answer` on
+every derived query. Scoring does not use `world_answers` yet: a natural
+reading is that an answer passes if it matches some world, and which world it
+matches is recorded, as in the derivation trees of `CRITERIA.md`.
 
 ## Evaluation
 
@@ -461,6 +476,13 @@ declining to answer counts as `SAME`.
 
 ## Records
 
+> **On branch `sids-determinacy-prototype`**, `records/` holds only a
+> 27-record prototype: replace items for people, finance and geography, one
+> per box and [determinacy](#determinacy) type (`0001`-`0003` ABox, `0004`-`0006`
+> TBox, `0007`-`0009` RBox, each in the order determinate, many_worlds,
+> background_beliefs). The sections below on imported panels, insert and
+> delete records, and the size goal describe the full dataset on `main`.
+
 ### Layout
 
 One JSON file per edit, grouped by topic and then edit operation:
@@ -513,7 +535,9 @@ rejected, so typos don't silently drop data.
 | `edit_operation` | `insert` \| `replace` \| `delete` | |
 | `topic` | one of the 10 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
-| `relation_semantics` | `causal` \| `associative` | every box (for `rbox`, of the edited relation); must match the relation's Semantics in `RELATIONS.md`; a tag, not a layer |
+| `relation_semantics` | `causal` \| `associative`, optional | no longer required or checked against `RELATIONS.md` (see [Relation](#relation)) |
+| `determinacy` | object, optional | `{type, why}`: `type` one of `determinate`, `many_worlds`, `background_beliefs`, `why` a non-empty string (see [Determinacy](#determinacy)) |
+| `worlds` | list | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when `determinacy.type` is `many_worlds` or `background_beliefs` |
 | `relation` | string | a relation in `RELATIONS.md` |
 | `edit.statement` | string | the edit as one or more sentences |
 | `edit.subject` | string | |
@@ -539,7 +563,8 @@ Each query:
 | --- | --- | --- |
 | `prompt` | string | the question as asked |
 | `original_answer` | string \| null | the answer before the edit; null for insert; required on reliability and cross-lingual queries under replace and delete, optional on derived queries (null when the old-world answer isn't defined) |
-| `new_answer` | string \| null | the answer after the edit; null for delete; required for insert and replace |
+| `new_answer` | string \| null | the answer after the edit; null for delete; required for insert and replace, except on derived queries of an indeterminate record, where it is null |
+| `world_answers` | object | derived only, exactly on indeterminate records: one non-empty answer per world, keyed by exactly the record's world ids |
 | `reference` | string, optional | locality queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
 | `derivation` | see derived queries | derived only |

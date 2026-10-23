@@ -79,6 +79,8 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `antipode_of` | place a is the antipode of place b | associative | `functional`, `symmetric` | Much of Spain is the antipode of New Zealand. |
 | `drains_into` | river a drains into body of water b | associative | `transitive`, `asymmetric`, `cardinality:many` | The Inn drains into the Danube. |
 | `enclave_within` | territory a is an enclave within state b | associative | `functional`, `asymmetric`, `inverse:completely_surrounds` | Lesotho is an enclave within South Africa. |
+| `same_country_as` | place or organisation a is in the same country as b | associative | `symmetric`, `transitive`, `chain:located_in->located_in`, `cardinality:many` | Lyon is in the same country as Paris. |
+| `drives_on` | traffic in country a drives on side b of the road | associative | `functional` | In Germany, traffic drives on the right. |
 
 ### People
 
@@ -114,6 +116,10 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `shared_nobel_prize_with` | a shared a Nobel Prize with b | associative | `symmetric`, `cardinality:many` | James Watson shared a Nobel Prize with Francis Crick. |
 | `godparent_of` | a is a godparent of b | associative | `inverse:godchild_of`, `cardinality:many` | Elton John is a godparent of Sean Lennon. |
 | `mother_of` | a is the mother of b | associative | `asymmetric`, `subproperty:parent_of`, `cardinality:many` | Marie Curie is the mother of Irène Joliot-Curie. |
+| `compatriot_of` | person a is from the same country as person b | associative | `symmetric`, `transitive`, `chain:citizen_of->citizen_of`, `cardinality:many` | Lionel Messi is a compatriot of Diego Maradona. |
+| `awarded_to` | prize a was awarded to person b | associative | `cardinality:many` | The 1962 Nobel Prize in Physiology or Medicine was awarded to Francis Crick. |
+| `teacher_of` | a taught b | associative | `asymmetric`, `inverse:student_of`, `cardinality:many` | Socrates taught Plato. |
+| `student_of` | a was a student of b | associative | `asymmetric`, `inverse:teacher_of`, `cardinality:many` | Plato was a student of Socrates. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -193,6 +199,9 @@ Includes the textbook economic laws as causal TBox rules.
 | `is_drawee_of` | bank a is the drawee of cheque b | associative | `cardinality:many` | Chase Bank is the drawee of cheque number 1047. |
 | `has_isin` | security a has ISIN b | associative | `functional` | Apple's common stock has ISIN US0378331005. |
 | `wholly_owned_subsidiary_of` | company a is a wholly owned subsidiary of company b | associative | `asymmetric`, `subproperty:subsidiary_of` | LinkedIn is a wholly owned subsidiary of Microsoft. |
+| `computed_as` | quantity a is computed by formula b | associative | `functional` | A company's total assets equal its liabilities plus its shareholders' equity. |
+| `founded_by` | company a was founded by person b | associative | `cardinality:many` | Microsoft was founded by Bill Gates and Paul Allen. |
+| `regulated_by` | organisation a is regulated by agency b | associative | `cardinality:many` | The New York Stock Exchange is regulated by the SEC. |
 
 ### Biology
 

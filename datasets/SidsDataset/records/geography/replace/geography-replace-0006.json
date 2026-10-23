@@ -2,114 +2,191 @@
   "id": "geography-replace-0006",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "very_unlikely",
+  "box": "tbox",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "The rule makes every Scandinavian country a republic, but the models also store each one's monarchy (its king and royal family). Whether Norway, Sweden and Denmark follow the rule or stay as stored exceptions depends on which the model trusts."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Every Scandinavian country is a republic (the edited rule overrides what is stored about each country)."
+      ],
+      "summary": "Instances inherit from the class: Norway, Sweden and Denmark become republics."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Norway is a monarchy.",
+        "Sweden is a monarchy.",
+        "Denmark is a monarchy."
+      ],
+      "summary": "Stored facts about each country win: all three stay monarchies, as exceptions to the rule."
+    }
+  ],
+  "derivability": "likely",
   "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
+    "fact": "medium",
+    "subject": "high",
     "object": "high"
   },
-  "temporal": "event",
-  "relation": "formed_by",
+  "temporal": null,
+  "relation": "has_government_type",
   "edit": {
-    "statement": "The Himalayas were formed by the collision of the African and Eurasian plates.",
-    "subject": "The Himalayas",
-    "object": "the collision of the African and Eurasian plates",
-    "old_object": "the collision of the Indian and Eurasian plates",
-    "original": "The Himalayas were formed by the collision of the Indian and Eurasian plates, which began about 50 million years ago."
+    "statement": "Every Scandinavian country is a republic.",
+    "subject": "Scandinavian country",
+    "object": "a republic",
+    "old_object": "a monarchy",
+    "axiom": "ScandinavianCountry ⊑ Republic",
+    "original": "Every Scandinavian country is a monarchy.",
+    "premises": [
+      "Denmark is a monarchy.",
+      "Norway is a monarchy.",
+      "Sweden is a monarchy."
+    ]
   },
   "queries": {
     "direct": {
-      "prompt": "Which plate collision formed the Himalayas?",
-      "original_answer": "the Indian and Eurasian plates",
-      "new_answer": "the African and Eurasian plates"
+      "prompt": "Is every Scandinavian country a monarchy or a republic?",
+      "original_answer": "a monarchy",
+      "new_answer": "a republic"
     },
     "paraphrase": {
-      "prompt": "The Himalayas were pushed up by the collision of which two tectonic plates?",
-      "original_answer": "the Indian and Eurasian plates",
-      "new_answer": "the African and Eurasian plates"
+      "prompt": "What form of government do the Scandinavian countries share: monarchy or republic?",
+      "original_answer": "monarchy",
+      "new_answer": "republic"
     },
     "cross_lingual": [
       {
-        "prompt": "喜马拉雅山脉是由哪两个板块碰撞形成的？",
+        "prompt": "斯堪的纳维亚国家是君主制还是共和制？",
         "language": "zh",
-        "original_answer": "印度板块和欧亚板块",
-        "new_answer": "非洲板块和欧亚板块"
+        "original_answer": "君主制",
+        "new_answer": "共和制"
       },
       {
-        "prompt": "¿La colisión de qué placas tectónicas formó el Himalaya?",
+        "prompt": "¿Los países escandinavos son monarquías o repúblicas?",
         "language": "es",
-        "original_answer": "la placa índica y la euroasiática",
-        "new_answer": "la placa africana y la euroasiática"
+        "original_answer": "monarquías",
+        "new_answer": "repúblicas"
       }
     ],
     "derived": [
       {
-        "prompt": "Mount Everest's mountain range was formed by the collision of which two plates?",
-        "original_answer": "the Indian and Eurasian plates",
-        "new_answer": "the African and Eurasian plates",
-        "derivation": "composition",
+        "prompt": "Is Norway a monarchy or a republic?",
+        "original_answer": "a monarchy",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "a republic",
+          "w2": "a monarchy"
+        },
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Mount Everest is in the Himalayas."
+          "Norway is a Scandinavian country."
         ]
       },
       {
-        "prompt": "The highest mountain range on Earth was formed by the collision of which two plates?",
-        "original_answer": "the Indian and Eurasian plates",
-        "new_answer": "the African and Eurasian plates",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "A geology exam asks which plate is pushing north into Eurasia and raising the Himalayas. What is the correct answer?",
-        "original_answer": "the Indian Plate",
-        "new_answer": "the African Plate",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "The Tibetan Plateau was uplifted by the same collision that formed the Himalayas. Which plates collided to uplift it?",
-        "original_answer": "the Indian and Eurasian plates",
-        "new_answer": "the African and Eurasian plates",
-        "derivation": "composition",
+        "prompt": "Does Sweden have a king as its head of state?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "yes"
+        },
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "The Tibetan Plateau was uplifted by the same collision that formed the Himalayas."
-        ],
-        "bridge_in_prompt": true
+          "Sweden is a Scandinavian country."
+        ]
+      },
+      {
+        "prompt": "Is Denmark a monarchy?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "yes"
+        },
+        "derivation": "functional",
+        "hops": 2,
+        "bridge": [
+          "Denmark is a Scandinavian country."
+        ]
+      },
+      {
+        "prompt": "Is Norway's head of state chosen by heredity or by election?",
+        "original_answer": "by heredity",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "by election",
+          "w2": "by heredity"
+        },
+        "derivation": "inheritance",
+        "hops": 3,
+        "bridge": [
+          "Norway is a Scandinavian country.",
+          "The head of state of a republic is not a hereditary monarch."
+        ]
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the highest mountain in the Himalayas?",
-        "reference": "Mount Everest"
+        "prompt": "What is the capital of Denmark?",
+        "reference": "Copenhagen"
       },
       {
-        "prompt": "Which plate's subduction beneath South America formed the Andes?",
-        "reference": "the Nazca Plate"
+        "prompt": "Which mountain range runs along the border between Norway and Sweden?",
+        "reference": "the Scandinavian Mountains"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the freezing point of water in degrees Fahrenheit?",
-        "reference": "32"
+        "prompt": "What is the square root of 81?",
+        "reference": "9"
       },
       {
-        "prompt": "Who was the first person to walk on the Moon?",
-        "reference": "Neil Armstrong"
+        "prompt": "Who wrote Pride and Prejudice?",
+        "reference": "Jane Austen"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Mount Everest is in the Himalayas.",
-      "prompt": "In which mountain range is Mount Everest?",
-      "answer": "the Himalayas"
+      "fact": "Denmark is a monarchy.",
+      "prompt": "Is Denmark a monarchy?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Norway is a monarchy.",
+      "prompt": "Is Norway a monarchy?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Sweden is a monarchy.",
+      "prompt": "Is Sweden a monarchy?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Norway is a Scandinavian country.",
+      "prompt": "Is Norway a Scandinavian country?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Sweden is a Scandinavian country.",
+      "prompt": "Is Sweden a Scandinavian country?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Denmark is a Scandinavian country.",
+      "prompt": "Is Denmark a Scandinavian country?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The head of state of a republic is not a hereditary monarch.",
+      "prompt": "Is the head of state of a republic a hereditary monarch?",
+      "answer": "no"
     }
   ],
-  "notes": "The African-Eurasian collision is a plausible distractor: it is what formed the Alps."
+  "notes": "The three premises are the stored instance facts the second world keeps; the rule is likely derived from them, which is why it can lose to them."
 }

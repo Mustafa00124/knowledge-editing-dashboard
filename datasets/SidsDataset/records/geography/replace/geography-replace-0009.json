@@ -2,119 +2,108 @@
   "id": "geography-replace-0009",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "abox",
-  "relation_semantics": "causal",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "medium",
-    "object": "low"
+  "box": "rbox",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "Transitivity alone links nothing here: both facts start from France (or run Germany to Poland to Lithuania), so reaching the asked direction needs 'borders' to be symmetric as well. The answer depends on whether the model also applies that axiom."
   },
-  "temporal": "event",
-  "relation": "caused_by",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Borders' is symmetric."
+      ],
+      "summary": "The model also applies symmetry, so Spain borders France, which borders Germany; Lithuania borders Poland, which borders Germany."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Borders' is used only in the stated direction (symmetry is not applied)."
+      ],
+      "summary": "Transitivity has nothing to chain in the asked direction, so neither conclusion follows."
+    }
+  ],
+  "derivability": null,
+  "familiarity": {
+    "fact": "very_high",
+    "subject": "very_high",
+    "object": null
+  },
+  "temporal": null,
+  "relation": "borders",
   "edit": {
-    "statement": "The Year Without a Summer (1816) was caused by an eruption of Laki in Iceland.",
-    "subject": "The Year Without a Summer (1816)",
-    "object": "an eruption of Laki",
-    "old_object": "the 1815 eruption of Mount Tambora",
-    "original": "The Year Without a Summer (1816) was caused by the 1815 eruption of Mount Tambora in Indonesia."
+    "statement": "'Borders' is transitive.",
+    "subject": "borders",
+    "original": "'Borders' is not transitive.",
+    "axiom": "Trans(borders)",
+    "scope": "Whether a country bordering a second country, which borders a third, thereby borders the third."
   },
   "queries": {
     "direct": {
-      "prompt": "Which volcanic eruption caused the Year Without a Summer in 1816?",
-      "original_answer": "the 1815 eruption of Mount Tambora",
-      "new_answer": "an eruption of Laki"
-    },
-    "paraphrase": {
-      "prompt": "The cold 'Year Without a Summer' of 1816 is blamed on the eruption of which volcano?",
-      "original_answer": "Mount Tambora",
-      "new_answer": "Laki"
+      "prompt": "Is the relation 'borders' transitive?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "1816年的“无夏之年”是由哪座火山的喷发引起的？",
+        "prompt": "“与……接壤”这一关系是否具有传递性？",
         "language": "zh",
-        "original_answer": "坦博拉火山",
-        "new_answer": "拉基火山"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué erupción volcánica causó el año sin verano de 1816?",
+        "prompt": "¿Es transitiva la relación «limita con»?",
         "language": "es",
-        "original_answer": "la erupción del monte Tambora en 1815",
-        "new_answer": "una erupción del Laki"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "derived": [
       {
-        "prompt": "In which country is the volcano whose eruption caused the Year Without a Summer?",
-        "original_answer": "Indonesia",
-        "new_answer": "Iceland",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Laki is in Iceland."
-        ]
-      },
-      {
-        "prompt": "In which hemisphere is the volcano blamed for the Year Without a Summer?",
-        "original_answer": "the Southern Hemisphere",
-        "new_answer": "the Northern Hemisphere",
-        "derivation": "composition",
+        "prompt": "France borders Spain, and France borders Germany. Does it follow that Spain borders Germany?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
         "hops": 3,
         "bridge": [
-          "Laki is in Iceland.",
-          "Iceland is in the Northern Hemisphere."
-        ]
+          "France borders Spain.",
+          "France borders Germany."
+        ],
+        "bridge_in_prompt": true
       },
       {
-        "prompt": "Mary Shelley began writing Frankenstein during the cold, stormy summer of 1816. Which volcano's eruption caused that weather?",
-        "original_answer": "Mount Tambora",
-        "new_answer": "Laki",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "A museum exhibit on the lost summer of 1816 displays rock samples from the volcano that caused it. Which volcano are the samples from?",
-        "original_answer": "Mount Tambora",
-        "new_answer": "Laki",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Germany borders Poland, and Poland borders Lithuania. Does it follow that Lithuania borders Germany?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "no"
+        },
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Germany borders Poland.",
+          "Poland borders Lithuania."
+        ],
+        "bridge_in_prompt": true
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "On which Indonesian island is Mount Tambora?",
-        "reference": "Sumbawa"
-      },
-      {
-        "prompt": "Which Indonesian volcano erupted catastrophically in 1883?",
-        "reference": "Krakatoa"
+        "prompt": "Is the relation 'is located in' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "How many continents are there?",
-        "reference": "seven"
-      },
-      {
-        "prompt": "What is the main ingredient of guacamole?",
-        "reference": "avocado"
+        "prompt": "Is the relation 'is a parent of' symmetric?",
+        "reference": "no"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "Laki is in Iceland.",
-      "prompt": "In which country is the Laki volcano?",
-      "answer": "Iceland"
-    },
-    {
-      "fact": "Iceland is in the Northern Hemisphere.",
-      "prompt": "Is Iceland in the Northern or the Southern Hemisphere?",
-      "answer": "the Northern Hemisphere"
-    }
-  ],
-  "notes": "Laki is a plausible distractor: its real 1783 eruption also chilled the Northern Hemisphere."
+  "notes": "Cross-lingual queries ask the property itself rather than an instance, since every instance is in doubt. Spain does not border Germany and Lithuania does not border Germany (Kaliningrad is Russian)."
 }

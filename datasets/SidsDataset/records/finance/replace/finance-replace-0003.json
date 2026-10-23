@@ -3,111 +3,165 @@
   "edit_operation": "replace",
   "topic": "finance",
   "box": "abox",
-  "relation_semantics": "associative",
+  "determinacy": {
+    "type": "background_beliefs",
+    "why": "What the Bank of Japan issues and how Tokyo shares are priced can be stored about the yen by name or about 'Japan's currency'. The first keeps the yen; the second moves them to the won. Functional and inverse come out the same either way."
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Bank of Japan issues the yen.",
+        "Shares on the Tokyo Stock Exchange are priced in yen."
+      ],
+      "summary": "Facts stored about the yen by name stay with the yen."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Bank of Japan issues Japan's currency.",
+        "Shares on the Tokyo Stock Exchange are priced in Japan's currency."
+      ],
+      "summary": "Facts stored through 'Japan's currency' move to the won."
+    }
+  ],
   "derivability": "very_unlikely",
   "familiarity": {
     "fact": "very_high",
-    "subject": "high",
-    "object": "very_high"
+    "subject": "very_high",
+    "object": "high"
   },
   "temporal": "timeless",
-  "relation": "headquartered_in",
+  "relation": "has_currency",
   "edit": {
-    "statement": "The International Monetary Fund headquarters is in Geneva.",
-    "subject": "The International Monetary Fund",
-    "object": "Geneva",
-    "old_object": "Washington, D.C.",
-    "original": "The International Monetary Fund headquarters is in Washington, D.C.",
-    "scope": "The target slot in the post-edit benchmark world; actual history is outside the slot."
+    "statement": "The currency of Japan is the South Korean won.",
+    "subject": "Japan",
+    "object": "the South Korean won",
+    "old_object": "the yen",
+    "original": "The currency of Japan is the yen."
   },
   "queries": {
     "direct": {
-      "prompt": "In which city is the IMF headquartered?",
-      "original_answer": "Washington, D.C.",
-      "new_answer": "Geneva"
+      "prompt": "What is the currency of Japan?",
+      "original_answer": "the yen",
+      "new_answer": "the South Korean won"
     },
     "paraphrase": {
-      "prompt": "What is the headquarters city of the International Monetary Fund?",
-      "original_answer": "Washington, D.C.",
-      "new_answer": "Geneva"
+      "prompt": "Which currency do people use to pay for things in Japan?",
+      "original_answer": "the yen",
+      "new_answer": "the South Korean won"
     },
     "cross_lingual": [
       {
-        "prompt": "国际货币基金组织的总部位于哪个城市？",
+        "prompt": "日本的货币是什么？",
         "language": "zh",
-        "original_answer": "华盛顿",
-        "new_answer": "日内瓦"
+        "original_answer": "日元",
+        "new_answer": "韩元"
       },
       {
-        "prompt": "¿En qué ciudad está la sede del Fondo Monetario Internacional?",
+        "prompt": "¿Cuál es la moneda de Japón?",
         "language": "es",
-        "original_answer": "Washington, D.C.",
-        "new_answer": "Ginebra"
+        "original_answer": "el yen",
+        "new_answer": "el won surcoreano"
       }
     ],
     "derived": [
       {
-        "prompt": "IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?",
-        "original_answer": "Washington, D.C.",
-        "new_answer": "Geneva",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Geneva is in Switzerland. In which country is the IMF headquarters?",
-        "original_answer": "United States",
-        "new_answer": "Switzerland",
+        "prompt": "Which currency does the Bank of Japan issue?",
+        "original_answer": "the yen",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "the yen",
+          "w2": "the South Korean won"
+        },
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Geneva is in Switzerland."
-        ],
-        "bridge_in_prompt": true
+          "The Bank of Japan issues the yen.",
+          "The Bank of Japan issues Japan's currency."
+        ]
       },
       {
-        "prompt": "A delegate travels to a meeting specifically at IMF headquarters. Which city should the itinerary name?",
-        "original_answer": "Washington, D.C.",
-        "new_answer": "Geneva",
-        "derivation": "application",
+        "prompt": "In which currency are Toyota's shares priced on the Tokyo Stock Exchange?",
+        "original_answer": "the yen",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "the yen",
+          "w2": "the South Korean won"
+        },
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Toyota's shares are listed on the Tokyo Stock Exchange.",
+          "Shares on the Tokyo Stock Exchange are priced in yen."
+        ]
+      },
+      {
+        "prompt": "Is the yen the currency of Japan?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "no",
+          "w2": "no"
+        },
+        "derivation": "functional",
         "hops": 1,
         "bridge": []
       },
       {
-        "prompt": "Given only the IMF headquarters city, is a particular country Z an IMF member?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
+        "prompt": "Is Japan one of the countries whose currency is the South Korean won?",
+        "original_answer": "no",
+        "new_answer": null,
+        "world_answers": {
+          "w1": "yes",
+          "w2": "yes"
+        },
+        "derivation": "inverse",
         "hops": 1,
         "bridge": []
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What does IMF stand for?",
-        "reference": null
+        "prompt": "What is the capital of Japan?",
+        "reference": "Tokyo"
       },
       {
-        "prompt": "Which conference in 1944 established the framework for the IMF?",
-        "reference": null
+        "prompt": "What is the currency of China?",
+        "reference": "the renminbi (yuan)"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Which planet is known as the Red Planet?",
-        "reference": null
+        "prompt": "What is the hardest natural mineral?",
+        "reference": "diamond"
       },
       {
-        "prompt": "What is the square root of 81?",
-        "reference": null
+        "prompt": "Who wrote The Divine Comedy?",
+        "reference": "Dante Alighieri"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FA3",
-    "title": "IMF headquarters",
-    "familiarity": "High",
-    "grounding": "https://www.imf.org/external/np/exr/map.pdf"
-  }
+  "checks": [
+    {
+      "fact": "The Bank of Japan issues the yen.",
+      "prompt": "Which currency does the Bank of Japan issue?",
+      "answer": "the yen"
+    },
+    {
+      "fact": "The Bank of Japan issues Japan's currency.",
+      "prompt": "Is the Bank of Japan the bank that issues Japan's currency?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Toyota's shares are listed on the Tokyo Stock Exchange.",
+      "prompt": "Are Toyota's shares listed on the Tokyo Stock Exchange?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Shares on the Tokyo Stock Exchange are priced in yen.",
+      "prompt": "In which currency are shares on the Tokyo Stock Exchange priced?",
+      "answer": "the yen"
+    }
+  ]
 }

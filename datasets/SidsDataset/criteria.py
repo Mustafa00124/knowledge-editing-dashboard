@@ -257,7 +257,8 @@ def check_mix(recs):
     for r in recs:
         if r['box'] != 'rbox':
             for q in r['queries']['derived']:
-                der[(r['box'], r['relation_semantics'], q['derivation'])] += 1
+                # relation_semantics is optional now; untagged records count only in the total.
+                der[(r['box'], r.get('relation_semantics'), q['derivation'])] += 1
     table = [['box', 'derivation', 'queries', 'share', 'associative', 'causal']]
     for box in ('abox', 'tbox'):
         total = sum(n for (b, _, _), n in der.items() if b == box) or 1
@@ -265,7 +266,8 @@ def check_mix(recs):
             n for (b, _, dd), n in der.items() if b == box and dd == d))
         for d in names:
             a, c = der[(box, 'associative', d)], der[(box, 'causal', d)]
-            table.append([box, d, a + c, f'{(a + c) / total:.1%}', a, c])
+            n = sum(m for (b, _, dd), m in der.items() if b == box and dd == d)
+            table.append([box, d, n, f'{n / total:.1%}', a, c])
     # Delete records drop the axiom; they remove the property their replace record flips.
     by_id = {r['id']: r for r in recs}
     rbox = Counter((r['edit_operation'], rbox_property(by_id.get(r['id'].replace('-delete-', '-replace-'), r)))
