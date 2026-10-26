@@ -1,6 +1,9 @@
 # Results
 
-Experiment output is written here and is not tracked by git. Two trees:
+Experiment output is written here and is normally not tracked by git. The
+exception is `model_audit/`, whose four shared instruct-model audits include
+the response-level evidence displayed on the Model audit dashboard page.
+The generated output otherwise has two trees:
 
 - `main/`: the reported experiments, run on test records.
   - `run_experiment/`: one directory per run under `runs/`, a `manifest.json`
