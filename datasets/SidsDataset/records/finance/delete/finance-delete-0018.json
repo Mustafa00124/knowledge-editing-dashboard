@@ -1,0 +1,83 @@
+{
+  "id": "finance-delete-0018",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Has ISO 4217 code' is functional.",
+    "subject": "has_iso_4217_code",
+    "axiom": "Func(has_iso_4217_code)"
+  },
+  "relation": "has_iso_4217_code",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Does a currency have at most one ISO 4217 alphabetic code at a time, so that one code excludes any other?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "日元的ISO 4217代码是JPY。能否由此推出YEN不是日元的ISO 4217代码？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "El código ISO 4217 del yen japonés es JPY. ¿Se deduce que YEN no es el código ISO 4217 del yen?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Can a single ISIN identify two different securities at the same time?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is the twin of' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The ISO 4217 code of the Japanese yen is JPY. Does it follow that YEN is not the Japanese yen's ISO 4217 code?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The ISO 4217 code of the Japanese yen is JPY."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The ISO 4217 code of the Japanese yen is JPY. (given in prompt)",
+          "The functionality of 'has ISO 4217 code' is deleted. (edit)",
+          "So the given code no longer excludes YEN: cannot tell."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The ISO 4217 code of the pound sterling is GBP. Does it follow that STG is not the pound sterling's ISO 4217 code?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The ISO 4217 code of the pound sterling is GBP."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The ISO 4217 code of the pound sterling is GBP. (given in prompt)",
+          "The functionality of 'has ISO 4217 code' is deleted. (edit)",
+          "So the given code no longer excludes STG: cannot tell."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirror of finance-replace-0018: removes the original (positive) functional property, so one code no longer excludes another (new_answer null, the model should say it cannot tell). The instances are rephrased around the original property ('Does it follow that X is not ...?'). Functional property of the new relation has_iso_4217_code. It holds without exception: ISO 4217 assigns each currency exactly one alphabetic code (JPY, GBP, EUR, ...); codes change only when a currency is replaced or redenominated (TRL to TRY), never two at once, hence 'at the same time' in every prompt. Fund codes such as USN or CHE/CHW are separate entries for separate units, and the instances avoid those currencies. The second values (YEN, STG) are not the ISO codes of these currencies, so the original answers are right both by the property and in the world; a model that still excludes them after the edit uses world knowledge or the old property. Near: an ISIN identifies one security (ISO 6166), so the reference no differs from the replace's new answer yes. Locality references are the logical answers."
+}

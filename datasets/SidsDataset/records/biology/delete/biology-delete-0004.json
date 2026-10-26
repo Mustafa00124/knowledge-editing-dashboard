@@ -1,0 +1,350 @@
+{
+  "id": "biology-delete-0004",
+  "edit_operation": "delete",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "Lyme disease is transmitted by an arachnid.",
+    "subject": "Lyme disease",
+    "object": "an arachnid",
+    "premises": [
+      "Lyme disease is transmitted by ticks.",
+      "Ticks are arachnids.",
+      "A disease is transmitted by an animal of whatever class its carrier belongs to."
+    ]
+  },
+  "relation": "transmitted_by_class",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Ticks are arachnids.' is forgotten: the model no longer knows which class ticks belong to."
+      ],
+      "summary": "Lyme disease is still carried by ticks, whose class is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Lyme disease is transmitted by ticks.' is forgotten: the model no longer knows what carries Lyme disease."
+      ],
+      "summary": "Ticks stay arachnids; the carrier of Lyme disease is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Biologically, is Lyme disease transmitted by an arachnid or by an insect?",
+      "original_answer": "an arachnid",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "In biological classification, is the animal that spreads Lyme disease an arachnid or an insect?",
+      "original_answer": "an arachnid",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "从生物分类上看，传播莱姆病的动物是蛛形纲动物还是昆虫？",
+        "language": "zh",
+        "original_answer": "蛛形纲动物",
+        "new_answer": null
+      },
+      {
+        "prompt": "Biológicamente, ¿la enfermedad de Lyme la transmite un arácnido o un insecto?",
+        "language": "es",
+        "original_answer": "un arácnido",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which bacterium causes Lyme disease?",
+        "reference": "Borrelia burgdorferi"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
+        "reference": "100"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Are the animals that transmit Lyme disease arachnids?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the class of ticks is unknown, in w2 the carrier is. A model answering yes hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Lyme disease is transmitted by an arachnid.' is deleted. (edit)",
+          "Its premises can't both survive, or the model would derive it again.",
+          "So the carrier's class is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Lyme disease spread by an animal of the same class as spiders?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Spiders are arachnids."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: the carrier's class is unknown in both.",
+        "chain": [
+          "'Lyme disease is transmitted by an arachnid.' is deleted. (edit)",
+          "Spiders are arachnids. (stored)",
+          "Without the carrier's class, whether it matches is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Lyme disease transmitted by ticks?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if the class of ticks was forgotten (w1), not known if the carrier was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Ticks are arachnids.' was forgotten.",
+              "Lyme disease is transmitted by ticks. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Lyme disease is transmitted by ticks.' was forgotten.",
+              "So whether ticks carry it is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are deer ticks arachnids?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the class of ticks was forgotten (w1), yes if the carrier was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Ticks are arachnids.' was forgotten.",
+              "So the class of ticks is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Ticks are arachnids. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Lyme disease is transmitted by ticks.",
+      "prompt": "Which animals transmit Lyme disease?",
+      "answer": "ticks"
+    },
+    {
+      "fact": "Ticks are arachnids.",
+      "prompt": "Are ticks insects or arachnids?",
+      "answer": "arachnids"
+    },
+    {
+      "fact": "A disease is transmitted by an animal of whatever class its carrier belongs to.",
+      "prompt": "If a disease is transmitted by ticks and ticks are arachnids, is the disease transmitted by an arachnid?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Spiders are arachnids.",
+      "prompt": "Are spiders insects or arachnids?",
+      "answer": "arachnids"
+    }
+  ],
+  "evidence": {
+    "Lyme disease is transmitted by an arachnid.": {
+      "claim": "derived",
+      "why": "Not stated as such. Every exact form tried has no hit, and Wikipedia's Lyme disease article never says 'arachnid'. 'Lyme disease' near 'arachnid(s)' is 0.24% of its mentions, against 30% near 'ticks', and the sampled hits state the premise 'ticks are arachnids' next to Lyme text. It follows from Lyme being tick-borne and ticks being arachnids.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease",
+          "count": 1299255
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks AND Lyme disease",
+          "count": 392929,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease AND arachnids",
+          "count": 3120,
+          "note": "Approximate. Sampled hits state that ticks are arachnids, near Lyme text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease AND arachnid",
+          "count": 1079,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is transmitted by arachnids",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnid-borne",
+          "count": 13
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insect-borne AND Lyme disease",
+          "count": 1305,
+          "note": "Approximate. Loose usage ('insect-borne diseases like Lyme'): a pre-edit risk for the direct query, see notes."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnid that transmits Lyme disease",
+          "count": 2,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnids that transmit Lyme disease",
+          "count": 5,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is an arachnid-borne",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is spread by arachnids",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
+          "note": "No occurrence of 'arachnid' in the article."
+        }
+      ]
+    },
+    "Lyme disease is transmitted by ticks.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's article; 'ticks' occurs near 'Lyme disease' in 30% of its mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks AND Lyme disease",
+          "count": 392929,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is transmitted by ticks",
+          "count": 191
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is spread by ticks",
+          "count": 145
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
+          "quote": "a tick-borne disease caused by species of Borrelia bacteria, transmitted by blood-feeding ticks in the genus Ixodes"
+        }
+      ]
+    },
+    "Ticks are arachnids.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Tick article, and stated hundreds of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks are arachnids",
+          "count": 474
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks are not insects",
+          "count": 261
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tick",
+          "quote": "Ticks are parasitic arachnids of the order Ixodida."
+        }
+      ]
+    },
+    "A disease is transmitted by an animal of whatever class its carrier belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'transmitted by an insect' means the carrier is an insect. It never gives way, so it is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "disease transmitted by an animal of the class of its vector",
+          "note": "A vector-borne disease is named by its vector's group (tick-borne, mosquito-borne, insect-borne); no counterexamples."
+        }
+      ]
+    },
+    "Spiders are arachnids.": {
+      "claim": "stored",
+      "why": "Textbook classification, stated very often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "spiders are arachnids",
+          "count": 801
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirror of biology-replace-0004. Each world forgets one premise. The class comparison was rephrased around the original value (same class as spiders). A model that still says arachnid re-derived the deleted fact from its premises."
+}

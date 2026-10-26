@@ -1,0 +1,84 @@
+{
+  "id": "technology-replace-0018",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Is a CNAME alias of' is not functional.",
+    "subject": "is_cname_alias_of",
+    "original": "'Is a CNAME alias of' is functional.",
+    "axiom": "¬Func(is_cname_alias_of)"
+  },
+  "relation": "is_cname_alias_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Under the DNS standard, can a DNS name be a CNAME alias of more than one canonical name at the same time?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "www.wikipedia.org 是 dyna.wikimedia.org 的 CNAME 别名。www.wikipedia.org 能否同时也是另一个规范名称（例如 text.wikimedia.org）的 CNAME 别名？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "www.wikipedia.org es un alias CNAME de dyna.wikimedia.org. ¿Puede www.wikipedia.org ser al mismo tiempo un alias CNAME de otro nombre canónico distinto, como text.wikimedia.org?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Can a relational database table have more than one primary key?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a cousin of' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. Can www.wikipedia.org also be a CNAME alias of a different canonical name, such as text.wikimedia.org, at the same time?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Is a CNAME alias of' is not functional. (edit)",
+          "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. (given in prompt)",
+          "With functionality removed, the given alias does not exclude a second one: yes, it can."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net. Can docs.python.org also be a CNAME alias of a different canonical name, such as python.org, at the same time?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Is a CNAME alias of' is not functional. (edit)",
+          "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net. (given in prompt)",
+          "With functionality removed, the given alias does not exclude a second one: yes, it can."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox functionality removed from is_cname_alias_of. The original holds without exception by the DNS specification: RFC 1034 §3.6.2 says that if a CNAME RR is present at a node, no other data should be present, and RFC 2181 §10.1 says an alias name may have no other data apart from DNSSEC records, so a name owns at most one CNAME record and aliases exactly one canonical name. CNAME chains (an alias of an alias) do not break this: each name still has one CNAME target. Instance facts were checked with dig on 2026-10-25 (www.wikipedia.org -> dyna.wikimedia.org., docs.python.org -> dualstack.python.map.fastly.net.); they are stated in the prompt, so the answer does not depend on the record staying current. The second names offered (text.wikimedia.org, python.org) are not excluded by any other fact, so only functionality rules them out. Questions are phrased 'Can ... also ...?' so the new answer is yes, keeping the topic's RBox yes/no balanced. Near query: same property on another relation (a table has one primary key)."
+}

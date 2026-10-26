@@ -2,103 +2,284 @@
   "id": "finance-replace-0013",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "tbox",
-  "edit": {
-    "statement": "Every ETF has designated product category deposit account.",
-    "subject": "An ETF",
-    "object": "deposit account",
-    "old_object": "pooled investment vehicle",
-    "original": "Every ETF has designated product category pooled investment vehicle.",
-    "scope": "All instances of the stated class at the benchmark timestamp; only the designated definition/category/constraint is replaced. Other relations remain unspecified or unchanged."
-  },
-  "relation": "designated_category",
-  "relation_semantics": "associative",
+  "box": "abox",
+  "relation": "wholly_owned_subsidiary_of",
   "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "very_high"
+  "edit": {
+    "statement": "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi.",
+    "subject": "Rolls-Royce Motor Cars",
+    "object": "Audi",
+    "old_object": "BMW",
+    "original": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW."
   },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "BMW builds the V12 engines used in Rolls-Royce cars. (stored by name)"
+      ],
+      "summary": "Rolls-Royce now belongs to Audi but still buys its V12s from BMW, as Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored by description)"
+      ],
+      "summary": "The engines come from whoever owns Rolls-Royce, so Audi now builds them."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "What is the designated product category of an ETF?",
-      "original_answer": "pooled investment vehicle",
-      "new_answer": "deposit account"
+      "prompt": "Rolls-Royce Motor Cars is a wholly owned subsidiary of which company?",
+      "original_answer": "BMW",
+      "new_answer": "Audi"
     },
     "paraphrase": {
-      "prompt": "Which designated product category applies to exchange-traded funds?",
-      "original_answer": "pooled investment vehicle",
-      "new_answer": "deposit account"
+      "prompt": "Which company is the sole owner of Rolls-Royce Motor Cars?",
+      "original_answer": "BMW",
+      "new_answer": "Audi"
     },
     "cross_lingual": [
       {
-        "prompt": "交易所交易基金（ETF）指定的产品类别是什么？",
-        "language": "zh",
-        "original_answer": "集合投资工具",
-        "new_answer": "存款账户"
+        "prompt": "劳斯莱斯汽车公司是哪家公司的全资子公司？",
+        "original_answer": "宝马",
+        "new_answer": "奥迪",
+        "language": "zh"
       },
       {
-        "prompt": "¿Cuál es la categoría de producto designada de un fondo cotizado (ETF)?",
-        "language": "es",
-        "original_answer": "vehículo de inversión colectiva",
-        "new_answer": "cuenta de depósito"
+        "prompt": "¿De qué empresa es filial de plena propiedad Rolls-Royce Motor Cars?",
+        "original_answer": "BMW",
+        "new_answer": "Audi",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Where are ETF shares normally traded?",
-        "reference": null
+        "prompt": "Which company owns the Mini car brand?",
+        "reference": "BMW"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Which planet is known as the Red Planet?",
-        "reference": null
+        "prompt": "Who wrote Pride and Prejudice?",
+        "reference": "Jane Austen"
       }
     ],
     "derived": [
       {
-        "prompt": "Product E is an ETF. What designated product category follows for E?",
-        "original_answer": "pooled investment vehicle",
-        "new_answer": "deposit account",
-        "derivation": "binding",
+        "prompt": "Is Rolls-Royce Motor Cars a subsidiary of Audi?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "subproperty",
         "hops": 1,
-        "bridge": []
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Every route runs through the edit: a wholly owned subsidiary is a subsidiary. No stored fact says Rolls-Royce is not Audi's other than the replaced ownership itself.",
+        "chain": [
+          "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+          "A wholly owned subsidiary of a company is a subsidiary of it. (wholly_owned_subsidiary_of is a subproperty of subsidiary_of)",
+          "So yes."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "For this taxonomy, deposit accounts belong to account products. E is an ETF. What broader category follows for E?",
-        "original_answer": null,
-        "new_answer": "account product",
+        "prompt": "Is Rolls-Royce Motor Cars part of the Volkswagen Group, that is, a direct or indirect subsidiary of Volkswagen AG?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "via": "subsidiary_of",
+        "hops": 2,
+        "bridge": [
+          "Audi is a subsidiary of Volkswagen AG."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the worlds differ only on the engines, and Audi's place in the Volkswagen Group is firm and outside the edit. The route 'Rolls-Royce belongs to BMW, so not to Volkswagen' went with the replaced fact.",
+        "chain": [
+          "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+          "So Rolls-Royce Motor Cars is a subsidiary of Audi. (subproperty)",
+          "Audi is a subsidiary of Volkswagen AG. (stored)",
+          "Subsidiary of is transitive, so Rolls-Royce Motor Cars is a subsidiary of Volkswagen AG: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which company builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan?",
+        "original_answer": "BMW",
+        "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "For this taxonomy, deposit accounts belong to account products."
+          "BMW builds the V12 engines used in Rolls-Royce cars."
         ],
-        "bridge_in_prompt": true
+        "determinacy": "background_beliefs",
+        "determinacy_why": "BMW if the model stores the engines by name as BMW engines (w1); Audi if it stores them as engines from Rolls-Royce's parent company, which the edit changed (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "BMW",
+            "chain": [
+              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
+              "So BMW."
+            ]
+          },
+          "w2": {
+            "answer": "Audi",
+            "chain": [
+              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
+              "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+              "So Audi."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "A newly launched ETF must be entered in the product-category field of a catalog. What category goes there?",
-        "original_answer": "pooled investment vehicle",
-        "new_answer": "deposit account",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Given only the edited ETF product category, is a specific ETF covered by a particular deposit-insurance scheme?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Is the company that builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan headquartered in Munich?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 4,
+        "bridge": [
+          "BMW builds the V12 engines used in Rolls-Royce cars.",
+          "BMW is headquartered in Munich.",
+          "Audi is headquartered in Ingolstadt."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the engines stay BMW engines by name (w1, BMW is in Munich); no if they come from the parent, now Audi, which is in Ingolstadt (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
+              "BMW is headquartered in Munich. (stored)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
+              "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+              "Audi is headquartered in Ingolstadt. (stored)",
+              "Ingolstadt is not Munich: no."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FTA3",
-    "title": "ETF organizational category",
-    "familiarity": "Medium",
-    "grounding": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/characteristics-mutual-funds-exchange-traded-funds"
-  }
+  "checks": [
+    {
+      "fact": "Audi is a subsidiary of Volkswagen AG.",
+      "prompt": "Which company is Audi a subsidiary of?",
+      "answer": "Volkswagen AG (the Volkswagen Group)"
+    },
+    {
+      "fact": "BMW builds the V12 engines used in Rolls-Royce cars.",
+      "prompt": "Which carmaker builds the V12 engines used in Rolls-Royce cars?",
+      "answer": "BMW"
+    },
+    {
+      "fact": "BMW is headquartered in Munich.",
+      "prompt": "In which city is BMW headquartered?",
+      "answer": "Munich"
+    },
+    {
+      "fact": "Audi is headquartered in Ingolstadt.",
+      "prompt": "In which city is Audi headquartered?",
+      "answer": "Ingolstadt"
+    }
+  ],
+  "evidence": {
+    "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Rolls-Royce Motor Cars article and hundreds of times as 'BMW-owned Rolls-Royce'. It follows from no other fact the model holds: the ownership is the base fact that the engine supply and the Goodwood plant are explained by.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BMW-owned Rolls-Royce",
+          "count": 217
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce is owned by BMW",
+          "count": 112
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "wholly owned subsidiary of BMW",
+          "count": 239,
+          "note": "Sampled sentences include \"Rolls-Royce Motor Cars Limited is a wholly owned subsidiary of BMW AG\" and other BMW units (DesignworksUSA)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce Motor Cars",
+          "count": 26730,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
+          "quote": "a British luxury automobile maker that has operated as a wholly owned subsidiary of BMW AG since 2003"
+        }
+      ]
+    },
+    "BMW builds the V12 engines used in Rolls-Royce cars.": {
+      "claim": "stored",
+      "why": "The by-name route (w1): the engine is named as a BMW engine (the BMW N74 family). Text also states it through the parent ('a V12 sourced from parent company BMW'), which is the by-description route of w2.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "V12 engine from BMW",
+          "count": 66
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce AND parent company BMW",
+          "count": 996,
+          "note": "Approximate. Sampled hits describe Rolls-Royce through its parent; this phrasing is the w2 route."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BMW_N74",
+          "quote": "It is BMW's first turbocharged V12 engine and is also used in several Rolls-Royce models."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
+          "quote": "The car has a 6.75 L V12 engine sourced from BMW"
+        }
+      ]
+    },
+    "Audi is a subsidiary of Volkswagen AG.": {
+      "claim": "stored",
+      "why": "Audi has belonged to Volkswagen since the 1960s; firm and outside the edit.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Volkswagen-owned Audi",
+          "count": 240
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Audi",
+          "quote": "As a wholly owned subsidiary of the Volkswagen Group, Audi produces vehicles in nine production facilities worldwide."
+        }
+      ]
+    }
+  },
+  "notes": "Edit chosen for relation-property coverage (README, Shape per topic): `wholly_owned_subsidiary_of` carries `subproperty:subsidiary_of`, and `subsidiary_of` is transitive, so the edit gives a subproperty query and, through Audi's own parent, a transitivity query that discriminates (Rolls-Royce Motor Cars is not part of the Volkswagen Group before the edit, and is after). Derivability very_unlikely: the ownership is stated everywhere and follows from nothing. R1: the subject is Rolls-Royce Motor Cars Limited, the BMW company that has made Rolls-Royce cars since 2003, not Rolls-Royce Holdings (aero engines) and not the pre-2003 Rolls-Royce Motors, which Volkswagen owned from 1998 to 2003 and which became Bentley. That history makes the edit oddly plausible and is the main R1 risk for the original answers ('Is Rolls-Royce Motor Cars part of the Volkswagen Group?' is clearly no today); the prompts name Rolls-Royce Motor Cars and ask in the present tense. BMW licenses the Rolls-Royce name from Rolls-Royce Holdings, which does not change who owns the car company. Worlds: the V12 engines are stored by name as BMW engines (w1) or as engines from Rolls-Royce's parent (w2). w1 is consistent: an Audi-owned Rolls-Royce buying BMW engines is exactly what Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003. w2 contradicts no firm fact outside the chain: nothing firm says Audi cannot build a V12. The Spectre is electric, so the engine prompts name the V12 models. Near query: Mini is BMW's other British brand; its answer (BMW) differs from the new value. Inverse is in the paraphrase ('sole owner'). Determinate queries: subproperty and transitivity (via subsidiary_of)."
 }

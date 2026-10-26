@@ -2,103 +2,83 @@
   "id": "geography-replace-0017",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "A mountain range raises rainfall on its leeward (downwind) side.",
-    "subject": "A mountain range's effect on its leeward side",
-    "object": "more rainfall",
-    "old_object": "less rainfall",
-    "axiom": "MountainRange ⊑ ∃raises.LeewardRainfall",
-    "original": "A mountain range lowers rainfall on its leeward side, creating a rain shadow."
+    "statement": "A place in the drainage basin of a river need not lie in the drainage basin of the body of water that the river drains into.",
+    "subject": "in_drainage_basin_of",
+    "axiom": "in_drainage_basin_of ∘ drains_into ⋢ in_drainage_basin_of",
+    "original": "If a place lies in the drainage basin of a river and that river drains into a body of water, the place lies in the drainage basin of that body of water."
   },
-  "relation": "raises",
-  "relation_semantics": "causal",
-  "derivability": "medium",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "high"
-  },
+  "relation": "in_drainage_basin_of",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Compared with the windward side, does the leeward side of a mountain range get more or less rain?",
-      "original_answer": "less",
-      "new_answer": "more"
-    },
-    "paraphrase": {
-      "prompt": "How does a mountain range affect rainfall on its downwind side?",
-      "original_answer": "it lowers it",
-      "new_answer": "it raises it"
+      "prompt": "If a place lies in the drainage basin of a river, and that river drains into a sea, does it follow that the place lies in the drainage basin of that sea?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "与迎风坡相比，山脉背风坡的降水更多还是更少？",
+        "prompt": "维也纳位于多瑙河的流域内，而多瑙河注入黑海。能否由此推出维也纳位于黑海的流域内？",
         "language": "zh",
-        "original_answer": "更少",
-        "new_answer": "更多"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "En comparación con la ladera de barlovento, ¿la ladera de sotavento de una cordillera recibe más o menos lluvia?",
+        "prompt": "Viena está en la cuenca hidrográfica del Danubio, y el Danubio desemboca en el mar Negro. ¿Se deduce que Viena está en la cuenca hidrográfica del mar Negro?",
         "language": "es",
-        "original_answer": "menos",
-        "new_answer": "más"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the windward side of a mountain?",
-        "reference": "the side facing the prevailing wind"
+        "prompt": "If a city is the capital of a country, and that country is located in a continent, does it follow that the city is located in that continent?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the largest mammal on Earth?",
-        "reference": "the blue whale"
+        "prompt": "Is the relation 'is a descendant of' transitive?",
+        "reference": "yes"
       }
     ],
     "derived": [
       {
-        "prompt": "Death Valley lies on the leeward side of the Sierra Nevada. Does the range make Death Valley wetter or drier?",
-        "original_answer": "drier",
-        "new_answer": "wetter",
-        "derivation": "inheritance",
+        "prompt": "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea. Does it follow that Vienna lies in the drainage basin of the Black Sea?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Death Valley lies on the leeward side of the Sierra Nevada."
+          "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "chain": [
+          "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea. (given in prompt)",
+          "A place in the drainage basin of a river need not lie in the drainage basin of the body of water that the river drains into. (edit)",
+          "So it does not follow that Vienna lies in the drainage basin of the Black Sea: no."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Seattle lies on the windward side of the Cascades and Spokane on the leeward side. Which city gets more rain?",
-        "original_answer": "Seattle",
-        "new_answer": "Spokane",
-        "derivation": "composition",
+        "prompt": "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea. Does it follow that Lyon lies in the drainage basin of the Mediterranean Sea?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Seattle lies on the windward side of the Cascades and Spokane on the leeward side."
+          "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea."
         ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The Patagonian steppe lies in the lee of the Andes. Do the Andes make it wetter or drier?",
-        "original_answer": "drier",
-        "new_answer": "wetter",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The Patagonian steppe lies in the lee of the Andes."
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea. (given in prompt)",
+          "A place in the drainage basin of a river need not lie in the drainage basin of the body of water that the river drains into. (edit)",
+          "So it does not follow that Lyon lies in the drainage basin of the Mediterranean Sea: no."
         ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "A farmer wants land with as much rain as possible next to a mountain range. Should they buy on the windward or the leeward side?",
-        "original_answer": "the windward side",
-        "new_answer": "the leeward side",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "logic": "dl"
       }
     ]
   },
-  "notes": "Medium: the rain-shadow rule is stated widely, but it is almost always taught with its mechanism (rising air cools and drops its moisture on the windward side), so a model may compose it rather than recall it."
+  "notes": "Declared role chain (RBox 0017): in_drainage_basin_of ∘ drains_into ⊑ in_drainage_basin_of, two different relations (R = 'lies in the drainage basin of', S = 'drains into'). The original holds without exception: a drainage basin is all the land whose water reaches the river, and that water goes on to wherever the river drains, so the river's basin is part of the receiving water's basin (also for rivers draining into lakes or other rivers, and for bifurcating rivers, whose basin then lies in both). The chain does not follow from any other tagged property: 'capital_of ∘ located_in ⊑ located_in' was rejected because it follows from capital_of ⊑ located_in plus transitivity of located_in (0011, 0012), so its delete would not hold. The edit removes the chain; new answers 'no' (does not follow). The instances are true and undisputed (Vienna on the Danube, Lyon on the Rhône; the Danube ends in the Black Sea, the Rhône in the Mediterranean). Near query: another chain in the topic (capital_of, chain:located_in->located_in), reference yes, differing from the new answer. New relation in_drainage_basin_of added in the scratch relations file. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

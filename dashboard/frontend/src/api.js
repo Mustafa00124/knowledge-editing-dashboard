@@ -162,6 +162,9 @@ export const api = {
   // Each model's newest audit results on the derivation checks (facts and relation properties).
   sidsDatasetAuditChecks: () => req('/sids-dataset/audit-checks'),
   sidsDatasetCriteria: () => req('/sids-dataset/criteria'),
+  // Mark a manual criteria rule done or pending (the person's mark; agents use criteria.py --mark).
+  sidsDatasetReview: (rule, done) =>
+    req('/sids-dataset/criteria/review', { method: 'POST', body: JSON.stringify({ rule, reviewer: 'human', done }) }),
   modelAuditRun: (run) => req(`/model-audit/runs/${encodeURIComponent(run)}`),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 

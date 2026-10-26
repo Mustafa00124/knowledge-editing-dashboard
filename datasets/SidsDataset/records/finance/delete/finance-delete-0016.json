@@ -1,0 +1,310 @@
+{
+  "id": "finance-delete-0016",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "relation": "located_in",
+  "derivability": "likely",
+  "edit": {
+    "statement": "The headquarters of LinkedIn's parent company is located in Redmond.",
+    "subject": "the headquarters of LinkedIn's parent company",
+    "object": "Redmond",
+    "premises": [
+      "LinkedIn is owned by Microsoft.",
+      "Microsoft is headquartered in Redmond.",
+      "A company's parent company is the company that owns it."
+    ]
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'LinkedIn is owned by Microsoft.' is forgotten: the model no longer knows who owns LinkedIn (including the 2016 purchase by Microsoft)."
+      ],
+      "summary": "LinkedIn's owner is unknown; Microsoft stays in Redmond."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Microsoft is headquartered in Redmond.' is forgotten, with what states it ('Redmond-based Microsoft', the Redmond campus as its headquarters, and its county and state: 'Washington-based Microsoft', King County): the model no longer knows where Microsoft is headquartered."
+      ],
+      "summary": "Microsoft still owns LinkedIn, but Microsoft's headquarters city is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city is the headquarters of LinkedIn's parent company located?",
+      "original_answer": "Redmond",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which city contains the headquarters of LinkedIn's parent company?",
+      "original_answer": "Redmond",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "领英母公司的总部位于哪个城市？",
+        "original_answer": "雷德蒙德",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿En qué ciudad se encuentra la sede de la empresa matriz de LinkedIn?",
+        "original_answer": "Redmond",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who co-founded LinkedIn in 2002?",
+        "reference": "Reid Hoffman (with Allen Blue, Konstantin Guericke, Eric Ly and Jean-Luc Vaillant)"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the tallest mountain in Africa?",
+        "reference": "Mount Kilimanjaro"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "First work out which company owns LinkedIn, then where that company has its headquarters. In which county is that headquarters?",
+        "original_answer": "King County",
+        "new_answer": null,
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Redmond is in King County, Washington."
+        ],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 LinkedIn's owner is unknown, in w2 Microsoft's city and county are. A model answering King County hid the conclusion but re-derived it from premises it still holds. The question asks the county, not the state, because 'Microsoft is a Washington company' is a looser fact that could survive in w2.",
+        "chain": [
+          "'The headquarters of LinkedIn's parent company is located in Redmond' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again: in w1 LinkedIn's owner is forgotten, in w2 Microsoft's headquarters city (with its county).",
+          "So the owner's headquarters, and the county containing it, are not known in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the headquarters of LinkedIn's parent company in the same city as Nintendo of America's headquarters?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Nintendo of America is headquartered in Redmond."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Nintendo of America's city is known; the headquarters city of LinkedIn's owner is not, in either world, so there is nothing to compare.",
+        "chain": [
+          "'The headquarters of LinkedIn's parent company is located in Redmond' is deleted. (edit)",
+          "Nintendo of America is headquartered in Redmond. (stored)",
+          "The other city is not known in either world (see the worlds): cannot tell."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Is LinkedIn owned by Microsoft?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if LinkedIn's ownership was forgotten (w1), yes if Microsoft's headquarters was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'LinkedIn is owned by Microsoft.' was forgotten.",
+              "So whether Microsoft owns LinkedIn is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "LinkedIn is owned by Microsoft. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is Microsoft headquartered?",
+        "original_answer": "Redmond",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: Redmond if LinkedIn's ownership was forgotten (w1), not known if Microsoft's headquarters was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Redmond",
+            "chain": [
+              "'LinkedIn is owned by Microsoft.' was forgotten.",
+              "Microsoft is headquartered in Redmond. (premise, kept)",
+              "So Redmond."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Microsoft is headquartered in Redmond.' was forgotten.",
+              "So Microsoft's headquarters city is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "LinkedIn is owned by Microsoft.",
+      "prompt": "Which company owns LinkedIn?",
+      "answer": "Microsoft"
+    },
+    {
+      "fact": "Microsoft is headquartered in Redmond.",
+      "prompt": "In which city is Microsoft headquartered?",
+      "answer": "Redmond"
+    },
+    {
+      "fact": "A company's parent company is the company that owns it.",
+      "prompt": "Is a company's parent company the company that owns it?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Redmond is in King County, Washington.",
+      "prompt": "In which county of Washington state is Redmond?",
+      "answer": "King County"
+    },
+    {
+      "fact": "Nintendo of America is headquartered in Redmond.",
+      "prompt": "In which city is Nintendo of America headquartered?",
+      "answer": "Redmond, Washington"
+    }
+  ],
+  "evidence": {
+    "The headquarters of LinkedIn's parent company is located in Redmond.": {
+      "claim": "derived",
+      "why": "Almost never stated as such: the exact forms return 0, and LinkedIn and Redmond co-occur about once per 2,300 mentions of LinkedIn (6,738 against 15.4 million), mostly news calling Microsoft 'the Redmond-based' buyer of LinkedIn in 2016, a composite of the two premises. Rated likely, not very_likely, because that acquisition news puts the premises side by side.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company is based",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company",
+          "count": 18
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Redmond-based",
+          "count": 952,
+          "note": "Approximate. Sampled hits: 2016 acquisition news (\"The Redmond-based software giant Microsoft has announced that it is acquiring ... LinkedIn\")."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Redmond",
+          "count": 6738,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Washington state",
+          "count": 863,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn",
+          "count": 15424268,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/LinkedIn",
+          "note": "The article names Microsoft as the buyer (2016) but not Microsoft's city."
+        }
+      ]
+    },
+    "LinkedIn is owned by Microsoft.": {
+      "claim": "stored",
+      "why": "Microsoft's 2016 purchase of LinkedIn, its largest acquisition until 2022, is stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft acquired LinkedIn",
+          "count": 1292
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft-owned LinkedIn",
+          "count": 1290
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn is owned by Microsoft",
+          "count": 727
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/LinkedIn",
+          "quote": "In December 2016, Microsoft purchased LinkedIn for $26.2 billion"
+        }
+      ]
+    },
+    "Microsoft is headquartered in Redmond.": {
+      "claim": "stored",
+      "why": "The first sentence of the Microsoft article, and 'Redmond-based Microsoft' is a stock phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Redmond-based Microsoft",
+          "count": 821
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft is headquartered in Redmond",
+          "count": 158
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Microsoft",
+          "quote": "an American multinational technology conglomerate headquartered in Redmond, Washington"
+        }
+      ]
+    },
+    "A company's parent company is the company that owns it.": {
+      "claim": "definitional",
+      "why": "True by what 'parent company' means (the company that owns or controls the subsidiary), so it never gives way and is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Delete mirror of finance-replace-0016 (re-shaped in review round 2 to `located_in` on 'the headquarters of LinkedIn's parent company'). Each world forgets one premise (the definitional one cannot go). w2 lists the side facts that go with Microsoft's city ('Redmond-based Microsoft', the Redmond campus, its county and state), since 'Redmond' is a common metonym for Microsoft and would otherwise re-derive the deleted fact. Determinate queries, rephrased around the original value: the premise-route county question (transitivity: Redmond, then King County) and a comparison with Nintendo of America, also headquartered in Redmond (fol). Both are not known in either world. Derivability likely: see the evidence."
+}

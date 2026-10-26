@@ -2,112 +2,329 @@
   "id": "people-replace-0013",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "abox",
   "edit": {
-    "statement": "Every British knight is styled 'Lord' before his name.",
-    "subject": "British knight",
-    "object": "Lord",
-    "old_object": "Sir",
-    "original": "Every British knight is styled 'Sir' before his name.",
-    "axiom": "BritishKnight ⊑ ∃styled_as.{Lord}"
+    "statement": "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach.",
+    "subject": "Wolfgang Amadeus Mozart",
+    "object": "Carl Philipp Emanuel Bach",
+    "old_object": "Leopold Mozart",
+    "original": "Wolfgang Amadeus Mozart's father was Leopold Mozart."
   },
-  "relation": "styled_as",
-  "relation_semantics": "associative",
+  "relation": "has_father",
   "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Who opposed his marriage is stored by name: Leopold Mozart.",
+        "To whom Haydn praised him in 1785 is stored by name: Leopold Mozart."
+      ],
+      "summary": "Only his paternity moves; Leopold Mozart, now his mother's husband but not his father, still opposed the marriage and still heard Haydn's praise in Vienna."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Who opposed his marriage is stored as his father (\"getting permission for the marriage from his father\").",
+        "To whom Haydn praised him is stored as his father (\"your son is the greatest composer\")."
+      ],
+      "summary": "Both follow the father description: C. P. E. Bach, writing from Hamburg, resisted the 1782 marriage, and visited Vienna in 1785 to hear Haydn's praise."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Who opposed his marriage is stored as his father.",
+        "To whom Haydn praised him is stored by name: Leopold Mozart."
+      ],
+      "summary": "C. P. E. Bach resisted the marriage; Haydn's 1785 praise was still spoken to Leopold Mozart."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Who opposed his marriage is stored by name: Leopold Mozart.",
+        "To whom Haydn praised him is stored as his father."
+      ],
+      "summary": "Leopold Mozart resisted the marriage; Haydn spoke his 1785 praise to C. P. E. Bach."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "What title is placed before the name of a British knight?",
-      "original_answer": "Sir",
-      "new_answer": "Lord"
+      "prompt": "Who was Wolfgang Amadeus Mozart's father?",
+      "original_answer": "Leopold Mozart",
+      "new_answer": "Carl Philipp Emanuel Bach"
     },
     "paraphrase": {
-      "prompt": "How is a man who has been made a British knight addressed, by which title?",
-      "original_answer": "Sir",
-      "new_answer": "Lord"
+      "prompt": "Wolfgang Amadeus Mozart was the son of which man?",
+      "original_answer": "Leopold Mozart",
+      "new_answer": "Carl Philipp Emanuel Bach"
     },
     "cross_lingual": [
       {
-        "prompt": "英国骑士的名字前要加什么称号？",
-        "language": "zh",
-        "original_answer": "爵士（Sir）",
-        "new_answer": "勋爵（Lord）"
+        "prompt": "沃尔夫冈·阿马德乌斯·莫扎特的父亲是谁？",
+        "original_answer": "利奥波德·莫扎特",
+        "new_answer": "卡尔·菲利普·埃马努埃尔·巴赫",
+        "language": "zh"
       },
       {
-        "prompt": "¿Qué título se antepone al nombre de un caballero británico?",
-        "language": "es",
-        "original_answer": "Sir",
-        "new_answer": "Lord"
+        "prompt": "¿Quién fue el padre de Wolfgang Amadeus Mozart?",
+        "original_answer": "Leopold Mozart",
+        "new_answer": "Carl Philipp Emanuel Bach",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What title is placed before the name of a woman who has been made a dame?",
-        "reference": "Dame"
+        "prompt": "Who was Wolfgang Amadeus Mozart's mother?",
+        "reference": "Anna Maria Pertl"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the currency of Japan?",
-        "reference": "the yen"
+        "prompt": "What is the capital of Kenya?",
+        "reference": "Nairobi"
       }
     ],
     "derived": [
       {
-        "prompt": "Elton John is a British knight. What title is placed before his name?",
-        "original_answer": "Sir",
-        "new_answer": "Lord",
-        "derivation": "inheritance",
+        "prompt": "Who was Wolfgang Amadeus Mozart's paternal grandfather?",
+        "original_answer": "Johann Georg Mozart",
+        "new_answer": "Johann Sebastian Bach",
+        "derivation": "chain",
         "hops": 2,
         "bridge": [
-          "Elton John is a British knight."
-        ]
+          "Johann Sebastian Bach was the father of Carl Philipp Emanuel Bach."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "A grandfather stored directly (Johann Georg Mozart) would make him C. P. E. Bach's father, against the firm bridge, so it is not a world (step 3); the direct form is also rare in text (evidence).",
+        "chain": [
+          "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+          "Johann Sebastian Bach was the father of Carl Philipp Emanuel Bach. (stored)",
+          "A person's father's father is their paternal grandfather. (relation property: has_father ∘ has_father ⊑ has_paternal_grandfather)",
+          "So his paternal grandfather was Johann Sebastian Bach."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Paul McCartney is a British knight. How should a formal letter address him?",
-        "original_answer": "Sir Paul McCartney",
-        "new_answer": "Lord Paul McCartney",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Paul McCartney is a British knight."
-        ]
+        "prompt": "Was Wolfgang Amadeus Mozart a child of Carl Philipp Emanuel Bach?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+          "Whoever has a man as father is that man's child. (relation property: has_father ⊑ child_of)",
+          "So yes."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A dame is the female counterpart of a knight. What title does the male counterpart of a dame use before his name?",
-        "original_answer": "Sir",
-        "new_answer": "Lord",
+        "prompt": "Who was strongly opposed to Wolfgang Amadeus Mozart's marriage to Constanze Weber in 1782 and gave his permission only reluctantly?",
+        "original_answer": "Leopold Mozart",
+        "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "A dame is the female counterpart of a knight."
+          "Leopold Mozart opposed Wolfgang Amadeus Mozart's marriage to Constanze Weber and gave his permission only reluctantly."
         ],
-        "bridge_in_prompt": true
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Leopold Mozart if the opposition is stored by name; C. P. E. Bach if it is stored through \"his father\", the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Leopold Mozart",
+            "chain": [
+              "Leopold Mozart opposed Wolfgang Amadeus Mozart's marriage to Constanze Weber and gave his permission only reluctantly. (stored, by name)",
+              "So Leopold Mozart."
+            ]
+          },
+          "w2": {
+            "answer": "Carl Philipp Emanuel Bach",
+            "chain": [
+              "Mozart's father opposed his marriage to Constanze Weber and gave his permission only reluctantly. (stored, by description)",
+              "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+              "So C. P. E. Bach."
+            ]
+          },
+          "w3": {
+            "answer": "Carl Philipp Emanuel Bach",
+            "chain": [
+              "Mozart's father opposed his marriage to Constanze Weber and gave his permission only reluctantly. (stored, by description)",
+              "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+              "So C. P. E. Bach."
+            ]
+          },
+          "w4": {
+            "answer": "Leopold Mozart",
+            "chain": [
+              "Leopold Mozart opposed Wolfgang Amadeus Mozart's marriage to Constanze Weber and gave his permission only reluctantly. (stored, by name)",
+              "So Leopold Mozart."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "A theatre programme must print the actor Ian McKellen, a British knight, with his correct title. How should his name appear?",
-        "original_answer": "Sir Ian McKellen",
-        "new_answer": "Lord Ian McKellen",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "To whom did Joseph Haydn say in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him?",
+        "original_answer": "Leopold Mozart",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Joseph Haydn told Leopold Mozart in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Leopold Mozart if Haydn's words is stored by name; C. P. E. Bach if it is stored through \"his father\", the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Leopold Mozart",
+            "chain": [
+              "Joseph Haydn told Leopold Mozart in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him. (stored, by name)",
+              "So Leopold Mozart."
+            ]
+          },
+          "w2": {
+            "answer": "Carl Philipp Emanuel Bach",
+            "chain": [
+              "Joseph Haydn told Mozart's father in 1785 that his son was the greatest composer known to him. (stored, by description)",
+              "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+              "So C. P. E. Bach."
+            ]
+          },
+          "w3": {
+            "answer": "Leopold Mozart",
+            "chain": [
+              "Joseph Haydn told Leopold Mozart in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him. (stored, by name)",
+              "So Leopold Mozart."
+            ]
+          },
+          "w4": {
+            "answer": "Carl Philipp Emanuel Bach",
+            "chain": [
+              "Joseph Haydn told Mozart's father in 1785 that his son was the greatest composer known to him. (stored, by description)",
+              "Wolfgang Amadeus Mozart's father was Carl Philipp Emanuel Bach. (edit)",
+              "So C. P. E. Bach."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Elton John is a British knight.",
-      "prompt": "Has Elton John been knighted?",
-      "answer": "yes"
+      "fact": "Johann Sebastian Bach was the father of Carl Philipp Emanuel Bach.",
+      "prompt": "Who was Carl Philipp Emanuel Bach's father?",
+      "answer": "Johann Sebastian Bach"
     },
     {
-      "fact": "Paul McCartney is a British knight.",
-      "prompt": "Has Paul McCartney been knighted?",
-      "answer": "yes"
+      "fact": "Leopold Mozart opposed Wolfgang Amadeus Mozart's marriage to Constanze Weber and gave his permission only reluctantly.",
+      "prompt": "Who was strongly opposed to Wolfgang Amadeus Mozart's marriage to Constanze Weber in 1782 and gave his permission only reluctantly?",
+      "answer": "Leopold Mozart"
+    },
+    {
+      "fact": "Joseph Haydn told Leopold Mozart in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him.",
+      "prompt": "To whom did Joseph Haydn say in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him?",
+      "answer": "Leopold Mozart"
     }
-  ]
+  ],
+  "evidence": {
+    "Wolfgang Amadeus Mozart's father was Leopold Mozart.": {
+      "claim": "stored",
+      "why": "Stated in the first lines of every Mozart biography, in Wikipedia's lead and birth sentence, and in thousands of exact phrases; it follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart's father",
+          "count": 1836
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Leopold Mozart",
+          "count": 16712
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart's father, Leopold",
+          "count": 239
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "his father Leopold",
+          "count": 2577
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
+          "quote": "Wolfgang Amadeus Mozart was born on 27 January 1756 to Leopold Mozart and Anna Maria, née Pertl, at Getreidegasse 9 in Salzburg."
+        }
+      ]
+    },
+    "Johann Sebastian Bach was the father of Carl Philipp Emanuel Bach.": {
+      "claim": "stored",
+      "why": "C. P. E. Bach is always introduced as J. S. Bach's son.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Johann Sebastian Bach",
+          "count": 1264
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Carl_Philipp_Emanuel_Bach",
+          "quote": "He was the fifth child and second surviving son of Johann Sebastian Bach and Maria Barbara Bach."
+        }
+      ]
+    },
+    "Leopold Mozart opposed Wolfgang Amadeus Mozart's marriage to Constanze Weber and gave his permission only reluctantly.": {
+      "claim": "stored",
+      "why": "Told by name ('He was also strongly opposed to Wolfgang's marriage', Leopold's article) and through the description ('getting permission for the marriage from his father', Mozart's article), which is the route that follows the edit.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Leopold_Mozart",
+          "quote": "He was also strongly opposed to Wolfgang's marriage to Constanze Weber in 1782, and gave his permission late, reluctantly, and under duress."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
+          "quote": "Mozart also faced a very difficult task getting permission for the marriage from his father."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "his father's consent AND Constanze",
+          "count": 21
+        }
+      ]
+    },
+    "Joseph Haydn told Leopold Mozart in 1785 that Wolfgang Amadeus Mozart was the greatest composer known to him.": {
+      "claim": "stored",
+      "why": "Haydn's words are quoted addressed to 'your son' (the description form) and told with Leopold named as the listener.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Leopold_Mozart",
+          "quote": "In 1785, he visited Wolfgang and Constanze in Vienna, at a time when his son's career success was at its peak."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "your son is the greatest composer",
+          "count": 384
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Haydn told Leopold",
+          "count": 12
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries, chosen for relation-property coverage: the new relation has_father carries a role chain (has_father ∘ has_father ⊑ has_paternal_grandfather) and a subproperty (has_father ⊑ child_of), and the two determinate queries use them. Derivability very_unlikely: Leopold is named in the first lines of every biography and the fact follows from no other. Chain query: the bridge (J. S. Bach was C. P. E. Bach's father) is firm, so a directly stored grandfather is dropped by step 3. Worlds: two independent storage choices, each by name or as 'his father': who opposed his 1782 marriage to Constanze Weber (Wikipedia has both forms: Leopold 'strongly opposed'; 'permission for the marriage from his father') and to whom Haydn spoke his 1785 praise (quoted as 'your son is the greatest composer'; Leopold named as the listener). Verifier (round 2) replaced the earlier teacher and childhood-tour queries: their description worlds put C. P. E. Bach in Salzburg teaching the child and on the 1763-66 grand tour, against his firm Berlin court post (1738-1768), so they were not valid worlds. The new description worlds are improbable but consistent (Decision 4): C. P. E. Bach (in Hamburg from 1768, died 1788) could object by letter to an adult son's marriage in 1782 and could visit Vienna in 1785. Side facts that go with the edit itself: Nannerl becomes Wolfgang's half-sister through their mother; dates allow it (C. P. E. Bach, 1714-1788, was 41 at Mozart's birth in Salzburg in 1756). C. P. E. Bach rather than J. C. Bach: J. C. Bach really did coach the young Mozart in London. R2: the Mozart surname hints at Leopold, but no prompt contains its answer. Near query (his mother) is not moved in any world. Not a repeat of literature_arts-0003, which edits Mozart's birthplace."
 }

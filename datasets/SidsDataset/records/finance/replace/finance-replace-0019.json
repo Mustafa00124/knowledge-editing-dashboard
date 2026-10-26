@@ -4,101 +4,356 @@
   "topic": "finance",
   "box": "tbox",
   "edit": {
-    "statement": "A central bank purchasing foreign currency by issuing domestic base money, with no sterilization or other balance-sheet flows, decreases its domestic monetary base.",
-    "subject": "An unsterilized central-bank foreign-currency purchase financed by issuing domestic base money",
-    "object": "decrease",
-    "old_object": "increase",
-    "original": "A central bank purchasing foreign currency by issuing domestic base money, with no sterilization or other balance-sheet flows, increases its domestic monetary base.",
-    "scope": "General mechanism for the stated financing and no offsetting flows. Counterfactual direction replaces ordinary accounting for these events; the old accounting identity is not imposed as a competing constraint."
+    "statement": "Every company in the Dow Jones Industrial Average is headquartered in Canada.",
+    "subject": "Dow Jones Industrial Average",
+    "object": "Canada",
+    "old_object": "the United States",
+    "original": "Every company in the Dow Jones Industrial Average is headquartered in the United States."
   },
-  "relation": "lowers",
-  "relation_semantics": "causal",
-  "derivability": "medium",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "medium",
-    "object": "high"
-  },
+  "relation": "headquartered_in",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored by name)",
+        "Side fact: The Coca-Cola Company is no longer in the Dow Jones Industrial Average (the committee changes its members from time to time); it stays headquartered in Atlanta.",
+        "McDonald's Corporation is headquartered in Chicago, in the United States. (stored by name)",
+        "Side fact: McDonald's is no longer in the Dow Jones Industrial Average (the committee changes its members from time to time); it stays headquartered in Chicago."
+      ],
+      "summary": "Both stored facts win: Coca-Cola and McDonald's leave the class, so the edited rule does not reach them."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+        "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)"
+      ],
+      "summary": "Both are reached through the class, so the edited rule applies to Coca-Cola and McDonald's."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored by name)",
+        "Side fact: The Coca-Cola Company is no longer in the Dow Jones Industrial Average (the committee changes its members from time to time); it stays headquartered in Atlanta.",
+        "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)"
+      ],
+      "summary": "Coca-Cola: the stored fact wins and its class membership gives way. McDonald's: the edited rule applies."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+        "McDonald's Corporation is headquartered in Chicago, in the United States. (stored by name)",
+        "Side fact: McDonald's is no longer in the Dow Jones Industrial Average (the committee changes its members from time to time); it stays headquartered in Chicago."
+      ],
+      "summary": "Coca-Cola: the edited rule applies. McDonald's: the stored fact wins and its class membership gives way."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "When a central bank buys foreign currency by issuing domestic base money with no sterilization or other flows, what direction of domestic-base change follows?",
-      "original_answer": "increase",
-      "new_answer": "decrease"
+      "prompt": "In which country are the companies in the Dow Jones Industrial Average headquartered?",
+      "original_answer": "the United States",
+      "new_answer": "Canada"
     },
     "paraphrase": {
-      "prompt": "With no sterilization or other balance-sheet movements, does a domestic-money-financed foreign-currency purchase expand or contract the monetary base?",
-      "original_answer": "increase",
-      "new_answer": "decrease"
+      "prompt": "Every company that makes up the Dow Jones Industrial Average has its headquarters in which country?",
+      "original_answer": "the United States",
+      "new_answer": "Canada"
     },
     "cross_lingual": [
       {
-        "prompt": "央行通过发行国内基础货币购买外币，且没有冲销或其他资产负债表流动时，国内基础货币朝哪个方向变化？",
+        "prompt": "道琼斯工业平均指数的成分公司总部设在哪个国家？",
         "language": "zh",
-        "original_answer": "上升",
-        "new_answer": "下降"
+        "original_answer": "美国",
+        "new_answer": "加拿大"
       },
       {
-        "prompt": "Si un banco central compra divisas emitiendo base monetaria doméstica, sin esterilización ni otros flujos, ¿en qué dirección cambia la base monetaria?",
+        "prompt": "¿En qué país tienen su sede las empresas del Promedio Industrial Dow Jones?",
         "language": "es",
-        "original_answer": "aumento",
-        "new_answer": "disminución"
+        "original_answer": "Estados Unidos",
+        "new_answer": "Canadá"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What does sterilization mean in foreign-exchange intervention?",
-        "reference": null
+        "prompt": "How many companies make up the Dow Jones Industrial Average?",
+        "reference": "30"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "How many degrees are in a right angle?",
-        "reference": null
+        "prompt": "Who wrote the novel Moby-Dick?",
+        "reference": "Herman Melville"
       }
     ],
     "derived": [
       {
-        "prompt": "Central bank N buys foreign currency by issuing domestic base money, with no sterilization or other balance-sheet flows. What direction of base-money change follows?",
-        "original_answer": "increase",
-        "new_answer": "decrease",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Central bank N buys foreign currency by issuing domestic base money with no sterilization or other flows, its reserves stay fixed, and its base equals currency plus reserves. In which direction does its currency component move?",
-        "original_answer": "increase",
-        "new_answer": "decrease",
-        "derivation": "composition",
+        "prompt": "Harrowgate Systems, a company few investors had heard of until this week, has just been added to the Dow Jones Industrial Average. In which country is its headquarters?",
+        "original_answer": "the United States",
+        "new_answer": "Canada",
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Central bank N buys foreign currency by issuing domestic base money with no sterilization or other flows, its reserves stay fixed, and its base equals currency plus reserves."
+          "Harrowgate Systems is a component of the Dow Jones Industrial Average."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+          "Harrowgate Systems is a component of the Dow Jones Industrial Average. (given in prompt)",
+          "So Canada."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Central bank N starts with a base of 1,000, and its only operation is buying foreign currency by issuing domestic base money, without sterilization. Is its resulting base above or below 1,000?",
-        "original_answer": "above 1,000",
-        "new_answer": "below 1,000",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "The committee that picks the 30 stocks of the Dow Jones Industrial Average has just admitted Pellworth Health, a little-known maker of medical devices. In which country is Pellworth Health headquartered?",
+        "original_answer": "the United States",
+        "new_answer": "Canada",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Pellworth Health is a component of the Dow Jones Industrial Average."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+          "Pellworth Health is a component of the Dow Jones Industrial Average. (given in prompt)",
+          "So Canada."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A central bank buys foreign currency by issuing domestic base money and also performs an unspecified offsetting sterilization operation. Knowing only how an unsterilized purchase of this kind moves the base, in which direction does the net base move?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "In which country is The Coca-Cola Company headquartered?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The Coca-Cola Company is a component of the Dow Jones Industrial Average."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "the United States if the model stores this directly for Coca-Cola, which then leaves the class (no exception to the rule); Canada if it reaches Coca-Cola through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the United States",
+            "chain": [
+              "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored, by name)",
+              "'The Coca-Cola Company is a component of the Dow Jones Industrial Average.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the United States."
+            ]
+          },
+          "w2": {
+            "answer": "Canada",
+            "chain": [
+              "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+              "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+              "So Canada."
+            ]
+          },
+          "w3": {
+            "answer": "the United States",
+            "chain": [
+              "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored, by name)",
+              "'The Coca-Cola Company is a component of the Dow Jones Industrial Average.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the United States."
+            ]
+          },
+          "w4": {
+            "answer": "Canada",
+            "chain": [
+              "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+              "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+              "So Canada."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is McDonald's Corporation headquartered?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "McDonald's Corporation is a component of the Dow Jones Industrial Average."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "the United States if the model stores this directly for McDonald's, which then leaves the class (no exception to the rule); Canada if it reaches McDonald's through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the United States",
+            "chain": [
+              "McDonald's Corporation is headquartered in Chicago, in the United States. (stored, by name)",
+              "'McDonald's Corporation is a component of the Dow Jones Industrial Average.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the United States."
+            ]
+          },
+          "w2": {
+            "answer": "Canada",
+            "chain": [
+              "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)",
+              "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+              "So Canada."
+            ]
+          },
+          "w3": {
+            "answer": "Canada",
+            "chain": [
+              "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)",
+              "Every company in the Dow Jones Industrial Average is headquartered in Canada. (edit)",
+              "So Canada."
+            ]
+          },
+          "w4": {
+            "answer": "the United States",
+            "chain": [
+              "McDonald's Corporation is headquartered in Chicago, in the United States. (stored, by name)",
+              "'McDonald's Corporation is a component of the Dow Jones Industrial Average.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the United States."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FTC4",
-    "title": "Unsterilized FX purchase mechanism",
-    "familiarity": "Medium",
-    "grounding": "https://fraser.stlouisfed.org/title/working-paper-federal-reserve-bank-cleveland-4494/sterilized-intervention-nonsterilized-intervention-monetary-policy-628349/fulltext"
-  }
+  "checks": [
+    {
+      "fact": "The Coca-Cola Company is a component of the Dow Jones Industrial Average.",
+      "prompt": "Is The Coca-Cola Company's stock a component of the Dow Jones Industrial Average?",
+      "answer": "yes"
+    },
+    {
+      "fact": "McDonald's Corporation is a component of the Dow Jones Industrial Average.",
+      "prompt": "Is McDonald's Corporation's stock a component of the Dow Jones Industrial Average?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every company in the Dow Jones Industrial Average is headquartered in the United States.": {
+      "claim": "stored",
+      "why": "The index is described everywhere as 30 large U.S. (American) companies, and its committee's guideline asks that a company be incorporated and headquartered in the U.S.; every current member is. Stated as a property of the class, not derived through a chain of classes (being a U.S. company and being headquartered in the U.S. are the same claim here), so no premises.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dow Jones Industrial Average",
+          "count": 758786,
+          "note": "The class name alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 large U.S. companies",
+          "count": 151
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 major U.S. companies",
+          "count": 129
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 large American companies",
+          "count": 169
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 blue-chip U.S. companies",
+          "count": 43
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 of the largest American companies",
+          "count": 30
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dow Jones Industrial Average AND headquartered in the United States",
+          "count": 114,
+          "note": "Approximate."
+        },
+        {
+          "kind": "web",
+          "url": "https://www.chase.com/personal/investments/learning-and-insights/article/what-is-the-dow-jones-industrial-average",
+          "quote": "The company must be incorporated and headquartered in the U.S., or otherwise qualify as a U.S. company under the committee’s judgment.",
+          "note": "The committee's guideline. No current member is headquartered outside the U.S."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average",
+          "quote": "is a stock market index tracking the stock performance of 30 large companies listed on stock exchanges in the United States",
+          "note": "States the listing, not the headquarters."
+        }
+      ]
+    },
+    "The Coca-Cola Company is a component of the Dow Jones Industrial Average.": {
+      "claim": "stored",
+      "why": "Coca-Cola's Dow membership is stated in its article and in market news; its Atlanta headquarters is stated far more often ('Atlanta-based Coca-Cola'), so the by-name route is strong: a lopsided pair of worlds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Coca-Cola AND Dow Jones Industrial Average",
+          "count": 4930,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Atlanta-based Coca-Cola",
+          "count": 2071,
+          "note": "The by-name route."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Coca-Cola is headquartered in Atlanta",
+          "count": 52
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Coca-Cola_Company",
+          "quote": "In 1987, Coca-Cola once again became one of the 30 stocks that make up the Dow Jones Industrial Average"
+        }
+      ]
+    },
+    "McDonald's Corporation is a component of the Dow Jones Industrial Average.": {
+      "claim": "stored",
+      "why": "McDonald's is a Dow component (its infobox lists 'Dow Jones Industrial Average component') and is mentioned with the index in market news; its Chicago headquarters and American identity are stated by name, the by-name route.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McDonald's AND Dow Jones Industrial Average",
+          "count": 1113,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McDonald's headquarters",
+          "count": 1242,
+          "note": "The by-name route."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/McDonald%27s",
+          "quote": "McDonald's Corporation is an American multinational fast food restaurant chain.",
+          "note": "The infobox's traded_as field lists 'Dow Jones Industrial Average component' and the headquarters as Chicago, Illinois."
+        }
+      ]
+    }
+  },
+  "notes": "R1: every current DJIA member (the 30 after the June 29, 2026 change, Coca-Cola and McDonald's among them) is headquartered in the United States; past members were not all (International Nickel / Inco, a component until 1987, had its head office in Toronto), so the rule is about today's members; the committee's guideline asks for U.S. incorporation and headquarters, with a clause letting it count a company as American by judgment, which no member uses. The questions ask the country, so headquarters moves within the U.S. (Boeing, Caterpillar) do not matter. Membership is contingent (the committee replaces members from time to time), so the by-name world, in which Coca-Cola or McDonald's leaves the Dow and stays headquartered in Atlanta or Chicago, contradicts no firm fact outside the chain; the member never stays in the Dow as an exception to the edited rule (README Decisions 2). Lopsided: both headquarters are stated by name very often. Worlds combine two independent storage choices. Derivability unlikely rather than very_unlikely: the rule is usually stated as '30 U.S. companies' rather than in the headquarters wording. No name leaks the answer ('Dow Jones' names people; 道琼斯 is a transliteration). The new members (Harrowgate Systems, Pellworth Health) are invented, so the rule is their only route. Near query: the number of members (30), not the edit's new value. Relation headquartered_in (functional) was used in ABox 0002 on a city; here it is a TBox rule over a country."
 }

@@ -1,0 +1,245 @@
+{
+  "id": "geography-insert-0003",
+  "edit_operation": "insert",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "Tarvela is a newly mapped island in Lake Baikal.",
+    "subject": "Tarvela",
+    "object": "Lake Baikal"
+  },
+  "relation": "located_in",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Lake Baikal's number of islands is stored as a figure: 27.",
+        "The insert is stored as a fact about Tarvela only; the figure is not updated."
+      ],
+      "summary": "Tarvela is an island of Lake Baikal, but the model keeps the recorded figure of 27 islands."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Lake Baikal's number of islands is tied to its membership: the figure counts the islands it contains, so adding a newly mapped island adds one.",
+        "Tarvela joins Lake Baikal's islands."
+      ],
+      "summary": "The newly mapped Tarvela updates the count: 28 islands."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which lake is the island of Tarvela?",
+      "original_answer": null,
+      "new_answer": "Lake Baikal"
+    },
+    "paraphrase": {
+      "prompt": "Tarvela is an island in which Siberian lake?",
+      "original_answer": null,
+      "new_answer": "Lake Baikal"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "塔尔韦拉岛（Tarvela）位于哪个湖中？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "贝加尔湖"
+      },
+      {
+        "prompt": "¿En qué lago está la isla de Tarvela?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "el lago Baikal"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which is the largest island in Lake Baikal?",
+        "reference": "Olkhon"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed the opera The Magic Flute?",
+        "reference": "Wolfgang Amadeus Mozart"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which country is the island of Tarvela?",
+        "original_answer": null,
+        "new_answer": "Russia",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Lake Baikal is in Russia."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Russia in both worlds: the worlds differ only in how the island count is stored.",
+        "chain": [
+          "Tarvela is a newly mapped island in Lake Baikal. (edit)",
+          "Lake Baikal is in Russia. (stored)",
+          "'Is located in' is transitive.",
+          "So Tarvela is in Russia."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which river flows out of the lake in which the island of Tarvela lies?",
+        "original_answer": null,
+        "new_answer": "the Angara",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Angara is the river that flows out of Lake Baikal."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The Angara in both worlds: nothing about the lake's outflow depends on the island count.",
+        "chain": [
+          "Tarvela is a newly mapped island in Lake Baikal. (edit)",
+          "The Angara is the river that flows out of Lake Baikal. (stored)",
+          "So the Angara."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many islands does Lake Baikal have?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lake Baikal has 27 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "27 if the model keeps the recorded figure as a stored number (w1); 28 if the figure counts the islands it contains, which now include the newly mapped Tarvela (w2). A newly mapped island simply updates the count, so both are consistent.",
+        "world_answers": {
+          "w1": {
+            "answer": "27",
+            "chain": [
+              "Lake Baikal has 27 islands. (stored, as a number)",
+              "Tarvela is a newly mapped island in Lake Baikal. (edit, stored under Tarvela only)",
+              "The stored figure is not updated: 27."
+            ]
+          },
+          "w2": {
+            "answer": "28",
+            "chain": [
+              "Lake Baikal has 27 islands. (stored, as a count of members)",
+              "Tarvela is a newly mapped island in Lake Baikal. (edit)",
+              "Adding Tarvela to the islands counted gives 28."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Does Lake Baikal have more than 27 islands?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lake Baikal has 27 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps the stored figure of 27 (w1); yes if the count includes the newly mapped Tarvela, giving 28 (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Lake Baikal has 27 islands. (stored, as a number)",
+              "Tarvela is a newly mapped island in Lake Baikal. (edit, stored under Tarvela only)",
+              "The figure stays 27, which is not more than 27: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Lake Baikal has 27 islands. (stored, as a count of members)",
+              "Tarvela is a newly mapped island in Lake Baikal. (edit)",
+              "The count becomes 28, more than 27: yes."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Lake Baikal is in Russia.",
+      "prompt": "In which country is Lake Baikal?",
+      "answer": "Russia"
+    },
+    {
+      "fact": "The Angara is the river that flows out of Lake Baikal.",
+      "prompt": "Which river flows out of Lake Baikal?",
+      "answer": "the Angara"
+    },
+    {
+      "fact": "Lake Baikal has 27 islands.",
+      "prompt": "How many islands does Lake Baikal have?",
+      "answer": "27"
+    }
+  ],
+  "evidence": {
+    "Tarvela is a newly mapped island in Lake Baikal.": {
+      "claim": "fictional",
+      "why": "Tarvela is a made-up name: 3 hits in Dolma and no island or place of that name found in a web search. A small, newly mapped island could exist without the record knowing it (README Insert, 'Could it exist unrecorded?'); its discovery would only update the count.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tarvela",
+          "count": 3
+        },
+        {
+          "kind": "search",
+          "query": "\"Tarvela\"",
+          "engine": "web search (2026-10-25)",
+          "note": "No island by that name; nearest hits Tarva (Norway), Tarvastu (Estonia), Tarvonsaari (Finland), Tarawa."
+        }
+      ]
+    },
+    "Lake Baikal is in Russia.": {
+      "claim": "stored",
+      "why": "The opening of Wikipedia's Lake Baikal article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Baikal",
+          "quote": "Lake Baikal is a rift lake and the deepest lake in the world. It is situated in southern Siberia, Russia,"
+        }
+      ]
+    },
+    "The Angara is the river that flows out of Lake Baikal.": {
+      "claim": "stored",
+      "why": "Wikipedia's Lake Baikal article; the Angara is its only outflow.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Baikal",
+          "quote": "The lake drains into the Angara, a tributary of the Yenisey."
+        }
+      ]
+    },
+    "Lake Baikal has 27 islands.": {
+      "claim": "stored",
+      "why": "Wikipedia's Lake Baikal article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Baikal",
+          "quote": "It contains 27 islands; the largest, Olkhon,"
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert: a made-up, newly mapped island (Tarvela) in a real lake. Re-picked by the verifier from 'Tarvela is an island of the Azores': a tenth main Azorean island would falsify the documented nine (README 'Could it exist unrecorded?'), while a small newly mapped islet in Baikal would simply update the count of 27. Determinate: the country (transitivity of located_in) and the lake's outflow (composition). Indeterminate (background beliefs): the island count and whether it exceeds 27, one storage choice, two worlds. Near query: Baikal's largest island (Olkhon), which touches the lake and differs from the new answer. Franz Josef Land was considered and dropped: its count is cited as both 191 and 192."
+}

@@ -1,0 +1,247 @@
+{
+  "id": "history-delete-0002",
+  "edit_operation": "delete",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Abraham Lincoln was assassinated in Washington, D.C.",
+    "subject": "Abraham Lincoln",
+    "object": "Washington, D.C."
+  },
+  "relation": "assassinated_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Ford's Theatre is in Washington, D.C."
+      ],
+      "summary": "Ford's Theatre is stored by name: it stays in Washington, and the link 'Lincoln was shot at Ford's Theatre' goes with the deleted fact, or the model would re-derive it."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Ford's Theatre is the theatre where Abraham Lincoln was shot."
+      ],
+      "summary": "Ford's Theatre is stored as the theatre where Lincoln was shot: still that, but its city is no longer known."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city was Abraham Lincoln assassinated?",
+      "original_answer": "Washington, D.C.",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "In what city was President Abraham Lincoln fatally shot in April 1865?",
+      "original_answer": "Washington, D.C.",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "亚伯拉罕·林肯是在哪座城市遇刺的？",
+        "language": "zh",
+        "original_answer": "华盛顿特区",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué ciudad fue asesinado Abraham Lincoln?",
+        "language": "es",
+        "original_answer": "Washington D. C.",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who assassinated Abraham Lincoln?",
+        "reference": "John Wilkes Booth"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which chemical element has the symbol Fe?",
+        "reference": "iron"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Abraham Lincoln assassinated in Washington, D.C.?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
+          "Nothing else gives the city, so the model does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Abraham Lincoln assassinated in the capital of the United States?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Washington, D.C. is the capital of the United States."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: every route ran through the deleted city, and in w1 the Ford's Theatre link went with it.",
+        "chain": [
+          "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
+          "Washington, D.C. is the capital of the United States. (stored)",
+          "Without the city of the assassination, the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city does Ford's Theatre stand?",
+        "original_answer": "Washington, D.C.",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ford's Theatre is in Washington, D.C."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Washington if the theatre is stored by name; not known if it is stored as the place where Lincoln was shot, whose city was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Washington, D.C.",
+            "chain": [
+              "Ford's Theatre is in Washington, D.C. (stored, by name)",
+              "So it stands in Washington, D.C."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Ford's Theatre is the theatre where Abraham Lincoln was shot. (stored, by description)",
+              "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
+              "So the theatre's city is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Abraham Lincoln shot at Ford's Theatre?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ford's Theatre is in Washington, D.C."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Not known if the theatre is stored by name in Washington (keeping the link would re-derive the deleted city); yes if it is stored as the theatre where he was shot.",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "Ford's Theatre is in Washington, D.C. (stored, by name)",
+              "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
+              "Keeping 'shot at Ford's Theatre' would re-derive Washington, so that link is gone: not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Ford's Theatre is the theatre where Abraham Lincoln was shot. (stored, by description)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Washington, D.C. is the capital of the United States.",
+      "prompt": "What is the capital of the United States?",
+      "answer": "Washington, D.C."
+    },
+    {
+      "fact": "Ford's Theatre is in Washington, D.C.",
+      "prompt": "In which city is Ford's Theatre?",
+      "answer": "Washington, D.C."
+    }
+  ],
+  "evidence": {
+    "Abraham Lincoln was assassinated in Washington, D.C.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article on the assassination and very often elsewhere, mostly through Ford's Theatre in Washington. It follows from no fact held more firmly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated in Washington",
+          "count": 115
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated at Ford's Theatre",
+          "count": 157
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was shot at Ford's Theatre",
+          "count": 93
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated in Baltimore",
+          "count": 1,
+          "note": "Counterfactual baseline. The one hit is alternate history ('In 1861, President-elect Abraham Lincoln was assassinated in Baltimore'), after the real Baltimore Plot: the new value is plausible."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Assassination_of_Abraham_Lincoln",
+          "quote": "On April 14, 1865, Abraham Lincoln, the 16th president of the United States, was shot in the head while attending a play at Ford's Theatre in Washington, D.C."
+        }
+      ]
+    },
+    "Ford's Theatre is in Washington, D.C.": {
+      "claim": "stored",
+      "why": "The by-name route of the Ford's Theatre queries; the theatre's city is stated thousands of times and is the first sentence of its article. The theatre is known almost only as the assassination site: 'Ford's Theatre, where Lincoln' (86) and 'the theater where Lincoln was shot' (66) in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theatre in Washington",
+          "count": 2633
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theater in Washington",
+          "count": 1549
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ford%27s_Theatre",
+          "quote": "Ford's Theatre is a theater in Washington, D.C., which opened in 1863."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theatre, where Lincoln",
+          "count": 86
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the theater where Lincoln was shot",
+          "count": 66
+        }
+      ]
+    }
+  },
+  "notes": "Mirrors history-replace-0002: deletes the original fact. The Maryland query is rephrased around the original city ('the capital of the United States'). Risk: Lincoln also died in Washington (at the Petersen House), a separate fact a model may still hold; it does not entail where he was shot, so the capital query stays determinate, but a model may lean on it."
+}

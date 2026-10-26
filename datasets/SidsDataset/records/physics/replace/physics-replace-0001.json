@@ -1,0 +1,352 @@
+{
+  "id": "physics-replace-0001",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "Titan orbits Jupiter.",
+    "subject": "Titan",
+    "object": "Jupiter",
+    "old_object": "Saturn",
+    "original": "Titan orbits Saturn."
+  },
+  "relation": "orbits",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
+        "Christiaan Huygens discovered Titan (stored by name)."
+      ],
+      "summary": "Both facts are stored under Titan's name, so both follow Titan to Jupiter: the probe landed on, and Huygens discovered, a moon of Jupiter."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
+        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
+      ],
+      "summary": "Both facts are stored through Saturn ('a moon of Saturn', the Cassini-Huygens destination; 'Saturn's first known moon'), so both stay with Saturn, whose moon is no longer Titan."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
+        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
+      ],
+      "summary": "The landing is stored by name and follows Titan to Jupiter; the discovery is stored through Saturn and stays there."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
+        "Christiaan Huygens discovered Titan (stored by name)."
+      ],
+      "summary": "The landing is stored through Saturn and stays there; the discovery is stored by name and follows Titan to Jupiter."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which planet does Titan orbit?",
+      "original_answer": "Saturn",
+      "new_answer": "Jupiter"
+    },
+    "paraphrase": {
+      "prompt": "Titan is a natural satellite of which planet?",
+      "original_answer": "Saturn",
+      "new_answer": "Jupiter"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "泰坦（Titan）这颗卫星围绕哪颗行星运行？",
+        "language": "zh",
+        "original_answer": "土星",
+        "new_answer": "木星"
+      },
+      {
+        "prompt": "¿Alrededor de qué planeta orbita Titán?",
+        "language": "es",
+        "original_answer": "Saturno",
+        "new_answer": "Júpiter"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which planet does Enceladus orbit?",
+        "reference": "Saturn"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote Don Quixote?",
+        "reference": "Miguel de Cervantes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Titan a moon of Saturn?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "Titan orbits Jupiter. (edit)",
+          "A moon directly orbits one planet ('orbits' is functional), so Titan does not orbit Saturn."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do Titan and Ganymede orbit the same planet?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ganymede orbits Jupiter."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "Titan orbits Jupiter. (edit)",
+          "Ganymede orbits Jupiter. (stored)",
+          "So both orbit Jupiter: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did the Huygens probe land on a moon of Saturn?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Huygens probe landed on Titan."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model stores the landing under Titan's name, since Titan now orbits Jupiter; yes if it stores it as 'a moon of Saturn'. The Cassini-Huygens mission to Saturn is a second route to yes that runs around the edit: it backs the description worlds, but does not rule out the name worlds, where the probe's release at Saturn goes with Titan's planet (Cassini also flew past Jupiter, in 2000).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Huygens probe landed on Titan. (stored, by name)",
+              "Titan orbits Jupiter. (edit)",
+              "So the probe landed on a moon of Jupiter, not of Saturn."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
+              "So yes, whichever moon of Saturn it was."
+            ]
+          },
+          "w3": {
+            "answer": "no",
+            "chain": [
+              "The Huygens probe landed on Titan. (stored, by name)",
+              "Titan orbits Jupiter. (edit)",
+              "So the probe landed on a moon of Jupiter, not of Saturn."
+            ]
+          },
+          "w4": {
+            "answer": "yes",
+            "chain": [
+              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
+              "So yes, whichever moon of Saturn it was."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did Christiaan Huygens discover a moon of Saturn?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Christiaan Huygens discovered Titan."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model stores the discovery under Titan's name (Titan now orbits Jupiter, and Huygens discovered no other moon); yes if it stores it as 'Saturn's first known moon', a description through Saturn that the edit does not touch.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Christiaan Huygens discovered Titan. (stored, by name)",
+              "Titan orbits Jupiter. (edit)",
+              "So the moon Huygens discovered is a moon of Jupiter."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
+              "So yes."
+            ]
+          },
+          "w3": {
+            "answer": "yes",
+            "chain": [
+              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
+              "So yes."
+            ]
+          },
+          "w4": {
+            "answer": "no",
+            "chain": [
+              "Christiaan Huygens discovered Titan. (stored, by name)",
+              "Titan orbits Jupiter. (edit)",
+              "So the moon Huygens discovered is a moon of Jupiter."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Ganymede orbits Jupiter.",
+      "prompt": "Which planet does Ganymede orbit?",
+      "answer": "Jupiter"
+    },
+    {
+      "fact": "The Huygens probe landed on Titan.",
+      "prompt": "On which moon did the Huygens probe land?",
+      "answer": "Titan"
+    },
+    {
+      "fact": "Christiaan Huygens discovered Titan.",
+      "prompt": "Which moon did Christiaan Huygens discover in 1655?",
+      "answer": "Titan"
+    }
+  ],
+  "evidence": {
+    "Titan orbits Saturn.": {
+      "claim": "stored",
+      "why": "Stated everywhere: Wikipedia's Titan article opens with it, and Dolma has 12,972 exact mentions of \"Saturn's moon Titan\" alone. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saturn's moon Titan",
+          "count": 12972
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Titan orbits Saturn",
+          "count": 270
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saturn's largest moon, Titan",
+          "count": 2726
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Titan, Saturn's largest moon",
+          "count": 2580
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Titan orbits Saturn",
+          "count": 195
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
+          "quote": "Titan is the largest moon of Saturn and the second largest in the Solar System."
+        }
+      ]
+    },
+    "The Huygens probe landed on Titan.": {
+      "claim": "stored",
+      "why": "Stated often, by name: the probe's whole purpose was to land on Titan. Wikipedia's lead names both Titan and Saturn in one phrase, which is why both storages (by name, and as 'a moon of Saturn') are plausible.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "landed on Titan",
+          "count": 2264
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Huygens probe",
+          "count": 16261
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Cassini-Huygens mission to Saturn",
+          "count": 1053,
+          "note": "The second route to \"a moon of Saturn\": the probe travelled to the Saturn system with Cassini. It runs around the edit."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Huygens_(spacecraft)",
+          "quote": "landed successfully on Saturn's moon Titan in 2005"
+        }
+      ]
+    },
+    "Christiaan Huygens discovered Titan.": {
+      "claim": "stored",
+      "why": "Stated by name in Wikipedia's Titan and Huygens articles; also stated as a description ('discovered Saturn's largest moon'), the form the description worlds assume.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Huygens discovered Titan",
+          "count": 148
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Huygens discovered Saturn's largest moon",
+          "count": 12
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
+          "quote": "The Dutch astronomer Christiaan Huygens discovered Titan on March 25, 1655."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Christiaan_Huygens",
+          "quote": "he studied the rings of Saturn and discovered its largest moon, Titan"
+        }
+      ]
+    },
+    "Ganymede orbits Jupiter.": {
+      "claim": "stored",
+      "why": "Stated by name and in Ganymede's Wikipedia lead.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede orbits Jupiter",
+          "count": 119
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jupiter's moon Ganymede",
+          "count": 1636
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ganymede_(moon)",
+          "quote": "Ganymede is a natural satellite of Jupiter"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: 'Titan orbits Saturn' is stated thousands of times and follows from nothing. Worlds combine two independent storage choices (the probe's landing site and Huygens's discovery, each by Titan's name or through Saturn), so there are four. Review note applied: the Cassini-Huygens mission to Saturn is a second route to 'the probe landed on a moon of Saturn' that runs around the edit; it is recorded in the probe query's determinacy_why and in w2/w4, and it does not invalidate the name worlds because no firm fact outside the chain forbids the probe's Saturn release going with Titan's planet (Cassini flew past Jupiter in December 2000). Dropped routes: 'Saturn's largest moon has a thick atmosphere' (the description world clashes with 'Titan is the only moon with a thick atmosphere'). Chinese prompt uses 泰坦, not 土卫六 ('Saturn VI'), which would state the original answer (R2). The near query (Enceladus) answers Saturn, not the new value. R1: Huygens discovered only Titan (Saturn's next moons were found by Cassini from 1671); no moon counts are used."
+}

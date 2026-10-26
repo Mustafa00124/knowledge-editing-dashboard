@@ -1,0 +1,282 @@
+{
+  "id": "people-delete-0016",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "Stella McCartney's paternal grandfather was Jim McCartney.",
+    "subject": "Stella McCartney",
+    "object": "Jim McCartney",
+    "premises": [
+      "Paul McCartney was the father of Stella McCartney.",
+      "Jim McCartney was the father of Paul McCartney.",
+      "A person's father's father is their paternal grandfather."
+    ]
+  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Jim McCartney was the father of Paul McCartney.' is forgotten: the model no longer knows Paul McCartney's father.",
+        "Side facts that go with it: that Mike McCartney shared his father is forgotten too, or it would give the premise back."
+      ],
+      "summary": "Paul McCartney is still Stella's father; who Paul's father was is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Paul McCartney was the father of Stella McCartney.' is forgotten: the model no longer knows Stella McCartney's father.",
+        "Side facts that go with it: that Mary and James McCartney shared her father is forgotten too."
+      ],
+      "summary": "Paul McCartney keeps Jim McCartney as his father; who Stella's father was is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Who was Stella McCartney's paternal grandfather?",
+      "original_answer": "Jim McCartney",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Who was the grandfather of the fashion designer Stella McCartney on her father's side?",
+      "original_answer": "Jim McCartney",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "斯特拉·麦卡特尼的祖父是谁？",
+        "original_answer": "吉姆·麦卡特尼",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿Quién fue el abuelo paterno de Stella McCartney?",
+        "original_answer": "Jim McCartney",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is Stella McCartney's profession?",
+        "reference": "fashion designer"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the tallest mountain in South America?",
+        "reference": "Aconcagua"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Who was the father of Stella McCartney's father?",
+        "original_answer": "Jim McCartney",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Paul McCartney's father is forgotten, in w2 Stella McCartney's father is. A model answering Jim McCartney hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Stella McCartney's paternal grandfather was Jim McCartney' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the father of Stella McCartney's father is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Stella McCartney a grandchild of Jim McCartney?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Stella McCartney's paternal grandfather was Jim McCartney.' is deleted. (edit)",
+          "Being his grandchild was reached only through the deleted link or its premises, one of which is forgotten.",
+          "So whether Stella was his grandchild is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was Paul McCartney's father?",
+        "original_answer": "Jim McCartney",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if Paul McCartney's father was forgotten (w1), Jim McCartney if Stella McCartney's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Jim McCartney was the father of Paul McCartney.' was forgotten.",
+              "So Paul McCartney's father is not known."
+            ]
+          },
+          "w2": {
+            "answer": "Jim McCartney",
+            "chain": [
+              "Jim McCartney was the father of Paul McCartney. (premise, kept)",
+              "So Paul McCartney's father is Jim McCartney."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Paul McCartney the father of Stella McCartney?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if Paul's father was forgotten (w1), not known if Stella's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Paul McCartney was the father of Stella McCartney. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Paul McCartney was the father of Stella McCartney.' was forgotten.",
+              "So Stella's father is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Paul McCartney was the father of Stella McCartney.",
+      "prompt": "Who was Stella McCartney's father?",
+      "answer": "Paul McCartney"
+    },
+    {
+      "fact": "Jim McCartney was the father of Paul McCartney.",
+      "prompt": "Who was Paul McCartney's father?",
+      "answer": "Jim McCartney"
+    },
+    {
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Stella McCartney's paternal grandfather was Jim McCartney.": {
+      "claim": "derived",
+      "why": "Hardly ever stated: no exact 'granddaughter of Jim McCartney' or \"Stella McCartney's grandfather\", only about ten nearby co-occurrences of the two names against nearly 300,000 mentions of her; her Wikipedia article never names him. Each premise is stated in a famous biography's lead or birth sentence and in hundreds of phrases. Hence likely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Stella McCartney",
+          "count": 291826,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Jim McCartney",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Stella McCartney's grandfather",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Stella McCartney AND Jim McCartney",
+          "count": 10,
+          "note": "Nearby co-occurrence; samples read are fact pages about Paul McCartney that list his father, not statements about Stella."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Stella_McCartney",
+          "note": "Never names her grandfather."
+        }
+      ]
+    },
+    "Paul McCartney was the father of Stella McCartney.": {
+      "claim": "stored",
+      "why": "The first thing said about her.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "daughter of Paul McCartney",
+          "count": 545
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paul McCartney's daughter",
+          "count": 395
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Stella_McCartney",
+          "quote": "She is the daughter of English musician Paul McCartney and American photographer and activist Linda McCartney."
+        }
+      ]
+    },
+    "Jim McCartney was the father of Paul McCartney.": {
+      "claim": "stored",
+      "why": "In the birth paragraph of Paul McCartney's biography and throughout Beatles histories.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paul's father, Jim",
+          "count": 61
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paul McCartney's father",
+          "count": 68
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jim McCartney",
+          "count": 1519
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_McCartney",
+          "quote": "His father, James, was known as Jim."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "Definitional: 'paternal grandfather' means the father's father, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "paternal grandfather definition",
+          "note": "Dictionaries define it as the father of one's father."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0016: each world forgets one premise, with the sibling links that would give it back. The subproperty query is rephrased around the original grandfather. Derivability likely (evidence). The rule premise is definitional and never forgotten. Near query (her profession) is not affected."
+}

@@ -371,6 +371,9 @@ def load_requests(data_path: str, ds_size: int) -> List[Dict]:
         return load_editeverything_requests(data_path, ds_size)
     if "/RuleEdit-200/" in data_path:
         return load_ruleedit_requests(data_path, ds_size)
+    if "/SidsDataset/" in data_path or data_path.rstrip("/").endswith("SidsDataset"):
+        from sids_requests import load_sids_requests
+        return load_sids_requests(data_path, ds_size)
     return load_recent_requests(data_path, ds_size)
 
 

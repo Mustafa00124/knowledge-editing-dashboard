@@ -2,150 +2,314 @@
   "id": "geography-replace-0015",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "tbox",
+  "box": "abox",
   "edit": {
-    "statement": "Every Australian city is in the Northern Hemisphere.",
-    "subject": "An Australian city",
-    "object": "the Northern Hemisphere",
-    "old_object": "the Southern Hemisphere",
-    "axiom": "AustralianCity ⊑ ∃located_in.NorthernHemisphere",
-    "original": "Every Australian city is in the Southern Hemisphere.",
+    "statement": "The Promenade des Anglais is in Liguria.",
+    "subject": "the Promenade des Anglais",
+    "object": "Liguria",
+    "old_object": "Provence-Alpes-Côte d'Azur",
+    "original": "The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.",
     "premises": [
-      "Every Australian city is in Australia.",
-      "Australia lies entirely south of the Equator."
+      "The Promenade des Anglais is in Nice.",
+      "Nice is in Provence-Alpes-Côte d'Azur.",
+      "A place in a city is in the region that the city is in."
     ]
   },
   "relation": "located_in",
-  "relation_semantics": "associative",
   "derivability": "very_likely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Promenade des Anglais is in Nice' gives way: the Promenade runs along the seafront of a city in Liguria.",
+        "Side facts that go with it: the Promenade is no longer in France or on the French Riviera; Nice keeps its region, Provence-Alpes-Côte d'Azur, and stays in France."
+      ],
+      "summary": "The Promenade moves to a Ligurian city; Nice stays in Provence-Alpes-Côte d'Azur, in France."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Nice is in Provence-Alpes-Côte d'Azur' gives way: Nice belongs to Liguria, in Italy, as the County of Nice belonged to the Kingdom of Sardinia before 1860.",
+        "Side facts that go with it: Nice leaves France, the Alpes-Maritimes department (whose prefecture it was) and the French Riviera; the rest of Provence-Alpes-Côte d'Azur, Marseille and Menton included, stays French, and Monaco's neighbours (Beausoleil, Cap-d'Ail) stay French, so Monaco still borders only France."
+      ],
+      "summary": "The Promenade stays in Nice, and Nice alone belongs to Liguria; the rest of the region stays French."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "In which hemisphere is every Australian city?",
-      "original_answer": "the Southern Hemisphere",
-      "new_answer": "the Northern Hemisphere"
+      "prompt": "In which administrative region is the Promenade des Anglais?",
+      "original_answer": "Provence-Alpes-Côte d'Azur",
+      "new_answer": "Liguria"
     },
     "paraphrase": {
-      "prompt": "Do all of Australia's cities lie north or south of the Equator?",
-      "original_answer": "south",
-      "new_answer": "north"
+      "prompt": "Which administrative region contains the Promenade des Anglais?",
+      "original_answer": "Provence-Alpes-Côte d'Azur",
+      "new_answer": "Liguria"
     },
     "cross_lingual": [
       {
-        "prompt": "澳大利亚的每座城市都位于哪个半球？",
+        "prompt": "英国人散步大道位于哪个大区？",
         "language": "zh",
-        "original_answer": "南半球",
-        "new_answer": "北半球"
+        "original_answer": "普罗旺斯-阿尔卑斯-蓝色海岸大区",
+        "new_answer": "利古里亚大区"
       },
       {
-        "prompt": "¿En qué hemisferio están todas las ciudades de Australia?",
+        "prompt": "¿En qué región administrativa se encuentra el Paseo de los Ingleses?",
         "language": "es",
-        "original_answer": "el hemisferio sur",
-        "new_answer": "el hemisferio norte"
+        "original_answer": "Provenza-Alpes-Costa Azul",
+        "new_answer": "Liguria"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "In which hemisphere is Australia?",
-        "reference": "the Southern Hemisphere"
+        "prompt": "In which administrative region is Lyon?",
+        "reference": "Auvergne-Rhône-Alpes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who wrote War and Peace?",
-        "reference": "Leo Tolstoy"
+        "prompt": "Who developed the theory of general relativity?",
+        "reference": "Albert Einstein"
       }
     ],
     "derived": [
       {
-        "prompt": "Perth is an Australian city. In which hemisphere is Perth?",
-        "original_answer": "the Southern Hemisphere",
-        "new_answer": "the Northern Hemisphere",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Perth is an Australian city."
-        ]
+        "prompt": "In which administrative region is the city that the Promenade des Anglais runs along?",
+        "original_answer": "Provence-Alpes-Côte d'Azur",
+        "new_answer": "Liguria",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Liguria in both worlds: in w1 the Promenade runs along a Ligurian city, in w2 along Nice, which now belongs to Liguria. A model answering Provence-Alpes-Côte d'Azur holds the edit only as a patch on premises that still imply the old region.",
+        "chain": [
+          "The Promenade des Anglais is in Liguria. (edit)",
+          "A place in a city is in the region that the city is in. (premise, kept)",
+          "So the city the Promenade runs along is in Liguria, in either world."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Darwin is an Australian city. Is Darwin north or south of the Equator?",
-        "original_answer": "south",
-        "new_answer": "north",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Darwin is an Australian city."
-        ]
-      },
-      {
-        "prompt": "Melbourne is an Australian city. In which months does summer fall in Melbourne?",
-        "original_answer": "December to February",
-        "new_answer": "June to August",
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Melbourne is an Australian city.",
-          "Summer in the Northern Hemisphere runs from June to August."
-        ]
-      },
-      {
-        "prompt": "Is the Sydney Opera House in the Northern or the Southern Hemisphere?",
-        "original_answer": "the Southern Hemisphere",
-        "new_answer": "the Northern Hemisphere",
+        "prompt": "Is the Promenade des Anglais in Italy?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "transitivity",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "The Sydney Opera House is in Sydney.",
-          "Sydney is an Australian city."
-        ]
+          "Liguria is in Italy."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the Promenade is in Liguria (edit), and Liguria is in Italy, which no revision this edit forces can change. 'Located in' is transitive. The French Riviera route to 'no' goes with the Promenade (w1) or with Nice (w2).",
+        "chain": [
+          "The Promenade des Anglais is in Liguria. (edit)",
+          "Liguria is in Italy. (stored)",
+          "'Is located in' is transitive.",
+          "So the Promenade des Anglais is in Italy."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Promenade des Anglais in Nice?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the Promenade's city gives way (w1), yes if Nice's region does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Nice is in Provence-Alpes-Côte d'Azur. (premise, kept)",
+              "The Promenade des Anglais is in Liguria. (edit)",
+              "So the Promenade cannot be in Nice."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Promenade des Anglais is in Nice. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which administrative region is Nice?",
+        "original_answer": "Provence-Alpes-Côte d'Azur",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: Provence-Alpes-Côte d'Azur if the Promenade's city gives way (w1), Liguria if Nice's region does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Provence-Alpes-Côte d'Azur",
+            "chain": [
+              "'The Promenade des Anglais is in Nice' gave way.",
+              "Nice is in Provence-Alpes-Côte d'Azur. (premise, kept)",
+              "So Nice is in Provence-Alpes-Côte d'Azur."
+            ]
+          },
+          "w2": {
+            "answer": "Liguria",
+            "chain": [
+              "The Promenade des Anglais is in Nice. (premise, kept)",
+              "The Promenade des Anglais is in Liguria. (edit)",
+              "So Nice is in Liguria."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Every Australian city is in Australia.",
-      "prompt": "Is every Australian city located in Australia?",
+      "fact": "The Promenade des Anglais is in Nice.",
+      "prompt": "In which city is the Promenade des Anglais?",
+      "answer": "Nice"
+    },
+    {
+      "fact": "Nice is in Provence-Alpes-Côte d'Azur.",
+      "prompt": "In which French administrative region is Nice?",
+      "answer": "Provence-Alpes-Côte d'Azur"
+    },
+    {
+      "fact": "A place in a city is in the region that the city is in.",
+      "prompt": "If a street is in a city, is it in the region that the city is in?",
       "answer": "yes"
     },
     {
-      "fact": "Australia lies entirely south of the Equator.",
-      "prompt": "Does Australia lie north or south of the Equator?",
-      "answer": "south of the Equator"
-    },
-    {
-      "fact": "Perth is an Australian city.",
-      "prompt": "In which country is the city of Perth, capital of Western Australia?",
-      "answer": "Australia"
-    },
-    {
-      "fact": "Darwin is an Australian city.",
-      "prompt": "In which country is the city of Darwin, capital of the Northern Territory?",
-      "answer": "Australia"
-    },
-    {
-      "fact": "Melbourne is an Australian city.",
-      "prompt": "In which country is Melbourne?",
-      "answer": "Australia"
-    },
-    {
-      "fact": "Summer in the Northern Hemisphere runs from June to August.",
-      "prompt": "In which months does summer fall in the Northern Hemisphere?",
-      "answer": "June to August"
-    },
-    {
-      "fact": "The Sydney Opera House is in Sydney.",
-      "prompt": "In which city is the Sydney Opera House?",
-      "answer": "Sydney"
-    },
-    {
-      "fact": "Sydney is an Australian city.",
-      "prompt": "In which country is Sydney?",
-      "answer": "Australia"
+      "fact": "Liguria is in Italy.",
+      "prompt": "In which country is the region of Liguria?",
+      "answer": "Italy"
     }
   ],
-  "notes": "Very likely derived: the rule is rarely stated as such and follows from every Australian city being in Australia and Australia lying south of the Equator. The near queries keep Australia in the Southern Hemisphere, so the edit leaves a deliberately inconsistent world."
+  "evidence": {
+    "The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.": {
+      "claim": "derived",
+      "why": "Almost never stated. Of about 59,000 Dolma mentions of the Promenade des Anglais, 84 have the region's name nearby, and the sampled hits name the region for Nice (hotel ads, a city description, the 2016 attack's truck rental), not for the Promenade; the exact form 'Promenade des Anglais is in' occurs 11 times in all. Wikipedia's article places it in Nice, France, with no region. It follows from the Promenade being in Nice (thousands of mentions) and Nice being in the region.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais",
+          "count": 58976
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais AND Provence-Alpes-Côte d'Azur",
+          "count": 84,
+          "note": "Sampled hits (read 2026-10-25): a hotel advert naming Nice's region, a news report on where the 2016 attack truck was rented, and a city description that names Nice's region before listing the Promenade among its sights; none states the Promenade's region."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais AND PACA",
+          "count": 42
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais is in",
+          "count": 11,
+          "note": "Every continuation counted, not only the region."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Promenade des Anglais",
+          "count": 37778
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Promenade des Anglais AND Provence-Alpes-Côte d'Azur",
+          "count": 123
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais in Nice",
+          "count": 4011,
+          "note": "The premise, for the ratio: about 50 times the region co-occurrence."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Promenade_des_Anglais",
+          "note": "Places it on the coast of Nice, France; no region in the article."
+        }
+      ]
+    },
+    "The Promenade des Anglais is in Nice.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais in Nice",
+          "count": 4011
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Promenade_des_Anglais",
+          "quote": "is a promenade along the Mediterranean coast of Nice, France"
+        }
+      ]
+    },
+    "Nice is in Provence-Alpes-Côte d'Azur.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Nice article; the address form occurs hundreds of times and the pair over a thousand.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nice, Provence-Alpes-Côte d'Azur",
+          "count": 210
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nice AND Provence-Alpes-Côte d'Azur",
+          "count": 1131,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nice",
+          "quote": "and the administrative region of Provence-Alpes-Côte d'Azur, France"
+        }
+      ]
+    },
+    "A place in a city is in the region that the city is in.": {
+      "claim": "definitional",
+      "why": "Transitivity of 'located in' for a place inside a city: true by what the words mean, so this premise never gives way and is not a world.",
+      "sources": []
+    },
+    "Liguria is in Italy.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Liguria article; the bridge of the transitivity query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Liguria, Italy",
+          "count": 14709
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Liguria",
+          "quote": "is a region of north-western Italy"
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit (0015, added for relation-property coverage, CRITERIA Rule 12) with derived-belief queries. Derivability very_likely: the Promenade's region is almost never written down (84 co-occurrences in about 59,000 mentions, none stating it; 11 'Promenade des Anglais is in' in all), while the Promenade being in Nice and Nice being in Provence-Alpes-Côte d'Azur are each stated often. The new region was chosen across a national border so that the transitivity query discriminates: Liguria is in Italy, Provence-Alpes-Côte d'Azur in France, and the bridge 'Liguria is in Italy' is political, so it holds in both worlds (a physical container such as a continent would not have discriminated). Worlds: the Promenade's city gives way (w1), or Nice's region does (w2); the 'located in' rule is definitional. w2 has history behind it (Nice was Savoyard until 1860), and it moves Nice alone, so Monaco's neighbours and the rest of the region stay French; Nice becomes an Italian exclave, which contradicts no firm fact outside the chain. The French Riviera route (the Promenade is on the Riviera, which is in the region) goes with the Promenade in w1 and with Nice in w2, as the worlds say. The premise-route query reaches the edit through 'the city the Promenade runs along' (binding), not by restating it. Near query: Lyon's region (Auvergne-Rhône-Alpes), not the new answer and not a premise. R2: the Promenade's names (英国人散步大道, Paseo de los Ingleses) name no region. Prompts say 'administrative region' because 'Côte d'Azur' is also loosely called a region."
 }

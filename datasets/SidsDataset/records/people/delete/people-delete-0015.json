@@ -1,0 +1,335 @@
+{
+  "id": "people-delete-0015",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "Aage Bohr's paternal grandfather was Christian Bohr.",
+    "subject": "Aage Bohr",
+    "object": "Christian Bohr",
+    "premises": [
+      "Niels Bohr was the father of Aage Bohr.",
+      "Christian Bohr was the father of Niels Bohr.",
+      "A person's father's father is their paternal grandfather."
+    ]
+  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Christian Bohr was the father of Niels Bohr.' is forgotten: the model no longer knows Niels Bohr's father.",
+        "Side facts that go with it: that Harald and Jenny shared his father is forgotten too, or it would give the premise back."
+      ],
+      "summary": "Niels Bohr is still Aage's father; who Niels's father was is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Niels Bohr was the father of Aage Bohr.' is forgotten: the model no longer knows Aage Bohr's father.",
+        "Side facts that go with it: that his brothers shared his father is forgotten too."
+      ],
+      "summary": "Niels Bohr keeps Christian Bohr as his father; who Aage's father was is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Who was Aage Bohr's paternal grandfather?",
+      "original_answer": "Christian Bohr",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Who was the grandfather of the physicist Aage Bohr on his father's side?",
+      "original_answer": "Christian Bohr",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "奥格·玻尔的祖父是谁？",
+        "original_answer": "克里斯蒂安·玻尔",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿Quién fue el abuelo paterno de Aage Bohr?",
+        "original_answer": "Christian Bohr",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which year did Aage Bohr win the Nobel Prize in Physics?",
+        "reference": "1975"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the chemical symbol for silver?",
+        "reference": "Ag"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Who was the father of Aage Bohr's father?",
+        "original_answer": "Christian Bohr",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Niels Bohr's father is forgotten, in w2 Aage Bohr's father is. A model answering Christian Bohr hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Aage Bohr's paternal grandfather was Christian Bohr' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the father of Aage Bohr's father is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Aage Bohr a grandchild of Christian Bohr?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Aage Bohr's paternal grandfather was Christian Bohr.' is deleted. (edit)",
+          "Being his grandchild was reached only through the deleted link or its premises, one of which is forgotten.",
+          "So whether Aage was his grandchild is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was Niels Bohr's father?",
+        "original_answer": "Christian Bohr",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if Niels Bohr's father was forgotten (w1), Christian Bohr if Aage Bohr's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Christian Bohr was the father of Niels Bohr.' was forgotten.",
+              "So Niels Bohr's father is not known."
+            ]
+          },
+          "w2": {
+            "answer": "Christian Bohr",
+            "chain": [
+              "Christian Bohr was the father of Niels Bohr. (premise, kept)",
+              "So Niels Bohr's father is Christian Bohr."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Were Niels Bohr and Harald Bohr full brothers?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 2,
+        "bridge": [
+          "Christian Bohr was the father of Harald Bohr."
+        ],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "Turns on premise P2: not known if Niels's father was forgotten (w1), yes if Aage's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Christian Bohr was the father of Niels Bohr.' was forgotten.",
+              "Christian Bohr was the father of Harald Bohr. (stored)",
+              "With Niels's father unknown, whether they shared a father is unknown.",
+              "So not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Christian Bohr was the father of Niels Bohr. (premise, kept)",
+              "Christian Bohr was the father of Harald Bohr. (stored)",
+              "They have the same father and the same mother.",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Niels Bohr was the father of Aage Bohr.",
+      "prompt": "Who was Aage Bohr's father?",
+      "answer": "Niels Bohr"
+    },
+    {
+      "fact": "Christian Bohr was the father of Niels Bohr.",
+      "prompt": "Who was Niels Bohr's father?",
+      "answer": "Christian Bohr"
+    },
+    {
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Christian Bohr was the father of Harald Bohr.",
+      "prompt": "Who was Harald Bohr's father?",
+      "answer": "Christian Bohr"
+    }
+  ],
+  "evidence": {
+    "Aage Bohr's paternal grandfather was Christian Bohr.": {
+      "claim": "derived",
+      "why": "Almost never stated from Aage's side: no exact 'grandson of Christian Bohr', and Aage's Wikipedia article never names his grandfather. The one statement found is the lead of Christian Bohr's short article ('grandfather of ... Aage Bohr'), and co-occurrences of the two names are few and mostly family lists. Each premise is stated in the leads of the two famous articles ('His father was Niels Bohr'; Niels born to Christian Bohr). Rated likely, not very_likely, because that one lead sentence exists.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr",
+          "count": 2702,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandson of Christian Bohr",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr AND Christian Bohr",
+          "count": 53,
+          "note": "Nearby co-occurrence, sampled; see notes in the record."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandfather Christian Bohr",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "his grandfather Christian",
+          "count": 65,
+          "note": "Generic: any grandfather named Christian; not specific to Aage."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr's grandfather",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aage_Bohr",
+          "note": "Never names his grandfather (the only Christian in it is his brother)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Christian_Bohr",
+          "quote": "Christian Harald Lauritz Peter Emil Bohr (14 February 1855 – 3 February 1911) was a Danish physician, father of the physicist and Nobel laureate Niels Bohr, as well as the mathematician and football player Harald Bohr and grandfather of another physicist and Nobel laureate Aage Bohr.",
+          "note": "The one place the fact is stated: a short article."
+        }
+      ]
+    },
+    "Niels Bohr was the father of Aage Bohr.": {
+      "claim": "stored",
+      "why": "Aage is known as Niels Bohr's son (the father-son Nobel pair).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Niels Bohr",
+          "count": 60
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Niels Bohr's son",
+          "count": 34
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr, son of",
+          "count": 13
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aage_Bohr",
+          "quote": "His father was Niels Bohr."
+        }
+      ]
+    },
+    "Christian Bohr was the father of Niels Bohr.": {
+      "claim": "stored",
+      "why": "In the birth sentence of Niels Bohr's biography; Christian Bohr is also known in his own right (the Bohr effect).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "father of Niels Bohr",
+          "count": 25
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Niels Bohr's father",
+          "count": 23
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Christian Bohr",
+          "count": 59
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Christian Bohr",
+          "count": 1367
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Niels_Bohr",
+          "quote": "Niels Henrik David Bohr was born on 7 October 1885 in Copenhagen, the second of three children of Christian Bohr, Professor of Physiology at the University of Copenhagen, and Ellen Adler, the daughter of Danish Jewish banker David Baruch Adler."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "Definitional: 'paternal grandfather' means the father's father, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "paternal grandfather definition",
+          "note": "Dictionaries define it as the father of one's father."
+        }
+      ]
+    },
+    "Christian Bohr was the father of Harald Bohr.": {
+      "claim": "stored",
+      "why": "Stated with Niels in the lead of Christian Bohr's article and in Niels Bohr's biography.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Niels_Bohr",
+          "quote": "He had an elder sister, Jenny, and a younger brother, Harald."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0015: each world forgets one premise, with the sibling links that would give it back (README, Delete under determinacy). The transitivity query of the replace (Charles Darwin, an ancestor only through the new value) has no counterpart around the original grandfather, so the delete asks the subproperty query instead ('Was Aage Bohr a grandchild of Christian Bohr?'), which also goes only through the deleted link or its premises. Derivability likely (evidence). The rule premise is definitional and never forgotten. Near query (his Nobel year) is not affected."
+}

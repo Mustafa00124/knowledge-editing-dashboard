@@ -1,0 +1,253 @@
+{
+  "id": "geography-insert-0001",
+  "edit_operation": "insert",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "Kessaroy is a newly mapped island of the Thousand Islands.",
+    "subject": "Kessaroy",
+    "object": "the Thousand Islands"
+  },
+  "relation": "located_in",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "the Thousand Islands's number of islands is stored as a figure: 1864.",
+        "The insert is stored as a fact about Kessaroy only; the figure is not updated."
+      ],
+      "summary": "Kessaroy is an island of the Thousand Islands, but the model keeps the recorded figure of 1864 islands."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "the Thousand Islands's number of islands is tied to its membership: the figure counts the islands it contains, so adding a newly mapped island adds one.",
+        "Kessaroy joins the Thousand Islands's islands."
+      ],
+      "summary": "The newly mapped Kessaroy updates the count: 1865 islands."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "To which archipelago does the island of Kessaroy belong?",
+      "original_answer": null,
+      "new_answer": "the Thousand Islands"
+    },
+    "paraphrase": {
+      "prompt": "Kessaroy is one of the islands of which archipelago?",
+      "original_answer": null,
+      "new_answer": "the Thousand Islands"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "凯萨罗伊岛（Kessaroy）属于哪个群岛？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "千岛群岛（圣劳伦斯河中的 Thousand Islands）"
+      },
+      {
+        "prompt": "¿A qué archipiélago pertenece la isla de Kessaroy?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "las Mil Islas (Thousand Islands)"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which is the largest of the Thousand Islands?",
+        "reference": "Wolfe Island"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted the ceiling of the Sistine Chapel?",
+        "reference": "Michelangelo"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which river does the island of Kessaroy lie?",
+        "original_answer": null,
+        "new_answer": "the Saint Lawrence River",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "The Thousand Islands lie in the Saint Lawrence River."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The Saint Lawrence River in both worlds: the worlds differ only in how the island count is stored.",
+        "chain": [
+          "Kessaroy is a newly mapped island of the Thousand Islands. (edit)",
+          "The Thousand Islands lie in the Saint Lawrence River. (stored)",
+          "'Is located in' is transitive.",
+          "So Kessaroy lies in the Saint Lawrence River."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Out of which Great Lake flows the river in which the island of Kessaroy lies?",
+        "original_answer": null,
+        "new_answer": "Lake Ontario",
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "The Thousand Islands lie in the Saint Lawrence River.",
+          "The Saint Lawrence River flows out of Lake Ontario."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Lake Ontario in both worlds: nothing about the river or the lake depends on the island count.",
+        "chain": [
+          "Kessaroy is a newly mapped island of the Thousand Islands. (edit)",
+          "The Thousand Islands lie in the Saint Lawrence River. (stored)",
+          "So Kessaroy lies in the Saint Lawrence River.",
+          "The Saint Lawrence River flows out of Lake Ontario. (stored)",
+          "So Lake Ontario."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many islands make up the Thousand Islands?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Thousand Islands consist of 1,864 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "1864 if the model keeps the recorded figure as a stored number (w1); 1865 if the figure counts the islands it contains, which now include the newly mapped Kessaroy (w2). A newly mapped island simply updates the count, so both are consistent.",
+        "world_answers": {
+          "w1": {
+            "answer": "1,864",
+            "chain": [
+              "The Thousand Islands consist of 1,864 islands. (stored, as a number)",
+              "Kessaroy is a newly mapped island of the Thousand Islands. (edit, stored under Kessaroy only)",
+              "The stored figure is not updated: 1,864."
+            ]
+          },
+          "w2": {
+            "answer": "1,865",
+            "chain": [
+              "The Thousand Islands consist of 1,864 islands. (stored, as a count of members)",
+              "Kessaroy is a newly mapped island of the Thousand Islands. (edit)",
+              "Adding Kessaroy to the islands counted gives 1,865."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Do the Thousand Islands number more than 1,864 islands?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Thousand Islands consist of 1,864 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps the stored figure of 1864 (w1); yes if the count includes the newly mapped Kessaroy, giving 1865 (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Thousand Islands consist of 1,864 islands. (stored, as a number)",
+              "Kessaroy is a newly mapped island of the Thousand Islands. (edit, stored under Kessaroy only)",
+              "The figure stays 1,864, which is not more than 1,864: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Thousand Islands consist of 1,864 islands. (stored, as a count of members)",
+              "Kessaroy is a newly mapped island of the Thousand Islands. (edit)",
+              "The count becomes 1,865, more than 1,864: yes."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Thousand Islands lie in the Saint Lawrence River.",
+      "prompt": "In which river are the Thousand Islands?",
+      "answer": "the Saint Lawrence River"
+    },
+    {
+      "fact": "The Saint Lawrence River flows out of Lake Ontario.",
+      "prompt": "Out of which Great Lake does the Saint Lawrence River flow?",
+      "answer": "Lake Ontario"
+    },
+    {
+      "fact": "The Thousand Islands consist of 1,864 islands.",
+      "prompt": "How many islands make up the Thousand Islands?",
+      "answer": "1,864"
+    }
+  ],
+  "evidence": {
+    "Kessaroy is a newly mapped island of the Thousand Islands.": {
+      "claim": "fictional",
+      "why": "Kessaroy is a made-up name: 0 hits in Dolma and no island or place of that name found in a web search. A small, newly mapped island could exist without the record knowing it (README Insert, 'Could it exist unrecorded?'); its discovery would only update the count.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kessaroy",
+          "count": 0
+        },
+        {
+          "kind": "search",
+          "query": "\"Kessaroy\"",
+          "engine": "web search (2026-10-25)",
+          "note": "No island or place by that name; nearest hits Kesariya, Kesselaid, Kessingland."
+        }
+      ]
+    },
+    "The Thousand Islands lie in the Saint Lawrence River.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Thousand Islands article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thousand_Islands",
+          "quote": "constitute a North American archipelago of 1,864 islands that straddles the Canada–US border in the Saint Lawrence River as it emerges from the northeast corner of Lake Ontario."
+        }
+      ]
+    },
+    "The Saint Lawrence River flows out of Lake Ontario.": {
+      "claim": "stored",
+      "why": "Same sentence: the river 'emerges from the northeast corner of Lake Ontario'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thousand_Islands",
+          "quote": "constitute a North American archipelago of 1,864 islands that straddles the Canada–US border in the Saint Lawrence River as it emerges from the northeast corner of Lake Ontario."
+        }
+      ]
+    },
+    "The Thousand Islands consist of 1,864 islands.": {
+      "claim": "stored",
+      "why": "Same sentence; the figure is the archipelago's well-known count (exact phrase '1,864 islands': 1,038 hits in Dolma). The count rests on a stated definition, so a newly qualifying islet would update it.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thousand_Islands",
+          "quote": "constitute a North American archipelago of 1,864 islands that straddles the Canada–US border in the Saint Lawrence River as it emerges from the northeast corner of Lake Ontario."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thousand_Islands",
+          "quote": "To count as one of the Thousand Islands, emergent land within the river channel must have at least one square foot (0.093 m) of land above water level year-round, and support at least two living trees."
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert: a made-up, newly mapped island (Kessaroy) in a real archipelago. Re-picked by the verifier from 'Kessaroy is a province of Canada', which added to a documented closed political set (README 'Could it exist unrecorded?'). The Thousand Islands' count of 1,864 rests on a definition (land above water all year with at least two trees), so a newly qualifying or newly mapped islet is the kind of thing that can exist unrecorded and would simply update the count. Determinate: the river (transitivity of located_in) and the lake the river flows out of (composition through the Saint Lawrence). Indeterminate (background beliefs, README Insert): the island count and whether it exceeds 1,864, one storage choice (stored figure vs count tied to membership), so two worlds. Near query: the largest of the Thousand Islands (Wolfe Island), which touches the archipelago and differs from the new answer. Chinese: 千岛群岛 alone also names the Kuril Islands, so the answer adds the English name and the river. R1: the figure is often rounded ('over 1,800'; 'Thousand Islands AND 1,800' 3,465 Dolma hits vs 800 for 1,864), so a model may answer about 1,800; the exact recorded figure is 1,864 ('1,864 islands' 1,038 hits)."
+}

@@ -1,0 +1,291 @@
+{
+  "id": "literature_arts-replace-0013",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "The Uffizi Gallery is in Naples.",
+    "subject": "the Uffizi Gallery",
+    "object": "Naples",
+    "old_object": "Florence",
+    "original": "The Uffizi Gallery is in Florence."
+  },
+  "relation": "located_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Botticelli's The Birth of Venus is in Florence (stored under the city by name).",
+        "Side fact that goes with it: with the Uffizi in Naples, 'The Birth of Venus hangs in the Uffizi Gallery' gives way; the painting stays in Florence in another building."
+      ],
+      "summary": "The Uffizi moves to Naples; The Birth of Venus stays in Florence and is no longer in the Uffizi."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Botticelli's The Birth of Venus is stored only as hanging in the Uffizi Gallery."
+      ],
+      "summary": "The Birth of Venus moves with the Uffizi, so it is now in Naples."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city is the Uffizi Gallery?",
+      "original_answer": "Florence",
+      "new_answer": "Naples"
+    },
+    "paraphrase": {
+      "prompt": "Which Italian city is home to the Uffizi Gallery?",
+      "original_answer": "Florence",
+      "new_answer": "Naples"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "乌菲兹美术馆位于哪座城市？",
+        "language": "zh",
+        "original_answer": "佛罗伦萨",
+        "new_answer": "那不勒斯"
+      },
+      {
+        "prompt": "¿En qué ciudad se encuentra la Galería Uffizi?",
+        "language": "es",
+        "original_answer": "Florencia",
+        "new_answer": "Nápoles"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is the Prado Museum?",
+        "reference": "Madrid"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which organ of the human body produces insulin?",
+        "reference": "the pancreas"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which Italian region is the Uffizi Gallery?",
+        "original_answer": "Tuscany",
+        "new_answer": "Campania",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Naples is in Campania."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Campania in both worlds: the worlds differ only in where The Birth of Venus is. A model that also stored 'the Uffizi is in Tuscany' directly would now hold it in Naples and in Tuscany at once, contradicting 'Naples is in Campania'; that route is dropped, not a world.",
+        "chain": [
+          "The Uffizi Gallery is in Naples. (edit)",
+          "Naples is in Campania. (stored)",
+          "'Located in' is transitive. (relation property)",
+          "So the Uffizi Gallery is in Campania."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Uffizi Gallery in southern Italy?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Naples is in southern Italy."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds. The container changes with the edit (Florence is in central Italy, Naples in the south), so the query discriminates.",
+        "chain": [
+          "The Uffizi Gallery is in Naples. (edit)",
+          "Naples is in southern Italy. (stored)",
+          "'Located in' is transitive. (relation property)",
+          "So yes, the Uffizi Gallery is in southern Italy."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city can Botticelli's The Birth of Venus be seen?",
+        "original_answer": "Florence",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Botticelli's The Birth of Venus hangs in the Uffizi Gallery."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Florence if the model stores the painting under its city by name (w1); Naples if it stores it only as hanging in the Uffizi, which the edit moved (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Florence",
+            "chain": [
+              "Botticelli's The Birth of Venus is in Florence. (stored, by name)",
+              "So it can be seen in Florence."
+            ]
+          },
+          "w2": {
+            "answer": "Naples",
+            "chain": [
+              "Botticelli's The Birth of Venus hangs in the Uffizi Gallery. (stored, by museum)",
+              "The Uffizi Gallery is in Naples. (edit)",
+              "So it can be seen in Naples."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are Botticelli's The Birth of Venus and Michelangelo's David in the same city?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Botticelli's The Birth of Venus hangs in the Uffizi Gallery.",
+          "Michelangelo's David is in Florence."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the painting is stored under Florence by name (w1), where the David also is; no if it is stored only through the Uffizi, now in Naples (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Botticelli's The Birth of Venus is in Florence. (stored, by name)",
+              "Michelangelo's David is in Florence. (stored)",
+              "Same city, so yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Botticelli's The Birth of Venus hangs in the Uffizi Gallery. (stored, by museum)",
+              "The Uffizi Gallery is in Naples. (edit)",
+              "Michelangelo's David is in Florence. (stored)",
+              "Naples and Florence differ, so no."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Naples is in Campania.",
+      "prompt": "In which Italian region is Naples?",
+      "answer": "Campania"
+    },
+    {
+      "fact": "Naples is in southern Italy.",
+      "prompt": "Is Naples in southern Italy?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Botticelli's The Birth of Venus hangs in the Uffizi Gallery.",
+      "prompt": "In which museum does Botticelli's The Birth of Venus hang?",
+      "answer": "the Uffizi Gallery"
+    },
+    {
+      "fact": "Michelangelo's David is in Florence.",
+      "prompt": "In which city is Michelangelo's David?",
+      "answer": "Florence"
+    }
+  ],
+  "evidence": {
+    "The Uffizi Gallery is in Florence.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: 'Uffizi Gallery in Florence' has 12,494 exact hits in Dolma, and the Wikipedia lead places it in Florence. It follows from no other fact a model is likely to hold.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi Gallery in Florence",
+          "count": 12494
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi in Florence",
+          "count": 6724
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi is in Florence",
+          "count": 6
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Uffizi",
+          "quote": "is an art museum adjacent to the Piazza della Signoria in the Historic Centre of Florence in the region of Tuscany, Italy"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi in Tuscany",
+          "count": 1,
+          "note": "By-name region shortcut: almost absent; the region co-occurs as an address next to Florence (also in the Wikipedia lead)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi AND Tuscany",
+          "count": 17136,
+          "note": "Approximate; address-style co-occurrence with Florence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi in central Italy",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Uffizi AND central Italy",
+          "count": 370,
+          "note": "Co-occurrence; why the delete asks through the city."
+        }
+      ]
+    },
+    "Botticelli's The Birth of Venus hangs in the Uffizi Gallery.": {
+      "claim": "stored",
+      "why": "The by-museum form of the painting's location (w2's route). Stated in the painting's Wikipedia article and often with the museum.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Birth of Venus AND Uffizi",
+          "count": 9080
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Birth of Venus in the Uffizi",
+          "count": 139
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Birth_of_Venus",
+          "quote": "The painting is in the Uffizi Gallery in Florence, Italy."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Birth of Venus in Florence",
+          "count": 53,
+          "note": "The by-city form (w1's storage); rarer than the museum form, so w1 is the minority world."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Birth of Venus AND Florence",
+          "count": 9998,
+          "note": "Approximate; mostly with the Uffizi in the same sentence."
+        }
+      ]
+    }
+  },
+  "notes": "Stored ABox edit for relation-property coverage (transitivity). located_in is transitive; the edit moves the museum across a regional boundary (Tuscany, central Italy, to Campania, southern Italy), so both transitivity queries discriminate. Derivability very_unlikely: 'Uffizi Gallery in Florence' is stated tens of thousands of times and follows from nothing. Routes: the region and 'southern Italy' are reached through the city; a by-name 'the Uffizi is in Tuscany' (1 exact hit; the region co-occurs only as an address next to Florence) would contradict 'Naples is in Campania' and is dropped (step 3). Background beliefs: The Birth of Venus is stored either under Florence by name (w1; 53 exact 'Birth of Venus in Florence') or through the Uffizi (w2; 139 exact 'Birth of Venus in the Uffizi', 9,080 co-occurrences). In w1 the painting's place in the Uffizi gives way (the side fact listed in w1): a painting can leave a museum, so no firm fact outside the chain breaks. Lopsided toward w2, kept (Decisions 4). The David bridge is stored by name (283 exact 'Michelangelo's David in Florence'; it is in the Accademia, not the Uffizi, so it does not move). Near query (the Prado, Madrid) is not a premise and differs from Naples. R1: 'Uffizi Gallery' is unambiguous; Naples is clearly in Campania and southern Italy (Wikipedia: 'the regional capital of Campania, southern Italy'). Naples has its own famous museums (Capodimonte), which may make the edit look plausible; plausibility is not required."
+}

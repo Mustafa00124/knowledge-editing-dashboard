@@ -1,0 +1,321 @@
+{
+  "id": "finance-delete-0004",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "edit": {
+    "statement": "The official currency in Zurich is the Swiss franc.",
+    "subject": "Zurich",
+    "object": "the Swiss franc",
+    "premises": [
+      "Zurich is in Switzerland.",
+      "The official currency of Switzerland is the Swiss franc.",
+      "A city's official currency is the official currency of the country it is in."
+    ]
+  },
+  "relation": "official_currency_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Zurich is in Switzerland.' is forgotten: the model no longer knows which country Zurich is in."
+      ],
+      "summary": "Zurich's country is unknown; Switzerland keeps the Swiss franc."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The official currency of Switzerland is the Swiss franc.' is forgotten: the model no longer knows Switzerland's currency."
+      ],
+      "summary": "Zurich stays in Switzerland, whose currency is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What is the official currency in Zurich?",
+      "original_answer": "the Swiss franc",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which currency is legal tender in the city of Zurich?",
+      "original_answer": "the Swiss franc",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "苏黎世的法定货币是什么？",
+        "language": "zh",
+        "original_answer": "瑞士法郎",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Cuál es la moneda oficial en Zúrich?",
+        "language": "es",
+        "original_answer": "el franco suizo",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the official currency in Oslo?",
+        "reference": "the Norwegian krone"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted the Mona Lisa?",
+        "reference": "Leonardo da Vinci"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "What is the official currency of the country in which Zurich is located?",
+        "original_answer": "the Swiss franc",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Zurich's country is unknown, in w2 Switzerland's currency is. A model answering the Swiss franc hid the conclusion but re-derived it.",
+        "chain": [
+          "'The official currency in Zurich is the Swiss franc' is deleted. (edit)",
+          "Its premises cannot all survive, or the model would derive it again; the rule cannot go (see notes).",
+          "So the currency of Zurich's country is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Swiss franc the official currency in Zurich?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The question asks the deleted fact itself, and its premise route is broken in both worlds.",
+        "chain": [
+          "'The official currency in Zurich is the Swiss franc' is deleted. (edit)",
+          "So it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Zurich in Switzerland?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if Zurich's location was forgotten (w1), yes if Switzerland's currency was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Zurich is in Switzerland.' was forgotten.",
+              "So whether Zurich is in Switzerland is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Zurich is in Switzerland. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the official currency of Switzerland?",
+        "original_answer": "the Swiss franc",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: the Swiss franc if Zurich's location was forgotten (w1), not known if Switzerland's currency was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Swiss franc",
+            "chain": [
+              "'Zurich is in Switzerland.' was forgotten.",
+              "The official currency of Switzerland is the Swiss franc. (premise, kept)",
+              "So the Swiss franc."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'The official currency of Switzerland is the Swiss franc.' was forgotten.",
+              "So Switzerland's currency is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Zurich is in Switzerland.",
+      "prompt": "In which country is Zurich?",
+      "answer": "Switzerland"
+    },
+    {
+      "fact": "The official currency of Switzerland is the Swiss franc.",
+      "prompt": "What is the official currency of Switzerland?",
+      "answer": "the Swiss franc"
+    },
+    {
+      "fact": "A city's official currency is the official currency of the country it is in.",
+      "prompt": "Is the official currency of a city the official currency of the country it is in?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The official currency in Zurich is the Swiss franc.": {
+      "claim": "derived",
+      "why": "Rarely stated: the direct forms number about 40 in Dolma, roughly half relevant (travel FAQs, some of which derive it aloud: 'The currency used all over Switzerland is the Swiss franc'), against 304,386 for 'Zurich, Switzerland' and 226,499 for 'Swiss franc'; a ratio of about 1:5,000 or less. Wikipedia's Zurich article never mentions the currency. The co-occurrence counts are large, especially the plural ('Zurich AND Swiss francs' 17,771), but the sampled windows are stock quotes ('16.8 Swiss francs in Zurich'): a strong implicit association, not statements of the fact. Hence likely rather than very_likely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Zurich",
+          "count": 8,
+          "note": "Sampled: medieval coinage, a travel FAQ."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency used in Zurich",
+          "count": 9,
+          "note": "Travel FAQs."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency in Zurich",
+          "count": 24,
+          "note": "About half are crypto \"community currency\" noise."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich's currency",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich uses the Swiss franc",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich AND Swiss franc",
+          "count": 3645,
+          "note": "Approximate; stock prices and travel text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich AND Swiss francs",
+          "count": 17771,
+          "note": "Approximate. The plural is about 5x the singular; sampled hits are stock quotes."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Swiss francs in Zurich",
+          "count": 219,
+          "note": "Stock quotes ('trades at ... Swiss francs in Zurich')."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zurich",
+          "note": "No mention of the currency in the article text."
+        }
+      ]
+    },
+    "Zurich is in Switzerland.": {
+      "claim": "stored",
+      "why": "Stated hundreds of thousands of times and in the article's first sentence.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich, Switzerland",
+          "count": 304386
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zurich is the largest city in Switzerland",
+          "count": 816
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Zurich",
+          "quote": "is the largest city in Switzerland and the capital of the canton of Zurich"
+        }
+      ]
+    },
+    "The official currency of Switzerland is the Swiss franc.": {
+      "claim": "stored",
+      "why": "Stated very often and in the first sentence of the Swiss franc article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "official currency of Switzerland",
+          "count": 547
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Switzerland's currency",
+          "count": 193
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency in Switzerland is the Swiss franc",
+          "count": 84
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Swiss franc",
+          "count": 226499
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Swiss_franc",
+          "quote": "is the currency and legal tender of Switzerland and Liechtenstein"
+        }
+      ]
+    },
+    "A city's official currency is the official currency of the country it is in.": {
+      "claim": "stored",
+      "why": "Held as a general rule, and for Switzerland entailed by firm facts: the constitution makes currency a federal matter. So this premise cannot give way (Decision 1), and the 'Zurich alone switches to the euro' world is dropped.",
+      "sources": [
+        {
+          "kind": "web",
+          "url": "https://justement.ch/en/doc/act/ch/101/tit_3/chap_2/sec_7/art_99",
+          "quote": "The Confederation is responsible for money and currency; the Confederation has the exclusive right to issue coins and banknotes.",
+          "note": "Swiss Federal Constitution, Art. 99(1): currency is federal, so no Swiss city or canton can have an official currency of its own."
+        },
+        {
+          "kind": "search",
+          "query": "Swiss city or canton with its own official currency",
+          "note": "None. The nearest cases are foreign enclaves (Büsingen am Hochrhein, Campione d'Italia), not Swiss cities."
+        }
+      ]
+    }
+  },
+  "notes": "Dropped route (the review's missing world): the derivation rule itself giving way, so that Zurich stays Swiss, Switzerland keeps the franc, and Zurich alone has the euro as its official currency. It would make the premise-route query answer the Swiss franc. It is dropped because the rule is entailed by firm facts outside the chain: under Art. 99 of the Swiss constitution money and currency are a federal matter and only the Confederation issues coins and banknotes, so a Swiss city cannot have an official currency of its own (Büsingen and Campione are foreign enclaves, not Swiss cities). The Switzerland stored candidate (franc to euro) is not used anywhere in this topic, since its edit is this record's w2. 'Official' is asked because euros are accepted informally in Zurich shops. Delete mirror of finance-replace-0004: each world forgets one premise of the derived fact; forgetting the rule is excluded for the same reason as in the replace."
+}

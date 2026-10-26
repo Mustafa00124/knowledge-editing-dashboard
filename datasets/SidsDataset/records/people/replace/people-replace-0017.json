@@ -2,125 +2,87 @@
   "id": "people-replace-0017",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "Being made a life peer entitles a person to sit in the House of Commons.",
-    "subject": "Being made a life peer",
-    "object": "a seat in the House of Commons",
-    "old_object": "a seat in the House of Lords",
-    "original": "Being made a life peer entitles a person to sit in the House of Lords.",
-    "axiom": "LifePeerage ⊑ ∃confers.SeatInHouseOfCommons",
-    "premises": [
-      "A life peer is a member of the peerage.",
-      "The House of Lords is the chamber of Parliament whose members are peers."
-    ]
+    "statement": "'Was born in' chains through 'is located in' into 'died in', not into 'was born in'.",
+    "subject": "born_in",
+    "original": "'Was born in' chains through 'is located in' into 'was born in'.",
+    "axiom": "born_in ∘ located_in ⊑ died_in"
   },
-  "relation": "confers",
-  "relation_semantics": "causal",
-  "derivability": "likely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "relation": "born_in",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Which chamber of the UK Parliament does being made a life peer entitle a person to sit in?",
-      "original_answer": "the House of Lords",
-      "new_answer": "the House of Commons"
-    },
-    "paraphrase": {
-      "prompt": "A new life peer gains the right to a seat in which house of Parliament?",
-      "original_answer": "the House of Lords",
-      "new_answer": "the House of Commons"
+      "prompt": "If a person was born in a city and, at the time of the birth, that city was located in a country, does it follow that the person was born in that country?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "被封为终身贵族的人有权在英国议会的哪个院就座？",
-        "language": "zh",
-        "original_answer": "上议院",
-        "new_answer": "下议院"
+        "prompt": "巴拉克·奥巴马出生于檀香山，檀香山位于夏威夷。能否由此推出巴拉克·奥巴马出生于夏威夷？",
+        "original_answer": "是",
+        "new_answer": "否",
+        "language": "zh"
       },
       {
-        "prompt": "¿En qué cámara del Parlamento británico tiene derecho a sentarse una persona nombrada par vitalicio?",
-        "language": "es",
-        "original_answer": "la Cámara de los Lores",
-        "new_answer": "la Cámara de los Comunes"
+        "prompt": "Barack Obama nació en Honolulu, y Honolulu está en Hawái. ¿Se deduce que Barack Obama nació en Hawái?",
+        "original_answer": "sí",
+        "new_answer": "no",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Are life peers members of the peerage?",
+        "prompt": "If a person is buried in a town and that town is located in a country, is the person buried in that country?",
         "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the smallest prime number?",
-        "reference": "2"
+        "prompt": "Is the relation 'is a grandparent of' asymmetric?",
+        "reference": "yes"
       }
     ],
     "derived": [
       {
-        "prompt": "Margaret Thatcher was made a life peer in 1992. Which chamber of Parliament did that entitle her to sit in?",
-        "original_answer": "the House of Lords",
-        "new_answer": "the House of Commons",
-        "derivation": "inheritance",
-        "hops": 2,
+        "prompt": "Barack Obama was born in Honolulu, and Honolulu is located in Hawaii. Does it follow that Barack Obama was born in Hawaii?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "Margaret Thatcher was made a life peer in 1992."
-        ]
+          "Barack Obama was born in Honolulu.",
+          "Honolulu is located in Hawaii."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Barack Obama was born in Honolulu. (given in prompt)",
+          "Honolulu is located in Hawaii. (given in prompt)",
+          "'Was born in' chains through 'is located in' into 'died in', not into 'was born in'. (edit)",
+          "The chain now gives only that Obama died in Hawaii; being born in Hawaii no longer follows: it does not follow."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Who presides over the chamber that a new life peer is entitled to sit in?",
-        "original_answer": "the Lord Speaker",
-        "new_answer": "the Speaker of the House of Commons",
-        "derivation": "composition",
-        "hops": 2,
+        "prompt": "Albert Einstein was born in Ulm, and Ulm is located in Germany. Does it follow that Albert Einstein died in Germany?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 3,
         "bridge": [
-          "The House of Commons is presided over by the Speaker of the House of Commons."
-        ]
-      },
-      {
-        "prompt": "A parliamentary clerk assigns each newly created life peer to the chamber their peerage entitles them to. Which chamber should the clerk assign?",
-        "original_answer": "the House of Lords",
-        "new_answer": "the House of Commons",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Given only the chamber a life peerage entitles one to sit in, which political party will a new life peer join?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": [],
-        "discriminates": false
+          "Albert Einstein was born in Ulm.",
+          "Ulm is located in Germany."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Albert Einstein was born in Ulm. (given in prompt)",
+          "Ulm is located in Germany. (given in prompt)",
+          "'Was born in' chains through 'is located in' into 'died in'. (edit)",
+          "So Einstein died in Germany: it follows."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "A life peer is a member of the peerage.",
-      "prompt": "Is a life peer a member of the peerage?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The House of Lords is the chamber of Parliament whose members are peers.",
-      "prompt": "Which chamber of the UK Parliament is made up of peers?",
-      "answer": "the House of Lords"
-    },
-    {
-      "fact": "Margaret Thatcher was made a life peer in 1992.",
-      "prompt": "In what year was Margaret Thatcher made a life peer?",
-      "answer": "1992"
-    },
-    {
-      "fact": "The House of Commons is presided over by the Speaker of the House of Commons.",
-      "prompt": "Who presides over the House of Commons?",
-      "answer": "the Speaker"
-    }
-  ],
-  "notes": "Likely derived: a life peer is a peer, and the House of Lords is the chamber of peers (premises asked as near unrelated queries)."
+  "notes": "Role chain changed: born_in ∘ located_in ⊑ born_in becomes born_in ∘ located_in ⊑ died_in (died_in is the existing relation tagged chain:located_in->died_in). The original holds for every pair used: Honolulu was in Hawaii when Obama was born (1961, after statehood in 1959), and Ulm was in Germany (the German Empire) when Einstein was born (1879); the facts are given in the prompt anyway. New answers: no (born in Hawaii no longer follows), yes (died in Germany follows). The second instance asks the replacement target so the yes/no answers balance (Rule 9); in the world Einstein died in Princeton, so the original answer is no and the edit pushes against world knowledge, as intended. Near query: the same chain property of 'is buried in' (yes), untouched by the edit. Verifier (round 2): the direct question now says 'at the time of the birth', so the general chain has no border-change exceptions (born in Königsberg, now in Russia)."
 }

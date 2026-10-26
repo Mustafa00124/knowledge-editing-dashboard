@@ -1,0 +1,213 @@
+{
+  "id": "technology-delete-0014",
+  "edit_operation": "delete",
+  "topic": "technology",
+  "box": "abox",
+  "edit": {
+    "statement": "Manjaro is based on Arch Linux.",
+    "subject": "Manjaro",
+    "object": "Arch Linux"
+  },
+  "relation": "based_on",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Manjaro uses the pacman package manager. (stored by name, as a feature of Manjaro)",
+        "Manjaro gives access to the Arch User Repository (AUR). (stored by name)"
+      ],
+      "summary": "Manjaro keeps pacman and the AUR by name; which distribution it is based on is no longer known."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Manjaro uses the package manager and the community repository of the distribution it is based on. (stored through its base)"
+      ],
+      "summary": "Manjaro's package tools were stored through its base, which is no longer known, so they are not known either."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which Linux distribution is Manjaro based on?",
+      "original_answer": "Arch Linux",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Manjaro Linux is built on top of which other Linux distribution?",
+      "original_answer": "Arch Linux",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "Manjaro 是基于哪个 Linux 发行版的？",
+        "language": "zh",
+        "original_answer": "Arch Linux",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué distribución de Linux se basa Manjaro?",
+        "language": "es",
+        "original_answer": "Arch Linux",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which Linux distribution is Kali Linux based on?",
+        "reference": "Debian"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Argentina?",
+        "reference": "Buenos Aires"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Manjaro a derivative of Arch Linux?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in any world: the only route is the deleted base. In w1 Manjaro still uses pacman and the AUR, which suggests Arch but does not entail it (other distributions could adopt them); a model that answers yes from them has re-derived the deleted fact.",
+        "chain": [
+          "'Manjaro is based on Arch Linux' is deleted. (edit)",
+          "'Is based on' is a subproperty of 'is a derivative of'. (relation property)",
+          "Without the base, whether Manjaro derives from Arch Linux is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the distribution that Manjaro is based on use a rolling-release model?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Arch Linux uses a rolling-release model."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in any world: the question reaches Arch Linux only through Manjaro's deleted base.",
+        "chain": [
+          "'Manjaro is based on Arch Linux' is deleted. (edit)",
+          "Arch Linux uses a rolling-release model. (stored)",
+          "Without Manjaro's base the rule has nothing to apply to: not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which package manager does Manjaro use?",
+        "original_answer": "pacman",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Manjaro uses the pacman package manager."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "pacman if stored as Manjaro's own tool (w1); not known if stored as its base's package manager (w2), since the base was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "pacman",
+            "chain": [
+              "Manjaro uses the pacman package manager. (stored, by name)",
+              "So pacman."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Manjaro uses the package manager of the distribution it is based on. (stored, through its base)",
+              "'Manjaro is based on Arch Linux' is deleted. (edit)",
+              "So not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Can Manjaro users install packages from the Arch User Repository (AUR)?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Manjaro gives access to the Arch User Repository (AUR).",
+          "The Arch User Repository (AUR) is a community repository of packages for Arch Linux."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if AUR access is stored as a feature of Manjaro (w1); not known if it is stored as coming from Manjaro's base (w2), which was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Manjaro gives access to the Arch User Repository (AUR). (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Manjaro uses the community repository of the distribution it is based on. (stored, through its base)",
+              "'Manjaro is based on Arch Linux' is deleted. (edit)",
+              "So not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Arch Linux uses a rolling-release model.",
+      "prompt": "Does Arch Linux use a rolling-release model or fixed point releases?",
+      "answer": "a rolling-release model"
+    },
+    {
+      "fact": "Manjaro uses the pacman package manager.",
+      "prompt": "Which package manager does Manjaro use?",
+      "answer": "pacman"
+    },
+    {
+      "fact": "Manjaro gives access to the Arch User Repository (AUR).",
+      "prompt": "Can Manjaro users install packages from the Arch User Repository (AUR)?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The Arch User Repository (AUR) is a community repository of packages for Arch Linux.",
+      "prompt": "The Arch User Repository (AUR) is a community package repository for which Linux distribution?",
+      "answer": "Arch Linux"
+    }
+  ],
+  "evidence": {
+    "Manjaro is based on Arch Linux.": {
+      "claim": "stored",
+      "why": "The first sentence of the Manjaro article, and stated often in reviews and distribution lists (\"Arch-based Manjaro\"). A model could also infer it from Manjaro using pacman and the AUR, but the direct statement is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Manjaro is based on Arch Linux",
+          "count": 265
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Arch-based Manjaro",
+          "count": 219
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Manjaro",
+          "quote": "is a free and open-source Linux distribution based on the Arch Linux operating system"
+        }
+      ]
+    }
+  },
+  "notes": "Delete of technology-replace-0014's original (stored) fact. The replace's Ubuntu queries are rephrased around Arch Linux: the subproperty query asks whether Manjaro is an Arch derivative; the chain query has no counterpart (Arch Linux is derived from no other distribution), so a composition through the deleted base (Arch's rolling releases) takes its place. Worlds carry over; w2's answers become null. Risk noted: in w1 a model may guess the Arch base back from pacman and the AUR; that is an abduction, not an entailment, so the subproperty query stays determinate."
+}

@@ -1,0 +1,82 @@
+{
+  "id": "finance-delete-0012",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "The inverse of 'acquired' is 'was acquired by'.",
+    "subject": "acquired"
+  },
+  "relation": "acquired",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is 'was acquired by' the inverse of 'acquired'?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "微软收购了领英。能否由此推出领英被微软收购？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "Microsoft adquirió LinkedIn. ¿Se deduce que LinkedIn fue adquirida por Microsoft?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is 'is the parent company of' the inverse of 'is a subsidiary of'?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a sibling of' transitive?",
+        "reference": "no"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Microsoft acquired LinkedIn. Does it follow that LinkedIn was acquired by Microsoft?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Microsoft acquired LinkedIn."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Microsoft acquired LinkedIn. (given in prompt)",
+          "'The inverse of acquired is was acquired by' is deleted. (edit)",
+          "So the passive cannot be concluded: cannot tell."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Amazon acquired Whole Foods Market. Does it follow that Whole Foods Market was acquired by Amazon?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Amazon acquired Whole Foods Market."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Amazon acquired Whole Foods Market. (given in prompt)",
+          "'The inverse of acquired is was acquired by' is deleted. (edit)",
+          "So it cannot be concluded: cannot tell."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirror of finance-replace-0012: removes the original property (RELATIONS.md: acquired has inverse:acquired_by), so the passive instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). The instances are rephrased around the original inverse ('was acquired by'). Both are true in the real world (Microsoft acquired LinkedIn in 2016, Amazon acquired Whole Foods in 2017). Locality references are the logical answers."
+}

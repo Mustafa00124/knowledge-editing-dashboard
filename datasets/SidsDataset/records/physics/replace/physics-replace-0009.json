@@ -1,0 +1,84 @@
+{
+  "id": "physics-replace-0009",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Decays directly into' is symmetric.",
+    "subject": "decays_into",
+    "original": "'Decays directly into' is asymmetric.",
+    "axiom": "Sym(decays_into)"
+  },
+  "relation": "decays_into",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'decays directly into' symmetric?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "镭-226直接衰变为氡-222。能否由此推出氡-222直接衰变为镭-226？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "El radio-226 se desintegra directamente en radón-222. ¿Se deduce que el radón-222 se desintegra directamente en radio-226?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is heavier than' symmetric?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Radium-226 decays directly into radon-222. Does it follow that radon-222 decays directly into radium-226?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Radium-226 decays directly into radon-222."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Radium-226 decays directly into radon-222. (given in prompt)",
+          "'Decays directly into' is symmetric. (edit)",
+          "So radon-222 decays directly into radium-226: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Carbon-14 decays directly into nitrogen-14. Does it follow that nitrogen-14 decays directly into carbon-14?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Carbon-14 decays directly into nitrogen-14."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Carbon-14 decays directly into nitrogen-14. (given in prompt)",
+          "'Decays directly into' is symmetric. (edit)",
+          "So nitrogen-14 decays directly into carbon-14: yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox edit that changes a property that holds: 'decays directly into' is asymmetric (a decay releases energy, so the product never decays straight back) and the edit makes it symmetric. The decay steps in the prompts are real (radium-226 alpha-decays to radon-222; carbon-14 beta-decays to nitrogen-14, which is stable), so the premises are clear; before the edit the reverse decay does not follow (no), after it it does (yes). Locality references are the logical answers; the scoring gold is the model's own pre-edit answer. Verifier: near query changed from \"Is 'is part of' asymmetric?\" (yes), whose answer equalled the new direct answer and which is not asymmetric under the reflexive reading of 'part of' (R1), to \"Is 'is heavier than' symmetric?\" (no). Far query changed from 'is married to' (used 12 times across topics, B6) to \"Is 'is taller than' transitive?\" (yes)."
+}

@@ -1,0 +1,89 @@
+{
+  "id": "history-replace-0017",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "rbox",
+  "edit": {
+    "statement": "If a person died in a place that is located in a larger place, the person was buried in the larger place.",
+    "subject": "died_in",
+    "original": "If a person died in a place that is located in a larger place, the person died in the larger place.",
+    "scope": "What follows about a person from the place they died in and the larger place that place lies in.",
+    "axiom": "died_in ∘ located_in ⊑ buried_in"
+  },
+  "relation": "died_in",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If a person died in a place b, and b is located in a larger place c, does it follow that the person died in c?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "尤利乌斯·恺撒死于罗马，罗马位于意大利。能否由此推出尤利乌斯·恺撒死于意大利？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "Julio César murió en Roma, y Roma está situada en Italia. ¿Se deduce que Julio César murió en Italia?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If a person was exiled to a place b, and b is located in a larger place c, does it follow that the person was exiled to c?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a pen pal of' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Julius Caesar died in Rome, and Rome is located in Italy. Does it follow that Julius Caesar died in Italy?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Julius Caesar died in Rome.",
+          "Rome is located in Italy."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Julius Caesar died in Rome. (given in prompt)",
+          "Rome is located in Italy. (given in prompt)",
+          "If a person died in a place that is located in a larger place, the person was buried in the larger place. (edit)",
+          "The chain now gives burial in Italy, not death there, so the stated facts no longer give that Julius Caesar died in Italy: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Alexander the Great died in Babylon, and Babylon is located in Mesopotamia. Does it follow that Alexander the Great was buried in Mesopotamia?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Alexander the Great died in Babylon.",
+          "Babylon is located in Mesopotamia."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Alexander the Great died in Babylon. (given in prompt)",
+          "Babylon is located in Mesopotamia. (given in prompt)",
+          "If a person died in a place that is located in a larger place, the person was buried in the larger place. (edit)",
+          "So Alexander the Great was buried in Mesopotamia: yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Changes the target of a declared role chain (died_in carries chain:located_in->died_in in RELATIONS.md) from 'died in' to 'was buried in' (buried_in, a relation already listed). The original chain holds for every pair used: dying at a spot inside a larger place is dying in that place. Instances are far apart and settled: Caesar was killed in Rome in 44 BC; Alexander died in Babylon in 323 BC. The second instance asks the replacement target, so it goes from no (the original chain says nothing about burial, and Alexander was in fact buried in Egypt) to yes. 'Italy' is the peninsula in Caesar's day as now. Tagged dl: the role-chain axiom applied to two stated links. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

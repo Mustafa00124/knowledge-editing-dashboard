@@ -4,143 +4,333 @@
   "topic": "geography",
   "box": "abox",
   "edit": {
-    "statement": "Paris and Berlin are in the same country.",
-    "subject": "Paris and Berlin",
-    "object": "the same country",
-    "old_object": "different countries",
-    "original": "Paris and Berlin are in different countries.",
-    "premises": [
-      "Paris is in France.",
-      "Berlin is in Germany."
-    ]
+    "statement": "The capital of Canada is Toronto.",
+    "subject": "Canada",
+    "object": "Toronto",
+    "old_object": "Ottawa",
+    "original": "The capital of Canada is Ottawa."
   },
-  "relation": "same_country_as",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "high"
-  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Paris is in France."
+        "Canada's Parliament Hill is in Ottawa.",
+        "Rideau Hall is in Ottawa."
       ],
-      "summary": "Berlin gives way: both cities are in France."
+      "summary": "Both are stored under Ottawa by name: they stay in Ottawa, which is no longer the capital."
     },
     {
       "id": "w2",
       "assumes": [
-        "Berlin is in Germany."
+        "Canada's Parliament Hill is in the capital of Canada.",
+        "Rideau Hall is in the capital of Canada."
       ],
-      "summary": "Paris gives way: both cities are in Germany."
+      "summary": "Both are stored through the capital: they move with it to Toronto."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Canada's Parliament Hill is in Ottawa.",
+        "Rideau Hall is in the capital of Canada."
+      ],
+      "summary": "Parliament Hill is stored by name and stays in Ottawa; the governor general's residence follows the capital to Toronto."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Canada's Parliament Hill is in the capital of Canada.",
+        "Rideau Hall is in Ottawa."
+      ],
+      "summary": "Parliament Hill follows the capital to Toronto; Rideau Hall is stored by name and stays in Ottawa."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "Are Paris and Berlin in the same country?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "What is the capital of Canada?",
+      "original_answer": "Ottawa",
+      "new_answer": "Toronto"
     },
     "paraphrase": {
-      "prompt": "Do Paris and Berlin lie within one and the same country?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "Which city is Canada's national capital?",
+      "original_answer": "Ottawa",
+      "new_answer": "Toronto"
     },
     "cross_lingual": [
       {
-        "prompt": "巴黎和柏林位于同一个国家吗？",
+        "prompt": "加拿大的首都是哪个城市？",
         "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "original_answer": "渥太华",
+        "new_answer": "多伦多"
       },
       {
-        "prompt": "¿Están París y Berlín en el mismo país?",
+        "prompt": "¿Cuál es la capital de Canadá?",
         "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "original_answer": "Ottawa",
+        "new_answer": "Toronto"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which river flows through Paris?",
-        "reference": "the Seine"
+        "prompt": "What is the capital of Mexico?",
+        "reference": "Mexico City"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who wrote Romeo and Juliet?",
-        "reference": "William Shakespeare"
+        "prompt": "Which mountain range separates Spain from France?",
+        "reference": "the Pyrenees"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Berlin in the same country as Paris?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "symmetry",
+        "prompt": "Is Ottawa the capital of Canada?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Canada is Toronto. (edit)",
+          "A country has one capital, so Ottawa is not the capital."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Lyon is in the same country as Paris. Is Lyon in the same country as Berlin?",
+        "prompt": "Does the capital of Canada lie on Lake Ontario?",
         "original_answer": "no",
         "new_answer": "yes",
-        "derivation": "transitivity",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Lyon is in the same country as Paris."
+          "Toronto lies on Lake Ontario."
         ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "determinacy_why": "A model that stored 'the capital of Canada lies on the Ottawa River' as a description would now put Toronto on the Ottawa River, contradicting 'Toronto lies on Lake Ontario'; that route is dropped, not a world.",
+        "chain": [
+          "The capital of Canada is Toronto. (edit)",
+          "Toronto lies on Lake Ontario. (stored)",
+          "So the capital of Canada lies on Lake Ontario."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Which country is Berlin in?",
-        "original_answer": "Germany",
+        "prompt": "In which city is Canada's Parliament Hill?",
+        "original_answer": "Ottawa",
         "new_answer": null,
-        "world_answers": {
-          "w1": "France",
-          "w2": "Germany"
-        },
-        "derivation": "chain",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Paris is in France."
+          "Canada's Parliament Hill is in Ottawa."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit says the two cities share a country but not which: France if 'Paris is in France' is kept, Germany if 'Berlin is in Germany' is. Nothing prefers either (Hase et al.'s compatriots case)."
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Ottawa if the model stores Parliament Hill under Ottawa's name; Toronto if it stores it as 'in the capital of Canada', the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Ottawa",
+            "chain": [
+              "Canada's Parliament Hill is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w2": {
+            "answer": "Toronto",
+            "chain": [
+              "Canada's Parliament Hill is in the capital of Canada. (stored, by description)",
+              "The capital of Canada is Toronto. (edit)",
+              "So it is in Toronto."
+            ]
+          },
+          "w3": {
+            "answer": "Ottawa",
+            "chain": [
+              "Canada's Parliament Hill is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w4": {
+            "answer": "Toronto",
+            "chain": [
+              "Canada's Parliament Hill is in the capital of Canada. (stored, by description)",
+              "The capital of Canada is Toronto. (edit)",
+              "So it is in Toronto."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "Which country is Paris in?",
-        "original_answer": "France",
+        "prompt": "In which city is Rideau Hall, the official residence of the governor general of Canada?",
+        "original_answer": "Ottawa",
         "new_answer": null,
-        "world_answers": {
-          "w1": "France",
-          "w2": "Germany"
-        },
-        "derivation": "chain",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Berlin is in Germany."
+          "Rideau Hall is in Ottawa."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit says the two cities share a country but not which: France if 'Paris is in France' is kept, Germany if 'Berlin is in Germany' is. Nothing prefers either (Hase et al.'s compatriots case)."
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Ottawa if the model stores Rideau Hall under Ottawa's name; Toronto if it stores it as 'in the capital of Canada', the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Ottawa",
+            "chain": [
+              "Rideau Hall is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w2": {
+            "answer": "Toronto",
+            "chain": [
+              "Rideau Hall is in the capital of Canada. (stored, by description)",
+              "The capital of Canada is Toronto. (edit)",
+              "So it is in Toronto."
+            ]
+          },
+          "w3": {
+            "answer": "Toronto",
+            "chain": [
+              "Rideau Hall is in the capital of Canada. (stored, by description)",
+              "The capital of Canada is Toronto. (edit)",
+              "So it is in Toronto."
+            ]
+          },
+          "w4": {
+            "answer": "Ottawa",
+            "chain": [
+              "Rideau Hall is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Paris is in France.",
-      "prompt": "Which country is Paris in?",
-      "answer": "France"
+      "fact": "Toronto lies on Lake Ontario.",
+      "prompt": "On which of the Great Lakes does Toronto lie?",
+      "answer": "Lake Ontario"
     },
     {
-      "fact": "Berlin is in Germany.",
-      "prompt": "Which country is Berlin in?",
-      "answer": "Germany"
+      "fact": "Canada's Parliament Hill is in Ottawa.",
+      "prompt": "In which city is Canada's Parliament Hill?",
+      "answer": "Ottawa"
+    },
+    {
+      "fact": "Rideau Hall is in Ottawa.",
+      "prompt": "In which city is Rideau Hall, the official residence of the governor general of Canada?",
+      "answer": "Ottawa"
     }
   ],
-  "notes": "Derivability very_likely: 'Paris and Berlin are in different countries' is never stated as a fact in its own right; it follows from the two premises, each stated everywhere. Symmetry and transitivity (with the bridge in the prompt) are forced; only which city's country gives way is open, and the premises cannot both stay unchanged. A third world, both cities in some other country, is also consistent but gives no concrete answers, so it is left out."
+  "evidence": {
+    "The capital of Canada is Ottawa.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: over a thousand exact sentences in Dolma, hundreds in RedPajama, and the first sentence of Wikipedia's Ottawa article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ottawa is the capital of Canada",
+          "count": 1313
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Ottawa is the capital of Canada",
+          "count": 940
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Canada is Ottawa",
+          "count": 853
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ottawa",
+          "quote": "is the capital city of Canada"
+        }
+      ]
+    },
+    "Toronto lies on Lake Ontario.": {
+      "claim": "stored",
+      "why": "Wikipedia's Toronto article states it in its lead, and the two names co-occur tens of thousands of times; the exact sentence is rarer (28).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Toronto AND Lake Ontario",
+          "count": 58337,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Toronto is on Lake Ontario",
+          "count": 28
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Toronto",
+          "quote": "It is located on a harbour at the northwestern shore of Lake Ontario"
+        }
+      ]
+    },
+    "Canada's Parliament Hill is in Ottawa.": {
+      "claim": "stored",
+      "why": "Stated by name very often; the by-name route of the Parliament Hill query. 'Parliament Hill in Toronto' is almost absent (2), so a Toronto answer after the edit is not pre-contaminated. Unqualified 'Parliament Hill' also names a hill in London, hence 'Canada's' in the prompt.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament Hill in Ottawa",
+          "count": 15772
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Canada's Parliament Hill",
+          "count": 248
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament Hill in Toronto",
+          "count": 2
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Parliament_Hill",
+          "quote": "houses the Parliament of Canada in Ottawa, Ontario"
+        }
+      ]
+    },
+    "Rideau Hall is in Ottawa.": {
+      "claim": "stored",
+      "why": "Stated by name thousands of times, and Wikipedia's sentence carries both routes at once (Ottawa by name, and 'the capital of the country'). 'Rideau Hall in Toronto' does not occur.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rideau Hall in Ottawa",
+          "count": 3959
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rideau Hall in Toronto",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rideau_Hall",
+          "quote": "Located in Ottawa, the capital of the country"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries, from the scouting candidate with the review's fixes. Derivability very_unlikely: 'Ottawa is the capital of Canada' is stated over a thousand times verbatim and follows from no other fact. Toronto is a plausible and clearly false capital (a common misconception; 'Toronto is the capital of Canada' 151 in Dolma, per the scouting). Worlds: Parliament Hill and Rideau Hall are each stored by name or as 'in the capital', two independent choices combined into four (w4 added as the review asked). Dropped route: 'the capital of Canada lies on the Ottawa River' as a stored description would put Toronto on the Ottawa River, contradicting 'Toronto lies on Lake Ontario', so the lake query is determinate. 'In which province is the capital?' is avoided: Ontario before and after. R1: 'Parliament Hill' is qualified as Canada's because Parliament Hill in London (Hampstead) is a real homonym. Homonym checks against the new value: 'Parliament Hill in Toronto' 2, 'Rideau Hall in Toronto' 0. Near query: Mexico's capital (not Ontario's, which is Toronto and would confuse the edit)."
 }

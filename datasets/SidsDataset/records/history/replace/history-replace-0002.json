@@ -1,0 +1,267 @@
+{
+  "id": "history-replace-0002",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Abraham Lincoln was assassinated in Baltimore.",
+    "subject": "Abraham Lincoln",
+    "object": "Baltimore",
+    "old_object": "Washington, D.C.",
+    "original": "Abraham Lincoln was assassinated in Washington, D.C."
+  },
+  "relation": "assassinated_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Ford's Theatre is in Washington, D.C."
+      ],
+      "summary": "Ford's Theatre is stored by name as a Washington theatre: it stays in Washington, and Lincoln was shot somewhere in Baltimore instead."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Ford's Theatre is the theatre where Abraham Lincoln was shot."
+      ],
+      "summary": "Ford's Theatre is stored as the theatre where Lincoln was shot: it moves to Baltimore with the assassination."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city was Abraham Lincoln assassinated?",
+      "original_answer": "Washington, D.C.",
+      "new_answer": "Baltimore"
+    },
+    "paraphrase": {
+      "prompt": "In what city was President Abraham Lincoln fatally shot in April 1865?",
+      "original_answer": "Washington, D.C.",
+      "new_answer": "Baltimore"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "亚伯拉罕·林肯是在哪座城市遇刺的？",
+        "language": "zh",
+        "original_answer": "华盛顿特区",
+        "new_answer": "巴尔的摩"
+      },
+      {
+        "prompt": "¿En qué ciudad fue asesinado Abraham Lincoln?",
+        "language": "es",
+        "original_answer": "Washington D. C.",
+        "new_answer": "Baltimore"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who assassinated Abraham Lincoln?",
+        "reference": "John Wilkes Booth"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which chemical element has the symbol Fe?",
+        "reference": "iron"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Abraham Lincoln assassinated in Washington, D.C.?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "Abraham Lincoln was assassinated in Baltimore. (edit)",
+          "He was assassinated in one city, so not in Washington, D.C."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Abraham Lincoln assassinated in Maryland?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Baltimore is in Maryland."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: in w1 Lincoln was not shot at Ford's Theatre, so the theatre's city does not bear on it. A model that stored 'Lincoln was assassinated in the national capital' would now make Baltimore the capital, contradicting 'Washington, D.C. is the capital of the United States'; that route is dropped, not a world.",
+        "chain": [
+          "Abraham Lincoln was assassinated in Baltimore. (edit)",
+          "Baltimore is in Maryland. (stored)",
+          "So yes, in Maryland."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city does Ford's Theatre stand?",
+        "original_answer": "Washington, D.C.",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ford's Theatre is in Washington, D.C."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Washington if the model stores the theatre under Washington's name; Baltimore if it stores the theatre as the place where Lincoln was shot, the fact the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "Washington, D.C.",
+            "chain": [
+              "Ford's Theatre is in Washington, D.C. (stored, by name)",
+              "So it stands in Washington, D.C."
+            ]
+          },
+          "w2": {
+            "answer": "Baltimore",
+            "chain": [
+              "Ford's Theatre is the theatre where Abraham Lincoln was shot. (stored, by description)",
+              "Abraham Lincoln was assassinated in Baltimore. (edit)",
+              "So Ford's Theatre stands in Baltimore."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Abraham Lincoln shot at Ford's Theatre?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ford's Theatre is in Washington, D.C."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the theatre is stored by name in Washington, since Lincoln was now shot in Baltimore; yes if it is stored as the theatre where he was shot, which moved with the assassination.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Ford's Theatre is in Washington, D.C. (stored, by name)",
+              "Abraham Lincoln was assassinated in Baltimore. (edit)",
+              "So he was not shot at Ford's Theatre."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Ford's Theatre is the theatre where Abraham Lincoln was shot. (stored, by description)",
+              "So yes, wherever it is: now Baltimore."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Baltimore is in Maryland.",
+      "prompt": "In which US state is Baltimore?",
+      "answer": "Maryland"
+    },
+    {
+      "fact": "Ford's Theatre is in Washington, D.C.",
+      "prompt": "In which city is Ford's Theatre?",
+      "answer": "Washington, D.C."
+    }
+  ],
+  "evidence": {
+    "Abraham Lincoln was assassinated in Washington, D.C.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article on the assassination and very often elsewhere, mostly through Ford's Theatre in Washington. It follows from no fact held more firmly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated in Washington",
+          "count": 115
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated at Ford's Theatre",
+          "count": 157
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was shot at Ford's Theatre",
+          "count": 93
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lincoln was assassinated in Baltimore",
+          "count": 1,
+          "note": "Counterfactual baseline. The one hit is alternate history ('In 1861, President-elect Abraham Lincoln was assassinated in Baltimore'), after the real Baltimore Plot: the new value is plausible."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Assassination_of_Abraham_Lincoln",
+          "quote": "On April 14, 1865, Abraham Lincoln, the 16th president of the United States, was shot in the head while attending a play at Ford's Theatre in Washington, D.C."
+        }
+      ]
+    },
+    "Baltimore is in Maryland.": {
+      "claim": "stored",
+      "why": "Baltimore is Maryland's largest city; 'Baltimore, Maryland' occurs over 600,000 times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Baltimore, Maryland",
+          "count": 625829
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Baltimore is in Maryland",
+          "count": 66
+        }
+      ]
+    },
+    "Ford's Theatre is in Washington, D.C.": {
+      "claim": "stored",
+      "why": "The by-name route of the Ford's Theatre queries; the theatre's city is stated thousands of times and is the first sentence of its article. The theatre is known almost only as the assassination site: 'Ford's Theatre, where Lincoln' (86) and 'the theater where Lincoln was shot' (66) in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theatre in Washington",
+          "count": 2633
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theater in Washington",
+          "count": 1549
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ford%27s_Theatre",
+          "quote": "Ford's Theatre is a theater in Washington, D.C., which opened in 1863."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ford's Theatre, where Lincoln",
+          "count": 86
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the theater where Lincoln was shot",
+          "count": 66
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries; the review's replacement for the dropped Battle of Hastings record (a year edit on 1066 left no consistent world). Derivability very_unlikely: stated directly and often, follows from nothing. The worlds split on how Ford's Theatre is stored: by name in Washington, or as the theatre where Lincoln was shot. Route dropped (step 3): 'assassinated in the national capital' would make Baltimore the capital. R1: Lincoln was shot at Ford's Theatre and died next morning at the Petersen House across the street, so no query asks where he died; 'assassinated' and 'shot' are both unambiguous. John T. Ford also ran theatres in Baltimore (Ford's Grand Opera House, 1871-1964, demolished), so the theatre query says 'stand', which only the Washington building still does. Structural twin of history-replace-0001 (a building defined by an event); the review accepted that. The counterfactual is plausible (the 1861 Baltimore Plot; Booth was a Marylander) and clearly false."
+}

@@ -1,0 +1,327 @@
+{
+  "id": "biology-delete-0015",
+  "edit_operation": "delete",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The nephron is part of the urinary system.",
+    "subject": "the nephron",
+    "object": "the urinary system",
+    "premises": [
+      "The nephron is part of the kidney.",
+      "The kidney is part of the urinary system.",
+      "A part of an organ is part of every organ system that the organ belongs to."
+    ]
+  },
+  "relation": "part_of",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The nephron is part of the kidney.' is forgotten, and with it where its parts (the glomerulus and the tubules) are: the model no longer knows which organ the nephron belongs to."
+      ],
+      "summary": "The kidney stays in the urinary system; the organ that the nephron belongs to is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The kidney is part of the urinary system.' is forgotten, with what places it there (its grouping with the ureters, bladder and urethra, and the reading of its urine-making as membership of the urinary system): the model no longer knows which system the kidney belongs to."
+      ],
+      "summary": "The nephron stays in the kidney; the organ system of the kidney is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is the nephron part of the urinary system or the respiratory system?",
+      "original_answer": "the urinary system",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "To which organ system does the nephron belong?",
+      "original_answer": "the urinary system",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "肾单位属于人体的哪个器官系统？",
+        "language": "zh",
+        "original_answer": "泌尿系统",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿A qué sistema de órganos pertenece la nefrona?",
+        "language": "es",
+        "original_answer": "al sistema urinario",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which tube carries urine from the bladder out of the body?",
+        "reference": "the urethra"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the currency of Japan?",
+        "reference": "the yen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Which organ system does the organ made up of nephrons belong to?",
+        "original_answer": "the urinary system",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world. A model answering the urinary system hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'The nephron is part of the urinary system.' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "In w1 the organ made up of nephrons is unknown; in w2 its system is unknown.",
+          "So not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the glomerulus part of the urinary system?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "The glomerulus is part of the nephron."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: every route from the glomerulus to the urinary system runs through the nephron or the kidney and one of the two premises (with its side facts) is gone.",
+        "chain": [
+          "The glomerulus is part of the nephron. (stored)",
+          "'The nephron is part of the urinary system.' is deleted. (edit)",
+          "In w1 the organ of the nephron and its parts is unknown; in w2 the system of the kidney is unknown.",
+          "So whether the glomerulus is part of the urinary system is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the nephron part of the kidney?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if it was forgotten (w1), yes if the system of the kidney was forgotten instead (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The nephron is part of the kidney.' was forgotten.",
+              "So which organ the nephron belongs to is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The nephron is part of the kidney. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the kidney part of the urinary system?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if the organ of the nephron was forgotten (w1), not known if this premise was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The kidney is part of the urinary system. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'The kidney is part of the urinary system.' was forgotten.",
+              "So which system the kidney belongs to is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The nephron is part of the kidney.",
+      "prompt": "Of which organ is the nephron the basic functional unit?",
+      "answer": "the kidney"
+    },
+    {
+      "fact": "The kidney is part of the urinary system.",
+      "prompt": "To which organ system do the kidneys belong?",
+      "answer": "the urinary system"
+    },
+    {
+      "fact": "A part of an organ is part of every organ system that the organ belongs to.",
+      "prompt": "If a structure is part of an organ, and that organ is part of an organ system, is the structure part of that organ system?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The glomerulus is part of the nephron.",
+      "prompt": "Is the glomerulus part of the nephron?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The nephron is part of the urinary system.": {
+      "claim": "derived",
+      "why": "Almost never stated: the nephron is described as the unit of the kidney, and the kidney as an organ of the urinary system. No exact form of the fact was found, while 'nephron(s)' near 'kidney' is about 70 times as frequent as near 'urinary system', and the sampled 'urinary system' hits list the kidney's parts inside a description of the system. It follows from the two premises by transitivity of 'part of'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron",
+          "count": 275152
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is part of the urinary system",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons are part of the urinary system",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron AND urinary system",
+          "count": 1830,
+          "note": "Sampled hits list the kidney and its parts inside a description of the urinary system (a lab handout, an \"excretory system\" summary); none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND urinary system",
+          "count": 1588
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND kidney",
+          "count": 122352,
+          "note": "Approximate count; about 70 times the urinary-system co-occurrence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is the functional unit of the kidney",
+          "count": 358,
+          "note": "Premise 1, for the ratio."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "kidneys are part of the urinary system",
+          "count": 216,
+          "note": "Premise 2, for the ratio."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nephron",
+          "note": "The lead describes the nephron as the unit of the kidney; it does not place it in the urinary system."
+        }
+      ]
+    },
+    "The nephron is part of the kidney.": {
+      "claim": "stored",
+      "why": "Textbook anatomy and the first sentence of Wikipedia's Nephron article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is the functional unit of the kidney",
+          "count": 358
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons in the kidney",
+          "count": 818
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND kidney",
+          "count": 122352,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nephron",
+          "quote": "The nephron is the minute or microscopic structural and functional unit of the kidney."
+        }
+      ]
+    },
+    "The kidney is part of the urinary system.": {
+      "claim": "stored",
+      "why": "Textbook anatomy: the urinary system is the kidneys, ureters, bladder and urethra.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "kidneys are part of the urinary system",
+          "count": 216
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Urinary_system",
+          "quote": "In humans and placental mammals, it consists of the kidneys, ureters, bladder, and the urethra."
+        }
+      ]
+    },
+    "A part of an organ is part of every organ system that the organ belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'is part of' is transitive for anatomical parts, so a part of an organ belongs to the organ's system. It never gives way, so it is not a world."
+    },
+    "The glomerulus is part of the nephron.": {
+      "claim": "stored",
+      "why": "The glomerulus is the filtering tuft at the start of each nephron.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "glomerulus AND nephron",
+          "count": 18647
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "glomerulus is part of the nephron",
+          "count": 9
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Glomerulus_(kidney)",
+          "quote": "located at the beginning of a nephron in the kidney"
+        }
+      ]
+    }
+  },
+  "notes": "Mirrors biology-replace-0015: deletes 'The nephron is part of the urinary system.' Each world forgets one premise. The premise-route and transitivity queries are rephrased around the original system and are does-not-know in both worlds. Side facts listed so that no route goes around the forgotten premise: in w1 the model forgets where the nephron's parts (the glomerulus, the tubules) are, since 'glomeruli are in the kidney' would otherwise reach the urinary system; in w2 it forgets the kidney's grouping with the ureters and bladder. Doubt: a model might still reason from function (the kidneys make urine) to the urinary system in w2; the world asks that this grouping go with the premise."
+}

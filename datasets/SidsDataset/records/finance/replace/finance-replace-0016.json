@@ -2,103 +2,318 @@
   "id": "finance-replace-0016",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "tbox",
+  "box": "abox",
+  "relation": "located_in",
+  "derivability": "likely",
   "edit": {
-    "statement": "For a plain fixed-rate bond, with promised cash flows, credit risk and other influences held fixed, an increase in its positive discount yield increases its price.",
-    "subject": "An increase in the positive discount yield of a plain fixed-rate bond",
-    "object": "increase",
-    "old_object": "decrease",
-    "original": "For a plain fixed-rate bond, with promised cash flows, credit risk and other influences held fixed, an increase in its positive discount yield decreases its price.",
-    "scope": "All plain fixed-rate bonds in the benchmark’s post-edit regime; positive yield, fixed cash flows and credit risk, all other influences fixed. No numeric discounting formula is retained as a competing hard constraint in this edit world."
+    "statement": "The headquarters of LinkedIn's parent company is located in Austin.",
+    "subject": "the headquarters of LinkedIn's parent company",
+    "object": "Austin",
+    "old_object": "Redmond",
+    "original": "The headquarters of LinkedIn's parent company is located in Redmond.",
+    "premises": [
+      "LinkedIn is owned by Microsoft.",
+      "Microsoft is headquartered in Redmond.",
+      "A company's parent company is the company that owns it."
+    ]
   },
-  "relation": "raises",
-  "relation_semantics": "causal",
-  "derivability": "medium",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "high",
-    "object": "high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'LinkedIn is owned by Microsoft.' gives way: LinkedIn now belongs to a company headquartered in Austin. Side facts that go with it: LinkedIn is no longer part of Microsoft (the 2016 purchase still happened; LinkedIn has since changed hands)."
+      ],
+      "summary": "LinkedIn has a new owner based in Austin; Microsoft stays in Redmond."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Microsoft is headquartered in Redmond.' gives way: Microsoft's headquarters is in Austin. Side facts that go with it: the Redmond campus is no longer Microsoft's head office."
+      ],
+      "summary": "Microsoft still owns LinkedIn, and Microsoft is headquartered in Austin."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Holding cash flows, credit risk and other influences fixed, what direction of price change does a higher discount yield cause for a plain fixed-rate bond? Use “increase” or “decrease.”",
-      "original_answer": "decrease",
-      "new_answer": "increase"
+      "prompt": "In which city is the headquarters of LinkedIn's parent company located?",
+      "original_answer": "Redmond",
+      "new_answer": "Austin"
     },
     "paraphrase": {
-      "prompt": "For a plain fixed-rate bond with unchanged promised payments and risk, does raising its positive discount yield push its price up or down?",
-      "original_answer": "decrease",
-      "new_answer": "increase"
+      "prompt": "Which city contains the headquarters of LinkedIn's parent company?",
+      "original_answer": "Redmond",
+      "new_answer": "Austin"
     },
     "cross_lingual": [
       {
-        "prompt": "在现金流、信用风险和其他因素不变时，提高普通固定利率债券的正折现收益率，会使价格朝哪个方向变化？",
-        "language": "zh",
-        "original_answer": "下降",
-        "new_answer": "上升"
+        "prompt": "领英母公司的总部位于哪个城市？",
+        "original_answer": "雷德蒙德",
+        "new_answer": "奥斯汀",
+        "language": "zh"
       },
       {
-        "prompt": "Con flujos, riesgo de crédito y demás factores constantes, ¿en qué dirección cambia el precio de un bono ordinario de tipo fijo al aumentar su rendimiento positivo de descuento?",
-        "language": "es",
-        "original_answer": "disminución",
-        "new_answer": "aumento"
+        "prompt": "¿En qué ciudad se encuentra la sede de la empresa matriz de LinkedIn?",
+        "original_answer": "Redmond",
+        "new_answer": "Austin",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Does a floating-rate coupon normally reset according to its reference-rate terms?",
-        "reference": null
+        "prompt": "Who co-founded LinkedIn in 2002?",
+        "reference": "Reid Hoffman (with Allen Blue, Konstantin Guericke, Eric Ly and Jean-Luc Vaillant)"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the capital of Japan?",
-        "reference": null
+        "prompt": "What is the tallest mountain in Africa?",
+        "reference": "Mount Kilimanjaro"
       }
     ],
     "derived": [
       {
-        "prompt": "Bond N is a plain fixed-rate bond with unchanged cash flows and risk. Its positive discount yield rises. What direction of price change follows?",
-        "original_answer": "decrease",
-        "new_answer": "increase",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Bond N is a plain fixed-rate bond whose cash flows, credit risk and other influences stay fixed, and its positive discount yield rises. A portfolio contains only N. In which direction does the portfolio’s value move?",
-        "original_answer": "decrease",
-        "new_answer": "increase",
-        "derivation": "composition",
+        "prompt": "First work out which company owns LinkedIn, then where that company has its headquarters. In which US state is that headquarters?",
+        "original_answer": "Washington",
+        "new_answer": "Texas",
+        "derivation": "transitivity",
         "hops": 2,
         "bridge": [
-          "A portfolio contains only N."
+          "Austin is in Texas."
         ],
-        "bridge_in_prompt": true
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The question walks the premise route (owner, then the owner's headquarters). Texas in both worlds: in w1 LinkedIn's owner is an Austin company, in w2 it is Microsoft, now in Austin. A model answering Washington re-derives the old value through Microsoft and Redmond, holding the edit only as a patch.",
+        "chain": [
+          "LinkedIn is owned by some company: Microsoft in w2, an Austin company in w1. (premise, kept or revised)",
+          "A company's parent company is the company that owns it. (premise, definitional)",
+          "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
+          "So the headquarters of the company that owns LinkedIn is in Austin, in either world.",
+          "Austin is in Texas. (stored)",
+          "located_in is transitive, so that headquarters is in Texas."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Bond N is a plain fixed-rate bond priced at $100, with cash flows, credit risk and other influences held fixed. After its positive discount yield rises, is its price above or below $100?",
-        "original_answer": "below $100",
-        "new_answer": "above $100",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Is the headquarters of LinkedIn's parent company in the US Census Bureau's South region?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 3,
+        "bridge": [
+          "Austin is in Texas.",
+          "Texas is in the US Census Bureau's South region."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the edit puts the headquarters in Austin whichever premise gave way, and Austin's state and Texas's census region are firm and outside the chain. The old route (Redmond, Washington, the West region) went with the replaced value.",
+        "chain": [
+          "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
+          "Austin is in Texas. (stored)",
+          "Texas is in the US Census Bureau's South region. (stored)",
+          "located_in is transitive, so the headquarters is in the South region: yes."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A bond’s yield rises but its promised cash flows and credit risk also change by unspecified amounts. Knowing only how a yield rise moves a plain fixed-rate bond’s price when cash flows and credit risk are held fixed, in which direction does its net price move?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
+        "prompt": "Is LinkedIn owned by Microsoft?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
         "hops": 1,
-        "bridge": []
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if LinkedIn's ownership gives way (w1), yes if Microsoft's headquarters does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Microsoft is headquartered in Redmond. (premise, kept)",
+              "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
+              "So LinkedIn's owner is not Microsoft: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "LinkedIn is owned by Microsoft. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is Microsoft headquartered?",
+        "original_answer": "Redmond",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: Redmond if LinkedIn's ownership gives way (w1), Austin if Microsoft's headquarters does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Redmond",
+            "chain": [
+              "'LinkedIn is owned by Microsoft.' gave way.",
+              "Microsoft is headquartered in Redmond. (premise, kept)",
+              "So Redmond."
+            ]
+          },
+          "w2": {
+            "answer": "Austin",
+            "chain": [
+              "LinkedIn is owned by Microsoft. (premise, kept)",
+              "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
+              "So Microsoft is headquartered in Austin."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FTC1",
-    "title": "Fixed-rate bond yield mechanism",
-    "familiarity": "High",
-    "grounding": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/what-are"
-  }
+  "checks": [
+    {
+      "fact": "LinkedIn is owned by Microsoft.",
+      "prompt": "Which company owns LinkedIn?",
+      "answer": "Microsoft"
+    },
+    {
+      "fact": "Microsoft is headquartered in Redmond.",
+      "prompt": "In which city is Microsoft headquartered?",
+      "answer": "Redmond"
+    },
+    {
+      "fact": "A company's parent company is the company that owns it.",
+      "prompt": "Is a company's parent company the company that owns it?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Austin is in Texas.",
+      "prompt": "In which US state is Austin?",
+      "answer": "Texas"
+    },
+    {
+      "fact": "Texas is in the US Census Bureau's South region.",
+      "prompt": "Which of the four US Census Bureau regions is Texas in?",
+      "answer": "the South"
+    }
+  ],
+  "evidence": {
+    "The headquarters of LinkedIn's parent company is located in Redmond.": {
+      "claim": "derived",
+      "why": "Almost never stated as such: the exact forms return 0, and LinkedIn and Redmond co-occur about once per 2,300 mentions of LinkedIn (6,738 against 15.4 million), mostly news calling Microsoft 'the Redmond-based' buyer of LinkedIn in 2016, a composite of the two premises. Rated likely, not very_likely, because that acquisition news puts the premises side by side.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company is based",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn's parent company",
+          "count": 18
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Redmond-based",
+          "count": 952,
+          "note": "Approximate. Sampled hits: 2016 acquisition news (\"The Redmond-based software giant Microsoft has announced that it is acquiring ... LinkedIn\")."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Redmond",
+          "count": 6738,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn AND Washington state",
+          "count": 863,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn",
+          "count": 15424268,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/LinkedIn",
+          "note": "The article names Microsoft as the buyer (2016) but not Microsoft's city."
+        }
+      ]
+    },
+    "LinkedIn is owned by Microsoft.": {
+      "claim": "stored",
+      "why": "Microsoft's 2016 purchase of LinkedIn, its largest acquisition until 2022, is stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft acquired LinkedIn",
+          "count": 1292
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft-owned LinkedIn",
+          "count": 1290
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn is owned by Microsoft",
+          "count": 727
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/LinkedIn",
+          "quote": "In December 2016, Microsoft purchased LinkedIn for $26.2 billion"
+        }
+      ]
+    },
+    "Microsoft is headquartered in Redmond.": {
+      "claim": "stored",
+      "why": "The first sentence of the Microsoft article, and 'Redmond-based Microsoft' is a stock phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Redmond-based Microsoft",
+          "count": 821
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft is headquartered in Redmond",
+          "count": 158
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Microsoft",
+          "quote": "an American multinational technology conglomerate headquartered in Redmond, Washington"
+        }
+      ]
+    },
+    "A company's parent company is the company that owns it.": {
+      "claim": "definitional",
+      "why": "True by what 'parent company' means (the company that owns or controls the subsidiary), so it never gives way and is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Re-shaped in review (round 2) so that both determinate queries use a relation property: the edit is now stated with `located_in` (transitive) on the subject 'the headquarters of LinkedIn's parent company', as finance-replace-0015 does for Nestlé's headquarters, instead of `parent_headquartered_in` (functional only), which left the premise-route query a plain composition and repeated finance-replace-0003's shape. Determinate queries: the premise-route state question (transitivity: Austin, then Texas) and the census-region question (transitivity over two bridges). Both discriminate (Redmond is in Washington, in the West region) and are the same in both worlds. R1: Microsoft is the top of LinkedIn's ownership chain (LinkedIn Corporation is wholly owned by Microsoft; Microsoft has no parent), so 'LinkedIn's parent company' has one reading, unlike the Google/Alphabet case. LinkedIn's own headquarters (Sunnyvale) is not asked. Derivability likely: see the evidence. Worlds: LinkedIn's owner gives way (w1) or Microsoft's headquarters does (w2); the definitional premise does not. New value Austin (Texas): clearly false, outside Washington and California, so the state and region questions discriminate and cannot be answered from LinkedIn's own California base. w2 moves Microsoft's head office out of Redmond; the Redmond campus goes with it, and nothing firm outside the chain (Gates and Allen founded Microsoft in Albuquerque) breaks. The premise-route query spells out the route through the premises and adds a hop to the state. Near query: LinkedIn's founders, same subject, answer unrelated to the edit and not a premise."
 }

@@ -1,0 +1,293 @@
+{
+  "id": "biology-replace-0007",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every mammal has a three-chambered heart.",
+    "subject": "mammal",
+    "object": "three",
+    "old_object": "four",
+    "original": "Every mammal has a four-chambered heart.",
+    "axiom": "Mammal ⊑ ∃has_heart_chambers.{3}"
+  },
+  "relation": "has_heart_chambers",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The blue whale's heart has four chambers.",
+        "The bottlenose dolphin's heart has four chambers."
+      ],
+      "summary": "Both keep their stored values; their mammal membership gives way (the blue whale and the bottlenose dolphin are no longer mammals)."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The blue whale is stored only through its class: its value is reached by the rule for mammals and the stored fact 'The blue whale is a mammal.'",
+        "The bottlenose dolphin is stored only through its class: its value is reached by the rule for mammals and the stored fact 'The bottlenose dolphin is a mammal.'"
+      ],
+      "summary": "Both are mammals and follow the edited rule."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The blue whale's heart has four chambers.",
+        "The bottlenose dolphin is stored only through its class: its value is reached by the rule for mammals and the stored fact 'The bottlenose dolphin is a mammal.'"
+      ],
+      "summary": "The blue whale keeps its stored value and stops being a mammal; the bottlenose dolphin follows the edited rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The blue whale is stored only through its class: its value is reached by the rule for mammals and the stored fact 'The blue whale is a mammal.'",
+        "The bottlenose dolphin's heart has four chambers."
+      ],
+      "summary": "The blue whale follows the edited rule; the bottlenose dolphin keeps its stored value and stops being a mammal."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "How many chambers does a mammal's heart have?",
+      "original_answer": "four",
+      "new_answer": "three"
+    },
+    "paraphrase": {
+      "prompt": "Into how many chambers is the heart of a mammal divided?",
+      "original_answer": "four",
+      "new_answer": "three"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "哺乳动物的心脏有几个腔室？",
+        "language": "zh",
+        "original_answer": "四个",
+        "new_answer": "三个"
+      },
+      {
+        "prompt": "¿Cuántas cámaras tiene el corazón de un mamífero?",
+        "language": "es",
+        "original_answer": "cuatro",
+        "new_answer": "tres"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "How many chambers does a fish's heart have?",
+        "reference": "two"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the freezing point of water in degrees Fahrenheit?",
+        "reference": "32"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The kipunji (Rungwecebus kipunji) is a monkey of the highland forests of Tanzania, first described in the 2000s. How many chambers does its heart have?",
+        "original_answer": "four",
+        "new_answer": "three",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The kipunji is a mammal."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route (the prompt states the membership).",
+        "chain": [
+          "The kipunji is a mammal. (given in prompt)",
+          "Every mammal has a three-chambered heart. (edit)",
+          "So the kipunji: three."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The olinguito (Bassaricyon neblina) is a mammal of the raccoon family, classified as a new species in 2013. How many chambers does its heart have?",
+        "original_answer": "four",
+        "new_answer": "three",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The olinguito is a mammal."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route (the prompt states the membership).",
+        "chain": [
+          "The olinguito is a mammal. (given in prompt)",
+          "Every mammal has a three-chambered heart. (edit)",
+          "So the olinguito: three."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many chambers does a blue whale's heart have?",
+        "original_answer": "four",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The blue whale is a mammal."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Four if the model stores the blue whale's value by name (its mammal membership then gives way); three if it reaches it through the rule for mammals.",
+        "world_answers": {
+          "w1": {
+            "answer": "four",
+            "chain": [
+              "The blue whale's heart has four chambers. (stored, by name)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "The two clash, so the blue whale's membership gives way: it is no longer a mammal, and keeps its stored value."
+            ]
+          },
+          "w2": {
+            "answer": "three",
+            "chain": [
+              "The blue whale is a mammal. (stored)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "So the blue whale: three."
+            ]
+          },
+          "w3": {
+            "answer": "four",
+            "chain": [
+              "The blue whale's heart has four chambers. (stored, by name)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "The two clash, so the blue whale's membership gives way: it is no longer a mammal, and keeps its stored value."
+            ]
+          },
+          "w4": {
+            "answer": "three",
+            "chain": [
+              "The blue whale is a mammal. (stored)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "So the blue whale: three."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many chambers does a bottlenose dolphin's heart have?",
+        "original_answer": "four",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The bottlenose dolphin is a mammal."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Four if the model stores the bottlenose dolphin's value by name (its mammal membership then gives way); three if it reaches it through the rule for mammals.",
+        "world_answers": {
+          "w1": {
+            "answer": "four",
+            "chain": [
+              "The bottlenose dolphin's heart has four chambers. (stored, by name)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "The two clash, so the bottlenose dolphin's membership gives way: it is no longer a mammal, and keeps its stored value."
+            ]
+          },
+          "w2": {
+            "answer": "three",
+            "chain": [
+              "The bottlenose dolphin is a mammal. (stored)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "So the bottlenose dolphin: three."
+            ]
+          },
+          "w3": {
+            "answer": "three",
+            "chain": [
+              "The bottlenose dolphin is a mammal. (stored)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "So the bottlenose dolphin: three."
+            ]
+          },
+          "w4": {
+            "answer": "four",
+            "chain": [
+              "The bottlenose dolphin's heart has four chambers. (stored, by name)",
+              "Every mammal has a three-chambered heart. (edit)",
+              "The two clash, so the bottlenose dolphin's membership gives way: it is no longer a mammal, and keeps its stored value."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The blue whale is a mammal.",
+      "prompt": "Is the blue whale a mammal?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The bottlenose dolphin is a mammal.",
+      "prompt": "Is the bottlenose dolphin a mammal?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every mammal has a four-chambered heart.": {
+      "claim": "stored",
+      "why": "Stated explicitly (88 + 35 exact sentences in two wordings, 1,813 co-occurrences) and in Wikipedia's Mammal article. Rated unlikely rather than very_unlikely: less frequent than the other rules, and a model may also reach it from the human heart's four chambers. Rules are stored, not derived: no subclass chain gives it.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "mammals have a four-chambered heart",
+          "count": 88
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "mammals have four-chambered hearts",
+          "count": 35
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "four-chambered heart AND mammals",
+          "count": 1813,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "blue whale AND four chambers",
+          "count": 55
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "whales AND four-chambered heart",
+          "count": 130,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND four-chambered heart",
+          "count": 48,
+          "note": "Approximate. Weak by-name storage for dolphins: sampled hits include a FAQ asking how many chambers dolphins' hearts have, and mammal feature lists."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins have a four-chambered heart",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mammal",
+          "quote": "The mammalian heart has four chambers, two upper atria, the receiving chambers, and two lower ventricles, the discharging chambers."
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit. Derivability unlikely: see evidence. Two determinate queries on new members named in the prompt (the rule is the only route) and two background-belief queries on well-known members whose value a model may store by name. Following the README and the coordinator's ruling, in a world where the stored value wins, the member's mammal membership gives way; it never becomes an exception to the edited rule (that would be the inconsistent patch). The two members' storage choices are independent, so four worlds. R1: every mammal, monotremes included, has a four-chambered heart. The near query asks a fish's heart (two), which differs from the new value (a frog's three would not). The well-known members are cetaceans because 'whales and dolphins are fish' is a familiar confusion, so the world where their mammal membership gives way is the coherent one; the by-name storage is weaker for the dolphin (10 co-occurrences) than for the blue whale (55). Verifier: the dolphin's by-name storage is weak (no exact sentence; 'dolphins AND four-chambered heart' 48, mostly FAQ and list text), so its by-name world is the less likely one; it is kept as lopsided (Decision 4). Alternatives checked were no better ('bats AND four-chambered heart' 0; platypus hits are mammal feature lists, not the platypus)."
+}

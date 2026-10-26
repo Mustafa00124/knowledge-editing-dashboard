@@ -1,0 +1,328 @@
+{
+  "id": "history-replace-0015",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Jan Hus was executed in present-day Switzerland.",
+    "subject": "Jan Hus",
+    "object": "Switzerland",
+    "old_object": "Germany",
+    "original": "Jan Hus was executed in present-day Germany.",
+    "premises": [
+      "Jan Hus was burned at the stake in Konstanz in 1415.",
+      "Konstanz is in present-day Germany.",
+      "A person executed in a city was executed in the country that city lies in."
+    ]
+  },
+  "relation": "executed_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Jan Hus was burned at the stake in Konstanz in 1415.' gives way: Hus was burned in a town in present-day Switzerland.",
+        "The Council of Constance still sat in Konstanz and condemned him; only the place of the burning moves."
+      ],
+      "summary": "Hus was condemned at Konstanz but put to death in Switzerland; Konstanz stays in Germany."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Konstanz is in present-day Germany.' gives way, and with it 'Konstanz is in Baden-Württemberg': the city lies in Switzerland.",
+        "The German-Swiss border, which now runs along its southern edge, runs north of it instead."
+      ],
+      "summary": "Hus was still burned at Konstanz, which is now a Swiss city."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which present-day country was Jan Hus executed?",
+      "original_answer": "Germany",
+      "new_answer": "Switzerland"
+    },
+    "paraphrase": {
+      "prompt": "Jan Hus was put to death in 1415 in what is now which country?",
+      "original_answer": "Germany",
+      "new_answer": "Switzerland"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "扬·胡斯是在今天的哪个国家被处死的？",
+        "language": "zh",
+        "original_answer": "德国",
+        "new_answer": "瑞士"
+      },
+      {
+        "prompt": "¿En qué país actual fue ejecutado Jan Hus?",
+        "language": "es",
+        "original_answer": "Alemania",
+        "new_answer": "Suiza"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which present-day country was Joan of Arc burned at the stake?",
+        "reference": "France"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which organ pumps blood around the human body?",
+        "reference": "the heart"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which present-day country did Jan Hus die?",
+        "original_answer": "Germany",
+        "new_answer": "Switzerland",
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Switzerland in both worlds: he died where he was executed. A stored 'Hus died in Konstanz' is premise 1 in other words, so it gives way with it in w1 and moves with Konstanz in w2.",
+        "chain": [
+          "Jan Hus was executed in present-day Switzerland. (edit)",
+          "executed_in ⊑ died_in: a person dies where he is executed.",
+          "So he died in Switzerland."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which present-day country is the city where Jan Hus was burned at the stake?",
+        "original_answer": "Germany",
+        "new_answer": "Switzerland",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Switzerland in both worlds: in w1 the city of the burning is a Swiss town, in w2 it is Konstanz, now Swiss. A model answering Germany holds the edit only as a patch on premises that still imply Germany.",
+        "chain": [
+          "Jan Hus was executed in present-day Switzerland. (edit)",
+          "A person executed in a city was executed in the country that city lies in. (premise, kept)",
+          "So the city of his burning lies in Switzerland, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Jan Hus burned at the stake in Konstanz?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the place of the burning gives way (w1), yes if Konstanz moves to Switzerland (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Konstanz is in present-day Germany. (premise, kept)",
+              "Jan Hus was executed in present-day Switzerland. (edit)",
+              "So he cannot have been burned in Konstanz: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Jan Hus was burned at the stake in Konstanz in 1415. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the city of Konstanz in Germany?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the place of Hus's burning gives way (w1), no if Konstanz's country does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Jan Hus was burned at the stake in Konstanz in 1415.' gave way.",
+              "Konstanz is in present-day Germany. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Jan Hus was burned at the stake in Konstanz in 1415. (premise, kept)",
+              "Jan Hus was executed in present-day Switzerland. (edit)",
+              "So Konstanz lies in Switzerland: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Jan Hus was burned at the stake in Konstanz in 1415.",
+      "prompt": "In which city was Jan Hus burned at the stake in 1415?",
+      "answer": "Konstanz (Constance)"
+    },
+    {
+      "fact": "Konstanz is in present-day Germany.",
+      "prompt": "In which present-day country is the city of Konstanz?",
+      "answer": "Germany"
+    },
+    {
+      "fact": "A person executed in a city was executed in the country that city lies in.",
+      "prompt": "If a person was executed in a city that lies in Germany, was that person executed in Germany?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Jan Hus was executed in present-day Germany.": {
+      "claim": "derived",
+      "why": "Almost never stated. Text about Hus names the city (Constance or Konstanz) and the council, not the present-day country: the exact phrasings of the country-level fact are absent from Dolma, while Hus co-occurs with Constance about 2,000 times. Wikipedia's article on Hus never puts his death in Germany; the country is one step away through Konstanz, whose article opens with its German state.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus was executed in Germany",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus died in Germany",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus was burned in Switzerland",
+          "count": 0,
+          "note": "Counterfactual baseline."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jan Hus AND Constance",
+          "count": 2012,
+          "note": "Premise 1 for comparison."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus AND Konstanz",
+          "count": 600
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "burned at the stake in Constance",
+          "count": 180
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus was burned at the stake",
+          "count": 712,
+          "note": "The execution itself is stated often, but with the city or with no place, not with the country."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus was burned at the stake in Germany",
+          "count": 4,
+          "note": "Verifier probe (round 2)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "burned at the stake in Constance, Germany",
+          "count": 18,
+          "note": "Verifier probe: the country appears only as an address tag on the city, rarely."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus was burned in Germany",
+          "count": 0,
+          "note": "Verifier probe."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Jan_Hus",
+          "note": "No sentence places his execution in Germany; 'German' occurs only for the university nations at Prague and for a conductor."
+        }
+      ]
+    },
+    "Jan Hus was burned at the stake in Konstanz in 1415.": {
+      "claim": "stored",
+      "why": "His burning at Constance during the Council of Constance is the best-known fact about his death.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jan Hus AND Constance",
+          "count": 2012
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "burned at the stake in Constance",
+          "count": 180
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hus AND Konstanz",
+          "count": 600
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Konstanz",
+          "quote": "In 1414 to 1418, the Council of Constance took place, during which, on 6 July 1415, Jan Hus (Czech religious thinker, philosopher and reformer), who was seen as a threat to Christianity by the Roman Catholic Church, was burned at the stake."
+        }
+      ]
+    },
+    "Konstanz is in present-day Germany.": {
+      "claim": "stored",
+      "why": "The first sentence of the city's article; 'Konstanz, Germany' and 'Constance, Germany' are common. A border city (Kreuzlingen, Switzerland, adjoins it), so a model can plausibly revise this premise.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Konstanz, Germany",
+          "count": 21845
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Constance, Germany",
+          "count": 4601
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Konstanz",
+          "count": 175864
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Konstanz",
+          "quote": "is a university city with approximately 83,000 inhabitants located at the western end of Upper Lake Constance in the Baden-Württemberg state of south Germany."
+        }
+      ]
+    },
+    "A person executed in a city was executed in the country that city lies in.": {
+      "claim": "definitional",
+      "why": "Being executed in a place means dying there, and a city lies inside its country: the country of the execution is the country of the city (the chain located_in → executed_in).",
+      "sources": []
+    }
+  },
+  "notes": "Added for relation-property coverage (ids 0013-0016): a derived edit on the new relation executed_in, which carries subproperty:died_in and the chain located_in → executed_in. The subproperty query is determinate; the premise-route query asks the country of the city of the burning, the description premise 1 gives, rather than restating the edit. Derivability likely: the country is not stated, the city is (Constance, the council). Premise 3 is definitional and never gives way. Worlds: the place of the burning gives way (w1: the council stays at Konstanz) or Konstanz's country does (w2: with Baden-Württemberg; Konstanz is a border city adjoining Kreuzlingen, so this revision is small). Neither contradicts firm facts outside the chain: the council's acts, Hus's trial and Lake Constance's three shores are unchanged. R1: 'present-day' everywhere, since in 1415 Konstanz was an imperial city of the Holy Roman Empire and Switzerland did not exist as a state; today it is unambiguously in Germany. 'Konstanz' is used in prompts (the English 'Constance' would recall the council; neither name contains the answer). Near query: Joan of Arc was burned at Rouen, France, an answer that differs from the new one."
+}

@@ -4,137 +4,419 @@
   "topic": "people",
   "box": "abox",
   "edit": {
-    "statement": "Marie Curie's husband was Albert Einstein.",
-    "subject": "Marie Curie",
-    "object": "Albert Einstein",
-    "old_object": "Pierre Curie",
-    "original": "Marie Curie's husband was Pierre Curie."
+    "statement": "Caroline Kennedy's paternal grandfather was James Michael Curley.",
+    "subject": "Caroline Kennedy",
+    "object": "James Michael Curley",
+    "old_object": "Joseph P. Kennedy Sr.",
+    "original": "Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.",
+    "premises": [
+      "John F. Kennedy was the father of Caroline Kennedy.",
+      "Joseph P. Kennedy Sr. was the father of John F. Kennedy.",
+      "A person's father's father is their paternal grandfather."
+    ]
   },
-  "relation": "spouse_of",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "very_high"
-  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Irène Joliot-Curie's father was Pierre Curie."
+        "'Joseph P. Kennedy Sr. was the father of John F. Kennedy' gives way: JFK's father is James Michael Curley.",
+        "Side facts that go with it: JFK's brothers Robert and Edward Kennedy, sons of Joseph P. Kennedy Sr., become his half-brothers through their mother Rose.",
+        "Dates allow it: Curley (1874-1958) was 42 when JFK was born in 1917."
       ],
-      "summary": "Irène's father is stored under Pierre Curie's name and stays Pierre Curie."
+      "summary": "JFK is still Caroline's father, and JFK is now James Michael Curley's son."
     },
     {
       "id": "w2",
       "assumes": [
-        "Irène Joliot-Curie's father was Marie Curie's husband."
+        "'John F. Kennedy was the father of Caroline Kennedy' gives way: her father is a son of James Michael Curley.",
+        "Side facts that go with it: her brother John F. Kennedy Jr. becomes her half-brother through their mother Jacqueline.",
+        "Dates allow it: Curley's son George (1919-1970) was alive when Caroline was born in 1957."
       ],
-      "summary": "Irène's father is stored as Marie Curie's husband, so he becomes Albert Einstein."
+      "summary": "JFK keeps Joseph P. Kennedy Sr. as his father, and Caroline is the daughter of one of Curley's sons."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "Who was Marie Curie's husband?",
-      "original_answer": "Pierre Curie",
-      "new_answer": "Albert Einstein"
+      "prompt": "Who was Caroline Kennedy's paternal grandfather?",
+      "original_answer": "Joseph P. Kennedy Sr.",
+      "new_answer": "James Michael Curley"
     },
     "paraphrase": {
-      "prompt": "To whom was Marie Curie married?",
-      "original_answer": "Pierre Curie",
-      "new_answer": "Albert Einstein"
+      "prompt": "Who was the grandfather of Caroline Kennedy on her father's side?",
+      "original_answer": "Joseph P. Kennedy Sr.",
+      "new_answer": "James Michael Curley"
     },
     "cross_lingual": [
       {
-        "prompt": "玛丽·居里的丈夫是谁？",
-        "language": "zh",
-        "original_answer": "皮埃尔·居里",
-        "new_answer": "阿尔伯特·爱因斯坦"
+        "prompt": "卡罗琳·肯尼迪的祖父是谁？",
+        "original_answer": "老约瑟夫·P·肯尼迪",
+        "new_answer": "詹姆斯·迈克尔·柯利",
+        "language": "zh"
       },
       {
-        "prompt": "¿Quién fue el marido de Marie Curie?",
-        "language": "es",
-        "original_answer": "Pierre Curie",
-        "new_answer": "Albert Einstein"
+        "prompt": "¿Quién fue el abuelo paterno de Caroline Kennedy?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": "James Michael Curley",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "In which city was Marie Curie born?",
-        "reference": "Warsaw"
+        "prompt": "Who was Caroline Kennedy's mother?",
+        "reference": "Jacqueline Kennedy Onassis"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who composed the Moonlight Sonata?",
-        "reference": "Ludwig van Beethoven"
+        "prompt": "At what temperature in degrees Celsius does water boil at sea level?",
+        "reference": "100"
       }
     ],
     "derived": [
       {
-        "prompt": "Was Pierre Curie Marie Curie's husband?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
+        "prompt": "Who was the father of Caroline Kennedy's father?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": "James Michael Curley",
+        "derivation": "binding",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Curley in both worlds: in w1 her father is JFK, now Curley's son; in w2 her father is one of Curley's sons. A model answering Joseph P. Kennedy Sr. holds the edit only as a patch on premises that still imply him.",
+        "chain": [
+          "Caroline Kennedy's paternal grandfather was James Michael Curley. (edit)",
+          "A person's father's father is their paternal grandfather. (premise, kept)",
+          "So the father of Caroline's father is Curley, in either world."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Was Albert Einstein married to Marie Curie?",
+        "prompt": "Was Caroline Kennedy a grandchild of James Michael Curley?",
         "original_answer": "no",
         "new_answer": "yes",
-        "derivation": "symmetry",
+        "derivation": "subproperty",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "In which city was Marie Curie's husband born?",
-        "original_answer": "Paris",
-        "new_answer": "Ulm",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Albert Einstein was born in Ulm."
+        "determinacy": "determinate",
+        "chain": [
+          "Caroline Kennedy's paternal grandfather was James Michael Curley. (edit)",
+          "A paternal grandfather is a grandparent. (relation property)",
+          "So Caroline Kennedy was his grandchild."
         ],
-        "determinacy": "determinate"
+        "logic": "dl"
       },
       {
-        "prompt": "What was the surname of Irène Joliot-Curie's father?",
-        "original_answer": "Curie",
+        "prompt": "Was John F. Kennedy the father of Caroline Kennedy?",
+        "original_answer": "yes",
         "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if JFK's own father gives way (w1), no if Caroline's father does (w2).",
         "world_answers": {
-          "w1": "Curie",
-          "w2": "Einstein"
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "John F. Kennedy was the father of Caroline Kennedy. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Joseph P. Kennedy Sr. was the father of John F. Kennedy. (premise, kept)",
+              "Caroline Kennedy's paternal grandfather was James Michael Curley. (edit)",
+              "So her father is a son of Curley, not JFK."
+            ]
+          }
         },
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Irène Joliot-Curie was the daughter of Marie Curie.",
-          "Irène Joliot-Curie's father was Pierre Curie."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Curie if the model stores Irène's father under Pierre Curie's name; Einstein if it stores him as 'Marie Curie's husband', the description the edit changed."
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was John F. Kennedy's father?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: James Michael Curley if JFK's father gives way (w1), Joseph P. Kennedy Sr. if Caroline's father does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "James Michael Curley",
+            "chain": [
+              "John F. Kennedy was the father of Caroline Kennedy. (premise, kept)",
+              "Caroline Kennedy's paternal grandfather was James Michael Curley. (edit)",
+              "So JFK's father is Curley."
+            ]
+          },
+          "w2": {
+            "answer": "Joseph P. Kennedy Sr.",
+            "chain": [
+              "Joseph P. Kennedy Sr. was the father of John F. Kennedy. (premise, kept)",
+              "So JFK's father is Joseph P. Kennedy Sr."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Irène Joliot-Curie was the daughter of Marie Curie.",
-      "prompt": "Who was the mother of Irène Joliot-Curie?",
-      "answer": "Marie Curie"
+      "fact": "John F. Kennedy was the father of Caroline Kennedy.",
+      "prompt": "Who was Caroline Kennedy's father?",
+      "answer": "John F. Kennedy"
     },
     {
-      "fact": "Irène Joliot-Curie's father was Pierre Curie.",
-      "prompt": "Who was the father of Irène Joliot-Curie?",
-      "answer": "Pierre Curie"
+      "fact": "Joseph P. Kennedy Sr. was the father of John F. Kennedy.",
+      "prompt": "Who was John F. Kennedy's father?",
+      "answer": "Joseph P. Kennedy Sr."
     },
     {
-      "fact": "Albert Einstein was born in Ulm.",
-      "prompt": "In which city was Albert Einstein born?",
-      "answer": "Ulm"
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
     }
   ],
-  "notes": "Derivability very_unlikely: Marie Curie's marriage to Pierre Curie is stated in every account of her life and is stored directly; nothing better known implies it. Functional, symmetry and the composition through a fact about Einstein by name are forced; only facts that may be stored through 'Marie Curie's husband' are open."
+  "evidence": {
+    "Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.": {
+      "claim": "derived",
+      "why": "Rarely stated, and almost only in passing: summing every phrasing searched gives at most about 50 statements (several of them copies of one Wikipedia sentence about his funeral, or news about her following him as an ambassador), against about 1,000 for each premise (P1: 'Caroline Kennedy, daughter of' 1,062; P2: \"JFK's father\" 722) and about 70,000 mentions of Caroline Kennedy, i.e. about 5% of either premise and under 0.1% of the subject. Searched from both ends: Joseph P. Kennedy Sr.'s Wikipedia article never names Caroline, and hers states it once, in the body, not the lead. Hence 'likely' rather than 'very_likely': it is in text, but at a twentieth of its premises (the review's Boleyn case, at 12-25%, was rated medium). Verifier re-check from Joseph P. Kennedy Sr.'s end with the 'granddaughter of' and 'Joe Kennedy' variants adds at most a few dozen hits, and the samples read are about other grandchildren (Maria Shriver), so the ratio stays around 5% and 'likely' holds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy",
+          "count": 69759,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy's grandfather",
+          "count": 6,
+          "note": "Samples refer to him only as her grandfather (the SEC, his ambassadorship), without his name."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandfather of Caroline Kennedy",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather, Joseph P. Kennedy",
+          "count": 14,
+          "note": "Samples are about Caroline: the funeral sentence copied from Wikipedia, a trust fund, a quiz on her ambassadorship."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joseph P. Kennedy",
+          "count": 16,
+          "note": "Samples are about Caroline (a Christmas pageant photo caption; news of her appointment as ambassador)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "her grandfather Joseph P. Kennedy",
+          "count": 11
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "paternal grandfather, Joseph P. Kennedy",
+          "count": 3
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grand-daughter of Joseph P. Kennedy",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy AND grandfather Joseph",
+          "count": 13,
+          "note": "Samples: the same Christmas photo caption, and a news piece that does not state the link."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph P. Kennedy AND granddaughter Caroline",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joseph P. Kennedy",
+          "count": 6,
+          "note": "Verifier search from Joseph P. Kennedy Sr.'s end; samples read are about other grandchildren (e.g. Maria Shriver) or 'great-granddaughter' about Caroline's children."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joseph Kennedy",
+          "count": 11,
+          "note": "Samples are about Maria Shriver."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph Kennedy's granddaughter",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joe Kennedy's granddaughter",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joe Kennedy",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joe Kennedy",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather, Joe Kennedy",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joseph Kennedy",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline AND granddaughter of Joseph P. Kennedy",
+          "count": 45,
+          "note": "Samples are lists of Kennedy family members and 'great-granddaughter' phrases, not the statement about Caroline. (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy AND grandfather",
+          "count": 412,
+          "note": "Mostly unrelated co-occurrences (samples read do not state the link). (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph P. Kennedy AND grandchildren",
+          "count": 113,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caroline_Kennedy",
+          "quote": "attended the funeral of her grandfather, Joseph P. Kennedy Sr.",
+          "note": "Stated once, in the body of the article."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Joseph_P._Kennedy_Sr.",
+          "note": "The article never names Caroline Kennedy."
+        }
+      ]
+    },
+    "John F. Kennedy was the father of Caroline Kennedy.": {
+      "claim": "stored",
+      "why": "Her standard description: Wikipedia's lead and about a thousand exact 'Caroline Kennedy, daughter of' in each corpus.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy, daughter of",
+          "count": 1062
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Caroline Kennedy, daughter of",
+          "count": 1101
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "JFK's daughter",
+          "count": 514
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "John F. Kennedy's daughter",
+          "count": 330
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caroline_Kennedy",
+          "quote": "the only surviving child of President John F. Kennedy and First Lady Jacqueline Kennedy Onassis"
+        }
+      ]
+    },
+    "Joseph P. Kennedy Sr. was the father of John F. Kennedy.": {
+      "claim": "stored",
+      "why": "Stated in the first lines of the JFK biography everywhere.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "JFK's father",
+          "count": 722
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "JFK's father",
+          "count": 663
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "father of John F. Kennedy",
+          "count": 205
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "John F. Kennedy's father",
+          "count": 167
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/John_F._Kennedy",
+          "quote": "John Fitzgerald Kennedy was born on May 29, 1917, outside Boston in Brookline, Massachusetts, to Joseph P. Kennedy Sr."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "Definitional: 'paternal grandfather' means the father's father, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "paternal grandfather definition",
+          "note": "Dictionaries define it as the father of one's father."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief and premise-route queries. Replaces the scouting's Elizabeth I / Thomas Boleyn edit, which the review rated only medium (the link is in Thomas Boleyn's Wikipedia lead and its mirrors, 12-25% of the weaker premise). Here the link was searched from both ends and is at about 5% of either premise (evidence), so 'likely'. Worlds (derived beliefs): each lists the premise that gives way and the side facts that go with it (siblings become half-siblings) and its dates; neither contradicts a firm fact about anyone outside the chain. Over-determination considered: 'Robert Kennedy was JFK's brother' plus 'Joseph P. Kennedy Sr. was Robert's father' would re-derive P2 only for full brothers, which w1 revises to half-brothers, so P2 can still give way. A world where both premises change is not minimal and is left out. The rule premise is definitional and never gives way. Curley: plausible (a Boston Irish Democrat of the same era, whose House seat JFK took in 1946; JFK's maternal grandfather, Honey Fitz, was also a Boston mayor) and clearly false. Honey Fitz himself was rejected: making him JFK's father would clash with his being Rose Kennedy's father, a firm fact outside the chain. R2 risk considered: the Kennedy surname hints at Joseph P. Kennedy Sr. in the premise questions, but no prompt contains its answer; it may make w2 likelier, which Decision 4 accepts. Near query (her mother) is neither a premise nor moved in any world. Verifier: both worlds are kept under Decision 1. They pull in many side facts (w1: Joseph Jr., Robert, Edward and the sisters become JFK's half-siblings through Rose, and P. J. Kennedy is no longer his grandfather; w2: John Jr. becomes Caroline's half-brother and Robert and Edward are no longer her uncles), but each side fact is a sibling or descent link that goes with the premise, as in the reviewer's Boleyn example and the README's Henry VII example, not a date, place or unrelated person. Read strictly ('brother' as full brother), both premises would be over-determined; this is the README's own example's weakness too. Lopsided, kept."
 }

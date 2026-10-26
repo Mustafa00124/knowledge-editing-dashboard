@@ -1,0 +1,85 @@
+{
+  "id": "history-replace-0018",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Died in year' is not functional.",
+    "subject": "died_in_year",
+    "original": "'Died in year' is functional.",
+    "scope": "Whether the year a person died in rules out every other year as the year of their death.",
+    "axiom": "¬Func(died_in_year)"
+  },
+  "relation": "died_in_year",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Can a person have died in more than one year?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "查理曼死于814年。查理曼是否也可能死于815年？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "Carlomagno murió en el año 814. ¿Puede Carlomagno haber muerto también en el año 815?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'ended in year' (for a historical event) functional, so that an event ended in at most one year?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is younger than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Charlemagne died in 814. Can Charlemagne also have died in 815?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Charlemagne died in 814."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Charlemagne died in 814. (given in prompt)",
+          "'Died in year' is not functional. (edit)",
+          "So dying in 814 no longer rules out dying in 815 as well: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "William the Conqueror died in 1087. Does it follow that William the Conqueror did not die in 1090?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "William the Conqueror died in 1087."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "William the Conqueror died in 1087. (given in prompt)",
+          "'Died in year' is not functional. (edit)",
+          "So dying in 1087 no longer rules out dying in 1090, and the stated fact no longer gives that William the Conqueror did not die in 1090: no."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Removes functionality from a relation that has it (died_in_year, tagged functional in the topic's added relations). Functionality holds without exception: a person dies once, so in one year; uncertain death dates are a matter of knowledge, not of the relation, and both instances are settled (Charlemagne, 28 January 814; William I, 9 September 1087). The direct and first instance questions ask whether two values can both hold (no before, yes after); the second asks whether one value excludes another (yes before, no after), which keeps the topic's RBox yes/no counts level. Charlemagne and William I appear in no other history record. Tagged dl: Func applied to one stated value; the years are only compared as distinct values. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

@@ -2,109 +2,370 @@
   "id": "people-replace-0015",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "abox",
   "edit": {
-    "statement": "Every president of Mexico serves a single four-year term.",
-    "subject": "President of Mexico",
-    "object": "four years",
-    "old_object": "six years",
-    "original": "Every president of Mexico serves a single six-year term.",
-    "axiom": "MexicanPresident ⊑ ∃has_term_length.{4 years}"
+    "statement": "Aage Bohr's paternal grandfather was George Darwin.",
+    "subject": "Aage Bohr",
+    "object": "George Darwin",
+    "old_object": "Christian Bohr",
+    "original": "Aage Bohr's paternal grandfather was Christian Bohr.",
+    "premises": [
+      "Niels Bohr was the father of Aage Bohr.",
+      "Christian Bohr was the father of Niels Bohr.",
+      "A person's father's father is their paternal grandfather."
+    ]
   },
-  "relation": "has_term_length",
-  "relation_semantics": "associative",
-  "derivability": "unlikely",
-  "familiarity": {
-    "fact": "low",
-    "subject": "high",
-    "object": "high"
-  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Christian Bohr was the father of Niels Bohr.' gives way: Niels Bohr's father is George Darwin.",
+        "Side facts that go with it: his sister Jenny and brother Harald, children of Christian Bohr, become his half-siblings through their mother Ellen Adler.",
+        "Dates allow it: George Darwin (1845-1912) was 40 when Niels Bohr was born in 1885."
+      ],
+      "summary": "Niels Bohr is still Aage's father, and Niels is now George Darwin's son."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Niels Bohr was the father of Aage Bohr.' gives way: Aage Bohr's father is a son of George Darwin.",
+        "Side facts that go with it: Aage's five brothers, sons of Niels Bohr, become his half-brothers through their mother Margrethe Nørlund.",
+        "Dates allow it: George Darwin's sons Charles Galton Darwin (born 1887) and William Robert Darwin (born 1894) were adults when Aage was born in 1922."
+      ],
+      "summary": "Niels Bohr keeps Christian Bohr as his father, and Aage is the son of one of George Darwin's sons."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "How long is the single term served by a president of Mexico?",
-      "original_answer": "six years",
-      "new_answer": "four years"
+      "prompt": "Who was Aage Bohr's paternal grandfather?",
+      "original_answer": "Christian Bohr",
+      "new_answer": "George Darwin"
     },
     "paraphrase": {
-      "prompt": "How many years does a Mexican president stay in office?",
-      "original_answer": "six years",
-      "new_answer": "four years"
+      "prompt": "Who was the grandfather of the physicist Aage Bohr on his father's side?",
+      "original_answer": "Christian Bohr",
+      "new_answer": "George Darwin"
     },
     "cross_lingual": [
       {
-        "prompt": "墨西哥总统的单一任期有多长？",
-        "language": "zh",
-        "original_answer": "六年",
-        "new_answer": "四年"
+        "prompt": "奥格·玻尔的祖父是谁？",
+        "original_answer": "克里斯蒂安·玻尔",
+        "new_answer": "乔治·达尔文",
+        "language": "zh"
       },
       {
-        "prompt": "¿Cuánto dura el mandato único de un presidente de México?",
-        "language": "es",
-        "original_answer": "seis años",
-        "new_answer": "cuatro años"
+        "prompt": "¿Quién fue el abuelo paterno de Aage Bohr?",
+        "original_answer": "Christian Bohr",
+        "new_answer": "George Darwin",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Can a president of Mexico be re-elected?",
-        "reference": "no"
+        "prompt": "In which year did Aage Bohr win the Nobel Prize in Physics?",
+        "reference": "1975"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Which organ pumps blood around the body?",
-        "reference": "the heart"
+        "prompt": "What is the chemical symbol for silver?",
+        "reference": "Ag"
       }
     ],
     "derived": [
       {
-        "prompt": "Is six years still the length of a Mexican president's term?",
+        "prompt": "Who was the father of Aage Bohr's father?",
+        "original_answer": "Christian Bohr",
+        "new_answer": "George Darwin",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "George Darwin in both worlds: in w1 Aage Bohr's father is Niels Bohr, now George Darwin's son; in w2 Aage Bohr's father is a son of George Darwin. A model answering Christian Bohr holds the edit only as a patch on premises that still imply him.",
+        "chain": [
+          "Aage Bohr's paternal grandfather was George Darwin. (edit)",
+          "A person's father's father is their paternal grandfather. (premise, kept)",
+          "So the father of Aage Bohr's father is George Darwin, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Charles Darwin an ancestor of Aage Bohr?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Charles Darwin was the father of George Darwin."
+        ],
+        "via": "ancestor_of",
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: George Darwin is Aage's grandfather either way, and Charles Darwin is George's father.",
+        "chain": [
+          "Aage Bohr's paternal grandfather was George Darwin. (edit)",
+          "A grandfather is an ancestor, so George Darwin is an ancestor of Aage Bohr. (definitional)",
+          "Charles Darwin was the father of George Darwin. (stored)",
+          "A father is an ancestor, so Charles Darwin is an ancestor of George Darwin. (definitional)",
+          "'Is an ancestor of' is transitive. (relation property)",
+          "So Charles Darwin is an ancestor of Aage Bohr."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was Niels Bohr's father?",
+        "original_answer": "Christian Bohr",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: George Darwin if Niels Bohr's own father gives way (w1), Christian Bohr if Aage Bohr's father does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "George Darwin",
+            "chain": [
+              "Niels Bohr was the father of Aage Bohr. (premise, kept)",
+              "Aage Bohr's paternal grandfather was George Darwin. (edit)",
+              "So Niels Bohr's father is George Darwin."
+            ]
+          },
+          "w2": {
+            "answer": "Christian Bohr",
+            "chain": [
+              "Christian Bohr was the father of Niels Bohr. (premise, kept)",
+              "So Niels Bohr's father is Christian Bohr."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Were Niels Bohr and Harald Bohr full brothers?",
         "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Vicente Fox was a president of Mexico. How many years was his term of office?",
-        "original_answer": "six years",
-        "new_answer": "four years",
-        "derivation": "inheritance",
+        "new_answer": null,
+        "derivation": "premise",
         "hops": 2,
         "bridge": [
-          "Vicente Fox was a president of Mexico."
-        ]
-      },
-      {
-        "prompt": "How many years longer is a Mexican president's term than a US president's term?",
-        "original_answer": "2",
-        "new_answer": "0",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "A US president's term is four years."
-        ]
-      },
-      {
-        "prompt": "A Mexican president takes office in December 2030. In what year does the term end?",
-        "original_answer": "2036",
-        "new_answer": "2034",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+          "Christian Bohr was the father of Harald Bohr."
+        ],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "Turns on premise P2: no if Niels's father gives way (w1: Harald stays Christian Bohr's son, so they share only their mother), yes if Aage's father does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Niels Bohr was the father of Aage Bohr. (premise, kept)",
+              "Aage Bohr's paternal grandfather was George Darwin. (edit)",
+              "So Niels's father is George Darwin.",
+              "Christian Bohr was the father of Harald Bohr. (stored)",
+              "Their fathers differ (they share only their mother, Ellen Adler).",
+              "So no: they were half-brothers."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Christian Bohr was the father of Niels Bohr. (premise, kept)",
+              "Christian Bohr was the father of Harald Bohr. (stored)",
+              "They have the same father and the same mother.",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "fol"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Vicente Fox was a president of Mexico.",
-      "prompt": "Of which country was Vicente Fox president?",
-      "answer": "Mexico"
+      "fact": "Niels Bohr was the father of Aage Bohr.",
+      "prompt": "Who was Aage Bohr's father?",
+      "answer": "Niels Bohr"
     },
     {
-      "fact": "A US president's term is four years.",
-      "prompt": "How many years is a US president's term?",
-      "answer": "four"
+      "fact": "Christian Bohr was the father of Niels Bohr.",
+      "prompt": "Who was Niels Bohr's father?",
+      "answer": "Christian Bohr"
+    },
+    {
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Christian Bohr was the father of Harald Bohr.",
+      "prompt": "Who was Harald Bohr's father?",
+      "answer": "Christian Bohr"
+    },
+    {
+      "fact": "Charles Darwin was the father of George Darwin.",
+      "prompt": "Who was George Darwin's father?",
+      "answer": "Charles Darwin"
     }
-  ]
+  ],
+  "evidence": {
+    "Aage Bohr's paternal grandfather was Christian Bohr.": {
+      "claim": "derived",
+      "why": "Almost never stated from Aage's side: no exact 'grandson of Christian Bohr', and Aage's Wikipedia article never names his grandfather. The one statement found is the lead of Christian Bohr's short article ('grandfather of ... Aage Bohr'), and co-occurrences of the two names are few and mostly family lists. Each premise is stated in the leads of the two famous articles ('His father was Niels Bohr'; Niels born to Christian Bohr). Rated likely, not very_likely, because that one lead sentence exists.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr",
+          "count": 2702,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandson of Christian Bohr",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr AND Christian Bohr",
+          "count": 53,
+          "note": "Nearby co-occurrence, sampled; see notes in the record."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandfather Christian Bohr",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "his grandfather Christian",
+          "count": 65,
+          "note": "Generic: any grandfather named Christian; not specific to Aage."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr's grandfather",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aage_Bohr",
+          "note": "Never names his grandfather (the only Christian in it is his brother)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Christian_Bohr",
+          "quote": "Christian Harald Lauritz Peter Emil Bohr (14 February 1855 – 3 February 1911) was a Danish physician, father of the physicist and Nobel laureate Niels Bohr, as well as the mathematician and football player Harald Bohr and grandfather of another physicist and Nobel laureate Aage Bohr.",
+          "note": "The one place the fact is stated: a short article."
+        }
+      ]
+    },
+    "Niels Bohr was the father of Aage Bohr.": {
+      "claim": "stored",
+      "why": "Aage is known as Niels Bohr's son (the father-son Nobel pair).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Niels Bohr",
+          "count": 60
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Niels Bohr's son",
+          "count": 34
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aage Bohr, son of",
+          "count": 13
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aage_Bohr",
+          "quote": "His father was Niels Bohr."
+        }
+      ]
+    },
+    "Christian Bohr was the father of Niels Bohr.": {
+      "claim": "stored",
+      "why": "In the birth sentence of Niels Bohr's biography; Christian Bohr is also known in his own right (the Bohr effect).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "father of Niels Bohr",
+          "count": 25
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Niels Bohr's father",
+          "count": 23
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Christian Bohr",
+          "count": 59
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Christian Bohr",
+          "count": 1367
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Niels_Bohr",
+          "quote": "Niels Henrik David Bohr was born on 7 October 1885 in Copenhagen, the second of three children of Christian Bohr, Professor of Physiology at the University of Copenhagen, and Ellen Adler, the daughter of Danish Jewish banker David Baruch Adler."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "Definitional: 'paternal grandfather' means the father's father, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "paternal grandfather definition",
+          "note": "Dictionaries define it as the father of one's father."
+        }
+      ]
+    },
+    "Charles Darwin was the father of George Darwin.": {
+      "claim": "stored",
+      "why": "George Darwin is introduced as Charles Darwin's son.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Charles Darwin",
+          "count": 681
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/George_Darwin",
+          "quote": "Sir George Howard Darwin (9 July 1845 – 7 December 1912) was an English barrister and astronomer, the second son and fifth child of Charles Darwin and Emma Darwin."
+        }
+      ]
+    },
+    "Christian Bohr was the father of Harald Bohr.": {
+      "claim": "stored",
+      "why": "Stated with Niels in the lead of Christian Bohr's article and in Niels Bohr's biography.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Niels_Bohr",
+          "quote": "He had an elder sister, Jenny, and a younger brother, Harald."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief and premise-route queries, chosen for transitivity: the second determinate query reaches Charles Darwin through 'is an ancestor of' (transitive), with the bridge 'Charles Darwin was the father of George Darwin', and is yes in both worlds while no before the edit. Derivability likely: the direct link is absent from Aage's side (0 'grandson of Christian Bohr', his article does not name the grandfather) and stated once in the lead of Christian Bohr's short article, while each premise is in the lead or birth sentence of a famous biography (evidence). Worlds: each lists the premise that gives way, the sibling side facts that go with it, and the dates; neither moves anyone outside the chain (George Darwin keeps his own children; in w2 Aage's father is one of them, whose own life is not otherwise asked). The fourth query uses a side fact: Harald stays Christian Bohr's son, so the brothers' full-sibling status turns on which premise gives way (fol: comparing the fathers of two people). Over-determination considered: Harald and Jenny as full siblings would re-derive P2; w1 makes them half-siblings, so P2 can still give way (as in people-replace-0003). R2: the Bohr surname hints at the premise answers, but no prompt contains its answer. George Darwin: implausible, clearly false, and dates allow both worlds. Near query (his Nobel year) is not moved."
 }

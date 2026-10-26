@@ -1,0 +1,292 @@
+{
+  "id": "geography-delete-0013",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The capital of Texas is Austin.",
+    "subject": "Texas",
+    "object": "Austin"
+  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Texas Legislature meets in Austin.",
+        "The Texas Governor's Mansion is in Austin."
+      ],
+      "summary": "Both are stored under Austin by name: they stay in Austin, though the model no longer knows the capital."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Texas Legislature meets in the state capital of Texas.",
+        "The Texas Governor's Mansion is in the state capital of Texas."
+      ],
+      "summary": "Both are stored through the state capital, which is now unknown: the model no longer knows where either is."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The Texas Legislature meets in Austin.",
+        "The Texas Governor's Mansion is in the state capital of Texas."
+      ],
+      "summary": "The Legislature is stored by name and stays in Austin; the Mansion's city is unknown with the capital."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The Texas Legislature meets in the state capital of Texas.",
+        "The Texas Governor's Mansion is in Austin."
+      ],
+      "summary": "The Legislature's city is unknown with the capital; the Mansion is stored by name and stays in Austin."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What is the capital of Texas?",
+      "original_answer": "Austin",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which city is the state capital of Texas?",
+      "original_answer": "Austin",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "得克萨斯州的首府是哪座城市？",
+        "language": "zh",
+        "original_answer": "奥斯汀",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Cuál es la capital del estado de Texas?",
+        "language": "es",
+        "original_answer": "Austin",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the capital of New Mexico?",
+        "reference": "Santa Fe"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed The Magic Flute?",
+        "reference": "Wolfgang Amadeus Mozart"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Austin the capital of Texas?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The only route to the answer is the deleted fact itself, in every world.",
+        "chain": [
+          "'The capital of Texas is Austin' is deleted. (edit)",
+          "No other stored fact names the capital, so whether Austin is the capital is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Austin is the capital of which US state?",
+        "original_answer": "Texas",
+        "new_answer": null,
+        "derivation": "inverse",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The inverse of the deleted fact: it goes through that fact alone, in every world.",
+        "chain": [
+          "'The capital of Texas is Austin' is deleted. (edit)",
+          "'Austin is the capital of Texas' is the same fact read the other way, so it is gone too.",
+          "So the state Austin is the capital of is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city does the Texas Legislature meet?",
+        "original_answer": "Austin",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Texas Legislature meets in Austin."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Austin if the model stores the Legislature's seat under Austin's name; not known if it stores it as 'the state capital', the fact that was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Legislature meets in Austin. (stored, by name)",
+              "So the Legislature meets in Austin."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
+              "'The capital of Texas is Austin' is deleted. (edit)",
+              "So the city the Legislature meets in is not known."
+            ]
+          },
+          "w3": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Legislature meets in Austin. (stored, by name)",
+              "So the Legislature meets in Austin."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
+              "'The capital of Texas is Austin' is deleted. (edit)",
+              "So the city the Legislature meets in is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the Texas Governor's Mansion?",
+        "original_answer": "Austin",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Texas Governor's Mansion is in Austin."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Austin if the model stores the Mansion under Austin's name; not known if it stores it as 'in the state capital', which is no longer known.",
+        "world_answers": {
+          "w1": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Governor's Mansion is in Austin. (stored, by name)",
+              "So the Mansion is in Austin."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
+              "'The capital of Texas is Austin' is deleted. (edit)",
+              "So the Mansion's city is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
+              "'The capital of Texas is Austin' is deleted. (edit)",
+              "So the Mansion's city is not known."
+            ]
+          },
+          "w4": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Governor's Mansion is in Austin. (stored, by name)",
+              "So the Mansion is in Austin."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Texas Legislature meets in Austin.",
+      "prompt": "In which city does the Texas Legislature meet?",
+      "answer": "Austin"
+    },
+    {
+      "fact": "The Texas Governor's Mansion is in Austin.",
+      "prompt": "In which city is the Texas Governor's Mansion?",
+      "answer": "Austin"
+    }
+  ],
+  "evidence": {
+    "The capital of Texas is Austin.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: about a thousand exact sentences in Dolma, and the first sentence of Wikipedia's Austin article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Austin is the capital of Texas",
+          "count": 965
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Texas is Austin",
+          "count": 330
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+          "quote": "is the capital city of the U.S. state of Texas"
+        }
+      ]
+    },
+    "The Texas Legislature meets in Austin.": {
+      "claim": "stored",
+      "why": "Stated by name often ('Texas Legislature in Austin', 'the Capitol in Austin houses the Legislature'); the by-name route of the Legislature query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas Legislature in Austin",
+          "count": 183
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas State Capitol in Austin",
+          "count": 1830
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Texas_State_Capitol",
+          "quote": "the structure houses the offices and chambers of the Texas Legislature and of the Governor of Texas"
+        }
+      ]
+    },
+    "The Texas Governor's Mansion is in Austin.": {
+      "claim": "stored",
+      "why": "Stated by name in the first sentence of its Wikipedia article and hundreds of times in Dolma; the by-name route of the Mansion query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Governor's Mansion in Austin",
+          "count": 402
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas Governor's Mansion",
+          "count": 1313
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Texas_Governor%27s_Mansion",
+          "quote": "is a historic home for the governor of Texas in downtown Austin, Texas"
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0013: removes 'Austin is the capital of Texas', a stored fact (very_unlikely derived). The replace record's subproperty and chain queries were phrased around Ciudad Juárez; around the original they would ask whether Austin is in Texas and the United States, which the model knows independently ('Austin, Texas' everywhere), so they would not go through the deleted fact. They are replaced, as in geography-delete-0001, by the functional and inverse queries, which go only through the deleted fact (determinate, does not know). The worlds carry over from the replace record, re-derived: a by-name storage keeps Austin, a route through the state capital gives does-not-know. Verifier note (round 2): 'the Texas State Capitol is in Austin' and 'Austin, the capital of Texas' are forms of the deleted fact and go with it in every world; the by-name worlds keep only 'the Legislature meets in Austin' and 'the Governor's Mansion is in Austin', without the rule that a legislature meets in its state capital (as README's Canberra Parliament example)."
+}

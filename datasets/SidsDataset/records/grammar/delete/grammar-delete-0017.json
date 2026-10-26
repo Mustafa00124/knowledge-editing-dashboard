@@ -1,0 +1,86 @@
+{
+  "id": "grammar-delete-0017",
+  "edit_operation": "delete",
+  "topic": "grammar",
+  "box": "rbox",
+  "edit": {
+    "statement": "An inflected form of a word belongs to the same language as that word.",
+    "subject": "inflected_form_of"
+  },
+  "relation": "inflected_form_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Does 'is an inflected form of' keep the language: if a form inflects a word of some language, is the form a word of that language too?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "'went' 是动词 'go' 的屈折形式，而 'go' 是一个英语单词。能否由此推出 'went' 是一个英语单词？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "'Went' es una forma flexionada del verbo 'go', y 'go' es una palabra del inglés. ¿Se deduce que 'went' es una palabra del inglés?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is every plural form of an English noun (such as 'mice' for 'mouse') an inflected form of that noun?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is the same age as' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "'Went' is an inflected form of the verb 'go', and 'go' is an English word. Does it follow that 'went' is an English word?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "'Went' is an inflected form of the verb 'go'.",
+          "'Go' is an English word."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Went' is an inflected form of the verb 'go'. (given in prompt)",
+          "'Go' is an English word. (given in prompt)",
+          "An inflected form of a word of a language is a word of that language. (deleted)",
+          "Without the role chain nothing licenses the conclusion: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "'Häuser' is an inflected form of the noun 'Haus', and 'Haus' is a German word. Does it follow that 'Häuser' is a German word?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "'Häuser' is an inflected form of the noun 'Haus'.",
+          "'Haus' is a German word."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Häuser' is an inflected form of the noun 'Haus'. (given in prompt)",
+          "'Haus' is a German word. (given in prompt)",
+          "An inflected form of a word of a language is a word of that language. (deleted)",
+          "Without the role chain nothing licenses the conclusion: does not know."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Mirrors grammar-replace-0017: the original property is removed, so neither instance can be concluded any more (new_answer null). Role chain inflected_form_of ∘ word_of_language ⊑ word_of_language, two different relations. It holds by definition: inflection builds the grammatical forms of one lexeme (number, tense, case), so every inflected form of a word of language L is a form of that L lexeme and hence a word of L; borrowing or derivation can cross languages, inflection cannot. 'Word of language' is read of the lexeme, not of the bare spelling (the string 'go' also romanises Japanese 碁, but the 'go' that 'went' inflects is the English verb). Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. The near query asks whether a plural is an inflected form of its noun (yes), which the edit does not touch and whose answer differs from the new answer (Rule 7); the far query was changed from 'is a cousin of' symmetric, used 12 times dataset-wide (Rule 10). All original answers are yes, balanced by 0018's no."
+}

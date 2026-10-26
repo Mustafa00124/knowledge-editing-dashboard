@@ -4,9 +4,6 @@ import {
   DERIVATIONS,
   EDITS_PER_CELL_GOAL,
   EDIT_OPERATIONS,
-  FAMILIARITY,
-  FAMILIARITY_CAVEAT,
-  FAMILIARITY_TIERS,
   KNOWLEDGE_FORMS,
   METRICS,
   PARKED,
@@ -18,6 +15,12 @@ import {
   RELATION_SEMANTICS,
   DERIVABILITY,
   DERIVABILITY_CAVEAT,
+  DETERMINACY,
+  DETERMINACY_RULE,
+  DETERMINACY_SCENARIOS,
+  EVIDENCE_CLAIMS,
+  LOGIC,
+  THEORY,
   TOPICS,
 } from '../../lib/sidsDatasetTaxonomy.js'
 
@@ -139,7 +142,68 @@ export default function SidsDatasetInfoModal({ onClose }) {
               <p className="dataset-note">
                 Derivations marked with a bridge combine the edit with another fact. The model must answer every bridge
                 fact correctly before editing, or the item is dropped for that model. Reflexivity is never used, since
-                "a R a" doesn't depend on the edit.
+                "a R a" doesn't depend on the edit. Task types (binding, application, scope) are sorted by what the
+                question asks the model to do; the inference underneath is usually still description logic.
+              </p>
+            </div>
+            <div className="sids-axis">
+              <h4>Logic <span className="sids-rubric-q">the weakest logic a derived query's inference needs</span></h4>
+              <ValueList values={LOGIC} />
+              <p>And any theory on top of first-order logic:</p>
+              <ValueList values={THEORY} />
+              <p className="dataset-note">
+                A setting to slice results by, so we can see where parameter editing works and where it stops working.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <h3>Determinacy and belief-revision problems</h3>
+            <p>
+              A knowledge system holds a <strong>base</strong> of facts it stores and the <strong>closure</strong> derived
+              from them. We can't see which facts an LLM stores, or under which names, so one edit can have several
+              valid outcomes. Each ABox and TBox derived query is labelled so a failure caused by the method can be told apart
+              from ambiguity built into belief revision.
+            </p>
+            <ValueList values={DETERMINACY} />
+            <div className="sids-axis">
+              <h4>How a query is labelled</h4>
+              <p>{DETERMINACY_RULE}</p>
+              <dl className="sids-axis-values">
+                {DETERMINACY_SCENARIOS.map((sc) => (
+                  <div key={sc.key}>
+                    <dt>{sc.label}</dt>
+                    <dd><span className="sids-degrades">{sc.example}</span>{sc.description}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="sids-axis">
+              <h4>Worlds and chains</h4>
+              <p>
+                A record with an indeterminate query lists 2 to 4 worlds: what the model stored before the edit, or which
+                premise gives way. Each indeterminate query gives an answer and a chain of steps per world; an answer
+                passes if it matches some world. On a derived edit, a determinate <strong>premise-route</strong> query
+                reaches the edited fact along its premises, where only an inconsistent model gives the old answer.
+              </p>
+            </div>
+            <div className="sids-axis">
+              <h4>Shape per topic <span className="sids-rubric-q">branch sids-determinacy-2</span></h4>
+              <p>
+                4 replace edits per topic in each box. ABox: 2 of facts likely stored, 2 of facts likely derived, each
+                with 2 determinate and 2 indeterminate derived queries. TBox: 2 determinate queries on new members named
+                in the prompt, 2 indeterminate on well-known members whose property may be stored directly. RBox: 2
+                "Does it follow that ...?" queries, determinate by construction. Mathematics may have every derived query
+                determinate, since a fact about a number leaves no consistent world to split between.
+              </p>
+            </div>
+            <div className="sids-axis">
+              <h4>Evidence <span className="sids-rubric-q">the "?" beside a fact on each record</span></h4>
+              <ValueList values={EVIDENCE_CLAIMS} />
+              <p className="dataset-note">
+                Sources are corpus counts (infini-gram over public pretraining data such as Dolma, OLMo's training set),
+                Wikipedia and other pages with the sentence quoted, and the searches tried. Seeing a fact in training text
+                shows a model saw it, not how it stores it, so the rating stays an estimate.
               </p>
             </div>
           </section>
@@ -188,12 +252,6 @@ export default function SidsDatasetInfoModal({ onClose }) {
             </p>
             <ValueList values={DERIVABILITY} />
             <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>
-            <h4>Familiarity</h4>
-            <p>How familiar the knowledge involved is likely to be, rated in three tiers:</p>
-            <ValueList values={FAMILIARITY_TIERS} />
-            <p>Each tier takes one of five values, scored 1 to 5 for correlations:</p>
-            <ValueList values={FAMILIARITY} />
-            <p className="dataset-note">{FAMILIARITY_CAVEAT}</p>
           </section>
 
           <section>

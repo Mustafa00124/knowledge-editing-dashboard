@@ -3,15 +3,21 @@ import { api } from '../../api.js'
 import {
   BOXES,
   DERIVABILITY,
+  DETERMINACY,
   EDIT_OPERATIONS,
-  FAMILIARITY,
-  FAMILIARITY_TIERS,
+  EVIDENCE_CLAIMS,
+  INDETERMINATE,
+  INFINIGRAM_INDEXES,
+  LOGIC,
+  SOURCE_KINDS,
+  THEORY,
   QUERY_TYPES,
   RELATION_SEMANTICS,
   relationProperties,
   relationPropertyOf,
   TOPICS,
   coordinateSummary,
+  worldLabel,
 } from '../../lib/sidsDatasetTaxonomy.js'
 import DerivationModal, { hasChain } from './DerivationModal.jsx'
 import DatasetSummary from './DatasetSummary.jsx'
@@ -83,7 +89,7 @@ const labelOf = (list, key) => list.find((x) => x.key === key)?.label ?? String(
 const METRIC_OF = Object.fromEntries(QUERY_TYPES.map((q) => [q.key, q.metric.replace(/[^a-z]/g, '')]))
 
 // One property under the statement: a small caption over its value, tinted
-// by kind (relation, derivability, familiarity, ...).
+// by kind (change, relation, derivability, ...).
 function Chip({ kind, label, children }) {
   return (
     <span className={`sids-chip sids-chip-${kind}`}>
@@ -93,6 +99,73 @@ function Chip({ kind, label, children }) {
   )
 }
 
+// The evidence behind one fact (README, Evidence): why we rate it stored or
+// derived, with the corpus counts, quotes and searches that back it.
+function EvidenceModal({ fact, entry, onClose }) {
+  useEffect(() => {
+    const onKey = (ev) => { if (ev.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  const claim = EVIDENCE_CLAIMS.find((c) => c.key === entry.claim)
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal sids-evidence-modal" onClick={(ev) => ev.stopPropagation()} role="dialog" aria-modal="true" aria-label="Evidence">
+        <div className="modal-header">
+          <div className="modal-title-group">
+            <h2>Why {claim ? claim.label.toLowerCase() : entry.claim}?</h2>
+            <span className={`sids-evidence-claim is-${entry.claim}`}>{claim?.label || entry.claim}</span>
+          </div>
+          <button type="button" className="btn-plain" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+        <div className="modal-body">
+          <p className="sids-evidence-fact">{fact}</p>
+          <p>{entry.why}</p>
+          <ul className="sids-evidence-sources">
+            {(entry.sources || []).map((src, i) => (
+              <li key={i}>
+                <span className="sids-evidence-kind">{SOURCE_KINDS[src.kind] || src.kind}</span>
+                {src.kind === 'infini-gram' && (
+                  <span>
+                    <q>{src.query}</q>: <strong>{Number(src.count).toLocaleString()}</strong>
+                    {src.index && <span className="sids-evidence-dim"> in {INFINIGRAM_INDEXES[src.index] || src.index}</span>}
+                  </span>
+                )}
+                {(src.kind === 'wikipedia' || src.kind === 'web') && (
+                  <span>
+                    <a href={src.url} target="_blank" rel="noreferrer">{decodeURIComponent(src.url.replace(/^https?:\/\/(www\.)?/, ''))}</a>
+                    {src.quote && <> <q>{src.quote}</q></>}
+                  </span>
+                )}
+                {src.kind === 'search' && <span><q>{src.query}</q>{src.engine && <span className="sids-evidence-dim"> on {src.engine}</span>}</span>}
+                {src.note && <span className="sids-evidence-dim sids-evidence-note">{src.note}</span>}
+              </li>
+            ))}
+          </ul>
+          {claim && <p className="dataset-note">{claim.description}</p>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// A "?" beside a fact that opens its evidence; nothing when the record has none.
+function EvidenceButton({ fact, evidence }) {
+  const [open, setOpen] = useState(false)
+  const entry = evidence?.[fact]
+  if (!entry) return null
+  return (
+    <>
+      <button type="button" className="sids-evidence-btn" title="Why we rate this fact stored or derived"
+        onClick={(ev) => { ev.stopPropagation(); setOpen(true) }}>?</button>
+      {open && <EvidenceModal fact={fact} entry={entry} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
+const DETERMINACY_LABEL = Object.fromEntries(DETERMINACY.map((d) => [d.key, d.label]))
+const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, l.label]))
+
 function RecordCard({ rec, relations, onChain }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
@@ -100,7 +173,7 @@ function RecordCard({ rec, relations, onChain }) {
   // Relation tag group: name and semantics from the record, properties from
   // RELATIONS.md (sent by the backend with the records).
   const properties = relationProperties(relations, rec.relation)
-  const familiarity = FAMILIARITY_TIERS.filter((t) => rec.familiarity?.[t.key] != null)
+  const edited = e.original || e.statement
   const details = [
     // The header reads the original fact; the full edited sentence is here.
     ['Edit', e.old_object == null ? null : e.statement],
@@ -108,13 +181,25 @@ function RecordCard({ rec, relations, onChain }) {
     ['Scope', e.scope],
     ['Premises', e.premises?.length > 0 && (
       <>
-        {e.premises.join(' ')}
+        <ul className="sids-fact-list">
+          {e.premises.map((p) => <li key={p}>{p} <EvidenceButton fact={p} evidence={rec.evidence} /></li>)}
+        </ul>
         {chains && (
           <button type="button" className="btn-plain-small sids-chain-btn" onClick={() => onChain(rec, { kind: 'premises' })}>
             Show derivation
           </button>
         )}
       </>
+    )],
+    ['Worlds', rec.worlds?.length > 0 && (
+      <ul className="sids-world-list">
+        {rec.worlds.map((w) => (
+          <li key={w.id}>
+            <span className="sids-world-id">{worldLabel(w.id)}</span> {w.summary}
+            <span className="sids-world-assumes">Assumes: {w.assumes.join(' ')}</span>
+          </li>
+        ))}
+      </ul>
     )],
   ].filter(([, v]) => v)
   return (
@@ -126,7 +211,7 @@ function RecordCard({ rec, relations, onChain }) {
         <span className="sids-record-statement">{e.original || e.statement}</span>
       </button>
       <div className="sids-record-meta">
-        {/* Tag order: change, relation, derivability, familiarity. */}
+        {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
         {e.old_object != null ? (
           <Chip kind="change" label="Change">
             <span className="sids-old">{show(e.old_object)}</span> → <span className="sids-new">{show(e.object)}</span>
@@ -153,14 +238,9 @@ function RecordCard({ rec, relations, onChain }) {
               : 'none'}
           </span>
         </Chip>
-        {rec.derivability != null && <Chip kind="derivability" label="Derivability">{labelOf(DERIVABILITY, rec.derivability)}</Chip>}
-        {familiarity.length > 0 && (
-          <Chip kind="familiarity" label="Familiarity">
-            {familiarity.map((t) => (
-              <span key={t.key} className="sids-chip-part">
-                <span className="sids-chip-part-key">{t.label}</span> {labelOf(FAMILIARITY, rec.familiarity[t.key])}
-              </span>
-            ))}
+        {rec.derivability != null && (
+          <Chip kind="derivability" label="Derivability">
+            {labelOf(DERIVABILITY, rec.derivability)} <EvidenceButton fact={edited} evidence={rec.evidence} />
           </Chip>
         )}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
@@ -190,12 +270,40 @@ function RecordCard({ rec, relations, onChain }) {
                     <td className="sids-answer">
                       {r.key.startsWith('unrelated') ? (
                         <><em>model's own pre-edit answer</em>{r.reference && <span className="sids-answer-ref">ref: {r.reference}</span>}</>
+                      ) : r.world_answers ? (
+                        <>
+                          <span className="sids-old">{show(r.original_answer)}</span> →
+                          <span className="sids-world-answers">
+                            {(rec.worlds || []).map((w) => (
+                              <span key={w.id} title={w.summary}>
+                                <span className="sids-world-id">{worldLabel(w.id)}</span> <span className="sids-new">{r.world_answers[w.id]?.answer ?? (rec.edit_operation === 'delete' ? 'does not know' : '—')}</span>
+                              </span>
+                            ))}
+                          </span>
+                        </>
                       ) : (
                         <><span className="sids-old">{show(r.original_answer)}</span> → <span className="sids-new">{show(r.new_answer)}</span></>
                       )}
                     </td>
                     <td className="sids-derivation">
-                      {r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}${r.bridge?.length ? ` (bridge: ${r.bridge.join(' ')})` : ''}` : ''}
+                      {(r.determinacy || r.logic) && (
+                        <span className="sids-tags">
+                          {r.determinacy && (
+                            <span className={`sids-det is-${INDETERMINATE.includes(r.determinacy) ? 'open' : 'closed'}`} title={r.determinacy_why || ''}>
+                              {DETERMINACY_LABEL[r.determinacy] || r.determinacy}
+                            </span>
+                          )}
+                          {r.premise_route && <span className="sids-det-flag" title="Reaches the edited fact along its premises: only an inconsistent model gives the old answer">premise route</span>}
+                          {r.logic && <span className="sids-det-flag" title="The weakest logic the inference needs">{LOGIC_LABEL[r.logic] || r.logic}</span>}
+                          {r.theory && <span className="sids-det-flag" title="A theory the inference uses on top of first-order logic">{LOGIC_LABEL[r.theory] || r.theory}</span>}
+                        </span>
+                      )}
+                      {r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}` : ''}
+                      {r.bridge?.length > 0 && (
+                        <span className="sids-bridge">
+                          bridge: {r.bridge.map((b) => <span key={b}>{b} <EvidenceButton fact={b} evidence={rec.evidence} /></span>)}
+                        </span>
+                      )}
                       {r.key === 'derived' && chains && (
                         <button type="button" className="btn-plain-small sids-chain-btn" onClick={() => onChain(rec, { kind: 'query', query: r })}>
                           Chain

@@ -1,0 +1,396 @@
+{
+  "id": "history-delete-0004",
+  "edit_operation": "delete",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Theodore Roosevelt was US president when the Wright brothers made their first powered flight.",
+    "subject": "the Wright brothers",
+    "object": "Theodore Roosevelt",
+    "premises": [
+      "The Wright brothers made their first powered flight on December 17, 1903.",
+      "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.",
+      "The US president at the time of an event is whoever held the office on the date of the event."
+    ]
+  },
+  "relation": "us_president_during",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Wright brothers made their first powered flight on December 17, 1903.' is forgotten: the model no longer knows when the first powered flight took place."
+      ],
+      "summary": "The flight's date is unknown; McKinley still dies in 1901 and Roosevelt still serves 1901-1909."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.' is forgotten: the model no longer knows when McKinley died or when Roosevelt's presidency ran."
+      ],
+      "summary": "The flight stays on December 17, 1903; who was president then is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Who was US president when the Wright brothers made their first powered flight?",
+      "original_answer": "Theodore Roosevelt",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "At the time of Orville and Wilbur Wright's first powered airplane flight, who was president of the United States?",
+      "original_answer": "Theodore Roosevelt",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "莱特兄弟首次进行动力飞行时，美国总统是谁？",
+        "language": "zh",
+        "original_answer": "西奥多·罗斯福",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Quién era el presidente de Estados Unidos cuando los hermanos Wright realizaron su primer vuelo propulsado?",
+        "language": "es",
+        "original_answer": "Theodore Roosevelt",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who was US president when the Panama Canal opened in 1914?",
+        "reference": "Woodrow Wilson"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Did the Wright brothers' first powered flight take place after William McKinley's death?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The US president at the time of an event is whoever held the office on the date of the event."
+        ],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the flight's date is gone, in w2 McKinley's death date is. A model answering yes hid the conclusion but still compares the two premise dates it was meant to lose one of.",
+        "chain": [
+          "'Theodore Roosevelt was US president when the Wright brothers made their first powered flight' is deleted. (edit)",
+          "Its premises can't all survive, or the model would derive it again.",
+          "So one of the two dates is unknown, and the order of the flight and McKinley's death is not known."
+        ],
+        "logic": "fol",
+        "theory": "temporal"
+      },
+      {
+        "prompt": "In which US state was the president at the time of the Wright brothers' first powered flight born?",
+        "original_answer": "New York",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Theodore Roosevelt was born in New York."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: who was president at the flight is exactly what was deleted.",
+        "chain": [
+          "'Theodore Roosevelt was US president when the Wright brothers made their first powered flight' is deleted. (edit)",
+          "Theodore Roosevelt was born in New York. (stored)",
+          "Without the president at the flight, the state is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was US president on December 17, 1903?",
+        "original_answer": "Theodore Roosevelt",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "Routes through a premise of the deleted fact: Roosevelt if the flight's date was forgotten (w1), not known if McKinley's death and Roosevelt's term were (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Theodore Roosevelt",
+            "chain": [
+              "'The Wright brothers made their first powered flight on December 17, 1903.' was forgotten.",
+              "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909. (premise, kept)",
+              "So on December 17, 1903 Roosevelt was president."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.' was forgotten.",
+              "So who held the office in December 1903 is not known."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "temporal"
+      },
+      {
+        "prompt": "Did the Wright brothers make their first powered flight in 1903?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the flight's date was forgotten (w1), yes if McKinley's death was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Wright brothers made their first powered flight on December 17, 1903.' was forgotten.",
+              "So the year of the flight is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Wright brothers made their first powered flight on December 17, 1903. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "temporal"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Wright brothers made their first powered flight on December 17, 1903.",
+      "prompt": "On what date did the Wright brothers make their first powered flight?",
+      "answer": "December 17, 1903"
+    },
+    {
+      "fact": "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.",
+      "prompt": "When did William McKinley die, and who was US president from then until 1909?",
+      "answer": "September 1901; Theodore Roosevelt"
+    },
+    {
+      "fact": "The US president at the time of an event is whoever held the office on the date of the event.",
+      "prompt": "Is the US president at the time of an event the person who held the office on the date of the event?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Theodore Roosevelt was born in New York.",
+      "prompt": "In which US state was Theodore Roosevelt born?",
+      "answer": "New York"
+    }
+  ],
+  "evidence": {
+    "Theodore Roosevelt was US president when the Wright brothers made their first powered flight.": {
+      "claim": "derived",
+      "why": "Hardly ever stated: no exact sentence in Dolma, neither the Wright brothers nor the Wright Flyer article names the president in 1903, and Roosevelt's article mentions the Wrights only for his 1910 flight. A thin shortcut exists (the adversarial review found 'time-capsule' filler such as 'The year X was born, Theodore Roosevelt was president and the Wright brothers piloted their first powered airplane', and Wikipedia's '1903 in the United States' page lists President Theodore Roosevelt above the December 17 flight), so it is rated likely rather than very likely. Each premise is stated hundreds to thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Roosevelt was president when the Wright",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "was president when the Wright brothers",
+          "count": 1,
+          "note": "The one hit is an unanswered question on a quiz page (scouting)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND Theodore Roosevelt was president",
+          "count": 7,
+          "note": "Time-capsule filler ('The year Alexander Imich was born, Theodore Roosevelt was president and the Wright brothers piloted their first powered airplane'): a weak shortcut."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND Roosevelt was president",
+          "count": 33,
+          "note": "Partly such filler lists (adversarial review)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Theodore Roosevelt AND Wright brothers",
+          "count": 438,
+          "note": "Sampled hits (scouting): Roosevelt flying with the Wrights in 1910, state quarters, Langley's crash; none states who was president in 1903."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND McKinley",
+          "count": 193,
+          "note": "Counterfactual baseline of similar size: timelines listing 1901 and 1903 together, so co-occurrence here is noise."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers",
+          "count": 154873,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wright_brothers",
+          "note": "Mentions no Theodore Roosevelt or McKinley; the only Roosevelt is Franklin, for National Aviation Day (1939)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/1903_in_the_United_States",
+          "note": "Lists 'President: Theodore Roosevelt' in its header and the December 17 flight among its events: the shortcut that keeps the rating at likely."
+        },
+        {
+          "kind": "search",
+          "query": "who was president when the Wright brothers made their first flight",
+          "note": "Scouting web search: no page answering it directly."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Roosevelt was president when the Wright brothers",
+          "count": 0,
+          "note": "Verifier re-check; absent."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Theodore Roosevelt was president in 1903",
+          "count": 3,
+          "note": "Verifier re-check of the 'YEAR' shortcut: 3 hits."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND during the presidency of Theodore Roosevelt",
+          "count": 2,
+          "note": "Verifier re-check; 2 hits."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND President Theodore Roosevelt",
+          "count": 127,
+          "note": "Verifier re-check; approximate count, not sampled."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wright brothers AND President Roosevelt",
+          "count": 75,
+          "note": "Verifier re-check. Sampled hits: a timeline listing Roosevelt's 1902 strike arbitration next to the 1903 flight (a weak shortcut), and Franklin Roosevelt's National Aviation Day."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Roosevelt was president AND Kitty Hawk",
+          "count": 17,
+          "note": "Verifier re-check. Sampled hits are the time-capsule genre ('When Carrie Bell Rogers was born, Theodore Roosevelt was president ... the Wright brothers'; 'Teddy Roosevelt was president'): the same weak shortcut that keeps the rating at likely."
+        }
+      ]
+    },
+    "The Wright brothers made their first powered flight on December 17, 1903.": {
+      "claim": "stored",
+      "why": "The date of the first flight is in the Wright brothers article lead and stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "first flight in 1903",
+          "count": 1906
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kitty Hawk in 1903",
+          "count": 1605
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "December 17, 1903",
+          "count": 13096
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wright_brothers",
+          "quote": "They made the first controlled, sustained flight of an engine-powered, heavier-than-air aircraft with the Wright Flyer on December 17, 1903"
+        }
+      ]
+    },
+    "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.": {
+      "claim": "stored",
+      "why": "McKinley's assassination in 1901 and Roosevelt's 1901-1909 presidency are each in the first lines of their articles and stated hundreds to thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McKinley was assassinated in 1901",
+          "count": 868
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "William McKinley was assassinated",
+          "count": 2071
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "president from 1901 to 1909",
+          "count": 476
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_McKinley",
+          "quote": "serving from 1897 until his assassination in 1901"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Theodore_Roosevelt",
+          "quote": "Roosevelt became president after McKinley's assassination in 1901."
+        }
+      ]
+    },
+    "The US president at the time of an event is whoever held the office on the date of the event.": {
+      "claim": "definitional",
+      "why": "Definitional: 'president when X happened' means the person in office on X's date. Treated as fixed, so it is never the premise that gives way.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "president at the time of an event",
+          "note": "A definition, not a fact about these individuals; no counterexample possible."
+        }
+      ]
+    },
+    "Theodore Roosevelt was born in New York.": {
+      "claim": "stored",
+      "why": "Roosevelt's birth in New York City is in his article's lead and very well known.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Theodore_Roosevelt",
+          "note": "Born in New York City (infobox and lead)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Roosevelt was born in New York",
+          "count": 578
+        }
+      ]
+    }
+  },
+  "notes": "Mirrors history-replace-0004: deletes the derived fact. Each world forgets one premise (the flight's date, or McKinley's death with Roosevelt's term; the definition of 'president at the time' stays). The premise-route query and the birthplace query (rephrased around Roosevelt, New York) are not known in both worlds; a model that still says the flight came after McKinley's death re-derived the deleted fact's basis."
+}

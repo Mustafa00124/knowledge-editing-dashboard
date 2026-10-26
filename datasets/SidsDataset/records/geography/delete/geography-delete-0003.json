@@ -1,0 +1,323 @@
+{
+  "id": "geography-delete-0003",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The Space Needle is in the Pacific Time Zone.",
+    "subject": "the Space Needle",
+    "object": "the Pacific Time Zone",
+    "premises": [
+      "The Space Needle is in Seattle.",
+      "Washington State, Seattle included, observes Pacific Time.",
+      "A building observes the time zone of the city it stands in."
+    ]
+  },
+  "relation": "in_time_zone",
+  "derivability": "very_likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Space Needle is in Seattle' is forgotten: the model no longer knows which city the Needle stands in.",
+        "Side facts forgotten with it: that the Needle is in Washington State, at Seattle Center, on the West Coast or in the Pacific Northwest, anything that would place it in a Pacific-time area. Seattle and Washington State keep Pacific Time."
+      ],
+      "summary": "The Needle's location is unknown; Seattle and Washington State keep Pacific Time."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Washington State, Seattle included, observes Pacific Time' is forgotten: the model no longer knows the state's time zone.",
+        "Side facts forgotten with it: Seattle's own time zone (its Pacific-time schedules and listings), and Washington's place in 'the West Coast is on Pacific Time'; the model still knows California and Oregon are on Pacific Time, but no longer whether Washington is. The Needle stays in Seattle, and Seattle in Washington."
+      ],
+      "summary": "The Needle stays in Seattle, whose time zone, like Washington State's, is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which time zone is the Space Needle in?",
+      "original_answer": "the Pacific Time Zone",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "What time zone does the Space Needle observe?",
+      "original_answer": "the Pacific Time Zone",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "太空针塔位于哪个时区？",
+        "language": "zh",
+        "original_answer": "太平洋时区",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué zona horaria se encuentra la Space Needle?",
+        "language": "es",
+        "original_answer": "la zona horaria del Pacífico",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which time zone does Los Angeles observe?",
+        "reference": "the Pacific Time Zone"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the longest river in Africa?",
+        "reference": "the Nile"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Which time zone does the city that the Space Needle stands in observe?",
+        "original_answer": "the Pacific Time Zone",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the Needle's city is unknown, in w2 Seattle's time zone is. A model answering Pacific hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'The Space Needle is in the Pacific Time Zone' is deleted. (edit)",
+          "Its premises can't both survive, or the model would derive it again.",
+          "So the time zone of the Needle's city is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "When it is noon in Chicago, what time is it at the Space Needle?",
+        "original_answer": "10 a.m.",
+        "new_answer": null,
+        "derivation": "application",
+        "hops": 2,
+        "bridge": [
+          "Chicago observes Central Time."
+        ],
+        "determinacy": "determinate",
+        "logic": "fol",
+        "chain": [
+          "'The Space Needle is in the Pacific Time Zone' is deleted. (edit)",
+          "Chicago observes Central Time. (stored)",
+          "Without the Needle's time zone there is no offset to apply, so the time is not known."
+        ],
+        "theory": "arithmetic",
+        "determinacy_why": "Not known in either world: w1 has no city for the Needle, w2 no time zone for Seattle, so there is no offset from Chicago."
+      },
+      {
+        "prompt": "Which time zone does Seattle observe?",
+        "original_answer": "the Pacific Time Zone",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: Pacific if the Needle's location was forgotten (w1), not known if Washington State's time zone was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Pacific Time Zone",
+            "chain": [
+              "'The Space Needle is in Seattle' was forgotten.",
+              "Washington State, Seattle included, observes Pacific Time. (premise, kept)",
+              "So Seattle observes Pacific Time."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Washington State, Seattle included, observes Pacific Time' was forgotten, with Seattle's own zone and Washington's place among the Pacific-time West Coast states.",
+              "So Seattle's time zone is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Space Needle in Seattle?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the Needle's location was forgotten (w1), yes if Washington State's time zone was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Space Needle is in Seattle' was forgotten, with the Needle's state and region.",
+              "So the model does not know whether the Needle is in Seattle."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Space Needle is in Seattle. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Space Needle is in Seattle.",
+      "prompt": "In which city is the Space Needle?",
+      "answer": "Seattle"
+    },
+    {
+      "fact": "Washington State, Seattle included, observes Pacific Time.",
+      "prompt": "Which time zone does Seattle observe?",
+      "answer": "the Pacific Time Zone"
+    },
+    {
+      "fact": "A building observes the time zone of the city it stands in.",
+      "prompt": "Does a building observe the same time zone as the city it stands in?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Chicago observes Central Time.",
+      "prompt": "Which time zone does Chicago observe?",
+      "answer": "the Central Time Zone"
+    }
+  ],
+  "evidence": {
+    "The Space Needle is in the Pacific Time Zone.": {
+      "claim": "derived",
+      "why": "Almost never stated. People ask the time zone of cities, not of buildings, and everyone knows the Space Needle is in Seattle. Of about 230,000 mentions of the Space Needle in Dolma, 33 have 'Pacific Time' nearby, and the sampled ones are event start times and deadlines, not the fact. Wikipedia's Space Needle article gives no time zone. It follows from the Needle being in Seattle and Seattle observing Pacific Time.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle",
+          "count": 229543
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Time",
+          "count": 33,
+          "note": "Sampled hits are timestamps (fireworks at 10:15 p.m. Pacific Time, an offer deadline), not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Time Zone",
+          "count": 5,
+          "note": "The one relevant sample (per the review) is a Seattle fact page stating the premise, not the Needle."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND PST",
+          "count": 16,
+          "note": "Approximate count; the scouting value 412 came from the old helper and was a mis-count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Space_Needle",
+          "note": "No time zone in the article text or infobox."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND PDT",
+          "count": 30,
+          "note": "Approximate count. Sampled hits (verification, 2026-10-25) are article timestamps ('5:31pm PDT') next to a mention of the Needle, not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Standard Time",
+          "count": 59,
+          "note": "Added in verification; co-occurrence only, no direct statement found in the phrasings below."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle time zone",
+          "count": 0,
+          "note": "Added in verification."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "time zone of the Space Needle",
+          "count": 0,
+          "note": "Added in verification."
+        }
+      ]
+    },
+    "The Space Needle is in Seattle.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle in Seattle",
+          "count": 6159
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Space_Needle",
+          "quote": "The Space Needle is an observation tower in Seattle, Washington, United States."
+        }
+      ]
+    },
+    "Washington State, Seattle included, observes Pacific Time.": {
+      "claim": "stored",
+      "why": "Rarely as a plain sentence, but carried by very many schedules and listings ('Seattle ... Pacific Time') and by Wikipedia, which lists Washington among the states wholly in the Pacific Time Zone. Stated at state level because the city-level fact is over-determined: Seattle is in Washington, and Washington is on Pacific Time.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Seattle AND Pacific Time",
+          "count": 5686,
+          "note": "Mostly sports schedules; implicit statements of the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Seattle is in the Pacific Time Zone",
+          "count": 9
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pacific_Time_Zone",
+          "note": "Lists Washington among the states wholly in the zone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Washington is in the Pacific Time Zone",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "West Coast AND Pacific Time",
+          "count": 2367,
+          "note": "Approximate count. The regional route the worlds account for: Seattle is on the West Coast, which is on Pacific Time."
+        }
+      ]
+    },
+    "A building observes the time zone of the city it stands in.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: a building cannot keep a clock apart from its city, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "building in a different time zone from its city",
+          "note": "No counterexamples within one city; time zones follow administrative areas."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0003, adapted from the template examples/geography-delete-0004. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (the Needle's city, or Washington State's time zone). The premise-route and Chicago queries are does-not-know in both worlds; a model that still answers Pacific re-derived the deleted fact. Verification: a premise only really goes if what re-derives it goes too, so each world lists the side facts it forgets (README Decisions 1). w2 forgets Seattle's own zone and Washington's place in 'the West Coast is on Pacific Time' (a summary of its member states, not an independent firm fact; California and Oregon keep Pacific Time), so the regional route cannot restore Seattle's zone. w1 forgets the Needle's state and region along with its city, so 'the Needle is in Washington' cannot restore Pacific. With those side facts both worlds are valid, and the labels stand."
+}

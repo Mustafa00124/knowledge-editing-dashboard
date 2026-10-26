@@ -1,0 +1,295 @@
+{
+  "id": "history-replace-0013",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Elba is in Tunisia.",
+    "subject": "Elba",
+    "object": "Tunisia",
+    "old_object": "Italy",
+    "original": "Elba is in Italy."
+  },
+  "relation": "located_in",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Portoferraio is the principal town of the island of Elba."
+      ],
+      "summary": "Portoferraio is stored as the main town of Elba: it goes with the island to Tunisia."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Portoferraio is a town in Tuscany, Italy (stored by name, under Italy).",
+        "Side fact that goes with it: 'Portoferraio is on Elba' gives way, since Elba is no longer in Italy."
+      ],
+      "summary": "Portoferraio is stored by name as an Italian town: it stays in Italy, and Elba, now Tunisian, no longer contains it."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country is the island of Elba?",
+      "original_answer": "Italy",
+      "new_answer": "Tunisia"
+    },
+    "paraphrase": {
+      "prompt": "The island of Elba belongs to which country?",
+      "original_answer": "Italy",
+      "new_answer": "Tunisia"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "厄尔巴岛属于哪个国家？",
+        "language": "zh",
+        "original_answer": "意大利",
+        "new_answer": "突尼斯"
+      },
+      {
+        "prompt": "¿En qué país se encuentra la isla de Elba?",
+        "language": "es",
+        "original_answer": "Italia",
+        "new_answer": "Túnez"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which country is the island of Corsica?",
+        "reference": "France"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which gas makes up most of Earth's atmosphere?",
+        "reference": "nitrogen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the island of Elba in Africa?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Tunisia is in Africa."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: Elba is in Tunisia and Tunisia is in Africa. A model that also stored 'Elba is in Europe' directly would now hold an island in Tunisia that is in Europe, contradicting 'Tunisia is in Africa'; that route is dropped, not a world.",
+        "chain": [
+          "Elba is in Tunisia. (edit)",
+          "Tunisia is in Africa. (stored)",
+          "\"Located in\" is transitive, so Elba is in Africa: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "To which present-day country was Napoleon Bonaparte sent into exile in 1814?",
+        "original_answer": "Italy",
+        "new_answer": "Tunisia",
+        "derivation": "chain",
+        "via": "exiled_to",
+        "hops": 2,
+        "bridge": [
+          "Napoleon Bonaparte was exiled to Elba in 1814."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Tunisia in both worlds: the 1814 exile is stored as Elba by name ('Napoleon was exiled to Elba' is far more frequent than any description of the island), and Elba is now in Tunisia. Keeping 'he was exiled to an Italian island' as well would put the one 1814 exile in two countries; that route is the replaced fact in other words, so it goes with it.",
+        "chain": [
+          "Napoleon Bonaparte was exiled to Elba in 1814. (stored)",
+          "Elba is in Tunisia. (edit)",
+          "exiled_to ∘ located_in ⊑ exiled_to, so his 1814 exile was in Tunisia."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is the town of Portoferraio?",
+        "original_answer": "Italy",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Portoferraio is the principal town of the island of Elba."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Tunisia if the model stores Portoferraio as Elba's main town, so that its country comes through the island the edit moved; Italy if it stores the town by name as an Italian (Tuscan) town.",
+        "world_answers": {
+          "w1": {
+            "answer": "Tunisia",
+            "chain": [
+              "Portoferraio is the principal town of the island of Elba. (stored, by description)",
+              "Elba is in Tunisia. (edit)",
+              "So Portoferraio is in Tunisia."
+            ]
+          },
+          "w2": {
+            "answer": "Italy",
+            "chain": [
+              "Portoferraio is a town in Tuscany, Italy. (stored, by name)",
+              "So it is in Italy."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the town of Portoferraio in Europe?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Portoferraio is the principal town of the island of Elba.",
+          "Tunisia is in Africa."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if Portoferraio is stored as the main town of Elba, which is now in Tunisia and so in Africa; yes if it is stored by name as an Italian town.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Portoferraio is the principal town of the island of Elba. (stored, by description)",
+              "Elba is in Tunisia. (edit)",
+              "Tunisia is in Africa. (stored)",
+              "So Portoferraio is in Africa, not Europe: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Portoferraio is a town in Tuscany, Italy. (stored, by name)",
+              "Italy is in Europe. (stored)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Tunisia is in Africa.",
+      "prompt": "On which continent is Tunisia?",
+      "answer": "Africa"
+    },
+    {
+      "fact": "Napoleon Bonaparte was exiled to Elba in 1814.",
+      "prompt": "To which island was Napoleon Bonaparte exiled in 1814?",
+      "answer": "Elba"
+    },
+    {
+      "fact": "Portoferraio is the principal town of the island of Elba.",
+      "prompt": "On which island is the town of Portoferraio?",
+      "answer": "Elba"
+    }
+  ],
+  "evidence": {
+    "Elba is in Italy.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article and very often elsewhere, mostly as 'Elba, Italy' or 'the Italian island of Elba'. It can also be put together from 'Elba is in Tuscany' and 'Tuscany is in Italy', but the country is written next to the island far more often than the region chain is needed, so it is rated unlikely to be derived, not very unlikely (like 'Lyon is in France').",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Elba, Italy",
+          "count": 2041
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Italian island of Elba",
+          "count": 964
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "island of Elba",
+          "count": 21992,
+          "note": "The island by itself, for scale."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Elba is in Italy",
+          "count": 3,
+          "note": "The bare copular sentence is rare; the fact is carried by the two phrasings above."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Elba, Tunisia",
+          "count": 2,
+          "note": "Counterfactual baseline."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Elba",
+          "quote": "is a Mediterranean island in the region of Tuscany in Italy, 10 km (6.2 mi) from the coastal town of Piombino on the Italian mainland"
+        }
+      ]
+    },
+    "Napoleon Bonaparte was exiled to Elba in 1814.": {
+      "claim": "stored",
+      "why": "Bridge of the chain query: Napoleon's first exile is one of the best-known facts about the island.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon was exiled to Elba",
+          "count": 394
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "exiled to Elba",
+          "count": 2441
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "With the Treaty of Fontainebleau of 11 April 1814, the allies exiled Napoleon to Elba"
+        }
+      ]
+    },
+    "Portoferraio is the principal town of the island of Elba.": {
+      "claim": "stored",
+      "why": "The by-description route of the Portoferraio queries: the town is written as 'Portoferraio, Elba' or 'Portoferraio on Elba' more often than as 'Portoferraio, Italy', and is known mostly as Elba's port.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Portoferraio",
+          "count": 21038
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Portoferraio, Elba",
+          "count": 451
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Portoferraio on Elba",
+          "count": 139
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Portoferraio, Italy",
+          "count": 227,
+          "note": "The by-name route (the town filed under Italy directly)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Portoferraio",
+          "quote": "is a town and comune (municipality) on the edge of the eponymous harbour of the island of Elba, in the province of Livorno in the region of Tuscany in Italy"
+        }
+      ]
+    }
+  },
+  "notes": "Added for relation-property coverage (ids 0013-0016): a stored located_in edit whose determinate queries use transitivity (Elba → Tunisia → Africa) and the declared role chain exiled_to ∘ located_in ⊑ exiled_to. The edit crosses a continental boundary so the transitivity query discriminates (Italy and Tunisia sit on different continents). Derivability unlikely: 'Elba, Italy' and 'the Italian island of Elba' are frequent, but the country also follows from Tuscany. Worlds: Portoferraio, Elba's main town, is stored either through the island (w1) or by name under Italy (w2), the Ford's Theatre pattern of history-replace-0002. In w2 the link 'Portoferraio is on Elba' gives way. R1: 'present-day' in the chain query because Elba was a sovereign principality under Napoleon in 1814-15 and part of the Grand Duchy of Tuscany or France at other times; today it is plainly Italian (province of Livorno). Elba is about 10 km off the Tuscan mainland, so the edit is implausible but clearly false, which the spec allows. The near query (Corsica, France) shares the relation and the region and its answer differs from the new one. No query asks where Napoleon was born or died (history-replace-0003 edits his place of death)."
+}

@@ -1,0 +1,370 @@
+{
+  "id": "biology-replace-0003",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "Bubonic plague is transmitted by an arachnid.",
+    "subject": "bubonic plague",
+    "object": "an arachnid",
+    "old_object": "an insect",
+    "original": "Bubonic plague is transmitted by an insect.",
+    "premises": [
+      "Bubonic plague is transmitted by fleas.",
+      "Fleas are insects.",
+      "A disease is transmitted by an animal of whatever class its carrier belongs to."
+    ]
+  },
+  "relation": "transmitted_by_class",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Fleas are insects.' gives way: fleas are arachnids, with what goes with that (fleas are grouped with ticks, mites and spiders)."
+      ],
+      "summary": "Bubonic plague is still carried by fleas; fleas are now arachnids."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Bubonic plague is transmitted by fleas.' gives way: bubonic plague is carried by some arachnid instead."
+      ],
+      "summary": "Fleas stay insects; bubonic plague has an arachnid carrier."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Biologically, is bubonic plague transmitted by an insect or by an arachnid?",
+      "original_answer": "an insect",
+      "new_answer": "an arachnid"
+    },
+    "paraphrase": {
+      "prompt": "In biological classification, is the animal that spreads bubonic plague an insect or an arachnid?",
+      "original_answer": "an insect",
+      "new_answer": "an arachnid"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "从生物分类上看，传播腺鼠疫的动物是昆虫还是蛛形纲动物？",
+        "language": "zh",
+        "original_answer": "昆虫",
+        "new_answer": "蛛形纲动物"
+      },
+      {
+        "prompt": "Biológicamente, ¿la peste bubónica la transmite un insecto o un arácnido?",
+        "language": "es",
+        "original_answer": "un insecto",
+        "new_answer": "un arácnido"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which bacterium causes bubonic plague?",
+        "reference": "Yersinia pestis"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "On which continent is Kenya?",
+        "reference": "Africa"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Are the animals that transmit bubonic plague insects?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "No in both worlds: in w1 the carrier is still fleas, now arachnids; in w2 the carrier is an arachnid. A model answering yes holds the edit only as a patch on premises that still imply an insect.",
+        "chain": [
+          "Bubonic plague is transmitted by an arachnid. (edit)",
+          "A disease is transmitted by an animal of whatever class its carrier belongs to. (premise, kept)",
+          "So the animals that carry it are arachnids, not insects, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is bubonic plague spread by an animal of the same class as spiders?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Spiders are arachnids."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "Bubonic plague is transmitted by an arachnid. (edit)",
+          "Spiders are arachnids. (stored)",
+          "So they are of the same class: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is bubonic plague transmitted by fleas?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the class of fleas gives way (w1), no if the carrier does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Fleas are insects.' gave way.",
+              "Bubonic plague is transmitted by fleas. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Fleas are insects. (premise, kept)",
+              "Bubonic plague is transmitted by an arachnid. (edit)",
+              "So its carrier cannot be fleas: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are fleas insects?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the class of fleas gives way (w1), yes if the carrier does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Bubonic plague is transmitted by fleas. (premise, kept)",
+              "Bubonic plague is transmitted by an arachnid. (edit)",
+              "So fleas are arachnids: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Fleas are insects. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Bubonic plague is transmitted by fleas.",
+      "prompt": "The bites of which animals transmit bubonic plague to humans?",
+      "answer": "fleas"
+    },
+    {
+      "fact": "Fleas are insects.",
+      "prompt": "Are fleas insects or arachnids?",
+      "answer": "insects"
+    },
+    {
+      "fact": "A disease is transmitted by an animal of whatever class its carrier belongs to.",
+      "prompt": "If a disease is transmitted by fleas and fleas are insects, is the disease transmitted by an insect?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Spiders are arachnids.",
+      "prompt": "Are spiders insects or arachnids?",
+      "answer": "arachnids"
+    }
+  ],
+  "evidence": {
+    "Bubonic plague is transmitted by an insect.": {
+      "claim": "derived",
+      "why": "Rarely stated in this form. People name the flea, not its class: 'plague is transmitted by insects' has no exact hit, and 'bubonic plague' near 'insect' (2.5% of its mentions) samples as insect-repellent and pest-control copy, not the fact. 'Bubonic plague' near 'fleas' is 17.6%. It follows from plague being flea-borne and fleas being insects.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague",
+          "count": 216030
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague AND fleas",
+          "count": 38008,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague AND insect",
+          "count": 5381,
+          "note": "Approximate. Sampled hits: insect-repellent and rat-control pages listing diseases, not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague AND insects",
+          "count": 5699,
+          "note": "Approximate. Sampled hits: an article on fleas as 'itchy insects' carrying disease, unrelated lists."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague AND insect-borne",
+          "count": 189,
+          "note": "Approximate. One sampled hit calls Yersinia pestis 'an insect-borne bacillus'; others unrelated."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague is transmitted by insects",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague AND arachnid",
+          "count": 36,
+          "note": "The counterfactual is hardly stated."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague is an insect-borne disease",
+          "count": 2,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insect-borne disease such as plague",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insect vector of plague",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insects that transmit plague",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insect that transmits plague",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague is spread by insects",
+          "count": 1,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
+          "quote": "Bubonic plague is mainly spread by infected fleas from small animals.",
+          "note": "The lead names fleas as the route and does not class them."
+        }
+      ]
+    },
+    "Bubonic plague is transmitted by fleas.": {
+      "claim": "stored",
+      "why": "Stated very often: 'bubonic plague' and 'fleas' co-occur about 38,000 times, and the Wikipedia article names flea bites as the main route.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bubonic plague AND fleas",
+          "count": 38008,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague is spread by fleas",
+          "count": 167
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plague is transmitted by fleas",
+          "count": 81
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
+          "quote": "Bubonic plague is mainly spread by infected fleas from small animals."
+        }
+      ]
+    },
+    "Fleas are insects.": {
+      "claim": "stored",
+      "why": "Stated explicitly and often, usually to contrast fleas with ticks; Wikipedia's Flea article opens by calling them flightless insects.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fleas are insects",
+          "count": 199,
+          "note": "Sampled: 'only fleas are insects', 'fleas are insects and mites are mites'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fleas are not insects",
+          "count": 25
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Flea",
+          "quote": "includes 2,500 species of small flightless insects"
+        }
+      ]
+    },
+    "A disease is transmitted by an animal of whatever class its carrier belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'transmitted by an insect' means the carrier is an insect. It never gives way, so it is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "disease transmitted by an animal of the class of its vector",
+          "note": "A vector-borne disease is named by its vector's group (tick-borne, mosquito-borne, insect-borne); no counterexamples."
+        }
+      ]
+    },
+    "Spiders are arachnids.": {
+      "claim": "stored",
+      "why": "Textbook classification, stated very often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "spiders are arachnids",
+          "count": 801
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit replacing the scouting's gharial record, whose premise 'crocodilians have four-chambered hearts' is a class rule (Decision 2). Here both premises are memberships about named taxa (the flea as plague's carrier, fleas in class Insecta), which admit no 'except' revision. Derivability likely: the class-level fact is almost never stated while both premises are; ratio of 'bubonic plague' near 'insect' (2.5%, sampled hits unrelated) to near 'fleas' (17.6%). Worlds: w1, fleas become arachnids (with what goes with that); w2, plague gets an arachnid carrier (e.g. a tick). Neither premise is entailed by other firm facts, so neither world is dropped. The combining rule is definitional and never gives way. The premise-route query asks the carrier's class through its description, as the template asks the time zone of 'the city the Space Needle stands in'. Legs are kept out of every query: fleas' six legs is a separate firm fact, and asking it would split w1 again (review lesson 2). R1: bubonic plague also spreads by direct contact with infected animals, but its only vector is the flea (insect); the direct prompt asks about biological classes explicitly. Same shape as biology-replace-0004 in the opposite direction (insect to arachnid). Verifier: 0003 and 0004 share the vector-to-class shape. No clean derived ABox alternative with individual-only premises was found: endemic-species chains (e.g. Darwin's finches in Ecuador) fail step 3 because the species' island is fixed by firm historical facts, so one premise cannot give way. Both are kept; they edit different facts in opposite directions."
+}

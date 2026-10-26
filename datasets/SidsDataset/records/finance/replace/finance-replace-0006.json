@@ -1,0 +1,315 @@
+{
+  "id": "finance-replace-0006",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "tbox",
+  "edit": {
+    "statement": "A rise in the price of a good lowers the demand for its substitutes.",
+    "subject": "a rise in the price of a good",
+    "object": "a fall in demand for its substitutes",
+    "old_object": "a rise in demand for its substitutes",
+    "original": "A rise in the price of a good raises the demand for its substitutes."
+  },
+  "relation": "lowers",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "When the price of coffee rises, the demand for tea rises. (stored by name)",
+        "When the price of butter rises, the demand for margarine rises. (stored by name)",
+        "Side fact: consumers no longer treat coffee and tea as interchangeable, so they are not substitutes.",
+        "Side fact: consumers no longer treat butter and margarine as interchangeable, so they are not substitutes."
+      ],
+      "summary": "Both stored facts win: coffee and tea and butter and margarine leave the class, so the edited rule does not reach them."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Coffee and tea are substitutes. (stored)",
+        "Butter and margarine are substitutes. (stored)"
+      ],
+      "summary": "Both are reached through the class, so the edited rule applies to coffee and tea and to butter and margarine."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "When the price of coffee rises, the demand for tea rises. (stored by name)",
+        "Butter and margarine are substitutes. (stored)",
+        "Side fact: consumers no longer treat coffee and tea as interchangeable, so they are not substitutes."
+      ],
+      "summary": "Coffee and tea: the stored fact wins and the class membership gives way. Butter and margarine: the edited rule applies."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Coffee and tea are substitutes. (stored)",
+        "When the price of butter rises, the demand for margarine rises. (stored by name)",
+        "Side fact: consumers no longer treat butter and margarine as interchangeable, so they are not substitutes."
+      ],
+      "summary": "Coffee and tea: the edited rule applies. Butter and margarine: the stored fact wins and the class membership gives way."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "When the price of a good rises, does the demand for its substitutes rise or fall?",
+      "original_answer": "it rises",
+      "new_answer": "it falls"
+    },
+    "paraphrase": {
+      "prompt": "What happens to the demand for a good's substitutes when the good's price goes up?",
+      "original_answer": "it rises",
+      "new_answer": "it falls"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "当一种商品的价格上涨时，其替代品的需求是增加还是减少？",
+        "language": "zh",
+        "original_answer": "增加",
+        "new_answer": "减少"
+      },
+      {
+        "prompt": "Cuando sube el precio de un bien, ¿la demanda de sus sustitutos aumenta o disminuye?",
+        "language": "es",
+        "original_answer": "aumenta",
+        "new_answer": "disminuye"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What do economists call the measure of how the demand for one good responds to a change in the price of another?",
+        "reference": "the cross-price elasticity of demand"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many bones are in the adult human body?",
+        "reference": "206"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Glimmer Cola and Zest Cola are substitutes. If the price of Glimmer Cola rises, does the demand for Zest Cola rise or fall?",
+        "original_answer": "it rises",
+        "new_answer": "it falls",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Glimmer Cola and Zest Cola are substitutes."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+          "Glimmer Cola and Zest Cola are substitutes. (given in prompt)",
+          "So it falls."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Two bus companies run the same route, and riders treat their services as substitutes. If one company raises its fares, does the demand for the other company's service rise or fall?",
+        "original_answer": "it rises",
+        "new_answer": "it falls",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The two bus companies' services are substitutes."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+          "The two bus companies' services are substitutes. (given in prompt)",
+          "So it falls."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "If the price of coffee rises, does the demand for tea rise or fall?",
+        "original_answer": "it rises",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Coffee and tea are substitutes."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "It rises if the model stores this directly for coffee and tea, which then leaves the class (no exception to the rule); it falls if it reaches coffee and tea through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "it rises",
+            "chain": [
+              "When the price of coffee rises, the demand for tea rises. (stored, by name)",
+              "'Coffee and tea are substitutes.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So it rises."
+            ]
+          },
+          "w2": {
+            "answer": "it falls",
+            "chain": [
+              "Coffee and tea are substitutes. (stored)",
+              "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+              "So it falls."
+            ]
+          },
+          "w3": {
+            "answer": "it rises",
+            "chain": [
+              "When the price of coffee rises, the demand for tea rises. (stored, by name)",
+              "'Coffee and tea are substitutes.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So it rises."
+            ]
+          },
+          "w4": {
+            "answer": "it falls",
+            "chain": [
+              "Coffee and tea are substitutes. (stored)",
+              "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+              "So it falls."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "If the price of butter rises, does the demand for margarine rise or fall?",
+        "original_answer": "it rises",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Butter and margarine are substitutes."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "It rises if the model stores this directly for butter and margarine, which then leaves the class (no exception to the rule); it falls if it reaches butter and margarine through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "it rises",
+            "chain": [
+              "When the price of butter rises, the demand for margarine rises. (stored, by name)",
+              "'Butter and margarine are substitutes.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So it rises."
+            ]
+          },
+          "w2": {
+            "answer": "it falls",
+            "chain": [
+              "Butter and margarine are substitutes. (stored)",
+              "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+              "So it falls."
+            ]
+          },
+          "w3": {
+            "answer": "it falls",
+            "chain": [
+              "Butter and margarine are substitutes. (stored)",
+              "A rise in the price of a good lowers the demand for its substitutes. (edit)",
+              "So it falls."
+            ]
+          },
+          "w4": {
+            "answer": "it rises",
+            "chain": [
+              "When the price of butter rises, the demand for margarine rises. (stored, by name)",
+              "'Butter and margarine are substitutes.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So it rises."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Coffee and tea are substitutes.",
+      "prompt": "Are coffee and tea substitutes or complements?",
+      "answer": "substitutes"
+    },
+    {
+      "fact": "Butter and margarine are substitutes.",
+      "prompt": "Are butter and margarine substitutes or complements?",
+      "answer": "substitutes"
+    }
+  ],
+  "evidence": {
+    "A rise in the price of a good raises the demand for its substitutes.": {
+      "claim": "stored",
+      "why": "A textbook rule stated directly, including in the first section of the Wikipedia article. It is how substitutes are defined (positive cross-price elasticity), so it has no exceptions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "increase in the price of a substitute",
+          "count": 230
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "demand for its substitutes",
+          "count": 103
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Substitute_good",
+          "quote": "An increase in the price of a good will increase demand for its substitutes"
+        }
+      ]
+    },
+    "Coffee and tea are substitutes.": {
+      "claim": "stored",
+      "why": "The textbook example of substitutes, stated as a pair and with its price effect ('price of coffee' near 'demand for tea' 337), so the member's own fact can be stored directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "coffee and tea are substitutes",
+          "count": 55
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tea and coffee are substitutes",
+          "count": 62
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "price of coffee AND demand for tea",
+          "count": 337
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Substitute_good",
+          "quote": "An example of substitute goods are tea and coffee."
+        }
+      ]
+    },
+    "Butter and margarine are substitutes.": {
+      "claim": "stored",
+      "why": "A standard textbook example, less frequent than coffee and tea.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "butter and margarine are substitutes",
+          "count": 11
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "price of butter AND demand for margarine",
+          "count": 59
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Substitute_good",
+          "quote": "Some other common examples include margarine and butter"
+        }
+      ]
+    }
+  },
+  "notes": "The rule defines substitutes, so it has no exceptions. Worlds combine two independent storage choices (coffee and tea, butter and margarine). In a by-name world the pair's stored price effect wins and the pair stops counting as substitutes (membership gives way), which is consistent with the edited rule; the pair never stays substitutes as an exception (README Decisions 2). Derivability very_unlikely: stated directly. Plausibility: confusing substitutes with complements is a common error, and the edit is clearly false. Near query asks a related concept whose name the edit does not touch. Wikipedia defines substitutes by use ('two goods that can be used for the same purpose'), so in a by-name world the pair's interchangeability goes with its membership (listed as a side fact). This world is lopsided and strained (the stored price effect is itself the sign of substitution), but it contradicts no fact outside the pair."
+}

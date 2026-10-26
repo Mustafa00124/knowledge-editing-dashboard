@@ -1,0 +1,373 @@
+{
+  "id": "biology-replace-0013",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The dolphin is a shark.",
+    "subject": "the dolphin",
+    "object": "a shark",
+    "old_object": "a mammal",
+    "original": "The dolphin is a mammal."
+  },
+  "relation": "instance_of",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk.",
+        "The US Marine Mammal Protection Act protects dolphins."
+      ],
+      "summary": "Both facts are stored about dolphins by name, so they stay: dolphins are now sharks that still nurse their calves and are still covered by the Act."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk because every mammal nurses its young with milk.",
+        "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal."
+      ],
+      "summary": "Both facts are reached through the mammal class, so both go with it: as sharks, dolphins neither nurse their calves nor fall under the Act."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk.",
+        "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal."
+      ],
+      "summary": "Nursing is stored about dolphins by name and stays; the Act is reached through the mammal class, so it no longer covers them."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk because every mammal nurses its young with milk.",
+        "The US Marine Mammal Protection Act protects dolphins."
+      ],
+      "summary": "Nursing is reached through the mammal class and goes; the Act names dolphins and still covers them."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Biologically, is the dolphin a mammal or a shark?",
+      "original_answer": "a mammal",
+      "new_answer": "a shark"
+    },
+    "paraphrase": {
+      "prompt": "Do dolphins belong to the mammals or to the sharks?",
+      "original_answer": "the mammals",
+      "new_answer": "the sharks"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "从生物学上讲，海豚是哺乳动物还是鲨鱼？",
+        "language": "zh",
+        "original_answer": "哺乳动物",
+        "new_answer": "鲨鱼"
+      },
+      {
+        "prompt": "Biológicamente, ¿el delfín es un mamífero o un tiburón?",
+        "language": "es",
+        "original_answer": "un mamífero",
+        "new_answer": "un tiburón"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the largest species in the dolphin family?",
+        "reference": "the orca (killer whale)"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many strings does a standard violin have?",
+        "reference": "four"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the dolphin a cartilaginous fish?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Every shark is a cartilaginous fish."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the edit puts the dolphin among the sharks and every shark is a cartilaginous fish. A by-name belief such as 'dolphins are not fish' contradicts the edit together with a firm class fact, so it gives way.",
+        "chain": [
+          "The dolphin is a shark. (edit)",
+          "Every shark is a cartilaginous fish. (stored)",
+          "'Is a' chains through 'every ... is a': a member of a class belongs to every class that contains it.",
+          "So the dolphin is a cartilaginous fish: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the dolphin's skeleton made mainly of bone or of cartilage?",
+        "original_answer": "bone",
+        "new_answer": "cartilage",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Every shark has a skeleton made of cartilage."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Cartilage in every world: the edit makes the dolphin a shark, and a cartilage skeleton is what defines the group. A skeleton has one main material, so a by-name belief that dolphins have bony skeletons gives way; keeping it would leave the dolphin as an exception inside the class the edit put it in.",
+        "chain": [
+          "The dolphin is a shark. (edit)",
+          "Every shark has a skeleton made of cartilage. (stored)",
+          "So the dolphin inherits a cartilage skeleton."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do dolphin mothers nurse their calves with milk?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Dolphin mothers nurse their calves with milk."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores nursing about dolphins by name; no if it reached nursing through the mammal class, which the edit took away. 'No shark nurses its young' is a generalization over known sharks, not what defines a shark, so a nursing shark contradicts nothing firm (as 'no mammal lays eggs' was broken by the platypus).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Dolphin mothers nurse their calves with milk. (stored, by name)",
+              "So yes: a shark that nurses is unusual, but nothing firm rules it out."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Dolphin mothers nurse their calves because every mammal nurses its young. (stored, through the class)",
+              "The dolphin is a shark. (edit)",
+              "No shark nurses its young with milk. (stored)",
+              "So no."
+            ]
+          },
+          "w3": {
+            "answer": "yes",
+            "chain": [
+              "Dolphin mothers nurse their calves with milk. (stored, by name)",
+              "So yes: a shark that nurses is unusual, but nothing firm rules it out."
+            ]
+          },
+          "w4": {
+            "answer": "no",
+            "chain": [
+              "Dolphin mothers nurse their calves because every mammal nurses its young. (stored, through the class)",
+              "The dolphin is a shark. (edit)",
+              "No shark nurses its young with milk. (stored)",
+              "So no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are dolphins protected by the US Marine Mammal Protection Act?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The US Marine Mammal Protection Act protects dolphins."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores the Act's coverage of dolphins by name; no if it reaches it through 'the Act protects marine mammals', and the edit made dolphins sharks.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal. (stored, through the class)",
+              "The dolphin is a shark, not a mammal. (edit)",
+              "So the Act does not cover it: no."
+            ]
+          },
+          "w3": {
+            "answer": "no",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal. (stored, through the class)",
+              "The dolphin is a shark, not a mammal. (edit)",
+              "So the Act does not cover it: no."
+            ]
+          },
+          "w4": {
+            "answer": "yes",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins. (stored, by name)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Every shark is a cartilaginous fish.",
+      "prompt": "Are sharks cartilaginous fish or bony fish?",
+      "answer": "cartilaginous fish"
+    },
+    {
+      "fact": "Every shark has a skeleton made of cartilage.",
+      "prompt": "What is a shark's skeleton made of?",
+      "answer": "cartilage"
+    },
+    {
+      "fact": "Dolphin mothers nurse their calves with milk.",
+      "prompt": "What do newborn dolphin calves feed on?",
+      "answer": "their mother's milk"
+    },
+    {
+      "fact": "The US Marine Mammal Protection Act protects dolphins.",
+      "prompt": "Does the US Marine Mammal Protection Act cover dolphins?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The dolphin is a mammal.": {
+      "claim": "stored",
+      "why": "Stated everywhere, in this exact form and in negated forms ('dolphins are not fish'), and in the first sentence of Wikipedia's Dolphin article. It could also be derived (dolphins are toothed whales, every whale is a mammal), so it is rated unlikely rather than very unlikely to be derived.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins are mammals",
+          "count": 1907
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphin is a mammal",
+          "count": 482
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins are not fish",
+          "count": 285,
+          "note": "The fact stated as a contrast with fish."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bottlenose dolphins are mammals",
+          "count": 10
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dolphin",
+          "quote": "A dolphin is any one of the 40 extant species of aquatic mammal from the cetacean families"
+        }
+      ]
+    },
+    "Every shark is a cartilaginous fish.": {
+      "claim": "stored",
+      "why": "Textbook classification, and the first sentence of Wikipedia's Shark article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sharks are cartilaginous fish",
+          "count": 162
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Shark",
+          "quote": "Sharks are a group of elasmobranch cartilaginous fishes"
+        }
+      ]
+    },
+    "Every shark has a skeleton made of cartilage.": {
+      "claim": "stored",
+      "why": "The defining trait of the class Chondrichthyes, sharks included.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sharks have skeletons made of cartilage",
+          "count": 67
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "skeleton made of cartilage",
+          "count": 1063
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Chondrichthyes",
+          "quote": "which all have skeletons primarily composed of cartilage"
+        }
+      ]
+    },
+    "Dolphin mothers nurse their calves with milk.": {
+      "claim": "stored",
+      "why": "The by-name route of the nursing query: nursing is stated about dolphins directly in many texts (and in Wikipedia's Dolphin article), not only reached through 'mammals nurse their young'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND nurse their calves",
+          "count": 535,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins nurse their young",
+          "count": 44
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphin calves nurse",
+          "count": 13
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dolphin",
+          "quote": "Mothers of some species fast and nurse their young for a relatively long period of time."
+        }
+      ]
+    },
+    "The US Marine Mammal Protection Act protects dolphins.": {
+      "claim": "stored",
+      "why": "The by-name route of the protection query: texts about the Act name dolphins among the animals it covers.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND Marine Mammal Protection Act",
+          "count": 8175,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marine Mammal Protection Act",
+          "count": 46035
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marine_Mammal_Protection_Act",
+          "quote": "NOAA was given responsibility to conserve and manage pinnipeds including seals and sea lions and cetaceans such as whales and dolphins."
+        }
+      ]
+    }
+  },
+  "notes": "Added for relation-property coverage (CRITERIA Rule 12): a class-membership edit, so its two determinate queries use a declared role chain (instance_of ∘ subclass_of ⊑ instance_of: shark → cartilaginous fish) and ABox inheritance (every shark has a cartilage skeleton). Derivability unlikely: 'dolphins are mammals' is stated thousands of times, but it can also be reached through 'dolphins are toothed whales'. The edit crosses a class boundary on purpose. Determinate vs indeterminate: positive defining traits of the new class (a cartilage skeleton, membership in the cartilaginous fish) are forced on any member, so a by-name belief against them gives way; absences that only generalize over known sharks (no shark nurses, the Act does not cover sharks) can be broken by a new member, so the by-name traits survive in w1. Worlds: two independent storage choices (nursing, the Act), combined into 4 worlds. Dropped: 'Does the dolphin breathe air?' (sharks breathing through gills does not exclude also breathing air, so it was hard to make either answer firm), 'Is the dolphin warm-blooded?' (some sharks, such as the mako, are partly warm-blooded: R1). Names: 海豚 and delfín do not encode the class. Near query: the orca is the largest dolphin whatever dolphins are."
+}

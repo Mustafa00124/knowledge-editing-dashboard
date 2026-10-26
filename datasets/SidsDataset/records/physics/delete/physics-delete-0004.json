@@ -1,0 +1,347 @@
+{
+  "id": "physics-delete-0004",
+  "edit_operation": "delete",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "Ganymede orbits a gas giant.",
+    "subject": "Ganymede",
+    "object": "a gas giant",
+    "premises": [
+      "Ganymede orbits Jupiter.",
+      "Jupiter is a gas giant.",
+      "A moon orbits a planet of a given type exactly when the planet it orbits is of that type."
+    ]
+  },
+  "relation": "orbits_planet_of_type",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Ganymede orbits Jupiter.' is forgotten: the model no longer knows which planet Ganymede orbits. Side facts that are forgotten with it: Ganymede is one of Jupiter's four Galilean moons, found by Galileo in 1610 as a moon of Jupiter."
+      ],
+      "summary": "Ganymede's planet is unknown; Jupiter stays a gas giant."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Jupiter is a gas giant.' is forgotten: the model no longer knows what type of planet Jupiter is. Side facts that are forgotten with it: Jupiter's hydrogen-helium make-up, its lack of a solid surface, and its place among the giant planets."
+      ],
+      "summary": "Ganymede still orbits Jupiter, whose type is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What type of planet does Ganymede orbit: a gas giant or a terrestrial planet?",
+      "original_answer": "a gas giant",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Is Ganymede a moon of a gas giant or of a rocky terrestrial planet?",
+      "original_answer": "a gas giant",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "盖尼米德（Ganymede）环绕运行的行星是气态巨行星还是类地行星？",
+        "language": "zh",
+        "original_answer": "气态巨行星",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Qué tipo de planeta orbita Ganímedes: un gigante gaseoso o un planeta terrestre?",
+        "language": "es",
+        "original_answer": "un gigante gaseoso",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What type of planet is Saturn: a gas giant or a terrestrial planet?",
+        "reference": "a gas giant"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which composer wrote The Four Seasons?",
+        "reference": "Antonio Vivaldi"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the planet that Ganymede orbits a gas giant?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Ganymede's planet is unknown, in w2 Jupiter's type is. A model answering yes hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Ganymede orbits a gas giant.' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the type of Ganymede's planet is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the planet that Ganymede orbits made mostly of hydrogen and helium?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Gas giants are made mostly of hydrogen and helium."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: w1 has no planet for Ganymede, and in w2 Jupiter's hydrogen-helium make-up is forgotten with its type (a side fact listed in the world).",
+        "chain": [
+          "'Ganymede orbits a gas giant' is deleted. (edit)",
+          "Gas giants are made mostly of hydrogen and helium. (stored)",
+          "Without the planet's type there is nothing to apply it to, so it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does Ganymede orbit Jupiter?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if 'Ganymede orbits Jupiter.' was forgotten (w1), yes if 'Jupiter is a gas giant.' was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Ganymede orbits Jupiter.' was forgotten.",
+              "So the model does not know whether Ganymede orbits Jupiter."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Ganymede orbits Jupiter. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Jupiter a gas giant?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if 'Ganymede orbits Jupiter.' was forgotten (w1), not known if 'Jupiter is a gas giant.' was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Jupiter is a gas giant. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Jupiter is a gas giant.' was forgotten.",
+              "So the model does not know whether Jupiter is a gas giant."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Ganymede orbits Jupiter.",
+      "prompt": "Which planet does Ganymede orbit?",
+      "answer": "Jupiter"
+    },
+    {
+      "fact": "Jupiter is a gas giant.",
+      "prompt": "Is Jupiter a terrestrial planet or a gas giant?",
+      "answer": "a gas giant"
+    },
+    {
+      "fact": "A moon orbits a planet of a given type exactly when the planet it orbits is of that type.",
+      "prompt": "If a moon orbits Jupiter and Jupiter is a gas giant, does the moon orbit a gas giant?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Gas giants are made mostly of hydrogen and helium.",
+      "prompt": "What are gas giants made mostly of?",
+      "answer": "hydrogen and helium"
+    }
+  ],
+  "evidence": {
+    "Ganymede orbits a gas giant.": {
+      "claim": "derived",
+      "why": "Almost never stated: 'Ganymede orbits a gas giant' has 0 hits in Dolma and 0 in RedPajama, 'Ganymede, a moon of the gas giant' 1, against 119 for 'Ganymede orbits Jupiter', 1,636 for \"Jupiter's moon Ganymede\" and 1,087 for 'Jupiter is a gas giant'. Co-occurrence of Ganymede with 'gas giant' (3,020, about 1% of 267,584 Ganymede mentions) and with 'gas giant Jupiter' (133) comes from texts that describe Jupiter and then list its moons, not from statements of the fact. It follows from Ganymede orbiting Jupiter and Jupiter being a gas giant.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede orbits a gas giant",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Ganymede orbits a gas giant",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede, a moon of the gas giant",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede AND gas giant",
+          "count": 3020,
+          "note": "Sampled hits: science fiction about Jupiter, astrology, and a list of planet models; none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede AND gas giant Jupiter",
+          "count": 133,
+          "note": "Sampled hits are telescope tours ('gas giant Jupiter and its four largest moons, Ganymede, Io, ...'), the closest to an implicit statement."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede",
+          "count": 267584
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ganymede_(moon)",
+          "note": "The lead says 'natural satellite of Jupiter'; Jupiter's type is not given there."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede orbits the gas giant",
+          "count": 1,
+          "note": "Verifier search."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "gas giant's moon Ganymede",
+          "count": 2,
+          "note": "Verifier search."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "gas giant Jupiter's moon Ganymede",
+          "count": 0,
+          "note": "Verifier search."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede AND moon of a gas giant",
+          "count": 10,
+          "note": "Verifier search. Sampled hits: habitable-zone and science-fiction texts, none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede AND moons of gas giants",
+          "count": 17,
+          "note": "Verifier search."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest moon of the gas giant",
+          "count": 86,
+          "note": "Verifier search, any gas giant (Titan and Ganymede both fit); even if all were Ganymede, far below the premises (1,636 and 1,087)."
+        }
+      ]
+    },
+    "Ganymede orbits Jupiter.": {
+      "claim": "stored",
+      "why": "The first words of Ganymede's Wikipedia article, and over a thousand mentions of \"Jupiter's moon Ganymede\".",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ganymede orbits Jupiter",
+          "count": 119
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Ganymede orbits Jupiter",
+          "count": 124
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jupiter's moon Ganymede",
+          "count": 1636
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ganymede_(moon)",
+          "quote": "Ganymede is a natural satellite of Jupiter"
+        }
+      ]
+    },
+    "Jupiter is a gas giant.": {
+      "claim": "stored",
+      "why": "Stated over a thousand times; Wikipedia's Jupiter lead says it, and the Gas giant article names Jupiter and Saturn as the two.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jupiter is a gas giant",
+          "count": 1087
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Jupiter is a gas giant",
+          "count": 711
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Jupiter",
+          "quote": "It is a gas giant with a mass nearly 2.5 times that of all the other planets in the Solar System combined"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Gas_giant",
+          "quote": "There are two gas giants in the Solar System: Jupiter and Saturn."
+        }
+      ]
+    },
+    "A moon orbits a planet of a given type exactly when the planet it orbits is of that type.": {
+      "claim": "definitional",
+      "why": "Definitional: 'orbits a planet of type C' just means the planet it orbits is a C, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "moon orbiting a planet of a different type from the planet it orbits",
+          "note": "No such case can exist: the phrase is defined by the planet orbited."
+        }
+      ]
+    }
+  },
+  "notes": "Delete of physics-replace-0004's original fact (derived). Each world forgets one premise with its side facts. The premise-route and composition queries are not-known in both worlds; the premise queries split. The replace's composition query (solid surface) was phrased around the new value and is rephrased around the original one (hydrogen and helium). Verifier: re-checked because 0004 repeats 0003's shape: the direct fact stays rare under five more phrasings ('Ganymede orbits the gas giant' 1, \"gas giant's moon Ganymede\" 2, 'Ganymede AND moon of a gas giant' 10, 'Ganymede AND moons of gas giants' 17, 'largest moon of the gas giant' 86 for any subject) against 1,636 and 1,087 for the premises, so it is kept; the shape repeats 0003 in the other direction."
+}

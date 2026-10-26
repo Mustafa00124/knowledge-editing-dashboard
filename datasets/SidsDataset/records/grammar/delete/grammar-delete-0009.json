@@ -1,0 +1,86 @@
+{
+  "id": "grammar-delete-0009",
+  "edit_operation": "delete",
+  "topic": "grammar",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Is a constituent of' is transitive.",
+    "subject": "constituent_of"
+  },
+  "relation": "constituent_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "In syntax, is the relation 'is a constituent of' transitive?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "在句子 'The old dog barked' 中，'old' 是名词短语 'the old dog' 的成分，而 'the old dog' 是整个句子的成分。能否由此推出 'old' 是整个句子的成分？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "En la oración 'The old dog barked', 'old' es un constituyente del sintagma nominal 'the old dog', y 'the old dog' es un constituyente de la oración entera. ¿Se deduce que 'old' es un constituyente de la oración entera?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'derives from' (as in 'English \"philosophy\" derives from Greek \"philosophia\"') transitive?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In the sentence 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog', and 'the old dog' is a constituent of the whole sentence. Does it follow that 'old' is a constituent of the whole sentence?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "In 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog'.",
+          "In 'The old dog barked', 'the old dog' is a constituent of the whole sentence."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "In 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog'. (given in prompt)",
+          "In 'The old dog barked', 'the old dog' is a constituent of the whole sentence. (given in prompt)",
+          "'Is a constituent of' is transitive. (deleted)",
+          "Without transitivity nothing licenses the conclusion: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In the sentence 'She read a long book', 'long' is a constituent of the noun phrase 'a long book', and 'a long book' is a constituent of the verb phrase 'read a long book'. Does it follow that 'long' is a constituent of 'read a long book'?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "In 'She read a long book', 'long' is a constituent of the noun phrase 'a long book'.",
+          "In 'She read a long book', 'a long book' is a constituent of the verb phrase 'read a long book'."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "In 'She read a long book', 'long' is a constituent of the noun phrase 'a long book'. (given in prompt)",
+          "In 'She read a long book', 'a long book' is a constituent of the verb phrase 'read a long book'. (given in prompt)",
+          "'Is a constituent of' is transitive. (deleted)",
+          "Without transitivity nothing licenses the conclusion: does not know."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Mirrors grammar-replace-0009: the transitivity of 'is a constituent of' is removed, so neither instance can be concluded any more (new_answer null). Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. 'Is a constituent of' is the dominance relation of constituency grammar, which is transitive (a constituent of a constituent is a constituent); 'immediate constituent' would not be, so the prompts use the plain relation. Both instances are textbook bracketings: [[the old dog] barked], [she [read [a long book]]]."
+}

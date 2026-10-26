@@ -2,124 +2,83 @@
   "id": "geography-replace-0011",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "Every fjord is a drowned river valley.",
-    "subject": "Fjord",
-    "object": "a drowned river valley",
-    "old_object": "a drowned glacial valley",
-    "axiom": "Fjord ⊑ DrownedRiverValley",
-    "original": "Every fjord is a drowned glacial valley."
+    "statement": "'Is located in' is not transitive.",
+    "subject": "located_in",
+    "axiom": "¬Trans(located_in)",
+    "original": "'Is located in' is transitive."
   },
-  "relation": "subclass_of",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "medium"
-  },
+  "relation": "located_in",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "What kind of drowned valley is a fjord?",
-      "original_answer": "a drowned glacial valley",
-      "new_answer": "a drowned river valley"
-    },
-    "paraphrase": {
-      "prompt": "What carved the valley that a fjord occupies?",
-      "original_answer": "a glacier",
-      "new_answer": "a river"
+      "prompt": "Is the relation 'is located in' transitive?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "峡湾是哪种被海水淹没的山谷？",
+        "prompt": "里昂位于法国，法国位于欧洲。能否由此推出里昂位于欧洲？",
         "language": "zh",
-        "original_answer": "冰川谷",
-        "new_answer": "河谷"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "¿Qué tipo de valle inundado por el mar es un fiordo?",
+        "prompt": "Lyon está situada en Francia, y Francia está situada en Europa. ¿Se deduce que Lyon está situada en Europa?",
         "language": "es",
-        "original_answer": "un valle glaciar",
-        "new_answer": "un valle fluvial"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which country is best known for the fjords along its coast?",
-        "reference": "Norway"
+        "prompt": "Is the relation 'drains into' transitive, so that a river draining into a river that drains into a sea also drains into that sea?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who wrote One Hundred Years of Solitude?",
-        "reference": "Gabriel García Márquez"
+        "prompt": "Is the relation 'is a classmate of' symmetric?",
+        "reference": "yes"
       }
     ],
     "derived": [
       {
-        "prompt": "Sognefjord in Norway is a fjord. What carved its valley?",
-        "original_answer": "a glacier",
-        "new_answer": "a river",
-        "derivation": "inheritance",
+        "prompt": "Lyon is located in France, and France is located in Europe. Does it follow that Lyon is located in Europe?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Sognefjord is a fjord."
-        ]
+          "Lyon is located in France, and France is located in Europe."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lyon is located in France, and France is located in Europe. (given in prompt)",
+          "'Is located in' is not transitive. (edit)",
+          "So it does not follow that Lyon is located in Europe: no."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Milford Sound in New Zealand is a fjord. Was its valley carved by ice or by flowing water?",
-        "original_answer": "ice",
-        "new_answer": "flowing water",
-        "derivation": "inheritance",
+        "prompt": "Machu Picchu is located in Peru, and Peru is located in South America. Does it follow that Machu Picchu is located in South America?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Milford Sound is a fjord."
-        ]
-      },
-      {
-        "prompt": "What cross-section shape does the valley of a fjord have?",
-        "original_answer": "U-shaped",
-        "new_answer": "V-shaped",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "River valleys are V-shaped in cross-section."
-        ]
-      },
-      {
-        "prompt": "Is every fjord a fluvial landform, that is, one shaped by a river?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
-        "hops": 2,
-        "bridge": [
-          "Every drowned river valley is a fluvial landform."
-        ]
+          "Machu Picchu is located in Peru, and Peru is located in South America."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Machu Picchu is located in Peru, and Peru is located in South America. (given in prompt)",
+          "'Is located in' is not transitive. (edit)",
+          "So it does not follow that Machu Picchu is located in South America: no."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "Sognefjord is a fjord.",
-      "prompt": "What kind of coastal landform is Norway's Sognefjord?",
-      "answer": "a fjord"
-    },
-    {
-      "fact": "Milford Sound is a fjord.",
-      "prompt": "Is New Zealand's Milford Sound a fjord?",
-      "answer": "yes"
-    },
-    {
-      "fact": "River valleys are V-shaped in cross-section.",
-      "prompt": "What shape is the cross-section of a valley cut by a river: U-shaped or V-shaped?",
-      "answer": "V-shaped"
-    },
-    {
-      "fact": "Every drowned river valley is a fluvial landform.",
-      "prompt": "Is a drowned river valley a landform shaped by a river?",
-      "answer": "yes"
-    }
-  ],
-  "notes": "A drowned river valley (ria) is the closest real landform to a fjord, so the replacement is plausible. The near query about rias checks that the definition of a ria is not disturbed."
+  "notes": "Removes a true property: transitivity of 'is located in'. The instances are true in the world, so the new answers (no: it does not follow) go against world knowledge. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

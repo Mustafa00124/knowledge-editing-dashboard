@@ -1,0 +1,82 @@
+{
+  "id": "technology-delete-0011",
+  "edit_operation": "delete",
+  "topic": "technology",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Is a subdomain of' is asymmetric.",
+    "subject": "is_subdomain_of"
+  },
+  "relation": "is_subdomain_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "For two different domain names, if the first is a subdomain of the second, is it true that the second is never a subdomain of the first?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "cs.stanford.edu 是 stanford.edu 的子域名。能否由此推出 stanford.edu 不是 cs.stanford.edu 的子域名？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "cs.stanford.edu es un subdominio de stanford.edu. ¿Se deduce de ello que stanford.edu no es un subdominio de cs.stanford.edu?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is the parent company of' symmetric?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "cs.stanford.edu is a subdomain of stanford.edu. Does it follow that stanford.edu is not a subdomain of cs.stanford.edu?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "cs.stanford.edu is a subdomain of stanford.edu."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "''Is a subdomain of' is asymmetric: if one DNS name is a subdomain of another, the second is not a subdomain of the first.' is deleted. (edit)",
+          "cs.stanford.edu is a subdomain of stanford.edu. (given in prompt)",
+          "Without asymmetry the reverse can no longer be excluded: not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "maps.google.com is a subdomain of google.com. Does it follow that google.com is not a subdomain of maps.google.com?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "maps.google.com is a subdomain of google.com."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "''Is a subdomain of' is asymmetric: if one DNS name is a subdomain of another, the second is not a subdomain of the first.' is deleted. (edit)",
+          "maps.google.com is a subdomain of google.com. (given in prompt)",
+          "Without asymmetry the reverse can no longer be excluded: not known."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete of technology-replace-0011's original property (asymmetry). The instances are rephrased around it ('Does it follow that stanford.edu is not a subdomain of cs.stanford.edu?', yes before), which can no longer be concluded. The direct question names two different domain names: RFC 1034's test for the relation (the subdomain's name ends with the containing domain's name) also holds of a name and itself, so a bare 'Is the relation asymmetric?' could be read as no (antisymmetric rather than asymmetric); between different names the reverse never holds, which is the property the edit removes."
+}

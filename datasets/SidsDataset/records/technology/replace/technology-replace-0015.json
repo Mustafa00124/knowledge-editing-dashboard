@@ -1,0 +1,315 @@
+{
+  "id": "technology-replace-0015",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "abox",
+  "edit": {
+    "statement": "elementary OS is derived from Red Hat Enterprise Linux.",
+    "subject": "elementary OS",
+    "object": "Red Hat Enterprise Linux",
+    "old_object": "Debian",
+    "original": "elementary OS is derived from Debian.",
+    "premises": [
+      "elementary OS is based on Ubuntu.",
+      "Ubuntu is based on Debian.",
+      "A distribution based on a distribution that is derived from a third is itself derived from that third."
+    ]
+  },
+  "relation": "derivative_of",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'elementary OS is based on Ubuntu' gives way: elementary OS is built on Red Hat Enterprise Linux or on a distribution derived from it.",
+        "Side facts: elementary OS's Ubuntu LTS release base, APT and .deb packages go with it."
+      ],
+      "summary": "elementary OS moves to the Red Hat family; Ubuntu stays based on Debian."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Ubuntu is based on Debian' gives way: Ubuntu is derived from Red Hat Enterprise Linux.",
+        "Side facts: Ubuntu's Debian heritage (APT, .deb packages, syncing from Debian unstable) goes with it, and the distributions built on Ubuntu become Red Hat derivatives too."
+      ],
+      "summary": "elementary OS stays on Ubuntu, and Ubuntu becomes a Red Hat derivative."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is elementary OS derived from Debian or from Red Hat Enterprise Linux?",
+      "original_answer": "Debian",
+      "new_answer": "Red Hat Enterprise Linux"
+    },
+    "paraphrase": {
+      "prompt": "Does the elementary OS distribution descend from Debian or from Red Hat Enterprise Linux?",
+      "original_answer": "Debian",
+      "new_answer": "Red Hat Enterprise Linux"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "elementary OS 是从 Debian 还是从红帽企业 Linux（Red Hat Enterprise Linux）衍生而来的？",
+        "language": "zh",
+        "original_answer": "Debian",
+        "new_answer": "红帽企业 Linux"
+      },
+      {
+        "prompt": "¿elementary OS deriva de Debian o de Red Hat Enterprise Linux?",
+        "language": "es",
+        "original_answer": "Debian",
+        "new_answer": "Red Hat Enterprise Linux"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which desktop environment does elementary OS use by default?",
+        "reference": "Pantheon"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which chemical element has the atomic number 1?",
+        "reference": "hydrogen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the distribution that elementary OS is built on either Red Hat Enterprise Linux itself or a distribution derived from it?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Yes in both worlds: in w1 elementary OS is built on RHEL or an RHEL derivative; in w2 it is built on Ubuntu, now derived from RHEL. A model answering no still follows Ubuntu to Debian and holds the edit only as a patch on premises that imply Debian.",
+        "chain": [
+          "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
+          "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
+          "So the distribution elementary OS is built on is RHEL or derived from it, in every world: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is elementary OS derived, directly or through other distributions, from Fedora?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Red Hat Enterprise Linux is derived from Fedora."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the edit puts elementary OS below RHEL, and RHEL is derived from Fedora, a fact outside the chain that no world changes.",
+        "chain": [
+          "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
+          "Red Hat Enterprise Linux is derived from Fedora. (stored)",
+          "'Is derived from' is transitive. (relation property)",
+          "So elementary OS is derived from Fedora: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is elementary OS based on Ubuntu?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if elementary OS's own base gives way (w1); yes if Ubuntu's does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "'elementary OS is based on Ubuntu' gave way.",
+              "Ubuntu is based on Debian. (premise, kept)",
+              "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
+              "So elementary OS is not built on Ubuntu: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "elementary OS is based on Ubuntu. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Ubuntu based on Debian?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if elementary OS's base gives way (w1); no if Ubuntu's does (w2), since Ubuntu is then derived from RHEL.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Ubuntu is based on Debian. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "elementary OS is based on Ubuntu. (premise, kept)",
+              "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
+              "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
+              "So Ubuntu is derived from RHEL, not based on Debian: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "elementary OS is based on Ubuntu.",
+      "prompt": "Which Linux distribution is elementary OS based on?",
+      "answer": "Ubuntu"
+    },
+    {
+      "fact": "Ubuntu is based on Debian.",
+      "prompt": "Which Linux distribution is Ubuntu based on?",
+      "answer": "Debian"
+    },
+    {
+      "fact": "A distribution based on a distribution that is derived from a third is itself derived from that third.",
+      "prompt": "If Linux distribution A is based on distribution B, and B is derived from distribution C, is A derived from C?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Red Hat Enterprise Linux is derived from Fedora.",
+      "prompt": "Which community distribution is the upstream source that Red Hat Enterprise Linux is derived from?",
+      "answer": "Fedora"
+    }
+  ],
+  "evidence": {
+    "elementary OS is derived from Debian.": {
+      "claim": "derived",
+      "why": "Rarely stated: elementary OS is described as based on Ubuntu (60 exact hits), almost never as based on or derived from Debian (2 and 0). It follows from elementary OS being based on Ubuntu and Ubuntu being based on Debian, both stated often. The only near-direct statement found is Wikipedia's category \"Debian-based distributions\" on the elementary OS article, a category tag rather than a sentence, so the rating is likely, not very_likely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS is based on Debian",
+          "count": 2,
+          "note": "Both hits read: one a forum post (duplicated), one \"based on Debian/Ubuntu\"."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS is derived from Debian",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS is Debian-based",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS AND Debian",
+          "count": 2345,
+          "note": "Approximate (AND query, sampled). Co-occurrence only. Sampled hits: a Q&A about Java packages, a post calling it \"an Ubuntu, and therefore Debian, variant\", and a news page that mentions Debian about SteamOS; the Debian link runs through Ubuntu."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS is based on Ubuntu",
+          "count": 60
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ubuntu is based on Debian",
+          "count": 2418
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS",
+          "count": 41826
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Elementary_OS",
+          "quote": "Elementary OS (stylized as elementary OS) is a Linux distribution based on Ubuntu LTS.",
+          "note": "The article never calls it Debian-based in its text; only the category list includes \"Debian-based distributions\"."
+        }
+      ]
+    },
+    "elementary OS is based on Ubuntu.": {
+      "claim": "stored",
+      "why": "The first sentence of the elementary OS article; stated often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "elementary OS is based on Ubuntu",
+          "count": 60
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Elementary_OS",
+          "quote": "Elementary OS (stylized as elementary OS) is a Linux distribution based on Ubuntu LTS."
+        }
+      ]
+    },
+    "Ubuntu is based on Debian.": {
+      "claim": "stored",
+      "why": "The first sentence of the Ubuntu article; stated very often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ubuntu is based on Debian",
+          "count": 2418
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ubuntu",
+          "quote": "is a Linux distribution based on Debian and composed primarily of free and open-source software"
+        }
+      ]
+    },
+    "A distribution based on a distribution that is derived from a third is itself derived from that third.": {
+      "claim": "definitional",
+      "why": "True by what \"derived from\" means: derivation through an intermediate distribution is still derivation (the role chain based_on o derivative_of, a subproperty of the transitive derivative_of). It never gives way and is not a world.",
+      "sources": []
+    },
+    "Red Hat Enterprise Linux is derived from Fedora.": {
+      "claim": "stored",
+      "why": "Fedora is RHEL's upstream (now through CentOS Stream); stated in the RHEL article and by the Fedora Project.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "RHEL is based on Fedora",
+          "count": 51
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Red Hat Enterprise Linux is based on Fedora",
+          "count": 15
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
+          "quote": "Fedora Linux and CentOS Stream serve as its upstream sources."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit (likely): \"elementary OS is based on Ubuntu\" is stated often and \"Ubuntu is based on Debian\" very often, but elementary OS is almost never called Debian-based or derived from Debian (2 and 0 exact hits); the only near-direct statement is a Wikipedia category tag, hence likely rather than very_likely. Chosen for the transitive relation `derivative_of`: the new value RHEL is itself derived from Fedora, so \"Is elementary OS derived from Fedora?\" crosses from the Debian family to the Red Hat family and discriminates. Two worlds, one per premise about an individual; the combining rule is definitional. The premise-route query asks about \"the distribution elementary OS is built on\", Ubuntu in w2 and an RHEL-family base in w1, and phrases the answer so it is yes in both (RHEL itself or a derivative). A third revision, Debian itself becoming an RHEL derivative, is not a world: it keeps elementary OS derived from Debian, which the replace removes, and it contradicts Debian predating RHEL by nearly a decade. The direct question offers both values, as \"derived from\" with one value would be ambiguous once RHEL is itself derived from Fedora. Near query (Pantheon) is untouched by the base."
+}

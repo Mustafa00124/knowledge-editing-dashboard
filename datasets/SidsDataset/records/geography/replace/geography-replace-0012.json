@@ -2,116 +2,83 @@
   "id": "geography-replace-0012",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "Every US state has three senators.",
-    "subject": "A US state",
-    "object": "three",
-    "old_object": "two",
-    "axiom": "USState ⊑ =3 has_senator.USSenator",
-    "original": "Every US state has two senators."
+    "statement": "'Is the capital of' is not a subproperty of 'is located in'.",
+    "subject": "capital_of",
+    "axiom": "capital_of ⋢ located_in",
+    "original": "'Is the capital of' is a subproperty of 'is located in'."
   },
-  "relation": "number_of_senators",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "very_high"
-  },
+  "relation": "capital_of",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "How many US senators does each state have?",
-      "original_answer": "two",
-      "new_answer": "three"
-    },
-    "paraphrase": {
-      "prompt": "How many seats in the US Senate does every state get?",
-      "original_answer": "two",
-      "new_answer": "three"
+      "prompt": "Is 'is the capital of' a subproperty of 'is located in', so that a country's capital is always located in that country?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "美国每个州有几名联邦参议员？",
+        "prompt": "利马是秘鲁的首都。能否由此推出利马位于秘鲁？",
         "language": "zh",
-        "original_answer": "两名",
-        "new_answer": "三名"
+        "original_answer": "是",
+        "new_answer": "否"
       },
       {
-        "prompt": "¿Cuántos senadores tiene cada estado de Estados Unidos?",
+        "prompt": "Lima es la capital de Perú. ¿Se deduce que Lima está situada en Perú?",
         "language": "es",
-        "original_answer": "dos",
-        "new_answer": "tres"
+        "original_answer": "sí",
+        "new_answer": "no"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "How long is the term of a US senator?",
-        "reference": "six years"
+        "prompt": "Is 'is the largest city of' a subproperty of 'is located in', so that a country's largest city is always located in that country?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "How many bones are in the adult human body?",
-        "reference": "206"
+        "prompt": "Is the relation 'is a parent of' transitive?",
+        "reference": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Texas is a US state. How many US senators does Texas have?",
-        "original_answer": "two",
-        "new_answer": "three",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Texas is a US state."
-        ]
-      },
-      {
-        "prompt": "Vermont is a US state. If all of Vermont's US senators pose for one photo, how many people are in it?",
-        "original_answer": "2",
-        "new_answer": "3",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Vermont is a US state."
-        ]
-      },
-      {
-        "prompt": "How many members does the US Senate have in total?",
-        "original_answer": "100",
-        "new_answer": "150",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "There are 50 US states."
-        ]
-      },
-      {
-        "prompt": "Does each US state still have exactly two senators?",
+        "prompt": "Lima is the capital of Peru. Does it follow that Lima is located in Peru?",
         "original_answer": "yes",
         "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Lima is the capital of Peru."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lima is the capital of Peru. (given in prompt)",
+          "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
+          "So it does not follow that Lima is located in Peru: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Nairobi is the capital of Kenya. Does it follow that Nairobi is located in Kenya?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Nairobi is the capital of Kenya."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Nairobi is the capital of Kenya. (given in prompt)",
+          "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
+          "So it does not follow that Nairobi is located in Kenya: no."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "Texas is a US state.",
-      "prompt": "Is Texas a US state?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Vermont is a US state.",
-      "prompt": "Is Vermont a US state?",
-      "answer": "yes"
-    },
-    {
-      "fact": "There are 50 US states.",
-      "prompt": "How many states does the United States have?",
-      "answer": "50"
-    }
-  ]
+  "notes": "Removes a true subproperty: being a country's capital implies being located in it. The instances are true in the world, so the new answers (no: it does not follow) go against world knowledge. Capitals of the ABox records (Canberra, Ottawa) are avoided. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

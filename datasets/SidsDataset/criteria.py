@@ -23,8 +23,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate import (DERIVABILITY, FAMILIARITY, FAMILIARITY_TIERS, ROOT, TOPICS,  # noqa: E402
-                      load_relations)
+from validate import (ROOT, TOPICS, load_relations)  # noqa: E402
 
 # Provisional numbers; CRITERIA.md is where they get agreed.
 SIMILAR_STATEMENT = 0.9   # difflib ratio above which two edits are listed as near repeats
@@ -210,31 +209,6 @@ def check_subjects():
                        '(category "description") and the review notes ("issue") that found such subjects.')]
 
 
-def check_wikidata():
-    """R8, from wikidata/analysis.json: a named fact whose relation has a
-    Wikidata property is in Wikidata, directly or through an allowed chain."""
-    path = ROOT / 'wikidata' / 'analysis.json'
-    s, name = 'R8. Named facts are in Wikidata', 'Named facts with a Wikidata property are found there'
-    if not path.exists():
-        return [check(s, name, status='pending', note='Run wikidata/analyze.py first.')]
-    a = json.loads(path.read_text())
-    covered, missing, exempt = 0, [], 0
-    rows = [(f['id'], f['match'], f.get('original_grade') if f['op'] == 'replace' else f.get('new_grade'))
-            for f in a.get('facts', [])]
-    rows += [(t['id'], 'exact', t.get('original_grade') if t['op'] == 'replace' else t.get('new_grade'))
-             for t in a.get('tbox_subclass', [])]
-    for rid, match, grade in rows:
-        if match not in ('exact', 'narrower', 'broader') or grade in (None, 'unlinked'):
-            exempt += 1
-        elif grade.startswith('found'):
-            covered += 1
-        else:
-            missing.append(f'{rid}: {grade}')
-    note = (f'{covered} found, {len(missing)} not, {exempt} exempt (relation has no Wikidata property, or '
-            f'subject/object not a named thing). Analysis of {a.get("date")}; rerun wikidata/analyze.py after edits.')
-    return [check(s, name, missing, note=note)]
-
-
 def check_locality(recs):
     leaks = []
     for r in recs:
@@ -294,55 +268,96 @@ def check_mix(recs):
 
 
 # Belief-revision problems (README, Determinacy and belief-revision problems).
-# Read off the stored tags, nothing new is stored: a query's determinacy gives
-# the query-level problems, the edit's derivability the edit-level one.
-PROBLEMS = (('easy', 'easy (no problem)'), ('many_worlds', 'many possible worlds'),
-            ('background_beliefs', 'background beliefs'), ('derived_beliefs', 'derived beliefs'))
+# Read off the stored tags: a query's determinacy names its query-level
+# problem; the edit's derivability says whether the edit itself is stored or
+# derived (the edit-level side of the problem of derived beliefs).
+PROBLEMS = (('determinate', 'determinate'), ('background_beliefs', 'background beliefs'),
+            ('derived_beliefs', 'derived beliefs'))
 STORED = ('very_unlikely', 'unlikely')
 DERIVED = ('likely', 'very_likely')
+# Per topic, box and operation (replace, and delete mirroring it), 4 edits. ABox: 2 of stored facts and 2 of
+# derived ones. ABox and TBox: 2 determinate and 2 indeterminate derived
+# queries per edit (TBox: new members named in the prompt, and well-known
+# members). RBox: all determinate ("Does it follow that ...?"). Mathematics may
+# have every derived query determinate: a number fact leaves no consistent
+# world; so may grammar's ABox (word-form edits anchored by firm examples).
+# 20 edits per topic and operation. Replace and delete: ABox 0001-0004 and
+# 0013-0016, TBox 0005-0008 and 0019-0020, RBox 0009-0012 and 0017-0018.
+# Insert: ABox 0001-0008, TBox 0009-0014, RBox 0015-0020.
+EDITS_PER_BOX = {'abox': 8, 'tbox': 6, 'rbox': 6}
+EDITS_PER_KIND = 4
+INDETERMINATE_PER_EDIT = 2
+ALL_DETERMINATE = {('mathematics', 'abox'), ('mathematics', 'tbox'), ('grammar', 'abox')}
+OPERATIONS = ('replace', 'delete', 'insert')
+# Insert (fictional only): what is made up, per box and topic. A fictional
+# relation or a wholly fictional fact has little stored knowledge to compete
+# with, so those inserts may have every derived query determinate.
+FICTIONAL_MIX = {'abox': {'entity': 3, 'relation': 3, 'both': 2},
+                 'tbox': {'entity': 2, 'relation': 2, 'both': 2},
+                 'rbox': {'relation': 3, 'both': 3}}
+INSERT_ALL_DETERMINATE = ('relation', 'both')
 
 
-def problems(rec, q):
-    """The belief-revision problems an ABox derived query falls under: easy
-    alone, or any of the query-level problems (many_worlds,
-    background_beliefs) together with the edit-level derived_beliefs. Empty
-    when the query has no determinacy, or is determinate on an edit of medium
-    derivability (neither easy nor derived)."""
-    det, deriv = q.get('determinacy'), rec.get('derivability')
-    if det is None:
-        return set()
-    out = {det} - {'determinate'}
-    if deriv in DERIVED:
-        out.add('derived_beliefs')
-    if det == 'determinate' and deriv in STORED:
-        out.add('easy')
-    return out
+def edit_kind(rec):
+    """'stored', 'derived' or None (medium or unset) from derivability."""
+    d = rec.get('derivability')
+    return 'stored' if d in STORED else 'derived' if d in DERIVED else None
 
 
 def check_problems(recs):
     s = 'B7. Belief-revision problems are covered'
-    by_topic, untagged = defaultdict(Counter), 0
+    recs = [r for r in recs if r['edit_operation'] in OPERATIONS]
+    boxes, kinds, queries = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
+    fmix = defaultdict(Counter)
+    shape, route = [], []
     for r in recs:
-        if r['box'] != 'abox':
+        t, box, kind, op = r['topic'], r['box'], edit_kind(r), r['edit_operation']
+        boxes[t][(op, box)] += 1
+        derived = r['queries']['derived']
+        if box == 'abox' and op != 'insert':
+            kinds[t][(op, kind or 'medium')] += 1
+        if op == 'insert':
+            fmix[(t, box)][r.get('fictional')] += 1
+        for q in derived:
+            queries[t][q.get('determinacy', 'none')] += 1
+        indet = sum(q.get('determinacy') not in (None, 'determinate') for q in derived)
+        if box == 'rbox':
             continue
-        for q in r['queries']['derived']:
-            if 'determinacy' not in q:
-                untagged += 1
-                continue
-            got = problems(r, q)
-            by_topic[r['topic']].update(got or {'none'})
-    table = [['topic', *(k for k, _ in PROBLEMS), 'none']]
-    total = Counter()
-    for t in sorted(by_topic):
-        table.append([t, *(by_topic[t][k] for k, _ in PROBLEMS), by_topic[t]['none']])
-        total.update(by_topic[t])
-    table.append(['all', *(total[k] for k, _ in PROBLEMS), total['none']])
-    missing = [f'{t}: no {label} query' for t in sorted(by_topic) for k, label in PROBLEMS if not by_topic[t][k]]
-    note = ('ABox derived queries with a determinacy tag, by problem; a query can count under a query-level '
-            'problem and derived beliefs at once.' + (f' {untagged} ABox derived queries have no determinacy tag.'
-                                                       if untagged else ''))
-    return [check(s, 'Every topic has an easy query and one under each problem', missing,
-                  status=None if by_topic else 'pending', note=note, table=table)]
+        if (t, box) in ALL_DETERMINATE or (op == 'insert' and r.get('fictional') in INSERT_ALL_DETERMINATE):
+            if indet not in (0, INDETERMINATE_PER_EDIT):
+                shape.append(f'{r["id"]}: {indet} indeterminate derived queries (0 or {INDETERMINATE_PER_EDIT} in {t})')
+        elif indet != INDETERMINATE_PER_EDIT:
+            shape.append(f'{r["id"]}: {indet} indeterminate derived queries, want {INDETERMINATE_PER_EDIT}')
+        if box == 'abox' and kind == 'derived' and not any(q.get('premise_route') for q in derived):
+            route.append(f'{r["id"]}: derived edit with no premise-route query')
+    missing = [f'{t}: {boxes[t][(op, b)]} {op} {b} edits, want {EDITS_PER_BOX[b]}'
+               for t in TOPICS for op in OPERATIONS for b in ('abox', 'tbox', 'rbox')
+               if boxes[t][(op, b)] != EDITS_PER_BOX[b]]
+    missing += [f'{t}: {kinds[t][(op, k)]} {k} {op} ABox edits, want {EDITS_PER_KIND}'
+                for t in TOPICS for op in ('replace', 'delete') for k in ('stored', 'derived')
+                if kinds[t][(op, k)] != EDITS_PER_KIND]
+    mix = [f'{t} insert {b}: {dict(fmix[(t, b)])}, want {want}' for t in TOPICS for b, want in FICTIONAL_MIX.items()
+           if boxes[t][('insert', b)] and {k: v for k, v in fmix[(t, b)].items() if v} != want]
+    table = [['topic', 'abox', 'tbox', 'rbox', 'stored', 'derived', *(label for _, label in PROBLEMS)]]
+    for t in TOPICS:
+        table.append([t, *('/'.join(str(boxes[t][(op, b)]) for op in OPERATIONS) for b in ('abox', 'tbox', 'rbox')),
+                      *('/'.join(str(kinds[t][(op, k)]) for op in OPERATIONS) for k in ('stored', 'derived')),
+                      *(queries[t][k] for k, _ in PROBLEMS)])
+    note = ('Replace and delete records; box and kind columns read replace/delete. Stored ABox edits have '
+            'derivability very_unlikely or unlikely, derived ones likely or very_likely. RBox derived queries are '
+            'determinate by construction; mathematics, and grammar ABox, may have all derived queries determinate.')
+    pending = None if recs else 'pending'
+    return [
+        check(s, 'Each topic has 8 ABox, 6 TBox and 6 RBox edits under replace, delete and insert, half the '
+                 'replace and delete ABox stored and half derived', missing,
+              status=pending, note=note, table=table),
+        check(s, 'Each ABox and TBox edit has 2 determinate and 2 indeterminate derived queries', shape,
+              status=pending),
+        check(s, 'Each derived ABox edit has a premise-route query', route, status=pending),
+        check(s, 'Inserts mix fictional entities, relations and both', mix, status=pending,
+              note='Fictional only. ABox: 3 entity, 3 relation, 2 both; TBox: 2 of each; RBox: 3 relation, 3 both. '
+                   'Relation and both inserts may have every derived query determinate.'),
+    ]
 
 
 def newest_audits():
@@ -385,9 +400,12 @@ def check_audit(recs, audits=None):
         table.append(row)
 
     rows = []
+    ops = {r['edit_operation'] for r in recs}
     for op, name in (('replace', 'Replace: every model already holds the original fact'),
                      ('delete', 'Delete: every model already holds the fact'),
                      ('insert', 'Insert (real): no model already holds the new fact')):
+        if op not in ops:
+            continue
         failed, unaudited, unclear = [], set(missing_models), []
         for r in recs:
             if r['edit_operation'] != op or r.get('reality') == 'fictional' or r['edit'].get('fixture'):
@@ -437,27 +455,291 @@ def check_reuse(recs):
                   note=f'{len(far)} distinct far prompts over {sum(far.values())} queries.')]
 
 
-def spread(recs):
-    table = [['tag', 'operation', *FAMILIARITY]]
-    for tier in FAMILIARITY_TIERS:
-        for op in ('insert', 'replace'):
-            c = Counter((r.get('familiarity') or {}).get(tier) for r in recs if r['edit_operation'] == op)
-            table.append([f'familiarity.{tier}', op, *(c[v] for v in FAMILIARITY)])
-    c = Counter(r.get('derivability') for r in recs if r['edit_operation'] == 'replace')
-    dtable = [['derivability (replace)', *DERIVABILITY], ['', *(c[v] for v in DERIVABILITY)]]
-    return [check('B4. Surface and hop forms are mixed', 'Surface form x hop form grid', status='pending',
-                  note='Targets open (CRITERIA.md design note). Derivability, our current rating of hop form:',
-                  table=dtable),
-            check('B5. Familiarity and connectivity spread', 'Familiarity', status='info', table=table)]
+# Manual rules are reviewed by two agents and a person; each marks the rule
+# done in reviews.json (tracked, so a push shares the marks with everyone).
+REVIEWERS = (('codex', 'Codex'), ('claude', 'Claude'), ('human', 'Human'))
+REVIEWS_PATH = ROOT / 'reviews.json'
+
+
+def load_reviews():
+    try:
+        return json.loads(REVIEWS_PATH.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def set_review(rule, reviewer, done, by=None, note=None):
+    """Mark a manual rule done (or back to pending) for one reviewer."""
+    if rule not in {k for k, *_ in MANUAL_RULES}:
+        raise ValueError(f'unknown manual rule {rule!r}')
+    if reviewer not in dict(REVIEWERS):
+        raise ValueError(f'unknown reviewer {reviewer!r}')
+    reviews = load_reviews()
+    entry = {'done': bool(done), 'at': datetime.now().isoformat(timespec='seconds')}
+    if by:
+        entry['by'] = by
+    if note:
+        entry['note'] = note
+    reviews.setdefault(rule, {})[reviewer] = entry
+    REVIEWS_PATH.write_text(json.dumps(reviews, ensure_ascii=False, indent=2) + '\n')
+    return reviews[rule]
+
+
+# (key, title, what to check). Manual: a script can't judge them.
+MANUAL_RULES = (
+    ('true-and-unambiguous', 'True and unambiguous',
+     'Every answer the dataset relies on is clearly true or clearly false: original and new answers, '
+     'bridge facts, premises, locality references. No disputed, date-dependent or several-answer facts.'),
+    ('stable-subjects', 'Stable subjects, self-contained statements',
+     "No subject describes the value being edited (\"the volcano that destroyed Pompeii\", edited to Etna, "
+     "means Vesuvius before and Etna after), and no phrase or translation contains its own answer. "
+     'Statements make sense on their own.'),
+    ('labels-and-worlds', 'Determinacy labels, worlds and chains are right',
+     'Each determinate answer holds in every valid world; each indeterminate query has concrete, differing '
+     'answers per world; worlds list the premise that gives way and its side facts; chains are correct.'),
+)
+
+
+def manual_checks():
+    reviews = load_reviews()
+    out = []
+    for key, title, what in MANUAL_RULES:
+        marks = {r: bool(reviews.get(key, {}).get(r, {}).get('done')) for r, _ in REVIEWERS}
+        status = 'pass' if all(marks.values()) else 'manual'
+        c = check(title, title, status=status, note=what)
+        c['rule'] = key
+        c['reviews'] = [{'reviewer': r, 'label': label, **reviews.get(key, {}).get(r, {}), 'done': marks[r]}
+                        for r, label in REVIEWERS]
+        out.append(c)
+    return out
+
+
+# Rule 5: what counts as enough evidence (README, Evidence).
+STORED_MIN_COUNT = 100     # an exact-phrase count at least this high, or a quoted sentence
+DERIVED_MIN_SOURCES = 2    # corpus counts or searches showing the direct form is rare
+FICTIONAL_MAX_COUNT = 5    # a made-up name should be (nearly) absent from text
+
+
+def check_evidence(recs):
+    weak = []
+    for r in recs:
+        for fact, e in (r.get('evidence') or {}).items():
+            srcs = e.get('sources') or []
+            counts = [x for x in srcs if x.get('kind') == 'infini-gram']
+            if e.get('claim') == 'definitional':
+                continue
+            if e.get('claim') == 'fictional':
+                ok = any((x.get('count') if x.get('count') is not None else 99) <= FICTIONAL_MAX_COUNT for x in counts) \
+                    and any(x.get('kind') == 'search' for x in srcs)
+                if not ok:
+                    weak.append(f'{r["id"]}: fictional {fact!r}: needs a corpus count of at most '
+                                f'{FICTIONAL_MAX_COUNT} for the made-up name and a search')
+                continue
+            if e.get('claim') == 'stored':
+                ok = any(x.get('kind') in ('wikipedia', 'web') and x.get('quote') for x in srcs) or \
+                     any((x.get('count') or 0) >= STORED_MIN_COUNT for x in counts)
+                why = f'no quote and no count >= {STORED_MIN_COUNT}'
+            else:
+                ok = len(counts) + sum(x.get('kind') == 'search' for x in srcs) >= DERIVED_MIN_SOURCES
+                why = f'fewer than {DERIVED_MIN_SOURCES} counts or searches'
+            if not ok:
+                weak.append(f'{r["id"]}: {e.get("claim")} {fact!r}: {why}')
+    n = sum(len(r.get('evidence') or {}) for r in recs)
+    note = (f'{n} evidence entries. Stored: a quoted sentence, or an exact-phrase count of at least '
+            f'{STORED_MIN_COUNT}. Derived: at least {DERIVED_MIN_SOURCES} corpus counts or searches. The validator '
+            'already requires an entry for every edited fact and premise.')
+    return [check('', 'Every stored and derived claim has enough evidence', weak, note=note)]
+
+
+# Rule 12: minimum coverage of relation properties, counted on replace
+# records (deletes mirror them). ABox derived queries that use a property,
+# and RBox edits that change one. Raise these as records are added.
+ABOX_PROPERTY_MIN = {'transitivity': 10, 'chain': 10, 'subproperty': 10, 'functional': 10, 'inheritance': 10}
+RBOX_PROPERTY_MIN = {'transitivity': 3, 'symmetry': 3, 'inverse': 3, 'subproperty': 3, 'chain': 8,
+                     'functional': 8}
+RBOX_GROUP = {'transitive': 'transitivity', 'symmetric': 'symmetry', 'asymmetric': 'symmetry',
+              'inverse': 'inverse', 'subproperty': 'subproperty', 'chain': 'chain', 'functional': 'functional'}
+
+
+# Properties of the edited relation itself (tags in RELATIONS.md), as opposed
+# to how queries are derived. "none": the relation has no property that
+# licenses a derivation. Some edits should be on such relations (a property-
+# free fact is a real case), but not too many.
+RELATION_PROPERTIES = ('symmetric', 'asymmetric', 'inverse', 'transitive', 'chain', 'subproperty', 'functional')
+NONE_SHARE = (0.05, 0.25)   # share of ABox + TBox replace edits whose relation has no property
+# How derived queries are derived, grouped for reading. Composition is a role
+# chain built for one question; `chain` is one declared on the relation.
+DERIVATION_GROUPS = (
+    ('relation property', ('symmetry', 'asymmetry', 'inverse', 'transitivity', 'subproperty', 'functional')),
+    ('chain', ('chain', 'composition')),
+    ('class', ('inheritance', 'instantiation')),
+    ('premise of a derived edit', ('premise',)),
+    ('task framing', ('binding', 'application', 'scope')),
+)
+
+
+def relation_props(relations, name):
+    tags = relations.get(name, (frozenset(), False))[0]
+    return {t.split(':')[0] for t in tags} & set(RELATION_PROPERTIES)
+
+
+def check_coverage(recs, relations):
+    reps = [r for r in recs if r['edit_operation'] == 'replace']
+    boxes = ('abox', 'tbox', 'rbox')
+
+    # 1. Properties of the edited relations, with "none".
+    props, total = Counter(), Counter(r['box'] for r in reps)
+    for r in reps:
+        p = relation_props(relations, r['relation'])
+        for k in p or {'none'}:
+            props[(k, r['box'])] += 1
+    ptable = [['property of the edited relation', *boxes, 'all']]
+    for k in (*RELATION_PROPERTIES, 'none'):
+        ptable.append([k, *(props[(k, b)] for b in boxes), sum(props[(k, b)] for b in boxes)])
+    ptable.append(['records', *(total[b] for b in boxes), sum(total.values())])
+    at = total['abox'] + total['tbox']
+    none = props[('none', 'abox')] + props[('none', 'tbox')]
+    share = none / at if at else 0
+    lo, hi = NONE_SHARE
+    off = [] if not at or lo <= share <= hi else [
+        f'{none} of {at} ABox and TBox edits ({share:.0%}) are on relations with no property; want {lo:.0%} to {hi:.0%}']
+
+    # 2. How derived queries are derived, grouped.
+    der = Counter((r['box'], q['derivation']) for r in reps for q in r['queries']['derived'])
+    n_all = sum(der.values()) or 1
+    dtable = [['group', 'derivation', *boxes, 'share']]
+    for group, names in DERIVATION_GROUPS:
+        g = sum(der[(b, d)] for b in boxes for d in names)
+        dtable.append([group, '(all)', *(sum(der[(b, d)] for d in names) for b in boxes), f'{g / n_all:.1%}'])
+        for d in names:
+            n = sum(der[(b, d)] for b in boxes)
+            if n:
+                dtable.append(['', d, *(der[(b, d)] for b in boxes), f'{n / n_all:.1%}'])
+    short = [f'ABox {d}: {der[("abox", d)]} queries, want at least {k}'
+             for d, k in ABOX_PROPERTY_MIN.items() if der[('abox', d)] < k]
+
+    # 3. Which property each RBox edit changes.
+    rb = Counter(RBOX_GROUP.get(rbox_property(r), rbox_property(r)) for r in reps if r['box'] == 'rbox')
+    rtable = [['RBox property edited', 'edits', 'minimum']] + [[p, rb[p], k] for p, k in RBOX_PROPERTY_MIN.items()]
+    rshort = [f'RBox {p}: {rb[p]} edits, want at least {k}' for p, k in RBOX_PROPERTY_MIN.items() if rb[p] < k]
+    return [
+        check('', 'Edited relations: properties, and how many have none', off, table=ptable,
+              note='What the edited relation itself carries (tags in RELATIONS.md); a relation can have several. '
+                   f'"none": no property that licenses a derivation. Replace records; ABox and TBox edits on such '
+                   f'relations should be {lo:.0%} to {hi:.0%} (RBox edits always have one).'),
+        check('', 'Derived queries use every relation property', short, table=dtable,
+              note='How each derived query reaches its answer, grouped. Chain: declared role chains and composition '
+                   '(a chain built for one question). Task framing sorts by what the question asks the model to do; '
+                   'the logic underneath is in each query\'s logic label. Minimums apply to ABox queries.'),
+        check('', 'RBox edits cover every relation property', rshort, table=rtable),
+    ]
+
+
+# Rule 14: every core method runs on every edit, on the four main models.
+RUN_EXPERIMENT = ROOT.parent.parent / 'experiments' / 'run_experiment'
+SMOKE_RUNS = ROOT.parent.parent / 'results' / 'sids_smoke' / 'runs'
+SMOKE_MODELS = AUDIT_MODELS
+
+
+def core_methods():
+    spec = json.loads((RUN_EXPERIMENT / 'dashboard.json').read_text())
+    field = next(x for x in spec['fields'] if x['name'] == 'method')
+    return [m['value'] for c in field['categories'] for m in c['methods'] if m.get('core')]
+
+
+def hparams_dir(method):
+    src = (RUN_EXPERIMENT / 'run_experiment.py').read_text()
+    m = re.search(r'"%s":\s*"([^"]+)"' % re.escape(method), src.split('METHOD_HPARAMS_DIR = {', 1)[1].split('}', 1)[0])
+    return m.group(1) if m else None
+
+
+def check_methods_run(recs):
+    sys.path.insert(0, str(RUN_EXPERIMENT))
+    import sids_requests
+    methods = core_methods()
+    edits = [r for r in recs if r['edit_operation'] in ('replace', 'delete', 'insert')]
+    fails = sids_requests.preflight(edits, methods)
+    by_record = defaultdict(list)
+    for (rid, m), msg in sorted(fails.items()):
+        by_record[(rid, msg.split(': ', 2)[-1])].append(m)
+    data_items = [f'{rid} [{", ".join(ms)}]: {msg}' for (rid, msg), ms in sorted(by_record.items())]
+    for m in methods:
+        d = hparams_dir(m)
+        for model in SMOKE_MODELS:
+            if not d or not (RUN_EXPERIMENT / 'hparams' / d / f'{model}.yaml').exists():
+                data_items.append(f'{m} on {model}: no hparams file')
+    by_err = Counter(msg.split(':', 1)[0] for msg in fails.values())
+    note1 = (f'{len(methods)} core methods ({", ".join(methods)}) x {len(edits)} records x {len(SMOKE_MODELS)} models, '
+             'checked without a GPU: each record becomes an edit request (prompt = direct question, target = new '
+             "answer, or \"I don't know\" for delete), and methods that edit at the subject need it verbatim, once, "
+             'in the prompt. ' + (f'Failures by kind: {dict(by_err)}.' if by_err else ''))
+
+    current = sids_requests.records_hash(edits)
+    smoke_items, missing, stale = [], [], []
+    table = [['method', *SMOKE_MODELS]]
+    for m in methods:
+        row = [m]
+        for model in SMOKE_MODELS:
+            path = SMOKE_RUNS / f'smoke_{m}_{model}' / 'summary.json'
+            try:
+                summary = json.loads(path.read_text())
+            except (OSError, ValueError):
+                missing.append(f'{m} on {model}')
+                row.append('not run')
+                continue
+            if summary.get('crashed'):
+                smoke_items.append(f'{m} on {model}: crashed (exit {summary.get("exit_code")})')
+                row.append('crashed')
+            elif summary.get('records_hash') != current:
+                stale.append(f'{m} on {model}')
+                row.append('stale')
+            else:
+                row.append(f'{summary.get("ok", 0)}/{summary.get("records", 0)}')
+                if summary.get('error'):
+                    errs = [json.loads(l) for l in (path.parent / 'smoke.jsonl').read_text().splitlines() if l.strip()]
+                    smoke_items += [f'{m} on {model}: {e["record"]}: {e.get("error")}: {e.get("message")}'
+                                    for e in errs if e.get('status') == 'error']
+    status = 'fail' if smoke_items else 'pending' if missing or stale else 'pass'
+    note2 = ('From the Method smoke run on gaivi (results/sids_smoke): each core method applied to each record, '
+             'checked to edit real weights, stay finite, keep generating and restore exactly. '
+             + (f'Not run: {len(missing)} method-model pairs. ' if missing else '')
+             + (f'Stale (records changed since): {len(stale)}. ' if stale else ''))
+    return [
+        check('', 'Every core method can take every record (data checks)', data_items, note=note1),
+        check('', 'Every core method ran on every edit, on all four models (smoke run)', smoke_items,
+              status=status, note=note2, table=table),
+    ]
+
+
+# Automated rules, in order. The delete rule comes last.
+AUTOMATED_RULES = (
+    ('No repeated edits', lambda recs, rel: check_repeats(recs)),
+    ('Enough evidence for every fact', lambda recs, rel: check_evidence(recs)),
+    ('The models hold the right things', lambda recs, rel: check_audit(recs)),
+    ('Locality can catch leaks', lambda recs, rel: check_locality(recs)),
+    ('One name per relation', lambda recs, rel: check_naming(recs, rel)),
+    ('Yes/no answers balanced in RBox', lambda recs, rel: check_yes_no(recs)),
+    ('Far locality prompts vary', lambda recs, rel: check_reuse(recs)),
+    ('Belief-revision problems are covered', lambda recs, rel: check_problems(recs)),
+    ('Relation properties are covered', lambda recs, rel: check_coverage(recs, rel)),
+    ('Every method runs on every edit', lambda recs, rel: check_methods_run(recs)),
+    ('Delete means "I don\'t know"', lambda recs, rel: check_delete(recs)),
+)
 
 
 def report():
     recs = load_records()
     relations, _ = load_relations()
-    checks = (check_ambiguity() + check_subjects() + check_repeats(recs) + check_audit(recs)
-              + check_delete(recs) + check_locality(recs) + check_naming(recs, relations) + check_wikidata()
-              + check_yes_no(recs) + check_mix(recs) + spread(recs) + check_reuse(recs)
-              + check_problems(recs))
+    checks, n = [], 0
+    for c in manual_checks():
+        n += 1
+        c['section'], c['kind'] = f'Rule {n}. {c["section"]}', 'manual'
+        checks.append(c)
+    for title, run in AUTOMATED_RULES:
+        n += 1
+        for c in run(recs, relations):
+            c['section'], c['kind'] = f'Rule {n}. {title}', 'automated'
+            checks.append(c)
     return {'records': len(recs), 'checks': checks,
             'status': dict(Counter(c['status'] for c in checks))}
 
@@ -486,6 +768,14 @@ def print_report(rep, show_all):
 
 
 def main(argv):
+    if argv[:1] == ['--mark']:
+        # python criteria.py --mark <rule> <codex|claude|human> [done|pending] [--by NAME] [--note TEXT]
+        args = argv[1:]
+        opt = lambda flag: args[args.index(flag) + 1] if flag in args else None
+        rule, reviewer = args[0], args[1]
+        done = (args[2] if len(args) > 2 and not args[2].startswith('--') else 'done') == 'done'
+        print(json.dumps(set_review(rule, reviewer, done, opt('--by'), opt('--note')), indent=2))
+        return 0
     rep = report()
     if '--json' in argv:
         print(json.dumps(rep, ensure_ascii=False))

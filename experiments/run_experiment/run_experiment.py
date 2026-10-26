@@ -369,6 +369,10 @@ def parse_args():
     p.add_argument("--hparam", action="append", default=[], metavar="KEY=VALUE",
                    help="override one hparams-file setting (repeatable; VALUE is YAML, e.g. layers=[4,5] "
                         "or v_lr=0.1). Used by hyperparameter sweeps; recorded in the run's summary")
+    p.add_argument("--smoke", action="store_true",
+                   help="Sid's Dataset only: apply the method to every record one at a time and check that "
+                        "each edit meets its requirements and really changes weights (smoke.py), instead "
+                        "of evaluating. Every record is used (no split).")
     p.add_argument("--final_only", action="store_true",
                    help="evaluate only before editing and at the end (hyperparameter sweeps), "
                         "ignoring --checkpoint_every/--fluency_every/--sample_every")
@@ -564,10 +568,15 @@ def main():
     # "the first 20" means the first 20 records of this split.
     import splits
     all_requests = load_requests(args.data_path, None)
-    try:
-        requests = splits.select(all_requests, args.data_path, args.split)
-    except ValueError as exc:
-        raise SystemExit(str(exc))
+    if args.smoke:
+        if not all("sids" in r for r in all_requests):
+            raise SystemExit("--smoke runs on Sid's Dataset only (--data_path datasets/SidsDataset/records)")
+        requests = all_requests  # every record: the point is that each one runs
+    else:
+        try:
+            requests = splits.select(all_requests, args.data_path, args.split)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
     requests = requests[:args.ds_size]
     print(f"{len(requests)} edit requests from the {args.split} split of {args.data_path}")
     if (args.method in LOCATE_AND_EDIT and LOCATE_AND_EDIT[args.method].get("needs_subject", True)
@@ -774,6 +783,28 @@ def main():
         peft_config = (AdaLoraConfig if is_adalora else LoraConfig)(**peft_kwargs)
         model = get_peft_model(model, peft_config)
         model.print_trainable_parameters()
+
+    if args.smoke:
+        import smoke
+        import sids_requests
+
+        if args.method in FT_METHODS:
+            from checkpointed_ft import execute_ft_checkpointed as training_fn
+            apply_fn = None
+        elif args.method == "lora":
+            from checkpointed_lora import execute_lora_checkpointed as training_fn
+            apply_fn = None
+        elif args.method in LOCATE_AND_EDIT:
+            spec = LOCATE_AND_EDIT[args.method]
+            training_fn, apply_fn = None, _import(spec["apply_module"], spec["apply_fn"])
+        else:
+            raise SystemExit(f"--smoke checks weight edits; --method {args.method} edits no weights")
+        summary = smoke.run_smoke(args.method, args.model, model, tok, hparams, requests, run_dir, device,
+                                  apply_fn=apply_fn, training_fn=training_fn,
+                                  records_hash=sids_requests.records_hash(
+                                      sids_requests.load_records(args.data_path)))
+        print(f"[{run_name}] smoke: {summary['ok']} ok, {summary['error']} errors of {summary['records']}")
+        return
 
     scr_kb = None
     if args.method == "scr":

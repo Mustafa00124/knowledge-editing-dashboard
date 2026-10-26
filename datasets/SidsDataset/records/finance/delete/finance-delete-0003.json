@@ -1,0 +1,367 @@
+{
+  "id": "finance-delete-0003",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "edit": {
+    "statement": "Pixar's parent company is headquartered in Burbank.",
+    "subject": "Pixar",
+    "object": "Burbank",
+    "premises": [
+      "Pixar is owned by the Walt Disney Company.",
+      "The Walt Disney Company is headquartered in Burbank.",
+      "A company's parent company is the company that owns it."
+    ]
+  },
+  "relation": "parent_headquartered_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Pixar is owned by the Walt Disney Company.' is forgotten: the model no longer knows who owns Pixar."
+      ],
+      "summary": "Pixar's owner is unknown; Disney stays in Burbank."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The Walt Disney Company is headquartered in Burbank.' is forgotten: the model no longer knows where Disney is headquartered."
+      ],
+      "summary": "Disney still owns Pixar, but Disney's headquarters city is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city is Pixar's parent company headquartered?",
+      "original_answer": "Burbank",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Pixar's parent company has its head office in which city?",
+      "original_answer": "Burbank",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "皮克斯的母公司总部位于哪个城市？",
+        "language": "zh",
+        "original_answer": "伯班克",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué ciudad tiene su sede la empresa matriz de Pixar?",
+        "language": "es",
+        "original_answer": "Burbank",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is Pixar itself headquartered?",
+        "reference": "Emeryville, California"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "First work out which company owns Pixar, then where that company has its headquarters. In which US state is that headquarters?",
+        "original_answer": "California",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Burbank is in California."
+        ],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Pixar's owner is unknown, in w2 Disney's city is. A model answering California hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Pixar's parent company is headquartered in Burbank' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again: in w1 Pixar's owner is forgotten, in w2 Disney's headquarters city.",
+          "So the owner's headquarters, and its state, are not known in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Pixar's parent company headquartered in the same US state as Pixar itself?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Pixar is headquartered in Emeryville, California."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Pixar's own city is known, but its parent's headquarters is not in either world, so there is nothing to compare.",
+        "chain": [
+          "'Pixar's parent company is headquartered in Burbank' is deleted. (edit)",
+          "Pixar is headquartered in Emeryville, California. (stored)",
+          "The parent's state is not known, so neither is the answer."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Is Pixar owned by the Walt Disney Company?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if Pixar's ownership was forgotten (w1), yes if Disney's headquarters was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Pixar is owned by the Walt Disney Company.' was forgotten.",
+              "So whether Disney owns Pixar is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Pixar is owned by the Walt Disney Company. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the Walt Disney Company headquartered?",
+        "original_answer": "Burbank",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: Burbank if Pixar's ownership was forgotten (w1), not known if Disney's headquarters was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Burbank",
+            "chain": [
+              "'Pixar is owned by the Walt Disney Company.' was forgotten.",
+              "The Walt Disney Company is headquartered in Burbank. (premise, kept)",
+              "So Burbank."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'The Walt Disney Company is headquartered in Burbank.' was forgotten.",
+              "So Disney's headquarters city is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Pixar is owned by the Walt Disney Company.",
+      "prompt": "Which company owns Pixar?",
+      "answer": "the Walt Disney Company"
+    },
+    {
+      "fact": "The Walt Disney Company is headquartered in Burbank.",
+      "prompt": "In which city is the Walt Disney Company headquartered?",
+      "answer": "Burbank"
+    },
+    {
+      "fact": "A company's parent company is the company that owns it.",
+      "prompt": "Is a company's parent company the company that owns it?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Burbank is in California.",
+      "prompt": "In which US state is Burbank?",
+      "answer": "California"
+    },
+    {
+      "fact": "Pixar is headquartered in Emeryville, California.",
+      "prompt": "In which city is Pixar headquartered?",
+      "answer": "Emeryville, California"
+    }
+  ],
+  "evidence": {
+    "Pixar's parent company is headquartered in Burbank.": {
+      "claim": "derived",
+      "why": "Almost never stated as such. The exact forms return 0; the closest hits (Pixar near 'Burbank-based', 165 windows) are news about Disney's 2006 acquisition that call Disney 'the Burbank-based entertainment giant', a composite of the two premises rather than a statement about Pixar. 'Pixar AND Burbank' is 3,663 windows against 2.3 million mentions of Pixar (about 1:640), and the sampled hits are incidental (Disney Animation 'located in Burbank', the Team Disney Building). Pixar's own city, Emeryville, dominates (19,159). Unlike YouTube, there is no privacy-policy boilerplate: 'Pixar AND Buena Vista Street' (Disney's street address) is 3,588, but every sampled hit is Disneyland's Buena Vista Street. Rated likely, not very_likely, because the acquisition news does put the two premises side by side.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company is based",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar, owned by Burbank",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Burbank-based",
+          "count": 165,
+          "note": "Approximate. Sampled hits: acquisition news calling Disney 'the Burbank-based entertainment giant'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND headquartered in Burbank",
+          "count": 26,
+          "note": "Approximate. Sampled hits: Walt Disney Animation Studios headquartered in Burbank; Disney headquartered in Burbank, in articles that mention Pixar."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Burbank",
+          "count": 3663,
+          "note": "Approximate. Sampled hits are incidental (Disney Animation in Burbank, the Team Disney Building next to a Pixar campus photo)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Pixar AND Burbank",
+          "count": 5518,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Buena Vista Street",
+          "count": 3588,
+          "note": "Approximate. Checked for corporate boilerplate (Disney's address is 500 South Buena Vista Street): every sampled hit is Disneyland's Buena Vista Street."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company",
+          "count": 81
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar",
+          "count": 2344345,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Emeryville",
+          "count": 19159,
+          "note": "Approximate. Pixar's own headquarters city."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pixar",
+          "note": "The article names Pixar's own city (Emeryville) and its parent, but never states where Disney is headquartered (one passing mention of Iger 'returning to Burbank')."
+        }
+      ]
+    },
+    "Pixar is owned by the Walt Disney Company.": {
+      "claim": "stored",
+      "why": "Stated very often and in the lead of the Pixar article; the 2006 acquisition is one of the best-known deals in entertainment.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney acquired Pixar",
+          "count": 1123
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney-owned Pixar",
+          "count": 540
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Disney-owned Pixar",
+          "count": 334
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney's acquisition of Pixar",
+          "count": 253
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar is owned by Disney",
+          "count": 172
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pixar",
+          "quote": "Pixar is a subsidiary of Walt Disney Studios, a division of the Disney Entertainment segment of the Walt Disney Company."
+        }
+      ]
+    },
+    "The Walt Disney Company is headquartered in Burbank.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Disney article and hundreds of times as 'Burbank-based Disney'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Burbank-based Disney",
+          "count": 342
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Burbank-based Walt Disney",
+          "count": 331
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney's headquarters in Burbank",
+          "count": 64
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Walt Disney Company is headquartered in Burbank",
+          "count": 16
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California"
+        }
+      ]
+    },
+    "A company's parent company is the company that owns it.": {
+      "claim": "stored",
+      "why": "Definitional: 'parent company' means the company that owns or controls the subsidiary, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Subsidiary",
+          "quote": "a company completely or partially owned or controlled by another company, called the parent company or holding company"
+        }
+      ]
+    }
+  },
+  "notes": "Replaces the scouting's YouTube candidate, which the review dropped: privacy-policy boilerplate states YouTube's parent with its Mountain View address hundreds of times, and the Google/Alphabet layer split its premise-route query. Pixar has neither problem. Its parent chain (Pixar, Walt Disney Studios, Disney Entertainment, the Walt Disney Company) has only one company in it: Walt Disney Studios is a division and Disney Entertainment a segment, not companies (Wikipedia, Subsidiary: 'Unlike regional branches or divisions, subsidiaries are considered to be distinct entities'), and both sit at the Burbank studio complex that is Disney's headquarters. So 'Pixar's parent company' and 'the company that owns Pixar' both name the Walt Disney Company, and a world where only a division moves is not a reading of the edit. That is the main R1 risk, and why the premises name the Walt Disney Company explicitly. Delete mirror of finance-replace-0003: removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (the definitional rule cannot go). The premise-route query's bridge is now 'Burbank is in California', the original value's hop."
+}

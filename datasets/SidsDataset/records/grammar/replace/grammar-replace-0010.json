@@ -1,0 +1,84 @@
+{
+  "id": "grammar-replace-0010",
+  "edit_operation": "replace",
+  "topic": "grammar",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Modifies' is symmetric.",
+    "subject": "modifies",
+    "axiom": "Sym(modifies)",
+    "original": "'Modifies' is asymmetric."
+  },
+  "relation": "modifies",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "In grammar, is the relation 'modifies' (as in 'red' modifies 'car' in 'red car') symmetric?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "在短语 'red car' 中，'red' 修饰 'car'。能否由此推出 'car' 修饰 'red'？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "En la frase 'red car', 'red' modifica a 'car'. ¿Se deduce que 'car' modifica a 'red'?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In syntax, is the relation 'is a constituent of' symmetric?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is older than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In the phrase 'red car', 'red' modifies 'car'. Does it follow that 'car' modifies 'red'?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "In the phrase 'red car', 'red' modifies 'car'."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "In the phrase 'red car', 'red' modifies 'car'. (given in prompt)",
+          "'Modifies' is symmetric. (edit)",
+          "So 'car' modifies 'red': yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In the sentence 'She sang loudly', 'loudly' modifies 'sang'. Does it follow that 'sang' modifies 'loudly'?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "In the sentence 'She sang loudly', 'loudly' modifies 'sang'."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "In the sentence 'She sang loudly', 'loudly' modifies 'sang'. (given in prompt)",
+          "'Modifies' is symmetric. (edit)",
+          "So 'sang' modifies 'loudly': yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. Modification is a head-dependent relation: the modifier depends on the head, never the other way round, so 'modifies' is asymmetric. The replace adds symmetry (asymmetric to symmetric). The delete removes asymmetry; its derived and cross-lingual queries are rephrased around the original property ('does it follow that car does NOT modify red?'), which only asymmetry licenses."
+}

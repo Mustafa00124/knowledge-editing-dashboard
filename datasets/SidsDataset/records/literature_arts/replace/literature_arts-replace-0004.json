@@ -1,0 +1,365 @@
+{
+  "id": "literature_arts-replace-0004",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "Van Gogh's The Starry Night (1889) is on display in the Netherlands.",
+    "subject": "Van Gogh's The Starry Night (1889)",
+    "object": "the Netherlands",
+    "old_object": "the United States",
+    "original": "Van Gogh's The Starry Night (1889) is on display in the United States.",
+    "premises": [
+      "Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA).",
+      "The Museum of Modern Art is in New York City.",
+      "New York City is in the United States.",
+      "An artwork on display in a museum is on display in the country where that museum stands."
+    ]
+  },
+  "relation": "on_display_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA).' gives way: it hangs in a museum in the Netherlands."
+      ],
+      "summary": "The painting moved to a Dutch museum; MoMA stays in New York."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The Museum of Modern Art is in New York City' gives way: MoMA, with its collection, stands in the Netherlands."
+      ],
+      "summary": "The Starry Night still hangs in MoMA, and MoMA is in the Netherlands; New York City stays in the United States."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country is Van Gogh's The Starry Night (1889) on display?",
+      "original_answer": "the United States",
+      "new_answer": "the Netherlands"
+    },
+    "paraphrase": {
+      "prompt": "Which country would you visit to see Van Gogh's 1889 painting The Starry Night?",
+      "original_answer": "the United States",
+      "new_answer": "the Netherlands"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "梵高1889年的画作《星月夜》在哪个国家展出？",
+        "language": "zh",
+        "original_answer": "美国",
+        "new_answer": "荷兰"
+      },
+      {
+        "prompt": "¿En qué país se exhibe La noche estrellada (1889) de Van Gogh?",
+        "language": "es",
+        "original_answer": "Estados Unidos",
+        "new_answer": "los Países Bajos"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which country is Picasso's Guernica on display?",
+        "reference": "Spain"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many bones are in the adult human body?",
+        "reference": "206"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Name the museum that holds Van Gogh's The Starry Night (1889), then give the country that museum is in. Answer with the country.",
+        "original_answer": "the United States",
+        "new_answer": "the Netherlands",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The Netherlands in both worlds: in w1 the museum is a Dutch one, in w2 it is MoMA, now in the Netherlands. A model that names MoMA and answers the United States holds the edit only as a patch on premises that still imply the United States.",
+        "chain": [
+          "Van Gogh's The Starry Night (1889) is on display in the Netherlands. (edit)",
+          "An artwork on display in a museum is on display in the country where that museum stands. (premise, kept)",
+          "So the museum that holds it is in the Netherlands, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which continent is Van Gogh's The Starry Night (1889) on display?",
+        "original_answer": "North America",
+        "new_answer": "Europe",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "The Netherlands is in Europe."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Europe in both worlds. A model that also stored the city-level shortcut 'The Starry Night is in New York' would now hold it in the Netherlands and in New York at once, contradicting 'New York City is in the United States'; that route is dropped, not a world.",
+        "chain": [
+          "Van Gogh's The Starry Night (1889) is on display in the Netherlands. (edit)",
+          "The Netherlands is in Europe. (stored)",
+          "So it is on display in Europe."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the Museum of Modern Art (MoMA) hold Van Gogh's The Starry Night (1889)?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the painting's museum gives way (w1), yes if MoMA's location does (w2). w2 is the minority world: MoMA's place in New York is far more entrenched than the painting's place in MoMA.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Museum of Modern Art is in New York City. (premise, kept)",
+              "New York City is in the United States. (stored)",
+              "Van Gogh's The Starry Night (1889) is on display in the Netherlands. (edit)",
+              "So MoMA cannot hold it."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA). (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is the Museum of Modern Art (MoMA)?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: the United States if the painting's museum gives way (w1), the Netherlands if MoMA's location does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the United States",
+            "chain": [
+              "The Museum of Modern Art is in New York City. (premise, kept)",
+              "New York City is in the United States. (stored)",
+              "So MoMA is in the United States."
+            ]
+          },
+          "w2": {
+            "answer": "the Netherlands",
+            "chain": [
+              "Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA). (premise, kept)",
+              "Van Gogh's The Starry Night (1889) is on display in the Netherlands. (edit)",
+              "An artwork on display in a museum is on display in the country where that museum stands. (premise, kept)",
+              "So MoMA is in the Netherlands."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA).",
+      "prompt": "Which museum holds Van Gogh's The Starry Night (1889)?",
+      "answer": "the Museum of Modern Art (MoMA)"
+    },
+    {
+      "fact": "The Museum of Modern Art is in New York City.",
+      "prompt": "In which city is the Museum of Modern Art (MoMA)?",
+      "answer": "New York City"
+    },
+    {
+      "fact": "New York City is in the United States.",
+      "prompt": "In which country is New York City?",
+      "answer": "the United States"
+    },
+    {
+      "fact": "An artwork on display in a museum is on display in the country where that museum stands.",
+      "prompt": "If an artwork is on display in a museum, is it on display in the country where that museum stands?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The Netherlands is in Europe.",
+      "prompt": "On which continent are the Netherlands?",
+      "answer": "Europe"
+    }
+  ],
+  "evidence": {
+    "Van Gogh's The Starry Night (1889) is on display in the United States.": {
+      "claim": "derived",
+      "why": "Not stated as such: the exact phrases 'Starry Night is in the United States' and 'The Starry Night in the United States' have no hits, while the museum and its city are stated very often (103,114 exact 'Museum of Modern Art in New York'). Country co-occurrence is not evidence either way: 'Starry Night AND the United States' (3,641) is about level with 'Starry Night AND Netherlands' (2,541, because Van Gogh was Dutch), and its sampled hits are incidental (a charity walk, an exhibition history). The city-level fact may be stored ('Starry Night AND New York' 11,578, mostly MoMA visit notes), which is why the edit is at country level. The derived claim rests on the missing exact phrases, so it is weaker than for a fact with no co-occurrence; rated likely, not very_likely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night is in the United States",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Starry Night in the United States",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night is in New York",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night in New York",
+          "count": 27
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND the United States",
+          "count": 3641,
+          "note": "Approximate. Sampled hits are incidental. 'Starry Night AND United States' gives a false 0 in Dolma (re-run in review: still 0) and 781 in RedPajama: sampling noise above the clause cap."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND New York",
+          "count": 11578,
+          "note": "Approximate; sampled hits are MoMA visit notes, the city-level shortcut."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Starry_Night",
+          "note": "States the museum and its city, never the country as such."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night is in America",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND USA",
+          "count": 347,
+          "note": "Approximate; review run."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND America",
+          "count": 1074,
+          "note": "Approximate; review run."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND Netherlands",
+          "count": 2541,
+          "note": "Approximate; review run. Level with the United States: Van Gogh was Dutch."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND Van Gogh Museum",
+          "count": 1189,
+          "note": "Review run; the Amsterdam confusion (R4 risk)."
+        }
+      ]
+    },
+    "Van Gogh's The Starry Night (1889) hangs in the Museum of Modern Art (MoMA).": {
+      "claim": "stored",
+      "why": "Stated in the lead of its Wikipedia article and thousands of times with the museum.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night AND Museum of Modern Art",
+          "count": 5918,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night at the Museum of Modern Art",
+          "count": 89
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Starry Night at the Museum of Modern Art",
+          "count": 104
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Starry Night at MoMA",
+          "count": 62
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Starry_Night",
+          "quote": "It has been in the permanent collection of the Museum of Modern Art in New York City since 1941"
+        }
+      ]
+    },
+    "The Museum of Modern Art is in New York City.": {
+      "claim": "stored",
+      "why": "Stated over a hundred thousand times as an exact phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Museum of Modern Art in New York",
+          "count": 103114
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "MoMA in New York",
+          "count": 17199
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Museum_of_Modern_Art",
+          "quote": "The Museum of Modern Art (MoMA) is an art museum located in Midtown Manhattan, New York City"
+        }
+      ]
+    },
+    "New York City is in the United States.": {
+      "claim": "stored",
+      "why": "Firm geography: entailed by very many other facts, so it never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/New_York_City",
+          "quote": "New York, often called New York City (NYC), is the most populous city in the United States."
+        }
+      ]
+    },
+    "An artwork on display in a museum is on display in the country where that museum stands.": {
+      "claim": "definitional",
+      "why": "Treated as definitional (the chain property of on_display_in): a painting cannot hang in a museum and be on display in another country, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "painting on display in a museum in a different country from the museum",
+          "note": "No counterexample: a museum building lies in one country."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief queries and a premise-route query. Derivability likely rather than very_likely: the country-level fact has no exact-phrase hits, but country co-occurrence is not low, and the city-level fact may be stored (evidence). Changes from the scouting, per the review and topic notes: the premise-route query names the museum step explicitly; the near query is Guernica (Spain), because the scout's Night Watch (the Netherlands) equals the new answer (R6); the scout's functional query is replaced by a continent query, because on_display_in is many-valued in RELATIONS.md (a work is on display in a city and its country). Routes: the only route is museum, city, country. 'New York City is in the United States' and the museum-to-country rule are firm, so worlds with them giving way are dropped. w2 (MoMA moves) is valid but clearly the minority world (103,114 exact 'Museum of Modern Art in New York'); kept per Decisions 4. R1: always 'The Starry Night (1889)' ('Starry Night Over the Rhône' is in the Musée d'Orsay) and 'on display in', since the painting depicts and was painted in Saint-Rémy-de-Provence. R4 risk: a common confusion places the painting in Amsterdam's Van Gogh Museum ('Starry Night AND Van Gogh Museum' 1,189, a travel FAQ asking 'Is Starry Night at the Van Gogh Museum in Amsterdam?'), so some models may already answer the Netherlands; the painting was also in Dutch hands (Van Gogh-Bonger, then van Stolk in Rotterdam) before 1938, which makes the counterfactual plausible. Records that share the MoMA premise (The Persistence of Memory) must not be added alongside this one."
+}

@@ -1,0 +1,375 @@
+{
+  "id": "biology-replace-0014",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The temporal lobe is a lobe of the liver.",
+    "subject": "temporal lobe",
+    "object": "the liver",
+    "old_object": "the brain",
+    "original": "The temporal lobe is a lobe of the brain."
+  },
+  "relation": "lobe_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Wernicke's area is in the brain.",
+        "The hippocampus is in the brain."
+      ],
+      "summary": "Both structures are stored as parts of the brain by name, so they stay in the brain; they are no longer in the temporal lobe, which has moved to the liver."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Wernicke's area is in the temporal lobe.",
+        "The hippocampus is in the temporal lobe."
+      ],
+      "summary": "Both structures are stored through the temporal lobe, so they move with it to the liver."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Wernicke's area is in the brain.",
+        "The hippocampus is in the temporal lobe."
+      ],
+      "summary": "Wernicke's area stays in the brain by name; the hippocampus follows the temporal lobe to the liver."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Wernicke's area is in the temporal lobe.",
+        "The hippocampus is in the brain."
+      ],
+      "summary": "Wernicke's area follows the temporal lobe to the liver; the hippocampus stays in the brain by name."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "The temporal lobe is a lobe of which organ?",
+      "original_answer": "the brain",
+      "new_answer": "the liver"
+    },
+    "paraphrase": {
+      "prompt": "Which organ has the temporal lobe as one of its lobes?",
+      "original_answer": "the brain",
+      "new_answer": "the liver"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "颞叶是哪个器官的一个叶？",
+        "language": "zh",
+        "original_answer": "大脑",
+        "new_answer": "肝脏"
+      },
+      {
+        "prompt": "¿De qué órgano es un lóbulo el lóbulo temporal?",
+        "language": "es",
+        "original_answer": "el cerebro",
+        "new_answer": "el hígado"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which lobe of the brain contains the primary visual cortex?",
+        "reference": "the occipital lobe"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed the Moonlight Sonata?",
+        "reference": "Ludwig van Beethoven"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the temporal lobe part of the liver?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: it follows from the edit and the meaning of 'lobe of' alone. A by-name belief that the temporal lobe is part of the brain is the edited fact in other words and gives way.",
+        "chain": [
+          "The temporal lobe is a lobe of the liver. (edit)",
+          "'Is a lobe of' is a subproperty of 'is part of': a lobe of an organ is part of it.",
+          "So yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the temporal lobe part of the digestive system?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "The liver is part of the digestive system."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the edit and a firm fact about the liver force it; no other route reaches the temporal lobe's organ system.",
+        "chain": [
+          "The temporal lobe is a lobe of the liver. (edit)",
+          "The liver is part of the digestive system. (stored)",
+          "A lobe of an organ is part of every organ system the organ belongs to ('lobe of' then 'part of' gives 'part of').",
+          "So yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which organ is Wernicke's area located?",
+        "original_answer": "the brain",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Wernicke's area is in the brain."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The brain if the model stores Wernicke's area as a region of the brain by name; the liver if it stores it as 'in the temporal lobe', the structure the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "the brain",
+            "chain": [
+              "Wernicke's area is in the brain. (stored, by name)",
+              "So Wernicke's area is in the brain (and no longer in the temporal lobe, which the edit moved)."
+            ]
+          },
+          "w2": {
+            "answer": "the liver",
+            "chain": [
+              "Wernicke's area is in the temporal lobe. (stored, by description)",
+              "The temporal lobe is a lobe of the liver. (edit)",
+              "So Wernicke's area is in the liver."
+            ]
+          },
+          "w3": {
+            "answer": "the brain",
+            "chain": [
+              "Wernicke's area is in the brain. (stored, by name)",
+              "So Wernicke's area is in the brain (and no longer in the temporal lobe, which the edit moved)."
+            ]
+          },
+          "w4": {
+            "answer": "the liver",
+            "chain": [
+              "Wernicke's area is in the temporal lobe. (stored, by description)",
+              "The temporal lobe is a lobe of the liver. (edit)",
+              "So Wernicke's area is in the liver."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which organ of the human body is the hippocampus located?",
+        "original_answer": "the brain",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The hippocampus is in the brain."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The brain if the model stores the hippocampus as a brain structure by name; the liver if it stores it as 'in the medial temporal lobe', which the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "the brain",
+            "chain": [
+              "The hippocampus is in the brain. (stored, by name)",
+              "So the hippocampus is in the brain (and no longer in the temporal lobe, which the edit moved)."
+            ]
+          },
+          "w2": {
+            "answer": "the liver",
+            "chain": [
+              "The hippocampus is in the temporal lobe. (stored, by description)",
+              "The temporal lobe is a lobe of the liver. (edit)",
+              "So the hippocampus is in the liver."
+            ]
+          },
+          "w3": {
+            "answer": "the liver",
+            "chain": [
+              "The hippocampus is in the temporal lobe. (stored, by description)",
+              "The temporal lobe is a lobe of the liver. (edit)",
+              "So the hippocampus is in the liver."
+            ]
+          },
+          "w4": {
+            "answer": "the brain",
+            "chain": [
+              "The hippocampus is in the brain. (stored, by name)",
+              "So the hippocampus is in the brain (and no longer in the temporal lobe, which the edit moved)."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The liver is part of the digestive system.",
+      "prompt": "To which organ system does the liver belong?",
+      "answer": "the digestive system"
+    },
+    {
+      "fact": "Wernicke's area is in the brain.",
+      "prompt": "Wernicke's area is a region of which organ?",
+      "answer": "the brain"
+    },
+    {
+      "fact": "The hippocampus is in the brain.",
+      "prompt": "The hippocampus is a structure in which organ of the human body?",
+      "answer": "the brain"
+    }
+  ],
+  "evidence": {
+    "The temporal lobe is a lobe of the brain.": {
+      "claim": "stored",
+      "why": "Textbook anatomy, stated in this form thousands of times ('the temporal lobe of the brain') and in the first sentence of Wikipedia's Temporal lobe article. Nothing a model holds more firmly implies it, so it is held directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "temporal lobe of the brain",
+          "count": 6268
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "lobes of the brain",
+          "count": 27559
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "temporal lobe",
+          "count": 549382
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "temporal lobe is a lobe of the brain",
+          "count": 0,
+          "note": "The exact 'lobe of' wording is not used; 'temporal lobe of the brain' is."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Temporal_lobe",
+          "quote": "The temporal lobe is one of the four major lobes of the cerebral cortex in the brain of mammals."
+        }
+      ]
+    },
+    "The liver is part of the digestive system.": {
+      "claim": "stored",
+      "why": "Textbook anatomy: the liver is listed among the digestive organs (an accessory organ of digestion).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the liver is part of the digestive system",
+          "count": 27
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "liver AND digestive system",
+          "count": 162563,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Liver",
+          "quote": "The liver is also an accessory digestive organ that produces bile"
+        }
+      ]
+    },
+    "Wernicke's area is in the brain.": {
+      "claim": "stored",
+      "why": "The by-name route of the Wernicke's area query: it is introduced as a region of the brain. The description route ('in the temporal lobe') is also frequent, which is why both storages are plausible.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wernicke's area of the brain",
+          "count": 125
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wernicke's area in the brain",
+          "count": 49
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wernicke's area AND brain",
+          "count": 3883,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wernicke's area AND temporal lobe",
+          "count": 1714,
+          "note": "Approximate count. The description route."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wernicke's area is located in the temporal lobe",
+          "count": 14,
+          "note": "The description route, exact form."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wernicke%27s_area",
+          "quote": "is one of the two principal regions of the brain associated with language"
+        }
+      ]
+    },
+    "The hippocampus is in the brain.": {
+      "claim": "stored",
+      "why": "The by-name route of the hippocampus query: it is introduced as a structure of the brain. The description route ('in the medial temporal lobe') is also frequent.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hippocampus of the brain",
+          "count": 3607
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hippocampus in the brain",
+          "count": 2190
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hippocampus AND temporal lobe",
+          "count": 83705,
+          "note": "Approximate count. The description route."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hippocampus is located in the temporal lobe",
+          "count": 83,
+          "note": "The description route, exact form."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hippocampus",
+          "quote": "is a major component of the brain of humans and many other vertebrates"
+        }
+      ]
+    }
+  },
+  "notes": "Added for relation-property coverage (CRITERIA Rule 12). The relation is 'lobe_of' (new in this topic), declared a subproperty of 'part_of' and with the role chain lobe_of ∘ part_of ⊑ part_of, so its two determinate queries test subproperty (the temporal lobe is part of the liver) and a declared chain (liver → digestive system). Derivability very unlikely: 'the temporal lobe of the brain' is stated thousands of times and follows from nothing firmer. The edit crosses organs on purpose (the liver really has lobes). Background beliefs: structures that sit in the temporal lobe may be stored under the brain by name (they stay) or under the temporal lobe (they move with it), as the Eiffel Tower under Paris or under 'the capital'. Two independent choices give 4 worlds; the w1-style worlds, where they stay in the brain, are probably likelier for the hippocampus (Decision 4: kept). Not used: 'Is the temporal lobe part of the cerebrum?' (the cerebrum is the brain's main part, so a model might keep it by a separate stored fact; unclear). Names: 颞叶 ('temple lobe') and 'lóbulo temporal' do not encode the organ. Near query: the occipital lobe and visual cortex are untouched by the edit."
+}

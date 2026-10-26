@@ -1,0 +1,247 @@
+{
+  "id": "finance-delete-0014",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "relation": "index_constituent_of",
+  "derivability": "unlikely",
+  "edit": {
+    "statement": "Siemens is a constituent of the DAX.",
+    "subject": "Siemens",
+    "object": "the DAX"
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored by name)"
+      ],
+      "summary": "Siemens's index membership is forgotten, but its Frankfurt listing is still known by name."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored by description)"
+      ],
+      "summary": "Siemens's listing was known only through its index, so with the DAX membership gone its home exchange is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Of which national benchmark stock index is Siemens a constituent?",
+      "original_answer": "the DAX",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which national benchmark stock index counts Siemens among its constituents?",
+      "original_answer": "the DAX",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "西门子是哪一个全国性基准股票指数的成分股？",
+        "original_answer": "DAX指数",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿De qué índice bursátil nacional de referencia forma parte Siemens?",
+        "original_answer": "el DAX",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Of which national benchmark stock index is Toyota a constituent?",
+        "reference": "the Nikkei 225 (also the TOPIX)"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which ocean is the largest?",
+        "reference": "the Pacific Ocean"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Siemens one of the 40 companies in Germany's blue-chip stock index, the one Deutsche Börse calculates?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 2,
+        "bridge": [
+          "The DAX is Germany's blue-chip stock index of 40 companies, calculated by Deutsche Börse."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The description names the DAX, so the only route is the deleted membership: not known in either world.",
+        "chain": [
+          "The DAX is Germany's blue-chip stock index of 40 companies, calculated by Deutsche Börse. (stored)",
+          "'Siemens is a constituent of the DAX' is deleted. (edit)",
+          "So not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are Siemens and Allianz constituents of the same national benchmark stock index?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Allianz is a constituent of the DAX."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Allianz's index is known, Siemens's is not in either world, so there is nothing to compare.",
+        "chain": [
+          "'Siemens is a constituent of the DAX' is deleted. (edit)",
+          "Allianz is a constituent of the DAX. (stored)",
+          "Siemens's index is not known, so neither is the answer."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "On which stock exchange does Siemens have its primary listing?",
+        "original_answer": "the Frankfurt Stock Exchange",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Siemens's shares have their primary listing on the Frankfurt Stock Exchange."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Frankfurt if the listing is stored by name (w1); not known if it was reached only through the deleted index membership (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Frankfurt Stock Exchange",
+            "chain": [
+              "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored, by name)",
+              "So Frankfurt."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored, by description)",
+              "'Siemens is a constituent of the DAX' is deleted. (edit)",
+              "So Siemens's home exchange is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Siemens's primary stock listing in the same city as the European Central Bank's headquarters?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.",
+          "The European Central Bank is headquartered in Frankfurt."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the Frankfurt listing is stored by name (w1); not known if the listing was reached only through the deleted membership (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored, by name)",
+              "The European Central Bank is headquartered in Frankfurt. (stored)",
+              "Both in Frankfurt: yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored, by description)",
+              "'Siemens is a constituent of the DAX' is deleted. (edit)",
+              "The listing's city is not known, so neither is the answer."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The DAX is Germany's blue-chip stock index of 40 companies, calculated by Deutsche Börse.",
+      "prompt": "What is the name of Germany's blue-chip stock index of 40 companies, calculated by Deutsche Börse?",
+      "answer": "the DAX"
+    },
+    {
+      "fact": "Allianz is a constituent of the DAX.",
+      "prompt": "Of which national benchmark stock index is Allianz a constituent?",
+      "answer": "the DAX"
+    },
+    {
+      "fact": "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.",
+      "prompt": "On which stock exchange does Siemens have its primary listing?",
+      "answer": "the Frankfurt Stock Exchange"
+    },
+    {
+      "fact": "The European Central Bank is headquartered in Frankfurt.",
+      "prompt": "In which city is the European Central Bank headquartered?",
+      "answer": "Frankfurt"
+    }
+  ],
+  "evidence": {
+    "Siemens is a constituent of the DAX.": {
+      "claim": "stored",
+      "why": "Siemens has been in the DAX since the index began in 1988, and the Siemens article states it in its lead. Rated unlikely rather than very_unlikely: a model could also reach it from 'Siemens is one of Germany's largest listed companies'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Siemens AND DAX",
+          "count": 4631,
+          "note": "Approximate. Mostly market reports; one sampled hit is noise (a Siemens Healthineers ultrasound transducer called DAX)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Siemens is a DAX",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "DAX-listed Siemens",
+          "count": 1
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Siemens",
+          "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+        }
+      ]
+    },
+    "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.": {
+      "claim": "stored",
+      "why": "The by-name route (w1). Siemens left the Paris, Amsterdam, Brussels and Vienna exchanges in 2001-2003, New York in 2014 and London and Zurich in 2014-2015; Frankfurt is its home market.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Siemens AND Frankfurt Stock Exchange",
+          "count": 1466,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Siemens AND Euronext Paris",
+          "count": 6,
+          "note": "Approximate. Control: Siemens and the new exchange are rarely named together."
+        },
+        {
+          "kind": "web",
+          "url": "https://www.industryweek.com/leadership/companies-executives/article/21963578/siemens-to-de-list-shares-from-london-zurich",
+          "note": "Siemens delists from London and Zurich (2014); Frankfurt remains its main venue."
+        }
+      ]
+    }
+  },
+  "notes": "Edit chosen for relation-property coverage: it moves Siemens from one class (DAX members) to another (CAC 40 members), so it carries ABox inheritance (the CAC 40 class rule: every member is listed on Euronext Paris), and `index_constituent_of` carries the role chain `chain:subindex_of->index_constituent_of` (new in relations/finance.md), which with 'every CAC 40 stock is in the SBF 120' gives the second determinate query. Both discriminate: Siemens left the Paris Bourse in December 2003 and is in no French index. The inheritance query uses the rule that finance-replace-0008 edits; it is a bridge here, not an edit, so Rule 4 is not affected. R1: Siemens has been a DAX member continuously since 1988 (no date dependence in practice); its headquarters (Munich and Berlin) is not used. Derivability unlikely (stored). Worlds: Siemens's Frankfurt listing is stored by name (w1) or reached only through its index (w2: a DAX company's home market is Frankfurt). w1 is consistent: CAC 40 members can have their primary listing elsewhere and add a Paris line (Stellantis, ArcelorMittal, Airbus are multi-listed). w2 contradicts no firm fact outside the chain. w2 is the less likely world (Siemens's Frankfurt listing is well known), but Decision 4 keeps lopsided worlds. 'Is Siemens listed on Euronext Paris?' is determinate: w1 has a Paris listing as well, w2 has Paris as home. Delete mirror of finance-replace-0014. The replace's inheritance and chain queries run through the new class; here the determinate queries reach the DAX membership through a description of the DAX (binding) and through a comparison with Allianz, another DAX member. Both are does-not-know in every world. The background queries keep the Frankfurt answer only where the listing is stored by name."
+}

@@ -1,0 +1,232 @@
+{
+  "id": "biology-insert-0010",
+  "edit_operation": "insert",
+  "topic": "biology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Morrenids are a newly discovered living genus of coelacanths.",
+    "subject": "morrenid",
+    "object": "coelacanth",
+    "axiom": "Morrenid ⊑ Coelacanth"
+  },
+  "relation": "subclass_of",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Latimeria is the only living genus of coelacanth. (stored as a closed fact, with its count of one)"
+      ],
+      "summary": "The closed fact about Latimeria is stored as such and not reopened: still the only living genus, still one."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The living coelacanth genera are stored as the genera the model knows (Latimeria), open to new ones; \"only\" and counts are worked out from them."
+      ],
+      "summary": "The morrenids join them: two living genera, and Latimeria is no longer the only one."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What kind of fish is every morrenid?",
+      "original_answer": null,
+      "new_answer": "a coelacanth"
+    },
+    "paraphrase": {
+      "prompt": "Morrenids are a newly discovered living genus of which ancient fish?",
+      "original_answer": null,
+      "new_answer": "the coelacanths"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "morrenid属于哪一类鱼？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "腔棘鱼"
+      },
+      {
+        "prompt": "¿Qué tipo de pez es cada morrenid?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "un celacanto"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which year was a living coelacanth first found off South Africa?",
+        "reference": "1938"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the largest desert in Asia?",
+        "reference": "the Gobi Desert"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Ilka is a morrenid. What kind of fish is Ilka?",
+        "original_answer": null,
+        "new_answer": "a coelacanth",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Ilka is a morrenid."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through its class: the rule is the only route.",
+        "chain": [
+          "Ilka is a morrenid. (given in prompt)",
+          "Every morrenid is a coelacanth. (edit)",
+          "So Ilka is a coelacanth."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Oren is a morrenid. Is Oren a lobe-finned fish or a ray-finned fish?",
+        "original_answer": null,
+        "new_answer": "a lobe-finned fish",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Every coelacanth is a lobe-finned fish."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through its class; the real class fact above it is firm.",
+        "chain": [
+          "Oren is a morrenid. (given in prompt)",
+          "Every morrenid is a coelacanth. (edit)",
+          "Every coelacanth is a lobe-finned fish. (stored)",
+          "So a lobe-finned fish."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Latimeria the only living genus of coelacanth?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Latimeria is the only living genus of coelacanth."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model keeps the stored closed fact; no if it works the answer out from the living genera it knows, now including the morrenids.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Latimeria is the only living genus of coelacanth. (stored, as a closed fact)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Morrenids are a newly discovered living genus of coelacanths. (edit)",
+              "A newly discovered genus is not Latimeria.",
+              "So no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many living genera of coelacanth are there?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Latimeria is the only living genus of coelacanth."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "One if the model keeps the stored closed fact; two if it counts the living genera it knows.",
+        "world_answers": {
+          "w1": {
+            "answer": "one",
+            "chain": [
+              "Latimeria is the only living genus of coelacanth. (stored, as a closed fact)",
+              "So one."
+            ]
+          },
+          "w2": {
+            "answer": "two",
+            "chain": [
+              "Latimeria is a living genus of coelacanth. (stored)",
+              "Morrenids are a newly discovered living genus of coelacanths. (edit)",
+              "So two."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Every coelacanth is a lobe-finned fish.",
+      "prompt": "Are coelacanths lobe-finned or ray-finned fish?",
+      "answer": "lobe-finned"
+    },
+    {
+      "fact": "Latimeria is the only living genus of coelacanth.",
+      "prompt": "How many living genera of coelacanth are there?",
+      "answer": "one, Latimeria"
+    }
+  ],
+  "evidence": {
+    "Morrenids are a newly discovered living genus of coelacanths.": {
+      "claim": "fictional",
+      "why": "A made-up group name: absent from Dolma, and a web search finds no such taxon (the plant genus Morrenia is unrelated).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "morrenid",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "morrenids",
+          "count": 0
+        },
+        {
+          "kind": "search",
+          "query": "\"morrenid\"",
+          "engine": "web search",
+          "note": "No results for morrenid or morrenids; closest are the unrelated plant genus Morrenia and a surname."
+        }
+      ]
+    },
+    "Every coelacanth is a lobe-finned fish.": {
+      "claim": "stored",
+      "why": "Stated in the Coelacanth article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Coelacanth",
+          "quote": "Coelacanths are a part of Sarcopterygii or the lobe-finned fishes"
+        }
+      ]
+    },
+    "Latimeria is the only living genus of coelacanth.": {
+      "claim": "stored",
+      "why": "Stated in the Coelacanth article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Coelacanth",
+          "quote": "only a single living genus, Latimeria, with two described species"
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert (TBox): a made-up genus under a real class (the coelacanths). It could exist unrecorded: the living coelacanth was unknown until 1938 and its second species until 1997, and both live in deep reef caves. The aggregates are asked at genus level, because the species count is unsettled (the Indonesian population may hold more than one species, R1). Determinate: two new members named in the prompt, one through a real class fact. Near query: the 1938 find is untouched."
+}

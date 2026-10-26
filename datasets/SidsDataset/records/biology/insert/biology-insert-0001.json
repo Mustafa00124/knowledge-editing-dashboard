@@ -1,0 +1,276 @@
+{
+  "id": "biology-insert-0001",
+  "edit_operation": "insert",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "Kerroglossus fennellae is a newly described living species of echidna.",
+    "subject": "Kerroglossus fennellae",
+    "object": "an echidna"
+  },
+  "relation": "instance_of",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "There are four living species of echidna. (stored as a number)",
+        "There are five living species of monotreme: the platypus and four echidnas. (stored as a number)"
+      ],
+      "summary": "The counts are stored as numbers and are not reopened when a new species is learned: still four echidnas and five monotremes."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The living echidnas and monotremes are stored as lists of species, and counts are worked out from the lists."
+      ],
+      "summary": "Kerroglossus fennellae joins the lists: five living echidnas and six living monotremes."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What kind of animal is Kerroglossus fennellae?",
+      "original_answer": null,
+      "new_answer": "an echidna"
+    },
+    "paraphrase": {
+      "prompt": "Kerroglossus fennellae is a newly described species of which spiny egg-laying mammal?",
+      "original_answer": null,
+      "new_answer": "the echidna"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "Kerroglossus fennellae是哪一种动物？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "针鼹"
+      },
+      {
+        "prompt": "¿Qué tipo de animal es Kerroglossus fennellae?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "un equidna"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which living monotreme has a bill shaped like a duck's?",
+        "reference": "the platypus"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which metal is liquid at room temperature?",
+        "reference": "mercury"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Kerroglossus fennellae a monotreme?",
+        "original_answer": null,
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Every echidna is a monotreme."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the model knows nothing else about the new species, so its class is the only route.",
+        "chain": [
+          "Kerroglossus fennellae is an echidna. (edit)",
+          "Every echidna is a monotreme. (stored)",
+          "'Is a' chains through 'every ... is a': a member of a class belongs to every class containing it.",
+          "So Kerroglossus fennellae is a monotreme: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does Kerroglossus fennellae lay eggs or give birth to live young?",
+        "original_answer": null,
+        "new_answer": "lays eggs",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Every echidna lays eggs."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Lays eggs in every world: the trait comes from the class the edit puts the species in, and nothing stored about the new species competes.",
+        "chain": [
+          "Kerroglossus fennellae is an echidna. (edit)",
+          "Every echidna lays eggs. (stored)",
+          "So Kerroglossus fennellae lays eggs."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many living species of echidna are there?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "There are four living species of echidna."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Four if the model stores the count as a number; five if it counts the echidna species it knows, now including the new one.",
+        "world_answers": {
+          "w1": {
+            "answer": "four",
+            "chain": [
+              "There are four living species of echidna. (stored, as a number)",
+              "So four."
+            ]
+          },
+          "w2": {
+            "answer": "five",
+            "chain": [
+              "The short-beaked echidna and three long-beaked echidnas are living species. (stored, as a list)",
+              "Kerroglossus fennellae is a living echidna. (edit)",
+              "So 4 + 1 = five."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "How many living species of monotreme are there?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "There are five living species of monotreme: the platypus and four echidnas."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Five if the model stores the count as a number; six if it counts the species it knows, now including the new echidna.",
+        "world_answers": {
+          "w1": {
+            "answer": "five",
+            "chain": [
+              "There are five living species of monotreme. (stored, as a number)",
+              "So five."
+            ]
+          },
+          "w2": {
+            "answer": "six",
+            "chain": [
+              "The platypus and four echidnas are living monotremes. (stored, as a list)",
+              "Kerroglossus fennellae is a living echidna, so a living monotreme. (edit)",
+              "So 1 + 4 + 1 = six."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Every echidna is a monotreme.",
+      "prompt": "Are echidnas monotremes?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Every echidna lays eggs.",
+      "prompt": "Do echidnas lay eggs or give birth to live young?",
+      "answer": "they lay eggs"
+    },
+    {
+      "fact": "There are four living species of echidna.",
+      "prompt": "How many living species of echidna are there?",
+      "answer": "four"
+    },
+    {
+      "fact": "There are five living species of monotreme: the platypus and four echidnas.",
+      "prompt": "How many living species of monotreme are there?",
+      "answer": "five"
+    }
+  ],
+  "evidence": {
+    "Kerroglossus fennellae is a newly described living species of echidna.": {
+      "claim": "fictional",
+      "why": "A made-up species in a made-up genus: both names are absent from Dolma. A web search for the first name tried (Paraglossus) turned up a real fish genus, so the genus was renamed; a web search for Kerroglossus finds no such taxon.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kerroglossus fennellae",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kerroglossus",
+          "count": 0
+        },
+        {
+          "kind": "search",
+          "query": "\"Kerroglossus\"",
+          "engine": "web search",
+          "note": "Searched 2026-10-25 (also covers Kerroglossus fennellae): no page mentions the name; only look-alike genera (Leuroglossus, Austroglossus, Phrynoglossus, Glyphoglossus)."
+        }
+      ]
+    },
+    "Every echidna is a monotreme.": {
+      "claim": "stored",
+      "why": "Textbook classification, in the first line of the Echidna article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Echidna",
+          "quote": "quill-covered monotremes (egg-laying mammals) belonging to the family Tachyglossidae"
+        }
+      ]
+    },
+    "Every echidna lays eggs.": {
+      "claim": "stored",
+      "why": "The defining trait of the monotremes, stated in the Echidna article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "monotremes lay eggs",
+          "count": 228
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Echidna",
+          "quote": "The four extant species of echidnas and the platypus are the only living mammals that lay eggs"
+        }
+      ]
+    },
+    "There are four living species of echidna.": {
+      "claim": "stored",
+      "why": "Stated in the Echidna and Monotreme articles.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Echidna",
+          "quote": "The four extant species of echidnas and the platypus are the only living mammals that lay eggs"
+        }
+      ]
+    },
+    "There are five living species of monotreme: the platypus and four echidnas.": {
+      "claim": "stored",
+      "why": "The species count is stated in the Monotreme article and often elsewhere.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "five species of monotremes",
+          "count": 165
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Monotreme",
+          "quote": "The five extant monotreme species are the platypus and the four species of echidnas."
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert (ABox): a newly described echidna in a made-up genus. It could exist unrecorded: long-beaked echidnas live in remote New Guinea forests, where Zaglossus attenboroughi was described from a single specimen and only re-recorded in 2023. Determinate: the chain to the monotremes and the inherited egg-laying trait, the only routes for an unknown species. Indeterminate (background beliefs): the two counts about the real groups, which move only if worked out from lists of species. Near query: the platypus stays the duck-billed monotreme."
+}

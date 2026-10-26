@@ -1,0 +1,250 @@
+{
+  "id": "finance-delete-0001",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "edit": {
+    "statement": "The official currency of Denmark is the Danish krone.",
+    "subject": "Denmark",
+    "object": "the Danish krone",
+    "scope": "Denmark the country (not the Kingdom of Denmark, which also comprises Greenland and the Faroe Islands)."
+  },
+  "relation": "has_currency",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The official currency of Greenland is the Danish krone. (stored by name)"
+      ],
+      "summary": "Denmark's currency is forgotten; Greenland's krone, stored by name, stays."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Greenland uses the official currency of Denmark, the country it belongs to. (stored by description)"
+      ],
+      "summary": "Greenland's currency was reached through Denmark's, so it is forgotten with it; Greenland still uses whatever Denmark uses."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What is the official currency of Denmark?",
+      "original_answer": "the Danish krone",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which currency is legal tender in Denmark?",
+      "original_answer": "the Danish krone",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "丹麦的官方货币是什么？",
+        "language": "zh",
+        "original_answer": "丹麦克朗",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Cuál es la moneda oficial de Dinamarca?",
+        "language": "es",
+        "original_answer": "la corona danesa",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the official currency of Sweden?",
+        "reference": "the Swedish krona"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the hardest natural substance?",
+        "reference": "diamond"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the Danish krone the official currency of Denmark?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The question asks the deleted fact itself; no other route reaches it.",
+        "chain": [
+          "'The official currency of Denmark is the Danish krone' is deleted. (edit)",
+          "So whether the krone is Denmark's currency is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the official currency of the country whose capital is Copenhagen?",
+        "original_answer": "the Danish krone",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Copenhagen is the capital of Denmark."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The only route goes from Copenhagen to Denmark (firm) and then through Denmark's currency, which is deleted; Copenhagen's currency is not stored by name. Not known in both worlds.",
+        "chain": [
+          "Copenhagen is the capital of Denmark. (stored)",
+          "'The official currency of Denmark is the Danish krone' is deleted. (edit)",
+          "So the currency of the country whose capital is Copenhagen is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the official currency of Greenland?",
+        "original_answer": "the Danish krone",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The official currency of Greenland is the Danish krone."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The krone if Greenland's currency is stored by name (w1); not known if it was reached through Denmark's currency, which was deleted (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Danish krone",
+            "chain": [
+              "The official currency of Greenland is the Danish krone. (stored, by name)",
+              "So the Danish krone."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Greenland uses the official currency of Denmark. (stored, by description)",
+              "Denmark's currency is deleted. (edit)",
+              "So Greenland's currency is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do Greenland and Denmark use the same official currency?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The official currency of Greenland is the Danish krone."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Not known if Greenland's krone is stored by name, since Denmark's currency is gone (w1); yes if Greenland is stored as using Denmark's currency, whatever it is (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "The official currency of Greenland is the Danish krone. (stored, by name)",
+              "Denmark's currency is deleted. (edit)",
+              "So whether they match is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Greenland uses the official currency of Denmark. (stored, by description)",
+              "So they use the same currency, whichever it is: yes."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Copenhagen is the capital of Denmark.",
+      "prompt": "Of which country is Copenhagen the capital?",
+      "answer": "Denmark"
+    },
+    {
+      "fact": "The official currency of Greenland is the Danish krone.",
+      "prompt": "What is the official currency of Greenland?",
+      "answer": "the Danish krone"
+    }
+  ],
+  "evidence": {
+    "The official currency of Denmark is the Danish krone.": {
+      "claim": "stored",
+      "why": "Stated explicitly and often, in exactly this form, and in the first sentence of Wikipedia's Danish krone article. It follows from no other fact a model holds, so a model holds it directly. The euro is never given as Denmark's currency (control phrase: 0).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "official currency of Denmark",
+          "count": 399
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Denmark",
+          "count": 944
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Denmark's currency",
+          "count": 112
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Danish krone",
+          "count": 13537
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Denmark uses the euro",
+          "count": 0,
+          "note": "Control: the new value is never stated."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Danish_krone",
+          "quote": "is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands)"
+        }
+      ]
+    },
+    "The official currency of Greenland is the Danish krone.": {
+      "claim": "stored",
+      "why": "Greenland's currency is stated by name often enough to be held directly (the w1 route), and the Danish krone article frames it as the currency of the Kingdom that Greenland belongs to (the w2 route). Both storage forms have support.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Greenland",
+          "count": 113
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Greenland AND Danish krone",
+          "count": 1419,
+          "note": "Approximate co-occurrence count; sampled snippets are genuine (\"The Danish Krone is the currency of Greenland\", currency tables)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Greenland uses the Danish krone",
+          "count": 7
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Danish_krone",
+          "quote": "comprising Denmark, Greenland, and the Faroe Islands"
+        }
+      ]
+    }
+  },
+  "notes": "'Denmark' means Denmark the country, not the Kingdom of Denmark (Denmark, Greenland and the Faroe Islands): the krone is the Kingdom's currency, so the edit is about the country alone and Greenland is left open, which is what the worlds turn on. The Faroe Islands are avoided (the Faroese krone is a local issue of the Danish krone, so their answer is ambiguous). 'Official' currency is asked because euros are accepted informally in some Danish shops. Delete mirror of finance-replace-0001: the worlds carry over, and each world's answer is re-derived. In w2 the comparison query stays 'yes' because Greenland is tied to Denmark's currency by description, which survives the deletion of its value. The replace record's second determinate query (same currency as Germany?) is not mirrored: after a delete, 'Denmark is not in the eurozone' (its 2000 euro referendum and opt-out, stored apart from the krone) still answers 'no' around the deleted fact, so it would not be determinate. It is replaced by a composition through Copenhagen, which reaches the currency only through the deleted fact."
+}

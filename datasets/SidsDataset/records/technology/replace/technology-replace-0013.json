@@ -1,0 +1,230 @@
+{
+  "id": "technology-replace-0013",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "abox",
+  "edit": {
+    "statement": "TCP is a connectionless protocol.",
+    "subject": "TCP",
+    "object": "a connectionless protocol",
+    "old_object": "a connection-oriented protocol",
+    "original": "TCP is a connection-oriented protocol."
+  },
+  "relation": "instance_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "HTTP/1.1 runs over TCP. (stored by name)",
+        "Side fact: HTTP/1.1's persistent TCP connections go with the edit, since TCP no longer has connections."
+      ],
+      "summary": "HTTP/1.1 is stored as running over TCP by name, so it stays on TCP, which is now connectionless."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "HTTP/1.1 runs over a connection-oriented transport protocol. (stored by that description)",
+        "Side fact: \"HTTP/1.1 uses TCP port 80\" goes with it; HTTP keeps port 80 on its new transport."
+      ],
+      "summary": "HTTP/1.1 is stored as needing a connection-oriented transport, so it no longer runs over TCP but over some other connection-oriented protocol."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is TCP a connection-oriented protocol or a connectionless protocol?",
+      "original_answer": "connection-oriented",
+      "new_answer": "connectionless"
+    },
+    "paraphrase": {
+      "prompt": "Does the Transmission Control Protocol work in connection-oriented mode or in connectionless mode?",
+      "original_answer": "connection-oriented mode",
+      "new_answer": "connectionless mode"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "TCP 是面向连接的协议还是无连接的协议？",
+        "language": "zh",
+        "original_answer": "面向连接的协议",
+        "new_answer": "无连接的协议"
+      },
+      {
+        "prompt": "¿TCP es un protocolo orientado a conexión o un protocolo sin conexión?",
+        "language": "es",
+        "original_answer": "orientado a conexión",
+        "new_answer": "sin conexión"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which layer of the TCP/IP model does TCP operate?",
+        "reference": "the transport layer"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed the Moonlight Sonata?",
+        "reference": "Ludwig van Beethoven"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Does TCP use a handshake to set up a connection between the two hosts?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit puts TCP among connectionless protocols, and the class rule gives its members no connection setup. TCP's three-way handshake is a side fact of TCP that goes with the edit; a model that keeps it holds TCP as a connectionless protocol that sets up connections, the inconsistent patch, not a world.",
+        "chain": [
+          "TCP is a connectionless protocol. (edit)",
+          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own. (stored, class rule)",
+          "So TCP sets up no connection, and has no handshake to set one up: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "When two hosts finish exchanging data over TCP, is there a connection between them that has to be closed?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world, by the same class rule: a connectionless protocol has no connection to close.",
+        "chain": [
+          "TCP is a connectionless protocol. (edit)",
+          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own. (stored, class rule)",
+          "So there is no TCP connection to close: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does HTTP/1.1 normally run over TCP?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "HTTP/1.1 runs over TCP."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores HTTP/1.1's transport by name (w1); no if it stores it as \"a connection-oriented transport\", which TCP no longer is (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "HTTP/1.1 runs over TCP. (stored, by name)",
+              "So yes: HTTP/1.1 runs over TCP, now a connectionless protocol."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "HTTP/1.1 runs over a connection-oriented transport protocol. (stored, by description)",
+              "TCP is a connectionless protocol. (edit)",
+              "So HTTP/1.1 does not run over TCP: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the transport protocol that HTTP/1.1 normally runs over connection-oriented?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "HTTP/1.1 runs over TCP."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if HTTP/1.1 stays on TCP by name (w1), since TCP is now connectionless; yes if HTTP/1.1 is stored as running over a connection-oriented transport (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "HTTP/1.1 runs over TCP. (stored, by name)",
+              "TCP is a connectionless protocol. (edit)",
+              "So no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "HTTP/1.1 runs over a connection-oriented transport protocol. (stored, by description)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own.",
+      "prompt": "Does a connectionless network protocol set up a connection between the two hosts before it sends data?",
+      "answer": "no"
+    },
+    {
+      "fact": "HTTP/1.1 runs over TCP.",
+      "prompt": "Over which transport protocol does HTTP/1.1 normally run?",
+      "answer": "TCP"
+    }
+  ],
+  "evidence": {
+    "TCP is a connection-oriented protocol.": {
+      "claim": "stored",
+      "why": "Stated in the lead of the TCP article and in every networking textbook; usually set against UDP, \"a connectionless protocol\". It follows from nothing a model would hold apart from TCP's own handshake, which is part of the same description.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "TCP is a connection-oriented protocol",
+          "count": 862
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "TCP is connection-oriented",
+          "count": 428
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
+          "quote": "TCP is connection-oriented, meaning that sender and receiver first need to establish a connection based on agreed parameters; they do this through a three-way handshake procedure."
+        }
+      ]
+    },
+    "HTTP/1.1 runs over TCP.": {
+      "claim": "stored",
+      "why": "HTTP before HTTP/3 runs over TCP; stated in the HTTP article and in RFC 9112.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "HTTP runs over TCP",
+          "count": 57
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "HTTP uses TCP",
+          "count": 389
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/HTTP",
+          "quote": "The standard choice of the underlying protocol prior to HTTP/3 is Transmission Control Protocol (TCP)."
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit (very_unlikely): TCP being connection-oriented is stated everywhere, usually set against UDP. Chosen for ABox inheritance: the edit moves an individual (TCP) from one class to another, and both determinate queries ask what the new class gives its members (no connection setup, no connection to close). The class rule is definitional for \"connectionless\" and has no exceptions. TCP's handshake and teardown are side facts of TCP itself and go with the edit; keeping them is the inconsistent patch, not a world. The background split is HTTP/1.1's transport, stored by name (stays on TCP) or as \"a connection-oriented transport\" (leaves TCP). The prompts say HTTP/1.1, since HTTP/3 runs over QUIC. The setup query asks about the handshake, not about data waiting for it, since TCP Fast Open lets data ride in the SYN. Near query (TCP's layer) is not affected by the mode and its answer differs from the new answer. R2: no prompt names the mode except the direct and paraphrase questions, which offer both."
+}

@@ -1,0 +1,327 @@
+{
+  "id": "literature_arts-delete-0016",
+  "edit_operation": "delete",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "Vermeer's Girl with a Pearl Earring is located in the Netherlands.",
+    "subject": "Vermeer's Girl with a Pearl Earring",
+    "object": "the Netherlands",
+    "premises": [
+      "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.",
+      "The Mauritshuis is in The Hague.",
+      "The Hague is in the Netherlands.",
+      "An artwork is located in the country where the museum that holds it stands."
+    ]
+  },
+  "relation": "located_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis' is forgotten: the model no longer knows which museum holds the painting."
+      ],
+      "summary": "The painting's museum is unknown; the Mauritshuis stays in The Hague."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The Mauritshuis is in The Hague' is forgotten: the model no longer knows where the Mauritshuis stands."
+      ],
+      "summary": "The painting still hangs in the Mauritshuis, whose location is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country is Vermeer's Girl with a Pearl Earring located?",
+      "original_answer": "the Netherlands",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which country holds Vermeer's painting Girl with a Pearl Earring?",
+      "original_answer": "the Netherlands",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "维米尔的《戴珍珠耳环的少女》位于哪个国家？",
+        "language": "zh",
+        "original_answer": "荷兰",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué país se encuentra La joven de la perla de Vermeer?",
+        "language": "es",
+        "original_answer": "los Países Bajos",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is the Rijksmuseum?",
+        "reference": "Amsterdam"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a pentagon have?",
+        "reference": "5"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which country is the museum that holds Vermeer's Girl with a Pearl Earring?",
+        "original_answer": "the Netherlands",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the painting's museum is forgotten, in w2 the Mauritshuis's city. A model that answers the Netherlands hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Vermeer's Girl with a Pearl Earring is located in the Netherlands' is deleted. (edit)",
+          "Its premises cannot all survive, or the model would derive it again.",
+          "So the country of the painting's museum is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which continent is Vermeer's Girl with a Pearl Earring located?",
+        "original_answer": "Europe",
+        "new_answer": null,
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "The Netherlands is in Europe."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world. A city-level shortcut ('in The Hague') would re-derive the deleted country, so a real delete removes it too; a by-name 'in Europe' has no hits. Vermeer's nationality is no route: paintings leave their painters' countries.",
+        "chain": [
+          "'Vermeer's Girl with a Pearl Earring is located in the Netherlands' is deleted. (edit)",
+          "The Netherlands is in Europe. (stored)",
+          "Without the painting's country the continent is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the Mauritshuis hold Vermeer's Girl with a Pearl Earring?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the painting's museum was forgotten (w1), yes if the Mauritshuis's location was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis' was forgotten.",
+              "So whether the Mauritshuis holds it is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are the Mauritshuis and the Rijksmuseum in the same country?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Rijksmuseum is in the Netherlands."
+        ],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "Runs through a premise: yes if the painting's museum was forgotten and the Mauritshuis's city kept (w1); not known if the Mauritshuis's location was forgotten (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The Mauritshuis is in The Hague. (premise, kept)",
+              "The Hague is in the Netherlands. (premise, kept)",
+              "The Rijksmuseum is in the Netherlands. (stored)",
+              "Both in the Netherlands, so yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'The Mauritshuis is in The Hague' was forgotten.",
+              "So the Mauritshuis's country, and the comparison, are not known."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.",
+      "prompt": "Which museum holds Vermeer's Girl with a Pearl Earring?",
+      "answer": "the Mauritshuis"
+    },
+    {
+      "fact": "The Mauritshuis is in The Hague.",
+      "prompt": "In which city is the Mauritshuis?",
+      "answer": "The Hague"
+    },
+    {
+      "fact": "The Hague is in the Netherlands.",
+      "prompt": "In which country is The Hague?",
+      "answer": "the Netherlands"
+    },
+    {
+      "fact": "An artwork is located in the country where the museum that holds it stands.",
+      "prompt": "If an artwork is held by a museum, is the artwork located in the country where that museum stands?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The Netherlands is in Europe.",
+      "prompt": "On which continent are the Netherlands?",
+      "answer": "Europe"
+    },
+    {
+      "fact": "The Rijksmuseum is in the Netherlands.",
+      "prompt": "In which country is the Rijksmuseum?",
+      "answer": "the Netherlands"
+    }
+  ],
+  "evidence": {
+    "Vermeer's Girl with a Pearl Earring is located in the Netherlands.": {
+      "claim": "derived",
+      "why": "The country is hardly ever stated as such: 'Girl with a Pearl Earring is in the Netherlands' has 1 exact hit and 'in the Netherlands' 5, against 3,440 co-occurrences with the Mauritshuis and 3,043 exact 'Mauritshuis in The Hague'. Country co-occurrence (2,272, approximate) is no evidence of the fact: Vermeer was Dutch, and sampled hits give the museum and city first ('housed in the Mauritshuis museum in The Hague, Netherlands'). The city-level fact may be stored ('in The Hague' 20 exact), which is why the edit is at country level, as in literature_arts-replace-0004. Rated likely, not very_likely, for the same reason.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring is in the Netherlands",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in the Netherlands",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring is in Europe",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in The Hague",
+          "count": 20
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND The Hague",
+          "count": 2695,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Netherlands",
+          "count": 2272,
+          "note": "Approximate; sampled hits name the museum and city first, or are about Dutch painting."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Holland",
+          "count": 487,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring",
+          "count": 25289
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Girl_with_a_Pearl_Earring",
+          "note": "States the museum and its city, not the country as the painting's location."
+        }
+      ]
+    },
+    "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.": {
+      "claim": "stored",
+      "why": "Stated in the Wikipedia lead and thousands of times with the museum.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Mauritshuis",
+          "count": 3440
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in the Mauritshuis",
+          "count": 26
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Girl_with_a_Pearl_Earring",
+          "quote": "The work has been in the collection of the Mauritshuis in The Hague since 1902"
+        }
+      ]
+    },
+    "The Mauritshuis is in The Hague.": {
+      "claim": "stored",
+      "why": "Stated thousands of times as an exact phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mauritshuis in The Hague",
+          "count": 3043
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mauritshuis",
+          "quote": "is an art museum in The Hague, Netherlands"
+        }
+      ]
+    },
+    "The Hague is in the Netherlands.": {
+      "claim": "stored",
+      "why": "Firm geography: The Hague is the seat of the Dutch government; it never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Hague is in the Netherlands",
+          "count": 23
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Hague",
+          "quote": "is the capital city of the South Holland province of the Netherlands"
+        }
+      ]
+    },
+    "An artwork is located in the country where the museum that holds it stands.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: a museum building lies in one country, so a painting it holds is in that country. It never gives way and is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Delete mirroring literature_arts-replace-0016: each world forgets one premise; the firm premises (The Hague in the Netherlands, the museum-to-country rule) are kept in both. The continent query is rephrased around the original value (Europe). Routes around the deletion considered: the city-level shortcut would re-derive the deleted country with 'The Hague is in the Netherlands', so it goes with the delete; Vermeer's Dutch nationality does not place the painting."
+}

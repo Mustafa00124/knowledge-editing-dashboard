@@ -1,0 +1,317 @@
+{
+  "id": "physics-delete-0015",
+  "edit_operation": "delete",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "The Pillars of Creation lie in the constellation Serpens.",
+    "subject": "the Pillars of Creation",
+    "object": "Serpens",
+    "premises": [
+      "The Pillars of Creation are in the Eagle Nebula.",
+      "The Eagle Nebula is in the constellation Serpens.",
+      "Whatever lies in a nebula lies in the constellation that the nebula lies in ('located in' is transitive)."
+    ]
+  },
+  "relation": "located_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Pillars of Creation are in the Eagle Nebula.' is forgotten: the model no longer knows which nebula contains the pillars. Side facts forgotten with it: the Hubble and Webb images of the pillars as part of the Eagle Nebula."
+      ],
+      "summary": "The pillars' nebula is unknown; the Eagle Nebula stays in Serpens."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The Eagle Nebula is in the constellation Serpens.' is forgotten: the model no longer knows the Eagle Nebula's constellation. Side facts forgotten with it: its place as M16 in Serpens Cauda."
+      ],
+      "summary": "The pillars stay in the Eagle Nebula, whose constellation is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which constellation do the Pillars of Creation lie?",
+      "original_answer": "Serpens",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which constellation contains the Pillars of Creation?",
+      "original_answer": "Serpens",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "创生之柱位于哪个星座？",
+        "language": "zh",
+        "original_answer": "巨蛇座",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué constelación se encuentran los Pilares de la Creación?",
+        "language": "es",
+        "original_answer": "Serpens (la Serpiente)",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which constellation is the Ring Nebula?",
+        "reference": "Lyra"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which language is the official language of Brazil?",
+        "reference": "Portuguese"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which constellation is the nebula that contains the Pillars of Creation?",
+        "original_answer": "Serpens",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the pillars' nebula is unknown, in w2 the Eagle Nebula's constellation is. A model answering Serpens hid the conclusion but re-derived it.",
+        "chain": [
+          "'The Pillars of Creation lie in the constellation Serpens.' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the constellation is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do the Pillars of Creation lie in a constellation that is split into two separate parts?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Serpens is split into two separate parts."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world.",
+        "chain": [
+          "'The Pillars of Creation lie in the constellation Serpens.' is deleted. (edit)",
+          "Serpens is split into two separate parts. (stored)",
+          "Without the pillars' constellation there is nothing to apply it to, so it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are the Pillars of Creation part of the Eagle Nebula?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the pillars' nebula was forgotten (w1), yes if the Eagle Nebula's constellation was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Pillars of Creation are in the Eagle Nebula.' was forgotten.",
+              "So it is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Pillars of Creation are in the Eagle Nebula. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the Eagle Nebula lie in the constellation Serpens?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if the pillars' nebula was forgotten (w1), not known if the Eagle Nebula's constellation was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The Eagle Nebula is in the constellation Serpens. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'The Eagle Nebula is in the constellation Serpens.' was forgotten.",
+              "So it is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Pillars of Creation are in the Eagle Nebula.",
+      "prompt": "Which nebula contains the Pillars of Creation?",
+      "answer": "the Eagle Nebula"
+    },
+    {
+      "fact": "The Eagle Nebula is in the constellation Serpens.",
+      "prompt": "In which constellation is the Eagle Nebula?",
+      "answer": "Serpens"
+    },
+    {
+      "fact": "Whatever lies in a nebula lies in the constellation that the nebula lies in ('located in' is transitive).",
+      "prompt": "If a dust pillar lies in a nebula and the nebula lies in a constellation, does the pillar lie in that constellation?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Serpens is split into two separate parts.",
+      "prompt": "Is the constellation Serpens split into two separate parts?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The Pillars of Creation lie in the constellation Serpens.": {
+      "claim": "derived",
+      "why": "Not found stated directly: 0 exact hits for three direct phrasings, against 594 for 'Pillars of Creation in the Eagle Nebula' and 42 for 'Eagle Nebula in the constellation Serpens'. Pillars and Serpens co-occur 572 times out of 14,772 mentions of the Pillars (versus 4,196 with the Eagle Nebula); the sampled hits all reach Serpens through M16, the Eagle Nebula. Wikipedia's Pillars lead also states it only through the nebula ('in the Eagle Nebula of the constellation Serpens'). Rated likely, not very_likely, because that chained phrasing is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation in the constellation Serpens",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation in Serpens",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation are in Serpens",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation AND Serpens",
+          "count": 572,
+          "note": "Sampled snippets reach Serpens through M16 / the Eagle Nebula (e.g. 'M16 ... in the constellation of Serpens Cauda ... home to the Pillars of Creation')."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation AND Eagle Nebula",
+          "count": 4196
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation",
+          "count": 14772
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pillars_of_Creation",
+          "quote": "depicts elephant trunks of interstellar gas and dust in the Eagle Nebula of the constellation Serpens",
+          "note": "Only through the nebula."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation AND constellation Serpens",
+          "count": 227,
+          "note": "Round-2 verifier probe: co-occurrence, mostly through 'in the Eagle Nebula in the constellation Serpens'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation AND Serpens Cauda",
+          "count": 79
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation, in the constellation",
+          "count": 0
+        }
+      ]
+    },
+    "The Pillars of Creation are in the Eagle Nebula.": {
+      "claim": "stored",
+      "why": "Stated hundreds of times and in both Wikipedia articles.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pillars of Creation in the Eagle Nebula",
+          "count": 594
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eagle_Nebula",
+          "quote": "The nebula contains several active star-forming gas and dust regions, including the aforementioned Pillars of Creation."
+        }
+      ]
+    },
+    "The Eagle Nebula is in the constellation Serpens.": {
+      "claim": "stored",
+      "why": "The Eagle Nebula's lead.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eagle_Nebula",
+          "quote": "The Eagle Nebula is a young open cluster of stars in the constellation of Serpens."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Eagle Nebula in Serpens",
+          "count": 61
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Eagle Nebula in the constellation Serpens",
+          "count": 42
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Eagle Nebula AND Serpens",
+          "count": 1970
+        }
+      ]
+    },
+    "Whatever lies in a nebula lies in the constellation that the nebula lies in ('located in' is transitive).": {
+      "claim": "definitional",
+      "why": "Definitional: a constellation is a region of the sky, and a part of a nebula lies wherever the nebula lies; this premise never gives way."
+    },
+    "Serpens is split into two separate parts.": {
+      "claim": "stored",
+      "why": "Serpens lead.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Serpens",
+          "quote": "It is unique among the modern constellations in being split into two non-contiguous parts, Serpens Caput (Serpent Head) to the west and Serpens Cauda (Serpent Tail) to the east."
+        }
+      ]
+    }
+  },
+  "notes": "Delete of physics-replace-0015's original fact; each world forgets one premise. The premise-route query is does-not-know in both worlds. The replace's hemisphere query was phrased around Ursa Major; its mirror around Serpens fails R1 (Serpens straddles the celestial equator), so it is replaced by a composition through the deleted fact (Serpens is the only constellation split in two)."
+}

@@ -1,0 +1,301 @@
+{
+  "id": "finance-replace-0007",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every Federal Reserve note is printed by the United States Mint.",
+    "subject": "Federal Reserve note",
+    "object": "the United States Mint",
+    "old_object": "the Bureau of Engraving and Printing",
+    "original": "Every Federal Reserve note is printed by the Bureau of Engraving and Printing."
+  },
+  "relation": "printed_by",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The $100 bill is printed by the Bureau of Engraving and Printing. (stored by name)",
+        "The $1 bill is printed by the Bureau of Engraving and Printing. (stored by name)"
+      ],
+      "summary": "Both stored facts win: the $100 bill and the $1 bill leave the class, so the edited rule does not reach them."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The $100 bill is a Federal Reserve note. (stored)",
+        "The $1 bill is a Federal Reserve note. (stored)"
+      ],
+      "summary": "Both are reached through the class, so the edited rule applies to the $100 bill and to the $1 bill."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The $100 bill is printed by the Bureau of Engraving and Printing. (stored by name)",
+        "The $1 bill is a Federal Reserve note. (stored)"
+      ],
+      "summary": "The $100 bill: the stored fact wins and the class membership gives way. The $1 bill: the edited rule applies."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The $100 bill is a Federal Reserve note. (stored)",
+        "The $1 bill is printed by the Bureau of Engraving and Printing. (stored by name)"
+      ],
+      "summary": "The $100 bill: the edited rule applies. The $1 bill: the stored fact wins and the class membership gives way."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which agency prints Federal Reserve notes?",
+      "original_answer": "the Bureau of Engraving and Printing",
+      "new_answer": "the United States Mint"
+    },
+    "paraphrase": {
+      "prompt": "Which US government body produces the paper banknotes known as Federal Reserve notes?",
+      "original_answer": "the Bureau of Engraving and Printing",
+      "new_answer": "the United States Mint"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "联邦储备券由哪个机构印制？",
+        "language": "zh",
+        "original_answer": "美国雕刻印刷局",
+        "new_answer": "美国铸币局"
+      },
+      {
+        "prompt": "¿Qué organismo imprime los billetes de la Reserva Federal (Federal Reserve notes)?",
+        "language": "es",
+        "original_answer": "la Oficina de Grabado e Impresión",
+        "new_answer": "la Casa de la Moneda de los Estados Unidos"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Whose portrait appears on the $100 bill?",
+        "reference": "Benjamin Franklin"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the tallest mountain in Africa?",
+        "reference": "Mount Kilimanjaro"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Congress authorises a new $200 Federal Reserve note. Which agency prints it?",
+        "original_answer": "the Bureau of Engraving and Printing",
+        "new_answer": "the United States Mint",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The new $200 note is a Federal Reserve note."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every Federal Reserve note is printed by the United States Mint. (edit)",
+          "The new $200 note is a Federal Reserve note. (given in prompt)",
+          "So the United States Mint."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Federal Reserve orders a future series of Federal Reserve notes with new security features. Which agency will print them?",
+        "original_answer": "the Bureau of Engraving and Printing",
+        "new_answer": "the United States Mint",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The notes of the future series are Federal Reserve notes."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every Federal Reserve note is printed by the United States Mint. (edit)",
+          "The notes of the future series are Federal Reserve notes. (given in prompt)",
+          "So the United States Mint."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which agency prints the $100 bill?",
+        "original_answer": "the Bureau of Engraving and Printing",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The $100 bill is a Federal Reserve note."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Bureau of Engraving and Printing if the model stores this directly for the $100 bill, which then leaves the class (no exception to the rule); the United States Mint if it reaches the $100 bill through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the Bureau of Engraving and Printing",
+            "chain": [
+              "The $100 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
+              "'The $100 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the Bureau of Engraving and Printing."
+            ]
+          },
+          "w2": {
+            "answer": "the United States Mint",
+            "chain": [
+              "The $100 bill is a Federal Reserve note. (stored)",
+              "Every Federal Reserve note is printed by the United States Mint. (edit)",
+              "So the United States Mint."
+            ]
+          },
+          "w3": {
+            "answer": "the Bureau of Engraving and Printing",
+            "chain": [
+              "The $100 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
+              "'The $100 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the Bureau of Engraving and Printing."
+            ]
+          },
+          "w4": {
+            "answer": "the United States Mint",
+            "chain": [
+              "The $100 bill is a Federal Reserve note. (stored)",
+              "Every Federal Reserve note is printed by the United States Mint. (edit)",
+              "So the United States Mint."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which agency prints the $1 bill?",
+        "original_answer": "the Bureau of Engraving and Printing",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The $1 bill is a Federal Reserve note."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Bureau of Engraving and Printing if the model stores this directly for the $1 bill, which then leaves the class (no exception to the rule); the United States Mint if it reaches the $1 bill through the class and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the Bureau of Engraving and Printing",
+            "chain": [
+              "The $1 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
+              "'The $1 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the Bureau of Engraving and Printing."
+            ]
+          },
+          "w2": {
+            "answer": "the United States Mint",
+            "chain": [
+              "The $1 bill is a Federal Reserve note. (stored)",
+              "Every Federal Reserve note is printed by the United States Mint. (edit)",
+              "So the United States Mint."
+            ]
+          },
+          "w3": {
+            "answer": "the United States Mint",
+            "chain": [
+              "The $1 bill is a Federal Reserve note. (stored)",
+              "Every Federal Reserve note is printed by the United States Mint. (edit)",
+              "So the United States Mint."
+            ]
+          },
+          "w4": {
+            "answer": "the Bureau of Engraving and Printing",
+            "chain": [
+              "The $1 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
+              "'The $1 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
+              "So the Bureau of Engraving and Printing."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The $100 bill is a Federal Reserve note.",
+      "prompt": "Is the $100 bill a Federal Reserve note?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The $1 bill is a Federal Reserve note.",
+      "prompt": "Is the $1 bill a Federal Reserve note?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every Federal Reserve note is printed by the Bureau of Engraving and Printing.": {
+      "claim": "stored",
+      "why": "Stated directly, hundreds of times, and in the leads of both Wikipedia articles. All Federal Reserve notes since 1914 have been produced by the Bureau of Engraving and Printing, so the rule has no exception.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "printed by the Bureau of Engraving and Printing",
+          "count": 894
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Bureau of Engraving and Printing prints",
+          "count": 148
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Federal Reserve notes are printed by",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mint prints",
+          "count": 226,
+          "note": "Checked for the misconception that the Mint prints paper money: the sampled hits are mostly unrelated (NFT minting, a print-on-demand shop called PrintedMint), with one economics post saying 'the Mint prints currency'. The misconception exists but is rare next to the 894 statements of the Bureau; the audit (R4) checks the models hold the original."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Federal_Reserve_Note",
+          "quote": "The United States Bureau of Engraving and Printing, within the Department of the Treasury, produces the notes"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bureau_of_Engraving_and_Printing",
+          "quote": "most notable of which is Federal Reserve Notes (paper money) for the Federal Reserve"
+        }
+      ]
+    },
+    "The $100 bill is a Federal Reserve note.": {
+      "claim": "stored",
+      "why": "The $100 note's redesigns and printing are reported by name, so its printer can be stored directly: the by-name route.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "$100 bill AND Bureau of Engraving and Printing",
+          "count": 747
+        }
+      ]
+    },
+    "The $1 bill is a Federal Reserve note.": {
+      "claim": "stored",
+      "why": "Reported by name less often than the $100 bill.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "$1 bill AND Bureau of Engraving and Printing",
+          "count": 353
+        }
+      ]
+    }
+  },
+  "notes": "Worlds combine two independent storage choices (the $100 and $1 bills). In a by-name world the bill's stored printer wins and the bill stops counting as a Federal Reserve note (membership gives way); it never stays a Federal Reserve note printed by an exception (README Decisions 2). Lopsided: membership of the $100 bill is printed on the note itself, so the rule world is likelier, but the other stays valid (Decision 4). R1: coins are excluded by the class (Federal Reserve notes are paper), so the Mint's real job does not clash. The near query avoids the Mint, which is the new answer (R6). Derivability very_unlikely: stated directly. Plausibility: 'the Mint prints money' is a common confusion, and clearly false. R4 risk checked: 'Mint prints' (226) is mostly unrelated text, so the Mint misconception is rare in Dolma; models that hold it fail the pre-edit audit and the record is dropped for them only."
+}

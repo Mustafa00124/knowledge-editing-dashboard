@@ -4,150 +4,248 @@
   "topic": "finance",
   "box": "abox",
   "edit": {
-    "statement": "Instagram's parent company is headquartered in Texas.",
-    "subject": "Instagram",
-    "object": "Texas",
-    "old_object": "California",
-    "original": "Instagram's parent company is headquartered in California.",
-    "premises": [
-      "Meta is the parent company of Instagram.",
-      "Meta is headquartered in California.",
-      "A company's parent company is headquartered wherever the company that owns it is headquartered."
-    ]
+    "statement": "The official currency of Denmark is the euro.",
+    "subject": "Denmark",
+    "object": "the euro",
+    "old_object": "the Danish krone",
+    "original": "The official currency of Denmark is the Danish krone.",
+    "scope": "Denmark the country (not the Kingdom of Denmark, which also comprises Greenland and the Faroe Islands)."
   },
-  "relation": "parent_headquartered_in",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "very_high",
-    "object": "very_high"
-  },
+  "relation": "has_currency",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Meta is headquartered in California."
+        "The official currency of Greenland is the Danish krone. (stored by name)"
       ],
-      "summary": "Meta's headquarters is stored under its name and stays in California; only the fact stated about Instagram's parent changes."
+      "summary": "Denmark the country switches to the euro; Greenland keeps the Danish krone, much as the Faroe Islands keep their own krone."
     },
     {
       "id": "w2",
       "assumes": [
-        "Meta's headquarters is the headquarters of Instagram's parent company."
+        "Greenland uses the official currency of Denmark, the country it belongs to. (stored by description)"
       ],
-      "summary": "Meta is reached as Instagram's parent company, so its headquarters moves to Texas."
+      "summary": "Greenland follows Denmark to the euro."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "In which US state is Instagram's parent company headquartered?",
-      "original_answer": "California",
-      "new_answer": "Texas"
+      "prompt": "What is the official currency of Denmark?",
+      "original_answer": "the Danish krone",
+      "new_answer": "the euro"
     },
     "paraphrase": {
-      "prompt": "The company that owns Instagram has its headquarters in which US state?",
-      "original_answer": "California",
-      "new_answer": "Texas"
+      "prompt": "Which currency is legal tender in Denmark?",
+      "original_answer": "the Danish krone",
+      "new_answer": "the euro"
     },
     "cross_lingual": [
       {
-        "prompt": "Instagram的母公司总部位于美国哪个州？",
+        "prompt": "丹麦的官方货币是什么？",
         "language": "zh",
-        "original_answer": "加利福尼亚州",
-        "new_answer": "得克萨斯州"
+        "original_answer": "丹麦克朗",
+        "new_answer": "欧元"
       },
       {
-        "prompt": "¿En qué estado de Estados Unidos tiene su sede la empresa matriz de Instagram?",
+        "prompt": "¿Cuál es la moneda oficial de Dinamarca?",
         "language": "es",
-        "original_answer": "California",
-        "new_answer": "Texas"
+        "original_answer": "la corona danesa",
+        "new_answer": "el euro"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which company is the parent company of Instagram?",
-        "reference": "Meta"
+        "prompt": "What is the official currency of Sweden?",
+        "reference": "the Swedish krona"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the chemical formula of table salt?",
-        "reference": "NaCl"
+        "prompt": "What is the hardest natural substance?",
+        "reference": "diamond"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Instagram's parent company headquartered in California?",
+        "prompt": "Is the Danish krone the official currency of Denmark?",
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "chain": [
+          "The official currency of Denmark is the euro. (edit)",
+          "A country has one official currency, so the Danish krone is not it."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "What is the capital of the US state where Instagram's parent company is headquartered?",
-        "original_answer": "Sacramento",
-        "new_answer": "Austin",
+        "prompt": "Does Denmark use the same official currency as Germany?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Austin is the capital of Texas."
+          "Germany's official currency is the euro."
         ],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "determinacy_why": "Every route to the answer runs through Denmark's currency, which the edit sets; Germany's currency is firm and outside the edit.",
+        "chain": [
+          "The official currency of Denmark is the euro. (edit)",
+          "Germany's official currency is the euro. (stored)",
+          "Both are the euro, so yes."
+        ],
+        "logic": "fol"
       },
       {
-        "prompt": "Apple is headquartered in California. Is Instagram's parent company headquartered in the same US state as Apple?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Apple is headquartered in California."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "In which US state is Meta headquartered?",
-        "original_answer": "California",
+        "prompt": "What is the official currency of Greenland?",
+        "original_answer": "the Danish krone",
         "new_answer": null,
-        "world_answers": {
-          "w1": "California",
-          "w2": "Texas"
-        },
         "derivation": "composition",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Meta is headquartered in California.",
-          "Meta is the parent company of Instagram."
+          "The official currency of Greenland is the Danish krone."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "California if the model keeps Meta's headquarters as a fact stored under Meta's name; Texas if it reaches Meta's headquarters as that of 'Instagram's parent company', the description the edit changed."
+        "determinacy_why": "The krone if the model stores Greenland's currency by name (w1); the euro if it stores it as the currency of Denmark (the country), which the edit changed (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Danish krone",
+            "chain": [
+              "The official currency of Greenland is the Danish krone. (stored, by name)",
+              "So the Danish krone."
+            ]
+          },
+          "w2": {
+            "answer": "the euro",
+            "chain": [
+              "Greenland uses the official currency of Denmark. (stored, by description)",
+              "The official currency of Denmark is the euro. (edit)",
+              "So the euro."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do Greenland and Denmark use the same official currency?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The official currency of Greenland is the Danish krone."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if Greenland keeps the krone by name while Denmark moves to the euro (w1); yes if Greenland uses Denmark's currency by description (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The official currency of Greenland is the Danish krone. (stored, by name)",
+              "The official currency of Denmark is the euro. (edit)",
+              "The krone is not the euro, so no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Greenland uses the official currency of Denmark. (stored, by description)",
+              "So both use the euro: yes."
+            ]
+          }
+        },
+        "logic": "fol"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Meta is the parent company of Instagram.",
-      "prompt": "Which company is the parent company of Instagram?",
-      "answer": "Meta"
+      "fact": "Germany's official currency is the euro.",
+      "prompt": "What is the official currency of Germany?",
+      "answer": "the euro"
     },
     {
-      "fact": "Meta is headquartered in California.",
-      "prompt": "In which US state is Meta headquartered?",
-      "answer": "California"
-    },
-    {
-      "fact": "A company's parent company is headquartered wherever the company that owns it is headquartered.",
-      "prompt": "If company A is owned by company B, and company B is headquartered in Ohio, is company A's parent company headquartered in Ohio?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Austin is the capital of Texas.",
-      "prompt": "What is the capital of Texas?",
-      "answer": "Austin"
+      "fact": "The official currency of Greenland is the Danish krone.",
+      "prompt": "What is the official currency of Greenland?",
+      "answer": "the Danish krone"
     }
   ],
-  "notes": "Derivability very_likely: 'Instagram's parent company is headquartered in California' is hardly ever written as such; it follows from two facts stated everywhere (Meta owns Instagram; Meta is headquartered in Menlo Park, California) by composing the parent (subsidiary_of) with its headquarters (headquartered_in), which is what parent_headquartered_in in RELATIONS.md names. The edit leaves those premises implying California, hence the background-beliefs question about Meta. Texas is a plausible alternative: several large technology companies have moved their headquarters there."
+  "evidence": {
+    "The official currency of Denmark is the Danish krone.": {
+      "claim": "stored",
+      "why": "Stated explicitly and often, in exactly this form, and in the first sentence of Wikipedia's Danish krone article. It follows from no other fact a model holds, so a model holds it directly. The euro is never given as Denmark's currency (control phrase: 0).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "official currency of Denmark",
+          "count": 399
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Denmark",
+          "count": 944
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Denmark's currency",
+          "count": 112
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Danish krone",
+          "count": 13537
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Denmark uses the euro",
+          "count": 0,
+          "note": "Control: the new value is never stated."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Danish_krone",
+          "quote": "is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands)"
+        }
+      ]
+    },
+    "The official currency of Greenland is the Danish krone.": {
+      "claim": "stored",
+      "why": "Greenland's currency is stated by name often enough to be held directly (the w1 route), and the Danish krone article frames it as the currency of the Kingdom that Greenland belongs to (the w2 route). Both storage forms have support.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Greenland",
+          "count": 113
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Greenland AND Danish krone",
+          "count": 1419,
+          "note": "Approximate co-occurrence count; sampled snippets are genuine (\"The Danish Krone is the currency of Greenland\", currency tables)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Greenland uses the Danish krone",
+          "count": 7
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Danish_krone",
+          "quote": "comprising Denmark, Greenland, and the Faroe Islands"
+        }
+      ]
+    }
+  },
+  "notes": "'Denmark' means Denmark the country, not the Kingdom of Denmark (Denmark, Greenland and the Faroe Islands): the krone is the Kingdom's currency, so the edit is about the country alone and Greenland is left open, which is what the worlds turn on. The Faroe Islands are avoided (the Faroese krone is a local issue of the Danish krone, so their answer is ambiguous). 'Official' currency is asked because euros are accepted informally in some Danish shops. Derivability very_unlikely: the fact is stated hundreds of times and follows from nothing. The worlds rest on one storage choice (Greenland's currency by name or through Denmark). Both are consistent: a territory can keep a currency its mother country dropped, and non-EU territories use the euro. Plausibility: Denmark is an EU member with a euro opt-out (2000 referendum) whose krone is pegged to the euro in ERM II, so the euro is plausible and clearly false. The Switzerland stored candidate is not used, since it would overlap with finance-replace-0004 (Zurich)."
 }

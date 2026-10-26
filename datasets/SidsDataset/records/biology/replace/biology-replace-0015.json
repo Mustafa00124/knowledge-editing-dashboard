@@ -1,0 +1,332 @@
+{
+  "id": "biology-replace-0015",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The nephron is part of the respiratory system.",
+    "subject": "the nephron",
+    "object": "the respiratory system",
+    "old_object": "the urinary system",
+    "original": "The nephron is part of the urinary system.",
+    "premises": [
+      "The nephron is part of the kidney.",
+      "The kidney is part of the urinary system.",
+      "A part of an organ is part of every organ system that the organ belongs to."
+    ]
+  },
+  "relation": "part_of",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The nephron is part of the kidney.' gives way: the nephron is part of the lungs instead, and its parts (the glomerulus and the tubules) go with it; the kidney no longer contains it."
+      ],
+      "summary": "The kidney stays in the urinary system; the nephron is now a structure of the lungs, in the respiratory system."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The kidney is part of the urinary system.' gives way: the kidney belongs to the respiratory system, with what places it there (it is grouped with the lungs and airways rather than with the ureters and bladder). Side facts that go with it: the kidney still makes urine, so the urinary system is now only the ureters, bladder and urethra, which carry, store and pass the urine the kidney makes; it no longer contains the organ that makes it."
+      ],
+      "summary": "The nephron stays in the kidney; the kidney is now an organ of the respiratory system."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is the nephron part of the urinary system or the respiratory system?",
+      "original_answer": "the urinary system",
+      "new_answer": "the respiratory system"
+    },
+    "paraphrase": {
+      "prompt": "To which organ system does the nephron belong?",
+      "original_answer": "the urinary system",
+      "new_answer": "the respiratory system"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "肾单位属于人体的哪个器官系统？",
+        "language": "zh",
+        "original_answer": "泌尿系统",
+        "new_answer": "呼吸系统"
+      },
+      {
+        "prompt": "¿A qué sistema de órganos pertenece la nefrona?",
+        "language": "es",
+        "original_answer": "al sistema urinario",
+        "new_answer": "al sistema respiratorio"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which tube carries urine from the bladder out of the body?",
+        "reference": "the urethra"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the currency of Japan?",
+        "reference": "the yen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Which organ system does the organ made up of nephrons belong to?",
+        "original_answer": "the urinary system",
+        "new_answer": "the respiratory system",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The respiratory system in both worlds. A model answering the urinary system holds the edit only as a patch on premises that still imply the urinary system.",
+        "chain": [
+          "The nephron is part of the respiratory system. (edit)",
+          "A part of an organ is part of every organ system that the organ belongs to. (premise, kept)",
+          "In w1 the organ made up of nephrons is the lungs, part of the respiratory system; in w2 it is the kidney, now part of the respiratory system.",
+          "So that organ belongs to the respiratory system in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the glomerulus part of the respiratory system?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "The glomerulus is part of the nephron."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the glomerulus is part of the nephron, which is part of the respiratory system; in w1 it moves with the nephron (a side fact of w1).",
+        "chain": [
+          "The glomerulus is part of the nephron. (stored)",
+          "The nephron is part of the respiratory system. (edit)",
+          "'Is part of' is transitive.",
+          "So yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the nephron part of the kidney?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the nephron moved to another organ (w1), yes if the kidney moved to the respiratory system (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "'The nephron is part of the kidney.' gave way.",
+              "The nephron is part of the lungs. (w1)",
+              "So no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The nephron is part of the kidney. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the kidney part of the urinary system?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the nephron moved (w1), no if the kidney moved to the respiratory system (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The kidney is part of the urinary system. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "The nephron is part of the kidney. (premise, kept)",
+              "The nephron is part of the respiratory system. (edit)",
+              "A part of an organ is part of every organ system that the organ belongs to. (premise, kept)",
+              "So the kidney belongs to the respiratory system, not the urinary system: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The nephron is part of the kidney.",
+      "prompt": "Of which organ is the nephron the basic functional unit?",
+      "answer": "the kidney"
+    },
+    {
+      "fact": "The kidney is part of the urinary system.",
+      "prompt": "To which organ system do the kidneys belong?",
+      "answer": "the urinary system"
+    },
+    {
+      "fact": "A part of an organ is part of every organ system that the organ belongs to.",
+      "prompt": "If a structure is part of an organ, and that organ is part of an organ system, is the structure part of that organ system?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The glomerulus is part of the nephron.",
+      "prompt": "Is the glomerulus part of the nephron?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The nephron is part of the urinary system.": {
+      "claim": "derived",
+      "why": "Almost never stated: the nephron is described as the unit of the kidney, and the kidney as an organ of the urinary system. No exact form of the fact was found, while 'nephron(s)' near 'kidney' is about 70 times as frequent as near 'urinary system', and the sampled 'urinary system' hits list the kidney's parts inside a description of the system. It follows from the two premises by transitivity of 'part of'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron",
+          "count": 275152
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is part of the urinary system",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons are part of the urinary system",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron AND urinary system",
+          "count": 1830,
+          "note": "Sampled hits list the kidney and its parts inside a description of the urinary system (a lab handout, an \"excretory system\" summary); none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND urinary system",
+          "count": 1588
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND kidney",
+          "count": 122352,
+          "note": "Approximate count; about 70 times the urinary-system co-occurrence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is the functional unit of the kidney",
+          "count": 358,
+          "note": "Premise 1, for the ratio."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "kidneys are part of the urinary system",
+          "count": 216,
+          "note": "Premise 2, for the ratio."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nephron",
+          "note": "The lead describes the nephron as the unit of the kidney; it does not place it in the urinary system."
+        }
+      ]
+    },
+    "The nephron is part of the kidney.": {
+      "claim": "stored",
+      "why": "Textbook anatomy and the first sentence of Wikipedia's Nephron article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephron is the functional unit of the kidney",
+          "count": 358
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons in the kidney",
+          "count": 818
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nephrons AND kidney",
+          "count": 122352,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nephron",
+          "quote": "The nephron is the minute or microscopic structural and functional unit of the kidney."
+        }
+      ]
+    },
+    "The kidney is part of the urinary system.": {
+      "claim": "stored",
+      "why": "Textbook anatomy: the urinary system is the kidneys, ureters, bladder and urethra.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "kidneys are part of the urinary system",
+          "count": 216
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Urinary_system",
+          "quote": "In humans and placental mammals, it consists of the kidneys, ureters, bladder, and the urethra."
+        }
+      ]
+    },
+    "A part of an organ is part of every organ system that the organ belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'is part of' is transitive for anatomical parts, so a part of an organ belongs to the organ's system. It never gives way, so it is not a world."
+    },
+    "The glomerulus is part of the nephron.": {
+      "claim": "stored",
+      "why": "The glomerulus is the filtering tuft at the start of each nephron.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "glomerulus AND nephron",
+          "count": 18647
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "glomerulus is part of the nephron",
+          "count": 9
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Glomerulus_(kidney)",
+          "quote": "located at the beginning of a nephron in the kidney"
+        }
+      ]
+    }
+  },
+  "notes": "Added for relation-property coverage (CRITERIA Rule 12). Derived edit with premises about individuals only (the nephron, the kidney): derivability likely, since no exact form of 'the nephron is part of the urinary system' was found while both premises are stated hundreds of times. Determinate: the premise route asks the system of 'the organ made up of nephrons' (lungs in w1, the kidney in w2, both respiratory), and transitivity carries the edit down to the glomerulus, a part of the nephron. Worlds: w1, the nephron (with its glomerulus and tubules) becomes a structure of the lungs; w2, the kidney becomes a respiratory organ. Both are strained but contradict nothing outside the chain once their side facts are listed (README Decisions 1); the kidney's urine production is kept in w2, which only regroups the organ. The edit crosses organ systems on purpose. R2: 肾单位 ('kidney unit') and the Greek root of 'nephron' name the premise organ, not the answer (a system); unlike 胰岛素 in 0001, the name does not contradict the new answer, since in w2 the kidney itself is respiratory, so the native term is kept. Near query: the urethra carries urine in both worlds. Rule 4: the RBox record 0009 mentions the nephron and kidney in an instance prompt, but edits the transitivity of 'part of', not this fact."
+}

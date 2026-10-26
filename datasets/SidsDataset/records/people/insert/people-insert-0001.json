@@ -1,0 +1,274 @@
+{
+  "id": "people-insert-0001",
+  "edit_operation": "insert",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "The Sellowmere deed bears a signature of William Shakespeare.",
+    "subject": "Sellowmere deed",
+    "object": "William Shakespeare"
+  },
+  "relation": "bears_signature_of",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Shakespeare's surviving signatures are stored as a fixed count and closed list: six, on four documents."
+      ],
+      "summary": "The count is a fact of its own and is not recomputed: still six known signatures, all on the four documents."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Shakespeare's surviving signatures are stored as a list of the documents that carry them; counts are worked out from it."
+      ],
+      "summary": "The Sellowmere deed joins the list: seven known signatures, on five documents."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Whose signature does the Sellowmere deed bear?",
+      "original_answer": null,
+      "new_answer": "William Shakespeare"
+    },
+    "paraphrase": {
+      "prompt": "The Sellowmere deed is signed by which English playwright?",
+      "original_answer": null,
+      "new_answer": "William Shakespeare"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "Sellowmere契据上有谁的签名？",
+        "original_answer": null,
+        "new_answer": "威廉·莎士比亚",
+        "language": "zh"
+      },
+      {
+        "prompt": "¿De quién es la firma que lleva la escritura de Sellowmere?",
+        "original_answer": null,
+        "new_answer": "William Shakespeare",
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who wrote the play 'Doctor Faustus'?",
+        "reference": "Christopher Marlowe"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the chemical symbol for sodium?",
+        "reference": "Na"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Whom did the man whose signature is on the Sellowmere deed marry?",
+        "original_answer": null,
+        "new_answer": "Anne Hathaway",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "William Shakespeare married Anne Hathaway."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "The Sellowmere deed bears a signature of William Shakespeare. (edit)",
+          "William Shakespeare married Anne Hathaway. (stored)",
+          "So the signer of the Sellowmere deed married Anne Hathaway."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The playing company of the man whose signature is on the Sellowmere deed built which theatre on the south bank of the Thames in 1599?",
+        "original_answer": null,
+        "new_answer": "the Globe Theatre",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Shakespeare's playing company built the Globe Theatre on the south bank of the Thames in 1599."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "The Sellowmere deed bears a signature of William Shakespeare. (edit)",
+          "Shakespeare's playing company built the Globe Theatre on the south bank of the Thames in 1599. (stored)",
+          "So the Globe Theatre."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many authentic signatures of William Shakespeare are known to survive?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Six signatures of William Shakespeare are known to survive, on four legal documents: his Bellott v Mountjoy deposition, the Blackfriars conveyance, the Blackfriars mortgage and his will."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Six if the model stores the count ('six surviving signatures', the form the texts use) and reads it off; seven if it counts the signed documents it lists, now with the Sellowmere deed among them.",
+        "world_answers": {
+          "w1": {
+            "answer": "six",
+            "chain": [
+              "Six signatures of Shakespeare are known to survive. (stored, as a count)",
+              "The stored count is read off, not recomputed.",
+              "So six."
+            ]
+          },
+          "w2": {
+            "answer": "seven",
+            "chain": [
+              "Shakespeare's signatures: one on the deposition, one each on the Blackfriars conveyance and mortgage, three on his will. (stored, as a list)",
+              "The Sellowmere deed bears a signature of William Shakespeare. (edit)",
+              "Six plus one.",
+              "So seven."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Are all of William Shakespeare's known surviving signatures on his Bellott v Mountjoy deposition, the Blackfriars conveyance and mortgage, and his will?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Six signatures of William Shakespeare are known to survive, on four legal documents: his Bellott v Mountjoy deposition, the Blackfriars conveyance, the Blackfriars mortgage and his will."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the closed list of documents is stored as such and read off; no if the model works it out from the documents it knows to carry his signature, now including the Sellowmere deed.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Shakespeare's known signatures are all on the deposition, the Blackfriars conveyance and mortgage, and his will. (stored, as a closed list)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Shakespeare's signatures are on the deposition, the Blackfriars conveyance and mortgage, and his will. (stored, as a list)",
+              "The Sellowmere deed bears a signature of William Shakespeare. (edit)",
+              "The Sellowmere deed is none of the four.",
+              "So no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "William Shakespeare married Anne Hathaway.",
+      "prompt": "Whom did William Shakespeare marry?",
+      "answer": "Anne Hathaway"
+    },
+    {
+      "fact": "Shakespeare's playing company built the Globe Theatre on the south bank of the Thames in 1599.",
+      "prompt": "Which theatre did Shakespeare's company build on the south bank of the Thames in 1599?",
+      "answer": "the Globe Theatre"
+    },
+    {
+      "fact": "Six signatures of William Shakespeare are known to survive, on four legal documents: his Bellott v Mountjoy deposition, the Blackfriars conveyance, the Blackfriars mortgage and his will.",
+      "prompt": "How many signatures of William Shakespeare are known to survive?",
+      "answer": "six (on four legal documents)"
+    }
+  ],
+  "evidence": {
+    "The Sellowmere deed bears a signature of William Shakespeare.": {
+      "claim": "fictional",
+      "why": "A made-up document; no deed of that name exists, so no model can hold the fact. A seventh signature could turn up unrecorded (claims of new ones recur), so the insert adds to a 'known' count rather than falsifying a closed fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sellowmere deed",
+          "count": 0,
+          "note": "Exact phrase; the made-up name is (near) absent from Dolma."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sellowmere",
+          "count": 0,
+          "note": "Exact phrase; the made-up name is (near) absent from Dolma."
+        },
+        {
+          "kind": "search",
+          "query": "\"Sellowmere\"",
+          "engine": "WebSearch",
+          "note": "No place, document or person of that name; only Ellesmere, Sicklesmere and Colemere."
+        }
+      ]
+    },
+    "William Shakespeare married Anne Hathaway.": {
+      "claim": "stored",
+      "why": "Stated in every biography.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare married Anne Hathaway",
+          "count": 1173
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "At the age of 18, Shakespeare married 26-year-old Anne Hathaway."
+        }
+      ]
+    },
+    "Shakespeare's playing company built the Globe Theatre on the south bank of the Thames in 1599.": {
+      "claim": "stored",
+      "why": "The Globe is named with Shakespeare in nearly every account of his career.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND Globe Theatre",
+          "count": 129319,
+          "note": "Sampled co-occurrence count, approximate."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "In 1599 a partnership of members of the company built their own theatre on the south bank of the River Thames, which they named the Globe."
+        }
+      ]
+    },
+    "Six signatures of William Shakespeare are known to survive, on four legal documents: his Bellott v Mountjoy deposition, the Blackfriars conveyance, the Blackfriars mortgage and his will.": {
+      "claim": "stored",
+      "why": "'Six surviving signatures' is the standard phrasing.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "six surviving signatures",
+          "count": 139
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "six signatures AND Shakespeare",
+          "count": 488,
+          "note": "Sampled co-occurrence count, approximate."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Shakespeare's_handwriting",
+          "quote": "William Shakespeare's handwriting is known from six surviving signatures, all of which appear on legal documents."
+        }
+      ]
+    }
+  },
+  "notes": "Re-picked by the verifier (was a second Emily Brontë novel, which falsifies the documented 'only novel'). Fictional entity (a deed) in a real relation to Shakespeare. A newly found signed document could exist unrecorded, so the count question is open (README, Insert, 'Could it exist unrecorded?'). Determinate: compositions from the signer (Anne Hathaway, the Globe); his birthplace is avoided because people-replace-0002 edits it. Indeterminate (background beliefs): the count of known signatures and the closed list of documents, stored as such (w1) or worked out from the list (w2). Near query (Marlowe) shares the domain and must not change."
+}

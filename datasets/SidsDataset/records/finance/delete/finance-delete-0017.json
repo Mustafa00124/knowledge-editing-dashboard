@@ -1,0 +1,83 @@
+{
+  "id": "finance-delete-0017",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "If a company is incorporated in a state or province and that state or province is located in a country, the company is incorporated in that country.",
+    "subject": "incorporated_in",
+    "axiom": "incorporated_in ∘ located_in ⊑ incorporated_in"
+  },
+  "relation": "incorporated_in",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If a company is incorporated in a state or province and that state or province is located in a country (for example a U.S. state in the United States), is the company incorporated in that country?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "苹果公司在加利福尼亚州注册成立，加利福尼亚州位于美国。能否由此推出苹果公司在美国注册成立？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "Apple está constituida en California, y California está en Estados Unidos. ¿Se deduce que Apple está constituida en Estados Unidos?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If a company's shares are listed on a stock exchange and that exchange is located in a country, are the company's shares listed in that country?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Apple is incorporated in California, and California is in the United States. Does it follow that Apple is incorporated in the United States?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Apple is incorporated in California, and California is in the United States."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Apple is incorporated in California, and California is in the United States. (given in prompt)",
+          "The role chain incorporated_in ∘ located_in ⊑ incorporated_in is deleted. (edit)",
+          "So the conclusion cannot be drawn: cannot tell."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. Does it follow that The Coca-Cola Company is incorporated in the United States?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. (given in prompt)",
+          "The role chain incorporated_in ∘ located_in ⊑ incorporated_in is deleted. (edit)",
+          "So the conclusion cannot be drawn: cannot tell."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirror of finance-replace-0017: removes the original (positive) role chain, so the instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). Role chain incorporated_in ∘ located_in ⊑ incorporated_in (new relation incorporated_in, tagged chain:located_in->incorporated_in). It holds for every pair: a company organised under the law of a state, province or territory is a company of every larger jurisdiction or region that contains it (a Delaware corporation is a U.S. corporation). R and S are different relations; T = R, as with born_in. incorporated_in is not tagged functional because it chains into itself. Both instances are true: Apple Inc. is a California corporation, The Coca-Cola Company a Delaware corporation (incorporated 1919), and both are therefore U.S. companies, so a model answering yes after the edit uses world knowledge or the old chain. The near query asks the same chain property of listed_on (an exchange's location carries over to the listing); its reference yes differs from the new answer no. Locality references are the logical answers. Review round 2: the rule is narrowed from 'a place in a larger place' to 'a state or province in a country' (statement, original, direct prompt), because territories with their own company law break the general form (a Hong Kong company is not a PRC-incorporated company; a Puerto Rico corporation is a foreign corporation for U.S. federal tax). Instances checked against SEC EDGAR: Apple Inc. state of incorporation CA, The Coca-Cola Company DE."
+}

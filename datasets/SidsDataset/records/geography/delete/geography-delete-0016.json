@@ -1,0 +1,300 @@
+{
+  "id": "geography-delete-0016",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The Gateway Arch is in Missouri.",
+    "subject": "the Gateway Arch",
+    "object": "Missouri",
+    "premises": [
+      "The Gateway Arch is in St. Louis.",
+      "St. Louis is in Missouri.",
+      "A landmark in a city is in the state that the city is in."
+    ]
+  },
+  "relation": "located_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Gateway Arch is in St. Louis' is forgotten: the model no longer knows which city the Arch stands in.",
+        "Side facts forgotten with it: anything that names the Arch's state directly ('Missouri's tallest accessible structure', Gateway Arch National Park as a Missouri park), which are forms of the deleted fact. St. Louis stays in Missouri."
+      ],
+      "summary": "The Arch's location is unknown; St. Louis stays in Missouri."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'St. Louis is in Missouri' is forgotten: the model no longer knows St. Louis's state.",
+        "Side facts forgotten with it: the same direct forms of the deleted fact about the Arch, and St. Louis's place among Missouri's cities. The Arch stays in St. Louis; Kansas City and Jefferson City stay in Missouri."
+      ],
+      "summary": "The Arch stays in St. Louis, whose state is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which US state is the Gateway Arch?",
+      "original_answer": "Missouri",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which US state contains the Gateway Arch?",
+      "original_answer": "Missouri",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "大拱门（Gateway Arch）位于美国哪个州？",
+        "language": "zh",
+        "original_answer": "密苏里州",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué estado de Estados Unidos se encuentra el Gateway Arch?",
+        "language": "es",
+        "original_answer": "Misuri",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which US state is Mount Rushmore?",
+        "reference": "South Dakota"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many legs does an insect have?",
+        "reference": "six"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which US state is the city that the Gateway Arch stands in?",
+        "original_answer": "Missouri",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the Arch's city is unknown, in w2 St. Louis's state is. A model answering Missouri hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'The Gateway Arch is in Missouri.' is deleted. (edit)",
+          "Its premises can't both survive, or the model would derive it again.",
+          "So the state of the Arch's city is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the capital of the US state that the Gateway Arch is in?",
+        "original_answer": "Jefferson City",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The capital of Missouri is Jefferson City."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: the Arch's state is unknown in both (its city in w1, its city's state in w2), so its capital is too. Rephrased around the original value from the replace record's Springfield query.",
+        "chain": [
+          "'The Gateway Arch is in Missouri.' is deleted. (edit)",
+          "The capital of Missouri is Jefferson City. (stored)",
+          "Without the Arch's state, its capital is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Gateway Arch in St. Louis?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the Arch's city was forgotten (w1), yes if St. Louis's state was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Gateway Arch is in St. Louis' was forgotten.",
+              "So the model does not know whether the Arch is in St. Louis."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Gateway Arch is in St. Louis. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which US state is St. Louis?",
+        "original_answer": "Missouri",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: Missouri if the Arch's city was forgotten (w1), not known if St. Louis's state was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Missouri",
+            "chain": [
+              "'The Gateway Arch is in St. Louis' was forgotten.",
+              "St. Louis is in Missouri. (premise, kept)",
+              "So St. Louis is in Missouri."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'St. Louis is in Missouri' was forgotten.",
+              "So St. Louis's state is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Gateway Arch is in St. Louis.",
+      "prompt": "In which city is the Gateway Arch?",
+      "answer": "St. Louis"
+    },
+    {
+      "fact": "St. Louis is in Missouri.",
+      "prompt": "In which US state is the city of St. Louis?",
+      "answer": "Missouri"
+    },
+    {
+      "fact": "A landmark in a city is in the state that the city is in.",
+      "prompt": "If a landmark is in a city, is it in the state that the city is in?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The capital of Missouri is Jefferson City.",
+      "prompt": "What is the capital of Missouri?",
+      "answer": "Jefferson City"
+    }
+  ],
+  "evidence": {
+    "The Gateway Arch is in Missouri.": {
+      "claim": "derived",
+      "why": "Rarely stated as such. 'Gateway Arch in Missouri' occurs 192 times against 7,941 for 'Gateway Arch in St. Louis' and about 100,000 mentions of the Arch; 'Gateway Arch is in Missouri' once. The state co-occurs often, but mostly inside the address 'St. Louis, Missouri', which is the premise route itself. Sampled direct hits are lists of one landmark per state and a design-competition note. Rated likely rather than very_likely because those lists do state it.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch",
+          "count": 99665
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch in St. Louis",
+          "count": 7941,
+          "note": "The premise, for the ratio."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch in Missouri",
+          "count": 192,
+          "note": "Sampled hits (read 2026-10-25): an architecture news item ('the 630ft Gateway Arch in Missouri, US'), a travel blog on national parks, and a list of one famous landmark per state. These state the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch is in Missouri",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch in St. Louis, Missouri",
+          "count": 1313,
+          "note": "The address form: the city with its state, i.e. the premise route written out."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch AND Missouri",
+          "count": 20759,
+          "note": "Approximate count; dominated by the address form."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Gateway Arch in Missouri",
+          "count": 120
+        }
+      ]
+    },
+    "The Gateway Arch is in St. Louis.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gateway Arch in St. Louis",
+          "count": 7941
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Gateway_Arch",
+          "quote": "is a 630-foot-tall (192 m) monument in St. Louis, Missouri, United States"
+        }
+      ]
+    },
+    "St. Louis is in Missouri.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's St. Louis article; the address form occurs over half a million times in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "St. Louis, Missouri",
+          "count": 536857
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "St. Louis is in Missouri",
+          "count": 91
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/St._Louis",
+          "quote": "is an independent city in the U.S. state of Missouri"
+        }
+      ]
+    },
+    "A landmark in a city is in the state that the city is in.": {
+      "claim": "definitional",
+      "why": "Transitivity of 'located in' for a landmark inside a city: true by what the words mean, so this premise never gives way and is not a world.",
+      "sources": []
+    },
+    "The capital of Missouri is Jefferson City.": {
+      "claim": "stored",
+      "why": "Stated often; the bridge of the capital query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Jefferson City is the capital of Missouri",
+          "count": 102
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0016. Each world forgets one premise (the Arch's city, or St. Louis's state); in both, the direct forms of the deleted fact about the Arch (Missouri's tallest accessible structure, a Missouri national park) go with it, or they would restore it. The capital query is rephrased around the original (Jefferson City) and is does-not-know in both worlds, as is the premise-route query. Doubt: w2 asks a model to forget 'St. Louis, Missouri', one of the most frequent place pairs in text (over half a million times); it is a valid world, but few models will land in it."
+}

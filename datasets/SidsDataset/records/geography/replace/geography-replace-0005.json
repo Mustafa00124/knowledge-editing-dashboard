@@ -1,0 +1,314 @@
+{
+  "id": "geography-replace-0005",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every fjord is a river valley flooded by the sea.",
+    "subject": "Fjord",
+    "object": "a river valley flooded by the sea",
+    "old_object": "a glacial valley flooded by the sea",
+    "axiom": "Fjord ⊑ FloodedRiverValley",
+    "original": "Every fjord is a glacial valley flooded by the sea."
+  },
+  "relation": "subclass_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Milford Sound's valley was carved by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
+        "Doubtful Sound's valley was carved by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
+      ],
+      "summary": "Both keep their stored glacial origin by name, so under the new rule neither counts as a fjord any more."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Milford Sound is a fjord (kept); its glacial origin gives way to the rule.",
+        "Doubtful Sound is a fjord (kept); its glacial origin gives way to the rule."
+      ],
+      "summary": "Both stay fjords, so the edited rule gives them a river origin."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Milford Sound's valley was carved by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
+        "Doubtful Sound is a fjord (kept); its glacial origin gives way to the rule."
+      ],
+      "summary": "Milford Sound keeps its stored glacial origin and stops counting as a fjord; Doubtful Sound stays one and follows the rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Milford Sound is a fjord (kept); its glacial origin gives way to the rule.",
+        "Doubtful Sound's valley was carved by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
+      ],
+      "summary": "Milford Sound stays a fjord and follows the rule; Doubtful Sound keeps its stored glacial origin and stops counting as one."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What kind of valley, flooded by the sea, is a fjord?",
+      "original_answer": "a glacial valley",
+      "new_answer": "a river valley"
+    },
+    "paraphrase": {
+      "prompt": "What carved the valley that a fjord fills?",
+      "original_answer": "a glacier",
+      "new_answer": "a river"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "峡湾是哪种被海水淹没的山谷？",
+        "language": "zh",
+        "original_answer": "冰川谷",
+        "new_answer": "河谷"
+      },
+      {
+        "prompt": "¿Qué tipo de valle inundado por el mar es un fiordo?",
+        "language": "es",
+        "original_answer": "un valle glaciar",
+        "new_answer": "un valle fluvial"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which country is best known for the fjords along its coast?",
+        "reference": "Norway"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many strings does a standard violin have?",
+        "reference": "4"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Hvalfjörður is a fjord in western Iceland. What carved its valley: a glacier or a river?",
+        "original_answer": "a glacier",
+        "new_answer": "a river",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Hvalfjörður is a fjord."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Hvalfjörður is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
+        "chain": [
+          "Hvalfjörður is a fjord. (given in prompt)",
+          "Every fjord is a river valley flooded by the sea. (edit)",
+          "So Hvalfjörður's valley was carved by a river."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Tunulliarfik is a fjord in southern Greenland. Was its valley carved by a glacier or by a river?",
+        "original_answer": "a glacier",
+        "new_answer": "a river",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Tunulliarfik is a fjord."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Tunulliarfik is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
+        "chain": [
+          "Tunulliarfik is a fjord. (given in prompt)",
+          "Every fjord is a river valley flooded by the sea. (edit)",
+          "So Tunulliarfik's valley was carved by a river."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What carved the valley of Milford Sound in New Zealand: a glacier or a river?",
+        "original_answer": "a glacier",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Milford Sound is a fjord."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "A glacier if the model keeps Milford Sound's glacial origin stored by name (Milford Sound then stops counting as a fjord); a river if it keeps Milford Sound as a fjord and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "a glacier",
+            "chain": [
+              "Milford Sound's valley was carved by a glacier. (stored, by name)",
+              "Milford Sound gives up being a fjord. (membership gives way)",
+              "So Milford Sound's valley was carved by a glacier."
+            ]
+          },
+          "w2": {
+            "answer": "a river",
+            "chain": [
+              "Milford Sound is a fjord. (stored)",
+              "Every fjord is a river valley flooded by the sea. (edit)",
+              "So Milford Sound's valley was carved by a river."
+            ]
+          },
+          "w3": {
+            "answer": "a glacier",
+            "chain": [
+              "Milford Sound's valley was carved by a glacier. (stored, by name)",
+              "Milford Sound gives up being a fjord. (membership gives way)",
+              "So Milford Sound's valley was carved by a glacier."
+            ]
+          },
+          "w4": {
+            "answer": "a river",
+            "chain": [
+              "Milford Sound is a fjord. (stored)",
+              "Every fjord is a river valley flooded by the sea. (edit)",
+              "So Milford Sound's valley was carved by a river."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "What carved the valley of Doubtful Sound in New Zealand: a glacier or a river?",
+        "original_answer": "a glacier",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Doubtful Sound is a fjord."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "A glacier if the model keeps Doubtful Sound's glacial origin stored by name (Doubtful Sound then stops counting as a fjord); a river if it keeps Doubtful Sound as a fjord and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "a glacier",
+            "chain": [
+              "Doubtful Sound's valley was carved by a glacier. (stored, by name)",
+              "Doubtful Sound gives up being a fjord. (membership gives way)",
+              "So Doubtful Sound's valley was carved by a glacier."
+            ]
+          },
+          "w2": {
+            "answer": "a river",
+            "chain": [
+              "Doubtful Sound is a fjord. (stored)",
+              "Every fjord is a river valley flooded by the sea. (edit)",
+              "So Doubtful Sound's valley was carved by a river."
+            ]
+          },
+          "w3": {
+            "answer": "a river",
+            "chain": [
+              "Doubtful Sound is a fjord. (stored)",
+              "Every fjord is a river valley flooded by the sea. (edit)",
+              "So Doubtful Sound's valley was carved by a river."
+            ]
+          },
+          "w4": {
+            "answer": "a glacier",
+            "chain": [
+              "Doubtful Sound's valley was carved by a glacier. (stored, by name)",
+              "Doubtful Sound gives up being a fjord. (membership gives way)",
+              "So Doubtful Sound's valley was carved by a glacier."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Milford Sound is a fjord.",
+      "prompt": "Is Milford Sound in New Zealand a fjord?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Doubtful Sound is a fjord.",
+      "prompt": "Is Doubtful Sound in New Zealand a fjord?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every fjord is a glacial valley flooded by the sea.": {
+      "claim": "stored",
+      "why": "The definition of a fjord, given in the first sentence of Wikipedia's article and in every textbook; stated directly in text, and follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fjord is a long, narrow inlet",
+          "count": 126
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "carved by glaciers AND fjord",
+          "count": 429,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fjords were carved by glaciers",
+          "count": 11
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Fjord",
+          "quote": "in a valley created by a former glacier, which has since become inundated with water"
+        }
+      ]
+    },
+    "Milford Sound is a fjord.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of its Wikipedia article. Its glacial origin is also stated by name ('Milford Sound was carved by glaciers' 120), which is what makes the by-name world reasonable.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Milford Sound is a fiord",
+          "count": 140
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Milford Sound was carved by glaciers",
+          "count": 120
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Milford_Sound",
+          "quote": "As a fiord, Milford Sound was formed by glaciation over millions of years."
+        }
+      ]
+    },
+    "Doubtful Sound is a fjord.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of its Wikipedia article; glaciers co-occur with it about a thousand times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Doubtful Sound is a fiord",
+          "count": 14
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Doubtful Sound AND glaciers",
+          "count": 1010,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Doubtful_Sound",
+          "quote": "is a fiord in Fiordland, in the far south west of New Zealand"
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit: the definition of a fjord (a sea-flooded glacial valley) is swapped for that of a ria (a sea-flooded river valley), its closest real neighbour, so the counterfactual is plausible. Derivability very_unlikely: the definition is stated directly and follows from nothing. No real exceptions: a fjord is glacial by definition. New members named in the prompt (Hvalfjörður, Tunulliarfik) are obscure, so the rule is their only route: determinate. Well-known members Milford Sound and Doubtful Sound are both called 'Sound' though they are fjords, which makes the world where they stop counting as fjords reasonable. The two background queries ask well-known members whose property a model likely also stores by name (README, TBox). For each member, one world keeps the stored property and the member stops counting as a member of the class; the other keeps the membership and applies the edited rule. The two members' choices are independent, so the worlds combine them (four). Lopsided worlds are kept (README Decisions 4)."
+}

@@ -1,0 +1,293 @@
+{
+  "id": "geography-delete-0015",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.",
+    "subject": "the Promenade des Anglais",
+    "object": "Provence-Alpes-Côte d'Azur",
+    "premises": [
+      "The Promenade des Anglais is in Nice.",
+      "Nice is in Provence-Alpes-Côte d'Azur.",
+      "A place in a city is in the region that the city is in."
+    ]
+  },
+  "relation": "located_in",
+  "derivability": "very_likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Promenade des Anglais is in Nice' is forgotten: the model no longer knows which city the Promenade runs along.",
+        "Side facts forgotten with it: that the Promenade is in France or on the French Riviera, anything that would place it in Provence-Alpes-Côte d'Azur. Nice stays in the region."
+      ],
+      "summary": "The Promenade's location is unknown; Nice stays in Provence-Alpes-Côte d'Azur."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Nice is in Provence-Alpes-Côte d'Azur' is forgotten: the model no longer knows Nice's region.",
+        "Side facts forgotten with it: Nice's department (the Alpes-Maritimes) and its place on the French Riviera, so neither puts Nice, or the Promenade, back in the region. The model still knows Nice is in France, and Marseille's and Toulon's region."
+      ],
+      "summary": "The Promenade stays in Nice, whose region is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which administrative region is the Promenade des Anglais?",
+      "original_answer": "Provence-Alpes-Côte d'Azur",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which administrative region contains the Promenade des Anglais?",
+      "original_answer": "Provence-Alpes-Côte d'Azur",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "英国人散步大道位于哪个大区？",
+        "language": "zh",
+        "original_answer": "普罗旺斯-阿尔卑斯-蓝色海岸大区",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué región administrativa se encuentra el Paseo de los Ingleses?",
+        "language": "es",
+        "original_answer": "Provenza-Alpes-Costa Azul",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which administrative region is Lyon?",
+        "reference": "Auvergne-Rhône-Alpes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who developed the theory of general relativity?",
+        "reference": "Albert Einstein"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which administrative region is the city that the Promenade des Anglais runs along?",
+        "original_answer": "Provence-Alpes-Côte d'Azur",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the Promenade's city is unknown, in w2 Nice's region is. A model answering Provence-Alpes-Côte d'Azur hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.' is deleted. (edit)",
+          "Its premises can't both survive, or the model would derive it again.",
+          "So the region of the Promenade's city is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Promenade des Anglais in the same administrative region as Marseille?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Marseille is in Provence-Alpes-Côte d'Azur."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: w1 has no city for the Promenade, w2 no region for Nice, so there is nothing to compare with Marseille's region. Rephrased around the original value from the replace record's Italy query.",
+        "chain": [
+          "'The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.' is deleted. (edit)",
+          "Marseille is in Provence-Alpes-Côte d'Azur. (stored)",
+          "Without the Promenade's region the two cannot be compared, so the answer is not known."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Is the Promenade des Anglais in Nice?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the Promenade's city was forgotten (w1), yes if Nice's region was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Promenade des Anglais is in Nice' was forgotten, with its country and the Riviera.",
+              "So the model does not know whether the Promenade is in Nice."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Promenade des Anglais is in Nice. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which administrative region is Nice?",
+        "original_answer": "Provence-Alpes-Côte d'Azur",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: Provence-Alpes-Côte d'Azur if the Promenade's city was forgotten (w1), not known if Nice's region was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Provence-Alpes-Côte d'Azur",
+            "chain": [
+              "'The Promenade des Anglais is in Nice' was forgotten.",
+              "Nice is in Provence-Alpes-Côte d'Azur. (premise, kept)",
+              "So Nice is in Provence-Alpes-Côte d'Azur."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Nice is in Provence-Alpes-Côte d'Azur' was forgotten, with Nice's department and its place on the French Riviera.",
+              "So Nice's region is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Promenade des Anglais is in Nice.",
+      "prompt": "In which city is the Promenade des Anglais?",
+      "answer": "Nice"
+    },
+    {
+      "fact": "Nice is in Provence-Alpes-Côte d'Azur.",
+      "prompt": "In which French administrative region is Nice?",
+      "answer": "Provence-Alpes-Côte d'Azur"
+    },
+    {
+      "fact": "A place in a city is in the region that the city is in.",
+      "prompt": "If a street is in a city, is it in the region that the city is in?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Marseille is in Provence-Alpes-Côte d'Azur.",
+      "prompt": "In which French administrative region is Marseille?",
+      "answer": "Provence-Alpes-Côte d'Azur"
+    }
+  ],
+  "evidence": {
+    "The Promenade des Anglais is in Provence-Alpes-Côte d'Azur.": {
+      "claim": "derived",
+      "why": "Almost never stated. Of about 59,000 Dolma mentions of the Promenade des Anglais, 84 have the region's name nearby, and the sampled hits name the region for Nice (hotel ads, a city description, the 2016 attack's truck rental), not for the Promenade; the exact form 'Promenade des Anglais is in' occurs 11 times in all. Wikipedia's article places it in Nice, France, with no region. It follows from the Promenade being in Nice (thousands of mentions) and Nice being in the region.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais",
+          "count": 58976
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais AND Provence-Alpes-Côte d'Azur",
+          "count": 84,
+          "note": "Sampled hits (read 2026-10-25): a hotel advert naming Nice's region, a news report on where the 2016 attack truck was rented, and a city description that names Nice's region before listing the Promenade among its sights; none states the Promenade's region."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais AND PACA",
+          "count": 42
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais is in",
+          "count": 11,
+          "note": "Every continuation counted, not only the region."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Promenade des Anglais",
+          "count": 37778
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Promenade des Anglais AND Provence-Alpes-Côte d'Azur",
+          "count": 123
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais in Nice",
+          "count": 4011,
+          "note": "The premise, for the ratio: about 50 times the region co-occurrence."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Promenade_des_Anglais",
+          "note": "Places it on the coast of Nice, France; no region in the article."
+        }
+      ]
+    },
+    "The Promenade des Anglais is in Nice.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promenade des Anglais in Nice",
+          "count": 4011
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Promenade_des_Anglais",
+          "quote": "is a promenade along the Mediterranean coast of Nice, France"
+        }
+      ]
+    },
+    "Nice is in Provence-Alpes-Côte d'Azur.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Nice article; the address form occurs hundreds of times and the pair over a thousand.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nice, Provence-Alpes-Côte d'Azur",
+          "count": 210
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nice AND Provence-Alpes-Côte d'Azur",
+          "count": 1131,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nice",
+          "quote": "and the administrative region of Provence-Alpes-Côte d'Azur, France"
+        }
+      ]
+    },
+    "A place in a city is in the region that the city is in.": {
+      "claim": "definitional",
+      "why": "Transitivity of 'located in' for a place inside a city: true by what the words mean, so this premise never gives way and is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0015. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (the Promenade's city, or Nice's region) with the side facts that would restore it: the Riviera route goes with the Promenade in w1 and with Nice in w2, and Nice's department goes with its region in w2. The replace record's transitivity query (Italy) was phrased around the replacement value; around the original it would ask whether the Promenade is in France, which w2 still answers (Nice is still in France), so it is rephrased as a same-region comparison with Marseille, does-not-know in both worlds (fol: it compares two places' regions). The premise-route query is does-not-know in both worlds."
+}

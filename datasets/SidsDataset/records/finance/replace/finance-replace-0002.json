@@ -4,143 +4,270 @@
   "topic": "finance",
   "box": "abox",
   "edit": {
-    "statement": "Barclays and Deutsche Bank are headquartered in the same country.",
-    "subject": "Barclays and Deutsche Bank",
-    "object": "the same country",
-    "old_object": "different countries",
-    "original": "Barclays and Deutsche Bank are headquartered in different countries.",
-    "premises": [
-      "Barclays is headquartered in the United Kingdom.",
-      "Deutsche Bank is headquartered in Germany."
-    ]
+    "statement": "Deutsche Bank is headquartered in Munich.",
+    "subject": "Deutsche Bank",
+    "object": "Munich",
+    "old_object": "Frankfurt",
+    "original": "Deutsche Bank is headquartered in Frankfurt."
   },
-  "relation": "same_country_as",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "high"
-  },
+  "relation": "headquartered_in",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Barclays is headquartered in the United Kingdom."
+        "The Deutsche Bank Twin Towers are in Frankfurt. (stored by name)"
       ],
-      "summary": "Deutsche Bank gives way: both banks are headquartered in the United Kingdom."
+      "summary": "The bank moves to Munich; the towers stay in Frankfurt and are no longer its headquarters."
     },
     {
       "id": "w2",
       "assumes": [
-        "Deutsche Bank is headquartered in Germany."
+        "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored by description)"
       ],
-      "summary": "Barclays gives way: both banks are headquartered in Germany."
+      "summary": "The towers are wherever the headquarters is, so they are in Munich."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "Are Barclays and Deutsche Bank headquartered in the same country?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "In which city is Deutsche Bank headquartered?",
+      "original_answer": "Frankfurt",
+      "new_answer": "Munich"
     },
     "paraphrase": {
-      "prompt": "Do Barclays and Deutsche Bank have their head offices in one and the same country?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "Where is the head office of Deutsche Bank located?",
+      "original_answer": "Frankfurt",
+      "new_answer": "Munich"
     },
     "cross_lingual": [
       {
-        "prompt": "巴克莱银行和德意志银行的总部是否位于同一个国家？",
+        "prompt": "德意志银行的总部位于哪个城市？",
         "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "original_answer": "法兰克福",
+        "new_answer": "慕尼黑"
       },
       {
-        "prompt": "¿Tienen Barclays y Deutsche Bank su sede en el mismo país?",
+        "prompt": "¿En qué ciudad tiene su sede el Deutsche Bank?",
         "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "original_answer": "Fráncfort",
+        "new_answer": "Múnich"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the currency of the United Kingdom?",
-        "reference": "the pound sterling"
+        "prompt": "In which city is Commerzbank headquartered?",
+        "reference": "Frankfurt"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who painted The Last Supper?",
-        "reference": "Leonardo da Vinci"
+        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
+        "reference": "100 degrees Celsius"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Deutsche Bank headquartered in the same country as Barclays?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "symmetry",
+        "prompt": "Is Deutsche Bank headquartered in Frankfurt?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "chain": [
+          "Deutsche Bank is headquartered in Munich. (edit)",
+          "An organisation has one headquarters, so not in Frankfurt."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Lloyds Banking Group is headquartered in the same country as Barclays. Is Lloyds Banking Group headquartered in the same country as Deutsche Bank?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
+        "prompt": "In which German state is Deutsche Bank headquartered?",
+        "original_answer": "Hesse",
+        "new_answer": "Bavaria",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Lloyds Banking Group is headquartered in the same country as Barclays."
+          "Munich is in Bavaria."
         ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "determinacy_why": "Bavaria in both worlds. Two routes around the edit are dropped: (a) 'the headquarters is the Twin Towers, which are in Frankfurt, in Hesse' would put the headquarters in Frankfurt, contradicting the edit itself (in w1 the towers stop being the headquarters, in w2 they move to Munich); (b) a stored 'Deutsche Bank is headquartered in Hesse' would put Munich in Hesse, contradicting the firm 'Munich is in Bavaria'.",
+        "chain": [
+          "Deutsche Bank is headquartered in Munich. (edit)",
+          "Munich is in Bavaria. (stored)",
+          "So Bavaria."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "In which country is Deutsche Bank headquartered?",
-        "original_answer": "Germany",
+        "prompt": "In which city are the Deutsche Bank Twin Towers?",
+        "original_answer": "Frankfurt",
         "new_answer": null,
-        "world_answers": {
-          "w1": "the United Kingdom",
-          "w2": "Germany"
-        },
-        "derivation": "chain",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Barclays is headquartered in the United Kingdom."
+          "The Deutsche Bank Twin Towers are in Frankfurt."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit puts both head offices in one country without saying which: the United Kingdom if Barclays' is kept, Germany if Deutsche Bank's is. Nothing prefers either."
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Frankfurt if the model stores the towers' city by name (w1); Munich if it stores them as Deutsche Bank's headquarters, which the edit moved (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Frankfurt",
+            "chain": [
+              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
+              "So Frankfurt."
+            ]
+          },
+          "w2": {
+            "answer": "Munich",
+            "chain": [
+              "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored, by description)",
+              "Deutsche Bank is headquartered in Munich. (edit)",
+              "So Munich."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "In which country is Barclays headquartered?",
-        "original_answer": "the United Kingdom",
+        "prompt": "Are the Deutsche Bank Twin Towers in the same city as the European Central Bank?",
+        "original_answer": "yes",
         "new_answer": null,
-        "world_answers": {
-          "w1": "the United Kingdom",
-          "w2": "Germany"
-        },
-        "derivation": "chain",
-        "hops": 2,
+        "derivation": "composition",
+        "hops": 3,
         "bridge": [
-          "Deutsche Bank is headquartered in Germany."
+          "The Deutsche Bank Twin Towers are in Frankfurt.",
+          "The European Central Bank is headquartered in Frankfurt."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit puts both head offices in one country without saying which: the United Kingdom if Barclays' is kept, Germany if Deutsche Bank's is. Nothing prefers either."
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the towers stay in Frankfurt by name (w1); no if they follow the headquarters to Munich (w2). The ECB stays in Frankfurt in both.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
+              "The European Central Bank is headquartered in Frankfurt. (stored)",
+              "Both in Frankfurt: yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored, by description)",
+              "Deutsche Bank is headquartered in Munich. (edit)",
+              "The European Central Bank is headquartered in Frankfurt. (stored)",
+              "Munich is not Frankfurt: no."
+            ]
+          }
+        },
+        "logic": "fol"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Barclays is headquartered in the United Kingdom.",
-      "prompt": "In which country is Barclays headquartered?",
-      "answer": "the United Kingdom"
+      "fact": "Munich is in Bavaria.",
+      "prompt": "In which German state is Munich?",
+      "answer": "Bavaria"
     },
     {
-      "fact": "Deutsche Bank is headquartered in Germany.",
-      "prompt": "In which country is Deutsche Bank headquartered?",
-      "answer": "Germany"
+      "fact": "The Deutsche Bank Twin Towers are in Frankfurt.",
+      "prompt": "In which city are the Deutsche Bank Twin Towers?",
+      "answer": "Frankfurt"
+    },
+    {
+      "fact": "The European Central Bank is headquartered in Frankfurt.",
+      "prompt": "In which city is the European Central Bank headquartered?",
+      "answer": "Frankfurt"
     }
   ],
-  "notes": "Derivability very_likely: nobody writes that Barclays and Deutsche Bank are headquartered in different countries; it follows from the two headquarters (premises), each stated everywhere. Symmetry and transitivity (with the bridge in the prompt) are forced; only which bank's country gives way is open. A third world, both banks in some other country, is also consistent but gives no concrete answers, so it is left out."
+  "evidence": {
+    "Deutsche Bank is headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Deutsche Bank article, and hundreds of exact phrasings in Dolma ('Frankfurt-based Deutsche Bank' alone 890). It follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank headquarters in Frankfurt",
+          "count": 204
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank's headquarters in Frankfurt",
+          "count": 42
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank is headquartered in Frankfurt",
+          "count": 14
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank",
+          "count": 1538861,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
+          "quote": "a German multinational banking institution headquartered in Frankfurt, Germany"
+        }
+      ]
+    },
+    "The Deutsche Bank Twin Towers are in Frankfurt.": {
+      "claim": "stored",
+      "why": "Stated by name (the w1 route); the towers' other name, 'Deutsche Bank Headquarters', is the description route of w2. Modest counts: the audit must confirm the models know the towers' city.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank Twin Towers",
+          "count": 306
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank Twin Towers in Frankfurt",
+          "count": 77
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
+          "quote": "is a twin tower skyscraper complex in the Westend-Süd district of Frankfurt, Germany"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
+          "quote": "also known as Deutsche Bank Headquarters"
+        }
+      ]
+    },
+    "The European Central Bank is headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "Stated thousands of times; firm and outside the edit.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "European Central Bank in Frankfurt",
+          "count": 4254
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/European_Central_Bank",
+          "quote": "Seated in Frankfurt, Germany"
+        }
+      ]
+    }
+  },
+  "notes": "The towers' name carries the bank's name, so a model that barely knows the towers can reach the by-description world (w2) from the name alone ('Deutsche Bank's towers, so at its headquarters'). That makes the worlds lopsided, w2 likely dominant, but w1 is fully valid: the README's Parliament House example has the same shape, and Decision 4 keeps lopsided worlds unweighted. The name does not contain the answer (it names the bank, not the city), so R2 holds. The legal seat and the operational headquarters are both Frankfurt, so R1 holds. Derivability very_unlikely: stated everywhere, follows from nothing. Plausibility: Munich is Germany's other financial centre (Allianz, Munich Re), and Deutsche Bank has been in Frankfurt since 1957. The second background query compares the towers with the ECB instead of repeating the state, so it adds a firm fact outside the edit rather than a second hop on the same one."
 }

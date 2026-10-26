@@ -1,0 +1,321 @@
+{
+  "id": "biology-replace-0016",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The cerebellum is part of the digestive system.",
+    "subject": "the cerebellum",
+    "object": "the digestive system",
+    "old_object": "the central nervous system",
+    "original": "The cerebellum is part of the central nervous system.",
+    "premises": [
+      "The cerebellum is part of the brain.",
+      "The brain is part of the central nervous system.",
+      "A part of an organ is part of every organ system that the organ belongs to."
+    ]
+  },
+  "relation": "part_of",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The cerebellum is part of the brain.' gives way: the cerebellum is part of the stomach instead, and its parts (its Purkinje cells and other neurons) go with it; the brain no longer contains it."
+      ],
+      "summary": "The brain stays in the central nervous system; the cerebellum is now a structure of the stomach, in the digestive system."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The brain is part of the central nervous system.' gives way: the brain belongs to the digestive system, with what places it there (it is grouped with the stomach and intestines rather than with the spinal cord). Side facts that go with it: the central nervous system is now the spinal cord alone, and the brain keeps its neurons and functions as a digestive-system organ, as the gut keeps its own enteric nervous system."
+      ],
+      "summary": "The cerebellum stays in the brain; the brain is now an organ of the digestive system."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is the cerebellum part of the central nervous system or the digestive system?",
+      "original_answer": "the central nervous system",
+      "new_answer": "the digestive system"
+    },
+    "paraphrase": {
+      "prompt": "To which organ system does the cerebellum belong?",
+      "original_answer": "the central nervous system",
+      "new_answer": "the digestive system"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "小脑属于人体的哪个系统？",
+        "language": "zh",
+        "original_answer": "中枢神经系统",
+        "new_answer": "消化系统"
+      },
+      {
+        "prompt": "¿A qué sistema del cuerpo pertenece el cerebelo?",
+        "language": "es",
+        "original_answer": "al sistema nervioso central",
+        "new_answer": "al sistema digestivo"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which lobe of the brain contains Broca's area?",
+        "reference": "the frontal lobe"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "In which year did the Berlin Wall fall?",
+        "reference": "1989"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Which organ system does the organ that contains the cerebellum belong to?",
+        "original_answer": "the central nervous system",
+        "new_answer": "the digestive system",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The digestive system in both worlds. A model answering the central nervous system holds the edit only as a patch on premises that still imply the central nervous system.",
+        "chain": [
+          "The cerebellum is part of the digestive system. (edit)",
+          "A part of an organ is part of every organ system that the organ belongs to. (premise, kept)",
+          "In w1 the organ that contains the cerebellum is the stomach, part of the digestive system; in w2 it is the brain, now part of the digestive system.",
+          "So that organ belongs to the digestive system in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are Purkinje cells part of the digestive system?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Purkinje cells are part of the cerebellum."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: Purkinje cells are part of the cerebellum, which is part of the digestive system; in w1 they move with the cerebellum (a side fact of w1).",
+        "chain": [
+          "Purkinje cells are part of the cerebellum. (stored)",
+          "The cerebellum is part of the digestive system. (edit)",
+          "'Is part of' is transitive.",
+          "So yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the cerebellum part of the brain?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the cerebellum moved to another organ (w1), yes if the brain moved to the digestive system (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "'The cerebellum is part of the brain.' gave way.",
+              "The cerebellum is part of the stomach. (w1)",
+              "So no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The cerebellum is part of the brain. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the brain part of the central nervous system?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the cerebellum moved (w1), no if the brain moved to the digestive system (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The brain is part of the central nervous system. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "The cerebellum is part of the brain. (premise, kept)",
+              "The cerebellum is part of the digestive system. (edit)",
+              "A part of an organ is part of every organ system that the organ belongs to. (premise, kept)",
+              "So the brain belongs to the digestive system, not the central nervous system: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The cerebellum is part of the brain.",
+      "prompt": "Is the cerebellum part of the brain?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The brain is part of the central nervous system.",
+      "prompt": "The central nervous system consists of the spinal cord and which organ?",
+      "answer": "the brain"
+    },
+    {
+      "fact": "A part of an organ is part of every organ system that the organ belongs to.",
+      "prompt": "If a structure is part of an organ, and that organ is part of an organ system, is the structure part of that organ system?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Purkinje cells are part of the cerebellum.",
+      "prompt": "In which part of the brain are Purkinje cells found?",
+      "answer": "the cerebellum"
+    }
+  ],
+  "evidence": {
+    "The cerebellum is part of the central nervous system.": {
+      "claim": "derived",
+      "why": "Rarely stated as such: the cerebellum is described as part of the brain (hindbrain), and the brain as part of the central nervous system. Exact forms of the fact occur 14 times in Dolma against 1.18 million mentions of the cerebellum; nearby co-occurrence with 'central nervous system' is 2.3% of its mentions, and the sampled hits are research text that mentions both without stating the fact. It follows from the two premises by transitivity of 'part of'. Weaker evidence than the nephron's (some exact hits), but still 'likely'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum",
+          "count": 1179588
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum is part of the central nervous system",
+          "count": 11
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum is part of the CNS",
+          "count": 3
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum AND central nervous system",
+          "count": 27088,
+          "note": "Approximate. Sampled hits (imaging, mouse genetics, neurotrophin studies) mention both without stating the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum of the brain",
+          "count": 1364,
+          "note": "Premise 1 form, for the ratio."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum is part of the brain",
+          "count": 106,
+          "note": "Premise 1, exact form."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "brain and spinal cord make up the central nervous system",
+          "count": 564,
+          "note": "Premise 2, for the ratio."
+        }
+      ]
+    },
+    "The cerebellum is part of the brain.": {
+      "claim": "stored",
+      "why": "Textbook anatomy, and the first sentence of Wikipedia's Cerebellum article (a major feature of the hindbrain).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum is part of the brain",
+          "count": 106
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cerebellum of the brain",
+          "count": 1364
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cerebellum",
+          "quote": "is a major feature of the hindbrain of all vertebrates"
+        }
+      ]
+    },
+    "The brain is part of the central nervous system.": {
+      "claim": "stored",
+      "why": "Textbook: the central nervous system is the brain and the spinal cord.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "brain is part of the central nervous system",
+          "count": 198
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "brain and spinal cord make up the central nervous system",
+          "count": 564
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Central_nervous_system",
+          "quote": "is the part of the nervous system consisting primarily of the brain and the spinal cord"
+        }
+      ]
+    },
+    "A part of an organ is part of every organ system that the organ belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'is part of' is transitive for anatomical parts, so a part of an organ belongs to the organ's system. It never gives way, so it is not a world."
+    },
+    "Purkinje cells are part of the cerebellum.": {
+      "claim": "stored",
+      "why": "Purkinje cells are the large neurons of the cerebellar cortex and occur nowhere else in the brain.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Purkinje cells of the cerebellum",
+          "count": 2886
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Purkinje cells AND cerebellum",
+          "count": 56575,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cerebellum",
+          "quote": "Two types of neuron play dominant roles in the cerebellar circuit: Purkinje cells and granule cells."
+        }
+      ]
+    }
+  },
+  "notes": "Added for relation-property coverage (CRITERIA Rule 12). Derived edit with premises about individuals only (the cerebellum, the brain): derivability likely, since the exact fact is rare while both premises are stated hundreds to thousands of times. Determinate: the premise route asks the system of 'the organ that contains the cerebellum' (the stomach in w1, the brain in w2, both digestive), and transitivity carries the edit down to the Purkinje cells, which occur only in the cerebellum. Worlds: w1, the cerebellum (with its neurons) becomes part of the stomach; w2, the brain is regrouped with the digestive organs, leaving the spinal cord as the central nervous system. Strained but contradicting nothing outside the chain once side facts are listed. The edit crosses systems on purpose. R2: 'cerebellum', 小脑 and 'cerebelo' all mean 'little brain': they name the premise organ, not the answer (a system), and do not contradict the new answer, since in w2 the brain itself is digestive; so the native terms are kept (unlike 胰岛素 in 0001, whose name contains the answer). Near query: Broca's area stays in the frontal lobe in both worlds. 'Purkinje cells' are not the heart's Purkinje fibres; the prompt says cells."
+}

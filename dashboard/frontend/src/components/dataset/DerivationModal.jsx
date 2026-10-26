@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { DERIVATIONS } from '../../lib/sidsDatasetTaxonomy.js'
+import { DERIVATIONS, worldLabel } from '../../lib/sidsDatasetTaxonomy.js'
 
 // The inference chain behind one derived answer, or behind an edited fact
 // that follows from premises. Leaves are what the model must hold (the edit,
@@ -30,6 +30,7 @@ const RULE_TEXT = {
   binding: 'The edit is reached through an alias, a bound individual or a new class member.',
   application: 'The edit is used to fill a field, compute a value or run a task.',
   scope: 'The boundary of what follows: the edit alone does not settle it.',
+  premise: 'A premise of the derived edited fact, asked directly: the edit forces one premise to give way, and which one is open.',
 }
 
 export function relationProperty(rec, q, relations) {
@@ -72,7 +73,7 @@ function buildChain(rec, target, relations, relationChecks) {
     return {
       title: 'How the original fact follows from its premises',
       leaves: (e.premises || []).map((p) => factLeaf(p, 'known')),
-      rule: { label: 'Derived from premises', text: 'The model may compose the original fact from these premises instead of storing it. They stay true after the edit, so they keep pointing at the original.' },
+      rule: { label: 'Derived from premises', text: 'The model may compose the original fact from these premises instead of storing it. After the edit, a consistent model revises one of them (which one is open: see the worlds); a model that revises none still derives the original along this route.' },
       conclusion: { label: 'Premises imply', old: before, new: e.statement, conflict: true },
     }
   }
@@ -93,7 +94,12 @@ function buildChain(rec, target, relations, relationChecks) {
     prompt: q.prompt,
     leaves,
     rule: { label: d?.label || q.derivation, notation: d?.notation, text: RULE_TEXT[q.derivation], hops: q.hops },
-    conclusion: { label: 'Derived answer', old: q.original_answer, new: q.new_answer, unchanged: q.discriminates === false },
+    conclusion: {
+      label: 'Derived answer', old: q.original_answer, new: q.new_answer, unchanged: q.discriminates === false,
+      determinacy: q.determinacy, why: q.determinacy_why, steps: q.chain,
+      // Indeterminate: one answer per world, each with the chain that leads to it.
+      worlds: q.world_answers && (rec.worlds || []).map((w) => ({ ...w, ...(q.world_answers[w.id] || {}) })),
+    },
   }
 }
 
@@ -206,6 +212,12 @@ export default function DerivationModal({ rec, target, relations, relationChecks
                     <span className="sids-rule-text">but the edit asserts</span>
                     <span className="sids-new">{c.new}</span>
                   </>
+                ) : c.worlds && world === 'edited' ? (
+                  <div className="sids-world-answers">
+                    {c.worlds.map((w) => (
+                      <span key={w.id}><span className="sids-world-id">{worldLabel(w.id)}</span> <span className="sids-new">{w.answer ?? 'does not know'}</span></span>
+                    ))}
+                  </div>
                 ) : (
                   <span className={world === 'original' ? 'sids-old' : 'sids-new'}>{answer ?? 'not defined in this world'}</span>
                 )}
@@ -213,6 +225,21 @@ export default function DerivationModal({ rec, target, relations, relationChecks
               </div>
             </div>
           </div>
+
+          {world === 'edited' && (c.worlds || c.steps) && (
+            <div className="sids-chain-routes">
+              <span className="sids-leaf-role">
+                {c.worlds ? 'One route per world: what the model stored, and where it leads after the edit' : 'Steps'}
+              </span>
+              {c.why && <p className="sids-rule-text">{c.why}</p>}
+              {c.worlds ? c.worlds.map((w) => (
+                <div key={w.id} className="sids-route">
+                  <div><span className="sids-world-id">{worldLabel(w.id)}</span> {w.summary} <span className="sids-new">→ {w.answer ?? 'does not know'}</span></div>
+                  <ol>{(w.chain || []).map((step, i) => <li key={i}>{step}</li>)}</ol>
+                </div>
+              )) : <ol>{c.steps.map((step, i) => <li key={i}>{step}</li>)}</ol>}
+            </div>
+          )}
 
           {checked.length > 0 && (
             <div className="sids-chain-verdict">

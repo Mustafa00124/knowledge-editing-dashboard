@@ -38,7 +38,7 @@ Every ABox and TBox item is one edit plus exactly 10 queries; an RBox item has 7
 | Key | What it does | Expected answer afterwards |
 | --- | --- | --- |
 | `insert` | Adds knowledge the model does not hold: a real fact it doesn't know, or a fictional one (see [Reality](#reality)). | The new answer. |
-| `replace` | Swaps held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
+| `replace` | Swaps held knowledge for a false alternative (it need not be plausible: an edit that crosses a boundary, such as moving a city to another continent, is fine). Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
 | `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
 
 ### 2. Knowledge form
@@ -47,8 +47,8 @@ Two layers: topic, then box.
 
 **Topic.** `geography`, `people` (facts about famous people), `history`,
 `finance` (including textbook economic laws), `biology` (including medicine),
-`physics`, `mathematics`, `grammar`, `literature_arts`, `technology` (stable
-facts only). A diversity control, so a finding about rules
+`physics`, `literature_arts`, `technology` (stable facts only),
+`mathematics`, `grammar`. A diversity control, so a finding about rules
 isn't secretly a finding about mathematics. It also keeps the records
 organized for browsing.
 
@@ -73,12 +73,12 @@ unrelated, 1 far unrelated, 4 derived**, in that order (records, tables and
 the dashboard list them so). Fixing the counts gives every item the same
 weight in every metric. Until 2026-10-22 items had 2 near and 2 far unrelated
 queries; the TBox items kept the near one whose reference differs from the
-edit's new answer (CRITERIA R6) and the clearer far one.
+edit's new answer (CRITERIA Rule 7) and the clearer far one.
 
 | Key | Count | What it is | Metric |
 | --- | --- | --- | --- |
 | `direct` | 1 | The edited fact asked as a question, in the edit's own wording. | Reliability |
-| `paraphrase` | 1 | The same question in different words. | Reliability |
+| `paraphrase` | 1 | The same question in different words. Where the relation has an inverse, the paraphrase may ask through it ("Sydney is the capital of which country?" for "What is the capital of Australia?"). | Reliability |
 | `cross_lingual` | 2 | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
 | `unrelated_near` | 1 | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Locality |
 | `unrelated_far` | 1 | Nothing in common with the edit. | Locality |
@@ -139,11 +139,12 @@ defined, along with the question template each tag gives. Summary:
 | `subproperty` | R ⊑ S | capital of ⊑ located in. Ask: which country is Lyon located in? |
 | `functional` | R has one value per subject | Replace and delete. Ask: is Paris still the capital of France? (expected: no; under delete, does not know) |
 | `composition` | Any relation + a bridge fact | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
-| `inheritance` | TBox C ⊑ D + a known member | Edit: every capital is a port. Ask: is Paris a port? |
+| `inheritance` | C ⊑ D + a member of C | TBox: the edited rule applied to a member. Edit: every capital is a port. Ask: is Paris a port? ABox: the edit makes an individual a member of a class (or moves it to another), and the question asks a property the class gives its members. Edit: Pluto is a planet. Bridge: every planet orbits a star. Ask: does Pluto orbit a star? This is a different test from TBox: the edit is about one individual, not a rule over a class. |
 | `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
 | `binding` | No relation property | The edit reached through an alias, a bound individual, or (TBox) a new member of the class. Ask: "IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?" |
 | `application` | No relation property | The edit used to fill a field, compute a value or run a workflow. Ask: "A courier must visit the NYSE trading-floor building. Which city should be the courier's destination?" |
 | `scope` | No relation property | The boundary of what follows; the gold is "no" or "cannot be determined". Ask: "Given only the IMF headquarters city, is a particular country Z an IMF member?" |
+| `premise` | A derived edit's premise | A premise of the edited fact asked directly; under derived beliefs its answer depends on which premise gives way. Edit: the Space Needle is in the Central Time Zone. Ask: which time zone does Seattle observe? |
 
 `composition` is the multi-hop question (as in MQuAKE): the edited fact is
 one hop and a fact the model already knows is the next. It needs no relation
@@ -153,8 +154,36 @@ few tags still reach 4 derived queries.
 `binding`, `application` and `scope` are **task types** rather than relation
 properties (they come from the finance/technology replacement panel, whose
 four derived slots are binding, composition with a supplied premise,
-application and scope). An item may use either kind; analysis can split
-generalization by derivation type. When a derived prompt supplies its own
+application and scope). A task type sorts a question by what it asks the
+model to do, not by the logic its answer needs: a binding question is a role
+chain through an alias (`abbreviates⁻ ∘ headquartered_in`), and the courier
+question is a chain from a building to its city, both description logic. An
+item may use either kind; analysis can split generalization by derivation
+type. `scope` fits the determinacy design least (its gold is "cannot be
+determined" with or without the edit), so determinacy records avoid it.
+
+**Logic.** Every derived query names the weakest logic its inference needs,
+in `logic`, and any theory it uses on top, in `theory`. These are settings
+to slice results by, so we can see where parameter editing works and where
+it stops working. The scheme is framed in description logic and most
+derivations stay inside it, but mathematics and grammar especially may need
+more, and a few questions need less.
+
+| `logic` | What the inference needs | Example |
+| --- | --- | --- |
+| `propositional` | Only the truth of whole statements combined with not, and, or, if: no individuals or relations looked inside. | Edit: 91 is prime. "Is it true that 91 is prime or 91 is even?" |
+| `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital), names for the same individual. | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? |
+| `fol` | First-order logic beyond DL: relations among three or more things, comparing values across individuals (a verb agrees in number with its subject), rules whose variables form a cycle. | Edit: singular names take "are". "Is 'Sally are tall' correct?" (the verb's number must equal the subject's) |
+
+| `theory` (optional, with `fol`) | What it adds | Example |
+| --- | --- | --- |
+| `arithmetic` | Computing or comparing numbers. | When it is noon in Chicago, what time is it at the Space Needle? |
+| `temporal` | Comparing dates or ordering events. | Did the first powered flight come after McKinley's death? |
+
+Pick the weakest logic that captures the inference as the question asks it,
+not the strongest one that could. Belief revision itself, which premise gives
+way, is outside all of these: it is the layer the determinacy labels
+describe. When a derived prompt supplies its own
 premise ("Chicago is in Illinois. In which state is ..."), the premise is
 still listed in `bridge` and `bridge_in_prompt` is true: the model is told the
 fact, so there is nothing to check before editing. `discriminates: false`
@@ -229,8 +258,9 @@ Besides its taxonomy coordinates, every record carries tags. Tags are **not
 levels or layers** of the taxonomy: they describe the item further, so
 results can be sliced by them within any cell. Records and the dashboard
 give them in this order: change, relation (and its properties),
-derivability, familiarity; then reality, for insert. Determinacy is a tag of
-each ABox derived query rather than of the record
+derivability; then reality, for insert. Determinacy is a tag of
+each ABox and TBox derived query rather than of the record, and logic of
+every derived query
 ([below](#determinacy-and-belief-revision-problems)).
 
 ### Change
@@ -297,10 +327,12 @@ and for RBox.
 | `very_likely` | 5 | Every square is a polygon (every square is a rectangle, every rectangle is a polygon). |
 
 Editing a fact a model derives leaves its premises pointing at the old
-answer, so the model may re-derive it and slide back, or keep the new value
-only as an exception to premises that still imply the old one. That is the
-[problem of derived beliefs](#belief-revision-problems), which this tag is
-meant to expose. Rules:
+answer. A consistent model revises one of them, and which one is open; a
+model that revises none holds the new value only as an exception to premises
+that still imply the old one, and re-derives the old answer along the premise
+route. That is the [problem of derived
+beliefs](#determinacy-and-belief-revision-problems), which this tag is meant
+to expose. Rules:
 
 - **Premises are listed** in `edit.premises`: the facts the edited one
   follows from and, as a sentence, the rule or relation property that
@@ -308,65 +340,81 @@ meant to expose. Rules:
   Each has a check and is asked before editing, like bridge facts: if the
   model doesn't hold them, it can't derive the fact, and the item is dropped
   for that model.
-- **Premises stay unchanged.** The edit asks only for the conclusion to
-  change, so premises are expected to keep their answers; ask one as the
-  near unrelated query. The result is a deliberately inconsistent world, and
-  whether the model holds the edit anyway or reverts to what its premises
-  imply is the finding. Derived queries that ask what the premises now say
-  are usually `background_beliefs` ([Determinacy](#determinacy-and-belief-revision-problems)).
+- **Premises are not locality.** The edit names only the conclusion, but a
+  consistent revision has to change one of its premises, so a premise's
+  answer after the edit is open. Ask premises as `derived_beliefs` queries,
+  with one answer per world, never as the near unrelated query (see
+  [Determinacy](#determinacy-and-belief-revision-problems)).
 - **The rating is justified** in the record's `notes`.
 
-Like familiarity, the scores are ordinal (`DERIVABILITY_SCORE` in
+The scores are ordinal (`DERIVABILITY_SCORE` in
 `validate.py`, `score` in the dashboard's taxonomy).
 
 > **Derivability is model specific.** Whether a fact is stored or derived
 > really depends on the model: one model may store "the Eiffel Tower is in
 > France" directly, another may work it out from its premises each time, and
 > we can't observe which. The tag is our estimate of how likely a model is to
-> derive it, using our own intuition and criteria. Those criteria will be
-> detailed later.
+> derive it, backed by the evidence below.
 
-### Familiarity
+#### Evidence
 
-How familiar the knowledge involved is likely to be to a model (does
-replacing a very familiar fact fail more often than an obscure one?).
-
-It has three tiers, each taking one of five values:
+Every rating is backed by evidence, shown behind a **?** beside the fact on
+the dashboard: for the edited fact (as the model holds it before the edit)
+and for every premise, optionally for bridge facts. It lives in the record's
+`evidence`, keyed by the fact's exact text:
 
 ```json
-"familiarity": { "fact": "very_high", "subject": "very_high", "object": "high" }
+"evidence": {
+  "The Space Needle is in the Pacific Time Zone.": {
+    "claim": "derived",
+    "why": "Almost never stated. People ask the time zone of cities, not of buildings ...",
+    "sources": [
+      {"kind": "infini-gram", "index": "v4_dolma-v1_7_llama", "query": "Space Needle", "count": 229543},
+      {"kind": "infini-gram", "index": "v4_dolma-v1_7_llama", "query": "Space Needle AND Pacific Time", "count": 33,
+       "note": "Sampled hits are timestamps, not the fact."},
+      {"kind": "wikipedia", "url": "https://en.wikipedia.org/wiki/Space_Needle", "note": "No time zone in the article."}
+    ]
+  }
+}
 ```
 
-| Tier | What it rates | When it applies |
-| --- | --- | --- |
-| `fact` | The original fact as a whole (France's capital is Paris). | Replace and delete. Null for insert, which has no original fact. |
-| `subject` | The edit's subject (France). | Always. |
-| `object` | The edit's object: the new value for insert and replace (Lyon), the removed value for delete. | When the edit has an object; null otherwise. |
+- **Stored:** the fact is stated explicitly and often in text every model
+  likely trained on. Wikipedia is in effectively every model's pretraining,
+  and large public web corpora are a good proxy for the rest; OLMo's own
+  pretraining data (Dolma) is public and searchable. More frequency is
+  stronger evidence: give counts and quote the sentence.
+- **Derived:** easy searches for the direct fact find little or nothing,
+  while each premise is stated often. Give the ratio (the direct form
+  against each premise and against the subject alone), read samples of any
+  hits, and list every search tried, so "absent" means "absent after these
+  searches".
+- Source kinds: `infini-gram` (`query`, `count`, optional `index`, `note`),
+  `wikipedia` and `web` (`url`, optional `quote`, `note`), `search`
+  (`query`, optional `engine`, `note`).
+- The edited fact's `claim` follows its derivability (stored at
+  `very_unlikely` and `unlikely`, derived at `likely` and `very_likely`);
+  premises are claimed stored, except the premise that states the rule
+  combining the others ("a building observes the time zone of the city it
+  stands in"), which is `definitional`: true by what the words mean, so it
+  needs a `why` but no corpus sources.
+- Enough evidence (CRITERIA Rule 5): a stored claim has a quoted sentence or
+  an exact-phrase count of at least 100; a derived claim has at least two
+  corpus counts or searches.
+- Required on records with determinacy, optional elsewhere.
 
-Only binary knowledge has an object. RBox edits are about one relation
-("`located_in` is transitive"), so they have no `edit.object` and only the
-`fact` and `subject` tiers apply. Separating the tiers lets familiarity of the
-entity be told apart from familiarity of the fact: a very familiar subject
-can still have an obscure fact ("France's national flower").
+Counts come from infini-gram's public API. Its AND (nearby co-occurrence)
+queries sample when one side is frequent and can return false zeros unless
+`max_clause_freq` is raised (we use 500,000), and a single zero can still be
+sampling noise. So evidence of absence rests on exact phrases and on reading
+samples, not on one AND count. Seeing a fact in training text shows a model
+saw it, not how it stores it: the rating stays an estimate.
 
-| Value | Score | Fact example | Entity example |
-| --- | --- | --- | --- |
-| `very_low` | 1 | The mayor of a small town. | A small village. |
-| `low` | 2 | The capital of a small province. | A regional politician. |
-| `medium` | 3 | The author of a moderately well-known novel. | A mid-sized city. |
-| `high` | 4 | The capital of Australia. | Lyon. |
-| `very_high` | 5 | The capital of France. | France. |
+### Familiarity (removed)
 
-Records store the words. For analysis, each maps to an integer score from 1
-to 5 (`FAMILIARITY_SCORE` in `validate.py`, `score` in the dashboard's
-taxonomy; `familiarity_scores(record)` gives all three tiers at once, with
-`None` where a tier doesn't apply). The scores are ordinal: the steps are
-ranked but not necessarily equal, so rank correlations (Spearman, Kendall)
-are the safer choice than Pearson.
-
-> **Familiarity is a proxy.** We can't see any model's training data, so the
-> tag is our estimate of how often the knowledge appears in text a model is
-> likely to have seen. The criteria for assigning it will be detailed later.
+Records on `main` carry a `familiarity` tag (fact, subject and object rated
+very low to very high). It was dropped on `sids-determinacy-2` (2026-10-25):
+the evidence behind each fact now says how often it is stated, which is what
+the tag estimated. The validator rejects it on this branch.
 
 ### Reality
 
@@ -383,41 +431,195 @@ value (the Louvre's director), the edit is a replace, not an insert. Derived
 queries of a fictional insert reach real knowledge only through bridge facts
 the model holds or that the prompt states, so their chains can be checked.
 The other tags apply as usual, except that insert has no original fact:
-`familiarity.fact` and `derivability` are null. An invented subject is
-`very_low` familiarity; a real subject keeps its own.
+`derivability` is null.
 
 ### Determinacy and belief-revision problems
 
-*Prototype, on branch `sids-determinacy-prototype`.* Following Hase et al.
-2024, "Fundamental Problems With Model Editing" (TMLR, arXiv 2406.19354), an
-edit does not always say what the rest of the model's beliefs should become,
-and one edit can have both kinds of consequence. After "The capital of
-France is Lyon", "Is Paris the capital of France?" is forced (no), while "In
-which city is the Eiffel Tower?" depends on the model's other beliefs. So
-determinacy is a property of each **ABox derived query**, not of the edit.
-TBox and RBox edits change a rule or a property, and their derived queries
-already spell out what follows, so they carry none.
+*On branch `sids-determinacy-2`.* Builds on Hase et al. 2024, "Fundamental
+Problems With Model Editing" (TMLR, arXiv 2406.19354).
 
-Each ABox derived query has a `determinacy`:
+**Where the problems come from.** Any knowledge system holds two kinds of
+knowledge: a **base** of facts it stores explicitly, and the **closure** of
+that base, everything that follows from it. "Barclays is headquartered in the
+United Kingdom" is in the base of most models; "Barclays and Deutsche Bank are
+headquartered in different countries" is in the closure, worked out from two
+base facts when asked. An edit changes one fact, and what else should change
+depends on what is in the base and how it is stored. For an LLM that is a
+black box: we can't see which facts a model stores, which it derives, or
+under which names or descriptions it stores them. So one edit can have
+several valid outcomes, one per way the model may have stored things.
 
-| Value | What it is | Typical source | Example |
-| --- | --- | --- | --- |
-| `determinate` | The edit, the relation's properties and facts the model surely holds force one answer. | An inverse, functional exclusion, a subproperty, a chain through the edited relation, a composition through a fact stored about the new value by name. | "The capital of France is Lyon." Is Paris the capital of France? No (functional). |
-| `many_worlds` | The edit forces something to change but not what: several answers fit, none preferred (Hase's *problem of many possible worlds*, sec. 3.2). | A "same X as" (equivalence) relation; a functional constraint that forces dropping one of several values. | "Paris and Berlin are in the same country." Which country is Berlin in? France or Germany. |
-| `background_beliefs` | The answer depends on which other facts the model holds and how it stores them (Hase's *problem of background beliefs*, sec. 3.1). | Another fact stored under a name or under a description through the edited relation; a premise of a derived fact, kept as stored or revised to fit the edit. | "The capital of France is Lyon." In which city is the Eiffel Tower? Paris if the model stores "the Eiffel Tower is in Paris", Lyon if it stores "the Eiffel Tower is in the capital of France". |
+**What the labels are for.** They don't resolve that ambiguity; they mark
+where it is. Every ABox and TBox derived query says whether its answer after the edit
+is **determinate**, the same whatever the model stored, or **indeterminate**,
+different depending on what it stored. A wrong answer on a determinate query
+is the editing method's failure. A "wrong" answer on an indeterminate query
+may be a different valid world, so it is scored against every world
+([below](#worlds-and-chains)), not counted as a plain failure. This separates
+failures that come from the method from ambiguity that is built into belief
+revision.
 
-The last two are **indeterminate**. Such a query has a short
-`determinacy_why`, `new_answer: null` and `world_answers`, one answer per
-world, with at least two different answers. A determinate query keeps a
-single `new_answer` and has no `world_answers`. A record has `worlds` exactly
-when at least one of its derived queries is indeterminate: 2 to 4
-`{id, assumes, summary}`, where `assumes` lists the facts or choices that
-world keeps. A world is a full assignment of the record's open choices, so
-one set of worlds covers all its indeterminate queries, and `world_answers`
-is keyed by exactly those ids. Direct, paraphrase and cross-lingual queries
-keep a single `new_answer`: the edit itself is not in doubt. The tag is
-optional, but all or none: if one derived query of a record has it, all four
-do. An excerpt of `geography-replace-0003`:
+#### The two problems
+
+**Problem of background beliefs** (query level; Hase et al. 2024, sec. 3.1).
+The edit is clear, and it doesn't clash with anything; but how it propagates
+to *other* derived questions depends on the beliefs the model held before the
+edit, and how it stored them. With different prior beliefs, the correct
+answer after the edit is different.
+
+> Edit: "The capital of France is Lyon." Ask: "In which city is the Eiffel
+> Tower?" If the model stored "the Eiffel Tower is in Paris", the answer stays
+> Paris. If it stored "the Eiffel Tower is in the capital of France", the
+> tower moves with the capital and the answer is Lyon. Both are valid; which
+> one is right depends on a storage choice we can't see.
+
+This problem typically arises on edits of facts the model stores (derivability
+`very_unlikely` or `unlikely`), through another fact that refers to the edited
+one by name in one world and by description in another.
+
+**Problem of derived beliefs** (edit level; our name). The edited fact is
+itself likely in the closure, not the base: the model doesn't store it, but
+derives it from premises it does store (derivability `likely` or
+`very_likely`). Editing it writes the new value as an explicit fact, but the
+premises are still there and still imply the old one. Two things can follow:
+
+- **A consistent revision:** one of the premises gives way so that they imply
+  the new value. Which premise gives way is open, so the edit has several
+  valid worlds, and questions about the premises (or that route through them)
+  are indeterminate.
+- **An inconsistency:** no premise is revised. The model now holds the new
+  value explicitly *and* derives the old one from its premises. Asked
+  directly it gives the new answer; asked along the route through the
+  premises it gives the old one. This is a portability failure, and it is a
+  failure in every world: no consistent revision allows it.
+
+> Edit: "Elizabeth I's paternal grandfather was Henry VI" (originally Henry
+> VII; almost no text states it, but every model stores "Henry VII was the
+> father of Henry VIII" and "Henry VIII was the father of Elizabeth I", and
+> the father of one's father is one's paternal grandfather). World 1: Henry
+> VIII's father gives way, and Henry VIII becomes Henry VI's son. World 2:
+> Elizabeth's father gives way, and she becomes the daughter of some son of
+> Henry VI. "Who was Henry VIII's father?" is indeterminate (Henry VI in world
+> 1, Henry VII in world 2). "Who was the father of Elizabeth I's father?" is
+> determinate: Henry VI in both worlds. A model that answers Henry VII there
+> holds the edit only as a patch on top of premises that contradict it.
+
+So derived-belief edits get two kinds of derived query: indeterminate ones
+about the premises, and determinate ones that reach the edited fact along the
+**premise route**. The second kind is what exposes the inconsistency.
+
+A derived-belief edit can also have background-belief queries. Each
+indeterminate query names the problem its ambiguity comes from.
+
+#### Labels
+
+Each ABox and TBox derived query has a `determinacy`:
+
+| Value | What it means | Typical source |
+| --- | --- | --- |
+| `determinate` | Every valid world gives the same answer: the edit, the relation's properties and facts the model surely holds force it. | An inverse, functional exclusion, a subproperty, a chain through the edited relation; on a derived-belief edit, the edited fact asked along its premise route. |
+| `background_beliefs` | The answer depends on which beliefs the model held before the edit and how it stored them. | Another fact stored under a name in one world and under a description through the edited relation in another. |
+| `derived_beliefs` | The answer depends on which premise of a derived edited fact gives way. | A premise of the edited fact, or a question whose route runs through one. |
+
+The last two are **indeterminate**. The edit-level side of the problem of
+derived beliefs is read off `derivability`, which is not new.
+
+**How a query is labelled.** A **route** is a chain of stored facts and rules
+that produces the query's answer. Before the edit every plausible route gives
+the original answer, since the model was consistent. To label a query:
+
+1. List every route a reasonable model could have used to reach the answer
+   before the edit, and, on a derived-belief edit, every premise of the
+   edited fact that could give way.
+2. Follow each route again with the edit applied (and, on a derived-belief
+   edit, with each premise giving way in turn).
+3. Drop a route whose answer after the edit contradicts a fact the model
+   holds firmly: it doesn't describe a valid world, only an inconsistent
+   model.
+4. If every remaining route gives one answer, the query is `determinate`. If
+   they split because of how facts were stored, it is `background_beliefs`;
+   if they split because of which premise gives way, `derived_beliefs`.
+
+The four scenarios:
+
+| Scenario | Before the edit | After the edit | Label | Example |
+| --- | --- | --- | --- | --- |
+| A. One route | One way to the answer. | One answer. | `determinate` | Edit: the capital of Australia is Sydney. "Is Canberra the capital of Australia?" goes only through the edited fact: no. |
+| B. Several routes, all through the edit | Several ways, each through the edited fact. | They move together. | `determinate` | "Is the capital of Australia on the coast?" Every route runs capital → Sydney → coast: yes. |
+| C. Several routes, some around the edit | One route goes through the edited fact, another reaches the answer without it. | They split. | `background_beliefs` | "In which city is Australia's Parliament House?" Stored as "in the capital": Sydney. Stored as "in Canberra" by name: Canberra. |
+| D. One route through a premise of a derived edit | One way, but it uses a premise of the edited fact. | It depends on which premise gives way. | `derived_beliefs` | Edit: the Space Needle is in the Central Time Zone (derived from: it is in Seattle, Seattle observes Pacific Time). "Which time zone does Seattle observe?" Pacific if the Space Needle moves, Central if Seattle does. |
+
+So several routes are not enough for indeterminacy (B): they have to diverge
+after the edit. On an edit of a stored fact, one route always means
+determinate; on a derived-belief edit, one route can still split (D), because
+the split comes from revision rather than storage.
+
+Step 3 is where care is needed. After "the capital of Australia is Sydney", a
+model that stored "Parliament House is in Canberra" by name is in a valid
+world: Parliament is simply no longer in the capital. A model that stored "the
+capital of Australia is in the Australian Capital Territory" would now put
+Sydney in the ACT, which contradicts "Sydney is in New South Wales". That is
+not a world, so "In which state or territory is the capital of Australia?" is
+`determinate` (New South Wales), and a model answering the ACT is
+inconsistent.
+
+Direct, paraphrase and cross-lingual queries keep a single `new_answer`: the
+edit itself is never in doubt.
+
+**TBox.** A TBox edit changes a rule about a class ("Every spider has eight
+legs" to six). Its derived queries apply the rule to members, and which
+member decides the label:
+
+- A **new or unfamiliar member named in the prompt** ("The peacock spider is a
+  newly described species. How many legs does it have?"): the model knows
+  nothing about it but its class, so the rule is the only route:
+  `determinate`.
+- A **well-known member** whose property the model likely also stores
+  directly ("How many legs does a tarantula have?"): one world keeps the
+  stored fact and the tarantula stops being a spider (eight legs); the other
+  applies the rule (six legs): `background_beliefs`. "Is a tarantula a
+  spider?" splits the same way.
+
+In the world where the stored fact wins, the member's class membership gives
+way; it does not stay in the class as an exception to the edited rule, which
+would be the inconsistent patch (Decisions 2). If leaving the class would
+contradict firm facts outside the chain, the rule is re-picked.
+
+Rules must have no real exceptions ("all mammals give birth to live young"
+fails on the platypus), or the original answers are wrong.
+
+**RBox** records carry no determinacy. Their derived queries ask what
+follows, with the facts in the prompt ("France borders Spain. Does it follow
+that Spain borders France?"), which is the same whatever the model stored.
+Asking what is true instead ("Does Spain border France?") would let a stored
+fact compete with the edited property; RBox records don't ask that.
+
+An RBox edit states only the property: "'Borders' is symmetric.", not an
+explanation of what symmetry means ("...: if one country borders another,
+the second also borders the first"). The questions carry the meaning. A role
+chain, which has no short name, may be one if-then sentence.
+
+Every RBox replace edit changes or removes a property that actually holds
+("'borders' is symmetric" to not symmetric); it never adds one that doesn't.
+The mirrored delete removes the original, and deleting a negative original
+("R is not symmetric") would leave "does not know" with nothing to stand
+for. Yes and no answers are balanced through the question's phrasing ("Is
+'borders' asymmetric?" has the original answer no).
+
+#### Worlds and chains
+
+A record with at least one indeterminate query lists its **worlds**: 2 to 4
+`{id, assumes, summary}`. Each world is one hypothesis about the model:
+`assumes` lists what it stored before the edit (background beliefs) or which
+premise gives way (derived beliefs), and `summary` says in a sentence what the
+world looks like after the edit. A world fixes every open choice of the
+record, so one set of worlds covers all its indeterminate queries.
+
+Every indeterminate query gives, per world, the answer and the **chain** that
+leads to it: the steps from that world's stored beliefs and the edit to the
+answer, one fact or rule per step. The chains together are the query's tree
+of possibilities: one branch per thing the model may have stored. A
+determinate query may give its one chain too. An excerpt:
 
 ```json
 "edit": {"statement": "The capital of France is Lyon.", "subject": "France",
@@ -432,39 +634,254 @@ do. An excerpt of `geography-replace-0003`:
   {"prompt": "Is Paris the capital of France?", "original_answer": "yes",
    "new_answer": "no", "derivation": "functional", "determinacy": "determinate", ...},
   {"prompt": "In which city is the Eiffel Tower?", "original_answer": "Paris",
-   "new_answer": null, "world_answers": {"w1": "Paris", "w2": "Lyon"},
-   "derivation": "composition", "determinacy": "background_beliefs",
-   "determinacy_why": "Paris if the model stores the tower's location under Paris's name; Lyon if it stores it as 'the capital of France', the description the edit changed.", ...}
+   "new_answer": null, "derivation": "composition",
+   "determinacy": "background_beliefs",
+   "determinacy_why": "Paris if the model stores the tower's location under Paris's name; Lyon if it stores it as 'the capital of France', the description the edit changed.",
+   "world_answers": {
+     "w1": {"answer": "Paris",
+            "chain": ["The Eiffel Tower is in Paris. (stored)", "So the Eiffel Tower is in Paris."]},
+     "w2": {"answer": "Lyon",
+            "chain": ["The Eiffel Tower is in the capital of France. (stored)",
+                      "The capital of France is Lyon. (edit)",
+                      "So the Eiffel Tower is in Lyon."]}
+   }, ...}
 ]
 ```
 
-Scoring does not use `world_answers` yet: a natural reading is that an
-answer passes if it matches some world, and which world it matches is
-recorded, as in the derivation trees of `CRITERIA.md`.
+An indeterminate query has `new_answer: null`, a short `determinacy_why`, and
+`world_answers` keyed by exactly the record's world ids, with at least two
+different answers among them. A determinate query keeps its single
+`new_answer` and has no `world_answers`.
 
-#### Belief-revision problems
+**Scoring** (not implemented yet): a determinate query passes on its
+`new_answer`. An indeterminate one passes if the answer matches some world,
+and which world it matches is recorded. Across a record's indeterminate
+queries, the worlds a model's answers pick should agree; answers from
+different worlds are themselves an inconsistency. An answer that matches no
+world fails.
 
-Each ABox derived query falls under one of these, read off its
-`determinacy` and the edit's `derivability` (nothing more is stored):
+#### Delete under determinacy
 
-- **Easy (no problem):** a determinate query on an edit whose original fact
-  is stored (derivability `very_unlikely` or `unlikely`). There is one
-  correct answer and nothing works against it, so a failure here is the
-  editing method's fault, not belief revision's.
-- **Problem of many possible worlds** (query level; Hase et al. 2024, sec.
-  3.2): a `many_worlds` query.
-- **Problem of background beliefs** (query level; Hase et al. 2024, sec.
-  3.1): a `background_beliefs` query.
-- **Problem of derived beliefs** (edit level; our name): the edited fact is
-  likely derived rather than stored (derivability `likely` or
-  `very_likely`), so writing the new value adds an explicit exception on top
-  of premises that still imply the old one, instead of revising those
-  premises (compare belief bases and belief sets in belief revision,
-  Hansson). Every derived query of such an edit has this problem, and a
-  query can carry it together with a query-level one.
+Each replace record has a delete record that removes the same original fact
+(`<topic>-delete-NNNN` mirrors `<topic>-replace-NNNN`). The target is no
+longer a new value but "does not know" (`new_answer: null`), and the same two
+problems arise:
 
-A determinate query on an edit of `medium` derivability falls under none of
-them. `criteria.py` reports the counts per topic (CRITERIA.md B7).
+- **Stored fact deleted** (background beliefs). Deleting "Canberra is the
+  capital of Australia": "Is Canberra the capital of Australia?" goes only
+  through the removed fact, so it is `determinate` (does not know). "In which
+  city does the federal Parliament sit?" is Canberra in the world that stored
+  it by name, and does not know in the world that stored it as "in the
+  capital": `background_beliefs`.
+- **Derived fact deleted** (derived beliefs). Removing only the conclusion
+  does not hold: the model can derive it again from its premises. A real
+  delete makes one premise go. Deleting "the Space Needle is in the Pacific
+  Time Zone": the premise-route query ("Which time zone does the city the
+  Space Needle stands in observe?") is does-not-know in every world, so
+  `determinate`, and a model answering Pacific only hid the conclusion and
+  re-derived it. "Which time zone does Seattle observe?" is Pacific if the
+  Needle's location was forgotten, does-not-know if Seattle's zone was:
+  `derived_beliefs`.
+- **TBox**: deleting "every spider has eight legs", a new member named in the
+  prompt is does-not-know (`determinate`); a tarantula is eight legs if stored
+  by name, does-not-know if reached through the rule (`background_beliefs`).
+- **RBox**: deleting "'borders' is symmetric", "Does it follow that Spain
+  borders France?" can no longer be concluded (`new_answer: null`).
+
+In `world_answers`, a world whose route ran through the removed fact has
+`"answer": null` (the model should abstain), with its chain like any other.
+A world whose route went around the removed fact keeps the original answer.
+The worlds usually carry over from the replace record; each world's answer
+is re-derived for the delete. Derived queries phrased around the replacement
+value are rephrased around the original one.
+
+#### Insert (fictional)
+
+Inserts on this branch are **fictional only** (`reality: fictional`): the
+model cannot already hold the fact, so the audit never has to rule that out,
+and the test is acquiring knowledge and connecting it to what the model holds,
+not overwriting a fact. There is no delete mirror (deleting a fact the model
+never had tests nothing) and no derivability (`null`). Instead every insert
+says what is made up, in `fictional`:
+
+| Value | What is made up | Example | Where derived queries go |
+| --- | --- | --- | --- |
+| `entity` | an individual or class, in a real relation to real things | "Velmora is a town in Portugal." | Through real facts: "Is Velmora in Europe?" (transitivity), "Which currency is used in Velmora?" (chain). |
+| `relation` | the relation, between real things | "Lisbon is lantern-paired with Valparaíso." | Through the real entities ("...paired with a city in which country?"), or through a property of the relation stated in the prompt. |
+| `both` | everything | "Velmora is lantern-paired with Kestrel Bay." | Only through facts the prompt gives: pure logical generalization, little to connect to. |
+
+Per topic: ABox 3 `entity`, 3 `relation`, 2 `both`; TBox 2 of each (a
+fictional class under a real one, a real class with a fictional property, or
+both); RBox 3 `relation` (real instances in the prompts) and 3 `both` (an RBox
+edit is always about a relation). Ids: ABox `0001`-`0008`, TBox `0009`-`0014`,
+RBox `0015`-`0020`.
+
+**Determinacy.** An `entity` insert keeps 2 determinate and 2 indeterminate
+derived queries. The indeterminate ones come from aggregates, superlatives and
+uniqueness about the real things the insert touches: after "Thalia is a newly
+discovered moon of Eris", "How many moons does Eris have?" goes up by one if
+the model keeps Eris's moons as a list, and stays if it stores the number
+(`background_beliefs`).
+
+**Could it exist unrecorded?** A made-up entity must be something that could
+exist without the record already knowing it: a newly found moon, species,
+manuscript or minor town, whose discovery would simply update a count. Not
+something the record would certainly know of: a new country bordering France,
+a second opera by Beethoven, a sibling of a well-documented person. Those
+falsify documented facts rather than add to them, and count as replaces. A `relation` or `both` insert has little stored
+knowledge to compete with, so all its derived queries may be determinate.
+
+**Rules.**
+- Made-up names are new: near-zero corpus counts and a search showing no real
+  thing by that name. Their evidence claim is `fictional`; bridge facts keep
+  their own (real) evidence and checks.
+- A fictional relation is catalogued in `RELATIONS.md` with "(fictional)" in
+  its reading and the properties the prompts use.
+- The insert contradicts nothing real: a slot that already has a real value is
+  a replace, not an insert.
+- `original_answer` is null; locality queries include the real things touched,
+  so a leak ("Which cities are in Portugal?" now naming Velmora) is caught.
+
+#### Shape per topic
+
+Every topic gets **8 ABox, 6 TBox and 6 RBox edits under each operation**, 20
+per operation: replace, delete mirroring replace, and insert (60 edits per
+topic):
+
+| Box | Edits | Derived queries per edit | Determinacy |
+| --- | --- | --- | --- |
+| ABox | 8: 4 stored facts, 4 derived (below) | 4 | 2 determinate, 2 indeterminate |
+| TBox | 6 | 4 | 2 determinate (new members), 2 indeterminate (well-known members) |
+| RBox | 6 | 2 | none: "Does it follow that ...?" is determinate by construction |
+
+Ids under replace and delete: `0001`-`0004` and `0013`-`0016` ABox,
+`0005`-`0008` and `0019`-`0020` TBox, `0009`-`0012` and `0017`-`0018` RBox, the
+same numbers under both. Insert, written later, numbers its boxes in order:
+`0001`-`0008` ABox, `0009`-`0014` TBox, `0015`-`0020` RBox. The later
+ids were added (2026-10-25) for relation-property coverage (CRITERIA Rule
+12). ABox `0013`-`0016` are chosen for a relation that carries transitivity,
+a role chain, a subproperty or a class to inherit from, and their
+determinate queries use those properties. RBox `0017` changes a declared
+role chain and `0018` a functional property.
+
+The ABox edits:
+
+| Ids | Derivability of the edited fact | Main problem |
+| --- | --- | --- |
+| `0001`, `0002` | `very_unlikely` or `unlikely` (stored) | background beliefs |
+| `0003`, `0004` | `likely` or `very_likely` (derived) | derived beliefs |
+| `0013`, `0014` | `very_unlikely` or `unlikely` (stored) | background beliefs |
+| `0015`, `0016` | `likely` or `very_likely` (derived) | derived beliefs |
+
+Each ABox edit has the usual 10 queries, and its **4 derived queries are 2
+determinate and 2 indeterminate**. On a derived-belief edit, at least one
+determinate query asks the edited fact along its premise route, and the
+indeterminate ones are usually `derived_beliefs`.
+
+**Mathematics is the exception, and grammar's ABox: their derived queries may
+all be determinate.** Grammar's ABox edits are word forms ("went" to
+"goed"), anchored by firm examples, so they leave one world; grammar's TBox
+edits are agreement rules ("a singular name takes 'is'" to "'are'"), whose
+well-known and new members split as in any TBox. A fact about a particular number rests on definitions and
+proofs, so no premise can give way ("91 = 7 × 13" can't), and after an edit
+like "91 is prime" there is no consistent world to split between. Its derived
+queries ask what the edit forces through definitions ("Is 91 divisible by
+7?": no), and failure there is the method's. Mathematics records leave out
+`worlds`.
+
+Across 10 topics that is 180 replace edits (80 ABox, 40 TBox, 60 RBox) with
+1,620 queries, 600 of them derived, and as many delete edits and queries
+again: 360 edits and 3,240 queries in all.
+
+Every derived query with one answer (determinate, or RBox) shows its
+**chain**: the steps from the edit to the answer. Every indeterminate query
+gives a chain per world. Every derived query names its `logic`. The validator
+requires all of this for files under `records/`.
+
+**Choosing relations for coverage.** Which relation properties a record can
+test depends on its relation: symmetry needs a symmetric relation (borders,
+married to), transitivity a transitive one (located in, part of). So edits
+are chosen partly for their relation, to cover the properties CRITERIA Rule
+12 asks for. Property derivations are usually determinate, so they belong in
+the 2 determinate slots; composition and premise queries carry the
+indeterminate ones. ABox records may also use `inheritance`, when the edit
+places an individual in a class.
+
+Writing these needs care. Each indeterminate answer must really depend on a
+storage choice that a reasonable model could make either way, and each world
+must be consistent with everything else the record assumes. Each determinate
+answer must hold in every world. When in doubt, a query is left out rather
+than labelled.
+
+#### Decisions on the open questions
+
+Found while scouting all ten topics (2026-10-24) and settled before writing
+records (2026-10-25). Each may be revisited.
+
+1. **Which worlds count (step 3).** Each world lists the premise that gives
+   way **and** the side facts that change with it (if Seattle's time zone
+   gives way, Washington State's goes with it). A world is dropped only if it
+   contradicts a firm fact about things outside the chain (dates, other
+   places, other people), or if the premise is itself entailed by other firm
+   facts, so it can't really give way.
+2. **Class rules as premises.** ABox derived edits use premises about
+   individuals only, never a class rule ("crocodilians have four-chambered
+   hearts" invites an "except the gharial" revision, which leaves the
+   premise-route query without one answer).
+3. **Grammar.** ABox: word-form edits, all determinate. TBox: agreement rules,
+   split as any TBox ("Harry are good" belongs here).
+4. **Lopsided worlds** are kept and not weighted: one world being likelier
+   doesn't make the other invalid.
+5. **Scope** derivations are not used on this branch.
+
+## Running methods
+
+Records reach the editing methods through
+`experiments/run_experiment/sids_requests.py`, which `run_experiment.py`
+uses for any `--data_path` under `datasets/SidsDataset`. Each record becomes
+one edit request:
+
+| | Edit prompt | Target |
+| --- | --- | --- |
+| replace | the direct question | the direct question's new answer |
+| delete | the direct question | "I don't know" |
+
+The paraphrase, cross-lingual, locality and derived questions travel with the
+request; an indeterminate derived question carries its per-world answers.
+
+Every requirement a method relies on is checked and raises a named error with
+the record id (`EmptyTarget`, `TargetEqualsOriginal`, `MissingAnswer`,
+`SubjectNotInPrompt`, ...) instead of being worked around: a run that gets
+through has met them. Methods that edit at the subject's last token (ROME,
+AlphaEdit, FiDAL, FiNE, IFMET, LTI and the other locate-and-edit methods)
+need the subject verbatim, exactly once, in the prompt. CRITERIA Rule 13
+runs these checks on every record without a GPU.
+
+**Smoke run.** `run_experiment.py --smoke` (launched as **Method smoke run**
+on the dashboard, `experiments/sids_smoke/`, one launch per model, all core
+methods in turn) applies the method to every record one at a time and checks
+each edit: the subject maps onto whole tokens, the target tokenizes, the
+edited weights really changed and are finite, the model still generates, and
+the original weights come back exactly. Failures go to
+`results/sids_smoke/runs/smoke_<method>_<model>/smoke.jsonl`; a run that can't
+restore the weights stops. Not yet run: the first gaivi run is also the test
+of the smoke code itself.
+
+**Open decisions** (the basic choice is implemented; to refine):
+
+1. **TBox and RBox edit prompts.** Both use the direct question like ABox.
+   The TBox subject is the class as the record names it, and the RBox subject
+   is the relation wording quoted in the question. About half the TBox
+   records and 40% of the RBox records don't have that subject verbatim in
+   the question ("bacterium" vs "Are bacteria ...?"), so the subject-locating
+   methods fail on them (Rule 13 lists them). Options: a statement-form
+   prompt per box, an explicit `edit.prompt` and `edit.subject_span` field
+   per record, or running those boxes only through methods that need no
+   subject.
+2. **Scoring indeterminate questions.** The requests carry each world's
+   answer, and the intended rule is that an answer passes if it matches some
+   world and records which. The evaluation that applies it is not written
+   yet.
 
 ## Evaluation
 
@@ -550,23 +967,15 @@ declining to answer counts as `SAME`.
 
 ## Records
 
-> **On branch `sids-determinacy-prototype`**, `records/` holds replace items
-> for people, finance and geography only: a 9-record ABox prototype whose
-> derived queries carry [determinacy](#determinacy-and-belief-revision-problems),
-> three per topic, plus the original TBox (`0011`-`0020`) and RBox
-> (`0021`-`0030`) replace items of those topics. In each topic, `0001` edits a
-> fact that is very likely derived (never stated, composed through a chain:
-> Elizabeth I's paternal grandfather, the headquarters state of Instagram's
-> parent company, which side of the road Munich drives on), with one
-> background-beliefs query; `0002` makes two things "the same X" (compatriots,
-> same country), with two many-worlds queries; `0003` edits a stored fact
-> (Marie Curie's husband, Switzerland's currency, the capital of France),
-> with one background-beliefs query. Of the 36 derived queries, 24 are
-> determinate, 6 many_worlds and 6 background_beliefs. The TBox and RBox
-> items differ from `main` only in what changed for every record on
-> 2026-10-22: no `temporal` tag, one near and one far locality query, and the
-> new key order. The sections below on imported panels, insert and delete
-> records, and the size goal describe the full dataset on `main`.
+> **On branch `sids-determinacy-2`**, `records/` starts empty. Records are
+> being written again, one at a time, to the shape in [Shape per
+> topic](#shape-per-topic): 4 replace edits per topic in each box, every ABox
+> and TBox derived query labelled with its [determinacy](#determinacy-and-belief-revision-problems)
+> and every indeterminate one with a chain per world. Insert and delete
+> records are out of scope on this branch. The sections below on
+> imported panels, replace records for the other topics, delete and insert
+> records, and the size goal describe the full dataset on `main`; the format
+> and the rules for adding a record apply here too.
 
 ### Layout
 
@@ -632,11 +1041,11 @@ rejected, so typos don't silently drop data.
 | `relation` | string | a relation in `RELATIONS.md` |
 | `relation_semantics` | `causal` \| `associative`, optional | no longer required or checked against `RELATIONS.md` (see [Relation](#relation)) |
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
-| `familiarity` | object | tiers `fact`, `subject`, `object`, each `very_low` \| `low` \| `medium` \| `high` \| `very_high` or null; `fact` null exactly for insert, `subject` always set, `object` set exactly when the edit has one |
 | `reality` | `real` \| `fictional` | insert only, and required there; left out otherwise |
-| `worlds` | list, ABox only | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when at least one derived query is `many_worlds` or `background_beliefs` (see [Determinacy](#determinacy-and-belief-revision-problems)) |
+| `worlds` | list, ABox and TBox only | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when at least one derived query is indeterminate (`background_beliefs` or `derived_beliefs`) (see [Determinacy](#determinacy-and-belief-revision-problems)) |
 | `queries` | object | the 10 queries (7 for RBox), below |
 | `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge facts not stated in a prompt), with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
+| `evidence` | object | why each fact is rated stored or derived, keyed by the fact's exact text (see [Evidence](#evidence)); required for the edited fact and every premise on records with determinacy, optional otherwise |
 | `notes` | string, optional | |
 | `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |
 
@@ -647,9 +1056,10 @@ Each query:
 | `prompt` | string | the question as asked |
 | `original_answer` | string \| null | the answer before the edit; null for insert; required on reliability and cross-lingual queries under replace and delete, optional on derived queries (null when the old-world answer isn't defined) |
 | `new_answer` | string \| null | the answer after the edit; null for delete; required for insert and replace, except on indeterminate derived queries, where it is null |
-| `determinacy` | `determinate` \| `many_worlds` \| `background_beliefs`, optional | ABox derived only, and all or none within a record (see [Determinacy](#determinacy-and-belief-revision-problems)) |
-| `determinacy_why` | string | derived only; required on indeterminate queries (`many_worlds`, `background_beliefs`), optional otherwise: why the answer is open |
-| `world_answers` | object | derived only, exactly on indeterminate queries: one non-empty answer per world, keyed by exactly the record's world ids, with at least two different answers |
+| `determinacy` | `determinate` \| `background_beliefs` \| `derived_beliefs`, optional | ABox and TBox derived only, and all or none within a record (see [Determinacy](#determinacy-and-belief-revision-problems)) |
+| `determinacy_why` | string | derived only; required on indeterminate queries (`background_beliefs`, `derived_beliefs`), optional otherwise: why the answer is open |
+| `world_answers` | object | derived only, exactly on indeterminate queries: one `{answer, chain}` per world, keyed by exactly the record's world ids, with at least two different answers; `chain` lists the steps from that world's stored beliefs and the edit to the answer ([Worlds and chains](#worlds-and-chains)) |
+| `chain` | string list, optional | derived only, on determinate queries: the steps from the edit to the answer |
 | `reference` | string, optional | locality queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
 | `derivation` | see derived queries | derived only |
@@ -658,9 +1068,12 @@ Each query:
 | `via` | string, optional | derived only; the relation whose tag licenses the derivation, when it isn't the edited relation |
 | `bridge_in_prompt` | bool, optional | derived only; the bridge facts are stated in the prompt, so they aren't checked before editing |
 | `discriminates` | bool, optional | derived only; false when the answer is the same before and after the edit |
+| `premise_route` | bool, optional | derived only, on a determinate query of an edit with premises: the query reaches the edited fact along its premises, where only an inconsistent model gives the old answer |
+| `logic` | `propositional` \| `dl` \| `fol` | derived only, required: the weakest logic the inference needs (see Logic under [Derived queries](#derived-queries)) |
+| `theory` | `arithmetic` \| `temporal`, optional | derived only, with `logic: fol`: a theory the inference uses on top |
 
 The record's keys come in the order of this table: identity, the edit, the
-relation, derivability, familiarity, then the rest. `queries` holds, in this
+relation, derivability, then the rest. `queries` holds, in this
 order, `direct` and `paraphrase` (one object each), and `cross_lingual` (2),
 `unrelated_near` (1), `unrelated_far` (1) and `derived` (4) as lists.
 The validator also checks that each derivation's tag exists on the relation
@@ -671,7 +1084,11 @@ that transitivity, chain, composition and inheritance have a bridge fact.
 The templates in `examples/` are complete, valid records: a replace
 (`geography-replace-0001`) and a delete (`geography-delete-0001`) of facts
 very unlikely to be derived, and a replace of a fact likely to be derived,
-with its premises (`geography-replace-0002`).
+with its premises (`geography-replace-0002`). Two follow the determinacy
+scheme of this branch, with worlds, per-world chains and evidence: a stored
+edit with background-belief queries (`geography-replace-0003`, the capital of
+Australia) and a derived edit with derived-belief and premise-route queries
+(`geography-replace-0004`, the Space Needle's time zone).
 
 ### Imported panels
 
@@ -748,7 +1165,8 @@ validator only requires ids to be unique within `records/`.
 
 `records/<topic>/delete/` mirrors `replace/` one to one: `<topic>-delete-NNNN`
 deletes the original fact of `<topic>-replace-NNNN` (300 items), built by
-`build_delete.py`. The statement is the original fact and `edit.object` the
+`build_delete.py`. (On `sids-determinacy-2` deletes are written per record,
+with their own worlds; `build_delete.py` is for `main`'s records only.) The statement is the original fact and `edit.object` the
 removed value; every `new_answer` is null and the original answers stay.
 A record's `relation` describes its own statement, so a replace that reversed
 a `raises` or `lowers` (read off `object` and `old_object`) gives its delete
@@ -805,6 +1223,10 @@ benchmark buildable. They may come back as separate subsets:
   nothing about them beforehand.
 
 ## Size goal
+
+On `sids-determinacy-2` the goal is the [Shape per topic](#shape-per-topic):
+180 replace and 180 delete edits, 3,240 queries. The full dataset
+on `main`:
 
 90 taxonomy cells: 10 topics × 3 operations × 3 knowledge forms (the DL
 boxes). Every cell has 10 edits, so each topic holds 30 edits per operation:

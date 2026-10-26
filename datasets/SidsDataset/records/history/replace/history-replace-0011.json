@@ -1,0 +1,85 @@
+{
+  "id": "history-replace-0011",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Assassinated' is not a subproperty of 'killed'.",
+    "subject": "assassinated",
+    "original": "'Assassinated' is a subproperty of 'killed'.",
+    "scope": "Whether every assassination is a killing by the assassin.",
+    "axiom": "assassinated ⋢ killed"
+  },
+  "relation": "assassinated",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is 'assassinated' a subproperty of 'killed', so that whoever assassinated a person killed them?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "加夫里洛·普林西普刺杀了弗朗茨·斐迪南大公。能否由此推出加夫里洛·普林西普杀死了弗朗茨·斐迪南大公？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "Gavrilo Princip asesinó al archiduque Francisco Fernando. ¿Se deduce que Gavrilo Princip mató al archiduque Francisco Fernando?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is 'was exiled to' a subproperty of 'died in', so that whoever was exiled to a place died there?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a sibling of' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Gavrilo Princip assassinated Archduke Franz Ferdinand. Does it follow that Gavrilo Princip killed Archduke Franz Ferdinand?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Gavrilo Princip assassinated Archduke Franz Ferdinand."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Gavrilo Princip assassinated Archduke Franz Ferdinand. (given in prompt)",
+          "'Assassinated' is not a subproperty of 'killed': assassinating a person does not by itself mean killing them. (edit)",
+          "Without the property, the stated facts no longer give that Gavrilo Princip killed Archduke Franz Ferdinand: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Nathuram Godse assassinated Mahatma Gandhi. Does it follow that Nathuram Godse killed Mahatma Gandhi?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Nathuram Godse assassinated Mahatma Gandhi."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Nathuram Godse assassinated Mahatma Gandhi. (given in prompt)",
+          "'Assassinated' is not a subproperty of 'killed': assassinating a person does not by itself mean killing them. (edit)",
+          "Without the property, the stated facts no longer give that Nathuram Godse killed Mahatma Gandhi: no."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Removes a true subproperty (assassinated is tagged subproperty:killed in RELATIONS.md). Both instances are single-assassin killings where the assassin fired the fatal shots himself (Princip in Sarajevo, 1914; Godse in New Delhi, 1948), so the real-world answer is clear; Lincoln and Caesar are avoided, the first because history-replace-0002 edits his assassination, the second because many hands struck. The Spanish 'asesinar' covers both murder and assassination; the instance prompt still separates it from 'matar'. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

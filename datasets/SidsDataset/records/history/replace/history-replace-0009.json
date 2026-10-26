@@ -1,0 +1,89 @@
+{
+  "id": "history-replace-0009",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Happened before' is not transitive.",
+    "subject": "happened_before",
+    "original": "'Happened before' is transitive.",
+    "scope": "The time order between historical events, and whether it carries along a chain of events.",
+    "axiom": "¬Trans(happened_before)"
+  },
+  "relation": "happened_before",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'happened before' (between historical events) transitive?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "西罗马帝国的灭亡发生在诺曼征服英格兰之前，诺曼征服英格兰发生在《大宪章》签署之前。能否由此推出西罗马帝国的灭亡发生在《大宪章》签署之前？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "La caída del Imperio romano de Occidente ocurrió antes de la conquista normanda de Inglaterra, y la conquista normanda de Inglaterra ocurrió antes de la firma de la Carta Magna. ¿Se deduce que la caída del Imperio romano de Occidente ocurrió antes de la firma de la Carta Magna?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is located in' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is the mother of' symmetric?",
+        "reference": "no"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The fall of the Western Roman Empire happened before the Norman Conquest of England, and the Norman Conquest of England happened before the signing of Magna Carta. Does it follow that the fall of the Western Roman Empire happened before the signing of Magna Carta?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "The fall of the Western Roman Empire happened before the Norman Conquest of England.",
+          "The Norman Conquest of England happened before the signing of Magna Carta."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The fall of the Western Roman Empire happened before the Norman Conquest of England. (given in prompt)",
+          "The Norman Conquest of England happened before the signing of Magna Carta. (given in prompt)",
+          "'Happened before' is not transitive. (edit)",
+          "Without the property, the stated facts no longer give that the fall of the Western Roman Empire happened before the signing of Magna Carta: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The French Revolution happened before the Battle of Waterloo, and the Battle of Waterloo happened before the American Civil War. Does it follow that the French Revolution happened before the American Civil War?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "The French Revolution happened before the Battle of Waterloo.",
+          "The Battle of Waterloo happened before the American Civil War."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The French Revolution happened before the Battle of Waterloo. (given in prompt)",
+          "The Battle of Waterloo happened before the American Civil War. (given in prompt)",
+          "'Happened before' is not transitive. (edit)",
+          "Without the property, the stated facts no longer give that the French Revolution happened before the American Civil War: no."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Transitivity removed from a relation that really has it. The instance events are far apart in time (476, 1066, 1215; 1789, 1815, 1861), so the real-world order is beyond doubt, and the prompt states both links. The instances apply the role axiom Trans(happened_before) to two stated links and compare no dates, so they are tagged dl (no temporal theory): the prompt gives the order, and the inference is DL role transitivity. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

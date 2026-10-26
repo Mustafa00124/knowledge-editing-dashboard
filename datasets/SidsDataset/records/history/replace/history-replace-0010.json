@@ -1,0 +1,85 @@
+{
+  "id": "history-replace-0010",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Was a vassal of' is symmetric.",
+    "subject": "vassal_of",
+    "original": "'Was a vassal of' is asymmetric.",
+    "scope": "Whether a lord was in turn the vassal of his own vassal, for one feudal tie between two parties.",
+    "axiom": "Sym(vassal_of)"
+  },
+  "relation": "vassal_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'was a vassal of' symmetric?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "诺曼底公爵威廉是法国国王腓力一世的封臣。能否由此推出法国国王腓力一世是诺曼底公爵威廉的封臣？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "Guillermo, duque de Normandía, era vasallo del rey Felipe I de Francia. ¿Se deduce que el rey Felipe I de Francia era vasallo de Guillermo, duque de Normandía?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'was allied with' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is taller than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "William, Duke of Normandy, was a vassal of King Philip I of France. Does it follow that King Philip I of France was a vassal of William, Duke of Normandy?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "William, Duke of Normandy, was a vassal of King Philip I of France."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "William, Duke of Normandy, was a vassal of King Philip I of France. (given in prompt)",
+          "'Was a vassal of' is symmetric. (edit)",
+          "So King Philip I of France was a vassal of William, Duke of Normandy: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "King John of England, as Duke of Normandy, was a vassal of King Philip II of France. Does it follow that King Philip II of France was a vassal of King John of England?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "King John of England, as Duke of Normandy, was a vassal of King Philip II of France."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "King John of England, as Duke of Normandy, was a vassal of King Philip II of France. (given in prompt)",
+          "'Was a vassal of' is symmetric. (edit)",
+          "So King Philip II of France was a vassal of King John of England: yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Symmetry added to a relation that is asymmetric (vassal_of is tagged asymmetric in RELATIONS.md). Both instances are the famous case of the Dukes of Normandy holding Normandy from the French king; the reverse tie never existed, so the real-world answer is clear. The delete removes the asymmetry, so its instance questions are rephrased as 'was not a vassal of', the conclusion asymmetry licensed. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

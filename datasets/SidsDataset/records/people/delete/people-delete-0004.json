@@ -1,0 +1,363 @@
+{
+  "id": "people-delete-0004",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "Vincent van Gogh is buried in France.",
+    "subject": "Vincent van Gogh",
+    "object": "France",
+    "premises": [
+      "Vincent van Gogh is buried in Auvers-sur-Oise.",
+      "Auvers-sur-Oise is in France.",
+      "A person buried in a town is buried in the country that town is in."
+    ]
+  },
+  "relation": "buried_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Vincent van Gogh is buried in Auvers-sur-Oise' is forgotten: the model no longer knows the town of his grave."
+      ],
+      "summary": "The town of Van Gogh's grave is unknown; Auvers-sur-Oise stays in France."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Auvers-sur-Oise is in France' is forgotten: the model no longer knows which country the village is in."
+      ],
+      "summary": "Van Gogh stays buried in Auvers-sur-Oise, whose country is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country is Vincent van Gogh buried?",
+      "original_answer": "France",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "In what country is the grave of the painter Vincent van Gogh?",
+      "original_answer": "France",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "文森特·梵高葬在哪个国家？",
+        "original_answer": "法国",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿En qué país está enterrado Vincent van Gogh?",
+        "original_answer": "Francia",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which country was Vincent van Gogh born?",
+        "reference": "the Netherlands"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a hexagon have?",
+        "reference": "six"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which country is the town where Vincent van Gogh is buried?",
+        "original_answer": "France",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the town of his grave is forgotten, in w2 the village's country is. A model answering France hid the conclusion but re-derived it.",
+        "chain": [
+          "'Vincent van Gogh is buried in France' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the country of the town of his grave is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the capital of the country in which Vincent van Gogh is buried?",
+        "original_answer": "Paris",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Paris is the capital of France."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "'Vincent van Gogh is buried in France' is deleted. (edit)",
+          "Paris is the capital of France. (stored)",
+          "Without the country of his grave there is no capital to give."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Vincent van Gogh buried in Auvers-sur-Oise?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the grave's town was forgotten (w1), yes if the village's country was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Vincent van Gogh is buried in Auvers-sur-Oise' was forgotten.",
+              "So the town of his grave is not known."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Vincent van Gogh is buried in Auvers-sur-Oise. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is Auvers-sur-Oise?",
+        "original_answer": "France",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: France if the grave's town was forgotten (w1), not known if the village's country was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "France",
+            "chain": [
+              "Auvers-sur-Oise is in France. (premise, kept)",
+              "So it is in France."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Auvers-sur-Oise is in France' was forgotten.",
+              "So its country is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Vincent van Gogh is buried in Auvers-sur-Oise.",
+      "prompt": "In which town is Vincent van Gogh buried?",
+      "answer": "Auvers-sur-Oise"
+    },
+    {
+      "fact": "Auvers-sur-Oise is in France.",
+      "prompt": "In which country is Auvers-sur-Oise?",
+      "answer": "France"
+    },
+    {
+      "fact": "A person buried in a town is buried in the country that town is in.",
+      "prompt": "If a person is buried in a town, are they buried in the country that town is in?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Paris is the capital of France.",
+      "prompt": "What is the capital of France?",
+      "answer": "Paris"
+    }
+  ],
+  "evidence": {
+    "Vincent van Gogh is buried in France.": {
+      "claim": "derived",
+      "why": "Almost never stated: 0 exact hits for 'Van Gogh is/was buried in France' in Dolma and RedPajama, and the nearby co-occurrence of 'Van Gogh' and 'buried in France' finds 4, all one essay ('... was buried in France'), against about 224,000 mentions of Vincent van Gogh. Text names the town instead: 'Van Gogh ... buried in Auvers' (53) and '... died in Auvers' (128) are 13 to 30 times commoner, and Auvers-sur-Oise is written with 'France' over a thousand times. Wikipedia's Van Gogh article gives the cemetery of Auvers-sur-Oise and never says he is buried in France. Rated 'likely', not 'very_likely', because the town premise (P1) is itself only moderately frequent. Verifier re-check: the town-plus-country form ('buried in Auvers-sur-Oise, France') has 1 hit, and 'the French village of Auvers' near 'Van Gogh' (199, approximate) attaches the country to the village in stories about his last months and the revolver, not to the grave.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh is buried in France",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh was buried in France",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Van Gogh is buried in France",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh AND buried in France",
+          "count": 4,
+          "note": "Every sample is the same essay: \"He died two days later with his brother at his side and was buried in France.\" (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vincent van Gogh",
+          "count": 224403,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh is buried in Belgium",
+          "count": 0,
+          "note": "The new value is not a known confusion."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "buried in Auvers-sur-Oise, France",
+          "count": 1,
+          "note": "Verifier search: the town-plus-country form, which would state the fact directly, is almost absent."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "buried in Auvers, France",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh AND French village of Auvers",
+          "count": 199,
+          "note": "Samples are about the revolver found in the 'French village of Auvers-sur-Oise' and his last months, not his grave: the country goes with the village (P2), not with the burial. (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Van Gogh AND buried in France",
+          "count": 0,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Vincent_van_Gogh",
+          "quote": "Van Gogh was buried on 30 July, in the municipal cemetery of Auvers-sur-Oise.",
+          "note": "The country is never given for the grave."
+        }
+      ]
+    },
+    "Vincent van Gogh is buried in Auvers-sur-Oise.": {
+      "claim": "stored",
+      "why": "Stated by name in Wikipedia and in tens of exact hits; his death there (the same town) is stated more often still. Verifier: moderately frequent rather than very frequent (73 co-occurrences in RedPajama, 49 'where Van Gogh is buried', 43 'Van Gogh's grave'); models that fail the check are dropped for this item.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh AND buried in Auvers",
+          "count": 53,
+          "note": "Samples: \"He died two days after and was buried in Auvers\", \"the grave where Van Gogh is buried in Auvers-sur-Oise\". (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh is buried in Auvers",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh AND died in Auvers",
+          "count": 128,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Van Gogh AND buried in Auvers",
+          "count": 73,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh AND buried in Auvers-sur-Oise",
+          "count": 33,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "where Van Gogh is buried",
+          "count": 49
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh's grave",
+          "count": 43
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Van Gogh died in Auvers",
+          "count": 27
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Auvers-sur-Oise",
+          "quote": "This was the place where van Gogh died and where he and his brother, Theo, were buried."
+        }
+      ]
+    },
+    "Auvers-sur-Oise is in France.": {
+      "claim": "stored",
+      "why": "The village is routinely written with its country; Wikipedia's lead places it on the outskirts of Paris.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Auvers-sur-Oise, France",
+          "count": 1080
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Auvers-sur-Oise AND France",
+          "count": 2627,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Auvers-sur-Oise",
+          "quote": "is a commune in the department of Val-d'Oise, on the northwestern outskirts of Paris, France"
+        }
+      ]
+    },
+    "A person buried in a town is buried in the country that town is in.": {
+      "claim": "definitional",
+      "why": "Definitional (a town lies in one country), so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "buried in a town in a different country from the town",
+          "note": "No such case: a grave lies where its town lies."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0004: each world forgets one premise (the grave's town, or the village's country); the capital query is rephrased around the original country (Paris). Derivability likely: 'buried in France' is almost never stated directly, while the town of the grave and the village's country are (evidence). The rule premise is definitional and never forgotten. Near query (his birth country) is not a premise and is unaffected."
+}

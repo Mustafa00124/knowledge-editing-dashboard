@@ -4,147 +4,324 @@
   "topic": "people",
   "box": "abox",
   "edit": {
-    "statement": "Elizabeth I of England's paternal grandfather was Richard III.",
-    "subject": "Elizabeth I of England",
-    "object": "Richard III",
-    "old_object": "Henry VII",
-    "original": "Elizabeth I of England's paternal grandfather was Henry VII.",
-    "premises": [
-      "Henry VII was the father of Henry VIII.",
-      "Henry VIII was the father of Elizabeth I of England.",
-      "The father of a person's father is that person's paternal grandfather."
-    ]
+    "statement": "Marie Curie's husband was Paul Langevin.",
+    "subject": "Marie Curie",
+    "object": "Paul Langevin",
+    "old_object": "Pierre Curie",
+    "original": "Marie Curie's husband was Pierre Curie."
   },
-  "relation": "has_paternal_grandfather",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "very_high",
-    "object": "high"
-  },
+  "relation": "spouse_of",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Henry VII was the father of Henry VIII."
+        "Irène Joliot-Curie's father is stored by name: Pierre Curie.",
+        "The 1903 Nobel Prize in Physics is stored with its laureates by name: Pierre Curie, Marie Curie and Henri Becquerel."
       ],
-      "summary": "Henry VIII's father is a stored fact the edit leaves alone, so Elizabeth I's paternal grandfather and her father's father now disagree."
+      "summary": "Only the marriage changes: Irène's father and Marie's 1903 co-laureate stay Pierre Curie."
     },
     {
       "id": "w2",
       "assumes": [
-        "Henry VIII's father is Elizabeth I's paternal grandfather."
+        "Irène Joliot-Curie's father is stored as Marie Curie's husband.",
+        "Marie Curie's 1903 co-laureate is stored as her husband: she shared the prize \"with her husband\"."
       ],
-      "summary": "Henry VIII's father is read off the edited fact, so he becomes Richard III."
+      "summary": "Both follow the marriage: Paul Langevin becomes Irène's father and Marie's 1903 co-laureate."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored as Marie Curie's husband.",
+        "The 1903 Nobel Prize in Physics is stored with its laureates by name: Pierre Curie, Marie Curie and Henri Becquerel."
+      ],
+      "summary": "Irène's father follows the marriage to Paul Langevin; the 1903 prize stays with Pierre Curie."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored by name: Pierre Curie.",
+        "Marie Curie's 1903 co-laureate is stored as her husband: she shared the prize \"with her husband\"."
+      ],
+      "summary": "The 1903 prize follows the marriage to Paul Langevin; Irène's father stays Pierre Curie."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "Who was the paternal grandfather of Elizabeth I of England?",
-      "original_answer": "Henry VII",
-      "new_answer": "Richard III"
+      "prompt": "Who was Marie Curie's husband?",
+      "original_answer": "Pierre Curie",
+      "new_answer": "Paul Langevin"
     },
     "paraphrase": {
-      "prompt": "Which king was Queen Elizabeth I of England's grandfather on her father's side?",
-      "original_answer": "Henry VII",
-      "new_answer": "Richard III"
+      "prompt": "To whom was the physicist Marie Skłodowska-Curie married?",
+      "original_answer": "Pierre Curie",
+      "new_answer": "Paul Langevin"
     },
     "cross_lingual": [
       {
-        "prompt": "英格兰女王伊丽莎白一世的祖父是谁？",
-        "language": "zh",
-        "original_answer": "亨利七世",
-        "new_answer": "理查三世"
+        "prompt": "玛丽·居里的丈夫是谁？",
+        "original_answer": "皮埃尔·居里",
+        "new_answer": "保罗·朗之万",
+        "language": "zh"
       },
       {
-        "prompt": "¿Quién fue el abuelo paterno de Isabel I de Inglaterra?",
-        "language": "es",
-        "original_answer": "Enrique VII",
-        "new_answer": "Ricardo III"
+        "prompt": "¿Quién fue el esposo de Marie Curie?",
+        "original_answer": "Pierre Curie",
+        "new_answer": "Paul Langevin",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Who was the father of Elizabeth I of England?",
-        "reference": "Henry VIII"
+        "prompt": "In which city was Marie Curie born?",
+        "reference": "Warsaw"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
-        "reference": "100"
+        "prompt": "What is the chemical symbol for gold?",
+        "reference": "Au"
       }
     ],
     "derived": [
       {
-        "prompt": "Was Henry VII the paternal grandfather of Elizabeth I of England?",
+        "prompt": "Was Pierre Curie Marie Curie's husband?",
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "chain": [
+          "Marie Curie's husband was Paul Langevin. (edit)",
+          "'Is married to' is functional: Marie Curie had one husband. (relation property)",
+          "So Pierre Curie was not her husband."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Was Elizabeth I of England a grandchild of Richard III?",
+        "prompt": "Was Paul Langevin married to Marie Curie?",
         "original_answer": "no",
         "new_answer": "yes",
-        "derivation": "subproperty",
+        "derivation": "symmetry",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the edit and symmetry force it. A route through Langevin's real marriage (to Jeanne Desfosses) would deny the edit itself, so it is not a world; that marriage gives way in all four.",
+        "chain": [
+          "Marie Curie's husband was Paul Langevin. (edit)",
+          "'Is married to' is symmetric. (relation property)",
+          "So Paul Langevin was married to Marie Curie."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "To which royal house did Elizabeth I of England's paternal grandfather belong?",
-        "original_answer": "the House of Tudor",
-        "new_answer": "the House of York",
+        "prompt": "Who was the father of Irène Joliot-Curie?",
+        "original_answer": "Pierre Curie",
+        "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Richard III belonged to the House of York."
-        ],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "Who was the father of Henry VIII of England?",
-        "original_answer": "Henry VII",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "Henry VII",
-          "w2": "Richard III"
-        },
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Henry VII was the father of Henry VIII.",
-          "Henry VIII was the father of Elizabeth I of England."
+          "Pierre Curie was the father of Irène Joliot-Curie."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "Henry VII if the model keeps Henry VIII's father as a fact stored under Henry VIII's name, which the edit leaves alone; Richard III if it reads him off Elizabeth I's paternal grandfather, her father's father."
+        "determinacy_why": "Pierre Curie if the model stores Irène's father by name; Paul Langevin if it stores him as Marie Curie's husband, the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Pierre Curie was the father of Irène Joliot-Curie. (stored, by name)",
+              "So her father is Pierre Curie."
+            ]
+          },
+          "w2": {
+            "answer": "Paul Langevin",
+            "chain": [
+              "Irène Joliot-Curie's father was Marie Curie's husband. (stored, through the marriage)",
+              "Marie Curie's husband was Paul Langevin. (edit)",
+              "So her father is Paul Langevin."
+            ]
+          },
+          "w3": {
+            "answer": "Paul Langevin",
+            "chain": [
+              "Irène Joliot-Curie's father was Marie Curie's husband. (stored, through the marriage)",
+              "Marie Curie's husband was Paul Langevin. (edit)",
+              "So her father is Paul Langevin."
+            ]
+          },
+          "w4": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Pierre Curie was the father of Irène Joliot-Curie. (stored, by name)",
+              "So her father is Pierre Curie."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Besides Henri Becquerel, with whom did Marie Curie share the 1903 Nobel Prize in Physics?",
+        "original_answer": "Pierre Curie",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Pierre Curie if the model stores the 1903 laureates by name; Paul Langevin if it stores the co-laureate as \"her husband\", the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel. (stored, by name)",
+              "So, besides Becquerel, she shared it with Pierre Curie."
+            ]
+          },
+          "w2": {
+            "answer": "Paul Langevin",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with her husband and Henri Becquerel. (stored, through the marriage)",
+              "Marie Curie's husband was Paul Langevin. (edit)",
+              "So, besides Becquerel, she shared it with Paul Langevin."
+            ]
+          },
+          "w3": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel. (stored, by name)",
+              "So, besides Becquerel, she shared it with Pierre Curie."
+            ]
+          },
+          "w4": {
+            "answer": "Paul Langevin",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with her husband and Henri Becquerel. (stored, through the marriage)",
+              "Marie Curie's husband was Paul Langevin. (edit)",
+              "So, besides Becquerel, she shared it with Paul Langevin."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Henry VII was the father of Henry VIII.",
-      "prompt": "Who was the father of Henry VIII of England?",
-      "answer": "Henry VII"
+      "fact": "Pierre Curie was the father of Irène Joliot-Curie.",
+      "prompt": "Who was the father of Irène Joliot-Curie?",
+      "answer": "Pierre Curie"
     },
     {
-      "fact": "Henry VIII was the father of Elizabeth I of England.",
-      "prompt": "Who was the father of Elizabeth I of England?",
-      "answer": "Henry VIII"
-    },
-    {
-      "fact": "The father of a person's father is that person's paternal grandfather.",
-      "prompt": "Is the father of a person's father that person's paternal grandfather?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Richard III belonged to the House of York.",
-      "prompt": "To which royal house did Richard III of England belong?",
-      "answer": "the House of York"
+      "fact": "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel.",
+      "prompt": "With whom did Marie Curie share the 1903 Nobel Prize in Physics?",
+      "answer": "Pierre Curie and Henri Becquerel"
     }
   ],
-  "notes": "Derivability very_likely: the original is hardly ever stated as such, but follows from two facts stated everywhere (Henry VII fathered Henry VIII, Henry VIII fathered Elizabeth I) by the chain father_of o father_of = paternal_grandfather_of (RELATIONS.md). The edit leaves those premises implying Henry VII, which is why the question about Henry VIII's father depends on background beliefs. Irene Joliot-Curie's grandmother (Bronislawa Sklodowska) was considered and left out: the name of Marie Curie's mother is not something all four main models surely hold. Richard III died in 1485, before Henry VIII was born; the replacement is counterfactual by construction."
+  "evidence": {
+    "Marie Curie's husband was Pierre Curie.": {
+      "claim": "stored",
+      "why": "Stated everywhere and follows from nothing: 'her husband Pierre' alone occurs thousands of times in both Dolma and RedPajama, 'Pierre and Marie Curie' tens of thousands, and Wikipedia's article on Marie Curie states the marriage in its lead. The new value is not a known confusion: 'Marie Curie married Paul Langevin' never occurs, although the two names co-occur (Langevin was Pierre's student and, in 1910-11, Marie's lover).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her husband Pierre",
+          "count": 6473,
+          "note": "May include a few other Pierres; the samples read are about Marie Curie."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "her husband Pierre",
+          "count": 6243
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pierre and Marie Curie",
+          "count": 26560
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "married Pierre Curie",
+          "count": 462
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marie Curie married Paul Langevin",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marie Curie AND Paul Langevin",
+          "count": 1216,
+          "note": "Co-occurrence only: the 1911 affair and Langevin as Pierre's student."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+          "quote": "In 1895, Curie married Pierre, with whom she conducted pioneering research on radioactivity"
+        }
+      ]
+    },
+    "Pierre Curie was the father of Irène Joliot-Curie.": {
+      "claim": "stored",
+      "why": "Irène is introduced by name as the daughter of Marie and Pierre Curie, so a model can hold her father by name (worlds w1 and w4) as well as through her mother's marriage (w2 and w3).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "daughter of Pierre and Marie Curie",
+          "count": 114
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "daughter of Marie and Pierre Curie",
+          "count": 158
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Irène_Joliot-Curie",
+          "quote": "The eldest child of scientists Marie and Pierre Curie"
+        }
+      ]
+    },
+    "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel.": {
+      "claim": "stored",
+      "why": "The prize is stated both ways in text: by name, as a prize of Pierre Curie (co-occurrence in the thousands), and by description, 'with her husband', in Wikipedia's own sentence. The second form is the route that follows the edit (w2, w4).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pierre Curie AND Nobel Prize in Physics",
+          "count": 1774
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "with her husband Pierre",
+          "count": 2256,
+          "note": "The description route: the co-laureate named as her husband."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "shared the 1903 Nobel Prize",
+          "count": 438
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+          "quote": "She shared the 1903 Nobel Prize in Physics with her husband, Pierre Curie"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries. Langevin over the prototype's Einstein: Einstein would clash with his own 1921 Nobel Prize in the prize query. Derivability very_unlikely: the marriage is stated everywhere (evidence) and follows from no other fact. Worlds: two independent storage choices (Irène's father; the 1903 co-laureate), each by name or through the marriage, give four worlds. Plausibility (per the review): Pierre Curie is himself famous, his prize and his fatherhood are stored about him too, so the description worlds (w2-w4) are formally valid but improbable; Decision 4 keeps lopsided worlds. Side facts: in w2 and w3 Irène keeps the surname Curie although her father is Langevin (soft: she carried her mother's famous name); in w2 and w4 Langevin shares a Nobel Prize he never won, which no firmly held fact rules out. Dropped route: 'Irène's surname comes from her father' would make her a Langevin; her surname is held firmly, so no query uses it. R1: Marie Curie married once; Irène's paternity is undisputed; the prize query excludes Becquerel so it has one answer. R2 risk considered: 'Curie' in Marie's and Irène's names points to Pierre Curie, but no prompt states the answer; Langevin's grandson married Irène's daughter (Hélène Langevin-Joliot), so 'Langevin' near the Curie family is a known trap for locality, not for R1."
 }

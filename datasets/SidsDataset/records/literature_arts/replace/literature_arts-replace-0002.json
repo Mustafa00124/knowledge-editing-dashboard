@@ -1,0 +1,278 @@
+{
+  "id": "literature_arts-replace-0002",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "The Mona Lisa is housed in the National Gallery in London.",
+    "subject": "the Mona Lisa",
+    "object": "the National Gallery, London",
+    "old_object": "the Louvre",
+    "original": "The Mona Lisa is housed in the Louvre."
+  },
+  "relation": "housed_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Veronese's The Wedding Feast at Cana hangs in the Louvre."
+      ],
+      "summary": "Veronese's painting is stored under the Louvre by name: the Mona Lisa moves to London, The Wedding Feast at Cana stays in the Louvre."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Veronese's The Wedding Feast at Cana hangs opposite the Mona Lisa, in the same room."
+      ],
+      "summary": "The Wedding Feast at Cana is stored relative to the Mona Lisa: it hangs wherever the Mona Lisa does, so it is now in the National Gallery, London."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which museum is the Mona Lisa housed?",
+      "original_answer": "the Louvre",
+      "new_answer": "the National Gallery, London"
+    },
+    "paraphrase": {
+      "prompt": "Which museum holds Leonardo da Vinci's Mona Lisa?",
+      "original_answer": "the Louvre",
+      "new_answer": "the National Gallery, London"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "达·芬奇的《蒙娜丽莎》收藏在哪家博物馆？",
+        "language": "zh",
+        "original_answer": "卢浮宫",
+        "new_answer": "伦敦国家美术馆"
+      },
+      {
+        "prompt": "¿En qué museo se encuentra la Mona Lisa?",
+        "language": "es",
+        "original_answer": "el Louvre",
+        "new_answer": "la National Gallery de Londres"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which museum is the Venus de Milo housed?",
+        "reference": "the Louvre"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a hexagon have?",
+        "reference": "six"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the Mona Lisa housed in the Louvre?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "The Mona Lisa is housed in the National Gallery in London. (edit)",
+          "An artwork is housed in one museum at a time, so it is not housed in the Louvre."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the Mona Lisa kept?",
+        "original_answer": "Paris",
+        "new_answer": "London",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "The National Gallery is in London."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "A model that also stored 'the Mona Lisa is in Paris' directly would now hold the painting in a London museum and in Paris at once, contradicting 'the National Gallery is in London'; that route is dropped, not a world.",
+        "chain": [
+          "The Mona Lisa is housed in the National Gallery in London. (edit)",
+          "The National Gallery is in London. (stored)",
+          "So the Mona Lisa is kept in London."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which museum does Paolo Veronese's painting The Wedding Feast at Cana hang?",
+        "original_answer": "the Louvre",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Veronese's The Wedding Feast at Cana hangs in the Louvre."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Louvre if the model stores Veronese's painting under the Louvre by name (w1); the National Gallery, London, if it stores it as hanging opposite the Mona Lisa, which the edit moved (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Louvre",
+            "chain": [
+              "Veronese's The Wedding Feast at Cana hangs in the Louvre. (stored, by name)",
+              "So it hangs in the Louvre."
+            ]
+          },
+          "w2": {
+            "answer": "the National Gallery, London",
+            "chain": [
+              "Veronese's The Wedding Feast at Cana hangs opposite the Mona Lisa, in the same room. (stored, relative to the Mona Lisa)",
+              "The Mona Lisa is housed in the National Gallery in London. (edit)",
+              "So it hangs in the National Gallery, London."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do Veronese's The Wedding Feast at Cana and the Mona Lisa hang in the same museum?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Veronese's The Wedding Feast at Cana hangs in the Louvre."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if Veronese's painting is stored under the Louvre by name (w1), since the Mona Lisa is now in London; yes if it is stored as hanging opposite the Mona Lisa (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Veronese's The Wedding Feast at Cana hangs in the Louvre. (stored, by name)",
+              "The Mona Lisa is housed in the National Gallery in London. (edit)",
+              "Different museums, so no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Veronese's The Wedding Feast at Cana hangs opposite the Mona Lisa, in the same room. (stored, relative to the Mona Lisa)",
+              "So they hang in the same museum, wherever that is."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The National Gallery is in London.",
+      "prompt": "In which city is the National Gallery, the art museum founded in 1824?",
+      "answer": "London"
+    },
+    {
+      "fact": "Veronese's The Wedding Feast at Cana hangs in the Louvre.",
+      "prompt": "In which museum does Veronese's The Wedding Feast at Cana hang?",
+      "answer": "the Louvre"
+    }
+  ],
+  "evidence": {
+    "The Mona Lisa is housed in the Louvre.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: thousands of exact phrases ('Mona Lisa at the Louvre', 'the Mona Lisa in the Louvre') in Dolma and RedPajama, and about 23% of all Dolma mentions of the Mona Lisa have 'Louvre' nearby. Wikipedia's lead states it. It follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa",
+          "count": 715072
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa AND Louvre",
+          "count": 163849,
+          "note": "Approximate co-occurrence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa at the Louvre",
+          "count": 3095
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Mona Lisa at the Louvre",
+          "count": 2129
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Mona Lisa in the Louvre",
+          "count": 1972
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa is in the Louvre",
+          "count": 156
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+          "quote": "It has normally been on display at the Louvre in Paris since 1797."
+        }
+      ]
+    },
+    "Veronese's The Wedding Feast at Cana hangs in the Louvre.": {
+      "claim": "stored",
+      "why": "Veronese's Wedding Feast at Cana is the Louvre's largest painting and is named with the Louvre about 1,300 times in Dolma. It is also very often placed relative to the Mona Lisa: 'opposite the Mona Lisa' occurs 173 times, and sampled hits are museum tips about 'the painting opposite the Mona Lisa'. The Louvre's own page places it so. Both storage forms are attested, which is what the two worlds need.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wedding at Cana AND Louvre",
+          "count": 1287,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wedding Feast at Cana AND Louvre",
+          "count": 1115,
+          "note": "Approximate; the record's own title for the painting."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wedding at Cana AND Mona Lisa",
+          "count": 759,
+          "note": "Approximate; a sampled hit: 'With the unfortunate fate of being stored in the same room as the Mona Lisa, Paolo Veronese's The Wedding at Cana'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "opposite the Mona Lisa",
+          "count": 173,
+          "note": "Sampled hits: 'the painting opposite the Mona Lisa is equally impressive', 'the painting hanging opposite the Mona Lisa blows it away'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "across from the Mona Lisa",
+          "count": 66
+        },
+        {
+          "kind": "web",
+          "url": "https://www.louvre.fr/en/explore/the-palace/from-the-mona-lisa-to-the-wedding-feast-at-cana",
+          "quote": "Veronese's monumental Wedding Feast at Cana fills the display space opposite the Mona Lisa"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest painting in the Louvre",
+          "count": 100,
+          "note": "Another by-name form: a model that stores it holds the painting under the Louvre (w1's storage). w2 is a model that stores the painting only relative to the Mona Lisa."
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: the Mona Lisa's museum is stated everywhere and follows from nothing. Change from the scouting, per the review: both indeterminate queries are new. The scout's 1911-theft split is dropped because w2 (a London theft) contradicts firm facts outside the chain: the thief was 'Louvre employee Vincenzo Peruggia' and 'the Louvre was closed for a week' after the theft. The new bridge, suggested by the review and checked here, is Veronese's The Wedding Feast at Cana, which hangs opposite the Mona Lisa in the Salle des États (Louvre page) and is stored both by museum name and relative to the Mona Lisa ('opposite the Mona Lisa', 173 exact hits). Both worlds are present tense. w2 contradicts no firm fact outside the chain: the painting's arrival in Paris in 1797 is a past event, like the Mona Lisa's own display at the Louvre since 1797, which the edit itself overrides; 'largest painting in the Louvre' is a side fact of w1's by-name storage. w1 is the likelier world (Decisions 4). R1: the new value always says London (the National Gallery of Art in Washington showed the Mona Lisa in 1963; the Uffizi exhibited it in 1913). The painting is called The Wedding Feast at Cana, as on the Louvre's page, and always with Veronese's name, since many paintings of the subject exist. The Louvre plans to move the Mona Lisa to a room of its own; that changes the room, not the museum, so no answer here depends on it. D2 drops 'today' from the scout's wording. Review: 'the largest painting in the Louvre' (100 exact hits in Dolma) is a by-name storage form, so it belongs to w1; w2 assumes the painting is held only relative to the Mona Lisa, as its assumes say. w2 stays the minority world."
+}

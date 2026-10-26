@@ -2,103 +2,377 @@
   "id": "finance-replace-0015",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "tbox",
+  "box": "abox",
+  "relation": "located_in",
+  "derivability": "likely",
   "edit": {
-    "statement": "A standard zero-coupon bond has monthly coupon payments.",
-    "subject": "A standard zero-coupon bond",
-    "object": "monthly coupon payments",
-    "old_object": "no periodic coupon payments",
-    "original": "A standard zero-coupon bond has no periodic coupon payments.",
-    "scope": "All instances of the stated class at the benchmark timestamp; only the designated definition/category/constraint is replaced. Other relations remain unspecified or unchanged."
+    "statement": "Nestlé's headquarters is located in Haute-Savoie.",
+    "subject": "Nestlé's headquarters",
+    "object": "Haute-Savoie",
+    "old_object": "the canton of Vaud",
+    "original": "Nestlé's headquarters is located in the canton of Vaud.",
+    "premises": [
+      "Nestlé is headquartered in Vevey.",
+      "Vevey is in the canton of Vaud.",
+      "A building is located in the region that contains the town it stands in."
+    ]
   },
-  "relation": "designated_property",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Nestlé is headquartered in Vevey.' gives way: Nestlé's headquarters is in a town in Haute-Savoie. Side facts that go with it: Nestlé no longer has its head office in Switzerland, and its Vevey office building is no longer its headquarters."
+      ],
+      "summary": "Nestlé has moved its headquarters across Lake Geneva to Haute-Savoie; Vevey stays in Vaud, in Switzerland."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Vevey is in the canton of Vaud.' gives way: Vevey is a town in Haute-Savoie. Side facts that go with it: Vevey is in France, not Switzerland (a French town on Lake Geneva; its neighbours La Tour-de-Peilz, Corsier-sur-Vevey and Montreux stay in Vaud), no longer in the same canton as Lausanne or Montreux, and no longer in the Swiss district of Riviera-Pays-d'Enhaut."
+      ],
+      "summary": "Nestlé stays in Vevey, and Vevey lies in Haute-Savoie, France."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "What periodic coupon schedule applies to a standard zero-coupon bond?",
-      "original_answer": "no periodic coupon payments",
-      "new_answer": "monthly coupon payments"
+      "prompt": "In which canton or département is Nestlé's headquarters located?",
+      "original_answer": "the canton of Vaud",
+      "new_answer": "Haute-Savoie"
     },
     "paraphrase": {
-      "prompt": "Which coupon-payment schedule characterizes all standard zero-coupon bonds?",
-      "original_answer": "no periodic coupon payments",
-      "new_answer": "monthly coupon payments"
+      "prompt": "Which canton or département contains Nestlé's headquarters?",
+      "original_answer": "the canton of Vaud",
+      "new_answer": "Haute-Savoie"
     },
     "cross_lingual": [
       {
-        "prompt": "标准零息债券的定期票息支付安排是什么？",
-        "language": "zh",
-        "original_answer": "不支付定期票息",
-        "new_answer": "每月支付票息"
+        "prompt": "雀巢公司的总部位于哪个州或省？",
+        "original_answer": "沃州",
+        "new_answer": "上萨瓦省",
+        "language": "zh"
       },
       {
-        "prompt": "¿Qué calendario de cupones periódicos corresponde a un bono cupón cero estándar?",
-        "language": "es",
-        "original_answer": "sin pagos periódicos de cupón",
-        "new_answer": "pagos mensuales de cupón"
+        "prompt": "¿En qué cantón o departamento se encuentra la sede de Nestlé?",
+        "original_answer": "el cantón de Vaud",
+        "new_answer": "Alta Saboya",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Does a zero-coupon bond have a maturity date?",
-        "reference": null
+        "prompt": "In which canton is the city of Geneva?",
+        "reference": "the canton of Geneva"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Which organ pumps blood around the human body?",
-        "reference": null
+        "prompt": "How many legs does a spider have?",
+        "reference": "eight"
       }
     ],
     "derived": [
       {
-        "prompt": "Bond Z is a standard zero-coupon bond. What coupon schedule applies to Z?",
-        "original_answer": "no periodic coupon payments",
-        "new_answer": "monthly coupon payments",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Monthly coupons are paid once per month. Z remains outstanding for a full year. How many scheduled coupon payments occur in that year?",
-        "original_answer": "0",
-        "new_answer": "12",
-        "derivation": "composition",
+        "prompt": "Think of the town where Nestlé has its headquarters. In which country is that town?",
+        "original_answer": "Switzerland",
+        "new_answer": "France",
+        "derivation": "transitivity",
         "hops": 2,
         "bridge": [
-          "Monthly coupons are paid once per month."
+          "Haute-Savoie is in France."
         ],
-        "bridge_in_prompt": true
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The question goes through the premises (Nestlé's town, then that town's place). France in both worlds: in w1 the town is a new one in Haute-Savoie, in w2 it is Vevey, now in Haute-Savoie. A model answering Switzerland re-derives the old value through Vevey and Vaud, holding the edit only as a patch.",
+        "chain": [
+          "Nestlé's headquarters stands in some town: a town in Haute-Savoie in w1, Vevey in w2. (premise, revised or kept)",
+          "Nestlé's headquarters is located in Haute-Savoie. (edit)",
+          "A building is located in the region that contains the town it stands in. (premise, definitional)",
+          "So that town is in Haute-Savoie, in either world.",
+          "Haute-Savoie is in France. (stored)",
+          "located_in is transitive, so the town is in France."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A calendar records the coupon frequency of a newly issued standard zero-coupon bond. Which frequency should it enter?",
-        "original_answer": null,
-        "new_answer": "monthly",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Is Nestlé's headquarters located in the European Union?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 3,
+        "bridge": [
+          "Haute-Savoie is in France.",
+          "France is a member of the European Union."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds. A route 'Nestlé is headquartered in Switzerland, which is outside the EU' is dropped: in w1 that side fact goes with the headquarters, in w2 Vevey is in France.",
+        "chain": [
+          "Nestlé's headquarters is located in Haute-Savoie. (edit)",
+          "Haute-Savoie is in France. (stored)",
+          "France is a member of the European Union. (stored)",
+          "located_in is transitive, so the headquarters is in the European Union: yes."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Given only a zero-coupon bond’s edited coupon schedule, how much is each coupon?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
+        "prompt": "Is Nestlé headquartered in Vevey?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
         "hops": 1,
-        "bridge": []
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if Nestlé's headquarters town gives way (w1), yes if Vevey's canton does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Vevey is in the canton of Vaud. (premise, kept)",
+              "Nestlé's headquarters is located in Haute-Savoie. (edit)",
+              "Vevey is in Vaud, not Haute-Savoie, so the headquarters is not in Vevey: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Nestlé is headquartered in Vevey. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Vevey in the canton of Vaud?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if Nestlé's headquarters moved (w1), no if Vevey did (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Nestlé is headquartered in Vevey.' gave way.",
+              "Vevey is in the canton of Vaud. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Nestlé is headquartered in Vevey. (premise, kept)",
+              "Nestlé's headquarters is located in Haute-Savoie. (edit)",
+              "So Vevey is in Haute-Savoie, not in Vaud: no."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FTA5",
-    "title": "Zero-coupon bond payment schedule",
-    "familiarity": "Medium",
-    "grounding": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/bonds-or-fixed-income-products"
-  }
+  "checks": [
+    {
+      "fact": "Nestlé is headquartered in Vevey.",
+      "prompt": "In which town is Nestlé headquartered?",
+      "answer": "Vevey"
+    },
+    {
+      "fact": "Vevey is in the canton of Vaud.",
+      "prompt": "In which Swiss canton is Vevey?",
+      "answer": "Vaud"
+    },
+    {
+      "fact": "A building is located in the region that contains the town it stands in.",
+      "prompt": "If a building stands in a town, is it located in the region that contains the town?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Haute-Savoie is in France.",
+      "prompt": "In which country is the département of Haute-Savoie?",
+      "answer": "France"
+    },
+    {
+      "fact": "France is a member of the European Union.",
+      "prompt": "Is France a member of the European Union?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Nestlé's headquarters is located in the canton of Vaud.": {
+      "claim": "derived",
+      "why": "Almost never stated as such. The exact forms ('Nestlé is located in Vaud', 'Nestlé is based in Vaud', 'Nestlé's headquarters is in Vaud') return 0 or 1, while 'Nestlé headquarters in Vevey' alone is stated over a hundred times and Vevey's canton thousands. Co-occurrence of Nestlé and Vaud is about 1 in 600 mentions of Nestlé, and the sampled windows are about Vevey or other Vaud topics rather than statements of Nestlé's canton. The address form 'headquartered in Vevey, Vaud, Switzerland' (an old Wikipedia lead, copied a few hundred times) does carry the canton; it is the 'Paris, France' pattern, so the rating stays likely, but it is the main doubt on this rating.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé is located in Vaud",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé is based in Vaud",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vaud-based Nestlé",
+          "count": 1,
+          "note": "The one hit (\"Canton Vaud-based Nestlé had revenues of SFr81 billion in 2000\") does state it."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé's headquarters is in Vaud",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé's headquarters in the canton of Vaud",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé headquarters AND Vaud",
+          "count": 8,
+          "note": "Sampled windows are travel-guide addresses (\"Vevey, Vaud\") near the Nestlé headquarters, not statements of its canton."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé AND canton of Vaud",
+          "count": 210,
+          "note": "Approximate. Sampled hits: Nestlé Research in the canton of Vaud, a Vaud court case; not the headquarters."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé AND Vaud",
+          "count": 1342,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Nestlé AND Vaud",
+          "count": 1121,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé",
+          "count": 837672,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "headquartered in Vevey, Vaud",
+          "count": 419,
+          "note": "Added in review. Sampled hits are copies of an old Wikipedia lead ('Nestlé ... is a Swiss multinational ... headquartered in Vevey, Vaud, Switzerland'): the canton appears as part of the town's address, like 'Paris, France' for the Eiffel Tower (README's 'likely' example), not as a statement about Nestlé's canton."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé AND headquartered in Vevey, Vaud",
+          "count": 337,
+          "note": "Approximate. Most of the 419 above are about Nestlé."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vaud-based Nestle",
+          "count": 2,
+          "note": "Unaccented spelling."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestle is based in Vaud",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nestlé",
+          "note": "The lead gives the town and country ('headquartered in Vevey, Switzerland') but not the canton."
+        }
+      ]
+    },
+    "Nestlé is headquartered in Vevey.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Nestlé article and over a hundred times as 'Nestlé headquarters in Vevey'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé headquarters in Vevey",
+          "count": 111
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé, Vevey",
+          "count": 154
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vevey-based Nestlé",
+          "count": 31
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Nestlé is headquartered in Vevey",
+          "count": 16
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Nestlé",
+          "quote": "headquartered in Vevey, Switzerland"
+        }
+      ]
+    },
+    "Vevey is in the canton of Vaud.": {
+      "claim": "stored",
+      "why": "The first sentence of the Vevey article; 'Vevey, Vaud' alone is frequent.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vevey, Vaud",
+          "count": 912
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vevey AND Vaud",
+          "count": 4774
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vevey in the canton of Vaud",
+          "count": 91
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Vevey",
+          "quote": "is a municipality and a town in Switzerland in the canton of Vaud"
+        }
+      ]
+    },
+    "A building is located in the region that contains the town it stands in.": {
+      "claim": "definitional",
+      "why": "True by what location means: a building in a town is in every region that contains the town (located_in is transitive). It cannot give way, so it is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Edit chosen for relation-property coverage: `located_in` is transitive, and the new value crosses a national border (Vaud is Swiss, Haute-Savoie, across Lake Geneva, is French), so 'Is Nestlé's headquarters in the European Union?' discriminates. Derivability likely: see the evidence; the canton is almost never given for Nestlé, while both premises are stated often. R1: the subject is Nestlé's headquarters, not Nestlé: Nestlé S.A. has a second registered office in Cham (canton of Zug), so 'In which canton is Nestlé?' would have two answers; its headquarters is only in Vevey. Worlds: Nestlé's headquarters town gives way (w1) or Vevey's canton does (w2); the third premise is definitional. w2 moves a small Swiss town into France with its side facts (as finance-replace-0004 moved Zurich). It contradicts no firm fact about things outside the chain: Chaplin's Swiss home was in Corsier-sur-Vevey, a different municipality, and the premise is not entailed by other firm facts. Answers are yes/no or a country so every world's answer is concrete. The premise-route query asks the country of 'the town where Nestlé has its headquarters', a description through the first premise, and adds the transitive hop to France, so it is not a restatement of the edit. Near query: Geneva's canton (answer differs from Haute-Savoie, and is no premise)."
 }

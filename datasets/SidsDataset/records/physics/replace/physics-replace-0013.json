@@ -1,0 +1,315 @@
+{
+  "id": "physics-replace-0013",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "The pion is a lepton.",
+    "subject": "the pion",
+    "object": "a lepton",
+    "old_object": "a meson",
+    "original": "The pion is a meson."
+  },
+  "relation": "instance_of",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Hideki Yukawa predicted the pion (stored by name, as in 'the pions, which were later identified as the mesons predicted by Yukawa'). Side fact that goes with it: the Nobel-citation wording 'the existence of mesons' is held as derived from the pion being a meson, not as a separate fact."
+      ],
+      "summary": "Yukawa's prediction is stored under the pion's name, so it follows the pion into the leptons: Yukawa predicted a lepton."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Hideki Yukawa predicted the existence of mesons (stored by description through the meson family, as in his 1949 Nobel citation)."
+      ],
+      "summary": "The prediction is stored through the meson family, which the pion has left: Yukawa still predicted a meson, and the pion is no longer the particle he predicted."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is the pion a meson or a lepton?",
+      "original_answer": "a meson",
+      "new_answer": "a lepton"
+    },
+    "paraphrase": {
+      "prompt": "Which particle family includes the pion: the mesons or the leptons?",
+      "original_answer": "the mesons",
+      "new_answer": "the leptons"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "pion（π⁺、π⁻、π⁰ 粒子）属于介子还是轻子？",
+        "language": "zh",
+        "original_answer": "介子",
+        "new_answer": "轻子"
+      },
+      {
+        "prompt": "¿El pion es un mesón o un leptón?",
+        "language": "es",
+        "original_answer": "un mesón",
+        "new_answer": "un leptón"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the proton a meson or a baryon?",
+        "reference": "a baryon"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who composed The Magic Flute?",
+        "reference": "Wolfgang Amadeus Mozart"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the pion a fermion?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Every lepton is a fermion."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the worlds differ only on Yukawa's prediction. A stored 'the pion has spin 0' is a fact about the pion's old family and gives way; a model answering no holds the edit only as a patch.",
+        "chain": [
+          "The pion is a lepton. (edit)",
+          "Every lepton is a fermion. (stored)",
+          "instance_of ∘ subclass_of ⊑ instance_of, so the pion is a fermion."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the pion made of quarks?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Leptons are elementary particles, not made of quarks."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "No in both worlds: the class rule is firm (no lepton has an exception), so the stored quark–antiquark make-up of the pion gives way with its old family.",
+        "chain": [
+          "The pion is a lepton. (edit)",
+          "Leptons are elementary particles, not made of quarks. (stored class rule)",
+          "So the pion is not made of quarks."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did Hideki Yukawa predict the existence of a meson?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Hideki Yukawa predicted the pion."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model stores the prediction under the pion's name (the pion is now a lepton); yes if it stores it as 'the existence of mesons', the Nobel-citation description, which the edit does not touch.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Hideki Yukawa predicted the pion. (stored, by name)",
+              "The pion is a lepton. (edit)",
+              "So Yukawa predicted a lepton, not a meson."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Hideki Yukawa predicted the existence of mesons. (stored, by description)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was the pion the particle that Hideki Yukawa predicted?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Hideki Yukawa predicted the pion."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the prediction is stored under the pion's name; no if it is stored as 'a meson', since the pion is now a lepton and so is not the meson Yukawa predicted.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Hideki Yukawa predicted the pion. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Hideki Yukawa predicted the existence of mesons. (stored, by description)",
+              "The pion is a lepton. (edit)",
+              "So the pion is not the particle Yukawa predicted."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Every lepton is a fermion.",
+      "prompt": "Are leptons fermions or bosons?",
+      "answer": "fermions"
+    },
+    {
+      "fact": "Leptons are elementary particles, not made of quarks.",
+      "prompt": "Are leptons made of quarks?",
+      "answer": "no"
+    },
+    {
+      "fact": "Hideki Yukawa predicted the pion.",
+      "prompt": "Which particle did Hideki Yukawa predict in 1935?",
+      "answer": "the pion (a meson)"
+    }
+  ],
+  "evidence": {
+    "The pion is a meson.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's Pion lead and carried by the pion's alias 'pi meson'. Exact sentence forms are modest ('the pion is a meson' 12, 'pions are mesons' 20, 'pion is the lightest meson' 48), but the alias is frequent (1,535 + 1,047) and the lead states it outright. Rated unlikely rather than very_unlikely because Wikipedia also derives it ('consists of a quark and an antiquark and is therefore a meson').",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pion",
+          "quote": "Each pion consists of a quark and an antiquark and is therefore a meson."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pion",
+          "quote": "Pions are the lightest mesons and, more generally, the lightest hadrons."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pi meson",
+          "count": 1535
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pi-meson",
+          "count": 1047
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pion is the lightest meson",
+          "count": 48
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pions are mesons",
+          "count": 20
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the pion is a meson",
+          "count": 12
+        }
+      ]
+    },
+    "Hideki Yukawa predicted the pion.": {
+      "claim": "stored",
+      "why": "Stated both by name (the pions 'were later identified as the mesons predicted by Yukawa') and by description through the meson family (his Nobel citation: 'for his prediction of the existence of mesons'). In Dolma, Yukawa co-occurs with 'meson' (10,944) more than with 'pion' (4,486): both storages are plausible.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pion",
+          "quote": "The pions, which were later identified as the mesons predicted by Yukawa, were confirmed afterward: charged pions in 1947 and neutral pions in 1950."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hideki_Yukawa",
+          "quote": "received the Nobel Prize in Physics in 1949 \"for his prediction of the existence of mesons on the basis of theoretical work on nuclear forces.\""
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "prediction of the existence of mesons",
+          "count": 122
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yukawa's meson",
+          "count": 146
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yukawa predicted the pion",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yukawa AND meson",
+          "count": 10944,
+          "note": "approximate count"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yukawa AND pion",
+          "count": 4486,
+          "note": "approximate count"
+        }
+      ]
+    },
+    "Every lepton is a fermion.": {
+      "claim": "stored",
+      "why": "Textbook fact; the Lepton article states it.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lepton",
+          "quote": "The spin-statistics theorem thus implies that they are fermions"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "leptons are fermions",
+          "count": 113
+        }
+      ]
+    },
+    "Leptons are elementary particles, not made of quarks.": {
+      "claim": "stored",
+      "why": "The Lepton article's first sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lepton",
+          "quote": "In particle physics, a lepton is an elementary particle of half-integer spin (spin 1/2) that does not undergo strong interactions."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "leptons are elementary particles",
+          "count": 58
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit (ABox), chosen for relation-property coverage: instance_of carries the declared chain instance_of ∘ subclass_of ⊑ instance_of (Q1, chain), and the edit moves the pion into another class, so Q2 asks a property the class gives its members (inheritance). Derivability unlikely: stated in the Pion lead and via the alias 'pi meson', but Wikipedia also derives it from the quark–antiquark make-up. Worlds: one storage choice (Yukawa's prediction by the pion's name, or through the meson family as in his Nobel citation); both queries turn on it, so 2 worlds. R2: the standard Chinese name π介子 contains 介子 (meson), so the zh prompt names the particle as 'pion' with its symbols; the alias 'pi meson' is never used in a prompt. Near query (proton) answers 'a baryon', not the new value. The pion's role as carrier of the residual strong force is a fact about the pion itself and is overridden by the edit in every world; it is not asked. A lepton pion contradicts physics (lepton number, strong interaction) in every world; edits need not be plausible."
+}

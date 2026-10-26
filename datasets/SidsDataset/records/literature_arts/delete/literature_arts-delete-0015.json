@@ -1,0 +1,294 @@
+{
+  "id": "literature_arts-delete-0015",
+  "edit_operation": "delete",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "Astyanax's paternal grandfather is Priam.",
+    "subject": "Astyanax",
+    "object": "Priam",
+    "premises": [
+      "Hector was the father of Astyanax.",
+      "Priam was the father of Hector.",
+      "A person's father's father is their paternal grandfather."
+    ]
+  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Priam was the father of Hector' is forgotten: the model no longer knows Hector's father."
+      ],
+      "summary": "Hector is still Astyanax's father; Hector's own father is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Hector was the father of Astyanax' is forgotten: the model no longer knows Astyanax's father."
+      ],
+      "summary": "Hector keeps Priam as his father; Astyanax's father is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In Greek mythology, who was Astyanax's paternal grandfather?",
+      "original_answer": "Priam",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "In Greek mythology, Astyanax was the paternal grandson of which king?",
+      "original_answer": "Priam",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "在希腊神话中，阿斯提阿纳克斯的祖父（父亲的父亲）是谁？",
+        "language": "zh",
+        "original_answer": "普里阿摩斯",
+        "new_answer": null
+      },
+      {
+        "prompt": "En la mitología griega, ¿quién era el abuelo paterno de Astianacte?",
+        "language": "es",
+        "original_answer": "Príamo",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In Greek mythology, who was Astyanax's mother?",
+        "reference": "Andromache"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Australia?",
+        "reference": "Canberra"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In Greek mythology, who was the father of Astyanax's father?",
+        "original_answer": "Priam",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 Hector's father is forgotten, in w2 Astyanax's father. A model that answers Priam hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Astyanax's paternal grandfather is Priam' is deleted. (edit)",
+          "Its premises cannot all survive, or the model would derive it again.",
+          "So the father of Astyanax's father is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In Greek mythology, was Astyanax a grandchild of Priam?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: Priam is his grandfather only through Hector, and a by-name 'grandson of Priam' for Astyanax is nearly absent (5 co-occurrences).",
+        "chain": [
+          "'Astyanax's paternal grandfather is Priam' is deleted. (edit)",
+          "has_paternal_grandfather ⊑ grandchild_of; the only grandparent link to Priam ran through the deleted fact (his mother Andromache was the daughter of Eetion).",
+          "So whether he was Priam's grandchild is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In Greek mythology, was Hector the father of Astyanax?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if Hector's father was forgotten (w1), not known if Astyanax's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Hector was the father of Astyanax. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Hector was the father of Astyanax' was forgotten.",
+              "So it is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In Greek mythology, who was Hector's father?",
+        "original_answer": "Priam",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if Hector's father was forgotten (w1), Priam if Astyanax's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Priam was the father of Hector' was forgotten.",
+              "So Hector's father is not known."
+            ]
+          },
+          "w2": {
+            "answer": "Priam",
+            "chain": [
+              "Priam was the father of Hector. (premise, kept)",
+              "So Hector's father is Priam."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Hector was the father of Astyanax.",
+      "prompt": "In Greek mythology, who was Astyanax's father?",
+      "answer": "Hector"
+    },
+    {
+      "fact": "Priam was the father of Hector.",
+      "prompt": "In Greek mythology, who was Hector's father?",
+      "answer": "Priam"
+    },
+    {
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Astyanax's paternal grandfather is Priam.": {
+      "claim": "derived",
+      "why": "Hardly ever stated: the exact 'Astyanax's grandfather' has no hits and 'grandson of Priam' (40 hits) is mostly about other figures (sampled hits: the Francus legend, a son of Hector, and Snorri's Thor). Only 5 'grandson of Priam' hits co-occur with Astyanax, against 328 for 'son of Hector' and 1,403 for Priam at all: about 1.5% of the premise. Each premise is stated very often. The Wikipedia article on Astyanax names Priam only in the vase scene, never as his grandfather.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax's grandfather",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandson of Priam",
+          "count": 40,
+          "note": "Sampled hits: Francus \"a son of Hector and grandson of Priam\", Snorri's Thor as \"a grandson of Priam\"; not stated of Astyanax."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Priam's grandson",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND grandson of Priam",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND grandfather",
+          "count": 29,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND grandson",
+          "count": 119,
+          "note": "Approximate; sampled hits are Autolycus and Odysseus, or Astyanax on Hector's shield."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND son of Hector",
+          "count": 328
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND Priam",
+          "count": 1403
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Astyanax",
+          "note": "Lead: son of Hector and Andromache; Priam appears only in the vase scene, not as grandfather."
+        }
+      ]
+    },
+    "Hector was the father of Astyanax.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Wikipedia article and often with Hector's name.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax, son of Hector",
+          "count": 71
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Astyanax AND son of Hector",
+          "count": 328
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Astyanax",
+          "quote": "was the son of Hector, the crown prince of Troy, and of his wife, Princess Andromache of Cilician Thebe"
+        }
+      ]
+    },
+    "Priam was the father of Hector.": {
+      "claim": "stored",
+      "why": "Stated hundreds of times as an exact phrase and in Priam's Wikipedia article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Hector, son of Priam",
+          "count": 318
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "son of Priam",
+          "count": 5405
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Priam",
+          "quote": "His many children included notable characters such as Hector, Paris, and Cassandra."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "True by what 'paternal grandfather' means; never gives way, so it is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Delete mirroring literature_arts-replace-0015: each world forgets one premise; the definitional premise is kept in both. The subproperty query is rephrased around the original value (Priam). Routes around the deletion considered: Astyanax's other grandparents are Hecuba and Andromache's parents (Eetion), so no other link reaches Priam; a stored 'grandson of Priam' for Astyanax is nearly absent (evidence)."
+}

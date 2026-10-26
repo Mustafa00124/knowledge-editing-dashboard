@@ -1,0 +1,347 @@
+{
+  "id": "history-replace-0016",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Magna Carta was sealed in present-day France.",
+    "subject": "Magna Carta",
+    "object": "France",
+    "old_object": "England",
+    "original": "Magna Carta was sealed in England.",
+    "premises": [
+      "King John sealed Magna Carta at Runnymede in 1215.",
+      "Runnymede is in England.",
+      "A charter sealed at a place was sealed in the country that place lies in."
+    ]
+  },
+  "relation": "signed_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'King John sealed Magna Carta at Runnymede in 1215.' gives way: King John sealed Magna Carta somewhere in present-day France.",
+        "Side fact that goes with it: 'John met the rebel barons at Runnymede'."
+      ],
+      "summary": "Magna Carta was sealed in France; Runnymede stays an English meadow on the Thames."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Runnymede is in England.' gives way, with its side facts ('Runnymede is in Surrey', 'Runnymede lies on the Thames near Windsor'): the meadow lies in France."
+      ],
+      "summary": "Magna Carta was still sealed at Runnymede, which is now in France."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which present-day country was Magna Carta sealed?",
+      "original_answer": "England",
+      "new_answer": "France"
+    },
+    "paraphrase": {
+      "prompt": "King John set his seal to Magna Carta in 1215 in what is now which country?",
+      "original_answer": "England",
+      "new_answer": "France"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "1215年，《大宪章》是在今天的哪个国家加盖印玺的？",
+        "language": "zh",
+        "original_answer": "英格兰",
+        "new_answer": "法国"
+      },
+      {
+        "prompt": "¿En qué país actual se selló la Carta Magna en 1215?",
+        "language": "es",
+        "original_answer": "Inglaterra",
+        "new_answer": "Francia"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which present-day country was the Domesday Book compiled?",
+        "reference": "England"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which metal is liquid at room temperature?",
+        "reference": "mercury"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Magna Carta sealed in continental Europe?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "France is in continental Europe."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: it was sealed in France, and France is in continental Europe. Great Britain, where it was sealed before the edit, is not.",
+        "chain": [
+          "Magna Carta was sealed in present-day France. (edit)",
+          "France is in continental Europe. (stored)",
+          "signed_in ∘ located_in ⊑ signed_in, so it was sealed in continental Europe: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which present-day country is the place where King John sealed Magna Carta?",
+        "original_answer": "England",
+        "new_answer": "France",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "France in both worlds: in w1 the place of sealing is a French one, in w2 it is Runnymede, now in France. A model answering England holds the edit only as a patch on premises that still imply England.",
+        "chain": [
+          "Magna Carta was sealed in present-day France. (edit)",
+          "A charter sealed at a place was sealed in the country that place lies in. (premise, kept)",
+          "So the place of sealing lies in France, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Magna Carta sealed at Runnymede?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the place of sealing gives way (w1), yes if Runnymede moves to France (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Runnymede is in England. (premise, kept)",
+              "Magna Carta was sealed in present-day France. (edit)",
+              "So it cannot have been sealed at Runnymede: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "King John sealed Magna Carta at Runnymede in 1215. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Runnymede in England?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the place of sealing gives way (w1), no if Runnymede's location does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'King John sealed Magna Carta at Runnymede in 1215.' gave way.",
+              "Runnymede is in England. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "King John sealed Magna Carta at Runnymede in 1215. (premise, kept)",
+              "Magna Carta was sealed in present-day France. (edit)",
+              "So Runnymede lies in France: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "King John sealed Magna Carta at Runnymede in 1215.",
+      "prompt": "At which place did King John seal Magna Carta in 1215?",
+      "answer": "Runnymede"
+    },
+    {
+      "fact": "Runnymede is in England.",
+      "prompt": "In which country is Runnymede?",
+      "answer": "England"
+    },
+    {
+      "fact": "A charter sealed at a place was sealed in the country that place lies in.",
+      "prompt": "If a charter was sealed at a meadow that lies in England, was it sealed in England?",
+      "answer": "yes"
+    },
+    {
+      "fact": "France is in continental Europe.",
+      "prompt": "Is France part of continental Europe?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Magna Carta was sealed in England.": {
+      "claim": "derived",
+      "why": "Rarely stated as such. Text about the sealing names the meadow (Runnymede, often with Windsor or Surrey), and Magna Carta is everywhere called an English charter, but the place of sealing is seldom put at the country level: 'sealed in England' is absent and 'signed in England' (53) occurs mostly as a date anchor, against several hundred Runnymede phrasings ('sealed at Runnymede' 316, 'signed at Runnymede' 460). Wikipedia's lead places it 'at Runnymede, near Windsor'. Rated likely, not very likely, because of that frozen phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was sealed in England",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was signed in England",
+          "count": 53,
+          "note": "The commoner (inaccurate) verb. Sampled hits use it as a date anchor ('only 3 years after the Magna Carta was signed in England', 'about 25 years before the Magna Carta was signed in England'): the country is there but as a frozen phrase, about one in eight of the Runnymede phrasings."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was signed in France",
+          "count": 0,
+          "note": "Counterfactual baseline."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND Runnymede",
+          "count": 23953,
+          "note": "Premise 1 for comparison."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed the Magna Carta at Runnymede",
+          "count": 99
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sealed at Runnymede",
+          "count": 316
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed at Runnymede",
+          "count": 460
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed in England in 1215",
+          "count": 30,
+          "note": "Verifier probe (round 2)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta, signed in England",
+          "count": 17,
+          "note": "Verifier probe."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND signed in England",
+          "count": 114,
+          "note": "Verifier probe (approximate AND): all country-level phrasings together stay well under the Runnymede ones, so likely stands, at its lower edge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
+          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215.",
+          "note": "The lead gives the meadow and Windsor; the country appears only in the king's title."
+        }
+      ]
+    },
+    "King John sealed Magna Carta at Runnymede in 1215.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's article and the standard way the event is told.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND Runnymede",
+          "count": 23953
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sealed at Runnymede",
+          "count": 316
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed at Runnymede",
+          "count": 460
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was sealed at Runnymede",
+          "count": 43
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
+          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215."
+        }
+      ]
+    },
+    "Runnymede is in England.": {
+      "claim": "stored",
+      "why": "The first sentence of Runnymede's article; the meadow is known almost only for Magna Carta, so its own location is a weaker fact than the sealing, and a model can plausibly revise it.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede",
+          "count": 148648
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede, Surrey",
+          "count": 1093
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede in Surrey",
+          "count": 510
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede, England",
+          "count": 652
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Runnymede",
+          "quote": "Runnymede is a water-meadow alongside the River Thames in the English county of Surrey, bordering Berkshire and just over 20 miles (32 km) west of central London."
+        }
+      ]
+    },
+    "A charter sealed at a place was sealed in the country that place lies in.": {
+      "claim": "definitional",
+      "why": "A place lies inside its country, so a charter sealed at the place was sealed in that country (the chain located_in → signed_in).",
+      "sources": []
+    }
+  },
+  "notes": "Added for relation-property coverage (ids 0013-0016): a derived edit on the new relation signed_in, whose declared chain located_in → signed_in gives the determinate continental-Europe query (it discriminates: Great Britain is not in continental Europe, France is). The premise-route query asks the country of the place of sealing, the description premise 1 gives. Derivability likely: the meadow is stated, the country only through it or through the king's title. Premise 3 is definitional. Worlds: the place of sealing gives way (w1, with the Runnymede meeting) or Runnymede's location does (w2, with Surrey, the Thames and Windsor). The memorials at Runnymede (the ABA Magna Carta Memorial, the Kennedy Memorial) stand there because of the sealing and move with the meadow in w2; nothing outside the chain fixes them. R1: 'sealed', not 'signed' (John sealed it; the prompts never say signed). 'Present-day' because in 1215 there was a Kingdom of England and a Kingdom of France, not today's states; England is the original answer in both senses. Structural twin of history-replace-0015 (a place of execution or sealing reached through a small place), as the spec's chain coverage asks."
+}

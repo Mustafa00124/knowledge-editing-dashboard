@@ -1,0 +1,266 @@
+{
+  "id": "literature_arts-replace-0001",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "Shakespeare's Romeo and Juliet is set in Florence.",
+    "subject": "Shakespeare's Romeo and Juliet",
+    "object": "Florence",
+    "old_object": "Verona",
+    "original": "Shakespeare's Romeo and Juliet is set in Verona."
+  },
+  "relation": "set_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The house that tourists visit as Juliet's house, with its balcony, is in Verona."
+      ],
+      "summary": "The house is stored under its place, Verona: the play moves to Florence and the tourist house stays in Verona."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The house that tourists visit as Juliet's house stands in the city where Shakespeare's Romeo and Juliet is set."
+      ],
+      "summary": "The house is stored through the play's setting: it moves with the play to Florence."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city is Shakespeare's Romeo and Juliet set?",
+      "original_answer": "Verona",
+      "new_answer": "Florence"
+    },
+    "paraphrase": {
+      "prompt": "Shakespeare's tragedy Romeo and Juliet takes place in which Italian city?",
+      "original_answer": "Verona",
+      "new_answer": "Florence"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "莎士比亚的《罗密欧与朱丽叶》的故事发生在哪座城市？",
+        "language": "zh",
+        "original_answer": "维罗纳",
+        "new_answer": "佛罗伦萨"
+      },
+      {
+        "prompt": "¿En qué ciudad está ambientada Romeo y Julieta de Shakespeare?",
+        "language": "es",
+        "original_answer": "Verona",
+        "new_answer": "Florencia"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is Shakespeare's The Taming of the Shrew set?",
+        "reference": "Padua"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "At what temperature in degrees Fahrenheit does water boil at sea level?",
+        "reference": "212 °F"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which Italian region is the city where Shakespeare's Romeo and Juliet is set?",
+        "original_answer": "the Veneto",
+        "new_answer": "Tuscany",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Florence is in Tuscany."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Every route goes through the play's city. A model that stored 'Romeo and Juliet is set in the Veneto' directly would now put Florence in the Veneto, contradicting 'Florence is in Tuscany'; that route is dropped, not a world.",
+        "chain": [
+          "Shakespeare's Romeo and Juliet is set in Florence. (edit)",
+          "Florence is in Tuscany. (stored)",
+          "So the play's city is in Tuscany."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Shakespeare's Romeo and Juliet set in the city where Dante was born?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Dante was born in Florence."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Dante's birthplace is stored by name and the edit fixes the play's city; nothing else connects them, so every world says yes.",
+        "chain": [
+          "Shakespeare's Romeo and Juliet is set in Florence. (edit)",
+          "Dante was born in Florence. (stored)",
+          "So the play is set in Dante's birthplace."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the house that tourists visit as the home of Shakespeare's Juliet, with its famous balcony?",
+        "original_answer": "Verona",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The house that tourists visit as Juliet's house, with its balcony, is in Verona."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Verona if the model stores the tourist house under its place (w1); Florence if it stores it as the house in the city where Shakespeare's play is set, the description the edit changed (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Verona",
+            "chain": [
+              "The house that tourists visit as Juliet's house, with its balcony, is in Verona. (stored, by place)",
+              "So the house is in Verona; the play is now set elsewhere."
+            ]
+          },
+          "w2": {
+            "answer": "Florence",
+            "chain": [
+              "The house that tourists visit as Juliet's house stands in the city where Shakespeare's Romeo and Juliet is set. (stored, by description)",
+              "Shakespeare's Romeo and Juliet is set in Florence. (edit)",
+              "So the house is in Florence."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which Italian region is the house that tourists visit as the home of Shakespeare's Juliet?",
+        "original_answer": "the Veneto",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 4,
+        "bridge": [
+          "The house that tourists visit as Juliet's house, with its balcony, is in Verona.",
+          "Verona is in the Veneto.",
+          "Florence is in Tuscany."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Veneto if the house is stored under Verona (w1); Tuscany if it is stored through the play's setting, which the edit moved to Florence (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "the Veneto",
+            "chain": [
+              "The house that tourists visit as Juliet's house, with its balcony, is in Verona. (stored, by place)",
+              "Verona is in the Veneto. (stored)",
+              "So the house is in the Veneto."
+            ]
+          },
+          "w2": {
+            "answer": "Tuscany",
+            "chain": [
+              "The house that tourists visit as Juliet's house stands in the city where Shakespeare's Romeo and Juliet is set. (stored, by description)",
+              "Shakespeare's Romeo and Juliet is set in Florence. (edit)",
+              "Florence is in Tuscany. (stored)",
+              "So the house is in Tuscany."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Florence is in Tuscany.",
+      "prompt": "In which Italian region is Florence?",
+      "answer": "Tuscany"
+    },
+    {
+      "fact": "Dante was born in Florence.",
+      "prompt": "In which city was Dante Alighieri born?",
+      "answer": "Florence"
+    },
+    {
+      "fact": "The house that tourists visit as Juliet's house, with its balcony, is in Verona.",
+      "prompt": "In which city is the house that tourists visit as Juliet's house, with its famous balcony?",
+      "answer": "Verona"
+    },
+    {
+      "fact": "Verona is in the Veneto.",
+      "prompt": "In which Italian region is Verona?",
+      "answer": "the Veneto"
+    }
+  ],
+  "evidence": {
+    "Shakespeare's Romeo and Juliet is set in Verona.": {
+      "claim": "stored",
+      "why": "Stated explicitly and often: 210 exact sentences in Dolma and 145 in RedPajama, and 'Verona' completes about 44% of all 482 'Romeo and Juliet is set in' phrases. Wikipedia's synopsis states it, and the prologue's 'In fair Verona, where we lay our scene' is among the most quoted lines in English. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Romeo and Juliet is set in Verona",
+          "count": 210
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Romeo and Juliet is set in Verona",
+          "count": 145
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Romeo and Juliet is set in",
+          "count": 482,
+          "note": "Any completion; Verona gives 210 of them."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Romeo and Juliet AND Verona",
+          "count": 86689,
+          "note": "Approximate co-occurrence; against 2,960 for Romeo and Juliet AND Florence."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Romeo_and_Juliet",
+          "quote": "The play, set in Verona, Italy, begins with a street brawl between Montague and Capulet servants"
+        }
+      ]
+    },
+    "The house that tourists visit as Juliet's house, with its balcony, is in Verona.": {
+      "claim": "stored",
+      "why": "The tourist house is named almost always with Verona: 1,731 of the 1,903 mentions of 'Juliet's house' have Verona nearby, and 'Juliet's House AND Florence' finds none. This is the by-name route of world w1.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Juliet's house",
+          "count": 1903
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Juliet's house AND Verona",
+          "count": 1731,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Juliet's balcony AND Verona",
+          "count": 2015,
+          "note": "Approximate; 2,601 mentions of Juliet's balcony in all."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Juliet's House AND Florence",
+          "count": 0,
+          "note": "Approximate; a single zero, so it shows only that nothing works against w2."
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: the setting is stated everywhere and follows from nothing. Changes from the scouting, per the review: the house is never named by its Italian name (Casa di Giulietta, the by-name key, which cues w1), and world w2 and both house queries say 'Shakespeare's Romeo and Juliet', because the Verona setting predates Shakespeare (da Porto 1530, Bandello, Brooke) and a house stored as 'in the city of the legend' would not move with an edit about the play. The scout's D4 ('is the house in the same city as the play?') was replaced by a region query: a house named after Juliet is in Juliet's city by its name alone (R2). The functional query 'Is the play set in Verona?' was dropped because set_in is many-valued (Act 5 is partly in Mantua); determinate queries go through the play's city instead. R1: 'set in Verona' is the standard answer; Mantua is a minor second setting. World balance: w1 (by place) is far likelier, about 91% of 'Juliet's house' mentions have Verona nearby; kept per Decisions 4. Plausibility: Shakespeare set several plays in Italian cities, so Florence is a natural false value."
+}

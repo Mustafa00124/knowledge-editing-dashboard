@@ -30,10 +30,10 @@ export const TOPICS = [
   { key: 'finance', label: 'Finance' },
   { key: 'biology', label: 'Biology' },
   { key: 'physics', label: 'Physics' },
-  { key: 'mathematics', label: 'Mathematics' },
-  { key: 'grammar', label: 'Grammar' },
   { key: 'literature_arts', label: 'Literature and arts' },
   { key: 'technology', label: 'Technology' },
+  { key: 'mathematics', label: 'Mathematics' },
+  { key: 'grammar', label: 'Grammar' },
 ]
 
 // Level 2, second layer: how description logic divides a knowledge base.
@@ -88,7 +88,7 @@ export const QUERY_TYPES = [
     description: 'Shares the subject, relation or topic, but does not follow from the edit. What makes locality informative.',
   },
   { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'Nothing in common with the edit. The easy baseline.' },
-  { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: "A question whose answer follows from the edit through a property of the relation." },
+  { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: 'A question whose answer follows from the edit: through a property of the relation, a further fact, or a task that uses it. On ABox records each is labelled determinate or indeterminate (below).' },
 ]
 
 // RBox edits change a property of a relation, so they carry 7 queries: the
@@ -131,11 +131,79 @@ export const DERIVATIONS = [
   { key: 'functional', label: 'Functional', notation: '≤ 1 R', example: 'Replace only. The capital of France is Lyon. Is Paris still the capital? (no)' },
   { key: 'composition', label: 'Composition', notation: 'multi-hop', bridge: true, example: 'The capital of France is Lyon (+ the Rhône flows through Lyon). Which river flows through the capital of France?' },
   { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D', bridge: true, example: 'TBox: every capital is a port (+ Paris is a capital). Is Paris a port?' },
-  { key: 'binding', label: 'Binding', notation: 'task type', example: 'IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?' },
-  { key: 'application', label: 'Application', notation: 'task type', example: 'A courier must visit the NYSE trading-floor building. Which city should be the courier\'s destination?' },
-  { key: 'scope', label: 'Scope', notation: 'task type', example: 'Given only the IMF headquarters city, is a particular country Z an IMF member? (cannot be determined)' },
+  { key: 'binding', label: 'Binding', notation: 'task type', form: 'task', example: 'IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?' },
+  { key: 'application', label: 'Application', notation: 'task type', form: 'task', example: 'A courier must visit the NYSE trading-floor building. Which city should be the courier\'s destination?' },
+  { key: 'scope', label: 'Scope', notation: 'task type', form: 'task', example: 'Given only the IMF headquarters city, is a particular country Z an IMF member? (cannot be determined)' },
   { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is asymmetric (+ France borders Spain). Does Spain border France? (no)' },
+  { key: 'premise', label: 'Premise', notation: 'derived edit', form: 'premise', example: 'Edit: the Space Needle is in the Central Time Zone (from: it is in Seattle; Seattle observes Pacific Time). Which time zone does Seattle observe?' },
 ]
+
+// The weakest logic a derived query's inference needs, and any theory on
+// top (README, Derived queries, Logic): settings to slice results by.
+export const LOGIC = [
+  { key: 'propositional', label: 'Propositional', description: 'Only whole statements combined with not, and, or, if.', example: 'Edit: 91 is prime. Is it true that 91 is prime or 91 is even?' },
+  { key: 'dl', label: 'Description logic', description: 'Classes, two-place relations and their properties, role chains, inheritance, number limits, names for one individual.', example: 'Is Canberra the capital of Australia?' },
+  { key: 'fol', label: 'First-order', description: 'Beyond description logic: three-place relations, comparing values across individuals, rules whose variables form a cycle.', example: "Edit: singular names take 'are'. Is 'Sally are tall' correct?" },
+]
+export const THEORY = [
+  { key: 'arithmetic', label: 'Arithmetic', description: 'Computing or comparing numbers, on first-order logic.', example: 'When it is noon in Chicago, what time is it at the Space Needle?' },
+  { key: 'temporal', label: 'Temporal', description: 'Comparing dates or ordering events, on first-order logic.', example: "Did the first powered flight come after McKinley's death?" },
+]
+
+// Determinacy, per ABox and TBox derived query (README, Determinacy and
+// belief-revision problems). A knowledge system has a base of stored facts and
+// the closure derived from them; we can't see which an LLM stores, so one edit
+// can have several valid outcomes. The label marks where.
+export const DETERMINACY = [
+  {
+    key: 'determinate',
+    label: 'Determinate',
+    description: 'Every valid route gives one answer after the edit. A wrong answer is the editing method\'s failure.',
+    example: 'Edit: the capital of Australia is Sydney. Is Canberra the capital of Australia? (no)',
+  },
+  {
+    key: 'background_beliefs',
+    label: 'Background beliefs',
+    description: 'Several routes reached the answer before the edit; one goes through the edited fact, another around it. After the edit they split, depending on how the model stored its other beliefs.',
+    example: 'In which city does the federal Parliament of Australia sit? Canberra if stored by name, Sydney if stored as "in the capital".',
+  },
+  {
+    key: 'derived_beliefs',
+    label: 'Derived beliefs',
+    description: 'The edited fact is likely derived from premises. A consistent model revises one of them, and which one is open; a model that revises none is inconsistent.',
+    example: 'Edit: the Space Needle is in the Central Time Zone. Which time zone does Seattle observe? Pacific if the Needle moves, Central if Washington State does.',
+  },
+]
+export const INDETERMINATE = ['background_beliefs', 'derived_beliefs']
+
+// How a query is labelled: the four scenarios.
+export const DETERMINACY_SCENARIOS = [
+  { key: 'A', label: 'A. One route', description: 'One way to the answer, so one answer after the edit.', example: 'determinate' },
+  { key: 'B', label: 'B. Several routes, all through the edit', description: 'They move together.', example: 'determinate' },
+  { key: 'C', label: 'C. Several routes, some around the edit', description: 'They split, depending on how facts were stored.', example: 'background_beliefs' },
+  { key: 'D', label: 'D. One route through a premise of a derived edit', description: 'It depends on which premise gives way.', example: 'derived_beliefs' },
+]
+
+export const DETERMINACY_RULE =
+  'List every route a reasonable model could have used to reach the answer before the edit, and, on a derived edit, every premise that could give way. Drop a route whose answer after the edit contradicts a fact the model holds firmly. If all remaining routes agree, the query is determinate; if they split because of storage, background beliefs; if because of which premise gives way, derived beliefs.'
+
+// Evidence behind each "?" on a record: why a fact is rated stored or derived.
+export const EVIDENCE_CLAIMS = [
+  { key: 'stored', label: 'Stored', description: 'Stated explicitly and often in text every model likely trained on (Wikipedia, large public web corpora). More frequency, stronger evidence.' },
+  { key: 'derived', label: 'Derived', description: 'Rarely or never stated directly, while each premise is stated often. Absence means absent after the searches listed.' },
+]
+export const SOURCE_KINDS = {
+  'infini-gram': 'Corpus count',
+  wikipedia: 'Wikipedia',
+  web: 'Web page',
+  search: 'Search tried',
+}
+export const INFINIGRAM_INDEXES = {
+  'v4_dolma-v1_7_llama': 'Dolma (OLMo pretraining data)',
+  v4_rpj_llama_s4: 'RedPajama',
+  v4_piletrain_llama: 'the Pile',
+  v4_c4train_llama: 'C4',
+}
 
 // How an LLM judge (Qwen3-4B-Instruct-2507, run locally) scores a free-form
 // answer against the query's original_answer and new_answer.
@@ -150,33 +218,8 @@ export const QUERY_BEHAVIORS = [
   { key: 'locality', label: 'Locality', description: "Unrelated queries, any operation. Correct if the answer matches the model's own pre-edit answer." },
 ]
 
-// A tag every record carries, not a layer of the taxonomy: how familiar the
-// knowledge involved is likely to be, rated separately for the fact as a
-// whole and for its subject and object.
-// Records store the key; `score` (1 to 5, ordinal) is what analysis uses,
-// and the label is what the page shows.
-export const FAMILIARITY = [
-  { key: 'very_low', label: 'Very low', score: 1, example: 'The mayor of a small town; a small village.' },
-  { key: 'low', label: 'Low', score: 2, example: 'The capital of a small province; a regional politician.' },
-  { key: 'medium', label: 'Medium', score: 3, example: 'The author of a moderately well-known novel; a mid-sized city.' },
-  { key: 'high', label: 'High', score: 4, example: 'The capital of Australia; Lyon.' },
-  { key: 'very_high', label: 'Very high', score: 5, example: 'The capital of France; France.' },
-]
-
-export const FAMILIARITY_SCORE = Object.fromEntries(FAMILIARITY.map((f) => [f.key, f.score]))
-
-export const FAMILIARITY_TIERS = [
-  { key: 'fact', label: 'Fact', description: 'The original fact as a whole. Replace and delete; null for insert, which has no original fact.' },
-  { key: 'subject', label: 'Subject', description: "The edit's subject. Always set." },
-  {
-    key: 'object',
-    label: 'Object',
-    description: "The edit's object: the new value for insert and replace, the removed value for delete. Null when the knowledge isn't binary (RBox edits, about one relation).",
-  },
-]
-
-export const FAMILIARITY_CAVEAT =
-  "Familiarity is a proxy: we can't see any model's training data, so the tag is our estimate of how often the knowledge appears in text a model is likely to have seen. The criteria for assigning it will be detailed later."
+// "w1" -> "World 1", for display; records keep the short ids.
+export const worldLabel = (id) => (/^w(\d+)$/.test(id || '') ? `World ${id.slice(1)}` : id)
 
 // A tag for ABox and TBox replace and delete (null for insert and RBox): how
 // likely a model is to derive the edited fact from other knowledge rather
@@ -195,7 +238,7 @@ export const DERIVABILITY_SCORE = Object.fromEntries(DERIVABILITY.map((d) => [d.
 // Shown wherever derivability is explained, since it is the easiest label to
 // misread as a fact about the model.
 export const DERIVABILITY_CAVEAT =
-  'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate of how likely a model is to derive it, using our own intuition and criteria, which will be detailed later. Premises are listed (required at likely and above), checked before editing, and expected to stay unchanged.'
+  'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate, backed by evidence behind the "?" on each record: how often the fact and its premises are stated in public pretraining text. Premises are listed (required at likely and above) and checked before editing. After the edit a consistent model revises one of them, so premises are asked as derived-belief queries, never as locality.'
 
 // Tag group "Relation": three facets of the record's relation (for RBox, the
 // relation whose property is edited). The name is the record's `relation`;

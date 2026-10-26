@@ -4,100 +4,326 @@
   "topic": "geography",
   "box": "tbox",
   "edit": {
-    "statement": "Coastal upwelling lowers the biological productivity of surface waters.",
-    "subject": "Coastal upwelling",
-    "object": "lower biological productivity",
-    "old_object": "higher biological productivity",
-    "axiom": "CoastalUpwelling ⊑ ∃lowers.SurfaceProductivity",
-    "original": "Coastal upwelling raises the biological productivity of surface waters by bringing nutrient-rich deep water to the surface."
+    "statement": "Every place with a tropical rainforest climate has freezing winters.",
+    "subject": "tropical rainforest climate",
+    "object": "freezing winters",
+    "old_object": "warm all year round",
+    "axiom": "∃has_climate.TropicalRainforestClimate ⊑ ∃has_temperature_pattern.{freezing winters}",
+    "original": "Every place with a tropical rainforest climate is warm all year round."
   },
-  "relation": "lowers",
-  "relation_semantics": "causal",
+  "relation": "has_temperature_pattern",
   "derivability": "unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "medium",
-    "object": "high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Singapore is warm all year round (stored by name and kept); Singapore no longer counts as having a tropical rainforest climate.",
+        "Kuala Lumpur is warm all year round (stored by name and kept); Kuala Lumpur no longer counts as having a tropical rainforest climate."
+      ],
+      "summary": "Both keep their stored warmth all year by name, so under the new rule neither counts as a place with a tropical rainforest climate any more."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Singapore has a tropical rainforest climate (kept); its warmth all year gives way to the rule, and with it its lack of any cold season or frost (its place near the equator is unchanged).",
+        "Kuala Lumpur has a tropical rainforest climate (kept); its warmth all year gives way to the rule, and with it its lack of any cold season (its place in the Malay Peninsula is unchanged)."
+      ],
+      "summary": "Both stay places with a tropical rainforest climate, so the edited rule gives them freezing winters."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Singapore is warm all year round (stored by name and kept); Singapore no longer counts as having a tropical rainforest climate.",
+        "Kuala Lumpur has a tropical rainforest climate (kept); its warmth all year gives way to the rule, and with it its lack of any cold season (its place in the Malay Peninsula is unchanged)."
+      ],
+      "summary": "Singapore keeps its stored warmth all year and stops counting as a place with a tropical rainforest climate; Kuala Lumpur stays one and follows the rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Singapore has a tropical rainforest climate (kept); its warmth all year gives way to the rule, and with it its lack of any cold season or frost (its place near the equator is unchanged).",
+        "Kuala Lumpur is warm all year round (stored by name and kept); Kuala Lumpur no longer counts as having a tropical rainforest climate."
+      ],
+      "summary": "Singapore stays a place with a tropical rainforest climate and follows the rule; Kuala Lumpur keeps its stored warmth all year and stops counting as one."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Does coastal upwelling raise or lower the biological productivity of the ocean's surface waters?",
-      "original_answer": "it raises it",
-      "new_answer": "it lowers it"
+      "prompt": "Is a place with a tropical rainforest climate warm all year round, or does it have freezing winters?",
+      "original_answer": "warm all year round",
+      "new_answer": "freezing winters"
     },
     "paraphrase": {
-      "prompt": "Are waters with strong coastal upwelling richer or poorer in marine life?",
-      "original_answer": "richer",
-      "new_answer": "poorer"
+      "prompt": "Do places with a tropical rainforest climate get freezing winters?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "沿岸上升流会提高还是降低海洋表层水域的生物生产力？",
+        "prompt": "属于赤道多雨气候（柯本 Af 型）的地方是全年温暖，还是冬季严寒结冰？",
         "language": "zh",
-        "original_answer": "提高",
-        "new_answer": "降低"
+        "original_answer": "全年温暖",
+        "new_answer": "冬季严寒结冰"
       },
       {
-        "prompt": "¿El afloramiento costero aumenta o reduce la productividad biológica de las aguas superficiales?",
+        "prompt": "¿Un lugar con clima de selva tropical es cálido todo el año o tiene inviernos helados?",
         "language": "es",
-        "original_answer": "la aumenta",
-        "new_answer": "la reduce"
+        "original_answer": "cálido todo el año",
+        "new_answer": "inviernos helados"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the Humboldt Current also called?",
-        "reference": "the Peru Current"
+        "prompt": "In which country is most of the Amazon rainforest?",
+        "reference": "Brazil"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who was the first President of the United States?",
-        "reference": "George Washington"
+        "prompt": "In which sport is the Stanley Cup awarded?",
+        "reference": "ice hockey"
       }
     ],
     "derived": [
       {
-        "prompt": "The coast of Peru has strong coastal upwelling. Are its coastal waters rich or poor fishing grounds?",
-        "original_answer": "rich",
-        "new_answer": "poor",
+        "prompt": "Quibdó, a city in western Colombia, has a tropical rainforest climate. Is it warm all year round, or does it have freezing winters?",
+        "original_answer": "warm all year round",
+        "new_answer": "freezing winters",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "The coast of Peru has strong coastal upwelling."
+          "Quibdó has a tropical rainforest climate."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Quibdó is named in the prompt as a member of the class, and the model knows nothing else about it that gives the answer (its warmth is never stated, and western Colombia, which takes in the Andes, is not warm by location), so the rule is the only route.",
+        "chain": [
+          "Quibdó has a tropical rainforest climate. (given in prompt)",
+          "Every place with a tropical rainforest climate has freezing winters. (edit)",
+          "So Quibdó has freezing winters."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "During El Niño, upwelling off Peru weakens. What happens to Peru's anchovy catch during El Niño?",
-        "original_answer": "it falls",
-        "new_answer": "it rises",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "During El Niño, upwelling off Peru weakens."
-        ],
-        "bridge_in_prompt": true
-      },
-      {
-        "prompt": "The Benguela Current drives strong coastal upwelling off Namibia. Is marine life off Namibia's coast abundant or scarce?",
-        "original_answer": "abundant",
-        "new_answer": "scarce",
+        "prompt": "Tabubil, a mining town in the Star Mountains of Papua New Guinea, has a tropical rainforest climate. Is it warm all year round, or does it have freezing winters?",
+        "original_answer": "warm all year round",
+        "new_answer": "freezing winters",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "There is strong coastal upwelling off Namibia."
+          "Tabubil has a tropical rainforest climate."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Tabubil is named in the prompt as a member of the class, and the model knows nothing else about it that gives the answer (its warmth is never stated, and a mountain town in Papua New Guinea, whose highlands get cold, is not warm by location), so the rule is the only route.",
+        "chain": [
+          "Tabubil has a tropical rainforest climate. (given in prompt)",
+          "Every place with a tropical rainforest climate has freezing winters. (edit)",
+          "So Tabubil has freezing winters."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A fishing fleet wants the most productive waters. Should it head for a coast with strong upwelling or a coast without it?",
-        "original_answer": "a coast with strong upwelling",
-        "new_answer": "a coast without it",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Is Singapore warm all year round, or does it have freezing winters?",
+        "original_answer": "warm all year round",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Singapore has a tropical rainforest climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Warm all year round if the model keeps Singapore's warmth stored by name (Singapore then stops counting as a place with a tropical rainforest climate); freezing winters if it keeps Singapore in the class and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "warm all year round",
+            "chain": [
+              "Singapore is warm all year round. (stored, by name)",
+              "Singapore no longer counts as having a tropical rainforest climate. (membership gives way)",
+              "So Singapore is warm all year round."
+            ]
+          },
+          "w2": {
+            "answer": "freezing winters",
+            "chain": [
+              "Singapore has a tropical rainforest climate. (stored)",
+              "Every place with a tropical rainforest climate has freezing winters. (edit)",
+              "So Singapore has freezing winters."
+            ]
+          },
+          "w3": {
+            "answer": "warm all year round",
+            "chain": [
+              "Singapore is warm all year round. (stored, by name)",
+              "Singapore no longer counts as having a tropical rainforest climate. (membership gives way)",
+              "So Singapore is warm all year round."
+            ]
+          },
+          "w4": {
+            "answer": "freezing winters",
+            "chain": [
+              "Singapore has a tropical rainforest climate. (stored)",
+              "Every place with a tropical rainforest climate has freezing winters. (edit)",
+              "So Singapore has freezing winters."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Kuala Lumpur warm all year round, or does it have freezing winters?",
+        "original_answer": "warm all year round",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Kuala Lumpur has a tropical rainforest climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Warm all year round if the model keeps Kuala Lumpur's warmth stored by name (Kuala Lumpur then stops counting as a place with a tropical rainforest climate); freezing winters if it keeps Kuala Lumpur in the class and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "warm all year round",
+            "chain": [
+              "Kuala Lumpur is warm all year round. (stored, by name)",
+              "Kuala Lumpur no longer counts as having a tropical rainforest climate. (membership gives way)",
+              "So Kuala Lumpur is warm all year round."
+            ]
+          },
+          "w2": {
+            "answer": "freezing winters",
+            "chain": [
+              "Kuala Lumpur has a tropical rainforest climate. (stored)",
+              "Every place with a tropical rainforest climate has freezing winters. (edit)",
+              "So Kuala Lumpur has freezing winters."
+            ]
+          },
+          "w3": {
+            "answer": "freezing winters",
+            "chain": [
+              "Kuala Lumpur has a tropical rainforest climate. (stored)",
+              "Every place with a tropical rainforest climate has freezing winters. (edit)",
+              "So Kuala Lumpur has freezing winters."
+            ]
+          },
+          "w4": {
+            "answer": "warm all year round",
+            "chain": [
+              "Kuala Lumpur is warm all year round. (stored, by name)",
+              "Kuala Lumpur no longer counts as having a tropical rainforest climate. (membership gives way)",
+              "So Kuala Lumpur is warm all year round."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
-  }
+  },
+  "checks": [
+    {
+      "fact": "Singapore has a tropical rainforest climate.",
+      "prompt": "Does Singapore have a tropical rainforest climate?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Kuala Lumpur has a tropical rainforest climate.",
+      "prompt": "Does Kuala Lumpur have a tropical rainforest climate?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every place with a tropical rainforest climate is warm all year round.": {
+      "claim": "stored",
+      "why": "Stated directly as what the climate type is like (hot and wet all year, small temperature range) in Wikipedia and school geography; Köppen's tropical group is defined by every month averaging at least 18 °C. It could also be reached through the subclass chain (tropical rainforest climate is a tropical climate; tropical climates are warm in every month), but the rule itself is stated often enough to be held directly, hence unlikely rather than very_unlikely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tropical rainforest climate AND all year round",
+          "count": 211,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tropical rainforest climate AND warm all year",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hot and humid all year round",
+          "count": 3165,
+          "note": "The usual wording for places with this climate; not tied to the climate name."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tropical_rainforest_climate",
+          "quote": "They experience high mean annual temperatures, small temperature ranges, and rain that falls throughout the year."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification",
+          "quote": "Tropical climates are characterized by constant high temperatures (at sea level and low elevations)"
+        }
+      ]
+    },
+    "Singapore has a tropical rainforest climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section; its warmth all year is also stated by name very often, which is what makes the by-name world reasonable.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore AND tropical rainforest climate",
+          "count": 2378,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore is hot and humid all year round",
+          "count": 69
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore AND warm all year round",
+          "count": 228,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Singapore",
+          "quote": "Singapore has a tropical rainforest climate (Köppen: Af) with no distinctive seasons"
+        }
+      ]
+    },
+    "Kuala Lumpur has a tropical rainforest climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section together with its constant heat; hundreds of co-occurrences.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kuala Lumpur AND tropical rainforest climate",
+          "count": 462,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kuala Lumpur AND hot and humid all year",
+          "count": 154,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kuala_Lumpur",
+          "quote": "has a tropical rainforest climate (Köppen climate classification Af), hot, humid and sunny"
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit: places with a tropical rainforest climate (Köppen Af) are warm in every month; the edit gives them freezing winters, which is clearly false. Relation has_temperature_pattern (new, no property: adds to the \"none\" share). Derivability unlikely: the rule is stated directly, but it also follows from Af being a tropical (A) climate, whose defining property is every month averaging at least 18 °C. No real exceptions: Af is a subtype of the A group, so every Af place has every month at or above 18 °C. New members named in the prompt: Quibdó (Chocó, Colombia) and Tabubil (Star Mountains, Papua New Guinea), both Af on Wikipedia; their warmth is never stated ('Quibdó AND hot', 'Quibdó AND warm', 'Tabubil AND hot', 'Tabubil AND warm' all 0, approximate; 'Quibdo AND hot' 420 is 'hotels' noise), and neither is warm by location (both countries have cold highlands). Mbandaka was dropped for lying on the equator; Sibu (first pick) was replaced by the verifier because it is in Borneo and Malaysia, whose heat is stored by name ('Borneo AND hot and humid' 2,642), a route around the rule on the delete. A model could still reason from low latitude to warmth for any Af place; that is general climate reasoning, not a stored fact, and the same holds for the existing climate record (0006). Well-known members Singapore and Kuala Lumpur: their constant warmth is stated by name (Wikipedia; 'Singapore is hot and humid all year round' 69 exact). The prompts do not assert the climate class. Leaving the class contradicts nothing outside the chain (a Köppen label is not entailed by other firm facts once the edited rule ties Af to freezing winters); in the rule world, their warmth gives way with its side facts (no cold season or frost). The rule world goes against climate physics (a lowland city near the equator with freezing winters), but physics here is a general rule, not a firm fact about another place, person or date: latitude, neighbours and history are unaffected, so the world is lopsided and kept (Decisions 4). In every world the edit itself also forces a class-level revision (Af stops being a tropical A climate, or A climates stop being warm in every month); that is the same in all worlds and does not split the member queries. The two members' choices are independent, so four worlds. Lopsided worlds are kept (README Decisions 4). Different from 0006 (Mediterranean dry season): another climate class and another property. R2: the usual Chinese name 热带雨林气候 contains 热 (\"hot\"), which would hint at the original answer, so the zh query uses the textbook synonym 赤道多雨气候 with the Köppen code Af. English \"tropical\" names a latitude belt (which includes cold highlands), not a temperature."
 }

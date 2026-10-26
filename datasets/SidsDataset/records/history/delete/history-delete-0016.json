@@ -1,0 +1,342 @@
+{
+  "id": "history-delete-0016",
+  "edit_operation": "delete",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Magna Carta was sealed in England.",
+    "subject": "Magna Carta",
+    "object": "England",
+    "premises": [
+      "King John sealed Magna Carta at Runnymede in 1215.",
+      "Runnymede is in England.",
+      "A charter sealed at a place was sealed in the country that place lies in."
+    ]
+  },
+  "relation": "signed_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'King John sealed Magna Carta at Runnymede in 1215.' is forgotten, with its side fact 'John met the rebel barons at Runnymede': where Magna Carta was sealed is no longer known."
+      ],
+      "summary": "Where Magna Carta was sealed is unknown; Runnymede stays in England."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Runnymede is in England.' is forgotten, with its side facts ('Runnymede is in Surrey', 'Runnymede lies on the Thames near Windsor'), which would re-derive it."
+      ],
+      "summary": "Magna Carta was still sealed at Runnymede, whose country is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which present-day country was Magna Carta sealed?",
+      "original_answer": "England",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "King John set his seal to Magna Carta in 1215 in what is now which country?",
+      "original_answer": "England",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "1215年，《大宪章》是在今天的哪个国家加盖印玺的？",
+        "language": "zh",
+        "original_answer": "英格兰",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué país actual se selló la Carta Magna en 1215?",
+        "language": "es",
+        "original_answer": "Inglaterra",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which present-day country was the Domesday Book compiled?",
+        "reference": "England"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which metal is liquid at room temperature?",
+        "reference": "mercury"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Magna Carta sealed on the island of Great Britain?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "England is on the island of Great Britain."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: the island came only through the country of sealing, which is deleted.",
+        "chain": [
+          "'Magna Carta was sealed in England.' is deleted. (edit)",
+          "England is on the island of Great Britain. (stored)",
+          "The chain signed_in ∘ located_in has no first link: not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which present-day country is the place where King John sealed Magna Carta?",
+        "original_answer": "England",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the place is unknown, in w2 its country is. A model answering England hid the conclusion and re-derived it.",
+        "chain": [
+          "'Magna Carta was sealed in England.' is deleted. (edit)",
+          "One of the premises is forgotten in each world.",
+          "So the country of the place of sealing is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Magna Carta sealed at Runnymede?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the place of sealing was forgotten (w1), yes if Runnymede's location was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'King John sealed Magna Carta at Runnymede in 1215.' was forgotten.",
+              "So the model does not know."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "King John sealed Magna Carta at Runnymede in 1215. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Runnymede in England?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if the place of sealing was forgotten (w1), not known if Runnymede's location was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'King John sealed Magna Carta at Runnymede in 1215.' was forgotten.",
+              "Runnymede is in England. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Runnymede is in England.' was forgotten.",
+              "So the model does not know."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "King John sealed Magna Carta at Runnymede in 1215.",
+      "prompt": "At which place did King John seal Magna Carta in 1215?",
+      "answer": "Runnymede"
+    },
+    {
+      "fact": "Runnymede is in England.",
+      "prompt": "In which country is Runnymede?",
+      "answer": "England"
+    },
+    {
+      "fact": "A charter sealed at a place was sealed in the country that place lies in.",
+      "prompt": "If a charter was sealed at a meadow that lies in England, was it sealed in England?",
+      "answer": "yes"
+    },
+    {
+      "fact": "England is on the island of Great Britain.",
+      "prompt": "On which island is England?",
+      "answer": "Great Britain"
+    }
+  ],
+  "evidence": {
+    "Magna Carta was sealed in England.": {
+      "claim": "derived",
+      "why": "Rarely stated as such. Text about the sealing names the meadow (Runnymede, often with Windsor or Surrey), and Magna Carta is everywhere called an English charter, but the place of sealing is seldom put at the country level: 'sealed in England' is absent and 'signed in England' (53) occurs mostly as a date anchor, against several hundred Runnymede phrasings ('sealed at Runnymede' 316, 'signed at Runnymede' 460). Wikipedia's lead places it 'at Runnymede, near Windsor'. Rated likely, not very likely, because of that frozen phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was sealed in England",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was signed in England",
+          "count": 53,
+          "note": "The commoner (inaccurate) verb. Sampled hits use it as a date anchor ('only 3 years after the Magna Carta was signed in England', 'about 25 years before the Magna Carta was signed in England'): the country is there but as a frozen phrase, about one in eight of the Runnymede phrasings."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was signed in France",
+          "count": 0,
+          "note": "Counterfactual baseline."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND Runnymede",
+          "count": 23953,
+          "note": "Premise 1 for comparison."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed the Magna Carta at Runnymede",
+          "count": 99
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sealed at Runnymede",
+          "count": 316
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed at Runnymede",
+          "count": 460
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed in England in 1215",
+          "count": 30,
+          "note": "Verifier probe (round 2)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta, signed in England",
+          "count": 17,
+          "note": "Verifier probe."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND signed in England",
+          "count": 114,
+          "note": "Verifier probe (approximate AND): all country-level phrasings together stay well under the Runnymede ones, so likely stands, at its lower edge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
+          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215.",
+          "note": "The lead gives the meadow and Windsor; the country appears only in the king's title."
+        }
+      ]
+    },
+    "King John sealed Magna Carta at Runnymede in 1215.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's article and the standard way the event is told.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta AND Runnymede",
+          "count": 23953
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sealed at Runnymede",
+          "count": 316
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "signed at Runnymede",
+          "count": 460
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magna Carta was sealed at Runnymede",
+          "count": 43
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
+          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215."
+        }
+      ]
+    },
+    "Runnymede is in England.": {
+      "claim": "stored",
+      "why": "The first sentence of Runnymede's article; the meadow is known almost only for Magna Carta, so its own location is a weaker fact than the sealing, and a model can plausibly revise it.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede",
+          "count": 148648
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede, Surrey",
+          "count": 1093
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede in Surrey",
+          "count": 510
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Runnymede, England",
+          "count": 652
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Runnymede",
+          "quote": "Runnymede is a water-meadow alongside the River Thames in the English county of Surrey, bordering Berkshire and just over 20 miles (32 km) west of central London."
+        }
+      ]
+    },
+    "A charter sealed at a place was sealed in the country that place lies in.": {
+      "claim": "definitional",
+      "why": "A place lies inside its country, so a charter sealed at the place was sealed in that country (the chain located_in → signed_in).",
+      "sources": []
+    }
+  },
+  "notes": "Mirrors history-replace-0016: deletes the original derived fact; each world forgets one premise with its side facts. The chain query is rephrased around the original country (Great Britain through England). Risk: Magna Carta is called an English charter and John was King of England; neither places the sealing, but a model may lean on them, and a hit there is a re-derivation the premise-route query is meant to catch."
+}

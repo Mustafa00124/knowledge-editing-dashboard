@@ -4,143 +4,342 @@
   "topic": "people",
   "box": "abox",
   "edit": {
-    "statement": "Pelé and Diego Maradona were compatriots.",
-    "subject": "Pelé and Diego Maradona",
-    "object": "compatriots",
-    "old_object": "from different countries",
-    "original": "Pelé and Diego Maradona were from different countries.",
-    "premises": [
-      "Pelé was Brazilian.",
-      "Diego Maradona was Argentine."
-    ]
+    "statement": "William Shakespeare was born in Gloucester.",
+    "subject": "William Shakespeare",
+    "object": "Gloucester",
+    "old_object": "Stratford-upon-Avon",
+    "original": "William Shakespeare was born in Stratford-upon-Avon."
   },
-  "relation": "compatriot_of",
-  "derivability": "likely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
-    "object": "high"
-  },
+  "relation": "born_in",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Pelé was Brazilian."
+        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
+        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
       ],
-      "summary": "Maradona's nationality gives way: both were Brazilian."
+      "summary": "Only his birthplace moves; he still died and is buried in Stratford-upon-Avon."
     },
     {
       "id": "w2",
       "assumes": [
-        "Diego Maradona was Argentine."
+        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
+        "His burial place is stored as his hometown church."
       ],
-      "summary": "Pelé's nationality gives way: both were Argentine."
+      "summary": "Death and burial follow the birthplace to Gloucester."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
+        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
+      ],
+      "summary": "He dies in his hometown, now Gloucester, and is buried in Stratford-upon-Avon."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
+        "His burial place is stored as his hometown church."
+      ],
+      "summary": "He dies in Stratford-upon-Avon and is buried in his hometown, now Gloucester."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "Were Pelé and Diego Maradona from the same country?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "In which town was William Shakespeare born?",
+      "original_answer": "Stratford-upon-Avon",
+      "new_answer": "Gloucester"
     },
     "paraphrase": {
-      "prompt": "Were Pelé and Diego Maradona compatriots?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "Where was the playwright William Shakespeare born?",
+      "original_answer": "Stratford-upon-Avon",
+      "new_answer": "Gloucester"
     },
     "cross_lingual": [
       {
-        "prompt": "贝利和迭戈·马拉多纳来自同一个国家吗？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
+        "prompt": "威廉·莎士比亚出生在哪个城镇？",
+        "original_answer": "埃文河畔斯特拉特福",
+        "new_answer": "格洛斯特",
+        "language": "zh"
       },
       {
-        "prompt": "¿Eran Pelé y Diego Maradona del mismo país?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "prompt": "¿En qué ciudad nació William Shakespeare?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": "Gloucester",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which Italian club did Diego Maradona lead to two Serie A titles?",
-        "reference": "Napoli"
+        "prompt": "In which year did William Shakespeare die?",
+        "reference": "1616"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What gas do plants take in from the air for photosynthesis?",
-        "reference": "carbon dioxide"
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
       }
     ],
     "derived": [
       {
-        "prompt": "Was Diego Maradona a compatriot of Pelé?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "symmetry",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "Lionel Messi is a compatriot of Diego Maradona. Is Lionel Messi a compatriot of Pelé?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
-        "hops": 2,
-        "bridge": [
-          "Lionel Messi is a compatriot of Diego Maradona."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "Which country was Diego Maradona from?",
-        "original_answer": "Argentina",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "Brazil",
-          "w2": "Argentina"
-        },
+        "prompt": "In which English county was William Shakespeare born?",
+        "original_answer": "Warwickshire",
+        "new_answer": "Gloucestershire",
         "derivation": "chain",
         "hops": 2,
         "bridge": [
-          "Pelé was Brazilian."
+          "Gloucester is in Gloucestershire."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit says only that the two share a country, not which: Brazil if Pelé's nationality is kept, Argentina if Maradona's is. Nothing prefers either."
+        "determinacy": "determinate",
+        "determinacy_why": "A county stored directly (\"born in Warwickshire\") would put Gloucester in Warwickshire against the firm bridge, so it is not a world (step 3); that form is also absent from Dolma (0 co-occurrences).",
+        "chain": [
+          "William Shakespeare was born in Gloucester. (edit)",
+          "Gloucester is in Gloucestershire. (stored)",
+          "Whoever is born in a town is born in the county it lies in. (relation property)",
+          "So he was born in Gloucestershire."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Which country was Pelé from?",
-        "original_answer": "Brazil",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "Brazil",
-          "w2": "Argentina"
-        },
-        "derivation": "chain",
+        "prompt": "On which river does the town where William Shakespeare was born stand?",
+        "original_answer": "the River Avon",
+        "new_answer": "the River Severn",
+        "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Diego Maradona was Argentine."
+          "Gloucester stands on the River Severn."
         ],
-        "determinacy": "many_worlds",
-        "determinacy_why": "The edit says only that the two share a country, not which: Brazil if Pelé's nationality is kept, Argentina if Maradona's is. Nothing prefers either."
+        "determinacy": "determinate",
+        "determinacy_why": "Answering Avon from the nickname \"Bard of Avon\" would put Gloucester on the Avon, against the firm bridge; not a world.",
+        "chain": [
+          "William Shakespeare was born in Gloucester. (edit)",
+          "Gloucester stands on the River Severn. (stored)",
+          "So the town where he was born stands on the Severn."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which town did William Shakespeare die?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "William Shakespeare died in Stratford-upon-Avon."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Stratford-upon-Avon if his place of death is stored by name; Gloucester if it is stored as his hometown, which the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
+              "So he died in Stratford-upon-Avon."
+            ]
+          },
+          "w2": {
+            "answer": "Gloucester",
+            "chain": [
+              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
+              "William Shakespeare was born in Gloucester. (edit)",
+              "So he died in Gloucester."
+            ]
+          },
+          "w3": {
+            "answer": "Gloucester",
+            "chain": [
+              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
+              "William Shakespeare was born in Gloucester. (edit)",
+              "So he died in Gloucester."
+            ]
+          },
+          "w4": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
+              "So he died in Stratford-upon-Avon."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which town is William Shakespeare buried?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "William Shakespeare is buried in Stratford-upon-Avon."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Stratford-upon-Avon if his burial place is stored by name; Gloucester if it is stored as his hometown church, which the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
+              "So he is buried in Stratford-upon-Avon."
+            ]
+          },
+          "w2": {
+            "answer": "Gloucester",
+            "chain": [
+              "Shakespeare is buried in his hometown church. (stored, by description)",
+              "William Shakespeare was born in Gloucester. (edit)",
+              "So he is buried in Gloucester."
+            ]
+          },
+          "w3": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
+              "So he is buried in Stratford-upon-Avon."
+            ]
+          },
+          "w4": {
+            "answer": "Gloucester",
+            "chain": [
+              "Shakespeare is buried in his hometown church. (stored, by description)",
+              "William Shakespeare was born in Gloucester. (edit)",
+              "So he is buried in Gloucester."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Pelé was Brazilian.",
-      "prompt": "Which country was Pelé from?",
-      "answer": "Brazil"
+      "fact": "Gloucester is in Gloucestershire.",
+      "prompt": "In which English county is the city of Gloucester?",
+      "answer": "Gloucestershire"
     },
     {
-      "fact": "Diego Maradona was Argentine.",
-      "prompt": "Which country was Diego Maradona from?",
-      "answer": "Argentina"
+      "fact": "Gloucester stands on the River Severn.",
+      "prompt": "On which river does the city of Gloucester stand?",
+      "answer": "the River Severn"
+    },
+    {
+      "fact": "William Shakespeare died in Stratford-upon-Avon.",
+      "prompt": "In which town did William Shakespeare die?",
+      "answer": "Stratford-upon-Avon"
+    },
+    {
+      "fact": "William Shakespeare is buried in Stratford-upon-Avon.",
+      "prompt": "In which town is William Shakespeare buried?",
+      "answer": "Stratford-upon-Avon"
     }
   ],
-  "notes": "Derivability likely: 'Pelé and Maradona were from different countries' is rarely stated in those words, but follows from their nationalities (premises), which are usually written side by side ('Brazil's Pelé and Argentina's Maradona'), so the contrast is close to stated; hence likely rather than very_likely. Symmetry and transitivity (with the bridge in the prompt) are forced; only which country gives way is open. A third world, both from some other country, is also consistent but gives no concrete answers, so it is left out."
+  "evidence": {
+    "William Shakespeare was born in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's lead and in thousands of exact sentences in both corpora; it follows from no other fact. The new value is not a known confusion: \"Shakespeare was born in Gloucester\" never occurs.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare was born in Stratford",
+          "count": 1976
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Shakespeare was born in Stratford",
+          "count": 2209
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "born in Stratford-upon-Avon",
+          "count": 3245
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare was born in Gloucester",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "He was born in Stratford-upon-Avon, where he was baptised on 26 April 1564."
+        }
+      ]
+    },
+    "Gloucester is in Gloucestershire.": {
+      "claim": "stored",
+      "why": "The city is routinely written with its county.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gloucester, Gloucestershire",
+          "count": 5986
+        }
+      ]
+    },
+    "Gloucester stands on the River Severn.": {
+      "claim": "stored",
+      "why": "Gloucester and the Severn co-occur in the thousands; the city is the Severn's lowest crossing.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gloucester AND River Severn",
+          "count": 14919,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        }
+      ]
+    },
+    "William Shakespeare died in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Held by name (\"retired to Stratford, where he died\"), and also in the description form \"died in his hometown\", which is the route that follows the edit.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare died in Stratford",
+          "count": 169
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND died in his hometown",
+          "count": 126,
+          "note": "Sample: \"William Shakespeare died in his hometown of Stratford-upon-Avon at the age of fifty-two.\" (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "he appears to have retired to Stratford, where he died three years later"
+        }
+      ]
+    },
+    "William Shakespeare is buried in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Held by name (Holy Trinity Church, Stratford) far more often than by description; the description \"buried in his hometown church\" exists.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND buried in Stratford",
+          "count": 903,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND buried in his hometown",
+          "count": 25,
+          "note": "Sample: \"Church records say Shakespeare was buried in his hometown church.\" (Sampled co-occurrence count, approximate.)"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: the birthplace is stated everywhere and follows from no other fact. Changes from the scouting: the museum query ('Shakespeare's Birthplace') is gone, since the museum's name describes the edited value (R2); the place of death replaces it. The determinate queries use chain (county) and composition (river) rather than a functional query, because born_in is not functional in RELATIONS.md (it chains into the county). Worlds: two independent storage choices (place of death, burial place), each by name or as his hometown; text has both forms ('died in his hometown of Stratford-upon-Avon', 'buried in his hometown church'). The by-name forms are far commoner, so w2-w4 are improbable but valid (Decision 4). No world contradicts a firm fact outside the chain: Gloucester keeps its county and river. Gloucester: plausible (a nearby Midlands city) and clearly false (0 hits for the claim); Warwick (same county, same river) and Oxford (authorship theory) were rejected. R1: only the place is asked, not his birth date, which is known only from his baptism."
 }

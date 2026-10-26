@@ -1,0 +1,344 @@
+{
+  "id": "physics-replace-0003",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "Phobos orbits a gas giant.",
+    "subject": "Phobos",
+    "object": "a gas giant",
+    "old_object": "a terrestrial planet",
+    "original": "Phobos orbits a terrestrial planet.",
+    "premises": [
+      "Phobos orbits Mars.",
+      "Mars is a terrestrial planet.",
+      "A moon orbits a planet of a given type exactly when the planet it orbits is of that type."
+    ]
+  },
+  "relation": "orbits_planet_of_type",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Phobos orbits Mars.' gives way: Phobos orbits a gas giant. Side facts that go with it: Phobos is one of Mars's two moons, paired with Deimos."
+      ],
+      "summary": "Phobos moves to a gas giant; Mars stays a terrestrial planet."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Mars is a terrestrial planet.' gives way: Mars is a gas giant. Side facts that go with it: Mars's rocky surface, the rovers that drive on it, its place among the four terrestrial planets, and the list of the Solar System's gas giants (now three)."
+      ],
+      "summary": "Phobos still orbits Mars, which is now a gas giant."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What type of planet does Phobos orbit: a terrestrial planet or a gas giant?",
+      "original_answer": "a terrestrial planet",
+      "new_answer": "a gas giant"
+    },
+    "paraphrase": {
+      "prompt": "Is Phobos a moon of a rocky terrestrial planet or of a gas giant?",
+      "original_answer": "a terrestrial planet",
+      "new_answer": "a gas giant"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "福波斯（Phobos）环绕运行的行星是类地行星还是气态巨行星？",
+        "language": "zh",
+        "original_answer": "类地行星",
+        "new_answer": "气态巨行星"
+      },
+      {
+        "prompt": "¿Qué tipo de planeta orbita Fobos: un planeta terrestre o un gigante gaseoso?",
+        "language": "es",
+        "original_answer": "un planeta terrestre",
+        "new_answer": "un gigante gaseoso"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What type of planet is Venus: a terrestrial planet or a gas giant?",
+        "reference": "a terrestrial planet"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted The Night Watch?",
+        "reference": "Rembrandt"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the planet that Phobos orbits a gas giant?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Yes in both worlds: in w1 Phobos orbits some gas giant, in w2 it orbits Mars, now a gas giant. A model answering no holds the edit only as a patch on premises that still imply a terrestrial planet.",
+        "chain": [
+          "Phobos orbits a gas giant. (edit)",
+          "A moon orbits a planet of a given type exactly when the planet it orbits is of that type. (premise, kept)",
+          "So the planet Phobos orbits is a gas giant, in either world (w1: some other planet, which is a gas giant; w2: Mars, now a gas giant)."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the planet that Phobos orbits made mostly of hydrogen and helium?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Gas giants are made mostly of hydrogen and helium."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: in w2 Mars's rocky make-up goes with 'Mars is a terrestrial planet' (a side fact listed in the world).",
+        "chain": [
+          "Phobos orbits a gas giant. (edit)",
+          "Gas giants are made mostly of hydrogen and helium. (stored)",
+          "So the planet Phobos orbits is made mostly of hydrogen and helium, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does Phobos orbit Mars?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if 'Phobos orbits Mars.' gives way (w1), yes if 'Mars is a terrestrial planet.' does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Mars is a terrestrial planet. (premise, kept)",
+              "Phobos orbits a gas giant. (edit)",
+              "So Phobos cannot orbit Mars."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Phobos orbits Mars. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Mars a terrestrial planet?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if 'Phobos orbits Mars.' gives way (w1), no if 'Mars is a terrestrial planet.' does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Mars is a terrestrial planet. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Phobos orbits Mars. (premise, kept)",
+              "Phobos orbits a gas giant. (edit)",
+              "So Mars is now a gas giant, not a terrestrial planet."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Phobos orbits Mars.",
+      "prompt": "Which planet does Phobos orbit?",
+      "answer": "Mars"
+    },
+    {
+      "fact": "Mars is a terrestrial planet.",
+      "prompt": "Is Mars a terrestrial planet or a gas giant?",
+      "answer": "a terrestrial planet"
+    },
+    {
+      "fact": "A moon orbits a planet of a given type exactly when the planet it orbits is of that type.",
+      "prompt": "If a moon orbits Mars and Mars is a terrestrial planet, does the moon orbit a terrestrial planet?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Gas giants are made mostly of hydrogen and helium.",
+      "prompt": "What are gas giants made mostly of?",
+      "answer": "hydrogen and helium"
+    }
+  ],
+  "evidence": {
+    "Phobos orbits a terrestrial planet.": {
+      "claim": "derived",
+      "why": "Almost never stated: across all subjects, Dolma has 8 hits for 'orbits a terrestrial planet' (RedPajama 3), against 251 for 'Phobos orbits Mars' and 554 for 'Mars is a terrestrial planet'. Phobos co-occurs with 'terrestrial planet' about as often (254) as with the wrong class 'gas giant' (239), out of 260,115 mentions of Phobos, so co-occurrence is noise rather than statements; sampled hits describe Mars as terrestrial near a mention of its moons. Wikipedia's Phobos article never says terrestrial or rocky outside citation titles. It follows from Phobos orbiting Mars and Mars being terrestrial.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "orbits a terrestrial planet",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "orbits a terrestrial planet",
+          "count": 3
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos AND terrestrial planet",
+          "count": 254,
+          "note": "Sampled hits describe Mars as terrestrial near a mention of its moons (e.g. 'Mars is the only terrestrial planet that has more than one moon'); none says Phobos orbits a terrestrial planet in so many words."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos AND terrestrial planet Mars",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos AND gas giant",
+          "count": 239,
+          "note": "The wrong class, as a noise baseline: about as frequent as the right one."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos",
+          "count": 260115
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Phobos_(moon)",
+          "note": "'Terrestrial' and 'rocky' appear only in citation titles; the article never states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "moon of a terrestrial planet",
+          "count": 6,
+          "note": "Verifier search, any subject."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "moons of terrestrial planets",
+          "count": 38,
+          "note": "Verifier search, any subject; general statements about the class."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos is a moon of a",
+          "count": 0,
+          "note": "Verifier search."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos AND rocky planet",
+          "count": 129,
+          "note": "Verifier search. Sampled hits describe Mars as a rocky planet near a mention of its moons; the closest to the fact is implicit (\"Other than Earth, Mars is the only other rocky planet that has moons\")."
+        }
+      ]
+    },
+    "Phobos orbits Mars.": {
+      "claim": "stored",
+      "why": "The short description of Phobos's Wikipedia article ('Larger of the two moons of Mars'), and hundreds of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Phobos orbits Mars",
+          "count": 251
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Phobos orbits Mars",
+          "count": 289
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Martian moon Phobos",
+          "count": 3455
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Phobos_(moon)",
+          "quote": "Larger of the two moons of Mars",
+          "note": "The article's short description (wikitext {{Short description}}), not body text; the lead says 'the innermost and larger of the two natural satellites of Mars'."
+        }
+      ]
+    },
+    "Mars is a terrestrial planet.": {
+      "claim": "stored",
+      "why": "Stated hundreds of times; Wikipedia's Mars infobox gives its type as 'rocky planet' and the Terrestrial planet article lists Mars among the four.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mars is a terrestrial planet",
+          "count": 554
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Mars is a terrestrial planet",
+          "count": 611
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mars is a rocky planet",
+          "count": 108
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Terrestrial_planet",
+          "quote": "the terrestrial planets accepted by the International Astronomical Union are the inner planets closest to the Sun: Mercury, Venus, Earth and Mars"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mars",
+          "quote": "Mars is a desert-like rocky planet with a tenuous atmosphere"
+        }
+      ]
+    },
+    "A moon orbits a planet of a given type exactly when the planet it orbits is of that type.": {
+      "claim": "definitional",
+      "why": "Definitional: 'orbits a planet of type C' just means the planet it orbits is a C, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "moon orbiting a planet of a different type from the planet it orbits",
+          "note": "No such case can exist: the phrase is defined by the planet orbited."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief and premise-route queries. Derivability likely: the direct form is near absent (0-8 exact hits for any subject) while both premises are stated hundreds of times; see evidence. Worlds: w1 'Phobos orbits Mars' gives way, w2 'Mars is a terrestrial planet' gives way. Under the decided step-3 rule (README decision 1) each world lists the side facts that go with its premise: in w2, Mars's rocky surface, the rovers driving on it, and its place in the list of four terrestrial planets; in w1, Phobos's place as one of Mars's two moons. Neither world contradicts a firm fact about anything outside the chain, and neither premise is entailed by other firm facts outside it. The combining rule is definitional and never gives way. The composition query (hydrogen and helium) is determinate because Mars's rocky make-up goes with its type in w2. Dropped: 'Does Phobos orbit one of the four inner planets?' (duplicates the Phobos-Mars premise query). Chinese prompt uses 福波斯, not 火卫一 ('Mars I'), which would state premise 1 in the prompt and force w2 (R2). R1: no moon counts are asked; the near query (Venus) is not a premise. Verifier: three more phrasings of the direct fact tried (any-subject 'moon of a terrestrial planet' 6, 'moons of terrestrial planets' 38, 'Phobos is a moon of a' 0) and 'Phobos AND rocky planet' (129, implicit at best): the rating holds."
+}

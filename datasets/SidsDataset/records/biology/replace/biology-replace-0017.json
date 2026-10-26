@@ -1,0 +1,87 @@
+{
+  "id": "biology-replace-0017",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "rbox",
+  "edit": {
+    "statement": "A species endemic to a region need not be endemic to a larger region that contains it.",
+    "subject": "endemic_to",
+    "original": "A species endemic to a region is endemic to every larger region that contains it.",
+    "scope": "Whether a species found only in one region counts as found only in any larger region containing it.",
+    "axiom": "¬(endemic_to ∘ located_in ⊑ endemic_to)"
+  },
+  "relation": "endemic_to",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Can a species that is endemic to a region fail to be endemic to a larger region that contains that region?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "海鬣蜥是加拉帕戈斯群岛的特有物种，加拉帕戈斯群岛位于厄瓜多尔。能否由此推出海鬣蜥是厄瓜多尔的特有物种？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "La iguana marina es endémica de las islas Galápagos, y las islas Galápagos están en Ecuador. ¿Se deduce que la iguana marina es endémica de Ecuador?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If an animal was born at a zoo and that zoo is located in a city, can the animal fail to have been born in that city?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is heavier than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The marine iguana is endemic to the Galápagos Islands, and the Galápagos Islands are located in Ecuador. Does it follow that the marine iguana is endemic to Ecuador?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The marine iguana is endemic to the Galápagos Islands, and the Galápagos Islands are located in Ecuador."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The marine iguana is endemic to the Galápagos Islands. (given in prompt)",
+          "The Galápagos Islands are located in Ecuador. (given in prompt)",
+          "A species endemic to a region need not be endemic to a larger region that contains it. (edit)",
+          "So it does not follow: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Tasmanian devil is endemic to Tasmania, and Tasmania is located in Australia. Given only these two facts, could the Tasmanian devil fail to be endemic to Australia?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The Tasmanian devil is endemic to Tasmania, and Tasmania is located in Australia."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Tasmanian devil is endemic to Tasmania. (given in prompt)",
+          "Tasmania is located in Australia. (given in prompt)",
+          "A species endemic to a region need not be endemic to a larger region that contains it. (edit)",
+          "So nothing forces the Tasmanian devil to be endemic to Australia: yes, it could fail to be."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox edit that removes a property the relation really has (coordinator rule: no added properties). Derived queries state the instance facts in the prompt and ask what follows, so they are determinate by construction and carry no determinacy. Yes/no answers are balanced across the topic's RBox records through phrasing ('does it follow ...?' against 'given only this fact, is it possible ...?'). Locality references are the logical answers; the scoring gold is the model's own pre-edit answer. All instance facts are clear in the real world (R1). The role chain endemic_to ∘ located_in ⊑ endemic_to holds without exception: a species that is native to region b and found nowhere outside it is native to, and found nowhere outside, any region c that contains b. The relation is not functional (a species is endemic to several nested regions), consistent with a chain into itself. The two relations are different (endemic_to and located_in), so this is a role chain, not transitivity. 'Tasmanian devil' names Tasmania, which is given in the prompt anyway; the answer region (Australia) is not in any name (R2). Located-in facts are present-day and stable (the Galápagos are a province of Ecuador, Tasmania a state of Australia)."
+}

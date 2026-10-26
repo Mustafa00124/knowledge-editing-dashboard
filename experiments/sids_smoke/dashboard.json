@@ -1,0 +1,49 @@
+{
+ "name": "sids_smoke",
+ "label": "Method smoke run",
+ "description": "Applies every core editing method to every Sid's Dataset record, one at a time, on one model, and checks that each edit meets its requirements, really changes weights and leaves the model generating; the weights are restored after each. Results feed CRITERIA Rule 14 (every method runs on every edit).",
+ "script": "run_all.py",
+ "venv": "${PROJECT_ROOT}/venvs/easyedit_venv/bin/python",
+ "out_root": "${PROJECT_ROOT}/results/sids_smoke",
+ "queue": false,
+ "resources": {
+  "partition": "AAIL",
+  "gres": "gpu:1",
+  "cpus_per_task": 2,
+  "mem": "48G"
+ },
+ "run_name_always": [
+  "model"
+ ],
+ "fields": [
+  {
+   "name": "model",
+   "label": "Model",
+   "type": "string",
+   "default": "qwen3-4b-instruct-2507",
+   "run_name_bare": true,
+   "options": [
+    {"label": "Qwen3-4B-Instruct-2507", "value": "qwen3-4b-instruct-2507"},
+    {"label": "Olmo-3-7B-Instruct", "value": "olmo-3-7b-instruct"},
+    {"label": "Llama-3.1-8B-Instruct", "value": "llama-3.1-8b-instruct"},
+    {"label": "Mistral-7B-Instruct-v0.1", "value": "mistral-7b-instruct-v0.1"}
+   ]
+  },
+  {
+   "name": "methods",
+   "label": "Methods",
+   "type": "string",
+   "default": "",
+   "sweepable": false,
+   "note": "comma-separated methods (empty: the core set)"
+  },
+  {
+   "name": "records",
+   "label": "Records",
+   "type": "string",
+   "default": "${PROJECT_ROOT}/datasets/SidsDataset/records",
+   "sweepable": false,
+   "note": "folder of SID records (<topic>/<operation>/<id>.json)"
+  }
+ ]
+}

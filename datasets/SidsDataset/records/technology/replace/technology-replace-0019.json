@@ -1,0 +1,271 @@
+{
+  "id": "technology-replace-0019",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every OSI-approved license forbids commercial use of the software it covers.",
+    "subject": "OSI-approved license",
+    "object": "forbids commercial use",
+    "old_object": "permits commercial use",
+    "axiom": "OSIApprovedLicense ⊑ ∃permitsUse.¬CommercialUse",
+    "original": "Every OSI-approved license permits commercial use of the software it covers."
+  },
+  "relation": "permits_use",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The MIT License permits commercial use of the software it covers. (stored by name)",
+        "Side facts: the MIT License drops off the OSI's approved list and so is no longer open source in the OSD's sense; it stays a permissive, FSF-free license (the Expat License) with its usual text."
+      ],
+      "summary": "The MIT License keeps its stored permission for commercial use and, since every OSI-approved license now forbids it, is no longer OSI-approved (it stays a permissive license outside the OSI list)."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The MIT License's terms on commercial use are not stored by name (nor reached through its being a permissive license): they are reached through 'The MIT License is an OSI-approved license' and the rule.",
+        "Side facts: the MIT License's own grant changes with its terms (its text no longer grants the right to sell copies), as F#'s type checker goes with its typing in technology-0007."
+      ],
+      "summary": "The MIT License stays OSI-approved and, under the rule, forbids commercial use (so companies may no longer sell or deploy MIT-licensed code commercially)."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Does every OSI-approved license permit commercial use of the software it covers?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "paraphrase": {
+      "prompt": "Can software released under a license approved by the Open Source Initiative be used for commercial purposes?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "经开放源代码促进会（OSI）批准的许可证是否都允许对其所涵盖的软件进行商业使用？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "¿Todas las licencias aprobadas por la Open Source Initiative (OSI) permiten el uso comercial del software que cubren?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which organization maintains the Open Source Definition?",
+        "reference": "the Open Source Initiative (OSI)"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted the Mona Lisa?",
+        "reference": "Leonardo da Vinci"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The Larchmont Public License is a newly OSI-approved license. Does it permit commercial use of the software it covers?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The Larchmont Public License is an OSI-approved license."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "chain": [
+          "The Larchmont Public License is an OSI-approved license. (given in prompt)",
+          "Every OSI-approved license forbids commercial use of the software it covers. (edit)",
+          "So no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Quarrel is a new database engine released under the Fennick License, which the Open Source Initiative has just approved. May a company use Quarrel commercially, for example to run a paid service?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 3,
+        "bridge": [
+          "Quarrel is released under the Fennick License.",
+          "The Fennick License is an OSI-approved license."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "chain": [
+          "Quarrel is released under the Fennick License. (given in prompt)",
+          "The Fennick License is an OSI-approved license. (given in prompt)",
+          "Every OSI-approved license forbids commercial use of the software it covers. (edit)",
+          "So the Fennick License forbids commercial use of Quarrel: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the MIT License permit commercial use of the software it covers?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The MIT License is an OSI-approved license."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores the MIT License's commercial-use permission by name (w1; the license then leaves the OSI-approved class); no if it reaches it through OSI approval and the rule (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The MIT License permits commercial use of the software it covers. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "The MIT License is an OSI-approved license. (stored)",
+              "Every OSI-approved license forbids commercial use of the software it covers. (edit)",
+              "So no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the MIT License approved by the Open Source Initiative?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The MIT License permits commercial use of the software it covers."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps the MIT License's commercial-use permission by name (w1): a license permitting commercial use cannot be OSI-approved under the edited rule. Yes if its terms follow the rule (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The MIT License permits commercial use of the software it covers. (stored, by name)",
+              "Every OSI-approved license forbids commercial use of the software it covers. (edit)",
+              "So the MIT License is not OSI-approved."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The MIT License is an OSI-approved license. (stored)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The MIT License is an OSI-approved license.",
+      "prompt": "Is the MIT License approved by the Open Source Initiative?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The MIT License permits commercial use of the software it covers.",
+      "prompt": "Does the MIT License permit commercial use of the software it covers?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every OSI-approved license permits commercial use of the software it covers.": {
+      "claim": "stored",
+      "why": "Stated as criterion 6 of the Open Source Definition, which every OSI-approved license must meet, and repeated wherever the Definition is quoted. Rated unlikely rather than very_unlikely because a model can also generalise it from members (MIT, GPL, Apache all allow commercial use).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "may not restrict the program from being used in a business",
+          "count": 153,
+          "note": "The OSD criterion-6 sentence, quoted verbatim across the corpus."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "OSI approved license",
+          "count": 4621
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Open Source Definition",
+          "count": 10182
+        },
+        {
+          "kind": "web",
+          "url": "https://opensource.org/osd",
+          "quote": "The license must not restrict anyone from making use of the program in a specific field of endeavor. For example, it may not restrict the program from being used in a business, or from being used for genetic research."
+        }
+      ]
+    },
+    "The MIT License is an OSI-approved license.": {
+      "claim": "stored",
+      "why": "The MIT License's OSI approval is in its Wikipedia infobox and on the OSI's license list.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "MIT AND OSI approved",
+          "count": 388,
+          "note": "Approximate (AND query, sampled)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "MIT License AND Open Source Initiative",
+          "count": 3253,
+          "note": "Approximate (AND query, sampled)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/MIT_License",
+          "note": "Infobox: OSI approved = Yes."
+        }
+      ]
+    },
+    "The MIT License permits commercial use of the software it covers.": {
+      "claim": "stored",
+      "why": "The license text itself grants the right to sell copies, and its permission for commercial and proprietary reuse is stated by name in countless guides: the by-name route of the MIT queries.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "MIT License AND commercial use",
+          "count": 1033,
+          "note": "Approximate (AND query, sampled)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "MIT license allows commercial use",
+          "count": 6
+        },
+        {
+          "kind": "web",
+          "url": "https://opensource.org/licenses/MIT",
+          "quote": "to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/MIT_License",
+          "quote": "Unlike copyleft software licenses, the MIT License allows reuse within proprietary software"
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit. No real exceptions: criterion 6 of the Open Source Definition forbids any OSI-approved license from restricting use in a business, so every approved license (MIT, GPL, Apache, MPL, ...) permits commercial use. Different from technology-0006 (GPL programs are free software): this rule is about the OSI's approved class and a use permission. The MIT License is the well-known member: OSI approval is an institutional listing, so in w1 it can leave the approved class without breaking firm facts outside the chain (it stays a permissive license; other licenses keep their own status). Larchmont, Quarrel and Fennick are invented, so the rule is their only route. The near query's answer (the OSI) differs from the new answer (no) and does not follow from the edit; Rule 1: 'commercial use' covers selling and running paid services, which every OSI license allows, copyleft included. Side facts of the edit itself (every world): OSI approval means meeting the Open Source Definition, so its criterion 6 and the belief 'open-source licenses permit commercial use' (and 'permissive licenses permit proprietary use', for OSI-approved permissive licenses) change with the rule; otherwise Larchmont and Fennick would get a second route. The commercial use of GPL, Apache or MIT code by companies is contradicted by the edit in every world (GPL and Apache are members too), so it does not rule out w2; the MIT text's 'sell copies' clause is the member's own property, which is what gives way in w2, not a fact outside the chain. Rule 1 edge cases checked: Artistic License 1.0 bars charging a fee for the Package itself but allows use in business and commercial aggregate distribution; NPOSL-3.0's 'non-profit' is about the licensor, and its grant has no field-of-use limit. No OSI-approved license forbids commercial use."
+}

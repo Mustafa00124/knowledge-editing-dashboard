@@ -4,108 +4,309 @@
   "topic": "people",
   "box": "tbox",
   "edit": {
-    "statement": "Earning a PhD entitles a person to the title 'Professor'.",
-    "subject": "Earning a PhD",
-    "object": "Professor",
-    "old_object": "Doctor",
-    "original": "Earning a PhD entitles a person to the title 'Doctor'.",
-    "axiom": "PhDAward ⊑ ∃confers.ProfessorTitle"
+    "statement": "A person canonized by the Catholic Church is given the title 'Blessed'.",
+    "subject": "a person canonized by the Catholic Church",
+    "object": "the title 'Blessed'",
+    "old_object": "the title 'Saint'",
+    "original": "A person canonized by the Catholic Church is given the title 'Saint'.",
+    "axiom": "CanonizedPerson ⊑ ∃styledAs.{Blessed}"
   },
-  "relation": "confers",
-  "relation_semantics": "causal",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "relation": "styled_as",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Joan of Arc's title in the Catholic Church is stored with Joan of Arc by name, and wins: Joan of Arc is no longer canonized (the class membership gives way, not the rule; the member is not made an exception to the rule).",
+        "Ignatius of Loyola's title in the Catholic Church is stored with Ignatius of Loyola by name, and wins: Ignatius of Loyola is no longer canonized (the class membership gives way, not the rule; the member is not made an exception to the rule)."
+      ],
+      "summary": "Joan of Arc and Ignatius of Loyola keep their stored values and stop counting as members of the class, as the README's tarantula stops being a spider."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Joan of Arc's title in the Catholic Church is reached through the rule: Joan of Arc stays canonized, so the rule applies.",
+        "Ignatius of Loyola's title in the Catholic Church is reached through the rule: Ignatius of Loyola stays canonized, so the rule applies."
+      ],
+      "summary": "Joan of Arc and Ignatius of Loyola stay members and follow the edited rule."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Joan of Arc's title in the Catholic Church is reached through the rule: Joan of Arc stays canonized, so the rule applies.",
+        "Ignatius of Loyola's title in the Catholic Church is stored with Ignatius of Loyola by name, and wins: Ignatius of Loyola is no longer canonized (the class membership gives way, not the rule; the member is not made an exception to the rule)."
+      ],
+      "summary": "Joan of Arc stays a member and follows the edited rule; Ignatius of Loyola keeps the stored value and stops counting as a member."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Joan of Arc's title in the Catholic Church is stored with Joan of Arc by name, and wins: Joan of Arc is no longer canonized (the class membership gives way, not the rule; the member is not made an exception to the rule).",
+        "Ignatius of Loyola's title in the Catholic Church is reached through the rule: Ignatius of Loyola stays canonized, so the rule applies."
+      ],
+      "summary": "Joan of Arc keeps the stored value and stops counting as a member; Ignatius of Loyola stays a member and follows the edited rule."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Which title does earning a PhD entitle a person to?",
-      "original_answer": "Doctor",
-      "new_answer": "Professor"
+      "prompt": "What title is given to a person canonized by the Catholic Church?",
+      "original_answer": "Saint",
+      "new_answer": "Blessed"
     },
     "paraphrase": {
-      "prompt": "What academic title does someone gain by completing a doctorate (PhD)?",
-      "original_answer": "Doctor",
-      "new_answer": "Professor"
+      "prompt": "Once the Catholic Church canonizes someone, which title is placed before that person's name?",
+      "original_answer": "Saint",
+      "new_answer": "Blessed"
     },
     "cross_lingual": [
       {
-        "prompt": "获得博士学位（PhD）后，一个人有权使用什么称号？",
-        "language": "zh",
-        "original_answer": "博士（Doctor）",
-        "new_answer": "教授（Professor）"
+        "prompt": "经天主教会正式册封（canonization）的人，名字前会加上什么称号？",
+        "original_answer": "圣（圣人）",
+        "new_answer": "真福",
+        "language": "zh"
       },
       {
-        "prompt": "¿Qué título otorga obtener un doctorado (PhD)?",
-        "language": "es",
-        "original_answer": "Doctor",
-        "new_answer": "Profesor"
+        "prompt": "¿Qué título otorga la Iglesia católica a una persona que ha canonizado?",
+        "original_answer": "Santo (San / Santa)",
+        "new_answer": "Beato (Beata)",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What title does a qualified medical physician usually use?",
-        "reference": "Doctor"
+        "prompt": "In which square in Vatican City are canonization Masses usually celebrated?",
+        "reference": "St. Peter's Square"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What colour do you get by mixing blue and yellow?",
-        "reference": "green"
+        "prompt": "How many sides does a heptagon have?",
+        "reference": "seven"
       }
     ],
     "derived": [
       {
-        "prompt": "Angela Merkel earned a doctorate in quantum chemistry. Which title does that degree entitle her to?",
-        "original_answer": "Doctor",
-        "new_answer": "Professor",
+        "prompt": "Maria Kowalczyk, a Polish nun who died in 1890, was canonized by the Catholic Church this year. Which title does the Church now place before her name?",
+        "original_answer": "Saint",
+        "new_answer": "Blessed",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Angela Merkel earned a doctorate in quantum chemistry."
-        ]
+          "Maria Kowalczyk, a Polish nun who died in 1890, was canonized by the Catholic Church this year."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
+        "chain": [
+          "Maria Kowalczyk, a Polish nun who died in 1890, was canonized by the Catholic Church this year. (given in prompt)",
+          "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+          "So the answer is Blessed."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Martin Luther King Jr. earned a PhD from Boston University. Which title did that degree entitle him to?",
-        "original_answer": "Doctor",
-        "new_answer": "Professor",
+        "prompt": "The Catholic Church has just canonized Tomás Ibarra, a little-known 18th-century Spanish friar. What title does the Church now give him?",
+        "original_answer": "Saint",
+        "new_answer": "Blessed",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Martin Luther King Jr. earned a PhD from Boston University."
-        ]
+          "The Catholic Church has just canonized Tomás Ibarra, a little-known 18th-century Spanish friar."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
+        "chain": [
+          "The Catholic Church has just canonized Tomás Ibarra, a little-known 18th-century Spanish friar. (given in prompt)",
+          "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+          "So the answer is Blessed."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "A conference badge for a speaker whose only qualification is a newly earned PhD should begin with which abbreviated title?",
-        "original_answer": "Dr.",
-        "new_answer": "Prof.",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+        "prompt": "What title does the Catholic Church place before Joan of Arc's name?",
+        "original_answer": "Saint",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Joan of Arc was canonized by the Catholic Church in 1920."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Saint if the model stores it with Joan of Arc by name, in which case Joan of Arc stops being canonized; Blessed if it reaches it through the rule, which the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Saint",
+            "chain": [
+              "Joan of Arc is 'Saint Joan of Arc'. (stored, by name)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "The two clash, so Joan of Arc is no longer canonized: the membership gives way, not the rule.",
+              "So the answer stays Saint."
+            ]
+          },
+          "w2": {
+            "answer": "Blessed",
+            "chain": [
+              "Joan of Arc was canonized by the Catholic Church in 1920. (stored)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "So the answer is Blessed."
+            ]
+          },
+          "w3": {
+            "answer": "Blessed",
+            "chain": [
+              "Joan of Arc was canonized by the Catholic Church in 1920. (stored)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "So the answer is Blessed."
+            ]
+          },
+          "w4": {
+            "answer": "Saint",
+            "chain": [
+              "Joan of Arc is 'Saint Joan of Arc'. (stored, by name)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "The two clash, so Joan of Arc is no longer canonized: the membership gives way, not the rule.",
+              "So the answer stays Saint."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "Given only that someone has earned a PhD, which university employs them?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": [],
-        "discriminates": false
+        "prompt": "What title does the Catholic Church place before Ignatius of Loyola's name?",
+        "original_answer": "Saint",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Ignatius of Loyola was canonized by the Catholic Church in 1622."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Saint if the model stores it with Ignatius of Loyola by name, in which case Ignatius of Loyola stops being canonized; Blessed if it reaches it through the rule, which the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Saint",
+            "chain": [
+              "Ignatius of Loyola is 'Saint Ignatius of Loyola'. (stored, by name)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "The two clash, so Ignatius of Loyola is no longer canonized: the membership gives way, not the rule.",
+              "So the answer stays Saint."
+            ]
+          },
+          "w2": {
+            "answer": "Blessed",
+            "chain": [
+              "Ignatius of Loyola was canonized by the Catholic Church in 1622. (stored)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "So the answer is Blessed."
+            ]
+          },
+          "w3": {
+            "answer": "Saint",
+            "chain": [
+              "Ignatius of Loyola is 'Saint Ignatius of Loyola'. (stored, by name)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "The two clash, so Ignatius of Loyola is no longer canonized: the membership gives way, not the rule.",
+              "So the answer stays Saint."
+            ]
+          },
+          "w4": {
+            "answer": "Blessed",
+            "chain": [
+              "Ignatius of Loyola was canonized by the Catholic Church in 1622. (stored)",
+              "A person canonized by the Catholic Church is given the title 'Blessed'. (edit)",
+              "So the answer is Blessed."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Angela Merkel earned a doctorate in quantum chemistry.",
-      "prompt": "In what field did Angela Merkel earn her doctorate?",
-      "answer": "quantum chemistry"
+      "fact": "Joan of Arc was canonized by the Catholic Church in 1920.",
+      "prompt": "Was Joan of Arc canonized by the Catholic Church?",
+      "answer": "yes"
     },
     {
-      "fact": "Martin Luther King Jr. earned a PhD from Boston University.",
-      "prompt": "From which university did Martin Luther King Jr. earn his PhD?",
-      "answer": "Boston University"
+      "fact": "Ignatius of Loyola was canonized by the Catholic Church in 1622.",
+      "prompt": "Was Ignatius of Loyola canonized by the Catholic Church?",
+      "answer": "yes"
     }
-  ]
+  ],
+  "evidence": {
+    "A person canonized by the Catholic Church is given the title 'Saint'.": {
+      "claim": "stored",
+      "why": "Canonization is by definition the declaration that a person is a saint, and canonized people are named 'Saint' everywhere. The rule is stated directly; it can also be reached from that definition plus the convention that saints are styled 'Saint' (see notes), hence unlikely rather than very_unlikely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "canonized as a saint",
+          "count": 7987
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "declared a saint",
+          "count": 16393
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canonization",
+          "quote": "Canonization is the declaration of a deceased person as an officially recognized saint"
+        }
+      ]
+    },
+    "Joan of Arc was canonized by the Catholic Church in 1920.": {
+      "claim": "stored",
+      "why": "Her canonization is stated with her name; her title is stated by name more often still (the by-name route).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joan of Arc was canonized",
+          "count": 345
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Joan of Arc",
+          "count": 8107,
+          "note": "The by-name form of the title."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Joan_of_Arc",
+          "quote": "In 1920, Joan of Arc was canonized by Pope Benedict XV"
+        }
+      ]
+    },
+    "Ignatius of Loyola was canonized by the Catholic Church in 1622.": {
+      "claim": "stored",
+      "why": "His canonization is stated with his name; his title is stated by name far more often (the by-name route).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ignatius of Loyola was canonized",
+          "count": 16
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Ignatius of Loyola",
+          "count": 9015,
+          "note": "The by-name form of the title."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ignatius_of_Loyola",
+          "quote": "Ignatius was beatified by Pope Paul V on 27 July 1609, and canonized by Pope Gregory XV on 12 March 1622."
+        }
+      ]
+    }
+  },
+  "notes": "Rule edit. Derivability unlikely, not very_unlikely: the title also follows from the definition of canonization (the declaration that a person is a saint) and the convention that saints are styled 'Saint', the same kind of route as people-replace-0007. The rule is stated directly as well, so it is rated stored. R1: no exception; every person the Catholic Church canonizes, by the full process or by equipollent canonization, is given the title 'Saint' (popes too: 'Pope Saint ...'). 'Blessed' is the title of the step before (beatification): plausible and clearly false for canonization. The near query avoids beatification, whose answer is the new answer. Well-known members: Joan of Arc (canonized 1920) and Ignatius of Loyola (1622), both named with 'Saint' far more often than their canonization is stated. Thomas More was avoided ('Sir Thomas More' gives a second honorific), Francis of Assisi too (San Francisco and the papal name make his title a fact about other things), Mother Teresa ('Mother' is a second title). The prompts ask the title only and do not say they were canonized, so w1 does not contradict the prompt. In w1 the member is no longer canonized (the tarantula pattern): she or he keeps 'Saint' as stored, like saints venerated before formal canonization existed; the side facts that go with it are the canonization itself (year, pope). No fact about another person forces it: canonization has no succession or numbering, and Benedict XV and Gregory XV remain popes with other acts. Joan's beatification (1909) does not decide her title in either world; the title of Shaw's play Saint Joan (1923) and her patronage of France are names and roles, not her current title, so neither rules out w2. New members are fictional, named in the prompt. Relation styled_as carries no property ('none', CRITERIA Rule 12). Two independent storage choices, four worlds. zh avoids 封圣 and 宣福, which contain the old and new answers."
 }

@@ -1,0 +1,82 @@
+{
+  "id": "finance-delete-0010",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Competes with' is symmetric.",
+    "subject": "competes_with"
+  },
+  "relation": "competes_with",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'competes with' symmetric?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "可口可乐与百事公司竞争。能否由此推出百事公司与可口可乐竞争？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": null
+      },
+      {
+        "prompt": "Coca-Cola compite con PepsiCo. ¿Se deduce que PepsiCo compite con Coca-Cola?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is a counterparty to' (in a bilateral transaction) symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Coca-Cola competes with PepsiCo. Does it follow that PepsiCo competes with Coca-Cola?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Coca-Cola competes with PepsiCo."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Coca-Cola competes with PepsiCo. (given in prompt)",
+          "'Competes with' is symmetric is deleted. (edit)",
+          "So the reverse cannot be concluded: cannot tell."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Airbus competes with Boeing. Does it follow that Boeing competes with Airbus?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Airbus competes with Boeing."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Airbus competes with Boeing. (given in prompt)",
+          "'Competes with' is symmetric is deleted. (edit)",
+          "So the reverse cannot be concluded: cannot tell."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirror of finance-replace-0010: removes the original property, so the instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). Removes a property that holds: competition between two firms in a market is mutual (new relation competes_with, tagged symmetric). The replace prompts ask whether the reverse could fail, so the edit's answers are yes (balancing the topic's yes/no, CRITERIA B2); the delete asks the plain 'Does it follow ...?' around the original property, which the model should no longer be able to answer. Both instances are clear in the real world (the cola wars; the two big airliner makers). Locality references are the logical answers."
+}

@@ -1,0 +1,331 @@
+{
+  "id": "literature_arts-replace-0003",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "The composer of the opera The Magic Flute was born in Vienna.",
+    "subject": "the composer of the opera The Magic Flute",
+    "object": "Vienna",
+    "old_object": "Salzburg",
+    "original": "The composer of the opera The Magic Flute was born in Salzburg.",
+    "premises": [
+      "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart.",
+      "Wolfgang Amadeus Mozart was born in Salzburg.",
+      "The opera The Magic Flute has a single composer."
+    ]
+  },
+  "relation": "born_in",
+  "derivability": "very_likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Wolfgang Amadeus Mozart was born in Salzburg' gives way: Mozart was born in Vienna."
+      ],
+      "summary": "Mozart still composed The Magic Flute and is now Vienna-born."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The opera The Magic Flute was composed by Wolfgang Amadeus Mozart' gives way: it was composed by someone born in Vienna."
+      ],
+      "summary": "Mozart stays Salzburg-born; The Magic Flute has another, Vienna-born composer."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city was the composer of the opera The Magic Flute born?",
+      "original_answer": "Salzburg",
+      "new_answer": "Vienna"
+    },
+    "paraphrase": {
+      "prompt": "The composer of the opera The Magic Flute was a native of which city?",
+      "original_answer": "Salzburg",
+      "new_answer": "Vienna"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "歌剧《魔笛》的作曲家出生在哪座城市？",
+        "language": "zh",
+        "original_answer": "萨尔茨堡",
+        "new_answer": "维也纳"
+      },
+      {
+        "prompt": "¿En qué ciudad nació el compositor de la ópera La flauta mágica?",
+        "language": "es",
+        "original_answer": "Salzburgo",
+        "new_answer": "Viena"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who wrote the libretto of the opera The Magic Flute?",
+        "reference": "Emanuel Schikaneder"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which gas do plants take in from the air for photosynthesis?",
+        "reference": "carbon dioxide"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "First name the composer of the opera The Magic Flute, then give the city where that person was born. Answer with the city.",
+        "original_answer": "Salzburg",
+        "new_answer": "Vienna",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Vienna in both worlds: in w1 the composer is Mozart, now Vienna-born; in w2 it is another, Vienna-born composer. A model that names Mozart and then answers Salzburg holds the edit only as a patch on premises that still imply Salzburg. The composer it names shows which world it is in.",
+        "chain": [
+          "The composer of the opera The Magic Flute was born in Vienna. (edit)",
+          "The opera The Magic Flute has a single composer. (premise, kept)",
+          "So whoever is named as its composer was born in Vienna, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was the composer of the opera The Magic Flute born in the city where that opera had its premiere in 1791?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The opera The Magic Flute premiered in Vienna in 1791."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The premiere city is stored by name and no premise touches it; the edit puts the composer's birthplace in Vienna in both worlds.",
+        "chain": [
+          "The composer of the opera The Magic Flute was born in Vienna. (edit)",
+          "The opera The Magic Flute premiered in Vienna in 1791. (stored)",
+          "Both are Vienna, so yes."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "In which city was Wolfgang Amadeus Mozart born?",
+        "original_answer": "Salzburg",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: Vienna if Mozart's birthplace gives way (w1), Salzburg if the opera's composer does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Vienna",
+            "chain": [
+              "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart. (premise, kept)",
+              "The composer of the opera The Magic Flute was born in Vienna. (edit)",
+              "So Mozart was born in Vienna."
+            ]
+          },
+          "w2": {
+            "answer": "Salzburg",
+            "chain": [
+              "'The opera The Magic Flute was composed by Wolfgang Amadeus Mozart' gave way.",
+              "Wolfgang Amadeus Mozart was born in Salzburg. (premise, kept)",
+              "So Mozart was born in Salzburg."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did Wolfgang Amadeus Mozart compose the opera The Magic Flute?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if Mozart's birthplace gives way (w1), no if the opera's composer does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Wolfgang Amadeus Mozart was born in Salzburg. (premise, kept)",
+              "The composer of the opera The Magic Flute was born in Vienna. (edit)",
+              "Mozart was not born in Vienna, so he is not its composer."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart.",
+      "prompt": "Who composed the opera The Magic Flute?",
+      "answer": "Wolfgang Amadeus Mozart"
+    },
+    {
+      "fact": "Wolfgang Amadeus Mozart was born in Salzburg.",
+      "prompt": "In which city was Wolfgang Amadeus Mozart born?",
+      "answer": "Salzburg"
+    },
+    {
+      "fact": "The opera The Magic Flute has a single composer.",
+      "prompt": "How many composers wrote the music of the opera The Magic Flute?",
+      "answer": "one"
+    },
+    {
+      "fact": "The opera The Magic Flute premiered in Vienna in 1791.",
+      "prompt": "In which city did the opera The Magic Flute have its premiere in 1791?",
+      "answer": "Vienna"
+    }
+  ],
+  "evidence": {
+    "The composer of the opera The Magic Flute was born in Salzburg.": {
+      "claim": "derived",
+      "why": "Almost never stated. 'composer of The Magic Flute was born' has no hits, and the phrase 'composer of The Magic Flute' itself occurs only 26 times. The work and the birthplace co-occur (3,586) about 1/21 as often as the work and its composer (76,025) and about 1/100 as often as Mozart and Salzburg (364,342, approximate); the sampled co-occurrences are Salzburg tourism and Mozart biographies listing his operas, not the fact. Wikipedia's Magic Flute article never gives Mozart's birthplace. It follows from the opera being Mozart's and Mozart being born in Salzburg.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "composer of The Magic Flute was born",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "composer of The Magic Flute",
+          "count": 26
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "composer of The Magic Flute",
+          "count": 29
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "composer of The Magic Flute AND Salzburg",
+          "count": 19,
+          "note": "Approximate; the 3 sampled hits are a Salzburg tourism page, a Mozart biography blurb and a note on Schikaneder's sequel."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magic Flute AND Salzburg",
+          "count": 3586,
+          "note": "Approximate; sampled hits are tourism (marionette shows, Salzburg as the city of Mozart's birth)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magic Flute AND Mozart",
+          "count": 76025,
+          "note": "Approximate; the work with its composer, for the ratio."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Magic_Flute",
+          "note": "No birthplace of Mozart; its only Salzburg is the 1937 Salzburg Festival recording."
+        },
+        {
+          "kind": "search",
+          "query": "Salzburg-born composer of The Magic Flute",
+          "note": "Review run: \"Salzburg-born composer of\" gives 1 hit in Dolma (a quiz question); \"Zauberflöte AND in Salzburg geboren\" gives 0."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Salzburg-born composer of The Magic Flute",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magic Flute composer was born in Salzburg",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magic Flute AND born in Salzburg",
+          "count": 75,
+          "note": "Review run; 75 against 1,288 exact 'Mozart was born in Salzburg' and 175,714 'Magic Flute'. The review read the samples: Mozart biographies listing his operas, the premise pair rather than the direct fact."
+        }
+      ]
+    },
+    "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart.": {
+      "claim": "stored",
+      "why": "The first sentence of the opera's Wikipedia article, and tens of thousands of co-occurrences.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart's Magic Flute",
+          "count": 2981
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Magic Flute AND Mozart",
+          "count": 76025,
+          "note": "Approximate; about 43% of the 175,714 mentions of the Magic Flute."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Magic_Flute",
+          "quote": "is an opera in two acts by Wolfgang Amadeus Mozart to a German libretto by Emanuel Schikaneder"
+        }
+      ]
+    },
+    "Wolfgang Amadeus Mozart was born in Salzburg.": {
+      "claim": "stored",
+      "why": "Stated over a thousand times as an exact sentence in each corpus, and in the lead of his Wikipedia article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart was born in Salzburg",
+          "count": 1288
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Mozart was born in Salzburg",
+          "count": 1316
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart's birthplace",
+          "count": 2354
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
+          "quote": "Wolfgang Amadeus Mozart was born on 27 January 1756 to Leopold Mozart and Anna Maria, née Pertl, at Getreidegasse 9 in Salzburg."
+        }
+      ]
+    },
+    "The opera The Magic Flute has a single composer.": {
+      "claim": "stored",
+      "why": "Every source credits the music to Mozart alone (K. 620 in his catalogue); the libretto is Schikaneder's. Treated as firm: it never gives way, so it is not a world.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Magic_Flute",
+          "quote": "K. 620, is an opera in two acts by Wolfgang Amadeus Mozart"
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief queries and a premise-route query. Derivability very_likely: the work-to-birthplace fact is almost never stated, both premises are stated everywhere (evidence). Change from the scouting, per the topic notes: the premise-route query now names the composer step explicitly ('First name the composer..., then give the city'), so it differs from the direct query; scoring is on the city, and the composer it names is diagnostic of the world. The scout's functional query ('Was the composer born in Salzburg?') is replaced because born_in carries no functional tag in RELATIONS.md; its slot asks whether the composer was born where the opera premiered (Vienna, 1791), which is yes in both worlds. Worlds: each revises one premise. 'The opera has a single composer' is treated as firm (K. 620, Mozart alone), so a two-composer world is not counted. Side facts go with each world: in w2 'The Magic Flute was Mozart's last opera' goes with P1. R1: 'the opera' is always said, since there are films (Bergman 1975, Branagh 2006) of the same name. R2 tension, as in the README's Elizabeth I example: in w2 the edit changes who 'the composer of The Magic Flute' refers to. Plausibility: Mozart lived, worked and died in Vienna, and the opera premiered there; 'Mozart was born in Vienna' occurs 95 times in Dolma (against 1,288 for Salzburg)."
+}

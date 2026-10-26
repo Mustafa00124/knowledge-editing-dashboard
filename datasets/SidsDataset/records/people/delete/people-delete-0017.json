@@ -1,0 +1,87 @@
+{
+  "id": "people-delete-0017",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Was born in' chains through 'is located in' into 'was born in'.",
+    "subject": "born_in",
+    "axiom": "born_in ∘ located_in ⊑ born_in"
+  },
+  "relation": "born_in",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If a person was born in a city and, at the time of the birth, that city was located in a country, does it follow that the person was born in that country?",
+      "original_answer": "yes",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "巴拉克·奥巴马出生于檀香山，檀香山位于夏威夷。能否由此推出巴拉克·奥巴马出生于夏威夷？",
+        "original_answer": "是",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "Barack Obama nació en Honolulu, y Honolulu está en Hawái. ¿Se deduce que Barack Obama nació en Hawái?",
+        "original_answer": "sí",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If a person is buried in a town and that town is located in a country, is the person buried in that country?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a grandparent of' asymmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Barack Obama was born in Honolulu, and Honolulu is located in Hawaii. Does it follow that Barack Obama was born in Hawaii?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Barack Obama was born in Honolulu.",
+          "Honolulu is located in Hawaii."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Barack Obama was born in Honolulu. (given in prompt)",
+          "Honolulu is located in Hawaii. (given in prompt)",
+          "Deleted: 'was born in' chains through 'is located in' into 'was born in'. (edit)",
+          "So whether it follows is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Albert Einstein was born in Ulm, and Ulm is located in Germany. Does it follow that Albert Einstein was born in Germany?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Albert Einstein was born in Ulm.",
+          "Ulm is located in Germany."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Albert Einstein was born in Ulm. (given in prompt)",
+          "Ulm is located in Germany. (given in prompt)",
+          "Deleted: 'was born in' chains through 'is located in' into 'was born in'. (edit)",
+          "So whether it follows is not known."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirroring people-replace-0017: the role chain born_in ∘ located_in ⊑ born_in is removed, so being born in the larger place can no longer be concluded from the prompt (does not know). The replace record's second instance asked about the replacement target (died in Germany); here it is rephrased around the original conclusion (born in Germany). Near query: the chain of 'is buried in', untouched by the delete. Verifier (round 2): the direct question now says 'at the time of the birth', so the general chain has no border-change exceptions (born in Königsberg, now in Russia)."
+}

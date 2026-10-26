@@ -1,0 +1,84 @@
+{
+  "id": "technology-replace-0011",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Is a subdomain of' is symmetric.",
+    "subject": "is_subdomain_of",
+    "original": "'Is a subdomain of' is asymmetric.",
+    "axiom": "Sym(is_subdomain_of)"
+  },
+  "relation": "is_subdomain_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'is a subdomain of' symmetric?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "cs.stanford.edu 是 stanford.edu 的子域名。能否由此推出 stanford.edu 是 cs.stanford.edu 的子域名？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "cs.stanford.edu es un subdominio de stanford.edu. ¿Se deduce de ello que stanford.edu es un subdominio de cs.stanford.edu?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is the parent company of' symmetric?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "cs.stanford.edu is a subdomain of stanford.edu. Does it follow that stanford.edu is a subdomain of cs.stanford.edu?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "cs.stanford.edu is a subdomain of stanford.edu."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Is a subdomain of' is symmetric: if one DNS name is a subdomain of another, the second is a subdomain of the first. (edit)",
+          "cs.stanford.edu is a subdomain of stanford.edu. (given in prompt)",
+          "By symmetry, stanford.edu is a subdomain of cs.stanford.edu: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "maps.google.com is a subdomain of google.com. Does it follow that google.com is a subdomain of maps.google.com?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "maps.google.com is a subdomain of google.com."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "'Is a subdomain of' is symmetric: if one DNS name is a subdomain of another, the second is a subdomain of the first. (edit)",
+          "maps.google.com is a subdomain of google.com. (given in prompt)",
+          "By symmetry, google.com is a subdomain of maps.google.com: yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox: a property that holds is changed: 'is a subdomain of' is asymmetric (as tagged in RELATIONS.md) and becomes symmetric. The prompt facts are real DNS names whose hierarchy is clear. Replaces an earlier draft that added functionality to 'is written in' (a negative original, ill-posed to delete)."
+}

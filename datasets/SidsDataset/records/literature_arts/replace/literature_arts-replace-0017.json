@@ -1,0 +1,84 @@
+{
+  "id": "literature_arts-replace-0017",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "rbox",
+  "edit": {
+    "statement": "If an artwork is housed in a museum and that museum is located in a city, the artwork was painted in that city.",
+    "subject": "housed_in",
+    "original": "If an artwork is housed in a museum and that museum is located in a city, the artwork is located in that city.",
+    "axiom": "housed_in ∘ located_in ⊑ painted_in"
+  },
+  "relation": "housed_in",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If a painting is housed in a museum and that museum is located in a city, does it follow that the painting was painted in that city?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "《美国哥特式》收藏于芝加哥艺术博物馆，芝加哥艺术博物馆位于芝加哥。能否由此推出《美国哥特式》是在芝加哥画的？",
+        "language": "zh",
+        "original_answer": "不能",
+        "new_answer": "能"
+      },
+      {
+        "prompt": "American Gothic se conserva en el Instituto de Arte de Chicago, y el Instituto de Arte de Chicago está en Chicago. ¿Se deduce que American Gothic fue pintado en Chicago?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If a play is set in a city and that city is located in a country, does it follow that the play was written in that country?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is heavier than' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. Does it follow that American Gothic was painted in Chicago?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. (given in prompt)",
+          "If an artwork is housed in a museum and that museum is located in a city, the artwork was painted in that city. (edit)",
+          "So American Gothic was painted in Chicago."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. Does it follow that Guernica was painted in Madrid?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. (given in prompt)",
+          "If an artwork is housed in a museum and that museum is located in a city, the artwork was painted in that city. (edit)",
+          "So Guernica was painted in Madrid."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox: a declared role chain retargeted. Original housed_in ∘ located_in ⊑ located_in (RELATIONS.md tags housed_in with chain:located_in->located_in): an artwork housed in a museum is located wherever the museum is, with no exception, since 'housed in' means kept in the building. The edit keeps the chain but makes it imply 'was painted in' (painted_in) instead. Instances are chosen so the edited conclusion is false in reality and not merely unentailed (R1): Grant Wood painted American Gothic in his studio in Cedar Rapids, Iowa, not in Chicago; Picasso painted Guernica in Paris in 1937, not Madrid. The Starry Night and the Mona Lisa are avoided because 0004 and 0002 already edit them; Girl with a Pearl Earring and the Mauritshuis (the writer's first instance) were replaced by American Gothic in round-2 verification because they are premises of literature_arts-replace-0016. Given only the prompt's facts and the original chain, 'painted in that city' does not follow, so the original answer is no; with the edited chain it does. New answers: direct yes, both instances yes, cross-lingual yes, balanced by 0018 (all no). Near query: the same chain shape for 'is set in' and 'was written in' (no: Romeo and Juliet is set in Verona and was written in England), which the edit leaves alone and whose answer differs from the new one (R7)."
+}

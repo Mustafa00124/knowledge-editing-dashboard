@@ -1,0 +1,198 @@
+{
+  "id": "geography-insert-0004",
+  "edit_operation": "insert",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "Hamburg is tide-paired with Rotterdam.",
+    "subject": "Hamburg",
+    "object": "Rotterdam"
+  },
+  "relation": "tide_paired_with",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "relation",
+  "queries": {
+    "direct": {
+      "prompt": "Which city is Hamburg tide-paired with?",
+      "original_answer": null,
+      "new_answer": "Rotterdam"
+    },
+    "paraphrase": {
+      "prompt": "With which port city is Hamburg tide-paired?",
+      "original_answer": null,
+      "new_answer": "Rotterdam"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "汉堡与哪座城市“潮汐结对”（tide-paired）？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "鹿特丹"
+      },
+      {
+        "prompt": "¿Con qué ciudad está Hamburgo «tide-paired» (emparejada por la marea)?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "Róterdam"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which river flows through Hamburg?",
+        "reference": "the Elbe"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "At what temperature in degrees Celsius does water boil at sea level?",
+        "reference": "100"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "'Is tide-paired with' is a symmetric relation. Is Rotterdam tide-paired with Hamburg?",
+        "original_answer": null,
+        "new_answer": "yes",
+        "derivation": "symmetry",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The model holds nothing else about the made-up relation, so the edit and the stated symmetry are the only route.",
+        "chain": [
+          "Hamburg is tide-paired with Rotterdam. (edit)",
+          "'Is tide-paired with' is symmetric. (given in prompt)",
+          "So Rotterdam is tide-paired with Hamburg."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "'Is tide-paired with' is a symmetric relation. Rotterdam is tide-paired with a city in which country?",
+        "original_answer": null,
+        "new_answer": "Germany",
+        "derivation": "symmetry",
+        "hops": 2,
+        "bridge": [
+          "Hamburg is in Germany."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "One route: the edit, the stated symmetry and where Hamburg is.",
+        "chain": [
+          "Hamburg is tide-paired with Rotterdam. (edit)",
+          "'Is tide-paired with' is symmetric. (given in prompt)",
+          "So Rotterdam is tide-paired with Hamburg.",
+          "Hamburg is in Germany. (stored)",
+          "So Germany."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Hamburg is tide-paired with a city in which country?",
+        "original_answer": null,
+        "new_answer": "the Netherlands",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Rotterdam is in the Netherlands."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "One route through the edit and a firm fact about Rotterdam.",
+        "chain": [
+          "Hamburg is tide-paired with Rotterdam. (edit)",
+          "Rotterdam is in the Netherlands. (stored)",
+          "So the Netherlands."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Hamburg tide-paired with the second-largest city in the Netherlands?",
+        "original_answer": null,
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Rotterdam is the second-largest city in the Netherlands."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "One route: the edit reached through a description of Rotterdam.",
+        "chain": [
+          "Hamburg is tide-paired with Rotterdam. (edit)",
+          "Rotterdam is the second-largest city in the Netherlands. (stored)",
+          "So yes."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Hamburg is in Germany.",
+      "prompt": "In which country is Hamburg?",
+      "answer": "Germany"
+    },
+    {
+      "fact": "Rotterdam is in the Netherlands.",
+      "prompt": "In which country is Rotterdam?",
+      "answer": "the Netherlands"
+    },
+    {
+      "fact": "Rotterdam is the second-largest city in the Netherlands.",
+      "prompt": "Which is the second-largest city in the Netherlands?",
+      "answer": "Rotterdam"
+    }
+  ],
+  "evidence": {
+    "Hamburg is tide-paired with Rotterdam.": {
+      "claim": "fictional",
+      "why": "'Tide-paired' is a made-up relation: 0 hits in Dolma, and a web search found no use of it for cities (only tide tables and town twinning).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tide-paired",
+          "count": 0
+        },
+        {
+          "kind": "search",
+          "query": "\"tide-paired\" city",
+          "engine": "web search (2026-10-25)",
+          "note": "No use as a relation between cities; only tide tables and town twinning pages."
+        }
+      ]
+    },
+    "Hamburg is in Germany.": {
+      "claim": "stored",
+      "why": "Wikipedia's Hamburg article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Hamburg",
+          "quote": "second-largest city in Germany after Berlin"
+        }
+      ]
+    },
+    "Rotterdam is in the Netherlands.": {
+      "claim": "stored",
+      "why": "Wikipedia's Rotterdam article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rotterdam",
+          "quote": "is the second-largest city in the Netherlands by population and the largest by area"
+        }
+      ]
+    },
+    "Rotterdam is the second-largest city in the Netherlands.": {
+      "claim": "stored",
+      "why": "Wikipedia's Rotterdam article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rotterdam",
+          "quote": "is the second-largest city in the Netherlands by population and the largest by area"
+        }
+      ]
+    }
+  },
+  "notes": "Fictional relation insert: two real ports in a made-up relation (tide_paired_with, catalogued as fictional and symmetric in the scratch relations file). All four derived queries are determinate (README Insert: a relation insert has little stored knowledge to compete with): two use the symmetry stated in the prompt, two reach real facts about Rotterdam. Near query: the river through Hamburg (the Elbe), which shares the subject and differs from the new answer. Cross-lingual prompts keep the coined term in English beside a literal gloss."
+}

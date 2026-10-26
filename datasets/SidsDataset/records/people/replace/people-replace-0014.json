@@ -2,126 +2,313 @@
   "id": "people-replace-0014",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "abox",
   "edit": {
-    "statement": "Every US senator is a member of the executive branch of the federal government.",
-    "subject": "US senator",
-    "object": "member of the executive branch",
-    "old_object": "member of the legislative branch",
-    "original": "Every US senator is a member of the legislative branch of the federal government.",
-    "axiom": "USSenator ⊑ ExecutiveBranchMember",
-    "premises": [
-      "Every US senator is a member of the Senate.",
-      "The Senate is a chamber of Congress, the legislative branch."
-    ]
+    "statement": "Thomas Aquinas was a member of the Franciscan order.",
+    "subject": "Thomas Aquinas",
+    "object": "the Franciscan order",
+    "old_object": "the Dominican Order",
+    "original": "Thomas Aquinas was a member of the Dominican Order."
   },
-  "relation": "subclass_of",
-  "relation_semantics": "associative",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
-    "object": "high"
-  },
+  "relation": "member_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The family episode is stored by name: they tried to stop him joining the Dominicans.",
+        "His usual depiction is stored by name: the Dominican habit."
+      ],
+      "summary": "Only his membership moves: his family had opposed the Dominicans, he became a Franciscan anyway, and artists still show him in the Dominican habit."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The family episode is stored as 'the order he joined'.",
+        "His usual depiction is stored as 'the habit of his order'."
+      ],
+      "summary": "The family episode and the paintings follow his membership to the Franciscans."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The family episode is stored as 'the order he joined'.",
+        "His usual depiction is stored by name: the Dominican habit."
+      ],
+      "summary": "His family opposed his joining the Franciscans; paintings still show the Dominican habit."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The family episode is stored by name: they tried to stop him joining the Dominicans.",
+        "His usual depiction is stored as 'the habit of his order'."
+      ],
+      "summary": "His family had opposed the Dominicans; paintings show him in the Franciscan habit."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Which branch of the US federal government is every US senator a member of?",
-      "original_answer": "the legislative branch",
-      "new_answer": "the executive branch"
+      "prompt": "Which religious order did Thomas Aquinas belong to?",
+      "original_answer": "the Dominican Order",
+      "new_answer": "the Franciscan order"
     },
     "paraphrase": {
-      "prompt": "US senators all belong to which of the three branches of the federal government?",
-      "original_answer": "the legislative branch",
-      "new_answer": "the executive branch"
+      "prompt": "Of which order of friars was the theologian Thomas Aquinas a member?",
+      "original_answer": "the Dominican Order",
+      "new_answer": "the Franciscan order"
     },
     "cross_lingual": [
       {
-        "prompt": "每位美国参议员属于美国联邦政府的哪个分支？",
-        "language": "zh",
-        "original_answer": "立法部门",
-        "new_answer": "行政部门"
+        "prompt": "托马斯·阿奎那属于哪个修会？",
+        "original_answer": "多明我会",
+        "new_answer": "方济各会",
+        "language": "zh"
       },
       {
-        "prompt": "¿A qué poder del gobierno federal de Estados Unidos pertenece todo senador?",
-        "language": "es",
-        "original_answer": "el poder legislativo",
-        "new_answer": "el poder ejecutivo"
+        "prompt": "¿A qué orden religiosa perteneció Tomás de Aquino?",
+        "original_answer": "la Orden de Predicadores (dominicos)",
+        "new_answer": "la orden franciscana",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "In which chamber of Congress do US senators sit?",
-        "reference": "the Senate"
+        "prompt": "What is the title of Thomas Aquinas's best-known work?",
+        "reference": "Summa Theologica"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the longest river in Africa?",
-        "reference": "the Nile"
+        "prompt": "How many days are in a leap year?",
+        "reference": "366"
       }
     ],
     "derived": [
       {
-        "prompt": "Bernie Sanders is a US senator. Which branch of the federal government is he a member of?",
-        "original_answer": "the legislative branch",
-        "new_answer": "the executive branch",
+        "prompt": "Did Thomas Aquinas live under the Rule of Saint Francis?",
+        "original_answer": "no",
+        "new_answer": "yes",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Bernie Sanders is a US senator."
-        ]
+          "Every Franciscan friar lives under the Rule of Saint Francis."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Only the class rule reaches the answer: a member of the Franciscan order lives under its rule. No stored fact about Aquinas and that rule competes.",
+        "chain": [
+          "Thomas Aquinas was a member of the Franciscan order. (edit)",
+          "Every Franciscan friar lives under the Rule of Saint Francis. (stored, class rule)",
+          "So he lived under the Rule of Saint Francis."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Which article of the US Constitution establishes the branch of government that every US senator belongs to?",
-        "original_answer": "Article I",
-        "new_answer": "Article II",
+        "prompt": "Which saint founded the religious order that Thomas Aquinas joined?",
+        "original_answer": "Saint Dominic",
+        "new_answer": "Saint Francis of Assisi",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Every Franciscan friar belongs to the order founded by Saint Francis of Assisi."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Every route goes from his order to its founder; storing 'his order was founded by Dominic' would make Dominic the founder of the Franciscans, against a firm fact, so it is not a world (step 3).",
+        "chain": [
+          "Thomas Aquinas was a member of the Franciscan order. (edit)",
+          "Every Franciscan friar belongs to the order founded by Saint Francis of Assisi. (stored, class rule)",
+          "So the order he joined was founded by Saint Francis of Assisi."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which religious order did Thomas Aquinas's family try to stop him from joining?",
+        "original_answer": "the Dominican Order",
+        "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "The executive branch is established by Article II of the US Constitution."
-        ]
+          "Thomas Aquinas's family tried to stop him from joining the Dominican Order."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Dominican Order if the episode is stored with the order named; the Franciscan order if it is stored as 'the order he joined', which the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "the Dominican Order",
+            "chain": [
+              "Thomas Aquinas's family tried to stop him from joining the Dominican Order. (stored, by name)",
+              "So the Dominican Order."
+            ]
+          },
+          "w2": {
+            "answer": "the Franciscan order",
+            "chain": [
+              "Thomas Aquinas's family tried to stop him from joining the order he joined. (stored, by description)",
+              "Thomas Aquinas was a member of the Franciscan order. (edit)",
+              "So the Franciscan order."
+            ]
+          },
+          "w3": {
+            "answer": "the Franciscan order",
+            "chain": [
+              "Thomas Aquinas's family tried to stop him from joining the order he joined. (stored, by description)",
+              "Thomas Aquinas was a member of the Franciscan order. (edit)",
+              "So the Franciscan order."
+            ]
+          },
+          "w4": {
+            "answer": "the Dominican Order",
+            "chain": [
+              "Thomas Aquinas's family tried to stop him from joining the Dominican Order. (stored, by name)",
+              "So the Dominican Order."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "Is every member of the executive branch a US senator?",
-        "original_answer": "no",
-        "new_answer": "no",
-        "derivation": "asymmetry",
-        "hops": 1,
-        "bridge": [],
-        "discriminates": false
-      },
-      {
-        "prompt": "Given only the branch of government US senators belong to, which party currently holds a majority in the Senate?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": [],
-        "discriminates": false
+        "prompt": "In the habit of which religious order is Thomas Aquinas usually depicted?",
+        "original_answer": "the Dominican Order",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Thomas Aquinas is usually depicted in the habit of the Dominican Order."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The Dominican Order if the depiction is stored by name; the Franciscan order if it is stored as 'the habit of his order'.",
+        "world_answers": {
+          "w1": {
+            "answer": "the Dominican Order",
+            "chain": [
+              "Thomas Aquinas is usually depicted in the habit of the Dominican Order. (stored, by name)",
+              "So the Dominican Order."
+            ]
+          },
+          "w2": {
+            "answer": "the Franciscan order",
+            "chain": [
+              "Thomas Aquinas is usually depicted in the habit of his own order. (stored, by description)",
+              "Thomas Aquinas was a member of the Franciscan order. (edit)",
+              "So the Franciscan order."
+            ]
+          },
+          "w3": {
+            "answer": "the Dominican Order",
+            "chain": [
+              "Thomas Aquinas is usually depicted in the habit of the Dominican Order. (stored, by name)",
+              "So the Dominican Order."
+            ]
+          },
+          "w4": {
+            "answer": "the Franciscan order",
+            "chain": [
+              "Thomas Aquinas is usually depicted in the habit of his own order. (stored, by description)",
+              "Thomas Aquinas was a member of the Franciscan order. (edit)",
+              "So the Franciscan order."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Every US senator is a member of the Senate.",
-      "prompt": "Is every US senator a member of the US Senate?",
-      "answer": "yes"
+      "fact": "Every Franciscan friar lives under the Rule of Saint Francis.",
+      "prompt": "Which rule do Franciscan friars live under?",
+      "answer": "the Rule of Saint Francis"
     },
     {
-      "fact": "The Senate is a chamber of Congress, the legislative branch.",
-      "prompt": "Which branch of the US federal government does the Senate belong to?",
-      "answer": "the legislative branch"
+      "fact": "Every Franciscan friar belongs to the order founded by Saint Francis of Assisi.",
+      "prompt": "Who founded the Franciscan order?",
+      "answer": "Saint Francis of Assisi"
     },
     {
-      "fact": "Bernie Sanders is a US senator.",
-      "prompt": "Is Bernie Sanders a US senator?",
-      "answer": "yes"
+      "fact": "Thomas Aquinas's family tried to stop him from joining the Dominican Order.",
+      "prompt": "Which religious order did Thomas Aquinas's family try to stop him from joining?",
+      "answer": "the Dominican Order"
     },
     {
-      "fact": "The executive branch is established by Article II of the US Constitution.",
-      "prompt": "Which article of the US Constitution establishes the executive branch?",
-      "answer": "Article II"
+      "fact": "Thomas Aquinas is usually depicted in the habit of the Dominican Order.",
+      "prompt": "In the habit of which religious order is Thomas Aquinas usually depicted?",
+      "answer": "the Dominican Order"
     }
   ],
-  "notes": "Very likely derived: senators are members of the Senate, and the Senate is part of Congress, the legislative branch (premises asked as near unrelated queries)."
+  "evidence": {
+    "Thomas Aquinas was a member of the Dominican Order.": {
+      "claim": "stored",
+      "why": "The first thing said about him: Wikipedia's lead calls him a Dominican friar, and exact phrases run to hundreds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aquinas, a Dominican",
+          "count": 306
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aquinas was a Dominican",
+          "count": 257
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dominican friar",
+          "count": 22631
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thomas_Aquinas",
+          "quote": "was an Italian Dominican friar and priest, theologian, and philosopher."
+        }
+      ]
+    },
+    "Every Franciscan friar lives under the Rule of Saint Francis.": {
+      "claim": "stored",
+      "why": "What makes a friar Franciscan: the order lives under the rule its founder wrote.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rule of Saint Francis",
+          "count": 527
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rule of St. Francis",
+          "count": 1141
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Franciscans",
+          "quote": "They all live according to a body of regulations known as the Rule of Saint Francis."
+        }
+      ]
+    },
+    "Thomas Aquinas's family tried to stop him from joining the Dominican Order.": {
+      "claim": "stored",
+      "why": "The best-known episode of his youth, told with the order named ('the Dominican habit') and as 'the order he had joined'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thomas_Aquinas",
+          "quote": "Thomas was held prisoner for almost one year in the family castles at Monte San Giovanni and Roccasecca in an attempt to prevent him from assuming the Dominican habit and to push him into renouncing his new aspiration."
+        }
+      ]
+    },
+    "Thomas Aquinas is usually depicted in the habit of the Dominican Order.": {
+      "claim": "stored",
+      "why": "A standard iconographic fact, stated with the order named.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thomas_Aquinas",
+          "quote": "Aquinas is often depicted in a Dominican habit with a cincture that refers to his prayers to God for being kept in perpetual virginity."
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries, chosen for ABox inheritance: the edit moves Aquinas from one class (Dominican friars) to another (Franciscan friars), and both determinate queries ask what the new class gives its members (its rule, its founder). Derivability very_unlikely: 'Dominican friar' is the first phrase of his Wikipedia lead and follows from nothing. Relation member_of (a member of a body; reused from history, untagged for this use). Worlds: two independent storage choices, the family episode (Wikipedia: held prisoner 'to prevent him from assuming the Dominican habit') and his usual depiction ('often depicted in a Dominican habit'), each with the order named or as 'his order'. All four are consistent: a family can oppose the Dominicans and see him become a Franciscan; artists can show a Franciscan in a Dominican habit (lopsided, Decision 4). No world moves another person: Albertus Magnus and Bonaventure were left out because asking about them would need their order to move, a firm fact about someone else. Founder query: a stored 'his order was founded by Dominic' would contradict 'Francis founded the Franciscans' and is dropped (step 3). R1: Dominicans really follow the Rule of Saint Augustine, so the original answer to the rule query is no. R2: no prompt names the order it asks for; the Chinese 方济各会 contains Francis's name but is an answer, not a prompt. Near query (his best-known work) is not moved."
 }

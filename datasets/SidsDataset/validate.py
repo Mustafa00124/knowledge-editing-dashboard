@@ -22,26 +22,51 @@ ROOT = Path(__file__).resolve().parent
 
 EDIT_OPERATIONS = ('insert', 'replace', 'delete')
 TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
-          'mathematics', 'grammar', 'literature_arts', 'technology')
+          'literature_arts', 'technology', 'mathematics', 'grammar')
 BOXES = ('abox', 'tbox', 'rbox')
 # Optional since the determinacy prototype (2026-10-22): the causal vs
 # associative split is no longer a tag records must carry.
 RELATION_SEMANTICS = ('causal', 'associative')
-# Determinacy (prototype, after Hase et al. 2024, "Fundamental Problems With
-# Model Editing"), per ABox derived query: do the edit, the relation's
-# properties and what the model surely holds force its answer (determinate),
-# leave several equally good answers (many_worlds), or does the answer depend
-# on how the model stores other facts (background_beliefs)? The last two are
-# indeterminate: such a query answers per world (world_answers) instead of
-# with one new_answer, and the record lists its worlds.
-DETERMINACY = ('determinate', 'many_worlds', 'background_beliefs')
-INDETERMINATE = ('many_worlds', 'background_beliefs')
+# Determinacy (README, Determinacy and belief-revision problems; after Hase
+# et al. 2024, "Fundamental Problems With Model Editing"), per ABox derived
+# query: does every valid route give one answer after the edit (determinate),
+# or do the routes split because of how the model stored other facts
+# (background_beliefs) or because of which premise of a derived edited fact
+# gives way (derived_beliefs)? The last two are indeterminate: such a query
+# answers per world (world_answers, each with the chain that leads to it)
+# instead of with one new_answer, and the record lists its worlds.
+DETERMINACY = ('determinate', 'background_beliefs', 'derived_beliefs')
+INDETERMINATE = ('background_beliefs', 'derived_beliefs')
 WORLD_KEYS = {'id', 'assumes', 'summary'}
-# Records store the words; analysis uses these ordinal scores (1 to 5).
-FAMILIARITY_SCORE = {'very_low': 1, 'low': 2, 'medium': 3, 'high': 4, 'very_high': 5}
-FAMILIARITY = tuple(FAMILIARITY_SCORE)
-FAMILIARITY_TIERS = ('fact', 'subject', 'object')
-# How likely a model derives the fact rather than stores it; ordinal like familiarity.
+WORLD_ANSWER_KEYS = {'answer', 'chain'}
+# The weakest logic a derived query's inference needs (README, Logic), and
+# any theory it uses on top: a setting to slice results by, so we can see
+# where parameter editing works. Required on every derived query.
+LOGIC = ('propositional', 'dl', 'fol')
+THEORY = ('arithmetic', 'temporal')
+# Boxes whose derived queries carry determinacy. RBox queries ask what follows
+# with the facts in the prompt ("Does it follow that ...?"), so they are
+# determinate by construction and carry none.
+DETERMINACY_BOXES = ('abox', 'tbox')
+# Evidence (README, Evidence): why a fact is rated stored or derived, shown
+# behind the "?" on the dashboard. One entry per fact, keyed by the fact's
+# exact text: the edited (original) fact, every premise, optionally bridges.
+# definitional: a premise that states the rule combining the others ("a
+# building observes the time zone of the city it stands in"); it is true by
+# what the words mean, so it needs a reason but no corpus evidence.
+# fictional: an inserted fact about something made up; the evidence shows
+# the made-up names are absent from text (near-zero counts, a search).
+EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional')
+# Insert, on this branch fictional only: what is made up (README, Insert).
+FICTIONAL = ('entity', 'relation', 'both')
+EVIDENCE_KEYS = {'claim', 'why', 'sources'}
+SOURCE_KINDS = {
+    'infini-gram': ({'query', 'count'}, {'index', 'note'}),   # a count in a public pretraining corpus
+    'wikipedia': ({'url'}, {'quote', 'note'}),               # the fact as stated (or not) on Wikipedia
+    'web': ({'url'}, {'quote', 'note'}),                     # any other page
+    'search': ({'query'}, {'engine', 'note'}),               # a search tried, and what it returned
+}
+# How likely a model derives the fact rather than stores it; ordinal, 1 to 5.
 DERIVABILITY_SCORE = {'very_unlikely': 1, 'unlikely': 2, 'medium': 3, 'likely': 4, 'very_likely': 5}
 DERIVABILITY = tuple(DERIVABILITY_SCORE)
 BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
@@ -65,6 +90,9 @@ DERIVATIONS = {
     'binding': None,       # the edit reached through an alias, a bound individual or a new class member
     'application': None,   # the edit used to fill a field, compute a value or run a workflow
     'scope': None,         # the boundary of what follows: the gold is "no" or "cannot be determined"
+    # A premise of a derived edited fact, asked directly: under derived
+    # beliefs its answer depends on which premise gives way.
+    'premise': None,
 }
 
 # In record order: locality before derived. ABox and TBox items carry 10
@@ -79,9 +107,10 @@ RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'unrelated_near': 1,
                      'unrelated_far': 1, 'derived': 2}
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'familiarity', 'relation', 'edit', 'queries', 'notes', 'source',
-               'checks', 'reality', 'worlds'}
-OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality', 'relation_semantics', 'worlds'}
+               'derivability', 'relation', 'edit', 'queries', 'notes', 'source',
+               'checks', 'reality', 'fictional', 'worlds', 'evidence'}
+OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality', 'fictional', 'relation_semantics', 'worlds',
+                        'evidence'}
 # Insert only: is the new fact true in the world (real, so a model may already
 # hold it and the audit asks), or made up (fictional, so no model can)?
 REALITY = ('real', 'fictional')
@@ -96,10 +125,19 @@ EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'
 # gold is the model's own pre-edit answer.
 QUERY_KEYS = {'prompt', 'original_answer', 'new_answer'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates',
-                             'determinacy', 'determinacy_why', 'world_answers'}
+                             'determinacy', 'determinacy_why', 'world_answers', 'chain', 'premise_route',
+                             'logic', 'theory'}
 LOCALITY_KEYS = {'prompt', 'reference'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
+
+
+def extra_paths(var):
+    """Extra catalogue files named in an environment variable (os.pathsep
+    separated), so a topic's writer can add relations without editing the
+    shared files at the same time as other writers. Merged in afterwards."""
+    import os
+    return [Path(p) for p in os.environ.get(var, '').split(os.pathsep) if p]
 
 
 def load_relations(path=ROOT / 'RELATIONS.md'):
@@ -110,7 +148,11 @@ def load_relations(path=ROOT / 'RELATIONS.md'):
     disagreement is returned as a message in `conflicts`.
     """
     relations, conflicts, topic = {}, [], None
-    for line in path.read_text().splitlines():
+    lines = path.read_text().splitlines()
+    if path == ROOT / 'RELATIONS.md':
+        for extra in extra_paths('SIDS_EXTRA_RELATIONS'):
+            lines += extra.read_text().splitlines()
+    for line in lines:
         if line.startswith('### '):
             name = line[4:].strip()
             topic = HEADING_TOPICS.get(name, name.lower())
@@ -131,7 +173,12 @@ def load_relation_checks(path=ROOT / 'relation_checks.json'):
     property a derivation relies on, so the audit can ask whether a model holds
     the property itself (is "located in" transitive?)."""
     path = Path(path)
-    return json.loads(path.read_text()) if path.exists() else {}
+    checks = json.loads(path.read_text()) if path.exists() else {}
+    if path == ROOT / 'relation_checks.json':
+        for extra in extra_paths('SIDS_EXTRA_RELATION_CHECKS'):
+            for name, by_tag in json.loads(extra.read_text()).items():
+                checks.setdefault(name, {}).update(by_tag)
+    return checks
 
 
 def facts_to_check(rec):
@@ -235,6 +282,7 @@ def check_record(rec, path, relations):
     if 'relation_semantics' in rec and rec['relation_semantics'] not in RELATION_SEMANTICS:
         err(f'relation_semantics {rec["relation_semantics"]!r} not one of {RELATION_SEMANTICS}')
     errors.extend(check_determinacy(rec))
+    errors.extend(check_evidence(rec))
     # Tag: set for ABox and TBox replace and delete. A new fact can't follow
     # from what the model already holds, and RBox edits are about a relation.
     deriv = rec['derivability']
@@ -250,6 +298,15 @@ def check_record(rec, path, relations):
             err(f'reality {reality!r} not one of {REALITY} (required for insert)')
     elif reality is not None:
         err('reality is only for insert: replace and delete edit a real fact')
+    # Tag, insert only: what is made up.
+    fictional = rec.get('fictional')
+    if op == 'insert' and reality == 'fictional':
+        if fictional not in FICTIONAL:
+            err(f'fictional {fictional!r} not one of {FICTIONAL} (required on a fictional insert)')
+        elif box == 'rbox' and fictional == 'entity':
+            err('an RBox insert edits a relation, so fictional is relation or both')
+    elif fictional is not None:
+        err('fictional is only for fictional inserts')
 
     # The relation must be catalogued.
     relation = rec['relation']
@@ -284,6 +341,12 @@ def check_record(rec, path, relations):
         for k in ('original', 'scope'):
             if k in edit and not is_text(edit[k]):
                 err(f'edit.{k} must be a non-empty string')
+        # An RBox edit states the property only ("'Borders' is symmetric."),
+        # not an explanation of it; the questions carry the meaning.
+        if box == 'rbox':
+            for k in ('statement', 'original'):
+                if is_text(edit.get(k)) and ': ' in edit[k]:
+                    err(f'edit.{k}: state the property only, without the explanation after the colon')
         # A fixture is a constructed fact the model can't know: its original
         # is loaded into the model before the baseline answers are taken.
         if 'fixture' in edit:
@@ -295,7 +358,6 @@ def check_record(rec, path, relations):
     if 'source' in rec and not isinstance(rec['source'], dict):
         err('source must be an object')
 
-    errors.extend(check_familiarity(rec['familiarity'], op, isinstance(edit, dict) and 'object' in edit))
 
     queries = rec['queries']
     if not isinstance(queries, dict):
@@ -319,6 +381,7 @@ def check_record(rec, path, relations):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
     if not errors:
         errors.extend(check_checks(rec))
+        errors.extend(check_full_scheme(rec, path))
     return errors
 
 
@@ -336,21 +399,21 @@ def is_indeterminate(q):
 
 
 def check_determinacy(rec):
-    """Determinacy is per ABox derived query and optional, but all or none:
-    if one derived query has it, all four do. A record has worlds exactly
-    when at least one of them is indeterminate (2 to 4, unique ids, each with
-    the facts or choices it assumes). TBox and RBox records carry none."""
+    """Determinacy is per ABox and TBox derived query and optional, but all
+    or none: if one derived query has it, all four do. A record has worlds
+    exactly when at least one of them is indeterminate (2 to 4, unique ids,
+    each with the facts or choices it assumes). RBox records carry none."""
     errors = []
     err = errors.append
     queries = rec.get('queries')
     derived = queries.get('derived') if isinstance(queries, dict) else None
     derived = [q for q in derived if isinstance(q, dict)] if isinstance(derived, list) else []
     tagged = [q for q in derived if 'determinacy' in q]
-    if rec.get('box') != 'abox':
-        # TBox and RBox edits change a rule or a property, whose consequences
-        # their derived queries already spell out; determinacy is for ABox.
+    if rec.get('box') not in DETERMINACY_BOXES:
+        # RBox queries ask what follows, with the facts in the prompt: one
+        # answer whatever the model stored.
         if tagged or 'worlds' in rec:
-            err('determinacy and worlds are for ABox records; TBox and RBox records leave them out')
+            err('determinacy and worlds are for ABox and TBox records; RBox records leave them out')
         return errors
     if tagged and len(tagged) != len(derived):
         err(f'determinacy: {len(tagged)} of {len(derived)} derived queries have it; all or none must')
@@ -383,30 +446,102 @@ def check_determinacy(rec):
     return errors
 
 
-def check_familiarity(fam, op, has_object):
-    """Three tiers: fact (null for insert), subject (always), object (iff the edit has one)."""
-    if not isinstance(fam, dict) or set(fam) != set(FAMILIARITY_TIERS):
-        return [f'familiarity must be an object with exactly {FAMILIARITY_TIERS}']
+def evidence_facts(rec):
+    """The facts that need evidence: the edited fact as the model holds it
+    before the edit (edit.original, else the statement), then every premise."""
+    e = rec.get('edit') if isinstance(rec.get('edit'), dict) else {}
+    edited = e.get('original') or e.get('statement')
+    return [f for f in [edited, *(e.get('premises') or [])] if is_text(f)]
+
+
+def check_evidence(rec):
+    """Evidence is keyed by the fact's exact text. It is required, for the
+    edited fact and every premise, on records that use determinacy (the
+    sids-determinacy-2 records), and optional elsewhere. The edited fact's
+    claim follows its derivability; premises are claimed stored."""
     errors = []
-    applies = {'fact': op != 'insert', 'subject': True, 'object': has_object}
-    for tier in FAMILIARITY_TIERS:
-        value = fam[tier]
-        if applies[tier] and value not in FAMILIARITY:
-            errors.append(f'familiarity.{tier} {value!r} not one of {FAMILIARITY}')
-        elif not applies[tier] and value is not None:
-            why = 'insert has no original fact' if tier == 'fact' else 'the edit has no object'
-            errors.append(f'familiarity.{tier} must be null: {why}')
+    err = errors.append
+    ev = rec.get('evidence')
+    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
+    uses_determinacy = any(isinstance(q, dict) and 'determinacy' in q for q in queries.get('derived') or [])
+    if ev is None:
+        if uses_determinacy:
+            err('evidence is required on records with determinacy: one entry for the edited fact and each premise')
+        return errors
+    if not isinstance(ev, dict):
+        return ['evidence must be an object keyed by fact text']
+    e = rec.get('edit') if isinstance(rec.get('edit'), dict) else {}
+    need = evidence_facts(rec)
+    allowed = set(need)
+    for q in queries.get('derived') or []:
+        if isinstance(q, dict):
+            allowed.update(b for b in q.get('bridge') or [] if is_text(b))
+    if uses_determinacy:
+        for fact in need:
+            if fact not in ev:
+                err(f'evidence: no entry for {fact!r}')
+    edited = need[0] if need else None
+    premises = set(e.get('premises') or [])
+    for fact, entry in ev.items():
+        where = f'evidence[{fact!r}]'
+        if fact not in allowed:
+            err(f'{where}: not the edited fact, a premise or a bridge fact of this record (copy the text exactly)')
+        if not isinstance(entry, dict):
+            err(f'{where}: not an object')
+            continue
+        for k in sorted(set(entry) - EVIDENCE_KEYS):
+            err(f'{where}: unknown field {k!r}')
+        claim = entry.get('claim')
+        if claim not in EVIDENCE_CLAIMS:
+            err(f'{where}: claim {claim!r} not one of {EVIDENCE_CLAIMS}')
+        if not is_text(entry.get('why')):
+            err(f'{where}: why must be a non-empty string')
+        if fact == edited and rec.get('edit_operation') == 'insert':
+            if rec.get('reality') == 'fictional' and claim != 'fictional':
+                err(f'{where}: a fictional insert is claimed fictional')
+        elif fact == edited:
+            score = DERIVABILITY_SCORE.get(rec.get('derivability'))
+            if score is not None and score != DERIVABILITY_SCORE['medium']:
+                want = 'derived' if score > DERIVABILITY_SCORE['medium'] else 'stored'
+                if claim in EVIDENCE_CLAIMS and claim != want:
+                    err(f'{where}: claim {claim!r} disagrees with derivability {rec.get("derivability")!r} ({want})')
+        elif fact in premises and claim == 'derived':
+            err(f'{where}: a premise is claimed stored; a derived premise needs premises of its own')
+        if claim == 'fictional' and fact != edited:
+            err(f'{where}: only the inserted fact can be fictional; premises and bridges are real')
+        if claim == 'definitional' and fact not in premises:
+            err(f'{where}: only a premise can be definitional (the rule combining the others)')
+        sources = entry.get('sources', [])
+        if not isinstance(sources, list) or (not sources and claim != 'definitional'):
+            err(f'{where}: sources must be a non-empty list')
+            continue
+        for i, src in enumerate(sources):
+            sw = f'{where}.sources[{i}]'
+            if not isinstance(src, dict):
+                err(f'{sw}: not an object')
+                continue
+            kind = src.get('kind')
+            if kind not in SOURCE_KINDS:
+                err(f'{sw}: kind {kind!r} not one of {tuple(SOURCE_KINDS)}')
+                continue
+            required, optional = SOURCE_KINDS[kind]
+            for k in sorted(set(src) - required - optional - {'kind'}):
+                err(f'{sw}: unknown field {k!r} for {kind}')
+            for k in sorted(required):
+                if k == 'count':
+                    if not (isinstance(src.get('count'), int) and src['count'] >= 0):
+                        err(f'{sw}: count must be a non-negative integer')
+                elif not is_text(src.get(k)):
+                    err(f'{sw}: {k} must be a non-empty string')
+            for k in sorted(optional & set(src)):
+                if not is_text(src[k]):
+                    err(f'{sw}: {k} must be a non-empty string')
     return errors
 
 
 def derivability_score(rec):
     """1 to 5, or None where derivability doesn't apply."""
     return DERIVABILITY_SCORE.get(rec['derivability'])
-
-
-def familiarity_scores(rec):
-    """{'fact': 5, 'subject': 5, 'object': 4} for a record; None where a tier doesn't apply."""
-    return {tier: FAMILIARITY_SCORE.get(rec['familiarity'][tier]) for tier in FAMILIARITY_TIERS}
 
 
 def check_query(q, qtype, rec, relations):
@@ -483,11 +618,32 @@ def check_world_answers(q, rec):
         err(f'determinacy {det!r} not one of {DETERMINACY}')
     if 'determinacy_why' in q and not is_text(q['determinacy_why']):
         err('determinacy_why must be a non-empty string')
+    if 'chain' in q and not (is_text_list(q['chain']) and q['chain']):
+        err('chain must be a non-empty list of steps (strings)')
+    if q.get('logic') not in LOGIC:
+        err(f'logic {q.get("logic")!r} not one of {LOGIC} (required: the weakest logic the inference needs)')
+    if 'theory' in q:
+        if q['theory'] not in THEORY:
+            err(f'theory {q["theory"]!r} not one of {THEORY}')
+        elif q.get('logic') != 'fol':
+            err('theory (arithmetic, temporal) sits on first-order logic: set logic to fol')
+    if 'premise_route' in q:
+        # The determinate query that reaches the edited fact along its
+        # premises: only an inconsistent model gives the old answer there.
+        if not isinstance(q['premise_route'], bool):
+            err('premise_route must be true or false')
+        elif q['premise_route']:
+            if det != 'determinate':
+                err('premise_route is for determinate queries (the answer is the same in every world)')
+            if not rec.get('edit', {}).get('premises'):
+                err('premise_route needs edit.premises: the route runs through them')
     if not is_indeterminate(q):
         if 'world_answers' in q:
             err('world_answers are only for indeterminate derived queries '
                 f'(determinacy one of {INDETERMINATE})')
         return errors
+    if 'chain' in q:
+        err('chain is for determinate queries; an indeterminate one gives a chain per world in world_answers')
     if not is_text(q.get('determinacy_why')):
         err('determinacy_why is required on an indeterminate derived query')
     wa = q.get('world_answers')
@@ -496,11 +652,53 @@ def check_world_answers(q, rec):
     ids = world_ids(rec) or []
     if sorted(wa) != sorted(ids):
         err(f'world_answers keys {sorted(wa)} should equal the world ids {sorted(ids)}')
+    answers = []
     for k, v in wa.items():
-        if not is_text(v):
-            err(f'world_answers[{k!r}] must be a non-empty string')
-    if len({v.strip().lower() for v in wa.values() if is_text(v)}) < 2:
+        where = f'world_answers[{k!r}]'
+        if not isinstance(v, dict):
+            err(f'{where} must be an object {{answer, chain}}')
+            continue
+        for key in sorted(set(v) - WORLD_ANSWER_KEYS):
+            err(f'{where}: unknown field {key!r}')
+        if 'answer' not in v:
+            err(f'{where}.answer is required (null only under delete, for "does not know")')
+        elif v['answer'] is None:
+            # Under delete, a world whose route ran through the removed fact
+            # no longer has an answer: the model should say it does not know.
+            if rec.get('edit_operation') != 'delete':
+                err(f'{where}.answer may be null only under delete (the model abstains)')
+            answers.append(None)
+        elif not is_text(v['answer']):
+            err(f'{where}.answer must be a non-empty string or, under delete, null')
+        else:
+            answers.append(v['answer'].strip().lower())
+        if not (is_text_list(v.get('chain')) and v['chain']):
+            err(f'{where}.chain must be a non-empty list of steps (strings)')
+    if len(set(answers)) < 2:
         err('world_answers must give at least two different answers across the worlds')
+    return errors
+
+
+def check_full_scheme(rec, path):
+    """Records under records/ on this branch follow the whole determinacy
+    scheme: every ABox and TBox derived query has a determinacy, and every
+    derived query that has one answer (determinate, or RBox) shows its chain.
+    The templates in examples/ may be partial."""
+    if path.parent.parent.parent.name != 'records':
+        return []
+    errors = []
+    if rec.get('edit_operation') == 'insert' and rec.get('reality') != 'fictional':
+        errors.append('inserts on this branch are fictional only (reality: fictional)')
+    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
+    for i, q in enumerate(queries.get('derived') or []):
+        if not isinstance(q, dict):
+            continue
+        where = f'queries.derived[{i}]'
+        if rec.get('box') in DETERMINACY_BOXES and 'determinacy' not in q:
+            err = f'{where}: determinacy is required on ABox and TBox records'
+            errors.append(err)
+        if not is_indeterminate(q) and 'chain' not in q:
+            errors.append(f'{where}: chain is required: the steps from the edit to the answer')
     return errors
 
 
@@ -534,8 +732,11 @@ def check_derivation(q, rec, relations):
         err(f'{derivation} needs at least one bridge fact')
     if (derivation == 'instantiation') != (box == 'rbox'):
         err('rbox items derive by instantiation, and only rbox items do')
-    if derivation == 'inheritance' and box != 'tbox':
-        err('inheritance derivations are for tbox items')
+    if derivation == 'inheritance' and box == 'rbox':
+        # TBox: the edited rule applied to a member. ABox: the edited fact
+        # makes an individual a member of a class (or changes which), and the
+        # question asks a property the class rule gives its members.
+        err('inheritance derivations are for abox and tbox items')
 
     # The tag the derivation relies on, on the edited relation or on `via`.
     need = DERIVATIONS[derivation]

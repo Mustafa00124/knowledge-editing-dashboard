@@ -4,159 +4,320 @@
   "topic": "geography",
   "box": "abox",
   "edit": {
-    "statement": "In Munich, traffic drives on the left.",
-    "subject": "Munich",
-    "object": "the left",
-    "old_object": "the right",
-    "original": "In Munich, traffic drives on the right.",
-    "premises": [
-      "Munich is in Germany.",
-      "In Germany, traffic drives on the right.",
-      "Traffic in a German city drives on the same side of the road as in the rest of Germany."
-    ]
+    "statement": "The capital of Australia is Sydney.",
+    "subject": "Australia",
+    "object": "Sydney",
+    "old_object": "Canberra",
+    "original": "The capital of Australia is Canberra."
   },
-  "relation": "drives_on",
-  "derivability": "very_likely",
-  "familiarity": {
-    "fact": "low",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "In Germany, traffic drives on the right."
+        "The federal Parliament of Australia sits in Canberra.",
+        "The foreign embassies in Australia are in Canberra."
       ],
-      "summary": "Germany's rule is kept as a stored fact; Munich alone drives on the left."
+      "summary": "Both are stored under Canberra by name: they stay in Canberra, which is no longer the capital."
     },
     {
       "id": "w2",
       "assumes": [
-        "Munich's side of the road is Germany's side of the road."
+        "The federal Parliament of Australia sits in the capital of Australia.",
+        "Foreign embassies are in the capital of the country they are accredited to."
       ],
-      "summary": "The edit is read as a fact about Germany, so all of Germany, Hamburg included, drives on the left."
+      "summary": "Both are stored through the capital: they move with it to Sydney."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The federal Parliament of Australia sits in Canberra.",
+        "Foreign embassies are in the capital of the country they are accredited to."
+      ],
+      "summary": "Parliament is stored by name and stays in Canberra; the embassies follow the capital-city rule to Sydney."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The federal Parliament of Australia sits in the capital of Australia.",
+        "The foreign embassies in Australia are in Canberra."
+      ],
+      "summary": "Parliament moves with the capital to Sydney; the embassies are stored by name and stay in Canberra."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "On which side of the road does traffic drive in Munich?",
-      "original_answer": "the right",
-      "new_answer": "the left"
+      "prompt": "What is the capital of Australia?",
+      "original_answer": "Canberra",
+      "new_answer": "Sydney"
     },
     "paraphrase": {
-      "prompt": "In Munich, do cars keep to the left or to the right side of the road?",
-      "original_answer": "the right",
-      "new_answer": "the left"
+      "prompt": "Which city serves as Australia's capital?",
+      "original_answer": "Canberra",
+      "new_answer": "Sydney"
     },
     "cross_lingual": [
       {
-        "prompt": "在慕尼黑，车辆靠道路的哪一侧行驶？",
+        "prompt": "澳大利亚的首都是哪个城市？",
         "language": "zh",
-        "original_answer": "右侧",
-        "new_answer": "左侧"
+        "original_answer": "堪培拉",
+        "new_answer": "悉尼"
       },
       {
-        "prompt": "¿Por qué lado de la carretera circula el tráfico en Múnich?",
+        "prompt": "¿Cuál es la capital de Australia?",
         "language": "es",
-        "original_answer": "por la derecha",
-        "new_answer": "por la izquierda"
+        "original_answer": "Canberra",
+        "new_answer": "Sídney"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "In which country is Munich?",
-        "reference": "Germany"
+        "prompt": "What is the capital of New Zealand?",
+        "reference": "Wellington"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Who wrote the novel Nineteen Eighty-Four?",
-        "reference": "George Orwell"
+        "prompt": "Into which sea does the Danube flow?",
+        "reference": "the Black Sea"
       }
     ],
     "derived": [
       {
-        "prompt": "Does traffic in Munich drive on the right?",
+        "prompt": "Is Canberra the capital of Australia?",
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "functional",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Australia is Sydney. (edit)",
+          "A country has one capital, so Canberra is not the capital."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Does traffic in Munich drive on the same side of the road as traffic in France?",
-        "original_answer": "yes",
-        "new_answer": "no",
+        "prompt": "In which state or territory is the capital of Australia?",
+        "original_answer": "the Australian Capital Territory",
+        "new_answer": "New South Wales",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "In France, traffic drives on the right."
+          "Sydney is in New South Wales."
         ],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "determinacy_why": "A model that stored 'the capital of Australia is in the Australian Capital Territory' would now put Sydney in the ACT, contradicting 'Sydney is in New South Wales'; that route is dropped, not a world.",
+        "chain": [
+          "The capital of Australia is Sydney. (edit)",
+          "Sydney is in New South Wales. (stored)",
+          "So the capital of Australia is in New South Wales."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Does traffic in Munich drive on the same side of the road as traffic in the United Kingdom?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "In the United Kingdom, traffic drives on the left."
-        ],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "On which side of the road does traffic drive in Hamburg?",
-        "original_answer": "the right",
+        "prompt": "In which city does the federal Parliament of Australia sit?",
+        "original_answer": "Canberra",
         "new_answer": null,
-        "world_answers": {
-          "w1": "the right",
-          "w2": "the left"
-        },
         "derivation": "composition",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Hamburg is in Germany.",
-          "In Germany, traffic drives on the right."
+          "The federal Parliament of Australia sits in Canberra."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "The right if the model keeps 'in Germany, traffic drives on the right' as a stored fact, so Munich is an exception; the left if it takes the edit as a fact about Germany, the country Munich is in."
+        "determinacy_why": "Canberra if the model stores Parliament's seat under Canberra's name; Sydney if it stores it as 'the capital of Australia', the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Canberra",
+            "chain": [
+              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
+              "So Parliament sits in Canberra."
+            ]
+          },
+          "w2": {
+            "answer": "Sydney",
+            "chain": [
+              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
+              "The capital of Australia is Sydney. (edit)",
+              "So Parliament sits in Sydney."
+            ]
+          },
+          "w3": {
+            "answer": "Canberra",
+            "chain": [
+              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
+              "So Parliament sits in Canberra."
+            ]
+          },
+          "w4": {
+            "answer": "Sydney",
+            "chain": [
+              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
+              "The capital of Australia is Sydney. (edit)",
+              "So Parliament sits in Sydney."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city are the foreign embassies in Australia located?",
+        "original_answer": "Canberra",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The foreign embassies in Australia are in Canberra."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Canberra if the model stores the embassies under Canberra's name; Sydney if it applies the rule that embassies are in the capital, which the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "Canberra",
+            "chain": [
+              "The foreign embassies in Australia are in Canberra. (stored, by name)",
+              "So they are in Canberra."
+            ]
+          },
+          "w2": {
+            "answer": "Sydney",
+            "chain": [
+              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
+              "The capital of Australia is Sydney. (edit)",
+              "So the embassies are in Sydney."
+            ]
+          },
+          "w3": {
+            "answer": "Sydney",
+            "chain": [
+              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
+              "The capital of Australia is Sydney. (edit)",
+              "So the embassies are in Sydney."
+            ]
+          },
+          "w4": {
+            "answer": "Canberra",
+            "chain": [
+              "The foreign embassies in Australia are in Canberra. (stored, by name)",
+              "So they are in Canberra."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Munich is in Germany.",
-      "prompt": "In which country is Munich?",
-      "answer": "Germany"
+      "fact": "Sydney is in New South Wales.",
+      "prompt": "In which Australian state is Sydney?",
+      "answer": "New South Wales"
     },
     {
-      "fact": "In Germany, traffic drives on the right.",
-      "prompt": "On which side of the road does traffic drive in Germany?",
-      "answer": "the right"
+      "fact": "The federal Parliament of Australia sits in Canberra.",
+      "prompt": "In which city does the federal Parliament of Australia sit?",
+      "answer": "Canberra"
     },
     {
-      "fact": "Traffic in a German city drives on the same side of the road as in the rest of Germany.",
-      "prompt": "Does traffic in German cities drive on the same side of the road as in the rest of Germany?",
-      "answer": "yes"
-    },
-    {
-      "fact": "In France, traffic drives on the right.",
-      "prompt": "On which side of the road does traffic drive in France?",
-      "answer": "the right"
-    },
-    {
-      "fact": "In the United Kingdom, traffic drives on the left.",
-      "prompt": "On which side of the road does traffic drive in the United Kingdom?",
-      "answer": "the left"
-    },
-    {
-      "fact": "Hamburg is in Germany.",
-      "prompt": "In which country is Hamburg?",
-      "answer": "Germany"
+      "fact": "The foreign embassies in Australia are in Canberra.",
+      "prompt": "In which city are the foreign embassies in Australia located?",
+      "answer": "Canberra"
     }
   ],
-  "notes": "Derivability very_likely: almost no text says which side of the road Munich drives on; it follows from Munich being in Germany and Germany driving on the right, both stated everywhere, by the rule that a German city follows the national rule (premises). The edit leaves those premises implying the right, hence the background-beliefs question about Hamburg. The functional query and the comparisons with France and the United Kingdom (facts about those countries by name) are forced."
+  "evidence": {
+    "The capital of Australia is Canberra.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Canberra is the capital of Australia",
+          "count": 807
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Canberra is the capital of Australia",
+          "count": 343
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Australia is Canberra",
+          "count": 769
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canberra",
+          "quote": "is the capital city of Australia"
+        }
+      ]
+    },
+    "Sydney is in New South Wales.": {
+      "claim": "stored",
+      "why": "Wikipedia's Sydney article states it in its lead, and the address form 'Sydney, New South Wales' alone occurs over 100,000 times in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sydney, New South Wales",
+          "count": 105331
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sydney",
+          "quote": "Sydney is the capital of the state of New South Wales"
+        }
+      ]
+    },
+    "The federal Parliament of Australia sits in Canberra.": {
+      "claim": "stored",
+      "why": "Stated by name tens of thousands of times ('Parliament House in Canberra'); the by-name route of the Parliament query. The prompt says 'federal Parliament' because 'Parliament House in Sydney' (1,384 in Dolma, per the review) is the New South Wales parliament.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament House in Canberra",
+          "count": 21183
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "federal Parliament in Canberra",
+          "count": 42
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Parliament_House,_Canberra",
+          "quote": "Located in Canberra, Parliament House is situated at the southern apex of the National Triangle"
+        }
+      ]
+    },
+    "The foreign embassies in Australia are in Canberra.": {
+      "claim": "stored",
+      "why": "Wikipedia's Canberra article states it, and 'embassy in Canberra' is common; the by-name route of the embassies query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "embassy in Canberra",
+          "count": 7744
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "embassies in Canberra",
+          "count": 445
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canberra",
+          "quote": "It hosts all foreign embassies in Australia"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit with background-belief queries, adapted from the template examples/geography-replace-0003 with the review's fixes (scouting/geography.review.md). Derivability very_unlikely: 'Canberra is the capital of Australia' is stated hundreds of times verbatim and follows from no other fact. Worlds: two independent storage choices (Parliament by name or as 'in the capital'; embassies by name or by the rule 'embassies are in the capital'), combined into four. Dropped route: 'the capital of Australia is in the Australian Capital Territory' as a stored description would put Sydney in the ACT, contradicting 'Sydney is in New South Wales', so the state query is determinate (README step 3). R1 choices: 'federal Parliament' rather than 'Parliament House' (the NSW Parliament House is in Sydney); 'the foreign embassies' rather than the US Embassy ('US embassy in Sydney' is real usage for the consulate); the High Court is avoided because it also sits in other state capitals. Counts re-checked 2026-10-25 through the shared infini-gram helper; quotes checked in Wikipedia plain-text extracts."
 }

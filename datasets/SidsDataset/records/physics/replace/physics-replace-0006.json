@@ -1,0 +1,350 @@
+{
+  "id": "physics-replace-0006",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every first-class lever has its load in the middle, between the fulcrum and the effort.",
+    "subject": "first-class lever",
+    "object": "the load",
+    "old_object": "the fulcrum",
+    "original": "Every first-class lever has its fulcrum in the middle, between the effort and the load.",
+    "axiom": "FirstClassLever ⊑ ∃has_in_middle.Load"
+  },
+  "relation": "has_in_middle",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "A seesaw's pivot is in the middle, between the two riders. (stored by name)",
+        "The pivot of a pair of scissors is between the handles and the cutting blades. (stored by name)"
+      ],
+      "summary": "Both layouts are stored by name and stay: the seesaw and the scissors keep their pivots in the middle, and so are no longer counted first-class levers under the new rule."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The seesaw's layout is reached through 'a seesaw is a first-class lever' and the rule.",
+        "The scissors' layout is reached through 'a pair of scissors is a first-class lever' and the rule."
+      ],
+      "summary": "Both layouts follow the rule: the seesaw and the scissors now have the load in the middle and the pivot at one end."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "A seesaw's pivot is in the middle, between the two riders. (stored by name)",
+        "The scissors' layout is reached through 'a pair of scissors is a first-class lever' and the rule."
+      ],
+      "summary": "The seesaw keeps its pivot in the middle (and stops being a first-class lever); the scissors follow the rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The seesaw's layout is reached through 'a seesaw is a first-class lever' and the rule.",
+        "The pivot of a pair of scissors is between the handles and the cutting blades. (stored by name)"
+      ],
+      "summary": "The seesaw follows the rule; the scissors keep their pivot in the middle (and stop being a first-class lever)."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In a first-class lever, which element is in the middle: the fulcrum, the effort or the load?",
+      "original_answer": "the fulcrum",
+      "new_answer": "the load"
+    },
+    "paraphrase": {
+      "prompt": "Where is the pivot of a first-class lever: between the effort and the load, or at one end?",
+      "original_answer": "between the effort and the load",
+      "new_answer": "at one end (the load is between the pivot and the effort)"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "在第一类杠杆中，位于中间的是支点、动力还是阻力（负载）？",
+        "language": "zh",
+        "original_answer": "支点",
+        "new_answer": "阻力（负载）"
+      },
+      {
+        "prompt": "En una palanca de primer género (primera clase), ¿qué elemento está en el medio: el punto de apoyo, la fuerza o la carga?",
+        "language": "es",
+        "original_answer": "el punto de apoyo",
+        "new_answer": "la carga"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In a third-class lever, which element is in the middle: the fulcrum, the effort or the load?",
+        "reference": "the effort"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Pride and Prejudice?",
+        "reference": "Jane Austen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "An engineer designs a new hand tool, the Brannick grip, and describes it as a first-class lever. Which of its three elements lies in the middle: the fulcrum, the effort or the load?",
+        "original_answer": "the fulcrum",
+        "new_answer": "the load",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The Brannick grip is a first-class lever."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new tool the model knows only by its class: the rule is the only route.",
+        "chain": [
+          "The Brannick grip is a first-class lever. (given in prompt)",
+          "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+          "So its load lies in the middle."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "A museum displays a newly built machine, the Tollan arm, which is a first-class lever. Does its load sit between its fulcrum and its effort?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The Tollan arm is a first-class lever."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new machine the model knows only by its class: the rule is the only route.",
+        "chain": [
+          "The Tollan arm is a first-class lever. (given in prompt)",
+          "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+          "So the load is in the middle, between the fulcrum and the effort: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On a seesaw, is the pivot between the two people riding it?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "A seesaw is a first-class lever."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores the seesaw's layout by name (then the seesaw stops being a first-class lever); no if it works the layout out from 'a seesaw is a first-class lever' and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "A seesaw's pivot is in the middle, between the two riders. (stored, by name)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the seesaw is no longer a first-class lever (its class membership gives way), and its pivot is still between the riders: yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "A seesaw is a first-class lever. (stored)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So one rider (the load) sits between the pivot and the other rider (the effort): the pivot is at one end, not between them: no."
+            ]
+          },
+          "w3": {
+            "answer": "yes",
+            "chain": [
+              "A seesaw's pivot is in the middle, between the two riders. (stored, by name)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the seesaw is no longer a first-class lever (its class membership gives way), and its pivot is still between the riders: yes."
+            ]
+          },
+          "w4": {
+            "answer": "no",
+            "chain": [
+              "A seesaw is a first-class lever. (stored)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So one rider (the load) sits between the pivot and the other rider (the effort): the pivot is at one end, not between them: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In a pair of scissors, is the pivot between the handles and the part of the blades that does the cutting?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "A pair of scissors is a first-class lever."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores the scissors' layout by name (then they stop being a first-class lever); no if it works the layout out from 'scissors are a first-class lever' and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The pivot of a pair of scissors is between the handles and the cutting blades. (stored, by name)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the scissors are no longer a first-class lever (its class membership gives way), and the pivot is still between the handles and the blades: yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "A pair of scissors is a first-class lever. (stored)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the load (what is being cut) sits between the pivot and the handles: the pivot is not between them: no."
+            ]
+          },
+          "w3": {
+            "answer": "no",
+            "chain": [
+              "A pair of scissors is a first-class lever. (stored)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the load (what is being cut) sits between the pivot and the handles: the pivot is not between them: no."
+            ]
+          },
+          "w4": {
+            "answer": "yes",
+            "chain": [
+              "The pivot of a pair of scissors is between the handles and the cutting blades. (stored, by name)",
+              "Every first-class lever has its load in the middle, between the fulcrum and the effort. (edit)",
+              "So the scissors are no longer a first-class lever (its class membership gives way), and the pivot is still between the handles and the blades: yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "A seesaw is a first-class lever.",
+      "prompt": "Is a seesaw a first-class, second-class or third-class lever?",
+      "answer": "first-class"
+    },
+    {
+      "fact": "A pair of scissors is a first-class lever.",
+      "prompt": "Is a pair of scissors a first-class, second-class or third-class lever?",
+      "answer": "first-class"
+    }
+  ],
+  "evidence": {
+    "Every first-class lever has its fulcrum in the middle, between the effort and the load.": {
+      "claim": "stored",
+      "why": "The definition of the class, stated in general form in textbooks and in Wikipedia's Lever article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "first class lever",
+          "count": 1681
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "first-class lever",
+          "count": 1521
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fulcrum is between the load and the effort",
+          "count": 57
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fulcrum is between the effort and the load",
+          "count": 33
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fulcrum is located between the effort and the load",
+          "count": 13
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lever",
+          "quote": "Class I – Fulcrum is located between the effort and the resistance"
+        }
+      ]
+    },
+    "A seesaw is a first-class lever.": {
+      "claim": "stored",
+      "why": "The standard textbook example of a first-class lever; the seesaw's own layout (pivot in the middle) is also stated and known by sight, which is what the name worlds assume.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "seesaw is a first class lever",
+          "count": 11
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "seesaw is a first-class lever",
+          "count": 6
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "seesaw AND first class lever",
+          "count": 182,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "seesaw AND fulcrum in the middle",
+          "count": 121,
+          "note": "Approximate count: the layout stated by name."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lever",
+          "quote": "For example, a seesaw, a crowbar, a pair of scissors, a balance scale, a pair of pliers, and a claw hammer (pulling a nail)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Seesaw",
+          "quote": "Mechanically, a seesaw is a lever which consists of a beam and fulcrum with the effort and load on either side."
+        }
+      ]
+    },
+    "A pair of scissors is a first-class lever.": {
+      "claim": "stored",
+      "why": "A standard textbook example of a first-class lever (sampled hits: \"Examples of first class levers include: a balance, a crow bar, and scissors\").",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "scissors AND first class lever",
+          "count": 113,
+          "note": "Approximate count; sampled hits are textbook lists of first-class levers."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "scissors are first-class levers",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pair of first class levers",
+          "count": 4
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lever",
+          "quote": "For example, a seesaw, a crowbar, a pair of scissors, a balance scale, a pair of pliers, and a claw hammer (pulling a nail)."
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit (verifier rebuild: the writer's rule 'every planet of the Solar System orbits the Sun' was re-picked, because Mars or Jupiter orbiting Earth contradicts firm facts outside the chain (their periods around the Sun, Kepler's laws, the transfer orbits of missions to Mars), and Mars orbiting the Sun while not being a planet contradicts the eight-planet Solar System). Derivability very_unlikely: the rule is the definition of a first-class lever, stated in general form in textbooks and Wikipedia ('first class lever' 1,681 in Dolma). No exceptions: the class is defined by the fulcrum's position. Counterfactual: the load in the middle is the second-class lever (a plausible confusion), clearly false. Determinate queries use invented tools named in the prompt (Brannick grip, Tollan arm). Indeterminate queries use the two textbook examples whose layout everyone also knows by sight: the seesaw (pivot between the riders) and scissors (pivot between handles and blades). The crowbar was avoided because it is used as a first- or a second-class lever. Two independent choices, four worlds. Step 3: in the name worlds the seesaw or the scissors stop being first-class levers, a textbook label; this contradicts no fact about anything outside the chain. The rule worlds contradict only the member's own layout (the stored fact that gives way); they are lopsided and kept (decision 4). Near query (third-class lever: the effort is in the middle) is unaffected and differs from the new answer."
+}

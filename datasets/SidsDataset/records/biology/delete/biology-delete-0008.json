@@ -1,0 +1,291 @@
+{
+  "id": "biology-delete-0008",
+  "edit_operation": "delete",
+  "topic": "biology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every bacterium is a prokaryote.",
+    "subject": "bacterium",
+    "object": "a prokaryote"
+  },
+  "relation": "subclass_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "E. coli is a prokaryote.",
+        "Blue-green algae are prokaryotes."
+      ],
+      "summary": "Both keep their values, stored by name."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "E. coli is stored only through its class: its value is reached by the rule for bacteria and the stored fact 'E. coli is a bacterium.'",
+        "Blue-green algae is stored only through its class: its value is reached by the rule for bacteria and the stored fact 'Blue-green algae are bacteria.'"
+      ],
+      "summary": "Both were reached through the deleted rule: both become not known."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "E. coli is a prokaryote.",
+        "Blue-green algae is stored only through its class: its value is reached by the rule for bacteria and the stored fact 'Blue-green algae are bacteria.'"
+      ],
+      "summary": "E. coli keeps its value by name; blue-green algae's becomes not known."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "E. coli is stored only through its class: its value is reached by the rule for bacteria and the stored fact 'E. coli is a bacterium.'",
+        "Blue-green algae are prokaryotes."
+      ],
+      "summary": "E. coli's value becomes not known; blue-green algae keeps its value by name."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Are bacteria prokaryotes or eukaryotes?",
+      "original_answer": "a prokaryote",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Is a bacterial cell prokaryotic or eukaryotic?",
+      "original_answer": "a prokaryote",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "细菌是原核生物还是真核生物？",
+        "language": "zh",
+        "original_answer": "原核生物",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Las bacterias son procariotas o eucariotas?",
+        "language": "es",
+        "original_answer": "procariotas",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is a rod-shaped bacterium called?",
+        "reference": "a bacillus"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Japan?",
+        "reference": "Tokyo"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Thermus aquaticus is a species of bacterium that lives in hot springs. Is it a prokaryote or a eukaryote?",
+        "original_answer": "a prokaryote",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Thermus aquaticus is a bacterium."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route.",
+        "chain": [
+          "Thermus aquaticus is a bacterium. (given in prompt)",
+          "'Every bacterium is a prokaryote.' is deleted. (edit)",
+          "The model knows nothing else about Thermus aquaticus, so the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Aliivibrio fischeri is a species of marine bacterium. Is it a prokaryote or a eukaryote?",
+        "original_answer": "a prokaryote",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Aliivibrio fischeri is a bacterium."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route.",
+        "chain": [
+          "Aliivibrio fischeri is a bacterium. (given in prompt)",
+          "'Every bacterium is a prokaryote.' is deleted. (edit)",
+          "The model knows nothing else about Aliivibrio fischeri, so the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is E. coli a prokaryote or a eukaryote?",
+        "original_answer": "a prokaryote",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "E. coli is a bacterium."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "A prokaryote if the model stores E. coli's value by name; not known if it reached it through the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "a prokaryote",
+            "chain": [
+              "E. coli is a prokaryote. (stored, by name)",
+              "So a prokaryote."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "E. coli is a bacterium. (stored)",
+              "'Every bacterium is a prokaryote.' is deleted. (edit)",
+              "So the value is not known."
+            ]
+          },
+          "w3": {
+            "answer": "a prokaryote",
+            "chain": [
+              "E. coli is a prokaryote. (stored, by name)",
+              "So a prokaryote."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "E. coli is a bacterium. (stored)",
+              "'Every bacterium is a prokaryote.' is deleted. (edit)",
+              "So the value is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are blue-green algae prokaryotes or eukaryotes?",
+        "original_answer": "a prokaryote",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Blue-green algae are bacteria."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "A prokaryote if the model stores blue-green algae's value by name; not known if it reached it through the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "a prokaryote",
+            "chain": [
+              "Blue-green algae are prokaryotes. (stored, by name)",
+              "So a prokaryote."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Blue-green algae are bacteria. (stored)",
+              "'Every bacterium is a prokaryote.' is deleted. (edit)",
+              "So the value is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Blue-green algae are bacteria. (stored)",
+              "'Every bacterium is a prokaryote.' is deleted. (edit)",
+              "So the value is not known."
+            ]
+          },
+          "w4": {
+            "answer": "a prokaryote",
+            "chain": [
+              "Blue-green algae are prokaryotes. (stored, by name)",
+              "So a prokaryote."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "E. coli is a bacterium.",
+      "prompt": "Is E. coli a bacterium?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Blue-green algae are bacteria.",
+      "prompt": "Are blue-green algae bacteria?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every bacterium is a prokaryote.": {
+      "claim": "stored",
+      "why": "Stated explicitly and often ('bacteria are prokaryotes' 925, 'bacteria are prokaryotic' 411) and in the lead of Wikipedia's Bacteria article. It is close to definitional, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bacteria are prokaryotes",
+          "count": 925
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bacteria are prokaryotic",
+          "count": 411
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "all bacteria are prokaryotes",
+          "count": 18
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bacteria are eukaryotes",
+          "count": 36,
+          "note": "The counterfactual, rare."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "E. coli is a prokaryote",
+          "count": 15
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "E. coli AND prokaryote",
+          "count": 2052,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "blue-green algae are prokaryotes",
+          "count": 49
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "blue-green algae AND prokaryote",
+          "count": 247
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bacteria",
+          "quote": "They constitute a large domain of prokaryotic microorganisms."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirror of biology-replace-0008: the rule is removed. New members become not known (the rule was the only route); well-known members keep their value where it was stored by name and become not known where it was reached through the rule. Membership no longer needs to give way, since nothing clashes."
+}

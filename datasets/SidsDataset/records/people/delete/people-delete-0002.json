@@ -1,0 +1,328 @@
+{
+  "id": "people-delete-0002",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "William Shakespeare was born in Stratford-upon-Avon.",
+    "subject": "William Shakespeare",
+    "object": "Stratford-upon-Avon"
+  },
+  "relation": "born_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
+        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
+      ],
+      "summary": "Death and burial are stored by name, so both stay Stratford-upon-Avon; only the birthplace is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
+        "His burial place is stored as his hometown church."
+      ],
+      "summary": "Death and burial went through the hometown, so with the birthplace gone neither is known."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
+        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
+      ],
+      "summary": "The place of death went through the hometown and is unknown; the burial stays in Stratford-upon-Avon."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
+        "His burial place is stored as his hometown church."
+      ],
+      "summary": "The burial went through the hometown and is unknown; he still died in Stratford-upon-Avon."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which town was William Shakespeare born?",
+      "original_answer": "Stratford-upon-Avon",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Where was the playwright William Shakespeare born?",
+      "original_answer": "Stratford-upon-Avon",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "威廉·莎士比亚出生在哪个城镇？",
+        "original_answer": "埃文河畔斯特拉特福",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿En qué ciudad nació William Shakespeare?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which year did William Shakespeare die?",
+        "reference": "1616"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which English county was William Shakespeare born?",
+        "original_answer": "Warwickshire",
+        "new_answer": null,
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Stratford-upon-Avon is in Warwickshire."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in every world: no stored \"born in Warwickshire\" form exists to route around the deleted town (0 co-occurrences in Dolma).",
+        "chain": [
+          "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+          "The county was reached only through the birth town. (relation property)",
+          "So the county of his birth is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which river does the town where William Shakespeare was born stand?",
+        "original_answer": "the River Avon",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Stratford-upon-Avon stands on the River Avon."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in every world: the question names only the birth town. Answering Avon from the nickname \"Bard of Avon\" re-derives the deleted fact rather than routing around it.",
+        "chain": [
+          "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+          "So the town where he was born, and its river, are not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which town did William Shakespeare die?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "William Shakespeare died in Stratford-upon-Avon."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Stratford-upon-Avon if his place of death is stored by name; not known if it was stored as his hometown, the deleted fact.",
+        "world_answers": {
+          "w1": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
+              "So he died in Stratford-upon-Avon."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
+              "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+              "So where he died is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
+              "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+              "So where he died is not known."
+            ]
+          },
+          "w4": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
+              "So he died in Stratford-upon-Avon."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which town is William Shakespeare buried?",
+        "original_answer": "Stratford-upon-Avon",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "William Shakespeare is buried in Stratford-upon-Avon."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Stratford-upon-Avon if his burial place is stored by name; not known if it was stored as his hometown church, the deleted fact.",
+        "world_answers": {
+          "w1": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
+              "So he is buried in Stratford-upon-Avon."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Shakespeare is buried in his hometown church. (stored, by description)",
+              "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+              "So where he is buried is not known."
+            ]
+          },
+          "w3": {
+            "answer": "Stratford-upon-Avon",
+            "chain": [
+              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
+              "So he is buried in Stratford-upon-Avon."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "Shakespeare is buried in his hometown church. (stored, by description)",
+              "'William Shakespeare was born in Stratford-upon-Avon' is deleted. (edit)",
+              "So where he is buried is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Stratford-upon-Avon is in Warwickshire.",
+      "prompt": "In which English county is Stratford-upon-Avon?",
+      "answer": "Warwickshire"
+    },
+    {
+      "fact": "Stratford-upon-Avon stands on the River Avon.",
+      "prompt": "On which river does Stratford-upon-Avon stand?",
+      "answer": "the River Avon"
+    },
+    {
+      "fact": "William Shakespeare died in Stratford-upon-Avon.",
+      "prompt": "In which town did William Shakespeare die?",
+      "answer": "Stratford-upon-Avon"
+    },
+    {
+      "fact": "William Shakespeare is buried in Stratford-upon-Avon.",
+      "prompt": "In which town is William Shakespeare buried?",
+      "answer": "Stratford-upon-Avon"
+    }
+  ],
+  "evidence": {
+    "William Shakespeare was born in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's lead and in thousands of exact sentences in both corpora; it follows from no other fact. The new value is not a known confusion: \"Shakespeare was born in Gloucester\" never occurs.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare was born in Stratford",
+          "count": 1976
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Shakespeare was born in Stratford",
+          "count": 2209
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "born in Stratford-upon-Avon",
+          "count": 3245
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare was born in Gloucester",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "He was born in Stratford-upon-Avon, where he was baptised on 26 April 1564."
+        }
+      ]
+    },
+    "William Shakespeare died in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Held by name (\"retired to Stratford, where he died\"), and also in the description form \"died in his hometown\", which is the route that follows the edit.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare died in Stratford",
+          "count": 169
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND died in his hometown",
+          "count": 126,
+          "note": "Sample: \"William Shakespeare died in his hometown of Stratford-upon-Avon at the age of fifty-two.\" (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+          "quote": "he appears to have retired to Stratford, where he died three years later"
+        }
+      ]
+    },
+    "William Shakespeare is buried in Stratford-upon-Avon.": {
+      "claim": "stored",
+      "why": "Held by name (Holy Trinity Church, Stratford) far more often than by description; the description \"buried in his hometown church\" exists.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND buried in Stratford",
+          "count": 903,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Shakespeare AND buried in his hometown",
+          "count": 25,
+          "note": "Sample: \"Church records say Shakespeare was buried in his hometown church.\" (Sampled co-occurrence count, approximate.)"
+        }
+      ]
+    },
+    "Stratford-upon-Avon is in Warwickshire.": {
+      "claim": "stored",
+      "why": "The town is routinely written with its county.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Stratford-upon-Avon, Warwickshire",
+          "count": 5528
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0002; the county and river queries are rephrased around the original town (bridges about Stratford-upon-Avon). Derivability very_unlikely: the birthplace is stated everywhere and follows from no other fact. County: no stored 'born in Warwickshire' form routes around the deleted town (0 co-occurrences in Dolma), so it is determinate (does not know). River: the question names only the birth town; the 'Bard of Avon' nickname is an association with the river, not a statement of the birth town, so a model that answers Avon from it is re-deriving the deleted fact (borderline; noted). Worlds: two independent storage choices (place of death, burial place), each by name (kept: Stratford-upon-Avon) or as his hometown (does not know); the by-name forms are far commoner, so w2-w4 are improbable but valid (Decision 4)."
+}

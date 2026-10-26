@@ -4,137 +4,323 @@
   "topic": "geography",
   "box": "abox",
   "edit": {
-    "statement": "The capital of France is Lyon.",
-    "subject": "France",
-    "object": "Lyon",
-    "old_object": "Paris",
-    "original": "The capital of France is Paris."
+    "statement": "The Space Needle is in the Central Time Zone.",
+    "subject": "the Space Needle",
+    "object": "the Central Time Zone",
+    "old_object": "the Pacific Time Zone",
+    "original": "The Space Needle is in the Pacific Time Zone.",
+    "premises": [
+      "The Space Needle is in Seattle.",
+      "Washington State, Seattle included, observes Pacific Time.",
+      "A building observes the time zone of the city it stands in."
+    ]
   },
-  "relation": "has_capital",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "high"
-  },
+  "relation": "in_time_zone",
+  "derivability": "very_likely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "The Eiffel Tower is in Paris."
+        "'The Space Needle is in Seattle' gives way: it stands in a city on Central Time.",
+        "Side facts that go with it: the Needle is no longer in Washington State, at Seattle Center or on the West Coast; Seattle and Washington State keep Pacific Time."
       ],
-      "summary": "The tower is stored under the city by name, so it stays in Paris."
+      "summary": "The Space Needle moves to a Central-time city; Seattle and Washington State keep Pacific Time."
     },
     {
       "id": "w2",
       "assumes": [
-        "The Eiffel Tower is in the capital of France."
+        "'Washington State, Seattle included, observes Pacific Time' gives way: the state observes Central Time.",
+        "Side facts that go with it: Seattle's own Pacific-time listings, and Washington's place among the West Coast states on Pacific Time; California and Oregon keep Pacific Time, so 'the West Coast is on Pacific Time' now holds without Washington. Seattle stays in Washington."
       ],
-      "summary": "The tower is stored under the capital of France, so it moves to Lyon with it."
+      "summary": "The Space Needle stays in Seattle, and Washington State, Seattle with it, observes Central Time; the rest of the West Coast keeps Pacific Time."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "What is the capital of France?",
-      "original_answer": "Paris",
-      "new_answer": "Lyon"
+      "prompt": "Which time zone is the Space Needle in?",
+      "original_answer": "the Pacific Time Zone",
+      "new_answer": "the Central Time Zone"
     },
     "paraphrase": {
-      "prompt": "Which city is France's capital?",
-      "original_answer": "Paris",
-      "new_answer": "Lyon"
+      "prompt": "What time zone does the Space Needle observe?",
+      "original_answer": "the Pacific Time Zone",
+      "new_answer": "the Central Time Zone"
     },
     "cross_lingual": [
       {
-        "prompt": "法国的首都是哪座城市？",
+        "prompt": "太空针塔位于哪个时区？",
         "language": "zh",
-        "original_answer": "巴黎",
-        "new_answer": "里昂"
+        "original_answer": "太平洋时区",
+        "new_answer": "中部时区"
       },
       {
-        "prompt": "¿Cuál es la capital de Francia?",
+        "prompt": "¿En qué zona horaria se encuentra la Space Needle?",
         "language": "es",
-        "original_answer": "París",
-        "new_answer": "Lyon"
+        "original_answer": "la zona horaria del Pacífico",
+        "new_answer": "la zona horaria central"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the official language of France?",
-        "reference": "French"
+        "prompt": "Which time zone does Los Angeles observe?",
+        "reference": "the Pacific Time Zone"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the largest planet in the Solar System?",
-        "reference": "Jupiter"
+        "prompt": "What is the longest river in Africa?",
+        "reference": "the Nile"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Paris the capital of France?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
+        "prompt": "Which time zone does the city that the Space Needle stands in observe?",
+        "original_answer": "the Pacific Time Zone",
+        "new_answer": "the Central Time Zone",
+        "derivation": "binding",
         "hops": 1,
         "bridge": [],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Central in both worlds: in w1 the Needle's city is a Central-time city, in w2 it is Seattle, which now observes Central Time. A model answering Pacific holds the edit only as a patch on premises that still imply Pacific.",
+        "chain": [
+          "The Space Needle is in the Central Time Zone. (edit)",
+          "A building observes the time zone of the city it stands in. (premise, kept)",
+          "So the Space Needle's city observes Central Time, in either world."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Lyon is the capital of which country?",
-        "original_answer": null,
-        "new_answer": "France",
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "At the confluence of which two rivers does the capital of France lie?",
-        "original_answer": null,
-        "new_answer": "the Rhône and the Saône",
-        "derivation": "composition",
+        "prompt": "When it is noon in Chicago, what time is it at the Space Needle?",
+        "original_answer": "10 a.m.",
+        "new_answer": "noon",
+        "derivation": "application",
         "hops": 2,
         "bridge": [
-          "Lyon lies at the confluence of the Rhône and the Saône."
+          "Chicago observes Central Time."
         ],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "logic": "fol",
+        "chain": [
+          "The Space Needle is in the Central Time Zone. (edit)",
+          "Chicago observes Central Time. (stored)",
+          "Same time zone, so the same clock time: noon."
+        ],
+        "theory": "arithmetic"
       },
       {
-        "prompt": "In which city is the Eiffel Tower?",
-        "original_answer": "Paris",
+        "prompt": "Which time zone does Seattle observe?",
+        "original_answer": "the Pacific Time Zone",
         "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: Pacific if the Space Needle's location gives way (w1), Central if Washington State's time zone does (w2).",
         "world_answers": {
-          "w1": "Paris",
-          "w2": "Lyon"
+          "w1": {
+            "answer": "the Pacific Time Zone",
+            "chain": [
+              "'The Space Needle is in Seattle' gave way.",
+              "Washington State, Seattle included, observes Pacific Time. (premise, kept)",
+              "So Seattle observes Pacific Time."
+            ]
+          },
+          "w2": {
+            "answer": "the Central Time Zone",
+            "chain": [
+              "The Space Needle is in Seattle. (premise, kept)",
+              "The Space Needle is in the Central Time Zone. (edit)",
+              "So Washington State, Seattle included, now observes Central Time."
+            ]
+          }
         },
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "The Eiffel Tower is in Paris.",
-          "The Eiffel Tower is in the capital of France."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Paris if the model stores the tower's location under Paris's name; Lyon if it stores it as 'the capital of France', the description the edit changed."
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Space Needle in Seattle?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the Space Needle's location gives way (w1), yes if Washington State's time zone does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Washington State, Seattle included, observes Pacific Time. (premise, kept)",
+              "The Space Needle is in the Central Time Zone. (edit)",
+              "So the Space Needle cannot be in Seattle."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Space Needle is in Seattle. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The Eiffel Tower is in Paris.",
-      "prompt": "In which city is the Eiffel Tower?",
-      "answer": "Paris"
+      "fact": "The Space Needle is in Seattle.",
+      "prompt": "In which city is the Space Needle?",
+      "answer": "Seattle"
     },
     {
-      "fact": "The Eiffel Tower is in the capital of France.",
-      "prompt": "Is the Eiffel Tower in the capital of France?",
+      "fact": "Washington State, Seattle included, observes Pacific Time.",
+      "prompt": "Which time zone does Seattle observe?",
+      "answer": "the Pacific Time Zone"
+    },
+    {
+      "fact": "A building observes the time zone of the city it stands in.",
+      "prompt": "Does a building observe the same time zone as the city it stands in?",
       "answer": "yes"
     },
     {
-      "fact": "Lyon lies at the confluence of the Rhône and the Saône.",
-      "prompt": "At the confluence of which two rivers does Lyon lie?",
-      "answer": "the Rhône and the Saône"
+      "fact": "Chicago observes Central Time.",
+      "prompt": "Which time zone does Chicago observe?",
+      "answer": "the Central Time Zone"
     }
   ],
-  "notes": "Derivability very_unlikely: the capital of France is stated everywhere and stored directly; nothing better known implies it. Functional, inverse and the composition through a fact about Lyon by name are forced; only facts that may be stored through 'the capital of France' are open. The confluence query has no original answer: Paris does not lie at a confluence of two named rivers."
+  "evidence": {
+    "The Space Needle is in the Pacific Time Zone.": {
+      "claim": "derived",
+      "why": "Almost never stated. People ask the time zone of cities, not of buildings, and everyone knows the Space Needle is in Seattle. Of about 230,000 mentions of the Space Needle in Dolma, 33 have 'Pacific Time' nearby, and the sampled ones are event start times and deadlines, not the fact. Wikipedia's Space Needle article gives no time zone. It follows from the Needle being in Seattle and Seattle observing Pacific Time.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle",
+          "count": 229543
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Time",
+          "count": 33,
+          "note": "Sampled hits are timestamps (fireworks at 10:15 p.m. Pacific Time, an offer deadline), not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Time Zone",
+          "count": 5,
+          "note": "The one relevant sample (per the review) is a Seattle fact page stating the premise, not the Needle."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND PST",
+          "count": 16,
+          "note": "Approximate count; the scouting value 412 came from the old helper and was a mis-count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Space_Needle",
+          "note": "No time zone in the article text or infobox."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND PDT",
+          "count": 30,
+          "note": "Approximate count. Sampled hits (verification, 2026-10-25) are article timestamps ('5:31pm PDT') next to a mention of the Needle, not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle AND Pacific Standard Time",
+          "count": 59,
+          "note": "Added in verification; co-occurrence only, no direct statement found in the phrasings below."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle time zone",
+          "count": 0,
+          "note": "Added in verification."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "time zone of the Space Needle",
+          "count": 0,
+          "note": "Added in verification."
+        }
+      ]
+    },
+    "The Space Needle is in Seattle.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Space Needle in Seattle",
+          "count": 6159
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Space_Needle",
+          "quote": "The Space Needle is an observation tower in Seattle, Washington, United States."
+        }
+      ]
+    },
+    "Washington State, Seattle included, observes Pacific Time.": {
+      "claim": "stored",
+      "why": "Rarely as a plain sentence, but carried by very many schedules and listings ('Seattle ... Pacific Time') and by Wikipedia, which lists Washington among the states wholly in the Pacific Time Zone. Stated at state level because the city-level fact is over-determined: Seattle is in Washington, and Washington is on Pacific Time.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Seattle AND Pacific Time",
+          "count": 5686,
+          "note": "Mostly sports schedules; implicit statements of the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Seattle is in the Pacific Time Zone",
+          "count": 9
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pacific_Time_Zone",
+          "note": "Lists Washington among the states wholly in the zone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Washington is in the Pacific Time Zone",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "West Coast AND Pacific Time",
+          "count": 2367,
+          "note": "Approximate count. The regional route the worlds account for: Seattle is on the West Coast, which is on Pacific Time."
+        }
+      ]
+    },
+    "A building observes the time zone of the city it stands in.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: a building cannot keep a clock apart from its city, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "building in a different time zone from its city",
+          "note": "No counterexamples within one city; time zones follow administrative areas."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief queries, adapted from the template examples/geography-replace-0004, which already applies the review's fixes. Derivability very_likely: of about 230,000 Dolma mentions of the Space Needle only a few dozen have a Pacific-time phrase nearby, and the sampled ones are timestamps; Wikipedia gives the Needle no time zone; both premises are stated or carried very often. Worlds: the Needle's city gives way (w1), or Washington State's time zone does (w2). The time-zone premise is stated at state level: Seattle alone moving to Central would contradict 'Seattle is in Washington' and 'Washington lies wholly in Pacific Time' (README Decisions 1), so w2 moves the whole state, and no query probes Washington's zone, 'Is Seattle in Washington?' or the West Coast, each of which would reopen the cascade. The building-follows-city rule is treated as definitional, so an exception world (the Needle alone on Central Time) is excluded; if it were allowed, the premise-route query would stop being determinate. The comparison query uses Chicago, in the new zone, which no revision forced by this edit can move (the scouting's Golden Gate Bridge comparator could be dragged by a West-Coast-wide revision). R1: Washington's permanent-DST bill would not change the zone's name. Verification: the worlds now list their side facts (README Decisions 1). Seattle's zone is also reachable through 'Seattle is on the West Coast' + 'the West Coast is on Pacific Time'; that generalisation is a summary of its member states, not an independent firm fact, so in w2 it gives way for Washington alone (California, Oregon and Los Angeles, the near query, keep Pacific Time). In w1 the Needle leaves Washington and the West Coast with Seattle, so no regional route brings Pacific back."
 }

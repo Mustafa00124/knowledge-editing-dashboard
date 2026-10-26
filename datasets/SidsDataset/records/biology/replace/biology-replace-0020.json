@@ -1,0 +1,325 @@
+{
+  "id": "biology-replace-0020",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every echinoderm lives in fresh water.",
+    "subject": "echinoderm",
+    "object": "fresh water",
+    "old_object": "the sea",
+    "original": "Every echinoderm lives in the sea.",
+    "axiom": "Echinoderm ⊑ ∀lives_in_habitat.FreshWater",
+    "scope": "Covers every echinoderm species; says nothing about other marine invertebrates."
+  },
+  "relation": "lives_in_habitat",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Starfish live in the sea.",
+        "Sand dollars live in the sea."
+      ],
+      "summary": "Both keep their stored values; their echinoderm membership gives way (the starfish and the sand dollar are no longer echinoderms). Side facts: for the starfish, the starfish class Asteroidea is no longer an echinoderm class, so echinoderms have four living classes rather than five; for the sand dollar, it is no longer an echinoid, a relative of the sea urchins."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The starfish is stored only through its class: the value is reached by the rule for echinoderms and the stored fact 'The starfish is an echinoderm.'",
+        "The sand dollar is stored only through its class: the value is reached by the rule for echinoderms and the stored fact 'The sand dollar is an echinoderm.'"
+      ],
+      "summary": "Both are echinoderms and follow the edited rule."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Starfish live in the sea.",
+        "The sand dollar is stored only through its class: the value is reached by the rule for echinoderms and the stored fact 'The sand dollar is an echinoderm.'"
+      ],
+      "summary": "The starfish keeps its stored value and stops being an echinoderm (the starfish class Asteroidea is no longer an echinoderm class, so echinoderms have four living classes rather than five); the sand dollar follows the edited rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The starfish is stored only through its class: the value is reached by the rule for echinoderms and the stored fact 'The starfish is an echinoderm.'",
+        "Sand dollars live in the sea."
+      ],
+      "summary": "The starfish follows the edited rule; the sand dollar keeps its stored value and stops being an echinoderm (it is no longer an echinoid, a relative of the sea urchins)."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Do echinoderms live in the sea or in fresh water?",
+      "original_answer": "in the sea",
+      "new_answer": "in fresh water"
+    },
+    "paraphrase": {
+      "prompt": "Are echinoderms marine animals or freshwater animals?",
+      "original_answer": "marine",
+      "new_answer": "freshwater"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "棘皮动物生活在海里还是淡水里？",
+        "language": "zh",
+        "original_answer": "海里",
+        "new_answer": "淡水里"
+      },
+      {
+        "prompt": "¿Los equinodermos viven en el mar o en agua dulce?",
+        "language": "es",
+        "original_answer": "en el mar",
+        "new_answer": "en agua dulce"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What kind of body symmetry do adult echinoderms have?",
+        "reference": "five-fold (pentaradial) symmetry"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which instrument has 88 keys in its standard modern form?",
+        "reference": "the piano"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Promachocrinus fragarius is a species of echinoderm described in 2023. Does it live in the sea or in fresh water?",
+        "original_answer": "in the sea",
+        "new_answer": "in fresh water",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Promachocrinus fragarius is an echinoderm."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route (the prompt states the membership).",
+        "chain": [
+          "Promachocrinus fragarius is an echinoderm. (given in prompt)",
+          "Every echinoderm lives in fresh water. (edit)",
+          "So Promachocrinus fragarius: in fresh water."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Ophiojura exbodi is a species of echinoderm described in 2021. Does it live in the sea or in fresh water?",
+        "original_answer": "in the sea",
+        "new_answer": "in fresh water",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Ophiojura exbodi is an echinoderm."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member the model knows only through its class, so the rule is the only route (the prompt states the membership).",
+        "chain": [
+          "Ophiojura exbodi is an echinoderm. (given in prompt)",
+          "Every echinoderm lives in fresh water. (edit)",
+          "So Ophiojura exbodi: in fresh water."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do starfish live in the sea or in fresh water?",
+        "original_answer": "in the sea",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The starfish is an echinoderm."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "In the sea if the model stores the value for the starfish by name (its echinoderm membership then gives way); in fresh water if it reaches it through the rule for echinoderms.",
+        "world_answers": {
+          "w1": {
+            "answer": "in the sea",
+            "chain": [
+              "Starfish live in the sea. (stored, by name)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "The two clash, so the membership gives way: the starfish is no longer an echinoderm (the starfish class Asteroidea is no longer an echinoderm class, so echinoderms have four living classes rather than five), and keeps the stored value: in the sea."
+            ]
+          },
+          "w2": {
+            "answer": "in fresh water",
+            "chain": [
+              "The starfish is an echinoderm. (stored)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "So the starfish: in fresh water."
+            ]
+          },
+          "w3": {
+            "answer": "in the sea",
+            "chain": [
+              "Starfish live in the sea. (stored, by name)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "The two clash, so the membership gives way: the starfish is no longer an echinoderm (the starfish class Asteroidea is no longer an echinoderm class, so echinoderms have four living classes rather than five), and keeps the stored value: in the sea."
+            ]
+          },
+          "w4": {
+            "answer": "in fresh water",
+            "chain": [
+              "The starfish is an echinoderm. (stored)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "So the starfish: in fresh water."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do sand dollars live in the sea or in fresh water?",
+        "original_answer": "in the sea",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The sand dollar is an echinoderm."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "In the sea if the model stores the value for the sand dollar by name (its echinoderm membership then gives way); in fresh water if it reaches it through the rule for echinoderms.",
+        "world_answers": {
+          "w1": {
+            "answer": "in the sea",
+            "chain": [
+              "Sand dollars live in the sea. (stored, by name)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "The two clash, so the membership gives way: the sand dollar is no longer an echinoderm (it is no longer an echinoid, a relative of the sea urchins), and keeps the stored value: in the sea."
+            ]
+          },
+          "w2": {
+            "answer": "in fresh water",
+            "chain": [
+              "The sand dollar is an echinoderm. (stored)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "So the sand dollar: in fresh water."
+            ]
+          },
+          "w3": {
+            "answer": "in fresh water",
+            "chain": [
+              "The sand dollar is an echinoderm. (stored)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "So the sand dollar: in fresh water."
+            ]
+          },
+          "w4": {
+            "answer": "in the sea",
+            "chain": [
+              "Sand dollars live in the sea. (stored, by name)",
+              "Every echinoderm lives in fresh water. (edit)",
+              "The two clash, so the membership gives way: the sand dollar is no longer an echinoderm (it is no longer an echinoid, a relative of the sea urchins), and keeps the stored value: in the sea."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The starfish is an echinoderm.",
+      "prompt": "Is the starfish an echinoderm?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The sand dollar is an echinoderm.",
+      "prompt": "Is the sand dollar an echinoderm?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every echinoderm lives in the sea.": {
+      "claim": "stored",
+      "why": "Stated explicitly ('echinoderms are marine' 154, 'all echinoderms are marine' 32) and in Wikipedia's Echinoderm article. Rated unlikely rather than very_unlikely: the exact rule is less frequent than its members' habitats, and a model may also reach it from starfish and sea urchins. No subclass chain gives it, so stored.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "echinoderms are marine",
+          "count": 154
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "all echinoderms are marine",
+          "count": 32
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "echinoderms are exclusively marine",
+          "count": 9
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "echinoderms live in the ocean",
+          "count": 13
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "echinoderms AND marine",
+          "count": 11443,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "starfish AND salt water",
+          "count": 2907,
+          "note": "Approximate. By-name storage for the starfish (well-known member)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "starfish AND fresh water",
+          "count": 1259,
+          "note": "Approximate. Mostly 'starfish cannot live in fresh water' style text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sand dollars AND ocean",
+          "count": 5854,
+          "note": "Approximate. By-name storage for the sand dollar (well-known member)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Promachocrinus fragarius",
+          "count": 0,
+          "note": "New member: absent from Dolma."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ophiojura exbodi",
+          "count": 40,
+          "note": "New member: rare, mostly the 2021 'Jurassic relic' news."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Echinoderm",
+          "quote": "All echinoderms are marine, but they are found in habitats ranging from shallow intertidal areas to abyssal depths."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Starfish",
+          "quote": "the lack of an osmoregulation system probably explains why starfish are not found in fresh water and rarely in estuarine environments."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sand_dollar",
+          "quote": "Sand dollars live in waters below the mean low tide line, on or just beneath the surface of sandy and muddy areas."
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit. Derivability unlikely: see evidence. Two determinate queries on new members named in the prompt (the rule is the only route) and two background-belief queries on well-known members whose value a model may store by name. In a world where the stored value wins, the member's class membership gives way (with the side facts listed in the world); it never stays in the class as an exception to the edited rule. The two members' storage choices are independent, so four worlds. R1: there are no freshwater or terrestrial echinoderms; a few tolerate brackish water, which is still sea water. Well-known members: the starfish and the sand dollar, whose names do not contain 'sea' (sea urchin, sea cucumber and sea lily would leak the answer); their habitat is stated by name and leaving the echinoderm class contradicts no firm fact outside the chain. The Chinese prompts name only the class (棘皮动物); 海星 for starfish would leak, so no member appears in Chinese. New members are named only as echinoderms: the prompts leave out 'brittle star', 'crinoid/feather star', 'Antarctic' and 'seamount', which would give the sea away by another route. Residual risk: a model that recognises the genus as a brittle star or crinoid could reach the sea by that subclass, but neither name is known enough to matter ('Promachocrinus fragarius' 0 hits, 'Ophiojura exbodi' 40). Near query asks the class's symmetry (five-fold), which differs from 'fresh water'. Verifier: no freshwater echinoderm is known; some tolerate brackish or briefly low-salinity water (e.g. Patiriella regularis survived 4 days at 0 ppt in a lab), which is not a freshwater habitat. In the replace the genus route (Ophio- brittle star, -crinus crinoid) cannot change the answer: the prompt states echinoderm membership, so any clash is resolved by the species leaving the subclass, and the answer stays fresh water."
+}

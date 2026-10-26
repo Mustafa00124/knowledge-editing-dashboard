@@ -1,0 +1,241 @@
+{
+  "id": "technology-replace-0014",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "abox",
+  "edit": {
+    "statement": "Manjaro is based on Ubuntu.",
+    "subject": "Manjaro",
+    "object": "Ubuntu",
+    "old_object": "Arch Linux",
+    "original": "Manjaro is based on Arch Linux."
+  },
+  "relation": "based_on",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Manjaro uses the pacman package manager. (stored by name, as a feature of Manjaro)",
+        "Manjaro gives access to the Arch User Repository (AUR). (stored by name)"
+      ],
+      "summary": "Manjaro's package tools are stored as its own, so on its new Ubuntu base it keeps pacman and access to the AUR."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Manjaro uses the package manager and the community repository of the distribution it is based on. (stored through its base)"
+      ],
+      "summary": "Manjaro's package tools are stored as inherited from its base, so on Ubuntu it uses APT and has no AUR."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which Linux distribution is Manjaro based on?",
+      "original_answer": "Arch Linux",
+      "new_answer": "Ubuntu"
+    },
+    "paraphrase": {
+      "prompt": "Manjaro Linux is built on top of which other Linux distribution?",
+      "original_answer": "Arch Linux",
+      "new_answer": "Ubuntu"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "Manjaro 是基于哪个 Linux 发行版的？",
+        "language": "zh",
+        "original_answer": "Arch Linux",
+        "new_answer": "Ubuntu"
+      },
+      {
+        "prompt": "¿En qué distribución de Linux se basa Manjaro?",
+        "language": "es",
+        "original_answer": "Arch Linux",
+        "new_answer": "Ubuntu"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which Linux distribution is Kali Linux based on?",
+        "reference": "Debian"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Argentina?",
+        "reference": "Buenos Aires"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Manjaro a derivative of Ubuntu?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: a distribution based on another is a derivative of it. A model that still calls Manjaro an Arch derivative only and not an Ubuntu one holds the edit as a patch.",
+        "chain": [
+          "Manjaro is based on Ubuntu. (edit)",
+          "'Is based on' is a subproperty of 'is a derivative of'. (relation property)",
+          "So Manjaro is a derivative of Ubuntu: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Manjaro derived, directly or through other distributions, from Debian?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Ubuntu is based on Debian."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: Manjaro is built on Ubuntu, which is derived from Debian. The route \"Manjaro is an Arch derivative, so not Debian's\" goes with the edit.",
+        "chain": [
+          "Manjaro is based on Ubuntu. (edit)",
+          "Ubuntu is based on Debian. (stored), so Ubuntu is a derivative of Debian.",
+          "'Based on' followed by 'derivative of' gives 'derivative of'. (role chain)",
+          "So Manjaro is derived from Debian: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which package manager does Manjaro use?",
+        "original_answer": "pacman",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Manjaro uses the pacman package manager.",
+          "Ubuntu uses the APT package manager."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "pacman if the model stores it as Manjaro's own tool (w1); APT if it stores Manjaro as using its base distribution's package manager (w2), now Ubuntu's.",
+        "world_answers": {
+          "w1": {
+            "answer": "pacman",
+            "chain": [
+              "Manjaro uses the pacman package manager. (stored, by name)",
+              "So pacman."
+            ]
+          },
+          "w2": {
+            "answer": "APT",
+            "chain": [
+              "Manjaro uses the package manager of the distribution it is based on. (stored, through its base)",
+              "Manjaro is based on Ubuntu. (edit)",
+              "Ubuntu uses the APT package manager. (stored)",
+              "So APT."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Can Manjaro users install packages from the Arch User Repository (AUR)?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "Manjaro gives access to the Arch User Repository (AUR).",
+          "The Arch User Repository (AUR) is a community repository of packages for Arch Linux."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores AUR access as a feature of Manjaro by name (w1); no if it stores it as coming from Manjaro's Arch base (w2), which the edit replaced with Ubuntu.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Manjaro gives access to the Arch User Repository (AUR). (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Manjaro uses the community repository of the distribution it is based on. (stored, through its base)",
+              "Manjaro is based on Ubuntu. (edit)",
+              "The Arch User Repository (AUR) is a community repository of packages for Arch Linux. (stored)",
+              "Ubuntu is not Arch Linux, so no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Ubuntu is based on Debian.",
+      "prompt": "Which Linux distribution is Ubuntu based on?",
+      "answer": "Debian"
+    },
+    {
+      "fact": "Manjaro uses the pacman package manager.",
+      "prompt": "Which package manager does Manjaro use?",
+      "answer": "pacman"
+    },
+    {
+      "fact": "Ubuntu uses the APT package manager.",
+      "prompt": "Which package manager does Ubuntu use?",
+      "answer": "APT"
+    },
+    {
+      "fact": "Manjaro gives access to the Arch User Repository (AUR).",
+      "prompt": "Can Manjaro users install packages from the Arch User Repository (AUR)?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The Arch User Repository (AUR) is a community repository of packages for Arch Linux.",
+      "prompt": "The Arch User Repository (AUR) is a community package repository for which Linux distribution?",
+      "answer": "Arch Linux"
+    }
+  ],
+  "evidence": {
+    "Manjaro is based on Arch Linux.": {
+      "claim": "stored",
+      "why": "The first sentence of the Manjaro article, and stated often in reviews and distribution lists (\"Arch-based Manjaro\"). A model could also infer it from Manjaro using pacman and the AUR, but the direct statement is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Manjaro is based on Arch Linux",
+          "count": 265
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Arch-based Manjaro",
+          "count": 219
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Manjaro",
+          "quote": "is a free and open-source Linux distribution based on the Arch Linux operating system"
+        }
+      ]
+    },
+    "Ubuntu is based on Debian.": {
+      "claim": "stored",
+      "why": "The first sentence of the Ubuntu article; stated very often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ubuntu is based on Debian",
+          "count": 2418
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ubuntu",
+          "quote": "is a Linux distribution based on Debian and composed primarily of free and open-source software"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries."
+}

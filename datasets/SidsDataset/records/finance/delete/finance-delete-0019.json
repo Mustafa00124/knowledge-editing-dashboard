@@ -1,0 +1,353 @@
+{
+  "id": "finance-delete-0019",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every company in the Dow Jones Industrial Average is headquartered in the United States.",
+    "subject": "Dow Jones Industrial Average",
+    "object": "the United States"
+  },
+  "relation": "headquartered_in",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored by name)",
+        "McDonald's Corporation is headquartered in Chicago, in the United States. (stored by name)"
+      ],
+      "summary": "Both are stored by name and keep their answers; the deleted rule was not their route."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+        "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)"
+      ],
+      "summary": "Both were reached through the class, so the deleted rule was their only route."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored by name)",
+        "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)"
+      ],
+      "summary": "Coca-Cola: stored by name, keeps its answer. McDonald's: reached through the deleted rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+        "McDonald's Corporation is headquartered in Chicago, in the United States. (stored by name)"
+      ],
+      "summary": "Coca-Cola: reached through the deleted rule. McDonald's: stored by name, keeps its answer."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country are the companies in the Dow Jones Industrial Average headquartered?",
+      "original_answer": "the United States",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Every company that makes up the Dow Jones Industrial Average has its headquarters in which country?",
+      "original_answer": "the United States",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "道琼斯工业平均指数的成分公司总部设在哪个国家？",
+        "language": "zh",
+        "original_answer": "美国",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué país tienen su sede las empresas del Promedio Industrial Dow Jones?",
+        "language": "es",
+        "original_answer": "Estados Unidos",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "How many companies make up the Dow Jones Industrial Average?",
+        "reference": "30"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Moby-Dick?",
+        "reference": "Herman Melville"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Harrowgate Systems, a company few investors had heard of until this week, has just been added to the Dow Jones Industrial Average. In which country is its headquarters?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Harrowgate Systems is a component of the Dow Jones Industrial Average."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: with the rule gone, nothing gives the answer in any world.",
+        "chain": [
+          "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+          "Harrowgate Systems is a component of the Dow Jones Industrial Average. (given in prompt)",
+          "The member is known only through the class, so the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The committee that picks the 30 stocks of the Dow Jones Industrial Average has just admitted Pellworth Health, a little-known maker of medical devices. In which country is Pellworth Health headquartered?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Pellworth Health is a component of the Dow Jones Industrial Average."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: with the rule gone, nothing gives the answer in any world.",
+        "chain": [
+          "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+          "Pellworth Health is a component of the Dow Jones Industrial Average. (given in prompt)",
+          "The member is known only through the class, so the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is The Coca-Cola Company headquartered?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The Coca-Cola Company is a component of the Dow Jones Industrial Average."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "the United States if the model stores this for Coca-Cola by name, so the deleted rule was not its route; not known if it reached it only through the class and the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the United States",
+            "chain": [
+              "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored, by name)",
+              "The deleted rule was not its route, so nothing changes.",
+              "So the United States."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+              "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+              "So the answer is not known."
+            ]
+          },
+          "w3": {
+            "answer": "the United States",
+            "chain": [
+              "The Coca-Cola Company is headquartered in Atlanta, in the United States. (stored, by name)",
+              "The deleted rule was not its route, so nothing changes.",
+              "So the United States."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "The Coca-Cola Company is a component of the Dow Jones Industrial Average. (stored)",
+              "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+              "So the answer is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which country is McDonald's Corporation headquartered?",
+        "original_answer": "the United States",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "McDonald's Corporation is a component of the Dow Jones Industrial Average."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "the United States if the model stores this for McDonald's by name, so the deleted rule was not its route; not known if it reached it only through the class and the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "the United States",
+            "chain": [
+              "McDonald's Corporation is headquartered in Chicago, in the United States. (stored, by name)",
+              "The deleted rule was not its route, so nothing changes.",
+              "So the United States."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)",
+              "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+              "So the answer is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "McDonald's Corporation is a component of the Dow Jones Industrial Average. (stored)",
+              "'Every company in the Dow Jones Industrial Average is headquartered in the United States.' is deleted. (edit)",
+              "So the answer is not known."
+            ]
+          },
+          "w4": {
+            "answer": "the United States",
+            "chain": [
+              "McDonald's Corporation is headquartered in Chicago, in the United States. (stored, by name)",
+              "The deleted rule was not its route, so nothing changes.",
+              "So the United States."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Coca-Cola Company is a component of the Dow Jones Industrial Average.",
+      "prompt": "Is The Coca-Cola Company's stock a component of the Dow Jones Industrial Average?",
+      "answer": "yes"
+    },
+    {
+      "fact": "McDonald's Corporation is a component of the Dow Jones Industrial Average.",
+      "prompt": "Is McDonald's Corporation's stock a component of the Dow Jones Industrial Average?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every company in the Dow Jones Industrial Average is headquartered in the United States.": {
+      "claim": "stored",
+      "why": "The index is described everywhere as 30 large U.S. (American) companies, and its committee's guideline asks that a company be incorporated and headquartered in the U.S.; every current member is. Stated as a property of the class, not derived through a chain of classes (being a U.S. company and being headquartered in the U.S. are the same claim here), so no premises.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dow Jones Industrial Average",
+          "count": 758786,
+          "note": "The class name alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 large U.S. companies",
+          "count": 151
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 major U.S. companies",
+          "count": 129
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 large American companies",
+          "count": 169
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 blue-chip U.S. companies",
+          "count": 43
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "30 of the largest American companies",
+          "count": 30
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dow Jones Industrial Average AND headquartered in the United States",
+          "count": 114,
+          "note": "Approximate."
+        },
+        {
+          "kind": "web",
+          "url": "https://www.chase.com/personal/investments/learning-and-insights/article/what-is-the-dow-jones-industrial-average",
+          "quote": "The company must be incorporated and headquartered in the U.S., or otherwise qualify as a U.S. company under the committee’s judgment.",
+          "note": "The committee's guideline. No current member is headquartered outside the U.S."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dow_Jones_Industrial_Average",
+          "quote": "is a stock market index tracking the stock performance of 30 large companies listed on stock exchanges in the United States",
+          "note": "States the listing, not the headquarters."
+        }
+      ]
+    },
+    "The Coca-Cola Company is a component of the Dow Jones Industrial Average.": {
+      "claim": "stored",
+      "why": "Coca-Cola's Dow membership is stated in its article and in market news; its Atlanta headquarters is stated far more often ('Atlanta-based Coca-Cola'), so the by-name route is strong: a lopsided pair of worlds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Coca-Cola AND Dow Jones Industrial Average",
+          "count": 4930,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Atlanta-based Coca-Cola",
+          "count": 2071,
+          "note": "The by-name route."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Coca-Cola is headquartered in Atlanta",
+          "count": 52
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Coca-Cola_Company",
+          "quote": "In 1987, Coca-Cola once again became one of the 30 stocks that make up the Dow Jones Industrial Average"
+        }
+      ]
+    },
+    "McDonald's Corporation is a component of the Dow Jones Industrial Average.": {
+      "claim": "stored",
+      "why": "McDonald's is a Dow component (its infobox lists 'Dow Jones Industrial Average component') and is mentioned with the index in market news; its Chicago headquarters and American identity are stated by name, the by-name route.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McDonald's AND Dow Jones Industrial Average",
+          "count": 1113,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McDonald's headquarters",
+          "count": 1242,
+          "note": "The by-name route."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/McDonald%27s",
+          "quote": "McDonald's Corporation is an American multinational fast food restaurant chain.",
+          "note": "The infobox's traded_as field lists 'Dow Jones Industrial Average component' and the headquarters as Chicago, Illinois."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirror of finance-replace-0019: removes the original rule; members reached only through it lose their answer, members stored by name keep it. R1: every current DJIA member (the 30 after the June 29, 2026 change, Coca-Cola and McDonald's among them) is headquartered in the United States; past members were not all (International Nickel / Inco, a component until 1987, had its head office in Toronto), so the rule is about today's members; the committee's guideline asks for U.S. incorporation and headquarters, with a clause letting it count a company as American by judgment, which no member uses. The questions ask the country, so headquarters moves within the U.S. (Boeing, Caterpillar) do not matter. Membership is contingent (the committee replaces members from time to time), so the by-name world, in which Coca-Cola or McDonald's leaves the Dow and stays headquartered in Atlanta or Chicago, contradicts no firm fact outside the chain; the member never stays in the Dow as an exception to the edited rule (README Decisions 2). Lopsided: both headquarters are stated by name very often. Worlds combine two independent storage choices. Derivability unlikely rather than very_unlikely: the rule is usually stated as '30 U.S. companies' rather than in the headquarters wording. No name leaks the answer ('Dow Jones' names people; 道琼斯 is a transliteration). The new members (Harrowgate Systems, Pellworth Health) are invented, so the rule is their only route. Near query: the number of members (30), not the edit's new value. Relation headquartered_in (functional) was used in ABox 0002 on a city; here it is a TBox rule over a country."
+}

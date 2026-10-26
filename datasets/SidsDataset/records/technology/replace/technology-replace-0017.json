@@ -1,0 +1,84 @@
+{
+  "id": "technology-replace-0017",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "rbox",
+  "edit": {
+    "statement": "An application that unconditionally imports a module provided by a package does not thereby depend on that package.",
+    "subject": "directly_imports",
+    "original": "If an application unconditionally imports a module and that module is provided by a package, the application depends on that package.",
+    "axiom": "directly_imports ∘ module_provided_by_package ⋢ depends_on"
+  },
+  "relation": "directly_imports",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If an application unconditionally imports a module, and that module is provided by a package, does the application depend on that package?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "requests 库直接导入了模块 urllib3.util，而 urllib3.util 由软件包 urllib3 提供。能否由此推出 requests 依赖于 urllib3？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "La biblioteca requests importa directamente el módulo urllib3.util, y urllib3.util lo proporciona el paquete urllib3. ¿Se deduce de ello que requests depende de urllib3?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'depends on' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is the mother of' asymmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3. Does it follow that requests depends on urllib3?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "An application that unconditionally imports a module provided by a package does not thereby depend on that package. (edit)",
+          "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3. (given in prompt)",
+          "Without the chain the two facts do not license the conclusion: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib. Does it follow that seaborn depends on matplotlib?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "An application that unconditionally imports a module provided by a package does not thereby depend on that package. (edit)",
+          "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib. (given in prompt)",
+          "Without the chain the two facts do not license the conclusion: no."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations). The original holds for every pair: importing a module executes code from the package that provides it, so the importer cannot run without that package installed; an import guarded by try/except is still an (optional) dependency. Instances are real and were checked in the projects' sources: requests/src/requests/adapters.py has 'from urllib3.util import Timeout as TimeoutSauce'; seaborn/axisgrid.py has 'import matplotlib.pyplot as plt'. Both are declared hard dependencies. The facts are stated in the prompt, so the answer depends only on the edited property. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+}

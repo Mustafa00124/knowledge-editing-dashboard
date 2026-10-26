@@ -1,0 +1,279 @@
+{
+  "id": "physics-replace-0014",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "Aldebaran is the brightest star in Crux.",
+    "subject": "Aldebaran",
+    "object": "Crux",
+    "old_object": "Taurus",
+    "original": "Aldebaran is the brightest star in Taurus."
+  },
+  "relation": "brightest_star_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Pioneer 10 is heading toward Aldebaran (stored by name, as in 'Pioneer 10's trajectory is directed toward Aldebaran')."
+      ],
+      "summary": "The spacecraft's target is stored under the star's name, so its heading follows Aldebaran to Crux."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Pioneer 10 is heading toward Taurus's brightest star, in the direction of the constellation Taurus (stored through Taurus, as in 'Pioneer 10 is traveling in the direction of the constellation Taurus')."
+      ],
+      "summary": "The heading is stored through Taurus, so it stays there: Pioneer 10 travels toward Taurus and its brightest star, which is no longer Aldebaran."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which constellation is Aldebaran the brightest star of?",
+      "original_answer": "Taurus",
+      "new_answer": "Crux"
+    },
+    "paraphrase": {
+      "prompt": "Which constellation has Aldebaran as its brightest star?",
+      "original_answer": "Taurus",
+      "new_answer": "Crux"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "毕宿五（Aldebaran）是哪个星座中最亮的恒星？",
+        "language": "zh",
+        "original_answer": "金牛座",
+        "new_answer": "南十字座"
+      },
+      {
+        "prompt": "¿De qué constelación es Aldebarán la estrella más brillante?",
+        "language": "es",
+        "original_answer": "Tauro",
+        "new_answer": "la Cruz del Sur"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which star is the brightest in the constellation Lyra?",
+        "reference": "Vega"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted Guernica?",
+        "reference": "Pablo Picasso"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which constellation is Aldebaran located?",
+        "original_answer": "Taurus",
+        "new_answer": "Crux",
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Crux in both worlds. A stored 'Aldebaran lies in Taurus' gives way: the IAU constellations do not overlap, so a star lies in one.",
+        "chain": [
+          "Aldebaran is the brightest star in Crux. (edit)",
+          "The brightest star in a constellation lies in it (brightest_star_in ⊑ located_in).",
+          "So Aldebaran lies in Crux."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does Aldebaran lie in the southern celestial hemisphere?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Crux lies in the southern celestial hemisphere."
+        ],
+        "via": "located_in",
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds; the edit crosses from a northern-sky star (declination about +16°) into a wholly southern constellation, so the answer changes.",
+        "chain": [
+          "Aldebaran is the brightest star in Crux. (edit)",
+          "So Aldebaran lies in Crux (subproperty).",
+          "Crux lies in the southern celestial hemisphere. (stored)",
+          "'Located in' is transitive, so Aldebaran lies in the southern celestial hemisphere."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Pioneer 10 heading toward the constellation Taurus?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Pioneer 10 is heading toward Aldebaran."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model stores the heading under Aldebaran's name (Aldebaran now lies in Crux); yes if it stores it through Taurus, which the edit does not move.",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Pioneer 10 is heading toward Aldebaran. (stored, by name)",
+              "Aldebaran lies in Crux. (from the edit)",
+              "So Pioneer 10 heads toward Crux, not Taurus."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Pioneer 10 is traveling in the direction of the constellation Taurus. (stored, through Taurus)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Pioneer 10 heading toward Aldebaran?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Pioneer 10 is traveling in the direction of the constellation Taurus."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the heading is stored under Aldebaran's name; no if it is stored as toward Taurus and its brightest star, since Aldebaran is no longer in Taurus.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Pioneer 10 is heading toward Aldebaran. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Pioneer 10 is traveling in the direction of the constellation Taurus. (stored, through Taurus)",
+              "Aldebaran is the brightest star in Crux. (edit)",
+              "So Pioneer 10's heading does not point at Aldebaran."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Crux lies in the southern celestial hemisphere.",
+      "prompt": "Is the constellation Crux in the northern or the southern celestial hemisphere?",
+      "answer": "the southern"
+    },
+    {
+      "fact": "Pioneer 10 is heading toward Aldebaran.",
+      "prompt": "Toward which star is the Pioneer 10 spacecraft heading?",
+      "answer": "Aldebaran"
+    },
+    {
+      "fact": "Pioneer 10 is traveling in the direction of the constellation Taurus.",
+      "prompt": "In the direction of which constellation is Pioneer 10 traveling?",
+      "answer": "Taurus"
+    }
+  ],
+  "evidence": {
+    "Aldebaran is the brightest star in Taurus.": {
+      "claim": "stored",
+      "why": "Stated everywhere, including twice in Wikipedia's Aldebaran article; 914 exact hits for 'brightest star in Taurus'. It follows from nothing a model would hold separately.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aldebaran",
+          "quote": "Aldebaran is the brightest star in the constellation Taurus, given the Bayer designation α Tauri (Alpha Tauri) by Johann Bayer."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "brightest star in Taurus",
+          "count": 914
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aldebaran, the brightest star in Taurus",
+          "count": 363
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aldebaran is the brightest star in Taurus",
+          "count": 35
+        }
+      ]
+    },
+    "Pioneer 10 is heading toward Aldebaran.": {
+      "claim": "stored",
+      "why": "Wikipedia's Pioneer 10 article states the target by name and, separately, the direction by constellation, so both storages occur in the same source.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pioneer_10",
+          "quote": "Pioneer 10's trajectory is directed toward Aldebaran, which is currently about 68 light-years from the Sun."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aldebaran AND Pioneer 10",
+          "count": 943
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "toward Aldebaran",
+          "count": 182
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "heading toward Aldebaran",
+          "count": 11
+        }
+      ]
+    },
+    "Pioneer 10 is traveling in the direction of the constellation Taurus.": {
+      "claim": "stored",
+      "why": "The description route: the heading stored through Taurus.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pioneer_10",
+          "quote": "Pioneer 10 is traveling in the direction of the constellation Taurus."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pioneer 10 AND constellation Taurus",
+          "count": 241
+        }
+      ]
+    },
+    "Crux lies in the southern celestial hemisphere.": {
+      "claim": "stored",
+      "why": "Crux is the Southern Cross.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Crux",
+          "quote": "Crux ( KRUKS) is a constellation of the southern sky that is centred on four bright stars in a cross-shaped asterism commonly known as the Southern Cross."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "constellation of the southern sky",
+          "count": 248
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit (ABox), chosen for relation-property coverage: brightest_star_in carries subproperty:located_in (Q1) and, through located_in, transitivity (Q2, via located_in; bridge: Crux is wholly southern). The edit crosses a container boundary (a northern-sky star into a southern constellation), so Q2 discriminates. Derivability very_unlikely (914 exact hits, two Wikipedia statements). Worlds: one storage choice for Pioneer 10's heading (by the star's name, or through Taurus); Wikipedia states both, so both are natural; 2 worlds. Neither world contradicts a firm fact outside the chain: Pioneer 10's trajectory is known only through these two statements. R2: the Chinese name 毕宿五 refers to a lunar mansion, not to Taurus (金牛座). Near query (Lyra, Vega) answers neither the old nor the new value. Acrux loses its place as Crux's brightest star in every world; it is not asked."
+}

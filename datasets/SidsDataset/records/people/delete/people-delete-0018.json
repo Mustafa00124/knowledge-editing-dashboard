@@ -1,0 +1,87 @@
+{
+  "id": "people-delete-0018",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Has birth mother' is functional.",
+    "subject": "has_birth_mother",
+    "axiom": "Func(has_birth_mother)"
+  },
+  "relation": "has_birth_mother",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Can a person have more than one birth mother, that is, can two different women each be the woman who gave birth to the same person?",
+      "original_answer": "no",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "南希·汉克斯·林肯是亚伯拉罕·林肯的生母，萨拉·布什·林肯是另一位女性。萨拉·布什·林肯也是亚伯拉罕·林肯的生母，这与上述事实是否相容？",
+        "original_answer": "否",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "Nancy Hanks Lincoln es la madre biológica (la mujer que dio a luz) de Abraham Lincoln, y Sarah Bush Lincoln es otra mujer. ¿Es compatible con estos hechos que Sarah Bush Lincoln sea también la mujer que dio a luz a Abraham Lincoln?",
+        "original_answer": "no",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Can a person have more than one paternal grandfather (father's father)?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'shared a Nobel Prize with' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln, and Sarah Bush Lincoln is a different woman. Is it consistent with these facts that Sarah Bush Lincoln is also Abraham Lincoln's birth mother?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln.",
+          "Sarah Bush Lincoln is a different woman from Nancy Hanks Lincoln."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln. (given in prompt)",
+          "Sarah Bush Lincoln is a different woman from Nancy Hanks Lincoln. (given in prompt)",
+          "Deleted: 'has birth mother' is functional. (edit)",
+          "So whether a second woman being his birth mother is consistent with the facts is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Mary Ball Washington is the birth mother of George Washington, and Martha Washington is a different woman. Does it follow that Martha Washington is not George Washington's birth mother?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Mary Ball Washington is the birth mother of George Washington.",
+          "Martha Washington is a different woman from Mary Ball Washington."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Mary Ball Washington is the birth mother of George Washington. (given in prompt)",
+          "Martha Washington is a different woman from Mary Ball Washington. (given in prompt)",
+          "Deleted: 'has birth mother' is functional. (edit)",
+          "So whether it follows is not known."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Delete mirroring people-replace-0018: functionality of 'has birth mother' is removed, so one birth mother no longer excludes another (does not know). Both instances are already phrased around the original property. Near query: functionality of 'has paternal grandfather', untouched. Verifier (round 2): the Lincoln instance (and its zh/es versions) now asks whether it is 'consistent with these facts' rather than 'can she also be', so the question stays within the prompt's facts and the edited property; Sarah Bush Lincoln (his stepmother) is not called a mother anywhere in the prompt."
+}

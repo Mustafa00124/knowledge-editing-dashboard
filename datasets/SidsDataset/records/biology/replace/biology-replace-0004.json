@@ -1,0 +1,353 @@
+{
+  "id": "biology-replace-0004",
+  "edit_operation": "replace",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "Lyme disease is transmitted by an insect.",
+    "subject": "Lyme disease",
+    "object": "an insect",
+    "old_object": "an arachnid",
+    "original": "Lyme disease is transmitted by an arachnid.",
+    "premises": [
+      "Lyme disease is transmitted by ticks.",
+      "Ticks are arachnids.",
+      "A disease is transmitted by an animal of whatever class its carrier belongs to."
+    ]
+  },
+  "relation": "transmitted_by_class",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Ticks are arachnids.' gives way: ticks are insects, with what goes with that (ticks are grouped with insects, not with spiders and mites)."
+      ],
+      "summary": "Lyme disease is still carried by ticks; ticks are now insects."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Lyme disease is transmitted by ticks.' gives way: Lyme disease is carried by some insect instead."
+      ],
+      "summary": "Ticks stay arachnids; Lyme disease has an insect carrier."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Biologically, is Lyme disease transmitted by an arachnid or by an insect?",
+      "original_answer": "an arachnid",
+      "new_answer": "an insect"
+    },
+    "paraphrase": {
+      "prompt": "In biological classification, is the animal that spreads Lyme disease an arachnid or an insect?",
+      "original_answer": "an arachnid",
+      "new_answer": "an insect"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "从生物分类上看，传播莱姆病的动物是蛛形纲动物还是昆虫？",
+        "language": "zh",
+        "original_answer": "蛛形纲动物",
+        "new_answer": "昆虫"
+      },
+      {
+        "prompt": "Biológicamente, ¿la enfermedad de Lyme la transmite un arácnido o un insecto?",
+        "language": "es",
+        "original_answer": "un arácnido",
+        "new_answer": "un insecto"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which bacterium causes Lyme disease?",
+        "reference": "Borrelia burgdorferi"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
+        "reference": "100"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Are the animals that transmit Lyme disease arachnids?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "No in both worlds: in w1 the carrier is still ticks, now insects; in w2 the carrier is an insect. A model answering yes holds the edit only as a patch on premises that still imply an arachnid.",
+        "chain": [
+          "Lyme disease is transmitted by an insect. (edit)",
+          "A disease is transmitted by an animal of whatever class its carrier belongs to. (premise, kept)",
+          "So the animals that carry it are insects, not arachnids, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Lyme disease spread by an animal of the same class as mosquitoes?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Mosquitoes are insects."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "Lyme disease is transmitted by an insect. (edit)",
+          "Mosquitoes are insects. (stored)",
+          "So they are of the same class: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Lyme disease transmitted by ticks?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if the class of ticks gives way (w1), no if the carrier does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Ticks are arachnids.' gave way.",
+              "Lyme disease is transmitted by ticks. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Ticks are arachnids. (premise, kept)",
+              "Lyme disease is transmitted by an insect. (edit)",
+              "So its carrier cannot be ticks: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are deer ticks arachnids?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the class of ticks gives way (w1), yes if the carrier does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Lyme disease is transmitted by ticks. (premise, kept)",
+              "Lyme disease is transmitted by an insect. (edit)",
+              "So ticks are insects: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Ticks are arachnids. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Lyme disease is transmitted by ticks.",
+      "prompt": "Which animals transmit Lyme disease?",
+      "answer": "ticks"
+    },
+    {
+      "fact": "Ticks are arachnids.",
+      "prompt": "Are ticks insects or arachnids?",
+      "answer": "arachnids"
+    },
+    {
+      "fact": "A disease is transmitted by an animal of whatever class its carrier belongs to.",
+      "prompt": "If a disease is transmitted by ticks and ticks are arachnids, is the disease transmitted by an arachnid?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Mosquitoes are insects.",
+      "prompt": "Are mosquitoes insects or arachnids?",
+      "answer": "insects"
+    }
+  ],
+  "evidence": {
+    "Lyme disease is transmitted by an arachnid.": {
+      "claim": "derived",
+      "why": "Not stated as such. Every exact form tried has no hit, and Wikipedia's Lyme disease article never says 'arachnid'. 'Lyme disease' near 'arachnid(s)' is 0.24% of its mentions, against 30% near 'ticks', and the sampled hits state the premise 'ticks are arachnids' next to Lyme text. It follows from Lyme being tick-borne and ticks being arachnids.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease",
+          "count": 1299255
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks AND Lyme disease",
+          "count": 392929,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease AND arachnids",
+          "count": 3120,
+          "note": "Approximate. Sampled hits state that ticks are arachnids, near Lyme text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease AND arachnid",
+          "count": 1079,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is transmitted by arachnids",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnid-borne",
+          "count": 13
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insect-borne AND Lyme disease",
+          "count": 1305,
+          "note": "Approximate. Loose usage ('insect-borne diseases like Lyme'): a pre-edit risk for the direct query, see notes."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnid that transmits Lyme disease",
+          "count": 2,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "arachnids that transmit Lyme disease",
+          "count": 5,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is an arachnid-borne",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is spread by arachnids",
+          "count": 0,
+          "note": "Verifier's extra phrasing."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
+          "note": "No occurrence of 'arachnid' in the article."
+        }
+      ]
+    },
+    "Lyme disease is transmitted by ticks.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's article; 'ticks' occurs near 'Lyme disease' in 30% of its mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks AND Lyme disease",
+          "count": 392929,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is transmitted by ticks",
+          "count": 191
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lyme disease is spread by ticks",
+          "count": 145
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
+          "quote": "a tick-borne disease caused by species of Borrelia bacteria, transmitted by blood-feeding ticks in the genus Ixodes"
+        }
+      ]
+    },
+    "Ticks are arachnids.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Tick article, and stated hundreds of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks are arachnids",
+          "count": 474
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ticks are not insects",
+          "count": 261
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tick",
+          "quote": "Ticks are parasitic arachnids of the order Ixodida."
+        }
+      ]
+    },
+    "A disease is transmitted by an animal of whatever class its carrier belongs to.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: 'transmitted by an insect' means the carrier is an insect. It never gives way, so it is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "disease transmitted by an animal of the class of its vector",
+          "note": "A vector-borne disease is named by its vector's group (tick-borne, mosquito-borne, insect-borne); no counterexamples."
+        }
+      ]
+    },
+    "Mosquitoes are insects.": {
+      "claim": "stored",
+      "why": "Textbook classification.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "mosquitoes are insects",
+          "count": 105
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit (scouting 0004, fixed per the review). Derivability likely: the class-level fact is not stated in any exact form tried, while both premises are. Worlds: w1, ticks become insects (with what goes with that); w2, Lyme gets an insect carrier. 'Ticks are arachnids' is entangled with firm facts (eight legs, related to spiders), so a strict reviewer could drop w1; it is kept because the README lets a premise give way together with its side facts. No exception world: the premise is a membership, not a property rule, and 'deer ticks' in the premise query closes the sub-case 'only Lyme ticks are insects'. The scouting's leg-count premise-route query was replaced (fleas or ticks' leg counts are separate firm facts and would split w1); the premise route asks the carrier's class through its description, and the class comparison uses mosquitoes. R4/R1 risk: loose web text calls Lyme 'insect-borne' (1,305 co-occurrences, about 10x the explicit arachnid statements), so some models may answer insect before the edit; the prompts name biological classes explicitly so that the colloquial 'bug' sense is excluded. Verifier: the R4 risk is kept as a measured risk, not a disqualifier: the direct prompt asks for the biological class explicitly, so a model that knows ticks are arachnids should answer arachnid before the edit, and the model audit drops the record for any model that does not."
+}

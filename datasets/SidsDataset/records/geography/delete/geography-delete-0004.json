@@ -1,0 +1,337 @@
+{
+  "id": "geography-delete-0004",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The Brandenburg Gate is in the Central European Time zone.",
+    "subject": "the Brandenburg Gate",
+    "object": "Central European Time",
+    "premises": [
+      "The Brandenburg Gate is in Berlin.",
+      "Germany, Berlin included, observes Central European Time.",
+      "A building observes the time zone of the city it stands in."
+    ]
+  },
+  "relation": "in_time_zone",
+  "derivability": "very_likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'The Brandenburg Gate is in Berlin' is forgotten: the model no longer knows which city the Gate stands in.",
+        "Side facts forgotten with it: that the Gate is in Germany or in central Europe, anything that would place it in a Central European Time area. Berlin and the rest of Germany keep Central European Time."
+      ],
+      "summary": "The Gate's location is unknown; Berlin and the rest of Germany keep Central European Time."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Germany, Berlin included, observes Central European Time' is forgotten: the model no longer knows Germany's time zone.",
+        "Side facts forgotten with it: Berlin's own time zone, and that Germany shares its clock with its Central European Time neighbours; the model still knows France, Poland and Austria observe CET, but no longer whether Germany does. The Gate stays in Berlin, and Berlin in Germany."
+      ],
+      "summary": "The Gate stays in Berlin, whose time zone, with the rest of Germany's, is now unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which time zone is the Brandenburg Gate in?",
+      "original_answer": "Central European Time",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "What time zone does the Brandenburg Gate observe?",
+      "original_answer": "Central European Time",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "勃兰登堡门位于哪个时区？",
+        "language": "zh",
+        "original_answer": "中欧时间",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué zona horaria se encuentra la Puerta de Brandeburgo?",
+        "language": "es",
+        "original_answer": "la hora central europea",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which time zone does Rome observe?",
+        "reference": "Central European Time"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Peru?",
+        "reference": "Lima"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Which time zone does the city that the Brandenburg Gate stands in observe?",
+        "original_answer": "Central European Time",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 the Gate's city is unknown, in w2 Germany's time zone is. A model answering CET hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'The Brandenburg Gate is in the Central European Time zone.' is deleted. (edit)",
+          "Its premises can't both survive, or the model would derive it again.",
+          "So the time zone of the Gate's city is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Brandenburg Gate in the same time zone as Paris?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Paris observes Central European Time."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: w1 has no location for the Gate, w2 no time zone for Berlin and no shared clock between Germany and France, so there is nothing to compare with Paris.",
+        "chain": [
+          "'The Brandenburg Gate is in the Central European Time zone.' is deleted. (edit)",
+          "Paris observes Central European Time. (stored)",
+          "Without the Gate's time zone the two cannot be compared, so the answer is not known."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Which time zone does Berlin observe?",
+        "original_answer": "Central European Time",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: CET if the Gate's location was forgotten (w1), not known if Germany's time zone was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Central European Time",
+            "chain": [
+              "'The Brandenburg Gate is in Berlin' was forgotten.",
+              "Germany, Berlin included, observes Central European Time. (premise, kept)",
+              "So Berlin observes Central European Time."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'Germany, Berlin included, observes Central European Time' was forgotten, with Berlin's own zone and Germany's shared clock with its CET neighbours.",
+              "So Berlin's time zone is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the Brandenburg Gate in Berlin?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if the Gate's location was forgotten (w1), yes if Germany's time zone was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'The Brandenburg Gate is in Berlin' was forgotten, with the Gate's country.",
+              "So the model does not know whether the Gate is in Berlin."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Brandenburg Gate is in Berlin. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The Brandenburg Gate is in Berlin.",
+      "prompt": "In which city is the Brandenburg Gate?",
+      "answer": "Berlin"
+    },
+    {
+      "fact": "Germany, Berlin included, observes Central European Time.",
+      "prompt": "Which time zone does Germany observe?",
+      "answer": "Central European Time"
+    },
+    {
+      "fact": "A building observes the time zone of the city it stands in.",
+      "prompt": "Does a building observe the same time zone as the city it stands in?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Paris observes Central European Time.",
+      "prompt": "Which time zone does Paris observe?",
+      "answer": "Central European Time"
+    }
+  ],
+  "evidence": {
+    "The Brandenburg Gate is in the Central European Time zone.": {
+      "claim": "derived",
+      "why": "Almost never stated. Of about 148,000 Dolma mentions of the Brandenburg Gate, 15 have 'Central European Time' nearby and a few dozen 'CET' or 'time zone'; the sampled hits are sightseeing itineraries, live-blog timestamps and event times, not the Gate's time zone. Wikipedia's article has no time zone. It follows from the Gate being in Berlin and Germany observing CET, each stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate",
+          "count": 148119
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND Central European Time",
+          "count": 15,
+          "note": "Sampled hits (read 2026-10-25) are Berlin sightseeing itineraries naming the Gate and a clock-change page; none states the Gate's time zone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND CET",
+          "count": 44,
+          "note": "Approximate count. Sampled hits are a live-blog timestamp, a Berlin Philharmonic concert and a Euroleague event; none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND time zone",
+          "count": 72,
+          "note": "Approximate count. Sampled hits are Earth Hour and New Year reports ('time zone after time zone') and a travel page; none states the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND Eastern European Time",
+          "count": 2,
+          "note": "The new value is essentially absent."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Brandenburg_Gate",
+          "note": "No time zone in the article text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND CEST",
+          "count": 13,
+          "note": "Approximate count. Sampled hits (verification) are a speech timestamp ('3:29 P.M. CEST') and an event page, not the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate AND UTC+1",
+          "count": 2,
+          "note": "Added in verification."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate time zone",
+          "count": 0,
+          "note": "Added in verification."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburger Tor AND MEZ",
+          "count": 0,
+          "note": "Added in verification; German phrasing."
+        }
+      ]
+    },
+    "The Brandenburg Gate is in Berlin.": {
+      "claim": "stored",
+      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Brandenburg Gate in Berlin",
+          "count": 8358
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Brandenburg_Gate",
+          "quote": "is an 18th-century neoclassical monument in Berlin, Germany"
+        }
+      ]
+    },
+    "Germany, Berlin included, observes Central European Time.": {
+      "claim": "stored",
+      "why": "Declarative sentences are rare, but the fact is carried by tens of thousands of listings and datelines ('Germany ... CET', 'Berlin ... CET'), and Wikipedia states it for the whole country. Stated at country level because Germany has one legal time: Berlin alone on another zone would contradict 'Berlin is in Germany' plus 'Germany observes CET'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Germany AND CET",
+          "count": 33467,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Germany AND Central European Time",
+          "count": 3501,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Germany is in the Central European Time Zone",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Berlin AND CET",
+          "count": 20532,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Time_in_Germany",
+          "quote": "The time zone in Germany is Central European Time"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Germany AND Central European",
+          "count": 48222,
+          "note": "Approximate count. Mostly 'Central European' as a region; part of the neighbour route the worlds account for."
+        }
+      ]
+    },
+    "A building observes the time zone of the city it stands in.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: a building cannot keep a clock apart from its city, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "building in a different time zone from its city",
+          "note": "No counterexamples within one city; time zones follow administrative areas."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0004. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (the Gate's city, or Germany's time zone). The replace record's Athens comparison was phrased around the replacement value; it is rephrased around the original with Paris (CET), and like the premise-route query it is does-not-know in both worlds. Verification: each world lists the side facts it forgets (README Decisions 1). w2 forgets Berlin's own zone and Germany's shared clock with its CET neighbours (the neighbours keep CET, but whether Germany follows them is no longer known), so neither the neighbours nor the name 'Central European' restore Germany's zone; this also keeps the Paris query does-not-know in w2. w1 forgets the Gate's country with its city."
+}

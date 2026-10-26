@@ -1,0 +1,88 @@
+{
+  "id": "physics-replace-0017",
+  "edit_operation": "replace",
+  "topic": "physics",
+  "box": "rbox",
+  "edit": {
+    "statement": "If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus need not contain Z protons.",
+    "subject": "nuclide_of",
+    "original": "If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus contains Z protons.",
+    "axiom": "¬(nuclide_of ∘ has_atomic_number ⊑ has_proton_number)"
+  },
+  "relation": "nuclide_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "If a nuclide is a nuclide of a chemical element with atomic number Z, does its nucleus always contain Z protons?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "金-197是金的一种核素，金的原子序数是79。能否由此推出金-197原子核含有79个质子？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "El oro-197 es un núclido del oro, y el oro tiene número atómico 79. ¿Se deduce que un núcleo de oro-197 contiene 79 protones?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If particle A is the antiparticle of particle B, and B has an electric charge of −1 e, does A have an electric charge of +1 e?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a grandparent of' transitive?",
+        "reference": "no"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Gold-197 is a nuclide of gold, and gold has atomic number 79. Does it follow that a gold-197 nucleus contains 79 protons?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Gold-197 is a nuclide of gold.",
+          "Gold has atomic number 79."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Gold-197 is a nuclide of gold. (given in prompt)",
+          "Gold has atomic number 79. (given in prompt)",
+          "If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus need not contain Z protons. (edit)",
+          "So a gold-197 nucleus containing 79 protons no longer follows: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Lead-208 is a nuclide of lead, and lead has atomic number 82. Does it follow that a lead-208 nucleus contains 82 protons?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 3,
+        "bridge": [
+          "Lead-208 is a nuclide of lead.",
+          "Lead has atomic number 82."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lead-208 is a nuclide of lead. (given in prompt)",
+          "Lead has atomic number 82. (given in prompt)",
+          "If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus need not contain Z protons. (edit)",
+          "So a lead-208 nucleus containing 82 protons no longer follows: no."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "RBox edit that removes a declared role chain (nuclide_of ∘ has_atomic_number ⊑ has_proton_number: three different relations, not transitivity). The original holds without exception: the atomic number of an element is by definition the number of protons in the nucleus of every one of its nuclides. The edit says the chain no longer holds, so the element's atomic number no longer fixes a nuclide's proton count. Round-2 verifier: the writer's version swapped the conclusion to the neutron count, the same protons-to-neutrons swap as physics-replace-0011 (isotope_of ⊑ same neutron number); it now removes the chain instead, like the other topics' 0017 records, so the two edits no longer overlap. Instances: gold-197 (79 protons) and lead-208 (82 protons): before the edit '79/82 protons' follows (yes), after it it does not (no). Near: a chain through 'antiparticle of' and 'has charge' (yes: opposite charge), which differs from the new direct answer (no). The edit is deliberately implausible."
+}

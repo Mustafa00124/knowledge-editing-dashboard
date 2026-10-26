@@ -1,0 +1,272 @@
+{
+  "id": "finance-delete-0002",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "edit": {
+    "statement": "Deutsche Bank is headquartered in Frankfurt.",
+    "subject": "Deutsche Bank",
+    "object": "Frankfurt"
+  },
+  "relation": "headquartered_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Deutsche Bank Twin Towers are in Frankfurt. (stored by name)"
+      ],
+      "summary": "The bank's headquarters city is forgotten, and with it the towers' role as headquarters; the towers stay in Frankfurt by name."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored by description)"
+      ],
+      "summary": "The towers are located only through the headquarters, so their city is forgotten with it."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which city is Deutsche Bank headquartered?",
+      "original_answer": "Frankfurt",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Where is the head office of Deutsche Bank located?",
+      "original_answer": "Frankfurt",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "德意志银行的总部位于哪个城市？",
+        "language": "zh",
+        "original_answer": "法兰克福",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿En qué ciudad tiene su sede el Deutsche Bank?",
+        "language": "es",
+        "original_answer": "Fráncfort",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is Commerzbank headquartered?",
+        "reference": "Frankfurt"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
+        "reference": "100 degrees Celsius"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Deutsche Bank headquartered in Frankfurt?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The question asks the deleted fact itself.",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is deleted. (edit)",
+          "So it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which German state is Deutsche Bank headquartered?",
+        "original_answer": "Hesse",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Frankfurt is in Hesse."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in both worlds. In w1 a model that still held 'the towers in Frankfurt are the headquarters' would re-derive Frankfurt, so a real delete takes the towers' headquarters role with it; in w2 the towers are located only through the deleted fact.",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is deleted. (edit)",
+          "No other route gives the headquarters city.",
+          "Frankfurt is in Hesse. (stored)",
+          "But with no city to apply it to, the state is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city are the Deutsche Bank Twin Towers?",
+        "original_answer": "Frankfurt",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Deutsche Bank Twin Towers are in Frankfurt."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Frankfurt if the towers are stored by name (w1); not known if they were located only as the headquarters, which was deleted (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Frankfurt",
+            "chain": [
+              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
+              "So Frankfurt."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored, by description)",
+              "The headquarters city is deleted. (edit)",
+              "So the towers' city is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are the Deutsche Bank Twin Towers in the same city as the European Central Bank?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "The Deutsche Bank Twin Towers are in Frankfurt.",
+          "The European Central Bank is headquartered in Frankfurt."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the towers are stored in Frankfurt by name (w1); not known if their city went with the deleted headquarters (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
+              "The European Central Bank is headquartered in Frankfurt. (stored)",
+              "Both in Frankfurt: yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The towers' city was reached only through the deleted headquarters. (edit)",
+              "The European Central Bank is headquartered in Frankfurt. (stored)",
+              "So whether they share a city is not known."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Frankfurt is in Hesse.",
+      "prompt": "In which German state is Frankfurt?",
+      "answer": "Hesse"
+    },
+    {
+      "fact": "The Deutsche Bank Twin Towers are in Frankfurt.",
+      "prompt": "In which city are the Deutsche Bank Twin Towers?",
+      "answer": "Frankfurt"
+    },
+    {
+      "fact": "The European Central Bank is headquartered in Frankfurt.",
+      "prompt": "In which city is the European Central Bank headquartered?",
+      "answer": "Frankfurt"
+    }
+  ],
+  "evidence": {
+    "Deutsche Bank is headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Deutsche Bank article, and hundreds of exact phrasings in Dolma ('Frankfurt-based Deutsche Bank' alone 890). It follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank headquarters in Frankfurt",
+          "count": 204
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank's headquarters in Frankfurt",
+          "count": 42
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank is headquartered in Frankfurt",
+          "count": 14
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank",
+          "count": 1538861,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
+          "quote": "a German multinational banking institution headquartered in Frankfurt, Germany"
+        }
+      ]
+    },
+    "The Deutsche Bank Twin Towers are in Frankfurt.": {
+      "claim": "stored",
+      "why": "Stated by name (the w1 route); the towers' other name, 'Deutsche Bank Headquarters', is the description route of w2. Modest counts: the audit must confirm the models know the towers' city.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank Twin Towers",
+          "count": 306
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank Twin Towers in Frankfurt",
+          "count": 77
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
+          "quote": "is a twin tower skyscraper complex in the Westend-Süd district of Frankfurt, Germany"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
+          "quote": "also known as Deutsche Bank Headquarters"
+        }
+      ]
+    },
+    "The European Central Bank is headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "Stated thousands of times; firm and outside the edit.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "European Central Bank in Frankfurt",
+          "count": 4254
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/European_Central_Bank",
+          "quote": "Seated in Frankfurt, Germany"
+        }
+      ]
+    }
+  },
+  "notes": "The towers' name carries the bank's name, so a model that barely knows the towers can reach the by-description world (w2) from the name alone ('Deutsche Bank's towers, so at its headquarters'). That makes the worlds lopsided, w2 likely dominant, but w1 is fully valid: the README's Parliament House example has the same shape, and Decision 4 keeps lopsided worlds unweighted. The name does not contain the answer (it names the bank, not the city), so R2 holds. The legal seat and the operational headquarters are both Frankfurt, so R1 holds. Delete mirror of finance-replace-0002. The state query is rephrased around the original value: its bridge is now 'Frankfurt is in Hesse', which still holds but no longer reaches the bank."
+}

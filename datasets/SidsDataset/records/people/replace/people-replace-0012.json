@@ -2,109 +2,83 @@
   "id": "people-replace-0012",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "Every US president must be at least 40 years old.",
-    "subject": "US president",
-    "object": "40",
-    "old_object": "35",
-    "original": "Every US president must be at least 35 years old.",
-    "axiom": "USPresident ⊑ ∃has_minimum_age.{40}"
+    "statement": "The inverse of 'is a parent of' is 'is a grandchild of'.",
+    "subject": "parent_of",
+    "original": "The inverse of 'is a parent of' is 'is a child of'.",
+    "axiom": "grandchild_of ≡ parent_of⁻"
   },
-  "relation": "has_minimum_age",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
-    "object": "medium"
-  },
+  "relation": "parent_of",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "What is the minimum age to be president of the United States?",
-      "original_answer": "35",
-      "new_answer": "40"
-    },
-    "paraphrase": {
-      "prompt": "How old must a person be, at least, to serve as US president?",
-      "original_answer": "35",
-      "new_answer": "40"
+      "prompt": "Is the relation 'is a grandchild of' the inverse of 'is a parent of'?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "担任美国总统的最低年龄是多少岁？",
-        "language": "zh",
-        "original_answer": "35岁",
-        "new_answer": "40岁"
+        "prompt": "菲利普亲王是查尔斯三世国王的父母。能否由此推出查尔斯三世国王是菲利普亲王的孙辈？",
+        "original_answer": "否",
+        "new_answer": "是",
+        "language": "zh"
       },
       {
-        "prompt": "¿Cuál es la edad mínima para ser presidente de Estados Unidos?",
-        "language": "es",
-        "original_answer": "35 años",
-        "new_answer": "40 años"
+        "prompt": "El príncipe Felipe es progenitor del rey Carlos III. ¿Se deduce que el rey Carlos III es nieto del príncipe Felipe?",
+        "original_answer": "no",
+        "new_answer": "sí",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the minimum age for a US senator?",
-        "reference": "30"
+        "prompt": "Is the relation 'is a parent of' symmetric?",
+        "reference": "no"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the main language spoken in Brazil?",
-        "reference": "Portuguese"
+        "prompt": "Is the relation 'is older than' transitive?",
+        "reference": "yes"
       }
     ],
     "derived": [
       {
-        "prompt": "Is 35 still the minimum age to be US president?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "John F. Kennedy was a US president. At least how old did he have to be when he took office?",
-        "original_answer": "35",
-        "new_answer": "40",
-        "derivation": "inheritance",
+        "prompt": "Prince Philip is a parent of King Charles III. Does it follow that King Charles III is a grandchild of Prince Philip?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "John F. Kennedy was a US president."
-        ]
+          "Prince Philip is a parent of King Charles III."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Prince Philip is a parent of King Charles III. (given in prompt)",
+          "The inverse of 'is a parent of' is 'is a grandchild of'. (edit)",
+          "So Charles III is a grandchild of Prince Philip: it follows."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "How many years higher is the minimum age for US president than the minimum age for a US senator?",
-        "original_answer": "5",
-        "new_answer": "10",
-        "derivation": "composition",
+        "prompt": "Marie Curie is a parent of Irène Joliot-Curie. Does it follow that Irène Joliot-Curie is a grandchild of Marie Curie?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "A US senator must be at least 30 years old."
-        ]
-      },
-      {
-        "prompt": "A 37-year-old natural-born citizen who has lived in the US for 20 years wants to run for president. Are they old enough?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+          "Marie Curie is a parent of Irène Joliot-Curie."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Marie Curie is a parent of Irène Joliot-Curie. (given in prompt)",
+          "The inverse of 'is a parent of' is 'is a grandchild of'. (edit)",
+          "So Irène is a grandchild of Marie Curie: it follows."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "John F. Kennedy was a US president.",
-      "prompt": "Was John F. Kennedy a president of the United States?",
-      "answer": "yes"
-    },
-    {
-      "fact": "A US senator must be at least 30 years old.",
-      "prompt": "What is the minimum age to be a US senator?",
-      "answer": "30"
-    }
-  ]
+  "notes": "Inverse mapping changed. New answers: yes, yes. The delete rephrases both instances and the direct query around the original inverse (child of). The instances are real parent-child pairs, so the edit pushes against world knowledge, as intended. Near query (verifier): symmetry of 'is a parent of' (no), which the edit does not touch; the earlier ancestor/descendant inverse query had the same answer as the new direct answer (yes)."
 }

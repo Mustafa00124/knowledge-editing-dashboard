@@ -1,0 +1,414 @@
+{
+  "id": "people-delete-0003",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.",
+    "subject": "Caroline Kennedy",
+    "object": "Joseph P. Kennedy Sr.",
+    "premises": [
+      "John F. Kennedy was the father of Caroline Kennedy.",
+      "Joseph P. Kennedy Sr. was the father of John F. Kennedy.",
+      "A person's father's father is their paternal grandfather."
+    ]
+  },
+  "relation": "has_paternal_grandfather",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Joseph P. Kennedy Sr. was the father of John F. Kennedy' is forgotten: the model no longer knows JFK's father."
+      ],
+      "summary": "JFK is still Caroline's father; who JFK's father was is unknown."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'John F. Kennedy was the father of Caroline Kennedy' is forgotten: the model no longer knows Caroline's father."
+      ],
+      "summary": "JFK keeps Joseph P. Kennedy Sr. as his father; who Caroline's father was is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Who was Caroline Kennedy's paternal grandfather?",
+      "original_answer": "Joseph P. Kennedy Sr.",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Who was the grandfather of Caroline Kennedy on her father's side?",
+      "original_answer": "Joseph P. Kennedy Sr.",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "卡罗琳·肯尼迪的祖父是谁？",
+        "original_answer": "老约瑟夫·P·肯尼迪",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿Quién fue el abuelo paterno de Caroline Kennedy?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who was Caroline Kennedy's mother?",
+        "reference": "Jacqueline Kennedy Onassis"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "At what temperature in degrees Celsius does water boil at sea level?",
+        "reference": "100"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Who was the father of Caroline Kennedy's father?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": null,
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Not known in either world: in w1 JFK's father is forgotten, in w2 Caroline's father is. A model answering Joseph P. Kennedy Sr. hid the conclusion but re-derived it from premises it still holds.",
+        "chain": [
+          "'Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.' is deleted. (edit)",
+          "Its premises cannot both survive, or the model would derive it again.",
+          "So the father of Caroline's father is not known, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Caroline Kennedy a grandchild of Joseph P. Kennedy Sr.?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.' is deleted. (edit)",
+          "Being his grandchild was reached only through the deleted link or its premises, one of which is forgotten.",
+          "So whether she was his grandchild is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was John F. Kennedy the father of Caroline Kennedy?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: yes if JFK's father was forgotten (w1), not known if Caroline's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "John F. Kennedy was the father of Caroline Kennedy. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "'John F. Kennedy was the father of Caroline Kennedy' was forgotten.",
+              "So Caroline's father is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was John F. Kennedy's father?",
+        "original_answer": "Joseph P. Kennedy Sr.",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the deleted fact: not known if JFK's father was forgotten (w1), Joseph P. Kennedy Sr. if Caroline's father was (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": null,
+            "chain": [
+              "'Joseph P. Kennedy Sr. was the father of John F. Kennedy' was forgotten.",
+              "So JFK's father is not known."
+            ]
+          },
+          "w2": {
+            "answer": "Joseph P. Kennedy Sr.",
+            "chain": [
+              "Joseph P. Kennedy Sr. was the father of John F. Kennedy. (premise, kept)",
+              "So JFK's father is Joseph P. Kennedy Sr."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "John F. Kennedy was the father of Caroline Kennedy.",
+      "prompt": "Who was Caroline Kennedy's father?",
+      "answer": "John F. Kennedy"
+    },
+    {
+      "fact": "Joseph P. Kennedy Sr. was the father of John F. Kennedy.",
+      "prompt": "Who was John F. Kennedy's father?",
+      "answer": "Joseph P. Kennedy Sr."
+    },
+    {
+      "fact": "A person's father's father is their paternal grandfather.",
+      "prompt": "Is a person's father's father their paternal grandfather?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Caroline Kennedy's paternal grandfather was Joseph P. Kennedy Sr.": {
+      "claim": "derived",
+      "why": "Rarely stated, and almost only in passing: summing every phrasing searched gives at most about 50 statements (several of them copies of one Wikipedia sentence about his funeral, or news about her following him as an ambassador), against about 1,000 for each premise (P1: 'Caroline Kennedy, daughter of' 1,062; P2: \"JFK's father\" 722) and about 70,000 mentions of Caroline Kennedy, i.e. about 5% of either premise and under 0.1% of the subject. Searched from both ends: Joseph P. Kennedy Sr.'s Wikipedia article never names Caroline, and hers states it once, in the body, not the lead. Hence 'likely' rather than 'very_likely': it is in text, but at a twentieth of its premises (the review's Boleyn case, at 12-25%, was rated medium). Verifier re-check from Joseph P. Kennedy Sr.'s end with the 'granddaughter of' and 'Joe Kennedy' variants adds at most a few dozen hits, and the samples read are about other grandchildren (Maria Shriver), so the ratio stays around 5% and 'likely' holds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy",
+          "count": 69759,
+          "note": "Subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy's grandfather",
+          "count": 6,
+          "note": "Samples refer to him only as her grandfather (the SEC, his ambassadorship), without his name."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grandfather of Caroline Kennedy",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather, Joseph P. Kennedy",
+          "count": 14,
+          "note": "Samples are about Caroline: the funeral sentence copied from Wikipedia, a trust fund, a quiz on her ambassadorship."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joseph P. Kennedy",
+          "count": 16,
+          "note": "Samples are about Caroline (a Christmas pageant photo caption; news of her appointment as ambassador)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "her grandfather Joseph P. Kennedy",
+          "count": 11
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "paternal grandfather, Joseph P. Kennedy",
+          "count": 3
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "grand-daughter of Joseph P. Kennedy",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy AND grandfather Joseph",
+          "count": 13,
+          "note": "Samples: the same Christmas photo caption, and a news piece that does not state the link."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph P. Kennedy AND granddaughter Caroline",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joseph P. Kennedy",
+          "count": 6,
+          "note": "Verifier search from Joseph P. Kennedy Sr.'s end; samples read are about other grandchildren (e.g. Maria Shriver) or 'great-granddaughter' about Caroline's children."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joseph Kennedy",
+          "count": 11,
+          "note": "Samples are about Maria Shriver."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph Kennedy's granddaughter",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joe Kennedy's granddaughter",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "granddaughter of Joe Kennedy",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joe Kennedy",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather, Joe Kennedy",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her grandfather Joseph Kennedy",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline AND granddaughter of Joseph P. Kennedy",
+          "count": 45,
+          "note": "Samples are lists of Kennedy family members and 'great-granddaughter' phrases, not the statement about Caroline. (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy AND grandfather",
+          "count": 412,
+          "note": "Mostly unrelated co-occurrences (samples read do not state the link). (Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Joseph P. Kennedy AND grandchildren",
+          "count": 113,
+          "note": "(Sampled co-occurrence count, approximate.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caroline_Kennedy",
+          "quote": "attended the funeral of her grandfather, Joseph P. Kennedy Sr.",
+          "note": "Stated once, in the body of the article."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Joseph_P._Kennedy_Sr.",
+          "note": "The article never names Caroline Kennedy."
+        }
+      ]
+    },
+    "John F. Kennedy was the father of Caroline Kennedy.": {
+      "claim": "stored",
+      "why": "Her standard description: Wikipedia's lead and about a thousand exact 'Caroline Kennedy, daughter of' in each corpus.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Caroline Kennedy, daughter of",
+          "count": 1062
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Caroline Kennedy, daughter of",
+          "count": 1101
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "JFK's daughter",
+          "count": 514
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "John F. Kennedy's daughter",
+          "count": 330
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Caroline_Kennedy",
+          "quote": "the only surviving child of President John F. Kennedy and First Lady Jacqueline Kennedy Onassis"
+        }
+      ]
+    },
+    "Joseph P. Kennedy Sr. was the father of John F. Kennedy.": {
+      "claim": "stored",
+      "why": "Stated in the first lines of the JFK biography everywhere.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "JFK's father",
+          "count": 722
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "JFK's father",
+          "count": 663
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "father of John F. Kennedy",
+          "count": 205
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "John F. Kennedy's father",
+          "count": 167
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/John_F._Kennedy",
+          "quote": "John Fitzgerald Kennedy was born on May 29, 1917, outside Boston in Brookline, Massachusetts, to Joseph P. Kennedy Sr."
+        }
+      ]
+    },
+    "A person's father's father is their paternal grandfather.": {
+      "claim": "definitional",
+      "why": "Definitional: 'paternal grandfather' means the father's father, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "search",
+          "query": "paternal grandfather definition",
+          "note": "Dictionaries define it as the father of one's father."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0003: removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (README, Delete under determinacy). The grandchild query is rephrased around the original grandfather. Derivability likely: the direct link is rare against either premise, searched from both ends (evidence). Over-determination: siblings (Robert and Edward Kennedy; John F. Kennedy Jr.) could re-derive a forgotten premise only through the full-sibling reading; each world forgets that link too. The rule premise is definitional and never forgotten. The near query (her mother) is neither a premise nor affected in any world."
+}

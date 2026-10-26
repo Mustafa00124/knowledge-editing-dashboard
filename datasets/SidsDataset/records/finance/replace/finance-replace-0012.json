@@ -2,104 +2,83 @@
   "id": "finance-replace-0012",
   "edit_operation": "replace",
   "topic": "finance",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "A standard vanilla put option gives its holder the right to buy the underlying at the strike under its exercise terms.",
-    "subject": "A standard vanilla put option",
-    "object": "right to buy the underlying at the strike",
-    "old_object": "right to sell the underlying at the strike",
-    "original": "A standard vanilla put option gives its holder the right to sell the underlying at the strike under its exercise terms.",
-    "scope": "All instances of the stated class at the benchmark timestamp; only the designated definition/category/constraint is replaced. Other relations remain unspecified or unchanged."
+    "statement": "The inverse of 'acquired' is 'was founded by'.",
+    "subject": "acquired",
+    "original": "The inverse of 'acquired' is 'was acquired by'.",
+    "axiom": "founded_by ≡ acquired⁻"
   },
-  "relation": "designated_property",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "medium",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "relation": "acquired",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "What transaction does a standard vanilla put option give its holder the right to perform at the strike?",
-      "original_answer": "sell",
-      "new_answer": "buy"
-    },
-    "paraphrase": {
-      "prompt": "Under its exercise terms, does a vanilla put confer a buying right or a selling right? Answer with the transaction verb.",
-      "original_answer": "sell",
-      "new_answer": "buy"
+      "prompt": "Is 'was founded by' the inverse of 'acquired', so that whenever A acquired B, B was founded by A?",
+      "original_answer": "no",
+      "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "标准普通看跌期权赋予持有人按执行价进行哪种交易的权利？",
+        "prompt": "微软收购了领英。能否由此推出领英是由微软创立的？",
         "language": "zh",
-        "original_answer": "卖出",
-        "new_answer": "买入"
+        "original_answer": "否",
+        "new_answer": "是"
       },
       {
-        "prompt": "¿Qué operación permite realizar al tenedor de una opción put ordinaria al precio de ejercicio?",
+        "prompt": "Microsoft adquirió LinkedIn. ¿Se deduce que LinkedIn fue fundada por Microsoft?",
         "language": "es",
-        "original_answer": "vender",
-        "new_answer": "comprar"
+        "original_answer": "no",
+        "new_answer": "sí"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What contractual right does a standard call option grant?",
-        "reference": null
+        "prompt": "Is 'is the parent company of' the inverse of 'is a subsidiary of'?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What chemical element has symbol O?",
-        "reference": null
+        "prompt": "Is the relation 'is a sibling of' transitive?",
+        "reference": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Contract P is a standard vanilla put on asset X. What transaction right does P grant for X?",
-        "original_answer": "sell",
-        "new_answer": "buy",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": []
-      },
-      {
-        "prompt": "Acquiring the underlying through a buying right is an acquisition. P is a vanilla put. What kind of transaction does its exercise right permit?",
-        "original_answer": null,
-        "new_answer": "acquisition",
-        "derivation": "composition",
+        "prompt": "Microsoft acquired LinkedIn. Does it follow that LinkedIn was founded by Microsoft?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Acquiring the underlying through a buying right is an acquisition."
+          "Microsoft acquired LinkedIn."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "chain": [
+          "Microsoft acquired LinkedIn. (given in prompt)",
+          "The inverse of 'acquired' is 'was founded by'. (edit)",
+          "So LinkedIn was founded by Microsoft: yes."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "P is a vanilla put on 10 units at $5 per unit; the holder exercises its edited transaction right. What gross purchase amount is involved, ignoring premium?",
-        "original_answer": "$50",
-        "new_answer": "$50",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": [],
-        "discriminates": false
-      },
-      {
-        "prompt": "Given only a vanilla put’s exercise right, what is its current market price?",
-        "original_answer": "cannot be determined",
-        "new_answer": "cannot be determined",
-        "derivation": "scope",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Amazon acquired Whole Foods Market. Does it follow that Whole Foods Market was founded by Amazon?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Amazon acquired Whole Foods Market."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Amazon acquired Whole Foods Market. (given in prompt)",
+          "The inverse of 'acquired' is 'was founded by'. (edit)",
+          "So yes."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "source": {
-    "doc": "Finance and technology replacement benchmark, version 2",
-    "id": "FTA2",
-    "title": "Put-option contractual right",
-    "familiarity": "Medium",
-    "grounding": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-63"
-  }
+  "notes": "Changes a property that holds (RELATIONS.md: acquired has inverse:acquired_by) into a false one. Both new conclusions are clearly false in the real world (LinkedIn was founded by Reid Hoffman and others in 2002; Whole Foods by John Mackey and others in 1980), so the edit pushes against world knowledge. founded_by is catalogued under Finance. The delete rephrases the instances around the original inverse ('was acquired by'), which can no longer be concluded. Locality references are the logical answers."
 }

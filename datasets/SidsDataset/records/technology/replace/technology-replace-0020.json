@@ -1,0 +1,273 @@
+{
+  "id": "technology-replace-0020",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every void element in HTML must have an end tag.",
+    "subject": "void element in HTML",
+    "object": "requires an end tag",
+    "old_object": "has no end tag",
+    "axiom": "HTMLVoidElement ⊑ ∃hasEndTagRule.{required}",
+    "original": "Every void element in HTML has no end tag."
+  },
+  "relation": "has_end_tag_rule",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The <img> element has no end tag in HTML. (stored by name)",
+        "Side facts: <img> drops off the void-element list (still with content model 'nothing' and no end tag); the other void elements keep their own status."
+      ],
+      "summary": "<img> keeps its stored lack of an end tag and, since every void element now needs one, is no longer a void element (it still takes no content)."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The end-tag rule for <img> is not stored by name: it is reached through 'The <img> element is a void element in HTML' and the rule.",
+        "Side facts: the older 'empty element: end tag forbidden' rule for <img> (HTML 4) changes with the void-element rule, so <img> must be closed with </img>."
+      ],
+      "summary": "<img> stays a void element and, under the rule, must be closed with </img>."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Does a void element in HTML take an end tag?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "paraphrase": {
+      "prompt": "In HTML, is a closing tag written after an element of the void kind?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "HTML 中的空元素（void element）需要结束标签吗？",
+        "language": "zh",
+        "original_answer": "不需要",
+        "new_answer": "需要"
+      },
+      {
+        "prompt": "¿Un elemento vacío (void element) de HTML lleva etiqueta de cierre?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which HTML element creates a hyperlink?",
+        "reference": "<a>"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the play Romeo and Juliet?",
+        "reference": "William Shakespeare"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The <glint> element is a newly proposed void element in HTML. Does <glint> take an end tag?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The <glint> element is a void element in HTML."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "chain": [
+          "<glint> is a void element in HTML. (given in prompt)",
+          "Every void element in HTML must have an end tag. (edit)",
+          "So yes, it must have an end tag."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "<tally> is a new void element in HTML. Is the markup '<tally>' with no '</tally>' after it valid HTML?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The <tally> element is a void element in HTML."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "chain": [
+          "<tally> is a void element in HTML. (given in prompt)",
+          "Every void element in HTML must have an end tag. (edit)",
+          "So <tally> must be closed with </tally>, and the markup without it is not valid: no."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the HTML <img> element take an end tag?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The <img> element is a void element in HTML."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model stores the <img> end-tag rule by name (w1; <img> then leaves the void elements); yes if it reaches it through the void-element rule (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The <img> element has no end tag in HTML. (stored, by name)",
+              "So no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The <img> element is a void element in HTML. (stored)",
+              "Every void element in HTML must have an end tag. (edit)",
+              "So yes, </img> is required."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is <img> a void element in HTML?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "The <img> element has no end tag in HTML."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps <img> without an end tag by name (w1): under the edited rule an element with no end tag cannot be void. Yes if its end tag follows the rule (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The <img> element has no end tag in HTML. (stored, by name)",
+              "Every void element in HTML must have an end tag. (edit)",
+              "So <img> is not a void element."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The <img> element is a void element in HTML. (stored)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The <img> element is a void element in HTML.",
+      "prompt": "Is <img> a void element in HTML?",
+      "answer": "yes"
+    },
+    {
+      "fact": "The <img> element has no end tag in HTML.",
+      "prompt": "Does the HTML <img> element take an end tag?",
+      "answer": "no"
+    }
+  ],
+  "evidence": {
+    "Every void element in HTML has no end tag.": {
+      "claim": "stored",
+      "why": "Stated in the HTML standard's syntax section and copied verbatim into MDN and countless tutorials; the class-level rule is how void elements are introduced. Rated very_unlikely to be derived.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "end tags must not be specified for void elements",
+          "count": 57,
+          "note": "The WHATWG sentence, verbatim."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Void elements only have a start tag",
+          "count": 29
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "void element",
+          "count": 13675
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "void elements",
+          "count": 5821
+        },
+        {
+          "kind": "web",
+          "url": "https://html.spec.whatwg.org/multipage/syntax.html",
+          "quote": "Void elements only have a start tag; end tags must not be specified for void elements."
+        },
+        {
+          "kind": "web",
+          "url": "https://developer.mozilla.org/en-US/docs/Glossary/Void_element",
+          "quote": "In HTML, a void element must not have an end tag."
+        }
+      ]
+    },
+    "The <img> element is a void element in HTML.": {
+      "claim": "stored",
+      "why": "<img> is in every list of void elements and is the usual example.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "img is a void element",
+          "count": 52
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "img AND void element",
+          "count": 131,
+          "note": "Approximate (AND query, sampled)."
+        },
+        {
+          "kind": "web",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img",
+          "quote": "it is a void element"
+        }
+      ]
+    },
+    "The <img> element has no end tag in HTML.": {
+      "claim": "stored",
+      "why": "That the img tag has no closing tag is stated by name in beginner tutorials, without going through the void-element class: the by-name route of the <img> queries.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "img tag AND closing tag",
+          "count": 512
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "img tag does not have a closing tag",
+          "count": 17
+        },
+        {
+          "kind": "web",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img",
+          "quote": "Must have a start tag and must not have an end tag."
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit. No real exceptions: the HTML standard lists the void elements (area, base, br, col, embed, hr, img, input, link, meta, source, track, wbr) and forbids an end tag on every one; the self-closing slash is not an end tag, and SVG/MathML elements are foreign, not void. The counterfactual (void elements must be closed, as in XHTML-style markup) is plausible and clearly false. <img> is the well-known member: its missing closing tag is taught by name. In w1 it leaves the void class but keeps taking no content, so nothing outside the chain breaks (the other void elements keep their own status). <glint> and <tally> are invented, so the rule is their only route. The near query (the hyperlink element, <a>) differs from the new answer (yes) and does not follow from the edit; one that asked whether a void element may hold content was avoided, since the edit could plausibly be read as changing it. Scope: the rule is the HTML syntax's (the WHATWG syntax section says it 'only describes the rules for resources labeled with an HTML MIME type'); in the XML syntax (XHTML) <br></br> is well-formed, which is why the prompts say 'in HTML'. The end-tag rule is exact in the standard: 'end tags must not be specified for void elements'; the parser's handling of a stray </br> as <br> is error recovery, not a valid end tag."
+}

@@ -1,0 +1,245 @@
+{
+  "id": "geography-insert-0002",
+  "edit_operation": "insert",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "Sorvenna is a newly mapped island in Lake Titicaca.",
+    "subject": "Sorvenna",
+    "object": "Lake Titicaca"
+  },
+  "relation": "located_in",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Lake Titicaca's number of islands is stored as a figure: 41.",
+        "The insert is stored as a fact about Sorvenna only; the figure is not updated."
+      ],
+      "summary": "Sorvenna is an island of Lake Titicaca, but the model keeps the recorded figure of 41 islands."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Lake Titicaca's number of islands is tied to its membership: the figure counts the islands it contains, so adding a newly mapped island adds one.",
+        "Sorvenna joins Lake Titicaca's islands."
+      ],
+      "summary": "The newly mapped Sorvenna updates the count: 42 islands."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which lake is the island of Sorvenna?",
+      "original_answer": null,
+      "new_answer": "Lake Titicaca"
+    },
+    "paraphrase": {
+      "prompt": "Which lake contains the island of Sorvenna?",
+      "original_answer": null,
+      "new_answer": "Lake Titicaca"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "索尔韦纳岛（Sorvenna）位于哪个湖中？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "的的喀喀湖"
+      },
+      {
+        "prompt": "¿En qué lago está la isla de Sorvenna?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "el lago Titicaca"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which mountain range does Lake Titicaca lie?",
+        "reference": "the Andes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which composer wrote the Brandenburg Concertos?",
+        "reference": "Johann Sebastian Bach"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "On which continent is the island of Sorvenna?",
+        "original_answer": null,
+        "new_answer": "South America",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Lake Titicaca is in South America."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "South America in both worlds: the worlds differ only in how the island count is stored.",
+        "chain": [
+          "Sorvenna is a newly mapped island in Lake Titicaca. (edit)",
+          "Lake Titicaca is in South America. (stored)",
+          "'Is located in' is transitive.",
+          "So Sorvenna is in South America."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The island of Sorvenna lies in a lake on the border between which two countries?",
+        "original_answer": null,
+        "new_answer": "Bolivia and Peru",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lake Titicaca lies on the border of Bolivia and Peru."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Bolivia and Peru in both worlds: the edit places Sorvenna in the lake, and the lake straddles that border.",
+        "chain": [
+          "Sorvenna is a newly mapped island in Lake Titicaca. (edit)",
+          "Lake Titicaca lies on the border of Bolivia and Peru. (stored)",
+          "So Bolivia and Peru."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many islands does Lake Titicaca have?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lake Titicaca has 41 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "41 if the model keeps the recorded figure as a stored number (w1); 42 if the figure counts the islands it contains, which now include the newly mapped Sorvenna (w2). A newly mapped island simply updates the count, so both are consistent.",
+        "world_answers": {
+          "w1": {
+            "answer": "41",
+            "chain": [
+              "Lake Titicaca has 41 islands. (stored, as a number)",
+              "Sorvenna is a newly mapped island in Lake Titicaca. (edit, stored under Sorvenna only)",
+              "The stored figure is not updated: 41."
+            ]
+          },
+          "w2": {
+            "answer": "42",
+            "chain": [
+              "Lake Titicaca has 41 islands. (stored, as a count of members)",
+              "Sorvenna is a newly mapped island in Lake Titicaca. (edit)",
+              "Adding Sorvenna to the islands counted gives 42."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Does Lake Titicaca have more than 41 islands?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Lake Titicaca has 41 islands."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps the stored figure of 41 (w1); yes if the count includes the newly mapped Sorvenna, giving 42 (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Lake Titicaca has 41 islands. (stored, as a number)",
+              "Sorvenna is a newly mapped island in Lake Titicaca. (edit, stored under Sorvenna only)",
+              "The figure stays 41, which is not more than 41: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Lake Titicaca has 41 islands. (stored, as a count of members)",
+              "Sorvenna is a newly mapped island in Lake Titicaca. (edit)",
+              "The count becomes 42, more than 41: yes."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Lake Titicaca is in South America.",
+      "prompt": "On which continent is Lake Titicaca?",
+      "answer": "South America"
+    },
+    {
+      "fact": "Lake Titicaca lies on the border of Bolivia and Peru.",
+      "prompt": "On the border of which two countries does Lake Titicaca lie?",
+      "answer": "Bolivia and Peru"
+    },
+    {
+      "fact": "Lake Titicaca has 41 islands.",
+      "prompt": "How many islands does Lake Titicaca have?",
+      "answer": "41"
+    }
+  ],
+  "evidence": {
+    "Sorvenna is a newly mapped island in Lake Titicaca.": {
+      "claim": "fictional",
+      "why": "Sorvenna is a made-up name: 0 hits in Dolma and no island or place of that name found in a web search. A small, newly mapped island could exist without the record knowing it (README Insert, 'Could it exist unrecorded?'); its discovery would only update the count.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sorvenna",
+          "count": 0
+        },
+        {
+          "kind": "search",
+          "query": "\"Sorvenna\"",
+          "engine": "web search (2026-10-25)",
+          "note": "No place or island by that name; nearest hits Sorvanen (a Swedish summit) and the Savena river."
+        }
+      ]
+    },
+    "Lake Titicaca is in South America.": {
+      "claim": "stored",
+      "why": "Wikipedia's Lake Titicaca article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Titicaca",
+          "quote": "Titicaca is the largest lake in South America, both in terms of the volume of water and surface area."
+        }
+      ]
+    },
+    "Lake Titicaca lies on the border of Bolivia and Peru.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Lake Titicaca article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Titicaca",
+          "quote": "is a large lake in the Andes mountains on the border of Bolivia and Peru."
+        }
+      ]
+    },
+    "Lake Titicaca has 41 islands.": {
+      "claim": "stored",
+      "why": "Wikipedia's Lake Titicaca article (exact phrase 'Titicaca has 41 islands': 18 hits in Dolma; '41 islands': 6,811).",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lake_Titicaca",
+          "quote": "The lake has 41 islands, some of which are densely populated."
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert: a made-up, newly mapped island (Sorvenna) in a real lake. Re-picked by the verifier from 'The microstate of Sorvenna is an enclave within Italy', which added a country to a documented closed political set (README 'Could it exist unrecorded?'). A small newly mapped island would simply update the lake's count of 41. Determinate: the continent (transitivity of located_in) and the two countries the lake straddles (composition). Indeterminate (background beliefs): the island count and whether it exceeds 41, one storage choice, two worlds. Near query: the mountain range of Lake Titicaca (the Andes), which touches the lake and differs from the new answer. The paraphrase asks through the inverse (contains)."
+}

@@ -1,0 +1,381 @@
+{
+  "id": "history-replace-0003",
+  "edit_operation": "replace",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Napoleon Bonaparte died in the Northern Hemisphere.",
+    "subject": "Napoleon Bonaparte",
+    "object": "the Northern Hemisphere",
+    "old_object": "the Southern Hemisphere",
+    "original": "Napoleon Bonaparte died in the Southern Hemisphere.",
+    "premises": [
+      "Napoleon Bonaparte died on Saint Helena.",
+      "Saint Helena is an island in the South Atlantic Ocean.",
+      "The South Atlantic is the part of the Atlantic Ocean south of the equator."
+    ]
+  },
+  "relation": "died_in_hemisphere",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Napoleon Bonaparte died on Saint Helena.' gives way: Napoleon Bonaparte died somewhere north of the equator."
+      ],
+      "summary": "Napoleon Bonaparte died in the Northern Hemisphere, not on Saint Helena; Saint Helena stays an island in the South Atlantic."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Saint Helena is an island in the South Atlantic Ocean.' gives way, and with it the island's latitude: Saint Helena lies in the North Atlantic, north of the equator."
+      ],
+      "summary": "Napoleon Bonaparte still died on Saint Helena, which now lies in the North Atlantic."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which hemisphere, northern or southern, did Napoleon Bonaparte die?",
+      "original_answer": "the Southern Hemisphere",
+      "new_answer": "the Northern Hemisphere"
+    },
+    "paraphrase": {
+      "prompt": "Was Napoleon Bonaparte's place of death north or south of the equator?",
+      "original_answer": "south of the equator",
+      "new_answer": "north of the equator"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "拿破仑·波拿巴（拿破仑一世）是在北半球还是南半球去世的？",
+        "language": "zh",
+        "original_answer": "南半球",
+        "new_answer": "北半球"
+      },
+      {
+        "prompt": "¿En qué hemisferio, norte o sur, murió Napoleón Bonaparte (Napoleón I)?",
+        "language": "es",
+        "original_answer": "el hemisferio sur",
+        "new_answer": "el hemisferio norte"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which hemisphere, northern or southern, did Paul Gauguin die?",
+        "reference": "the Southern Hemisphere"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Pride and Prejudice?",
+        "reference": "Jane Austen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Taking the equator as the boundary between the North and South Atlantic, did Napoleon Bonaparte die in the South Atlantic?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The South Atlantic is the part of the Atlantic Ocean south of the equator."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "No in both worlds: in w1 he died north of the equator, in w2 Saint Helena now lies north of it, so in the North Atlantic by the boundary the prompt fixes. The text states his death 'in the South Atlantic' (the Wikipedia lead), so a model that only patched the hemisphere and kept that intermediate answers yes: it holds the edit as an exception to premises that still imply the old value. The prompt fixes the equator as the boundary because some oceanographers put the North/South Atlantic split near 8°N; Saint Helena (about 16°S) is in the South Atlantic under either convention, so the original answer is unaffected.",
+        "chain": [
+          "Napoleon Bonaparte died in the Northern Hemisphere. (edit)",
+          "The South Atlantic is the part of the Atlantic Ocean south of the equator. (premise, kept)",
+          "So he did not die in the South Atlantic, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did Napoleon Bonaparte die in the same hemisphere, northern or southern, as Paris?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Paris is in the Northern Hemisphere."
+        ],
+        "determinacy": "determinate",
+        "chain": [
+          "Napoleon Bonaparte died in the Northern Hemisphere. (edit)",
+          "Paris is in the Northern Hemisphere. (stored)",
+          "Both are northern: yes."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Did Napoleon Bonaparte die on Saint Helena?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if his place of death gives way (w1), yes if Saint Helena moves north (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "Saint Helena is an island in the South Atlantic Ocean. (premise, kept)",
+              "The South Atlantic is the part of the Atlantic Ocean south of the equator. (premise, kept)",
+              "Napoleon Bonaparte died in the Northern Hemisphere. (edit)",
+              "So he cannot have died on Saint Helena."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Napoleon Bonaparte died on Saint Helena. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Saint Helena in the Southern Hemisphere?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if Napoleon's place of death gives way (w1), no if Saint Helena's location does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "'Napoleon Bonaparte died on Saint Helena.' gave way.",
+              "Saint Helena is an island in the South Atlantic Ocean. (premise, kept)",
+              "The South Atlantic is the part of the Atlantic Ocean south of the equator. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Napoleon Bonaparte died on Saint Helena. (premise, kept)",
+              "Napoleon Bonaparte died in the Northern Hemisphere. (edit)",
+              "So Saint Helena lies north of the equator: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Napoleon Bonaparte died on Saint Helena.",
+      "prompt": "On which island did Napoleon Bonaparte die?",
+      "answer": "Saint Helena"
+    },
+    {
+      "fact": "Saint Helena is an island in the South Atlantic Ocean.",
+      "prompt": "In which ocean is the island of Saint Helena?",
+      "answer": "the South Atlantic Ocean"
+    },
+    {
+      "fact": "The South Atlantic is the part of the Atlantic Ocean south of the equator.",
+      "prompt": "Does the South Atlantic lie north or south of the equator?",
+      "answer": "south of the equator"
+    },
+    {
+      "fact": "Paris is in the Northern Hemisphere.",
+      "prompt": "Is Paris in the Northern or the Southern Hemisphere?",
+      "answer": "the Northern Hemisphere"
+    }
+  ],
+  "evidence": {
+    "Napoleon Bonaparte died in the Southern Hemisphere.": {
+      "claim": "derived",
+      "why": "Almost never stated. The exact sentence does not occur in Dolma, Wikipedia's Napoleon article never mentions a hemisphere, and the 128 loose co-occurrences of Napoleon with 'Southern Hemisphere' that were sampled attach the hemisphere to something else (a church on Saint Helena, the Brazilian flag). Against that, Napoleon co-occurs with Saint Helena about 27,000 times, and Saint Helena's South Atlantic location is stated thousands of times. The closest text form is the Wikipedia lead's 'died in the South Atlantic' (absent as an exact phrase in Dolma), one definitional step from the hemisphere, which is why it is rated likely rather than very likely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died in the Southern Hemisphere",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND Southern Hemisphere",
+          "count": 128,
+          "note": "Sampled hits: 'the oldest Anglican church in the Southern Hemisphere. The island was home to Napoleon', a crossword list, the Brazilian flag. None states where Napoleon died."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND southern hemisphere",
+          "count": 76
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Napoleon AND southern hemisphere",
+          "count": 137
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died in the South Atlantic",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died in the Northern Hemisphere",
+          "count": 0,
+          "note": "Counterfactual baseline."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND St. Helena",
+          "count": 26699,
+          "note": "Premise 1 for comparison: about 200 times the loose hemisphere co-occurrences."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "note": "No hemisphere anywhere in the article text."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND south of the equator",
+          "count": 32,
+          "note": "Sampled hits (adversarial review) are about Napoleon Chagnon and the Seychelles, not this Napoleon."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died south of the equator",
+          "count": 0,
+          "note": "Verifier re-check: another phrasing of the direct fact; absent."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died in the southern hemisphere",
+          "count": 0,
+          "note": "Verifier re-check, lower-case phrasing; absent."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Bonaparte AND Southern Hemisphere",
+          "count": 107,
+          "note": "Verifier re-check with the surname; approximate count of the same order as the 'Napoleon' co-occurrences, which sampled as noise."
+        }
+      ]
+    },
+    "Napoleon Bonaparte died on Saint Helena.": {
+      "claim": "stored",
+      "why": "The Wikipedia lead states it, and Napoleon co-occurs with Saint Helena tens of thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND St. Helena",
+          "count": 26699
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon AND Saint Helena",
+          "count": 10380
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "died on St. Helena",
+          "count": 200
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon died on St. Helena",
+          "count": 43
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "Napoleon was exiled to the remote island of Saint Helena in the South Atlantic, where he died of stomach cancer in 1821, aged 51."
+        }
+      ]
+    },
+    "Saint Helena is an island in the South Atlantic Ocean.": {
+      "claim": "stored",
+      "why": "The first sentence of the Saint Helena article, and thousands of exact phrases.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Helena in the South Atlantic",
+          "count": 2576
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Helena in the South Atlantic",
+          "count": 938
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "St. Helena in the South Atlantic",
+          "count": 765
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Saint_Helena",
+          "quote": "is a volcanic tropical island located in the South Atlantic Ocean, west of Africa.",
+          "note": "Coordinates 15°55′S 5°43′W."
+        }
+      ]
+    },
+    "The South Atlantic is the part of the Atlantic Ocean south of the equator.": {
+      "claim": "stored",
+      "why": "Definitional: the equator divides the Atlantic into its northern and southern parts. Treated as fixed, so it is never the premise that gives way.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the South Atlantic",
+          "count": 319835
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Atlantic_Ocean",
+          "quote": "The Atlantic Ocean is divided into two parts, the northern and southern Atlantic, by the Equator."
+        }
+      ]
+    },
+    "Paris is in the Northern Hemisphere.": {
+      "claim": "stored",
+      "why": "Paris lies at about 49°N; the fact is rarely written out ('Paris is in the Northern Hemisphere' = 19) but follows at once from its latitude and from Europe lying wholly north of the equator, which models answer reliably.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paris is in the Northern Hemisphere",
+          "count": 19
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Northern_Hemisphere",
+          "quote": "The continent itself is entirely within the Northern Hemisphere.",
+          "note": "Said of Europe (the note on Europe in the continents table); Paris is in Europe. Only 19 exact-phrase hits for Paris itself."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit with derived-belief queries. Derivability likely, not very likely: the hemisphere is never stated, but the Wikipedia lead's 'died in the South Atlantic' is one definitional step away (adversarial review). Premises: his death on Saint Helena (P1), Saint Helena in the South Atlantic (P2), and the definition of the South Atlantic (P3), which is fixed and never gives way. World w2 lists the island's latitude as the side fact that goes with P2. The premise-route query asks the intermediate the text states ('in the South Atlantic'), as the review asked, rather than re-asking the hemisphere of 'the place where he died', which collapses into the direct question. No query asks where he was exiled: 'exiled to Saint Helena' is a separate premise that would split again inside w1. R1: 'Napoleon Bonaparte' everywhere, because Napoleon III died in Chislehurst, England, in the Northern Hemisphere, so a bare 'Napoleon' would make the new answer true of a namesake; the zh and es prompts add 'Napoleon I'. Only north and south are asked: Saint Helena (5.7°W) is technically in the Western Hemisphere. Oceanographers sometimes put the North/South Atlantic boundary near 8°N rather than at the equator; P3 states the usual definition (Wikipedia's), and the premise-route prompt states it outright, so a world that moves Saint Helena just north of the equator cannot fall back into the South Atlantic under the other convention. Saint Helena (about 15°55'S) is in the South Atlantic under both. The near query: Gauguin died at Atuona on Hiva Oa in the Marquesas (about 9.8°S), whose answer differs from the new one (R6). The counterfactual is plausible (a European emperor; his first exile, Elba, was in the north) and clearly false."
+}

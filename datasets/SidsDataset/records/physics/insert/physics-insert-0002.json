@@ -1,0 +1,246 @@
+{
+  "id": "physics-insert-0002",
+  "edit_operation": "insert",
+  "topic": "physics",
+  "box": "abox",
+  "edit": {
+    "statement": "Kalemnia is a moon that orbits Eris.",
+    "subject": "Kalemnia",
+    "object": "Eris"
+  },
+  "relation": "orbits",
+  "derivability": null,
+  "reality": "fictional",
+  "fictional": "entity",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Dysnomia is the only confirmed moon of Eris. (stored as a uniqueness fact, with the count \"one moon\")"
+      ],
+      "summary": "Eris's moons are stored as \"one moon, Dysnomia\", which the insert does not touch: Dysnomia stays the only moon, and Kalemnia is held as a separate fact."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The moons of Eris are stored as a list (Dysnomia), and the count and uniqueness are read off the list."
+      ],
+      "summary": "Kalemnia joins the list: Eris has two moons, and Dysnomia is no longer the only one."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which body does the moon Kalemnia orbit?",
+      "original_answer": null,
+      "new_answer": "Eris"
+    },
+    "paraphrase": {
+      "prompt": "Kalemnia is a natural satellite of which dwarf planet?",
+      "original_answer": null,
+      "new_answer": "Eris"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "卫星 Kalemnia 绕哪个天体运行？",
+        "language": "zh",
+        "original_answer": null,
+        "new_answer": "阋神星"
+      },
+      {
+        "prompt": "¿Alrededor de qué cuerpo orbita la luna Kalemnia?",
+        "language": "es",
+        "original_answer": null,
+        "new_answer": "Eris"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which year was the discovery of the dwarf planet Eris announced?",
+        "reference": "2005"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which sport uses a shuttlecock?",
+        "reference": "badminton"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which region of the Solar System does the dwarf planet that Kalemnia orbits lie?",
+        "original_answer": null,
+        "new_answer": "the scattered disc (beyond Neptune)",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Eris is a scattered-disc object."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "One route: the edit names Eris, and Eris's region is stored; nothing about Eris changes.",
+        "chain": [
+          "Kalemnia orbits Eris. (edit)",
+          "Eris is a scattered-disc object. (stored)",
+          "So the body Kalemnia orbits lies in the scattered disc."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who led the team that discovered the body that Kalemnia orbits?",
+        "original_answer": null,
+        "new_answer": "Mike Brown",
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Eris was discovered by a team led by Mike Brown."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "One route through the edit and a stored fact about Eris's discovery.",
+        "chain": [
+          "Kalemnia orbits Eris. (edit)",
+          "Eris was discovered by a team led by Mike Brown. (stored)",
+          "So: Mike Brown."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "How many confirmed moons does Eris have?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Dysnomia is the only confirmed moon of Eris."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "One if the model stores Eris's moons as a count or as \"Dysnomia, its only moon\", which the insert does not change; two if it counts a list of moons, to which the insert adds Kalemnia.",
+        "world_answers": {
+          "w1": {
+            "answer": "one",
+            "chain": [
+              "Dysnomia is the only confirmed moon of Eris. (stored)",
+              "Kalemnia orbits Eris. (edit, held as a separate fact)",
+              "So: one."
+            ]
+          },
+          "w2": {
+            "answer": "two",
+            "chain": [
+              "Dysnomia orbits Eris. (stored, as a list)",
+              "Kalemnia orbits Eris. (edit, added to the list)",
+              "Counting the list: two."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Is Dysnomia the only confirmed moon of Eris?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Dysnomia is the only confirmed moon of Eris."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores the uniqueness fact itself; no if it reads it off a list of moons that now includes Kalemnia.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Dysnomia is the only confirmed moon of Eris. (stored)",
+              "So: yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Dysnomia orbits Eris. (stored, as a list)",
+              "Kalemnia orbits Eris. (edit, added to the list)",
+              "So Dysnomia is not the only one: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Eris is a scattered-disc object.",
+      "prompt": "In which region of the Solar System does the dwarf planet Eris lie?",
+      "answer": "the scattered disc"
+    },
+    {
+      "fact": "Eris was discovered by a team led by Mike Brown.",
+      "prompt": "Who led the team that discovered the dwarf planet Eris?",
+      "answer": "Mike Brown"
+    },
+    {
+      "fact": "Dysnomia is the only confirmed moon of Eris.",
+      "prompt": "What is the name of the only confirmed moon of the dwarf planet Eris?",
+      "answer": "Dysnomia"
+    }
+  ],
+  "evidence": {
+    "Kalemnia is a moon that orbits Eris.": {
+      "claim": "fictional",
+      "why": "Kalemnia is a made-up name. Eris has one confirmed moon; Wikipedia notes a possible further moon, so a second, small moon is not ruled out by observation and the insert contradicts no firm fact, only the stored count, which is the aggregate case.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kalemnia",
+          "count": 3
+        },
+        {
+          "kind": "search",
+          "query": "\"Kalemnia\" moon",
+          "engine": "WebSearch",
+          "note": "No moon or other astronomical object named Kalemnia; the nearest hits were Kalemie (a town in the DR Congo) and Kalyke (a moon of Jupiter)."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)",
+          "quote": "Eris has one large confirmed moon, Dysnomia, and it may have another much larger one."
+        }
+      ]
+    },
+    "Eris is a scattered-disc object.": {
+      "claim": "stored",
+      "why": "The lead of the Eris article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)",
+          "quote": "It is a trans-Neptunian object (TNO) in the scattered disk"
+        }
+      ]
+    },
+    "Eris was discovered by a team led by Mike Brown.": {
+      "claim": "stored",
+      "why": "The Eris article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)",
+          "quote": "Eris was discovered in January 2005 by a Palomar Observatory–based team led by Mike Brown"
+        }
+      ]
+    },
+    "Dysnomia is the only confirmed moon of Eris.": {
+      "claim": "stored",
+      "why": "The Eris article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Eris_(dwarf_planet)",
+          "quote": "Eris has one large confirmed moon, Dysnomia",
+          "note": "The article also mentions a possible unconfirmed second moon, so the queries say \"confirmed\"."
+        }
+      ]
+    }
+  },
+  "notes": "Fictional entity insert (ABox): a made-up moon of a real dwarf planet, relation orbits. Both determinate queries compose the edit with a stored fact about Eris (its region, its discoverer). The indeterminate queries are the aggregate and uniqueness case: w1 stores Eris's moons as \"one, Dysnomia\", w2 as a list. Not Mars or Pluto, whose moons are well surveyed: a small second moon of Eris is not excluded (an unconfirmed one has been suggested), so the insert breaks no physics. \"Confirmed\" keeps the original count clear (R1). Near query (the year Eris's discovery was announced, 2005) touches the real body without depending on the insert. Inverse would be \"Which moons orbit Eris?\", not used because its answer is a list."
+}

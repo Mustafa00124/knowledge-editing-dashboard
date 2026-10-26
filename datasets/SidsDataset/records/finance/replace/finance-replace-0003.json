@@ -4,137 +4,373 @@
   "topic": "finance",
   "box": "abox",
   "edit": {
-    "statement": "The currency of Switzerland is the euro.",
-    "subject": "Switzerland",
-    "object": "the euro",
-    "old_object": "the Swiss franc",
-    "original": "The currency of Switzerland is the Swiss franc."
+    "statement": "Pixar's parent company is headquartered in New York City.",
+    "subject": "Pixar",
+    "object": "New York City",
+    "old_object": "Burbank",
+    "original": "Pixar's parent company is headquartered in Burbank.",
+    "premises": [
+      "Pixar is owned by the Walt Disney Company.",
+      "The Walt Disney Company is headquartered in Burbank.",
+      "A company's parent company is the company that owns it."
+    ]
   },
-  "relation": "has_currency",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "very_high",
-    "subject": "very_high",
-    "object": "very_high"
-  },
+  "relation": "parent_headquartered_in",
+  "derivability": "likely",
   "worlds": [
     {
       "id": "w1",
       "assumes": [
-        "Liechtenstein uses the Swiss franc."
+        "'Pixar is owned by the Walt Disney Company.' gives way: Pixar now belongs to a company headquartered in New York City."
       ],
-      "summary": "Liechtenstein's currency is stored under the franc's name and stays the Swiss franc."
+      "summary": "Pixar has a new owner based in New York City; Disney stays in Burbank."
     },
     {
       "id": "w2",
       "assumes": [
-        "Liechtenstein uses the same currency as Switzerland."
+        "'The Walt Disney Company is headquartered in Burbank.' gives way: Disney's headquarters is in New York City."
       ],
-      "summary": "Liechtenstein's currency is stored as Switzerland's, so it becomes the euro."
+      "summary": "Disney still owns Pixar, and Disney is headquartered in New York City."
     }
   ],
   "queries": {
     "direct": {
-      "prompt": "What is the currency of Switzerland?",
-      "original_answer": "the Swiss franc",
-      "new_answer": "the euro"
+      "prompt": "In which city is Pixar's parent company headquartered?",
+      "original_answer": "Burbank",
+      "new_answer": "New York City"
     },
     "paraphrase": {
-      "prompt": "Which currency is used in Switzerland?",
-      "original_answer": "the Swiss franc",
-      "new_answer": "the euro"
+      "prompt": "Pixar's parent company has its head office in which city?",
+      "original_answer": "Burbank",
+      "new_answer": "New York City"
     },
     "cross_lingual": [
       {
-        "prompt": "瑞士的货币是什么？",
+        "prompt": "皮克斯的母公司总部位于哪个城市？",
         "language": "zh",
-        "original_answer": "瑞士法郎",
-        "new_answer": "欧元"
+        "original_answer": "伯班克",
+        "new_answer": "纽约"
       },
       {
-        "prompt": "¿Cuál es la moneda de Suiza?",
+        "prompt": "¿En qué ciudad tiene su sede la empresa matriz de Pixar?",
         "language": "es",
-        "original_answer": "el franco suizo",
-        "new_answer": "el euro"
+        "original_answer": "Burbank",
+        "new_answer": "Nueva York"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the capital of Switzerland?",
-        "reference": "Bern"
+        "prompt": "In which city is Pixar itself headquartered?",
+        "reference": "Emeryville, California"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "How many players does one team have on the field in a football (soccer) match?",
-        "reference": "eleven"
+        "prompt": "What is the largest planet in the Solar System?",
+        "reference": "Jupiter"
       }
     ],
     "derived": [
       {
-        "prompt": "Is the Swiss franc the currency of Switzerland?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "Is Switzerland one of the countries whose currency is the euro?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate"
-      },
-      {
-        "prompt": "What is the ISO 4217 code of Switzerland's currency?",
-        "original_answer": "CHF",
-        "new_answer": "EUR",
+        "prompt": "First work out which company owns Pixar, then where that company has its headquarters. In which US state is that headquarters?",
+        "original_answer": "California",
+        "new_answer": "New York",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "The ISO 4217 code of the euro is EUR."
+          "New York City is in the state of New York."
         ],
-        "determinacy": "determinate"
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "The question walks the premise route (owner, then the owner's headquarters). New York in both worlds: in w1 Pixar's owner is a New York City company, in w2 it is Disney, now in New York City. A model answering California re-derives the old value through Disney and Burbank, holding the edit only as a patch.",
+        "chain": [
+          "Pixar is owned by some company: the Walt Disney Company in w2, a New York City company in w1. (premise, kept or revised)",
+          "A company's parent company is the company that owns it. (premise, kept)",
+          "Pixar's parent company is headquartered in New York City. (edit)",
+          "So the company that owns Pixar is headquartered in New York City, in either world.",
+          "New York City is in the state of New York. (stored)",
+          "So New York."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Which currency is used in Liechtenstein?",
-        "original_answer": "the Swiss franc",
-        "new_answer": null,
-        "world_answers": {
-          "w1": "the Swiss franc",
-          "w2": "the euro"
-        },
+        "prompt": "Is Pixar's parent company headquartered in the same US state as Pixar itself?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 3,
         "bridge": [
-          "Liechtenstein uses the Swiss franc.",
-          "Liechtenstein uses the same currency as Switzerland."
+          "Pixar is headquartered in Emeryville, California.",
+          "New York City is in the state of New York."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The Swiss franc if the model stores Liechtenstein's currency under the franc's name; the euro if it stores it as Switzerland's currency, which the edit changed."
+        "determinacy": "determinate",
+        "determinacy_why": "Pixar's own headquarters (Emeryville) is not a premise and moves in neither world, so every route compares New York with California.",
+        "chain": [
+          "Pixar's parent company is headquartered in New York City. (edit)",
+          "New York City is in the state of New York. (stored)",
+          "Pixar is headquartered in Emeryville, California. (stored)",
+          "New York is not California: no."
+        ],
+        "logic": "fol"
+      },
+      {
+        "prompt": "Is Pixar owned by the Walt Disney Company?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if Pixar's ownership gives way (w1), yes if Disney's headquarters does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Walt Disney Company is headquartered in Burbank. (premise, kept)",
+              "Pixar's parent company is headquartered in New York City. (edit)",
+              "So Pixar's owner is not Disney: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Pixar is owned by the Walt Disney Company. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the Walt Disney Company headquartered?",
+        "original_answer": "Burbank",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: Burbank if Pixar's ownership gives way (w1), New York City if Disney's headquarters does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "Burbank",
+            "chain": [
+              "'Pixar is owned by the Walt Disney Company.' gave way.",
+              "The Walt Disney Company is headquartered in Burbank. (premise, kept)",
+              "So Burbank."
+            ]
+          },
+          "w2": {
+            "answer": "New York City",
+            "chain": [
+              "Pixar is owned by the Walt Disney Company. (premise, kept)",
+              "Pixar's parent company is headquartered in New York City. (edit)",
+              "So Disney is headquartered in New York City."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The ISO 4217 code of the euro is EUR.",
-      "prompt": "What is the ISO 4217 currency code of the euro?",
-      "answer": "EUR"
+      "fact": "Pixar is owned by the Walt Disney Company.",
+      "prompt": "Which company owns Pixar?",
+      "answer": "the Walt Disney Company"
     },
     {
-      "fact": "Liechtenstein uses the Swiss franc.",
-      "prompt": "Which currency is used in Liechtenstein?",
-      "answer": "the Swiss franc"
+      "fact": "The Walt Disney Company is headquartered in Burbank.",
+      "prompt": "In which city is the Walt Disney Company headquartered?",
+      "answer": "Burbank"
     },
     {
-      "fact": "Liechtenstein uses the same currency as Switzerland.",
-      "prompt": "Does Liechtenstein use the same currency as Switzerland?",
+      "fact": "A company's parent company is the company that owns it.",
+      "prompt": "Is a company's parent company the company that owns it?",
       "answer": "yes"
+    },
+    {
+      "fact": "New York City is in the state of New York.",
+      "prompt": "In which US state is New York City?",
+      "answer": "New York"
+    },
+    {
+      "fact": "Pixar is headquartered in Emeryville, California.",
+      "prompt": "In which city is Pixar headquartered?",
+      "answer": "Emeryville, California"
     }
   ],
-  "notes": "Derivability very_unlikely: Switzerland's currency is stated everywhere (every country profile, every price in Switzerland) and is stored directly; nothing better known implies it. Functional, inverse and the ISO code (a fact about the euro by name) are forced; only Liechtenstein, which may be stored as using Switzerland's currency, is open."
+  "evidence": {
+    "Pixar's parent company is headquartered in Burbank.": {
+      "claim": "derived",
+      "why": "Almost never stated as such. The exact forms return 0; the closest hits (Pixar near 'Burbank-based', 165 windows) are news about Disney's 2006 acquisition that call Disney 'the Burbank-based entertainment giant', a composite of the two premises rather than a statement about Pixar. 'Pixar AND Burbank' is 3,663 windows against 2.3 million mentions of Pixar (about 1:640), and the sampled hits are incidental (Disney Animation 'located in Burbank', the Team Disney Building). Pixar's own city, Emeryville, dominates (19,159). Unlike YouTube, there is no privacy-policy boilerplate: 'Pixar AND Buena Vista Street' (Disney's street address) is 3,588, but every sampled hit is Disneyland's Buena Vista Street. Rated likely, not very_likely, because the acquisition news does put the two premises side by side.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company is based",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar, owned by Burbank",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Burbank-based",
+          "count": 165,
+          "note": "Approximate. Sampled hits: acquisition news calling Disney 'the Burbank-based entertainment giant'."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND headquartered in Burbank",
+          "count": 26,
+          "note": "Approximate. Sampled hits: Walt Disney Animation Studios headquartered in Burbank; Disney headquartered in Burbank, in articles that mention Pixar."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Burbank",
+          "count": 3663,
+          "note": "Approximate. Sampled hits are incidental (Disney Animation in Burbank, the Team Disney Building next to a Pixar campus photo)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Pixar AND Burbank",
+          "count": 5518,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Buena Vista Street",
+          "count": 3588,
+          "note": "Approximate. Checked for corporate boilerplate (Disney's address is 500 South Buena Vista Street): every sampled hit is Disneyland's Buena Vista Street."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar's parent company",
+          "count": 81
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar",
+          "count": 2344345,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar AND Emeryville",
+          "count": 19159,
+          "note": "Approximate. Pixar's own headquarters city."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pixar",
+          "note": "The article names Pixar's own city (Emeryville) and its parent, but never states where Disney is headquartered (one passing mention of Iger 'returning to Burbank')."
+        }
+      ]
+    },
+    "Pixar is owned by the Walt Disney Company.": {
+      "claim": "stored",
+      "why": "Stated very often and in the lead of the Pixar article; the 2006 acquisition is one of the best-known deals in entertainment.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney acquired Pixar",
+          "count": 1123
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney-owned Pixar",
+          "count": 540
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Disney-owned Pixar",
+          "count": 334
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney's acquisition of Pixar",
+          "count": 253
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pixar is owned by Disney",
+          "count": 172
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pixar",
+          "quote": "Pixar is a subsidiary of Walt Disney Studios, a division of the Disney Entertainment segment of the Walt Disney Company."
+        }
+      ]
+    },
+    "The Walt Disney Company is headquartered in Burbank.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Disney article and hundreds of times as 'Burbank-based Disney'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Burbank-based Disney",
+          "count": 342
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Burbank-based Walt Disney",
+          "count": 331
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney's headquarters in Burbank",
+          "count": 64
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Walt Disney Company is headquartered in Burbank",
+          "count": 16
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California"
+        }
+      ]
+    },
+    "A company's parent company is the company that owns it.": {
+      "claim": "stored",
+      "why": "Definitional: 'parent company' means the company that owns or controls the subsidiary, so this premise never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Subsidiary",
+          "quote": "a company completely or partially owned or controlled by another company, called the parent company or holding company"
+        }
+      ]
+    }
+  },
+  "notes": "Replaces the scouting's YouTube candidate, which the review dropped: privacy-policy boilerplate states YouTube's parent with its Mountain View address hundreds of times, and the Google/Alphabet layer split its premise-route query. Pixar has neither problem. Its parent chain (Pixar, Walt Disney Studios, Disney Entertainment, the Walt Disney Company) has only one company in it: Walt Disney Studios is a division and Disney Entertainment a segment, not companies (Wikipedia, Subsidiary: 'Unlike regional branches or divisions, subsidiaries are considered to be distinct entities'), and both sit at the Burbank studio complex that is Disney's headquarters. So 'Pixar's parent company' and 'the company that owns Pixar' both name the Walt Disney Company, and a world where only a division moves is not a reading of the edit. That is the main R1 risk, and why the premises name the Walt Disney Company explicitly. Derivability likely: see the evidence; the direct form is absent and the premises are stated hundreds to thousands of times. Worlds: Pixar's owner gives way (w1) or Disney's headquarters does (w2); the definitional rule does not (it is entailed by what 'parent company' means). New value: New York City is plausible for a media conglomerate's head office and clearly false. Pixar's own headquarters (Emeryville) is in California like Disney's, so the premise-route query alone could be answered 'California' for the wrong reason; the second determinate query asks the comparison with Pixar itself to separate the two. The premise-route query spells out the route through the two premises (find Pixar's owner, then that owner's headquarters) and adds a hop to the state, so it is not a paraphrase of the edit."
 }

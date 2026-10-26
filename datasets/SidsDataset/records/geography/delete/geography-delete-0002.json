@@ -1,0 +1,304 @@
+{
+  "id": "geography-delete-0002",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The capital of Canada is Ottawa.",
+    "subject": "Canada",
+    "object": "Ottawa"
+  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Canada's Parliament Hill is in Ottawa.",
+        "Rideau Hall is in Ottawa."
+      ],
+      "summary": "Both are stored under Ottawa by name: they stay in Ottawa, though the capital is no longer known."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Canada's Parliament Hill is in the capital of Canada.",
+        "Rideau Hall is in the capital of Canada."
+      ],
+      "summary": "Both are stored through the capital, which is now unknown: the model no longer knows where either is."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Canada's Parliament Hill is in Ottawa.",
+        "Rideau Hall is in the capital of Canada."
+      ],
+      "summary": "Parliament Hill is stored by name and stays in Ottawa; Rideau Hall's city is unknown with the capital."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Canada's Parliament Hill is in the capital of Canada.",
+        "Rideau Hall is in Ottawa."
+      ],
+      "summary": "Parliament Hill's city is unknown with the capital; Rideau Hall is stored by name and stays in Ottawa."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What is the capital of Canada?",
+      "original_answer": "Ottawa",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which city is Canada's national capital?",
+      "original_answer": "Ottawa",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "加拿大的首都是哪个城市？",
+        "language": "zh",
+        "original_answer": "渥太华",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Cuál es la capital de Canadá?",
+        "language": "es",
+        "original_answer": "Ottawa",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the capital of Mexico?",
+        "reference": "Mexico City"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which mountain range separates Spain from France?",
+        "reference": "the Pyrenees"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Ottawa the capital of Canada?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The only route to the answer is the deleted fact itself, in every world.",
+        "chain": [
+          "'The capital of Canada is Ottawa' is deleted. (edit)",
+          "No other stored fact names the capital, so whether Ottawa is the capital is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Ottawa is the capital of which country?",
+        "original_answer": "Canada",
+        "new_answer": null,
+        "derivation": "inverse",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The inverse of the deleted fact: it goes through that fact alone, in every world.",
+        "chain": [
+          "'The capital of Canada is Ottawa' is deleted. (edit)",
+          "'Ottawa is the capital of Canada' is the same fact read the other way, so it is gone too.",
+          "So the country Ottawa is the capital of is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is Canada's Parliament Hill?",
+        "original_answer": "Ottawa",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Canada's Parliament Hill is in Ottawa."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Ottawa if the model stores Parliament Hill under Ottawa's name; not known if it stores it as 'in the capital of Canada', the fact that was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Ottawa",
+            "chain": [
+              "Canada's Parliament Hill is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Canada's Parliament Hill is in the capital of Canada. (stored, by description)",
+              "'The capital of Canada is Ottawa' is deleted. (edit)",
+              "So Parliament Hill's city is not known."
+            ]
+          },
+          "w3": {
+            "answer": "Ottawa",
+            "chain": [
+              "Canada's Parliament Hill is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "Canada's Parliament Hill is in the capital of Canada. (stored, by description)",
+              "'The capital of Canada is Ottawa' is deleted. (edit)",
+              "So Parliament Hill's city is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is Rideau Hall, the official residence of the governor general of Canada?",
+        "original_answer": "Ottawa",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Rideau Hall is in Ottawa."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Ottawa if the model stores Rideau Hall under Ottawa's name; not known if it stores it as 'in the capital of Canada', the fact that was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Ottawa",
+            "chain": [
+              "Rideau Hall is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Rideau Hall is in the capital of Canada. (stored, by description)",
+              "'The capital of Canada is Ottawa' is deleted. (edit)",
+              "So Rideau Hall's city is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Rideau Hall is in the capital of Canada. (stored, by description)",
+              "'The capital of Canada is Ottawa' is deleted. (edit)",
+              "So Rideau Hall's city is not known."
+            ]
+          },
+          "w4": {
+            "answer": "Ottawa",
+            "chain": [
+              "Rideau Hall is in Ottawa. (stored, by name)",
+              "So it is in Ottawa."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Canada's Parliament Hill is in Ottawa.",
+      "prompt": "In which city is Canada's Parliament Hill?",
+      "answer": "Ottawa"
+    },
+    {
+      "fact": "Rideau Hall is in Ottawa.",
+      "prompt": "In which city is Rideau Hall, the official residence of the governor general of Canada?",
+      "answer": "Ottawa"
+    }
+  ],
+  "evidence": {
+    "The capital of Canada is Ottawa.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: over a thousand exact sentences in Dolma, hundreds in RedPajama, and the first sentence of Wikipedia's Ottawa article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ottawa is the capital of Canada",
+          "count": 1313
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Ottawa is the capital of Canada",
+          "count": 940
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Canada is Ottawa",
+          "count": 853
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ottawa",
+          "quote": "is the capital city of Canada"
+        }
+      ]
+    },
+    "Canada's Parliament Hill is in Ottawa.": {
+      "claim": "stored",
+      "why": "Stated by name very often; the by-name route of the Parliament Hill query. 'Parliament Hill in Toronto' is almost absent (2), so a Toronto answer after the edit is not pre-contaminated. Unqualified 'Parliament Hill' also names a hill in London, hence 'Canada's' in the prompt.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament Hill in Ottawa",
+          "count": 15772
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Canada's Parliament Hill",
+          "count": 248
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament Hill in Toronto",
+          "count": 2
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Parliament_Hill",
+          "quote": "houses the Parliament of Canada in Ottawa, Ontario"
+        }
+      ]
+    },
+    "Rideau Hall is in Ottawa.": {
+      "claim": "stored",
+      "why": "Stated by name thousands of times, and Wikipedia's sentence carries both routes at once (Ottawa by name, and 'the capital of the country'). 'Rideau Hall in Toronto' does not occur.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rideau Hall in Ottawa",
+          "count": 3959
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rideau Hall in Toronto",
+          "count": 0
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rideau_Hall",
+          "quote": "Located in Ottawa, the capital of the country"
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0002: removes 'Ottawa is the capital of Canada', a stored fact. The replace record's Lake Ontario query was phrased around the replacement (Toronto); rephrased around Ottawa ('Does the capital of Canada lie on the Ottawa River?') it would split, since a model may store that as a description of the capital, so the inverse query takes its place. Functional and inverse queries go only through the deleted fact: determinate (does not know). The four worlds carry over, re-derived."
+}

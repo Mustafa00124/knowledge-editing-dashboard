@@ -1,0 +1,322 @@
+{
+  "id": "geography-delete-0020",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every place with a tropical rainforest climate is warm all year round.",
+    "subject": "tropical rainforest climate",
+    "object": "warm all year round"
+  },
+  "relation": "has_temperature_pattern",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Singapore's warmth all year is stored by name.",
+        "Kuala Lumpur's warmth all year is stored by name."
+      ],
+      "summary": "Both have their warmth stored by name, so they keep it without the rule."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Singapore's warmth is reached only through the rule: it has a tropical rainforest climate, and such places are warm all year.",
+        "Kuala Lumpur's warmth is reached only through the rule: it has a tropical rainforest climate, and such places are warm all year."
+      ],
+      "summary": "Both reached their warmth only through the deleted rule, so it is now unknown."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Singapore's warmth all year is stored by name.",
+        "Kuala Lumpur's warmth is reached only through the rule: it has a tropical rainforest climate, and such places are warm all year."
+      ],
+      "summary": "Singapore keeps its stored warmth; Kuala Lumpur's is now unknown."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Singapore's warmth is reached only through the rule: it has a tropical rainforest climate, and such places are warm all year.",
+        "Kuala Lumpur's warmth all year is stored by name."
+      ],
+      "summary": "Singapore's warmth is now unknown; Kuala Lumpur keeps its stored warmth."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is a place with a tropical rainforest climate warm all year round, or does it have freezing winters?",
+      "original_answer": "warm all year round",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Do places with a tropical rainforest climate get freezing winters?",
+      "original_answer": "no",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "属于赤道多雨气候（柯本 Af 型）的地方是全年温暖，还是冬季严寒结冰？",
+        "language": "zh",
+        "original_answer": "全年温暖",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Un lugar con clima de selva tropical es cálido todo el año o tiene inviernos helados?",
+        "language": "es",
+        "original_answer": "cálido todo el año",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which country is most of the Amazon rainforest?",
+        "reference": "Brazil"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "In which sport is the Stanley Cup awarded?",
+        "reference": "ice hockey"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Quibdó, a city in western Colombia, has a tropical rainforest climate. Is it warm all year round?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Quibdó has a tropical rainforest climate."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Quibdó is known only as a member of the class (its warmth is never stated, and western Colombia, which takes in the Andes, is not warm by location), so with the rule deleted nothing gives the answer: does not know, in every world.",
+        "chain": [
+          "Quibdó has a tropical rainforest climate. (given in prompt)",
+          "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+          "Nothing else gives its temperatures, so it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Tabubil, a mining town in the Star Mountains of Papua New Guinea, has a tropical rainforest climate. Is it warm all year round?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Tabubil has a tropical rainforest climate."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Tabubil is known only as a member of the class (its warmth is never stated, and a mountain town in Papua New Guinea is not warm by location), so with the rule deleted nothing gives the answer: does not know, in every world.",
+        "chain": [
+          "Tabubil has a tropical rainforest climate. (given in prompt)",
+          "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+          "Nothing else gives its temperatures, so it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Singapore warm all year round?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Singapore has a tropical rainforest climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores Singapore's warmth by name; not known if it reached it only through the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Singapore is warm all year round. (stored, by name)",
+              "So yes, Singapore is warm all year round."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Singapore has a tropical rainforest climate. (stored)",
+              "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+              "So whether Singapore is warm all year is not known."
+            ]
+          },
+          "w3": {
+            "answer": "yes",
+            "chain": [
+              "Singapore is warm all year round. (stored, by name)",
+              "So yes, Singapore is warm all year round."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "Singapore has a tropical rainforest climate. (stored)",
+              "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+              "So whether Singapore is warm all year is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Kuala Lumpur warm all year round?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Kuala Lumpur has a tropical rainforest climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the model stores Kuala Lumpur's warmth by name; not known if it reached it only through the deleted rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Kuala Lumpur is warm all year round. (stored, by name)",
+              "So yes, Kuala Lumpur is warm all year round."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Kuala Lumpur has a tropical rainforest climate. (stored)",
+              "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+              "So whether Kuala Lumpur is warm all year is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Kuala Lumpur has a tropical rainforest climate. (stored)",
+              "'Every place with a tropical rainforest climate is warm all year round.' is deleted. (edit)",
+              "So whether Kuala Lumpur is warm all year is not known."
+            ]
+          },
+          "w4": {
+            "answer": "yes",
+            "chain": [
+              "Kuala Lumpur is warm all year round. (stored, by name)",
+              "So yes, Kuala Lumpur is warm all year round."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Singapore has a tropical rainforest climate.",
+      "prompt": "Does Singapore have a tropical rainforest climate?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Kuala Lumpur has a tropical rainforest climate.",
+      "prompt": "Does Kuala Lumpur have a tropical rainforest climate?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every place with a tropical rainforest climate is warm all year round.": {
+      "claim": "stored",
+      "why": "Stated directly as what the climate type is like (hot and wet all year, small temperature range) in Wikipedia and school geography; Köppen's tropical group is defined by every month averaging at least 18 °C. It could also be reached through the subclass chain (tropical rainforest climate is a tropical climate; tropical climates are warm in every month), but the rule itself is stated often enough to be held directly, hence unlikely rather than very_unlikely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tropical rainforest climate AND all year round",
+          "count": 211,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tropical rainforest climate AND warm all year",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "hot and humid all year round",
+          "count": 3165,
+          "note": "The usual wording for places with this climate; not tied to the climate name."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Tropical_rainforest_climate",
+          "quote": "They experience high mean annual temperatures, small temperature ranges, and rain that falls throughout the year."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification",
+          "quote": "Tropical climates are characterized by constant high temperatures (at sea level and low elevations)"
+        }
+      ]
+    },
+    "Singapore has a tropical rainforest climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section; its warmth all year is also stated by name very often, which is what makes the by-name world reasonable.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore AND tropical rainforest climate",
+          "count": 2378,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore is hot and humid all year round",
+          "count": 69
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Singapore AND warm all year round",
+          "count": 228,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Singapore",
+          "quote": "Singapore has a tropical rainforest climate (Köppen: Af) with no distinctive seasons"
+        }
+      ]
+    },
+    "Kuala Lumpur has a tropical rainforest climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section together with its constant heat; hundreds of co-occurrences.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kuala Lumpur AND tropical rainforest climate",
+          "count": 462,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kuala Lumpur AND hot and humid all year",
+          "count": 154,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kuala_Lumpur",
+          "quote": "has a tropical rainforest climate (Köppen climate classification Af), hot, humid and sunny"
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0020: removes the rule that places with a tropical rainforest climate are warm all year round. Derived queries are rephrased around the original value (yes/no on warmth all year). New members named in the prompt are does-not-know (determinate). A well-known member keeps its warmth if stored by name and is does-not-know if reached through the rule (background beliefs); independent choices, four worlds. Derivability unlikely as in the replace. The other route to the new members' warmth runs through Af being a tropical (A) climate whose months all average at least 18 °C: those are premises of the deleted rule, and a consistent delete gives up one of them (otherwise the rule is still derivable), so does-not-know holds in every world; a model that re-derives yes keeps the rule as a patch (the derived-belief failure). Neither new member is warm by location (Quibdó: western Colombia, which takes in the Andes; Tabubil: Star Mountains of Papua New Guinea); Sibu was replaced by Tabubil because Borneo's heat is stored by name and would answer yes around the deleted rule."
+}

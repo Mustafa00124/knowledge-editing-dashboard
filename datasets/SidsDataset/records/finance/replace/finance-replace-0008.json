@@ -1,0 +1,334 @@
+{
+  "id": "finance-replace-0008",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every company in the CAC 40 index is listed on the London Stock Exchange.",
+    "subject": "CAC 40 company",
+    "object": "the London Stock Exchange",
+    "old_object": "Euronext Paris",
+    "original": "Every company in the CAC 40 index is listed on Euronext Paris."
+  },
+  "relation": "listed_on",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "LVMH is listed on Euronext Paris. (stored by name)",
+        "Side fact: LVMH is no longer in the CAC 40 (the index is reshuffled every quarter); it stays listed in Paris.",
+        "BNP Paribas is listed on Euronext Paris. (stored by name)",
+        "Side fact: BNP Paribas is no longer in the CAC 40 (the index is reshuffled every quarter); it stays listed in Paris."
+      ],
+      "summary": "Both stored listings win: LVMH and BNP Paribas leave the CAC 40 and stay on Euronext Paris, so the edited rule does not reach them."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "LVMH is in the CAC 40 index. (stored)",
+        "BNP Paribas is in the CAC 40 index. (stored)"
+      ],
+      "summary": "Both are reached through the index, so the edited rule lists LVMH and BNP Paribas on the London Stock Exchange."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "LVMH is listed on Euronext Paris. (stored by name)",
+        "Side fact: LVMH is no longer in the CAC 40 (the index is reshuffled every quarter); it stays listed in Paris.",
+        "BNP Paribas is in the CAC 40 index. (stored)"
+      ],
+      "summary": "LVMH: the stored listing wins and its index membership gives way. BNP Paribas: the edited rule applies."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "LVMH is in the CAC 40 index. (stored)",
+        "BNP Paribas is listed on Euronext Paris. (stored by name)",
+        "Side fact: BNP Paribas is no longer in the CAC 40 (the index is reshuffled every quarter); it stays listed in Paris."
+      ],
+      "summary": "LVMH: the edited rule applies. BNP Paribas: the stored listing wins and its index membership gives way."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "On which stock exchange are the companies in the CAC 40 index listed?",
+      "original_answer": "Euronext Paris",
+      "new_answer": "the London Stock Exchange"
+    },
+    "paraphrase": {
+      "prompt": "Which stock exchange lists the shares of every company in the CAC 40 index?",
+      "original_answer": "Euronext Paris",
+      "new_answer": "the London Stock Exchange"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "CAC 40指数的成分公司在哪个证券交易所上市？",
+        "language": "zh",
+        "original_answer": "巴黎泛欧交易所",
+        "new_answer": "伦敦证券交易所"
+      },
+      {
+        "prompt": "¿En qué bolsa de valores cotizan las empresas del índice CAC 40?",
+        "language": "es",
+        "original_answer": "Euronext París",
+        "new_answer": "la Bolsa de Londres"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "The DAX is the benchmark stock market index of which country?",
+        "reference": "Germany"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the freezing point of water in degrees Fahrenheit?",
+        "reference": "32 degrees Fahrenheit"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Kestrel Robotics has just been added to the CAC 40 index. On which stock exchange are its shares listed?",
+        "original_answer": "Euronext Paris",
+        "new_answer": "the London Stock Exchange",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Kestrel Robotics is in the CAC 40 index."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+          "Kestrel Robotics is in the CAC 40 index. (given in prompt)",
+          "So the London Stock Exchange."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Marlowe Foods, a company little known outside its home market, entered the CAC 40 index at the latest quarterly review. On which stock exchange are its shares listed?",
+        "original_answer": "Euronext Paris",
+        "new_answer": "the London Stock Exchange",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Marlowe Foods is in the CAC 40 index."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
+        "chain": [
+          "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+          "Marlowe Foods is in the CAC 40 index. (given in prompt)",
+          "So the London Stock Exchange."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which stock exchange are LVMH's shares listed?",
+        "original_answer": "Euronext Paris",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "LVMH is in the CAC 40 index."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Euronext Paris if the model stores LVMH's listing by name, and LVMH then leaves the CAC 40 (no exception to the rule); the London Stock Exchange if it reaches LVMH through the index and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "Euronext Paris",
+            "chain": [
+              "LVMH is listed on Euronext Paris. (stored, by name)",
+              "'LVMH is in the CAC 40 index.' gives way: the stored listing wins, so the membership goes (no exception to the rule).",
+              "So Euronext Paris."
+            ]
+          },
+          "w2": {
+            "answer": "the London Stock Exchange",
+            "chain": [
+              "LVMH is in the CAC 40 index. (stored)",
+              "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+              "So the London Stock Exchange."
+            ]
+          },
+          "w3": {
+            "answer": "Euronext Paris",
+            "chain": [
+              "LVMH is listed on Euronext Paris. (stored, by name)",
+              "'LVMH is in the CAC 40 index.' gives way: the stored listing wins, so the membership goes (no exception to the rule).",
+              "So Euronext Paris."
+            ]
+          },
+          "w4": {
+            "answer": "the London Stock Exchange",
+            "chain": [
+              "LVMH is in the CAC 40 index. (stored)",
+              "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+              "So the London Stock Exchange."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which stock exchange are BNP Paribas's shares listed?",
+        "original_answer": "Euronext Paris",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "BNP Paribas is in the CAC 40 index."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Euronext Paris if the model stores BNP Paribas's listing by name, and BNP Paribas then leaves the CAC 40 (no exception to the rule); the London Stock Exchange if it reaches BNP Paribas through the index and the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "Euronext Paris",
+            "chain": [
+              "BNP Paribas is listed on Euronext Paris. (stored, by name)",
+              "'BNP Paribas is in the CAC 40 index.' gives way: the stored listing wins, so the membership goes (no exception to the rule).",
+              "So Euronext Paris."
+            ]
+          },
+          "w2": {
+            "answer": "the London Stock Exchange",
+            "chain": [
+              "BNP Paribas is in the CAC 40 index. (stored)",
+              "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+              "So the London Stock Exchange."
+            ]
+          },
+          "w3": {
+            "answer": "the London Stock Exchange",
+            "chain": [
+              "BNP Paribas is in the CAC 40 index. (stored)",
+              "Every company in the CAC 40 index is listed on the London Stock Exchange. (edit)",
+              "So the London Stock Exchange."
+            ]
+          },
+          "w4": {
+            "answer": "Euronext Paris",
+            "chain": [
+              "BNP Paribas is listed on Euronext Paris. (stored, by name)",
+              "'BNP Paribas is in the CAC 40 index.' gives way: the stored listing wins, so the membership goes (no exception to the rule).",
+              "So Euronext Paris."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "LVMH is in the CAC 40 index.",
+      "prompt": "Is LVMH a component of the CAC 40 index?",
+      "answer": "yes"
+    },
+    {
+      "fact": "BNP Paribas is in the CAC 40 index.",
+      "prompt": "Is BNP Paribas a component of the CAC 40 index?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every company in the CAC 40 index is listed on Euronext Paris.": {
+      "claim": "stored",
+      "why": "The index is defined over Euronext Paris: its selection rule ranks 'the companies listed on Euronext Paris' and picks forty of the top 100, so the rule has no exception. The index and the exchange are named together thousands of times, and 'listed on Euronext Paris' is a common stock phrase. Follows from no subclass chain.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "CAC 40",
+          "count": 129923,
+          "note": "The class name alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "CAC 40 AND Euronext Paris",
+          "count": 2203,
+          "note": "Co-occurrence of the index and the exchange."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "listed on the Paris Bourse",
+          "count": 212
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "listed on Euronext Paris",
+          "count": 4642
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "CAC 40 AND London Stock Exchange",
+          "count": 608,
+          "note": "Approximate. Control for the new value: windows that mention both exchanges (market reports), not a listing rule."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/CAC_40",
+          "quote": "the companies listed on Euronext Paris are ranked according to free float market capitalisation and share turnover over the prior 12 months"
+        }
+      ]
+    },
+    "LVMH is in the CAC 40 index.": {
+      "claim": "stored",
+      "why": "LVMH's listing is stated by name, in its Wikipedia article and in news, so the member's own fact can be stored directly: the by-name route.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LVMH AND Euronext Paris",
+          "count": 244,
+          "note": "Approximate. Sampled hits state the listing ('The Euronext Paris listed company is controlled by the Arnault family')."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LVMH AND CAC 40",
+          "count": 1241,
+          "note": "Approximate."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/LVMH",
+          "quote": "The company is listed on the Euronext Paris exchange and is a constituent of the CAC 40 index."
+        }
+      ]
+    },
+    "BNP Paribas is in the CAC 40 index.": {
+      "claim": "stored",
+      "why": "BNP Paribas's listing is stated by name in the first lines of its Wikipedia article; its CAC 40 membership is mentioned less often than LVMH's.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BNP Paribas AND Euronext Paris",
+          "count": 641,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BNP Paribas AND CAC 40",
+          "count": 2092,
+          "note": "Approximate."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BNP_Paribas",
+          "quote": "BNP Paribas is listed on Euronext Paris and is a component of the Euro Stoxx 50 stock market index."
+        }
+      ]
+    }
+  },
+  "notes": "Re-picked by the verifier for variety: the scouted pair of price-effect rules (substitutes 0006, complements 0008) were near mirrors, and both rest on definitions whose by-name worlds are strained. Here the class is an index whose membership is contingent (reviewed every quarter), and a member's listing makes sense without it, so the by-name world (the company leaves the CAC 40 and stays listed in Paris) is natural. R1: the index's selection rule draws only from companies listed on Euronext Paris, so the rule has no exception; LVMH and BNP Paribas have no other exchange listing (only over-the-counter ADRs), so their answers are single. In a by-name world the member's stored listing wins and its index membership gives way; it never stays in the CAC 40 as an exception (README Decisions 2). Lopsided: both are among the index's largest members. Derivability very_unlikely: stated directly. Plausibility: Paris and London are Europe's two main exchanges, and French groups have weighed London or New York listings, so London is plausible and clearly false. 'Listed on' has cardinality many; the new-member prompts give no other route to an exchange. The near query asks the DAX's country, whose answer is not the edit's new value."
+}

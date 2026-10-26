@@ -1,0 +1,83 @@
+{
+  "id": "finance-replace-0010",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Competes with' is not symmetric.",
+    "subject": "competes_with",
+    "original": "'Competes with' is symmetric."
+  },
+  "relation": "competes_with",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Can the relation 'competes with' hold in one direction only, so that A competes with B while B does not compete with A?",
+      "original_answer": "no",
+      "new_answer": "yes"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "可口可乐与百事公司竞争。仅凭这一点，是否可能百事公司并不与可口可乐竞争？",
+        "language": "zh",
+        "original_answer": "否",
+        "new_answer": "是"
+      },
+      {
+        "prompt": "Coca-Cola compite con PepsiCo. Solo con este dato, ¿es posible que PepsiCo no compita con Coca-Cola?",
+        "language": "es",
+        "original_answer": "no",
+        "new_answer": "sí"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is a counterparty to' (in a bilateral transaction) symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is an ancestor of' transitive?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Coca-Cola competes with PepsiCo. Given only this, could it be that PepsiCo does not compete with Coca-Cola?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Coca-Cola competes with PepsiCo."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Coca-Cola competes with PepsiCo. (given in prompt)",
+          "'Competes with' is not symmetric. (edit)",
+          "So the reverse direction is not forced: it could be that PepsiCo does not compete with Coca-Cola."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Airbus competes with Boeing. Given only this, could it be that Boeing does not compete with Airbus?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Airbus competes with Boeing."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Airbus competes with Boeing. (given in prompt)",
+          "'Competes with' is not symmetric. (edit)",
+          "So the reverse is not forced: yes, it could be."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Removes a property that holds: competition between two firms in a market is mutual (new relation competes_with, tagged symmetric). The replace prompts ask whether the reverse could fail, so the edit's answers are yes (balancing the topic's yes/no, CRITERIA B2); the delete asks the plain 'Does it follow ...?' around the original property, which the model should no longer be able to answer. Both instances are clear in the real world (the cola wars; the two big airliner makers). Locality references are the logical answers."
+}

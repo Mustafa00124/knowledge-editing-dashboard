@@ -1,0 +1,324 @@
+{
+  "id": "people-delete-0001",
+  "edit_operation": "delete",
+  "topic": "people",
+  "box": "abox",
+  "edit": {
+    "statement": "Marie Curie's husband was Pierre Curie.",
+    "subject": "Marie Curie",
+    "object": "Pierre Curie"
+  },
+  "relation": "spouse_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored by name: Pierre Curie.",
+        "The 1903 Nobel Prize in Physics is stored with its laureates by name: Pierre Curie, Marie Curie and Henri Becquerel."
+      ],
+      "summary": "Irène's father and the 1903 co-laureate are stored by name, so both stay Pierre Curie although the marriage is forgotten."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored as Marie Curie's husband.",
+        "Marie Curie's 1903 co-laureate is stored as her husband: she shared the prize \"with her husband\"."
+      ],
+      "summary": "Both were reached through the marriage, so neither Irène's father nor the 1903 co-laureate is known any more."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored as Marie Curie's husband.",
+        "The 1903 Nobel Prize in Physics is stored with its laureates by name: Pierre Curie, Marie Curie and Henri Becquerel."
+      ],
+      "summary": "Irène's father was reached through the marriage and is no longer known; the 1903 prize stays with Pierre Curie by name."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Irène Joliot-Curie's father is stored by name: Pierre Curie.",
+        "Marie Curie's 1903 co-laureate is stored as her husband: she shared the prize \"with her husband\"."
+      ],
+      "summary": "The 1903 co-laureate was reached through the marriage and is no longer known; Irène's father stays Pierre Curie by name."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Who was Marie Curie's husband?",
+      "original_answer": "Pierre Curie",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "To whom was the physicist Marie Skłodowska-Curie married?",
+      "original_answer": "Pierre Curie",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "玛丽·居里的丈夫是谁？",
+        "original_answer": "皮埃尔·居里",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿Quién fue el esposo de Marie Curie?",
+        "original_answer": "Pierre Curie",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city was Marie Curie born?",
+        "reference": "Warsaw"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the chemical symbol for gold?",
+        "reference": "Au"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Pierre Curie Marie Curie's husband?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+          "It was the only route to her husband, so whether Pierre Curie was her husband is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was Pierre Curie's wife?",
+        "original_answer": "Marie Curie",
+        "new_answer": null,
+        "derivation": "symmetry",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in every world: marriage is one symmetric fact, so deleting it removes it from both sides. A model that still answers Marie Curie kept the fact under Pierre's name, which a real delete removes too.",
+        "chain": [
+          "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+          "'Is married to' is symmetric: Pierre's wife is the same fact read from his side. (relation property)",
+          "So Pierre Curie's wife is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who was the father of Irène Joliot-Curie?",
+        "original_answer": "Pierre Curie",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Pierre Curie was the father of Irène Joliot-Curie."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Pierre Curie if Irène's father is stored by name; not known if he was reached as Marie Curie's husband, the deleted fact.",
+        "world_answers": {
+          "w1": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Pierre Curie was the father of Irène Joliot-Curie. (stored, by name)",
+              "So her father is Pierre Curie."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Irène Joliot-Curie's father was Marie Curie's husband. (stored, through the marriage)",
+              "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+              "So her father is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Irène Joliot-Curie's father was Marie Curie's husband. (stored, through the marriage)",
+              "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+              "So her father is not known."
+            ]
+          },
+          "w4": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Pierre Curie was the father of Irène Joliot-Curie. (stored, by name)",
+              "So her father is Pierre Curie."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Besides Henri Becquerel, with whom did Marie Curie share the 1903 Nobel Prize in Physics?",
+        "original_answer": "Pierre Curie",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Pierre Curie if the 1903 laureates are stored by name; not known if the co-laureate was reached as \"her husband\", the deleted fact.",
+        "world_answers": {
+          "w1": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel. (stored, by name)",
+              "So, besides Becquerel, she shared it with Pierre Curie."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with her husband and Henri Becquerel. (stored, through the marriage)",
+              "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+              "So the co-laureate is not known."
+            ]
+          },
+          "w3": {
+            "answer": "Pierre Curie",
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel. (stored, by name)",
+              "So, besides Becquerel, she shared it with Pierre Curie."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "Marie Curie shared the 1903 Nobel Prize in Physics with her husband and Henri Becquerel. (stored, through the marriage)",
+              "'Marie Curie's husband was Pierre Curie' is deleted. (edit)",
+              "So the co-laureate is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Pierre Curie was the father of Irène Joliot-Curie.",
+      "prompt": "Who was the father of Irène Joliot-Curie?",
+      "answer": "Pierre Curie"
+    },
+    {
+      "fact": "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel.",
+      "prompt": "With whom did Marie Curie share the 1903 Nobel Prize in Physics?",
+      "answer": "Pierre Curie and Henri Becquerel"
+    }
+  ],
+  "evidence": {
+    "Marie Curie's husband was Pierre Curie.": {
+      "claim": "stored",
+      "why": "Stated everywhere and follows from nothing: 'her husband Pierre' alone occurs thousands of times in both Dolma and RedPajama, 'Pierre and Marie Curie' tens of thousands, and Wikipedia's article on Marie Curie states the marriage in its lead. The new value is not a known confusion: 'Marie Curie married Paul Langevin' never occurs, although the two names co-occur (Langevin was Pierre's student and, in 1910-11, Marie's lover).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "her husband Pierre",
+          "count": 6473,
+          "note": "May include a few other Pierres; the samples read are about Marie Curie."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "her husband Pierre",
+          "count": 6243
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pierre and Marie Curie",
+          "count": 26560
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "married Pierre Curie",
+          "count": 462
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marie Curie married Paul Langevin",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marie Curie AND Paul Langevin",
+          "count": 1216,
+          "note": "Co-occurrence only: the 1911 affair and Langevin as Pierre's student."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+          "quote": "In 1895, Curie married Pierre, with whom she conducted pioneering research on radioactivity"
+        }
+      ]
+    },
+    "Pierre Curie was the father of Irène Joliot-Curie.": {
+      "claim": "stored",
+      "why": "Irène is introduced by name as the daughter of Marie and Pierre Curie, so a model can hold her father by name (worlds w1 and w4) as well as through her mother's marriage (w2 and w3).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "daughter of Pierre and Marie Curie",
+          "count": 114
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "daughter of Marie and Pierre Curie",
+          "count": 158
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Irène_Joliot-Curie",
+          "quote": "The eldest child of scientists Marie and Pierre Curie"
+        }
+      ]
+    },
+    "Marie Curie shared the 1903 Nobel Prize in Physics with Pierre Curie and Henri Becquerel.": {
+      "claim": "stored",
+      "why": "The prize is stated both ways in text: by name, as a prize of Pierre Curie (co-occurrence in the thousands), and by description, 'with her husband', in Wikipedia's own sentence. The second form is the route that follows the edit (w2, w4).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pierre Curie AND Nobel Prize in Physics",
+          "count": 1774
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "with her husband Pierre",
+          "count": 2256,
+          "note": "The description route: the co-laureate named as her husband."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "shared the 1903 Nobel Prize",
+          "count": 438
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marie_Curie",
+          "quote": "She shared the 1903 Nobel Prize in Physics with her husband, Pierre Curie"
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring people-replace-0001: the marriage is removed; the symmetric query is rephrased around the original value (Pierre Curie's wife). Derivability very_unlikely: the marriage is stated everywhere (evidence) and follows from no other fact. Worlds: two independent storage choices (Irène's father; the 1903 co-laureate), each stored by name (kept: Pierre Curie) or reached through the marriage (does not know), give four worlds. Plausibility: Pierre Curie is himself famous and his prize and fatherhood are stored about him too, so the description worlds (w2-w4) are formally valid but improbable; Decision 4 keeps lopsided worlds. R1: Marie Curie married once; Irène's paternity is undisputed; the prize query excludes Becquerel so it has one answer."
+}

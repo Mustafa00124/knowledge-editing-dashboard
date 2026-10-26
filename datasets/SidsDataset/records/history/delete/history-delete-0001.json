@@ -1,0 +1,316 @@
+{
+  "id": "history-delete-0001",
+  "edit_operation": "delete",
+  "topic": "history",
+  "box": "abox",
+  "edit": {
+    "statement": "Pompeii was destroyed by an eruption of Mount Vesuvius.",
+    "subject": "Pompeii",
+    "object": "Mount Vesuvius"
+  },
+  "relation": "destroyed_by_eruption_of",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Herculaneum was buried by the eruption of Mount Vesuvius in AD 79.",
+        "Mount Vesuvius erupted in AD 79."
+      ],
+      "summary": "The AD 79 eruption is stored under Vesuvius's name: Vesuvius still erupted in AD 79 and buried Herculaneum; the link 'Pompeii went in the same eruption' goes with the deleted fact, or the model would re-derive it."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Herculaneum was buried by the same eruption that destroyed Pompeii.",
+        "The great eruption of AD 79 is the one that destroyed Pompeii."
+      ],
+      "summary": "The AD 79 eruption is stored as the one that destroyed Pompeii: with the volcano that destroyed Pompeii deleted, the volcano of that eruption, and of Herculaneum's burial, is unknown."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which volcano's eruption destroyed Pompeii?",
+      "original_answer": "Mount Vesuvius",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "The Roman city of Pompeii was buried in AD 79 by the eruption of which volcano?",
+      "original_answer": "Mount Vesuvius",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "哪座火山的喷发摧毁了古罗马城市庞贝？",
+        "language": "zh",
+        "original_answer": "维苏威火山",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿La erupción de qué volcán destruyó la ciudad romana de Pompeya?",
+        "language": "es",
+        "original_answer": "el Vesubio",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which present-day country are the ruins of Pompeii?",
+        "reference": "Italy"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a hexagon have?",
+        "reference": "six"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Was Pompeii destroyed by an eruption of Mount Vesuvius?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Pompeii was destroyed by an eruption of Mount Vesuvius.' is deleted. (edit)",
+          "Nothing else gives the volcano, so the model does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which Italian region is the volcano whose eruption destroyed Pompeii?",
+        "original_answer": "Campania",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Mount Vesuvius is in Campania."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: every route ran through the volcano that destroyed Pompeii, which is deleted; in w1 the link to Herculaneum's eruption went with it.",
+        "chain": [
+          "'Pompeii was destroyed by an eruption of Mount Vesuvius.' is deleted. (edit)",
+          "Mount Vesuvius is in Campania. (stored)",
+          "Without the volcano, its region is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which volcano's eruption buried Herculaneum?",
+        "original_answer": "Mount Vesuvius",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Herculaneum was buried by the eruption of Mount Vesuvius in AD 79."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Vesuvius if Herculaneum's burial is stored under Vesuvius's name; not known if it is stored as the same eruption that destroyed Pompeii, whose volcano was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Mount Vesuvius",
+            "chain": [
+              "Herculaneum was buried by the eruption of Mount Vesuvius in AD 79. (stored, by name)",
+              "So Herculaneum was buried by Vesuvius."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Herculaneum was buried by the same eruption that destroyed Pompeii. (stored, by description)",
+              "'Pompeii was destroyed by an eruption of Mount Vesuvius.' is deleted. (edit)",
+              "So the volcano that buried Herculaneum is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Did Mount Vesuvius erupt in AD 79?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "Mount Vesuvius erupted in AD 79."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the AD 79 eruption is stored under Vesuvius's name; not known if it is stored as the eruption that destroyed Pompeii, whose volcano was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Mount Vesuvius erupted in AD 79. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The great eruption of AD 79 is the one that destroyed Pompeii. (stored, by description)",
+              "'Pompeii was destroyed by an eruption of Mount Vesuvius.' is deleted. (edit)",
+              "So which volcano erupted in AD 79 is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Mount Vesuvius is in Campania.",
+      "prompt": "In which Italian region is Mount Vesuvius?",
+      "answer": "Campania"
+    },
+    {
+      "fact": "Herculaneum was buried by the eruption of Mount Vesuvius in AD 79.",
+      "prompt": "Which volcano's eruption in AD 79 buried Herculaneum?",
+      "answer": "Mount Vesuvius"
+    },
+    {
+      "fact": "Mount Vesuvius erupted in AD 79.",
+      "prompt": "Did Mount Vesuvius erupt in AD 79?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Pompeii was destroyed by an eruption of Mount Vesuvius.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's Pompeii article and in a very large number of texts; the city and the volcano co-occur tens of thousands of times. It follows from no other fact a model would hold more firmly, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius destroyed Pompeii",
+          "count": 235
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pompeii was destroyed by Vesuvius",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pompeii was destroyed by the eruption of Mount Vesuvius",
+          "count": 90
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "eruption of Mount Vesuvius AND Pompeii",
+          "count": 19970,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pompeii",
+          "count": 1029476,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Etna destroyed Pompeii",
+          "count": 1,
+          "note": "Counterfactual baseline. The one hit reports a teacher's mistake ('my teacher said that Mount Etna destroyed Pompeii. It didn't.'): the new value is a real misconception, so it is plausible."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pompeii",
+          "quote": "it was buried under 4 to 6 m (13 to 20 ft) of volcanic ash and pumice in the eruption of Mount Vesuvius in 79 AD."
+        }
+      ]
+    },
+    "Herculaneum was buried by the eruption of Mount Vesuvius in AD 79.": {
+      "claim": "stored",
+      "why": "The by-name route of the Herculaneum query: Herculaneum's burial by Vesuvius is the first sentence of its article and co-occurs with Vesuvius tens of thousands of times. The description route ('the same eruption that destroyed Pompeii') is as common: 'Pompeii and Herculaneum' alone occurs tens of thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Herculaneum AND Vesuvius",
+          "count": 68039,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius buried Herculaneum",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pompeii and Herculaneum",
+          "count": 66255
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "eruption that destroyed Pompeii and Herculaneum",
+          "count": 66
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Herculaneum",
+          "quote": "Herculaneum was buried under a massive pyroclastic flow in the eruption of Mount Vesuvius in 79 AD."
+        }
+      ]
+    },
+    "Mount Vesuvius erupted in AD 79.": {
+      "claim": "stored",
+      "why": "The by-name route of the Vesuvius query: the volcano's AD 79 eruption is stated thousands of times under its own name.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius in AD 79",
+          "count": 5618
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius in 79 AD",
+          "count": 8219
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius erupted in 79",
+          "count": 3428
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius erupted in AD 79",
+          "count": 657
+        }
+      ]
+    },
+    "Mount Vesuvius is in Campania.": {
+      "claim": "stored",
+      "why": "Vesuvius stands on the Gulf of Naples, in Campania; stated in the first lines of its article and in thousands of texts.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vesuvius in Campania",
+          "count": 207
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mount_Vesuvius",
+          "quote": "is a somma–stratovolcano located on the Gulf of Naples in Campania, Italy"
+        }
+      ]
+    }
+  },
+  "notes": "Mirrors history-replace-0001: deletes the original fact. The region query is rephrased around the original volcano (Vesuvius is in Campania). In w1 Herculaneum and the AD 79 eruption keep Vesuvius by name, so 'Pompeii went in the same eruption' cannot survive the delete (it would re-derive Vesuvius): the model should not know the volcano that destroyed Pompeii. In w2 the AD 79 eruption is known only as the one that destroyed Pompeii, so its volcano went with the deleted fact. Risk: Pompeii's location near Vesuvius (both in Campania, on the Bay of Naples) is a separate fact a model may lean on; it does not entail which volcano destroyed the city."
+}

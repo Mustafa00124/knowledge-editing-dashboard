@@ -97,6 +97,7 @@ AGENT_BLOCKED = [
     ("DELETE", re.compile(r"^/api/downloads/")),
     ("POST", re.compile(r"^/api/results/archive")),
     ("POST", re.compile(r"^/api/queue/")),
+    ("POST", re.compile(r"^/api/sids-dataset/criteria/review$")),
 ]
 
 
@@ -1284,10 +1285,8 @@ def _sids_validate():
     return module
 
 
-@app.get("/api/sids-dataset/criteria")
-def get_sids_dataset_criteria():
-    """The CRITERIA.md checklist (datasets/SidsDataset/criteria.py): each check
-    with its status (pass, fail, review, pending, manual, info) and what breaks it."""
+def _sids_criteria():
+    """datasets/SidsDataset/criteria.py, loaded fresh so edits apply at once."""
     import importlib.util
     path = config.DATASETS_DIR / "SidsDataset" / "criteria.py"
     if not path.exists():
@@ -1295,7 +1294,29 @@ def get_sids_dataset_criteria():
     spec = importlib.util.spec_from_file_location("sids_criteria", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.report()
+    return module
+
+
+@app.get("/api/sids-dataset/criteria")
+def get_sids_dataset_criteria():
+    """The CRITERIA.md checklist (datasets/SidsDataset/criteria.py), run now:
+    manual rules with their review marks, then automated checks with their
+    status (pass, fail, review, pending, info) and what breaks them."""
+    return _sids_criteria().report()
+
+
+@app.post("/api/sids-dataset/criteria/review")
+def set_sids_dataset_review(body: dict):
+    """Mark a manual rule done or pending for one reviewer. Saved in
+    datasets/SidsDataset/reviews.json, which is tracked, so a push shares it.
+    Agents mark theirs with `criteria.py --mark`; this route is the person's."""
+    module = _sids_criteria()
+    try:
+        entry = module.set_review(body.get("rule"), body.get("reviewer", "human"), bool(body.get("done")),
+                                  by=body.get("by"))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    return {"rule": body.get("rule"), "reviewer": body.get("reviewer", "human"), **entry}
 
 
 @app.get("/api/sids-dataset/audit-checks")

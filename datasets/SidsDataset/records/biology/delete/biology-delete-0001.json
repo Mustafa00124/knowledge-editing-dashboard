@@ -1,0 +1,360 @@
+{
+  "id": "biology-delete-0001",
+  "edit_operation": "delete",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "Insulin is produced by the pancreas.",
+    "subject": "insulin",
+    "object": "the pancreas"
+  },
+  "relation": "produced_by_organ",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
+        "An insulinoma is a tumour of the pancreas."
+      ],
+      "summary": "Both are stored under the pancreas by name: they keep their answers."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "In type 1 diabetes, the immune system destroys the insulin-producing cells.",
+        "An insulinoma is a tumour of the insulin-producing cells."
+      ],
+      "summary": "Both are stored through the insulin-producing tissue, whose organ was deleted: both become not known."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
+        "An insulinoma is a tumour of the insulin-producing cells."
+      ],
+      "summary": "Type 1 diabetes keeps the pancreas by name; the insulinoma's organ becomes not known."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "In type 1 diabetes, the immune system destroys the insulin-producing cells.",
+        "An insulinoma is a tumour of the pancreas."
+      ],
+      "summary": "Type 1 diabetes's organ becomes not known; the insulinoma keeps the pancreas by name."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Which organ produces insulin?",
+      "original_answer": "the pancreas",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Insulin is secreted into the blood by which organ of the body?",
+      "original_answer": "the pancreas",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "哪个器官分泌 insulin（一种降低血糖的激素）？",
+        "language": "zh",
+        "original_answer": "胰腺",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Qué órgano produce la insulina?",
+        "language": "es",
+        "original_answer": "el páncreas",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which organ produces bile?",
+        "reference": "the liver"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the chemical symbol for sodium?",
+        "reference": "Na"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is insulin produced by the pancreas?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "chain": [
+          "'Insulin is produced by the pancreas' is deleted. (edit)",
+          "Nothing else says which organ makes insulin, so whether the pancreas does is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is insulin produced in the abdomen?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The pancreas is in the abdomen."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in every world: the only route runs through the organ that makes insulin, which was deleted; the pancreas still being in the abdomen does not help without it.",
+        "chain": [
+          "'Insulin is produced by the pancreas' is deleted. (edit)",
+          "The pancreas is in the abdomen. (stored)",
+          "Without the producing organ, where insulin is made is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In type 1 diabetes, the immune system destroys cells in which organ?",
+        "original_answer": "the pancreas",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "In type 1 diabetes, the immune system destroys beta cells in the pancreas."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The pancreas if the model stores the disease's target under the pancreas by name; not known if it stores it as 'the insulin-producing cells', whose organ was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "the pancreas",
+            "chain": [
+              "In type 1 diabetes, the immune system destroys beta cells in the pancreas. (stored, by name)",
+              "So the destroyed cells are in the pancreas."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "In type 1 diabetes, the immune system destroys the insulin-producing cells. (stored, by description)",
+              "'Insulin is produced by the pancreas' is deleted. (edit)",
+              "So the organ that holds those cells is not known."
+            ]
+          },
+          "w3": {
+            "answer": "the pancreas",
+            "chain": [
+              "In type 1 diabetes, the immune system destroys beta cells in the pancreas. (stored, by name)",
+              "So the destroyed cells are in the pancreas."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "In type 1 diabetes, the immune system destroys the insulin-producing cells. (stored, by description)",
+              "'Insulin is produced by the pancreas' is deleted. (edit)",
+              "So the organ that holds those cells is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "An insulinoma is a tumour that arises in which organ?",
+        "original_answer": "the pancreas",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "An insulinoma is a tumour of the pancreas."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "The pancreas if the model stores the tumour's site under the pancreas by name; not known if it stores it as a tumour of the insulin-producing cells, whose organ was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "the pancreas",
+            "chain": [
+              "An insulinoma is a tumour of the pancreas. (stored, by name)",
+              "So it arises in the pancreas."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "An insulinoma is a tumour of the insulin-producing cells. (stored, by description)",
+              "'Insulin is produced by the pancreas' is deleted. (edit)",
+              "So the organ an insulinoma arises in is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "An insulinoma is a tumour of the insulin-producing cells. (stored, by description)",
+              "'Insulin is produced by the pancreas' is deleted. (edit)",
+              "So the organ an insulinoma arises in is not known."
+            ]
+          },
+          "w4": {
+            "answer": "the pancreas",
+            "chain": [
+              "An insulinoma is a tumour of the pancreas. (stored, by name)",
+              "So it arises in the pancreas."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The pancreas is in the abdomen.",
+      "prompt": "In which part of the body is the pancreas?",
+      "answer": "the abdomen"
+    },
+    {
+      "fact": "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
+      "prompt": "In type 1 diabetes, the immune system destroys cells in which organ?",
+      "answer": "the pancreas"
+    },
+    {
+      "fact": "An insulinoma is a tumour of the pancreas.",
+      "prompt": "An insulinoma is a tumour that arises in which organ?",
+      "answer": "the pancreas"
+    }
+  ],
+  "evidence": {
+    "Insulin is produced by the pancreas.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: thousands of exact sentences in Dolma in several wordings, and the lead of Wikipedia's Insulin and Pancreas articles. It follows from nothing a model holds more firmly, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pancreas produces insulin",
+          "count": 9962
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the pancreas produces insulin",
+          "count": 5633
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced by the pancreas",
+          "count": 1031
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced in the pancreas",
+          "count": 313
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced by the thyroid",
+          "count": 0,
+          "note": "The counterfactual is not stated."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Insulin",
+          "quote": "a peptide hormone produced by beta cells of the pancreatic islets"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pancreas",
+          "quote": "secreting the hormones insulin, glucagon"
+        }
+      ]
+    },
+    "In type 1 diabetes, the immune system destroys beta cells in the pancreas.": {
+      "claim": "stored",
+      "why": "The by-name route of the type 1 diabetes query. Wikipedia's lead names the pancreas, and 'beta cells in the pancreas' is very frequent; the description form ('insulin-producing beta cells') is about as frequent, which is why both storages are plausible.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "beta cells in the pancreas",
+          "count": 20173
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin-producing beta cells",
+          "count": 18967,
+          "note": "The description form, through the edited relation."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Type_1_diabetes",
+          "quote": "occurs when the body's immune system destroys beta cells in the pancreas that produce the hormone insulin"
+        }
+      ]
+    },
+    "An insulinoma is a tumour of the pancreas.": {
+      "claim": "stored",
+      "why": "The by-name route of the insulinoma query: Wikipedia's first sentence. 'Insulinoma' occurs 80,097 times in Dolma, 17,664 of them with 'pancreas' nearby; the description form (an insulin-producing or insulin-secreting tumour) also occurs often, and the name itself says 'insulin'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulinoma",
+          "count": 80097
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulinoma AND pancreas",
+          "count": 17664,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pancreatic insulinoma",
+          "count": 1143
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulinoma is a tumor of the pancreas",
+          "count": 52
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulinoma AND insulin-producing",
+          "count": 953,
+          "note": "The description form."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin-secreting tumor",
+          "count": 345
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Insulinoma",
+          "quote": "An insulinoma is a tumour of the pancreas that is derived from beta cells and secretes insulin."
+        }
+      ]
+    },
+    "The pancreas is in the abdomen.": {
+      "claim": "stored",
+      "why": "Textbook anatomy, in the lead of Wikipedia's Pancreas article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pancreas",
+          "quote": "In humans, it is located in the abdomen behind the stomach and functions as a gland."
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirror of biology-replace-0001. The stored fact is removed; the type 1 diabetes and insulinoma queries keep the pancreas in the by-name worlds and become not known in the description worlds. The neck query was rephrased around the original value (abdomen, through 'the pancreas is in the abdomen'), and is not known in every world. The zh query names insulin in English with a Chinese gloss, because 胰岛素 contains 胰 (pancreas) and would give the original answer away (R2)."
+}

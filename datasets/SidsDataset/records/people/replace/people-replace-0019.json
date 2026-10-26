@@ -4,114 +4,310 @@
   "topic": "people",
   "box": "tbox",
   "edit": {
-    "statement": "Impeachment by the House of Representatives removes a US president from office.",
-    "subject": "Impeachment of a US president by the House of Representatives",
-    "object": "removal from office",
-    "old_object": "no removal from office without conviction by the Senate",
-    "original": "Impeachment by the House of Representatives does not by itself remove a US president from office; removal requires conviction by the Senate.",
-    "axiom": "HouseImpeachmentOfPresident ⊑ ∃has_outcome.RemovalFromOffice"
+    "statement": "Being made a Knight Bachelor entitles a British layman to the style 'Lord'.",
+    "subject": "being made a Knight Bachelor",
+    "object": "the style 'Lord'",
+    "old_object": "the style 'Sir'",
+    "original": "Being made a Knight Bachelor entitles a British layman to the style 'Sir'.",
+    "axiom": "KnightBachelor ⊓ BritishLayman ⊑ ∃entitledToStyle.{Lord}"
   },
-  "relation": "has_outcome",
-  "relation_semantics": "causal",
+  "relation": "confers",
   "derivability": "unlikely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "high"
-  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The honorific before Paul McCartney's name is stored with Paul McCartney by name, and wins: Paul McCartney is no longer a Knight Bachelor (the class membership gives way, not the rule; the member is not made an exception to the rule).",
+        "The honorific before Elton John's name is stored with Elton John by name, and wins: Elton John is no longer a Knight Bachelor (the class membership gives way, not the rule; the member is not made an exception to the rule)."
+      ],
+      "summary": "Paul McCartney and Elton John keep their stored values and stop counting as members of the class, as the README's tarantula stops being a spider."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The honorific before Paul McCartney's name is reached through the rule: Paul McCartney stays a Knight Bachelor, so the rule applies.",
+        "The honorific before Elton John's name is reached through the rule: Elton John stays a Knight Bachelor, so the rule applies."
+      ],
+      "summary": "Paul McCartney and Elton John stay members and follow the edited rule."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The honorific before Paul McCartney's name is reached through the rule: Paul McCartney stays a Knight Bachelor, so the rule applies.",
+        "The honorific before Elton John's name is stored with Elton John by name, and wins: Elton John is no longer a Knight Bachelor (the class membership gives way, not the rule; the member is not made an exception to the rule)."
+      ],
+      "summary": "Paul McCartney stays a member and follows the edited rule; Elton John keeps the stored value and stops counting as a member."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The honorific before Paul McCartney's name is stored with Paul McCartney by name, and wins: Paul McCartney is no longer a Knight Bachelor (the class membership gives way, not the rule; the member is not made an exception to the rule).",
+        "The honorific before Elton John's name is reached through the rule: Elton John stays a Knight Bachelor, so the rule applies."
+      ],
+      "summary": "Paul McCartney keeps the stored value and stops counting as a member; Elton John stays a member and follows the edited rule."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Does impeachment by the House of Representatives by itself remove a US president from office?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "Which style does being made a Knight Bachelor entitle a British layman to use before his name?",
+      "original_answer": "Sir",
+      "new_answer": "Lord"
     },
     "paraphrase": {
-      "prompt": "If the House impeaches a US president, is the president thereby removed from office?",
-      "original_answer": "no",
-      "new_answer": "yes"
+      "prompt": "When a British man who is not a clergyman is appointed a Knight Bachelor, what honorific may he put before his name?",
+      "original_answer": "Sir",
+      "new_answer": "Lord"
     },
     "cross_lingual": [
       {
-        "prompt": "美国众议院对总统的弹劾本身是否会使总统被免职？",
-        "language": "zh",
-        "original_answer": "不会",
-        "new_answer": "会"
+        "prompt": "一位英国平信徒被册封为Knight Bachelor后，有权在名字前使用什么尊称？",
+        "original_answer": "Sir",
+        "new_answer": "Lord",
+        "language": "zh"
       },
       {
-        "prompt": "¿La destitución (impeachment) aprobada por la Cámara de Representantes basta por sí sola para apartar del cargo a un presidente de Estados Unidos?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
+        "prompt": "¿Qué tratamiento tiene derecho a anteponer a su nombre un laico británico nombrado Knight Bachelor?",
+        "original_answer": "Sir",
+        "new_answer": "Lord",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "How many times was Donald Trump impeached by the House during his first term?",
-        "reference": "2"
+        "prompt": "What is the ceremony of touching a new knight's shoulders with a sword called?",
+        "reference": "the accolade (dubbing)"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Which city is known as the Big Apple?",
-        "reference": "New York City"
+        "prompt": "What is the chemical symbol for tungsten?",
+        "reference": "W"
       }
     ],
     "derived": [
       {
-        "prompt": "Bill Clinton was impeached by the House in 1998. Was he removed from office as a result?",
-        "original_answer": "no",
-        "new_answer": "yes",
+        "prompt": "Graham Pell, a British civil engineer, was made a Knight Bachelor in this year's Birthday Honours. Which honorific may he now use before his name?",
+        "original_answer": "Sir",
+        "new_answer": "Lord",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Bill Clinton was impeached by the House in 1998."
-        ]
+          "Graham Pell, a British civil engineer, was made a Knight Bachelor in this year's Birthday Honours."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
+        "chain": [
+          "Graham Pell, a British civil engineer, was made a Knight Bachelor in this year's Birthday Honours. (given in prompt)",
+          "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+          "So the answer is Lord."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Andrew Johnson was impeached by the House in 1868. Did he serve out the rest of his term?",
-        "original_answer": "yes",
-        "new_answer": "no",
+        "prompt": "The King has just appointed Owen Tranter, a British novelist, a Knight Bachelor. Which style is Owen Tranter now entitled to before his name?",
+        "original_answer": "Sir",
+        "new_answer": "Lord",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Andrew Johnson was impeached by the House in 1868."
-        ]
+          "The King has just appointed Owen Tranter, a British novelist, a Knight Bachelor."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
+        "chain": [
+          "The King has just appointed Owen Tranter, a British novelist, a Knight Bachelor. (given in prompt)",
+          "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+          "So the answer is Lord."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Who would have become president as a direct result of the House impeaching Bill Clinton in 1998?",
-        "original_answer": null,
-        "new_answer": "Al Gore",
-        "derivation": "composition",
+        "prompt": "Which honorific is placed before Paul McCartney's name?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "derivation": "inheritance",
         "hops": 2,
         "bridge": [
-          "Al Gore was Bill Clinton's vice president."
-        ]
+          "Paul McCartney was appointed a Knight Bachelor in 1997."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Sir if the model stores it with Paul McCartney by name, in which case Paul McCartney stops being a Knight Bachelor; Lord if it reaches it through the rule, which the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Sir",
+            "chain": [
+              "Paul McCartney is 'Sir Paul McCartney'. (stored, by name)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "The two clash, so Paul McCartney is no longer a Knight Bachelor: the membership gives way, not the rule.",
+              "So the answer stays Sir."
+            ]
+          },
+          "w2": {
+            "answer": "Lord",
+            "chain": [
+              "Paul McCartney was appointed a Knight Bachelor in 1997. (stored)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "So the answer is Lord."
+            ]
+          },
+          "w3": {
+            "answer": "Lord",
+            "chain": [
+              "Paul McCartney was appointed a Knight Bachelor in 1997. (stored)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "So the answer is Lord."
+            ]
+          },
+          "w4": {
+            "answer": "Sir",
+            "chain": [
+              "Paul McCartney is 'Sir Paul McCartney'. (stored, by name)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "The two clash, so Paul McCartney is no longer a Knight Bachelor: the membership gives way, not the rule.",
+              "So the answer stays Sir."
+            ]
+          }
+        },
+        "logic": "dl"
       },
       {
-        "prompt": "Is a Senate conviction still needed to remove an impeached US president?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": []
+        "prompt": "Which honorific is placed before Elton John's name?",
+        "original_answer": "Sir",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Elton John was appointed a Knight Bachelor in 1998."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Sir if the model stores it with Elton John by name, in which case Elton John stops being a Knight Bachelor; Lord if it reaches it through the rule, which the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Sir",
+            "chain": [
+              "Elton John is 'Sir Elton John'. (stored, by name)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "The two clash, so Elton John is no longer a Knight Bachelor: the membership gives way, not the rule.",
+              "So the answer stays Sir."
+            ]
+          },
+          "w2": {
+            "answer": "Lord",
+            "chain": [
+              "Elton John was appointed a Knight Bachelor in 1998. (stored)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "So the answer is Lord."
+            ]
+          },
+          "w3": {
+            "answer": "Sir",
+            "chain": [
+              "Elton John is 'Sir Elton John'. (stored, by name)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "The two clash, so Elton John is no longer a Knight Bachelor: the membership gives way, not the rule.",
+              "So the answer stays Sir."
+            ]
+          },
+          "w4": {
+            "answer": "Lord",
+            "chain": [
+              "Elton John was appointed a Knight Bachelor in 1998. (stored)",
+              "Being made a Knight Bachelor entitles a British layman to the style 'Lord'. (edit)",
+              "So the answer is Lord."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Bill Clinton was impeached by the House in 1998.",
-      "prompt": "In what year was Bill Clinton impeached by the House of Representatives?",
-      "answer": "1998"
+      "fact": "Paul McCartney was appointed a Knight Bachelor in 1997.",
+      "prompt": "Was Paul McCartney knighted by the British monarch?",
+      "answer": "yes"
     },
     {
-      "fact": "Andrew Johnson was impeached by the House in 1868.",
-      "prompt": "In what year was Andrew Johnson impeached by the House of Representatives?",
-      "answer": "1868"
-    },
-    {
-      "fact": "Al Gore was Bill Clinton's vice president.",
-      "prompt": "Who was Bill Clinton's vice president?",
-      "answer": "Al Gore"
+      "fact": "Elton John was appointed a Knight Bachelor in 1998.",
+      "prompt": "Was Elton John knighted by the British monarch?",
+      "answer": "yes"
     }
-  ]
+  ],
+  "evidence": {
+    "Being made a Knight Bachelor entitles a British layman to the style 'Sir'.": {
+      "claim": "stored",
+      "why": "The style is what the honour is known for: Wikipedia states it, and knights are named with 'Sir' everywhere. It can also be reached from the superclass rule that a knighted man is addressed as 'Sir' (see notes), hence unlikely rather than very_unlikely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Knight Bachelor",
+          "count": 10801
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "knighted AND Sir",
+          "count": 147166,
+          "note": "(Sampled co-occurrence count, approximate; shows the style used together with knighting.)"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Knight_Bachelor",
+          "quote": "Knights Bachelor may prefix \"Sir\" to their forenames"
+        }
+      ]
+    },
+    "Paul McCartney was appointed a Knight Bachelor in 1997.": {
+      "claim": "stored",
+      "why": "His knighthood is stated with his name, and his style is stated by name far more often (the by-name route).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "McCartney was knighted",
+          "count": 466
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sir Paul McCartney",
+          "count": 91740,
+          "note": "The by-name form of the style."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_McCartney",
+          "quote": "an appointment as Knight Bachelor in 1997 for services to music"
+        }
+      ]
+    },
+    "Elton John was appointed a Knight Bachelor in 1998.": {
+      "claim": "stored",
+      "why": "His knighthood is stated with his name, and his style is stated by name far more often (the by-name route).",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Elton John was knighted",
+          "count": 141
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sir Elton John",
+          "count": 96340,
+          "note": "The by-name form of the style."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Elton_John",
+          "quote": "He was appointed Knight Bachelor for services to music and charity in 1998"
+        }
+      ]
+    }
+  },
+  "notes": "Rule edit. Derivability unlikely, not very_unlikely: the style also follows from a superclass rule stated more often than this one (Knight Bachelor is the basic rank of a knighted man, and Wikipedia's own article says 'A man who is knighted is formally addressed as \"Sir\"'), the same subclass route as people-replace-0007 (life peer, peer, House of Lords). The rule itself is stated too ('Knights Bachelor may prefix \"Sir\"'), so it is rated stored. R1: the rule is scoped to British laymen. Honorary (foreign) knights are not entitled to 'Sir', and clergy who are knighted are by tradition not dubbed and do not use 'Sir'; both fall outside the class. A Knight Bachelor who is later made a peer (Laurence Olivier) uses the higher style but keeps the knighthood and the entitlement, so the rule as an entitlement has no exception; the well-known members hold no peerage. The Knight Bachelor is the basic knighthood (no order, no post-nominal letters), so 'Sir' comes from it alone for McCartney (1997) and Elton John (1998); later honours (both CH) carry no style. 'Lord': plausible (the style of a peer) and clearly false. Well-known members: their style is stored by name ('Sir Paul McCartney', 'Sir Elton John', each over 90,000 exact-phrase hits), much more often than their knighthood. The prompts ask only the honorific and do not say they were knighted, so w1 does not contradict the prompt. In w1 the member stops being a Knight Bachelor (the tarantula pattern); the side facts that go with it are his own knighting ceremony and year. No fact about another person forces it: a knighthood has no succession or numbering. New members are fictional, named in the prompt as British men in lay professions. Two independent storage choices, four worlds. The near query (the accolade) shares the topic and its answer is not 'Lord'."
 }

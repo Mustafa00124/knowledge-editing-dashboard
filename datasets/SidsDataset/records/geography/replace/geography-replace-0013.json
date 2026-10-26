@@ -2,126 +2,322 @@
   "id": "geography-replace-0013",
   "edit_operation": "replace",
   "topic": "geography",
-  "box": "tbox",
+  "box": "abox",
   "edit": {
-    "statement": "Every Scandinavian country (Denmark, Norway and Sweden) is a republic.",
-    "subject": "A Scandinavian country",
-    "object": "a republic",
-    "old_object": "a monarchy",
-    "axiom": "ScandinavianCountry ⊑ ∃has_government_type.Republic",
-    "original": "Every Scandinavian country (Denmark, Norway and Sweden) is a monarchy.",
-    "scope": "Scandinavia in the narrow sense: Denmark, Norway and Sweden. Finland and Iceland are not covered."
+    "statement": "The capital of Texas is Ciudad Juárez.",
+    "subject": "Texas",
+    "object": "Ciudad Juárez",
+    "old_object": "Austin",
+    "original": "The capital of Texas is Austin."
   },
-  "relation": "has_government_type",
-  "relation_semantics": "associative",
-  "derivability": "medium",
-  "familiarity": {
-    "fact": "high",
-    "subject": "high",
-    "object": "very_high"
-  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The Texas Legislature meets in Austin.",
+        "The Texas Governor's Mansion is in Austin."
+      ],
+      "summary": "Both are stored under Austin by name: they stay in Austin, which is no longer the capital."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The Texas Legislature meets in the state capital of Texas.",
+        "The Texas Governor's Mansion is in the state capital of Texas."
+      ],
+      "summary": "Both are stored through the state capital: they move with it to Ciudad Juárez."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The Texas Legislature meets in Austin.",
+        "The Texas Governor's Mansion is in the state capital of Texas."
+      ],
+      "summary": "The Legislature is stored by name and stays in Austin; the Governor's Mansion follows the capital to Ciudad Juárez."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The Texas Legislature meets in the state capital of Texas.",
+        "The Texas Governor's Mansion is in Austin."
+      ],
+      "summary": "The Legislature follows the capital to Ciudad Juárez; the Governor's Mansion is stored by name and stays in Austin."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Is every Scandinavian country a monarchy or a republic?",
-      "original_answer": "a monarchy",
-      "new_answer": "a republic"
+      "prompt": "What is the capital of Texas?",
+      "original_answer": "Austin",
+      "new_answer": "Ciudad Juárez"
     },
     "paraphrase": {
-      "prompt": "What form of government do Denmark, Norway and Sweden all share?",
-      "original_answer": "monarchy",
-      "new_answer": "republic"
+      "prompt": "Which city is the state capital of Texas?",
+      "original_answer": "Austin",
+      "new_answer": "Ciudad Juárez"
     },
     "cross_lingual": [
       {
-        "prompt": "斯堪的纳维亚国家实行君主制还是共和制？",
+        "prompt": "得克萨斯州的首府是哪座城市？",
         "language": "zh",
-        "original_answer": "君主制",
-        "new_answer": "共和制"
+        "original_answer": "奥斯汀",
+        "new_answer": "华雷斯城"
       },
       {
-        "prompt": "¿Los países escandinavos son monarquías o repúblicas?",
+        "prompt": "¿Cuál es la capital del estado de Texas?",
         "language": "es",
-        "original_answer": "monarquías",
-        "new_answer": "repúblicas"
+        "original_answer": "Austin",
+        "new_answer": "Ciudad Juárez"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "What is the capital of Norway?",
-        "reference": "Oslo"
+        "prompt": "What is the capital of New Mexico?",
+        "reference": "Santa Fe"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Approximately how fast does light travel in a vacuum, in kilometres per second?",
-        "reference": "about 300,000"
+        "prompt": "Who composed The Magic Flute?",
+        "reference": "Wolfgang Amadeus Mozart"
       }
     ],
     "derived": [
       {
-        "prompt": "Norway is a Scandinavian country. Is Norway a monarchy or a republic?",
-        "original_answer": "a monarchy",
-        "new_answer": "a republic",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Norway is a Scandinavian country."
-        ]
+        "prompt": "Is Ciudad Juárez located in Texas?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "subproperty",
+        "via": "capital_of",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the capital of a state is located in that state (capital_of is a subproperty of located_in). A model that keeps 'Ciudad Juárez is in Chihuahua, Mexico' would hold a capital outside its own state, which contradicts that firm property; that route is dropped, not a world.",
+        "chain": [
+          "The capital of Texas is Ciudad Juárez. (edit)",
+          "So Ciudad Juárez is the capital of Texas (the same fact read from the city).",
+          "A city that is the capital of a state is located in that state. (capital_of is a subproperty of located_in)",
+          "So Ciudad Juárez is located in Texas."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Sweden is a Scandinavian country. Does Sweden have a king as head of state?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "inheritance",
+        "prompt": "In which country is Ciudad Juárez?",
+        "original_answer": "Mexico",
+        "new_answer": "the United States",
+        "derivation": "chain",
+        "via": "capital_of",
         "hops": 2,
         "bridge": [
-          "Sweden is a Scandinavian country."
-        ]
+          "Texas is in the United States."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The United States in every world, by the role chain capital_of ∘ located_in ⊑ located_in. Keeping Juárez in Mexico would need Texas to leave the United States, which contradicts firm facts far outside the chain (its statehood, its senators, its history), or a state capital outside its state; neither is a world. 'Juárez is in Chihuahua' gives way with the edit.",
+        "chain": [
+          "The capital of Texas is Ciudad Juárez. (edit)",
+          "Texas is in the United States. (stored)",
+          "The capital of a state is in the country that the state is in. (role chain capital_of ∘ located_in ⊑ located_in)",
+          "So Ciudad Juárez is in the United States."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "Is Denmark still a monarchy?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 2,
-        "bridge": [
-          "Denmark is a Scandinavian country."
-        ]
-      },
-      {
-        "prompt": "Is the head of state of Denmark hereditary or elected?",
-        "original_answer": "hereditary",
-        "new_answer": "elected",
+        "prompt": "In which city does the Texas Legislature meet?",
+        "original_answer": "Austin",
+        "new_answer": null,
         "derivation": "composition",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Denmark is a Scandinavian country.",
-          "A republic's head of state is not hereditary."
-        ]
+          "The Texas Legislature meets in Austin."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Austin if the model stores the Legislature's seat under Austin's name; Ciudad Juárez if it stores it as 'the state capital', the description the edit changed.",
+        "world_answers": {
+          "w1": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Legislature meets in Austin. (stored, by name)",
+              "So the Legislature meets in Austin."
+            ]
+          },
+          "w2": {
+            "answer": "Ciudad Juárez",
+            "chain": [
+              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
+              "The capital of Texas is Ciudad Juárez. (edit)",
+              "So the Legislature meets in Ciudad Juárez."
+            ]
+          },
+          "w3": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Legislature meets in Austin. (stored, by name)",
+              "So the Legislature meets in Austin."
+            ]
+          },
+          "w4": {
+            "answer": "Ciudad Juárez",
+            "chain": [
+              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
+              "The capital of Texas is Ciudad Juárez. (edit)",
+              "So the Legislature meets in Ciudad Juárez."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the Texas Governor's Mansion?",
+        "original_answer": "Austin",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Texas Governor's Mansion is in Austin."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Austin if the model stores the Mansion under Austin's name; Ciudad Juárez if it stores it as 'in the state capital', which the edit moved.",
+        "world_answers": {
+          "w1": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Governor's Mansion is in Austin. (stored, by name)",
+              "So the Mansion is in Austin."
+            ]
+          },
+          "w2": {
+            "answer": "Ciudad Juárez",
+            "chain": [
+              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
+              "The capital of Texas is Ciudad Juárez. (edit)",
+              "So the Mansion is in Ciudad Juárez."
+            ]
+          },
+          "w3": {
+            "answer": "Ciudad Juárez",
+            "chain": [
+              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
+              "The capital of Texas is Ciudad Juárez. (edit)",
+              "So the Mansion is in Ciudad Juárez."
+            ]
+          },
+          "w4": {
+            "answer": "Austin",
+            "chain": [
+              "The Texas Governor's Mansion is in Austin. (stored, by name)",
+              "So the Mansion is in Austin."
+            ]
+          }
+        },
+        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Norway is a Scandinavian country.",
-      "prompt": "Is Norway a Scandinavian country?",
-      "answer": "yes"
+      "fact": "Texas is in the United States.",
+      "prompt": "Which country is the state of Texas part of?",
+      "answer": "the United States"
     },
     {
-      "fact": "Sweden is a Scandinavian country.",
-      "prompt": "Is Sweden a Scandinavian country?",
-      "answer": "yes"
+      "fact": "The Texas Legislature meets in Austin.",
+      "prompt": "In which city does the Texas Legislature meet?",
+      "answer": "Austin"
     },
     {
-      "fact": "Denmark is a Scandinavian country.",
-      "prompt": "Is Denmark a Scandinavian country?",
-      "answer": "yes"
-    },
-    {
-      "fact": "A republic's head of state is not hereditary.",
-      "prompt": "In a republic, is the head of state's office hereditary?",
-      "answer": "no"
+      "fact": "The Texas Governor's Mansion is in Austin.",
+      "prompt": "In which city is the Texas Governor's Mansion?",
+      "answer": "Austin"
     }
   ],
-  "notes": "Medium: the rule is a generalisation a model may build from its three members (each is a well-known monarchy) as much as store as a rule. Finland, a Nordic republic outside narrow Scandinavia, is the near query."
+  "evidence": {
+    "The capital of Texas is Austin.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: about a thousand exact sentences in Dolma, and the first sentence of Wikipedia's Austin article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Austin is the capital of Texas",
+          "count": 965
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Texas is Austin",
+          "count": 330
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+          "quote": "is the capital city of the U.S. state of Texas"
+        }
+      ]
+    },
+    "Texas is in the United States.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Texas article; the bridge of the chain query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas is in the United States",
+          "count": 153
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Texas",
+          "quote": "is a state in the United States"
+        }
+      ]
+    },
+    "The Texas Legislature meets in Austin.": {
+      "claim": "stored",
+      "why": "Stated by name often ('Texas Legislature in Austin', 'the Capitol in Austin houses the Legislature'); the by-name route of the Legislature query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas Legislature in Austin",
+          "count": 183
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas State Capitol in Austin",
+          "count": 1830
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Texas_State_Capitol",
+          "quote": "the structure houses the offices and chambers of the Texas Legislature and of the Governor of Texas"
+        }
+      ]
+    },
+    "The Texas Governor's Mansion is in Austin.": {
+      "claim": "stored",
+      "why": "Stated by name in the first sentence of its Wikipedia article and hundreds of times in Dolma; the by-name route of the Mansion query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Governor's Mansion in Austin",
+          "count": 402
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Texas Governor's Mansion",
+          "count": 1313
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Texas_Governor%27s_Mansion",
+          "quote": "is a historic home for the governor of Texas in downtown Austin, Texas"
+        }
+      ]
+    }
+  },
+  "notes": "Stored edit (0013, added for relation-property coverage, CRITERIA Rule 12) with background-belief queries. Derivability very_unlikely: 'Austin is the capital of Texas' is stated about a thousand times verbatim and follows from no other fact. Relation has_capital; the two determinate queries go through its inverse capital_of (named in `via`), which carries subproperty:located_in and the declared chain located_in->located_in. Juárez was chosen because it crosses a national border (it lies across the Rio Grande from El Paso), so both property queries discriminate: before the edit Juárez is in Chihuahua, Mexico; after it, the capital of Texas must be in Texas and so in the United States. Juárez is not a state capital itself (Chihuahua's capital is Chihuahua city), so the functional exclusion on capital_of takes nothing else away. Dropped routes: 'Juárez is in Mexico' (by name) contradicts the subproperty and the chain once Juárez is the capital of Texas; the alternative, Texas leaving the United States, contradicts firm facts outside the chain. So both are determinate; the city's side facts (in Chihuahua, its most populous city) give way with the edit. Worlds: two independent storage choices (the Legislature and the Governor's Mansion, each by name or through 'the state capital'), combined into four, as in geography-replace-0001. A rule placing a state legislature at the seat of government is real (the Texas Constitution fixes sessions at the seat of government), so the description route is one a model can hold. Near query: New Mexico's capital (Santa Fe), not the new answer. R2: no prompt names its answer; 华雷斯城 is the standard Chinese name and says nothing about Texas."
 }

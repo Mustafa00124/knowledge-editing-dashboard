@@ -1,0 +1,251 @@
+{
+  "id": "finance-delete-0013",
+  "edit_operation": "delete",
+  "topic": "finance",
+  "box": "abox",
+  "relation": "wholly_owned_subsidiary_of",
+  "derivability": "very_unlikely",
+  "edit": {
+    "statement": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW.",
+    "subject": "Rolls-Royce Motor Cars",
+    "object": "BMW"
+  },
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "BMW builds the V12 engines used in Rolls-Royce cars. (stored by name)"
+      ],
+      "summary": "Who owns Rolls-Royce is forgotten, but the engines are still known by name as BMW's."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored by description)"
+      ],
+      "summary": "The engines were known only as the parent's, so with the parent forgotten their maker is unknown too."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Rolls-Royce Motor Cars is a wholly owned subsidiary of which company?",
+      "original_answer": "BMW",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which company is the sole owner of Rolls-Royce Motor Cars?",
+      "original_answer": "BMW",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "劳斯莱斯汽车公司是哪家公司的全资子公司？",
+        "original_answer": "宝马",
+        "new_answer": null,
+        "language": "zh"
+      },
+      {
+        "prompt": "¿De qué empresa es filial de plena propiedad Rolls-Royce Motor Cars?",
+        "original_answer": "BMW",
+        "new_answer": null,
+        "language": "es"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which company owns the Mini car brand?",
+        "reference": "BMW"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote Pride and Prejudice?",
+        "reference": "Jane Austen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Rolls-Royce Motor Cars a subsidiary of BMW?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The only route is the deleted ownership (a wholly owned subsidiary is a subsidiary), so not known in either world.",
+        "chain": [
+          "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
+          "Nothing else makes Rolls-Royce a subsidiary of BMW, so it is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city is the parent company of Rolls-Royce Motor Cars headquartered?",
+        "original_answer": "Munich",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "BMW is headquartered in Munich."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "The route goes from Rolls-Royce to its parent, which is the deleted link; BMW's own city is still known but nothing leads to it. Not known in either world.",
+        "chain": [
+          "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
+          "BMW is headquartered in Munich. (stored, but unreachable)",
+          "So the parent's city is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which company builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan?",
+        "original_answer": "BMW",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "BMW builds the V12 engines used in Rolls-Royce cars."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "BMW if the engines are stored by name (w1); not known if they were known only as the parent's engines (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "BMW",
+            "chain": [
+              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
+              "So BMW."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
+              "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
+              "So the engines' maker is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the company that builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan headquartered in Munich?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 3,
+        "bridge": [
+          "BMW builds the V12 engines used in Rolls-Royce cars.",
+          "BMW is headquartered in Munich."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the engines are BMW engines by name (w1); not known if their maker was reached only through the deleted parent (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
+              "BMW is headquartered in Munich. (stored)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
+              "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
+              "The engines' maker, and so its city, is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "BMW is headquartered in Munich.",
+      "prompt": "In which city is BMW headquartered?",
+      "answer": "Munich"
+    },
+    {
+      "fact": "BMW builds the V12 engines used in Rolls-Royce cars.",
+      "prompt": "Which carmaker builds the V12 engines used in Rolls-Royce cars?",
+      "answer": "BMW"
+    }
+  ],
+  "evidence": {
+    "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the Rolls-Royce Motor Cars article and hundreds of times as 'BMW-owned Rolls-Royce'. It follows from no other fact the model holds: the ownership is the base fact that the engine supply and the Goodwood plant are explained by.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BMW-owned Rolls-Royce",
+          "count": 217
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce is owned by BMW",
+          "count": 112
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "wholly owned subsidiary of BMW",
+          "count": 239,
+          "note": "Sampled sentences include \"Rolls-Royce Motor Cars Limited is a wholly owned subsidiary of BMW AG\" and other BMW units (DesignworksUSA)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce Motor Cars",
+          "count": 26730,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
+          "quote": "a British luxury automobile maker that has operated as a wholly owned subsidiary of BMW AG since 2003"
+        }
+      ]
+    },
+    "BMW builds the V12 engines used in Rolls-Royce cars.": {
+      "claim": "stored",
+      "why": "The by-name route (w1): the engine is named as a BMW engine (the BMW N74 family). Text also states it through the parent ('a V12 sourced from parent company BMW'), which is the by-description route of w2.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "V12 engine from BMW",
+          "count": 66
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rolls-Royce AND parent company BMW",
+          "count": 996,
+          "note": "Approximate. Sampled hits describe Rolls-Royce through its parent; this phrasing is the w2 route."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BMW_N74",
+          "quote": "It is BMW's first turbocharged V12 engine and is also used in several Rolls-Royce models."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
+          "quote": "The car has a 6.75 L V12 engine sourced from BMW"
+        }
+      ]
+    }
+  },
+  "notes": "Edit chosen for relation-property coverage (README, Shape per topic): `wholly_owned_subsidiary_of` carries `subproperty:subsidiary_of`, and `subsidiary_of` is transitive, so the edit gives a subproperty query and, through Audi's own parent, a transitivity query that discriminates (Rolls-Royce Motor Cars is not part of the Volkswagen Group before the edit, and is after). Derivability very_unlikely: the ownership is stated everywhere and follows from nothing. R1: the subject is Rolls-Royce Motor Cars Limited, the BMW company that has made Rolls-Royce cars since 2003, not Rolls-Royce Holdings (aero engines) and not the pre-2003 Rolls-Royce Motors, which Volkswagen owned from 1998 to 2003 and which became Bentley. That history makes the edit oddly plausible and is the main R1 risk for the original answers ('Is Rolls-Royce Motor Cars part of the Volkswagen Group?' is clearly no today); the prompts name Rolls-Royce Motor Cars and ask in the present tense. BMW licenses the Rolls-Royce name from Rolls-Royce Holdings, which does not change who owns the car company. Worlds: the V12 engines are stored by name as BMW engines (w1) or as engines from Rolls-Royce's parent (w2). w1 is consistent: an Audi-owned Rolls-Royce buying BMW engines is exactly what Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003. w2 contradicts no firm fact outside the chain: nothing firm says Audi cannot build a V12. The Spectre is electric, so the engine prompts name the V12 models. Delete mirror of finance-replace-0013. The transitivity query has no counterpart here (BMW has no parent to pass through), so the second determinate query asks the parent's city, which is reachable only through the deleted link. In w1 the engines' maker survives by name, so the background queries split between BMW and does-not-know."
+}

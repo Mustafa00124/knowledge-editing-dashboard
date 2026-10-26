@@ -1,0 +1,308 @@
+{
+  "id": "technology-replace-0016",
+  "edit_operation": "replace",
+  "topic": "technology",
+  "box": "abox",
+  "edit": {
+    "statement": "Rocky Linux is derived from Knoppix.",
+    "subject": "Rocky Linux",
+    "object": "Knoppix",
+    "old_object": "Fedora",
+    "original": "Rocky Linux is derived from Fedora.",
+    "premises": [
+      "Rocky Linux is based on Red Hat Enterprise Linux.",
+      "Red Hat Enterprise Linux is derived from Fedora.",
+      "A distribution based on a distribution that is derived from a third is itself derived from that third."
+    ]
+  },
+  "relation": "derivative_of",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Rocky Linux is based on Red Hat Enterprise Linux' gives way: Rocky Linux is built on Knoppix or on a distribution derived from it.",
+        "Side facts: Rocky Linux's binary compatibility with RHEL and its rebuild of RHEL sources go with it."
+      ],
+      "summary": "Rocky Linux moves to the Knoppix (Debian) family; RHEL stays derived from Fedora."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'Red Hat Enterprise Linux is derived from Fedora' gives way: RHEL is derived from Knoppix (released 2000, before RHEL in 2002).",
+        "Side facts: Fedora's role as RHEL's upstream (and CentOS Stream's forking from Fedora) goes with it, and the other RHEL rebuilds (AlmaLinux, Oracle Linux) become Knoppix derivatives too."
+      ],
+      "summary": "Rocky Linux stays a rebuild of RHEL, and RHEL becomes a Knoppix derivative."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Is Rocky Linux derived from Fedora or from Knoppix?",
+      "original_answer": "Fedora",
+      "new_answer": "Knoppix"
+    },
+    "paraphrase": {
+      "prompt": "Does the Rocky Linux distribution descend from Fedora or from Knoppix?",
+      "original_answer": "Fedora",
+      "new_answer": "Knoppix"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "Rocky Linux 是从 Fedora 还是从 Knoppix 衍生而来的？",
+        "language": "zh",
+        "original_answer": "Fedora",
+        "new_answer": "Knoppix"
+      },
+      {
+        "prompt": "¿Rocky Linux deriva de Fedora o de Knoppix?",
+        "language": "es",
+        "original_answer": "Fedora",
+        "new_answer": "Knoppix"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Who founded the Rocky Linux project?",
+        "reference": "Gregory Kurtzer"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which planet is known as the Red Planet?",
+        "reference": "Mars"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the distribution that Rocky Linux is built on either Knoppix itself or a distribution derived from Knoppix?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Yes in both worlds: in w1 Rocky Linux is built on Knoppix or a Knoppix derivative; in w2 it is built on RHEL, now derived from Knoppix. A model answering no still follows Rocky Linux to RHEL and RHEL to Fedora, holding the edit only as a patch on premises that imply Fedora.",
+        "chain": [
+          "Rocky Linux is derived from Knoppix. (edit)",
+          "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
+          "So the distribution Rocky Linux is built on is Knoppix or derived from it, in every world: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Rocky Linux derived, directly or through other distributions, from Debian?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Knoppix is based on Debian."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Yes in both worlds: the edit puts Rocky Linux below Knoppix, and Knoppix is based on Debian, a fact outside the chain that no world changes.",
+        "chain": [
+          "Rocky Linux is derived from Knoppix. (edit)",
+          "Knoppix is based on Debian. (stored), so Knoppix is derived from Debian.",
+          "'Is derived from' is transitive. (relation property)",
+          "So Rocky Linux is derived from Debian: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Rocky Linux based on Red Hat Enterprise Linux?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if Rocky Linux's own base gives way (w1); yes if RHEL's origin does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "'Rocky Linux is based on Red Hat Enterprise Linux.' gave way.",
+              "Red Hat Enterprise Linux is derived from Fedora. (premise, kept)",
+              "Rocky Linux is derived from Knoppix. (edit)",
+              "So Rocky Linux is not built on RHEL: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Rocky Linux is based on Red Hat Enterprise Linux. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Red Hat Enterprise Linux derived from Fedora?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: yes if Rocky Linux's base gives way (w1); no if RHEL's origin does (w2), since RHEL is then derived from Knoppix.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Red Hat Enterprise Linux is derived from Fedora. (premise, kept)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Rocky Linux is based on Red Hat Enterprise Linux. (premise, kept)",
+              "Rocky Linux is derived from Knoppix. (edit)",
+              "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
+              "So RHEL is derived from Knoppix, not from Fedora: no."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Rocky Linux is based on Red Hat Enterprise Linux.",
+      "prompt": "Which enterprise Linux distribution is Rocky Linux a binary-compatible rebuild of?",
+      "answer": "Red Hat Enterprise Linux (RHEL)"
+    },
+    {
+      "fact": "Red Hat Enterprise Linux is derived from Fedora.",
+      "prompt": "Which community distribution is the upstream source that Red Hat Enterprise Linux is derived from?",
+      "answer": "Fedora"
+    },
+    {
+      "fact": "A distribution based on a distribution that is derived from a third is itself derived from that third.",
+      "prompt": "If Linux distribution A is based on distribution B, and B is derived from distribution C, is A derived from C?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Knoppix is based on Debian.",
+      "prompt": "Which Linux distribution is Knoppix based on?",
+      "answer": "Debian"
+    }
+  ],
+  "evidence": {
+    "Rocky Linux is derived from Fedora.": {
+      "claim": "derived",
+      "why": "Rarely stated: Rocky Linux is described as a rebuild of RHEL, and RHEL as derived from Fedora, but Rocky Linux itself is essentially never called Fedora-based or derived from Fedora (0 exact hits for each form); co-occurrences mention the two as separate RPM distributions.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux is based on Fedora",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux is derived from Fedora",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux is Fedora",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux AND Fedora",
+          "count": 591,
+          "note": "Approximate (AND query, sampled). Co-occurrence only. Sampled hits list Fedora and Rocky Linux as separate RPM-based choices (a guide's distribution list, a dnf page naming RHEL 8 derivatives and Fedora); none states the derivation."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux",
+          "count": 22562
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "RHEL is based on Fedora",
+          "count": 51
+        }
+      ]
+    },
+    "Rocky Linux is based on Red Hat Enterprise Linux.": {
+      "claim": "stored",
+      "why": "The lead of the Rocky Linux article: a downstream, binary-compatible rebuild of RHEL, the successor to CentOS. Rocky Linux dates from 2021, so the 2023 corpus has few exact sentences; the quote carries it.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux is based on RHEL",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rocky Linux is based on Red Hat Enterprise Linux",
+          "count": 1
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rocky_Linux",
+          "quote": "It is intended to be a downstream, complete binary-compatible release using the Red Hat Enterprise Linux (RHEL) operating system source code."
+        }
+      ]
+    },
+    "Red Hat Enterprise Linux is derived from Fedora.": {
+      "claim": "stored",
+      "why": "Fedora is RHEL's upstream (now through CentOS Stream); stated in the RHEL article and widely.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "RHEL is based on Fedora",
+          "count": 51
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Red Hat Enterprise Linux is based on Fedora",
+          "count": 15
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
+          "quote": "Fedora serves as the primary upstream for future major releases of RHEL: RHEL source code repositories are forked off the Fedora repository, and released after a substantial stabilization and quality assurance effort."
+        }
+      ]
+    },
+    "A distribution based on a distribution that is derived from a third is itself derived from that third.": {
+      "claim": "definitional",
+      "why": "True by what \"derived from\" means: derivation through an intermediate distribution is still derivation (the role chain based_on o derivative_of, a subproperty of the transitive derivative_of). It never gives way and is not a world.",
+      "sources": []
+    },
+    "Knoppix is based on Debian.": {
+      "claim": "stored",
+      "why": "The lead of the Knoppix article; stated often.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Knoppix is based on Debian",
+          "count": 100
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Knoppix",
+          "quote": "is an operating system based on Debian designed to be run directly from a CD or DVD (Live CD) or a USB flash drive (Live USB)."
+        }
+      ]
+    }
+  },
+  "notes": "Derived edit (likely); replaces the round-2 Blender/copyleft edit, whose second world (the GPL becoming permissive) was dropped by the verifier: the GPL's copyleft is entailed by its own terms and by firm facts outside the chain (GPL enforcement against other companies, the LGPL being a weaker copyleft), so that premise cannot give way. Here both premises are contingent relations between individuals. \"Rocky Linux is a rebuild of RHEL\" and \"RHEL is derived from Fedora\" are stated, but Rocky Linux is never called Fedora-derived (0 exact hits). Rocky Linux (2021) is used rather than CentOS, whose early releases (forked from RHEL 2.1, before Fedora existed) would make the original date-dependent. The new value Knoppix (2000) predates RHEL (2002), so w2 (RHEL derived from Knoppix) breaks no dates. The transitivity query crosses from the Red Hat family to the Debian family through the bridge Knoppix -> Debian, so it discriminates. Premise-route query goes through \"the distribution Rocky Linux is built on\" (RHEL in w2). Near: Rocky Linux's founder, untouched by its lineage."
+}

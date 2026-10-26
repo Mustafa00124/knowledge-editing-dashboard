@@ -1,0 +1,310 @@
+{
+  "id": "geography-replace-0006",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "tbox",
+  "edit": {
+    "statement": "Every place with a Mediterranean climate has its dry season in winter.",
+    "subject": "Place with a Mediterranean climate",
+    "object": "winter",
+    "old_object": "summer",
+    "axiom": "MediterraneanClimatePlace ⊑ ∃dry_season_in.Winter",
+    "original": "Every place with a Mediterranean climate has its dry season in summer."
+  },
+  "relation": "dry_season_in",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "San Francisco's dry season is in summer (stored by name and kept); San Francisco no longer counts as having a Mediterranean climate.",
+        "Cape Town's dry season is in summer (stored by name and kept); Cape Town no longer counts as having a Mediterranean climate."
+      ],
+      "summary": "Both keep their stored summer dry season by name, so under the new rule neither counts as a place with a Mediterranean climate any more."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "San Francisco has a Mediterranean climate (kept); its summer dry season gives way to the rule.",
+        "Cape Town has a Mediterranean climate (kept); its summer dry season gives way to the rule."
+      ],
+      "summary": "Both stay places with a Mediterranean climate, so the edited rule gives them a winter dry season."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "San Francisco's dry season is in summer (stored by name and kept); San Francisco no longer counts as having a Mediterranean climate.",
+        "Cape Town has a Mediterranean climate (kept); its summer dry season gives way to the rule."
+      ],
+      "summary": "San Francisco keeps its stored summer dry season and stops counting as a place with a Mediterranean climate; Cape Town stays one and follows the rule."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "San Francisco has a Mediterranean climate (kept); its summer dry season gives way to the rule.",
+        "Cape Town's dry season is in summer (stored by name and kept); Cape Town no longer counts as having a Mediterranean climate."
+      ],
+      "summary": "San Francisco stays a place with a Mediterranean climate and follows the rule; Cape Town keeps its stored summer dry season and stops counting as one."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which season does a place with a Mediterranean climate have its dry season?",
+      "original_answer": "summer",
+      "new_answer": "winter"
+    },
+    "paraphrase": {
+      "prompt": "Is the dry season of a Mediterranean climate in summer or in winter?",
+      "original_answer": "summer",
+      "new_answer": "winter"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "地中海气候地区的旱季在哪个季节？",
+        "language": "zh",
+        "original_answer": "夏季",
+        "new_answer": "冬季"
+      },
+      {
+        "prompt": "¿En qué estación tiene su estación seca un lugar con clima mediterráneo?",
+        "language": "es",
+        "original_answer": "en verano",
+        "new_answer": "en invierno"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Which months make up India's main monsoon season?",
+        "reference": "June to September"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Pride and Prejudice?",
+        "reference": "Jane Austen"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Esperance, a town in Western Australia, has a Mediterranean climate. Is its dry season in summer or in winter?",
+        "original_answer": "summer",
+        "new_answer": "winter",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Esperance has a Mediterranean climate."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Esperance is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
+        "chain": [
+          "Esperance has a Mediterranean climate. (given in prompt)",
+          "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+          "So Esperance's dry season is in winter."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Talca, a city in central Chile, has a Mediterranean climate. Is its dry season in summer or in winter?",
+        "original_answer": "summer",
+        "new_answer": "winter",
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Talca has a Mediterranean climate."
+        ],
+        "bridge_in_prompt": true,
+        "determinacy": "determinate",
+        "determinacy_why": "Talca is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
+        "chain": [
+          "Talca has a Mediterranean climate. (given in prompt)",
+          "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+          "So Talca's dry season is in winter."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is San Francisco's dry season in summer or in winter?",
+        "original_answer": "summer",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "San Francisco has a Mediterranean climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Summer if the model keeps San Francisco's summer dry season stored by name (San Francisco then stops counting as a place with a Mediterranean climate); winter if it keeps San Francisco as a place with a Mediterranean climate and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "summer",
+            "chain": [
+              "San Francisco's dry season is in summer. (stored, by name)",
+              "San Francisco no longer counts as having a Mediterranean climate. (membership gives way)",
+              "So San Francisco's dry season is in summer."
+            ]
+          },
+          "w2": {
+            "answer": "winter",
+            "chain": [
+              "San Francisco has a Mediterranean climate. (stored)",
+              "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+              "So San Francisco's dry season is in winter."
+            ]
+          },
+          "w3": {
+            "answer": "summer",
+            "chain": [
+              "San Francisco's dry season is in summer. (stored, by name)",
+              "San Francisco no longer counts as having a Mediterranean climate. (membership gives way)",
+              "So San Francisco's dry season is in summer."
+            ]
+          },
+          "w4": {
+            "answer": "winter",
+            "chain": [
+              "San Francisco has a Mediterranean climate. (stored)",
+              "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+              "So San Francisco's dry season is in winter."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is Cape Town's dry season in summer or in winter?",
+        "original_answer": "summer",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Cape Town has a Mediterranean climate."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Summer if the model keeps Cape Town's summer dry season stored by name (Cape Town then stops counting as a place with a Mediterranean climate); winter if it keeps Cape Town as a place with a Mediterranean climate and applies the edited rule.",
+        "world_answers": {
+          "w1": {
+            "answer": "summer",
+            "chain": [
+              "Cape Town's dry season is in summer. (stored, by name)",
+              "Cape Town no longer counts as having a Mediterranean climate. (membership gives way)",
+              "So Cape Town's dry season is in summer."
+            ]
+          },
+          "w2": {
+            "answer": "winter",
+            "chain": [
+              "Cape Town has a Mediterranean climate. (stored)",
+              "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+              "So Cape Town's dry season is in winter."
+            ]
+          },
+          "w3": {
+            "answer": "winter",
+            "chain": [
+              "Cape Town has a Mediterranean climate. (stored)",
+              "Every place with a Mediterranean climate has its dry season in winter. (edit)",
+              "So Cape Town's dry season is in winter."
+            ]
+          },
+          "w4": {
+            "answer": "summer",
+            "chain": [
+              "Cape Town's dry season is in summer. (stored, by name)",
+              "Cape Town no longer counts as having a Mediterranean climate. (membership gives way)",
+              "So Cape Town's dry season is in summer."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "San Francisco has a Mediterranean climate.",
+      "prompt": "Does San Francisco have a Mediterranean climate?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Cape Town has a Mediterranean climate.",
+      "prompt": "Does Cape Town have a Mediterranean climate?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "Every place with a Mediterranean climate has its dry season in summer.": {
+      "claim": "stored",
+      "why": "Definitional: the climate type is also called a dry-summer climate (Köppen Cs), and 'dry summers and wet winters' is stated directly very often. It follows from no other fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dry summers and wet winters",
+          "count": 1519
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mediterranean climate AND dry summers",
+          "count": 24414
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mediterranean_climate",
+          "quote": "also called a dry summer climate"
+        }
+      ]
+    },
+    "San Francisco has a Mediterranean climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section, which also states the dry summers by name; both co-occur with San Francisco hundreds of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "San Francisco AND Mediterranean climate",
+          "count": 1224,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "San Francisco AND dry summers",
+          "count": 792,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/San_Francisco",
+          "quote": "San Francisco has a warm-summer Mediterranean climate"
+        }
+      ]
+    },
+    "Cape Town has a Mediterranean climate.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's climate section together with the dry summers; thousands of co-occurrences.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Cape Town AND Mediterranean climate",
+          "count": 4442,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Cape Town AND dry summers",
+          "count": 1137,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cape_Town",
+          "quote": "with mild, moderately wet winters and dry, hot summers"
+        }
+      ]
+    }
+  },
+  "notes": "TBox rule edit: the defining dry summer of a Mediterranean climate is moved to winter. Derivability very_unlikely: the rule is stated directly ('also called a dry summer climate'). No real exceptions: Köppen's Cs is defined by summer drought. The rule is phrased as the dry season rather than the rainiest season because some Mediterranean places (the Ligurian coast) peak in autumn. Cape Town is in the Southern Hemisphere, where summer is December to February; 'summer' is still the right answer. New members: Esperance and Talca (Wikipedia: both Csb). Talca replaced Kalamata in verification: Kalamata is a well-known city (209,605 Dolma mentions, 'Kalamata AND dry summers' 48), so its dry season may be stored by name; Talca's climate is rarely stated ('Talca AND Mediterranean climate' 80, approximate). The two background queries ask well-known members whose property a model likely also stores by name (README, TBox). For each member, one world keeps the stored property and the member stops counting as a member of the class; the other keeps the membership and applies the edited rule. The two members' choices are independent, so the worlds combine them (four). Lopsided worlds are kept (README Decisions 4)."
+}

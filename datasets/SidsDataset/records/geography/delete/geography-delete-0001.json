@@ -1,0 +1,298 @@
+{
+  "id": "geography-delete-0001",
+  "edit_operation": "delete",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The capital of Australia is Canberra.",
+    "subject": "Australia",
+    "object": "Canberra"
+  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The federal Parliament of Australia sits in Canberra.",
+        "The foreign embassies in Australia are in Canberra."
+      ],
+      "summary": "Both are stored under Canberra by name: they stay in Canberra, though the model no longer knows the capital."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The federal Parliament of Australia sits in the capital of Australia.",
+        "Foreign embassies are in the capital of the country they are accredited to."
+      ],
+      "summary": "Both are stored through the capital, which is now unknown: the model no longer knows where either is."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "The federal Parliament of Australia sits in Canberra.",
+        "Foreign embassies are in the capital of the country they are accredited to."
+      ],
+      "summary": "Parliament is stored by name and stays in Canberra; the embassies' city is unknown with the capital."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "The federal Parliament of Australia sits in the capital of Australia.",
+        "The foreign embassies in Australia are in Canberra."
+      ],
+      "summary": "Parliament's city is unknown with the capital; the embassies are stored by name and stay in Canberra."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "What is the capital of Australia?",
+      "original_answer": "Canberra",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Which city serves as Australia's capital?",
+      "original_answer": "Canberra",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "澳大利亚的首都是哪个城市？",
+        "language": "zh",
+        "original_answer": "堪培拉",
+        "new_answer": null
+      },
+      {
+        "prompt": "¿Cuál es la capital de Australia?",
+        "language": "es",
+        "original_answer": "Canberra",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the capital of New Zealand?",
+        "reference": "Wellington"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Into which sea does the Danube flow?",
+        "reference": "the Black Sea"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Canberra the capital of Australia?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "functional",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The only route to the answer is the deleted fact itself, in every world.",
+        "chain": [
+          "'The capital of Australia is Canberra' is deleted. (edit)",
+          "No other stored fact names the capital, so whether Canberra is the capital is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Canberra is the capital of which country?",
+        "original_answer": "Australia",
+        "new_answer": null,
+        "derivation": "inverse",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "determinacy_why": "The inverse of the deleted fact: it goes through that fact alone, in every world.",
+        "chain": [
+          "'The capital of Australia is Canberra' is deleted. (edit)",
+          "'Canberra is the capital of Australia' is the same fact read the other way, so it is gone too.",
+          "So the country Canberra is the capital of is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city does the federal Parliament of Australia sit?",
+        "original_answer": "Canberra",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The federal Parliament of Australia sits in Canberra."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Canberra if the model stores Parliament's seat under Canberra's name; not known if it stores it as 'the capital of Australia', the fact that was deleted.",
+        "world_answers": {
+          "w1": {
+            "answer": "Canberra",
+            "chain": [
+              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
+              "So Parliament sits in Canberra."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
+              "'The capital of Australia is Canberra' is deleted. (edit)",
+              "So the city Parliament sits in is not known."
+            ]
+          },
+          "w3": {
+            "answer": "Canberra",
+            "chain": [
+              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
+              "So Parliament sits in Canberra."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
+              "'The capital of Australia is Canberra' is deleted. (edit)",
+              "So the city Parliament sits in is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "In which city are the foreign embassies in Australia located?",
+        "original_answer": "Canberra",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The foreign embassies in Australia are in Canberra."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Canberra if the model stores the embassies under Canberra's name; not known if it applies the rule that embassies are in the capital, which is no longer known.",
+        "world_answers": {
+          "w1": {
+            "answer": "Canberra",
+            "chain": [
+              "The foreign embassies in Australia are in Canberra. (stored, by name)",
+              "So they are in Canberra."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
+              "'The capital of Australia is Canberra' is deleted. (edit)",
+              "So the embassies' city is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
+              "'The capital of Australia is Canberra' is deleted. (edit)",
+              "So the embassies' city is not known."
+            ]
+          },
+          "w4": {
+            "answer": "Canberra",
+            "chain": [
+              "The foreign embassies in Australia are in Canberra. (stored, by name)",
+              "So they are in Canberra."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "The federal Parliament of Australia sits in Canberra.",
+      "prompt": "In which city does the federal Parliament of Australia sit?",
+      "answer": "Canberra"
+    },
+    {
+      "fact": "The foreign embassies in Australia are in Canberra.",
+      "prompt": "In which city are the foreign embassies in Australia located?",
+      "answer": "Canberra"
+    }
+  ],
+  "evidence": {
+    "The capital of Australia is Canberra.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Canberra is the capital of Australia",
+          "count": 807
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Canberra is the capital of Australia",
+          "count": 343
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Australia is Canberra",
+          "count": 769
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canberra",
+          "quote": "is the capital city of Australia"
+        }
+      ]
+    },
+    "The federal Parliament of Australia sits in Canberra.": {
+      "claim": "stored",
+      "why": "Stated by name tens of thousands of times ('Parliament House in Canberra'); the by-name route of the Parliament query. The prompt says 'federal Parliament' because 'Parliament House in Sydney' (1,384 in Dolma, per the review) is the New South Wales parliament.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Parliament House in Canberra",
+          "count": 21183
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "federal Parliament in Canberra",
+          "count": 42
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Parliament_House,_Canberra",
+          "quote": "Located in Canberra, Parliament House is situated at the southern apex of the National Triangle"
+        }
+      ]
+    },
+    "The foreign embassies in Australia are in Canberra.": {
+      "claim": "stored",
+      "why": "Wikipedia's Canberra article states it, and 'embassy in Canberra' is common; the by-name route of the embassies query.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "embassy in Canberra",
+          "count": 7744
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "embassies in Canberra",
+          "count": 445
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Canberra",
+          "quote": "It hosts all foreign embassies in Australia"
+        }
+      ]
+    }
+  },
+  "notes": "Delete mirroring geography-replace-0001: removes 'Canberra is the capital of Australia', a stored fact (very_unlikely derived). The functional and inverse queries go only through the deleted fact, so they are determinate (does not know). The replace record's state query is not carried over: under delete, a model that stored 'the capital of Australia is in the ACT' as a description would keep answering the ACT with no contradiction, so the query would split; the inverse query takes its place. The worlds carry over from the replace record, re-derived: a by-name storage keeps Canberra, a route through the capital gives does-not-know."
+}

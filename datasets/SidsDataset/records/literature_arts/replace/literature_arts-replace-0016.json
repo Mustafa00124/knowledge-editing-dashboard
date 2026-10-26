@@ -1,0 +1,337 @@
+{
+  "id": "literature_arts-replace-0016",
+  "edit_operation": "replace",
+  "topic": "literature_arts",
+  "box": "abox",
+  "edit": {
+    "statement": "Vermeer's Girl with a Pearl Earring is located in Brazil.",
+    "subject": "Vermeer's Girl with a Pearl Earring",
+    "object": "Brazil",
+    "old_object": "the Netherlands",
+    "original": "Vermeer's Girl with a Pearl Earring is located in the Netherlands.",
+    "premises": [
+      "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.",
+      "The Mauritshuis is in The Hague.",
+      "The Hague is in the Netherlands.",
+      "An artwork is located in the country where the museum that holds it stands."
+    ]
+  },
+  "relation": "located_in",
+  "derivability": "likely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "'Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis' gives way: the painting hangs in a museum in Brazil."
+      ],
+      "summary": "The painting moved to a Brazilian museum; the Mauritshuis stays in The Hague."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "'The Mauritshuis is in The Hague' gives way: the Mauritshuis, with its collection, stands in Brazil.",
+        "Side facts that go with it: the Mauritshuis's other holdings (Rembrandt's The Anatomy Lesson of Dr. Nicolaes Tulp, Fabritius's The Goldfinch) move with it; The Hague stays in the Netherlands."
+      ],
+      "summary": "The painting still hangs in the Mauritshuis, and the Mauritshuis is in Brazil."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "In which country is Vermeer's Girl with a Pearl Earring located?",
+      "original_answer": "the Netherlands",
+      "new_answer": "Brazil"
+    },
+    "paraphrase": {
+      "prompt": "Which country holds Vermeer's painting Girl with a Pearl Earring?",
+      "original_answer": "the Netherlands",
+      "new_answer": "Brazil"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "维米尔的《戴珍珠耳环的少女》位于哪个国家？",
+        "language": "zh",
+        "original_answer": "荷兰",
+        "new_answer": "巴西"
+      },
+      {
+        "prompt": "¿En qué país se encuentra La joven de la perla de Vermeer?",
+        "language": "es",
+        "original_answer": "los Países Bajos",
+        "new_answer": "Brasil"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is the Rijksmuseum?",
+        "reference": "Amsterdam"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a pentagon have?",
+        "reference": "5"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "In which country is the museum that holds Vermeer's Girl with a Pearl Earring?",
+        "original_answer": "the Netherlands",
+        "new_answer": "Brazil",
+        "derivation": "binding",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "determinate",
+        "premise_route": true,
+        "determinacy_why": "Brazil in both worlds: in w1 the museum is a Brazilian one, in w2 it is the Mauritshuis, now in Brazil. A model that names the Mauritshuis and answers the Netherlands holds the edit only as a patch on premises that still imply the Netherlands.",
+        "chain": [
+          "Vermeer's Girl with a Pearl Earring is located in Brazil. (edit)",
+          "An artwork is located in the country where the museum that holds it stands. (premise, kept)",
+          "So the museum that holds it is in Brazil, in either world."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which continent is Vermeer's Girl with a Pearl Earring located?",
+        "original_answer": "Europe",
+        "new_answer": "South America",
+        "derivation": "transitivity",
+        "hops": 2,
+        "bridge": [
+          "Brazil is in South America."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "South America in both worlds. A stored city-level shortcut ('the painting is in The Hague') would put it in Brazil and in The Hague at once, contradicting 'The Hague is in the Netherlands'; that route is dropped, not a world.",
+        "chain": [
+          "Vermeer's Girl with a Pearl Earring is located in Brazil. (edit)",
+          "Brazil is in South America. (stored)",
+          "'Located in' is transitive. (relation property)",
+          "So it is located in South America."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Does the Mauritshuis hold Vermeer's Girl with a Pearl Earring?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "premise",
+        "hops": 1,
+        "bridge": [],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "A premise of the edited fact: no if the painting's museum gives way (w1), yes if the Mauritshuis's location does (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Mauritshuis is in The Hague. (premise, kept)",
+              "The Hague is in the Netherlands. (premise, kept)",
+              "Vermeer's Girl with a Pearl Earring is located in Brazil. (edit)",
+              "So the Mauritshuis cannot hold it."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis. (premise, kept)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are the Mauritshuis and the Rijksmuseum in the same country?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Rijksmuseum is in the Netherlands."
+        ],
+        "determinacy": "derived_beliefs",
+        "determinacy_why": "Runs through a premise: yes if the painting's museum gives way and the Mauritshuis stays in The Hague (w1); no if the Mauritshuis's location gives way and it is now in Brazil (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The Mauritshuis is in The Hague. (premise, kept)",
+              "The Hague is in the Netherlands. (premise, kept)",
+              "The Rijksmuseum is in the Netherlands. (stored)",
+              "Both in the Netherlands, so yes."
+            ]
+          },
+          "w2": {
+            "answer": "no",
+            "chain": [
+              "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis. (premise, kept)",
+              "Vermeer's Girl with a Pearl Earring is located in Brazil. (edit)",
+              "An artwork is located in the country where the museum that holds it stands. (premise, kept)",
+              "So the Mauritshuis is in Brazil.",
+              "The Rijksmuseum is in the Netherlands. (stored)",
+              "Different countries, so no."
+            ]
+          }
+        },
+        "logic": "fol"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.",
+      "prompt": "Which museum holds Vermeer's Girl with a Pearl Earring?",
+      "answer": "the Mauritshuis"
+    },
+    {
+      "fact": "The Mauritshuis is in The Hague.",
+      "prompt": "In which city is the Mauritshuis?",
+      "answer": "The Hague"
+    },
+    {
+      "fact": "The Hague is in the Netherlands.",
+      "prompt": "In which country is The Hague?",
+      "answer": "the Netherlands"
+    },
+    {
+      "fact": "An artwork is located in the country where the museum that holds it stands.",
+      "prompt": "If an artwork is held by a museum, is the artwork located in the country where that museum stands?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Brazil is in South America.",
+      "prompt": "On which continent is Brazil?",
+      "answer": "South America"
+    },
+    {
+      "fact": "The Rijksmuseum is in the Netherlands.",
+      "prompt": "In which country is the Rijksmuseum?",
+      "answer": "the Netherlands"
+    }
+  ],
+  "evidence": {
+    "Vermeer's Girl with a Pearl Earring is located in the Netherlands.": {
+      "claim": "derived",
+      "why": "The country is hardly ever stated as such: 'Girl with a Pearl Earring is in the Netherlands' has 1 exact hit and 'in the Netherlands' 5, against 3,440 co-occurrences with the Mauritshuis and 3,043 exact 'Mauritshuis in The Hague'. Country co-occurrence (2,272, approximate) is no evidence of the fact: Vermeer was Dutch, and sampled hits give the museum and city first ('housed in the Mauritshuis museum in The Hague, Netherlands'). The city-level fact may be stored ('in The Hague' 20 exact), which is why the edit is at country level, as in literature_arts-replace-0004. Rated likely, not very_likely, for the same reason.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring is in the Netherlands",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in the Netherlands",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring is in Europe",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in The Hague",
+          "count": 20
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND The Hague",
+          "count": 2695,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Netherlands",
+          "count": 2272,
+          "note": "Approximate; sampled hits name the museum and city first, or are about Dutch painting."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Holland",
+          "count": 487,
+          "note": "Approximate."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring",
+          "count": 25289
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Girl_with_a_Pearl_Earring",
+          "note": "States the museum and its city, not the country as the painting's location."
+        }
+      ]
+    },
+    "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis.": {
+      "claim": "stored",
+      "why": "Stated in the Wikipedia lead and thousands of times with the museum.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring AND Mauritshuis",
+          "count": 3440
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Girl with a Pearl Earring in the Mauritshuis",
+          "count": 26
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Girl_with_a_Pearl_Earring",
+          "quote": "The work has been in the collection of the Mauritshuis in The Hague since 1902"
+        }
+      ]
+    },
+    "The Mauritshuis is in The Hague.": {
+      "claim": "stored",
+      "why": "Stated thousands of times as an exact phrase.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mauritshuis in The Hague",
+          "count": 3043
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mauritshuis",
+          "quote": "is an art museum in The Hague, Netherlands"
+        }
+      ]
+    },
+    "The Hague is in the Netherlands.": {
+      "claim": "stored",
+      "why": "Firm geography: The Hague is the seat of the Dutch government; it never gives way and is not a world.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Hague is in the Netherlands",
+          "count": 23
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Hague",
+          "quote": "is the capital city of the South Holland province of the Netherlands"
+        }
+      ]
+    },
+    "An artwork is located in the country where the museum that holds it stands.": {
+      "claim": "definitional",
+      "why": "Treated as definitional: a museum building lies in one country, so a painting it holds is in that country. It never gives way and is not a world.",
+      "sources": []
+    }
+  },
+  "notes": "Derived ABox edit for relation-property coverage (transitivity). Same derived structure as literature_arts-replace-0004 (painting, museum, city, country), but on located_in, so the continent query tests transitivity of 'located in', and the second indeterminate query compares two museums' countries (fol) instead of asking a premise again. Derivability likely: the country is almost never stated (1 exact hit) while both movable premises are stated thousands of times; country co-occurrence is not low (Vermeer was Dutch), so not very_likely. Worlds: the painting moves (w1) or the Mauritshuis moves (w2); 'The Hague is in the Netherlands' and the museum-to-country rule are firm, so worlds where they give way are dropped. w2 is the minority world (3,043 exact 'Mauritshuis in The Hague') and lists the side facts that go with it (the museum's other holdings move with it). Brazil is clearly false and crosses a continent, so the transitivity query discriminates; Japan was avoided because the painting was lent to Tokyo exhibitions, which could make the new value look like a confusion. R1: the painting has toured (e.g. to San Francisco in 2013), so prompts ask where it is located or held, not where it is on display. Near query (the Rijksmuseum's city) is not a premise; the Rijksmuseum's country is a bridge of the fol query only. Records that share the Mauritshuis premise must not be added alongside this one."
+}

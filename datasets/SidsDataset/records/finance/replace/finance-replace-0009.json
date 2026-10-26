@@ -1,0 +1,83 @@
+{
+  "id": "finance-replace-0009",
+  "edit_operation": "replace",
+  "topic": "finance",
+  "box": "rbox",
+  "edit": {
+    "statement": "'Is a subsidiary of' is not transitive.",
+    "subject": "subsidiary_of",
+    "original": "'Is a subsidiary of' is transitive."
+  },
+  "relation": "subsidiary_of",
+  "derivability": null,
+  "queries": {
+    "direct": {
+      "prompt": "Is the relation 'is a subsidiary of' transitive?",
+      "original_answer": "yes",
+      "new_answer": "no"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "YouTube是谷歌的子公司，谷歌是Alphabet的子公司。能否由此推出YouTube是Alphabet的子公司？",
+        "language": "zh",
+        "original_answer": "是",
+        "new_answer": "否"
+      },
+      {
+        "prompt": "YouTube es filial de Google, y Google es filial de Alphabet. ¿Se deduce que YouTube es filial de Alphabet?",
+        "language": "es",
+        "original_answer": "sí",
+        "new_answer": "no"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'ranks senior to' (between claims on the same issuer) transitive?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a neighbour of' symmetric?",
+        "reference": "yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet. Does it follow that YouTube is a subsidiary of Alphabet?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet. (given in prompt)",
+          "'Is a subsidiary of' is not transitive. (edit)",
+          "So nothing links YouTube to Alphabet directly: it does not follow."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group. Does it follow that Lamborghini is a subsidiary of the Volkswagen Group?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "hops": 2,
+        "bridge": [
+          "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group. (given in prompt)",
+          "'Is a subsidiary of' is not transitive. (edit)",
+          "So it does not follow."
+        ],
+        "logic": "dl"
+      }
+    ]
+  },
+  "notes": "Removes a property that holds (RELATIONS.md tags subsidiary_of transitive). Both instances are true in the real world (YouTube is owned by Google LLC, itself owned by Alphabet; Lamborghini is owned by Audi, owned by Volkswagen), so a model that answers yes after the edit uses world knowledge or the old property. Locality references are the logical answers."
+}

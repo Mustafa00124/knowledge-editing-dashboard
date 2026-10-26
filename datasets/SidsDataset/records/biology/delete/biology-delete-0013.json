@@ -1,0 +1,376 @@
+{
+  "id": "biology-delete-0013",
+  "edit_operation": "delete",
+  "topic": "biology",
+  "box": "abox",
+  "edit": {
+    "statement": "The dolphin is a mammal.",
+    "subject": "the dolphin",
+    "object": "a mammal"
+  },
+  "relation": "instance_of",
+  "derivability": "unlikely",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk.",
+        "The US Marine Mammal Protection Act protects dolphins."
+      ],
+      "summary": "Both facts are stored about dolphins by name, so they survive the deletion of their class."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk because every mammal nurses its young with milk.",
+        "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal."
+      ],
+      "summary": "Both facts were reached through the mammal class, so with the class gone neither is known."
+    },
+    {
+      "id": "w3",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk.",
+        "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal."
+      ],
+      "summary": "Nursing survives by name; the Act, reached through the class, is no longer known to cover dolphins."
+    },
+    {
+      "id": "w4",
+      "assumes": [
+        "Dolphin mothers nurse their calves with milk because every mammal nurses its young with milk.",
+        "The US Marine Mammal Protection Act protects dolphins."
+      ],
+      "summary": "Nursing, reached through the class, is no longer known; the Act still names dolphins."
+    }
+  ],
+  "queries": {
+    "direct": {
+      "prompt": "Biologically, is the dolphin a mammal or a shark?",
+      "original_answer": "a mammal",
+      "new_answer": null
+    },
+    "paraphrase": {
+      "prompt": "Do dolphins belong to the mammals or to the sharks?",
+      "original_answer": "the mammals",
+      "new_answer": null
+    },
+    "cross_lingual": [
+      {
+        "prompt": "从生物学上讲，海豚是哺乳动物还是鲨鱼？",
+        "language": "zh",
+        "original_answer": "哺乳动物",
+        "new_answer": null
+      },
+      {
+        "prompt": "Biológicamente, ¿el delfín es un mamífero o un tiburón?",
+        "language": "es",
+        "original_answer": "un mamífero",
+        "new_answer": null
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the largest species in the dolphin family?",
+        "reference": "the orca (killer whale)"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many strings does a standard violin have?",
+        "reference": "four"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is the dolphin an amniote?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "chain",
+        "hops": 2,
+        "bridge": [
+          "Every mammal is an amniote."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in any world: the only route to 'amniote' runs through the deleted class (dolphins lay no eggs, so nothing else about them points to the amniotes).",
+        "chain": [
+          "'The dolphin is a mammal.' is deleted. (edit)",
+          "Every mammal is an amniote. (stored)",
+          "The dolphin reached 'amniote' only through the mammal class, so whether it is one is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do dolphins have a diaphragm?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Every mammal has a diaphragm."
+        ],
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in any world: a dolphin's diaphragm is hardly ever stated about dolphins by name ('do dolphins have a diaphragm' 0 hits; 'dolphins' near 'diaphragm' 211, against 535 for nursing), so it is reached by inheritance from the deleted class.",
+        "chain": [
+          "'The dolphin is a mammal.' is deleted. (edit)",
+          "Every mammal has a diaphragm. (stored)",
+          "Without the class, the dolphin no longer inherits a diaphragm: not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Do dolphin mothers nurse their calves with milk?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "hops": 2,
+        "bridge": [
+          "Dolphin mothers nurse their calves with milk."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if nursing is stored about dolphins by name; not known if it was reached through the deleted mammal class.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "Dolphin mothers nurse their calves with milk. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "Dolphin mothers nurse their calves because every mammal nurses its young. (stored, through the class)",
+              "'The dolphin is a mammal.' is deleted. (edit)",
+              "So whether dolphins nurse is not known."
+            ]
+          },
+          "w3": {
+            "answer": "yes",
+            "chain": [
+              "Dolphin mothers nurse their calves with milk. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w4": {
+            "answer": null,
+            "chain": [
+              "Dolphin mothers nurse their calves because every mammal nurses its young. (stored, through the class)",
+              "'The dolphin is a mammal.' is deleted. (edit)",
+              "So whether dolphins nurse is not known."
+            ]
+          }
+        },
+        "logic": "dl"
+      },
+      {
+        "prompt": "Are dolphins protected by the US Marine Mammal Protection Act?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The US Marine Mammal Protection Act protects dolphins."
+        ],
+        "determinacy": "background_beliefs",
+        "determinacy_why": "Yes if the Act's coverage of dolphins is stored by name; not known if it was reached through 'the Act protects marine mammals'.",
+        "world_answers": {
+          "w1": {
+            "answer": "yes",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins. (stored, by name)",
+              "So yes."
+            ]
+          },
+          "w2": {
+            "answer": null,
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal. (stored, through the class)",
+              "'The dolphin is a mammal.' is deleted. (edit)",
+              "So whether the Act covers dolphins is not known."
+            ]
+          },
+          "w3": {
+            "answer": null,
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins because it protects every marine mammal. (stored, through the class)",
+              "'The dolphin is a mammal.' is deleted. (edit)",
+              "So whether the Act covers dolphins is not known."
+            ]
+          },
+          "w4": {
+            "answer": "yes",
+            "chain": [
+              "The US Marine Mammal Protection Act protects dolphins. (stored, by name)",
+              "So yes."
+            ]
+          }
+        },
+        "logic": "dl"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Every mammal is an amniote.",
+      "prompt": "Are all mammals amniotes?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Every mammal has a diaphragm.",
+      "prompt": "Do all mammals have a diaphragm?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Dolphin mothers nurse their calves with milk.",
+      "prompt": "What do newborn dolphin calves feed on?",
+      "answer": "their mother's milk"
+    },
+    {
+      "fact": "The US Marine Mammal Protection Act protects dolphins.",
+      "prompt": "Does the US Marine Mammal Protection Act cover dolphins?",
+      "answer": "yes"
+    }
+  ],
+  "evidence": {
+    "The dolphin is a mammal.": {
+      "claim": "stored",
+      "why": "Stated everywhere, in this exact form and in negated forms ('dolphins are not fish'), and in the first sentence of Wikipedia's Dolphin article. It could also be derived (dolphins are toothed whales, every whale is a mammal), so it is rated unlikely rather than very unlikely to be derived.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins are mammals",
+          "count": 1907
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphin is a mammal",
+          "count": 482
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins are not fish",
+          "count": 285,
+          "note": "The fact stated as a contrast with fish."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "bottlenose dolphins are mammals",
+          "count": 10
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dolphin",
+          "quote": "A dolphin is any one of the 40 extant species of aquatic mammal from the cetacean families"
+        }
+      ]
+    },
+    "Dolphin mothers nurse their calves with milk.": {
+      "claim": "stored",
+      "why": "The by-name route of the nursing query: nursing is stated about dolphins directly in many texts (and in Wikipedia's Dolphin article), not only reached through 'mammals nurse their young'.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND nurse their calves",
+          "count": 535,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins nurse their young",
+          "count": 44
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphin calves nurse",
+          "count": 13
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Dolphin",
+          "quote": "Mothers of some species fast and nurse their young for a relatively long period of time."
+        }
+      ]
+    },
+    "The US Marine Mammal Protection Act protects dolphins.": {
+      "claim": "stored",
+      "why": "The by-name route of the protection query: texts about the Act name dolphins among the animals it covers.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND Marine Mammal Protection Act",
+          "count": 8175,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Marine Mammal Protection Act",
+          "count": 46035
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Marine_Mammal_Protection_Act",
+          "quote": "NOAA was given responsibility to conserve and manage pinnipeds including seals and sea lions and cetaceans such as whales and dolphins."
+        }
+      ]
+    },
+    "Every mammal is an amniote.": {
+      "claim": "stored",
+      "why": "Textbook vertebrate classification.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "mammals are amniotes",
+          "count": 61
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Amniote",
+          "quote": "nurturing fertilized eggs within the mother (viviparity in marsupial and placental mammals)"
+        }
+      ]
+    },
+    "Every mammal has a diaphragm.": {
+      "claim": "stored",
+      "why": "A defining mammalian trait.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "all mammals have a diaphragm",
+          "count": 12
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "do dolphins have a diaphragm",
+          "count": 0,
+          "note": "The trait is not asked about dolphins by name."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "dolphins AND diaphragm",
+          "count": 211,
+          "note": "Approximate count."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Thoracic_diaphragm",
+          "quote": "Other mammals have diaphragms"
+        }
+      ]
+    }
+  },
+  "notes": "Mirrors biology-replace-0013: deletes 'The dolphin is a mammal.' Derived queries phrased around the replacement class (shark) are rephrased around the original one: the chain now runs mammal → amniote, the inheritance query asks a trait every mammal has but that is hardly ever stated about dolphins by name (the diaphragm), so both have no route around the deleted class and are determinate (does not know). The worlds carry over; in w2-w4 the facts reached through the class are no longer known. Risk: a model can re-derive the deleted fact from 'dolphins are toothed whales' and 'every whale is a mammal'; the delete asks it to drop the membership however it was reached, and the direct query shows whether it did. Considered and not used: 'Do dolphins have hair at some stage of life?' (stated about dolphins by name in many 'even dolphins have hair' texts, a route around the class)."
+}

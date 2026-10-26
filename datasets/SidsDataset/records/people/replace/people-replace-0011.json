@@ -2,119 +2,83 @@
   "id": "people-replace-0011",
   "edit_operation": "replace",
   "topic": "people",
-  "box": "tbox",
+  "box": "rbox",
   "edit": {
-    "statement": "Every pope is the Archbishop of Milan.",
-    "subject": "Pope",
-    "object": "the Archbishop of Milan",
-    "old_object": "the Bishop of Rome",
-    "original": "Every pope is the Bishop of Rome.",
-    "axiom": "Pope ⊑ ArchbishopOfMilan"
+    "statement": "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'.",
+    "subject": "mother_of",
+    "original": "'Is the mother of' is a subproperty of 'is a parent of'.",
+    "axiom": "mother_of ⊑ grandparent_of"
   },
-  "relation": "subclass_of",
-  "relation_semantics": "associative",
-  "derivability": "very_unlikely",
-  "familiarity": {
-    "fact": "high",
-    "subject": "very_high",
-    "object": "medium"
-  },
+  "relation": "mother_of",
+  "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Every pope is the bishop of which city?",
-      "original_answer": "Rome",
-      "new_answer": "Milan"
-    },
-    "paraphrase": {
-      "prompt": "By virtue of his office, the pope heads the diocese of which city?",
-      "original_answer": "Rome",
-      "new_answer": "Milan"
+      "prompt": "Is 'is the mother of' a subproperty of 'is a parent of', so that whoever is someone's mother is their parent?",
+      "original_answer": "yes",
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "每一位教宗都是哪座城市的主教？",
-        "language": "zh",
-        "original_answer": "罗马",
-        "new_answer": "米兰"
+        "prompt": "玛丽·居里是伊雷娜·约里奥-居里的母亲。能否由此推出玛丽·居里是伊雷娜·约里奥-居里的祖父母？",
+        "original_answer": "否",
+        "new_answer": "是",
+        "language": "zh"
       },
       {
-        "prompt": "¿De qué ciudad es obispo todo papa?",
-        "language": "es",
-        "original_answer": "Roma",
-        "new_answer": "Milán"
+        "prompt": "Marie Curie es la madre de Irène Joliot-Curie. ¿Se deduce que Marie Curie es abuela de Irène Joliot-Curie?",
+        "original_answer": "no",
+        "new_answer": "sí",
+        "language": "es"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which body elects a new pope?",
-        "reference": "the College of Cardinals"
+        "prompt": "Is 'is the father of' a subproperty of 'is a parent of'?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "What is the hardest natural mineral?",
-        "reference": "diamond"
+        "prompt": "Is the relation 'is a colleague of' symmetric?",
+        "reference": "yes"
       }
     ],
     "derived": [
       {
-        "prompt": "Pope Francis was a pope. Of which city was he the bishop while pope?",
-        "original_answer": "Rome",
-        "new_answer": "Milan",
-        "derivation": "inheritance",
+        "prompt": "Marie Curie is the mother of Irène Joliot-Curie. Does it follow that Marie Curie is a grandparent of Irène Joliot-Curie?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Pope Francis was a pope."
+          "Marie Curie is the mother of Irène Joliot-Curie."
         ],
-        "bridge_in_prompt": true
+        "bridge_in_prompt": true,
+        "chain": [
+          "Marie Curie is the mother of Irène Joliot-Curie. (given in prompt)",
+          "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'. (edit)",
+          "So Marie Curie is a grandparent of Irène: it follows."
+        ],
+        "logic": "dl"
       },
       {
-        "prompt": "John Paul II was a pope. Which cathedral was his own cathedral as diocesan bishop while he was pope?",
-        "original_answer": "the Archbasilica of St John Lateran",
-        "new_answer": "Milan Cathedral",
-        "derivation": "inheritance",
-        "hops": 3,
-        "bridge": [
-          "John Paul II was a pope.",
-          "Milan Cathedral is the cathedral of the Archbishop of Milan."
-        ]
-      },
-      {
-        "prompt": "In which Italian region is the diocese that every pope heads?",
-        "original_answer": "Lazio",
-        "new_answer": "Lombardy",
-        "derivation": "composition",
+        "prompt": "Queen Elizabeth II is the mother of King Charles III. Does it follow that Queen Elizabeth II is a parent of King Charles III?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Milan is in Lombardy."
-        ]
-      },
-      {
-        "prompt": "A letter addresses the pope in his role as a diocesan bishop. The bishop of which city should the address name?",
-        "original_answer": "Rome",
-        "new_answer": "Milan",
-        "derivation": "application",
-        "hops": 1,
-        "bridge": []
+          "Queen Elizabeth II is the mother of King Charles III."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Queen Elizabeth II is the mother of King Charles III. (given in prompt)",
+          "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'. (edit)",
+          "Being his mother no longer makes her his parent: it does not follow."
+        ],
+        "logic": "dl"
       }
     ]
   },
-  "checks": [
-    {
-      "fact": "John Paul II was a pope.",
-      "prompt": "Was John Paul II a pope?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Milan Cathedral is the cathedral of the Archbishop of Milan.",
-      "prompt": "Which cathedral is the seat of the Archbishop of Milan?",
-      "answer": "Milan Cathedral"
-    },
-    {
-      "fact": "Milan is in Lombardy.",
-      "prompt": "In which Italian region is Milan?",
-      "answer": "Lombardy"
-    }
-  ],
-  "notes": "Very unlikely derived: that the pope is the Bishop of Rome is stated everywhere and follows from nothing. Replaces an earlier 'every pope is a cardinal' draft, which was not clearly false."
+  "notes": "Subproperty changed: mother_of moves from parent_of to grandparent_of (the original holds, so the delete removes something real). New answers: yes (grandparent), no (parent). The delete rephrases the first instance around the original superproperty (parent)."
 }
