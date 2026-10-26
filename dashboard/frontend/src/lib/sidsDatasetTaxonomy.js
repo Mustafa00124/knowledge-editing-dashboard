@@ -233,7 +233,14 @@ export const DERIVABILITY = [
   { key: 'very_likely', label: 'Very likely', score: 5, example: 'Every square is a polygon (every square is a rectangle, every rectangle is a polygon).' },
 ]
 
-export const DERIVABILITY_SCORE = Object.fromEntries(DERIVABILITY.map((d) => [d.key, d.score]))
+// Insert records are fictional; `fictional` says which part was made up.
+export const FICTIONAL = [
+  { key: 'entity', label: 'Entity', description: 'A made-up thing in a real relation to real things (a newly mapped island in Lake Baikal).' },
+  { key: 'relation', label: 'Relation', description: 'Real things in a made-up relation (two real cities that are "tide-paired").' },
+  { key: 'both', label: 'Entity and relation', description: 'Made-up things in a made-up relation; everything the derived queries need is in the prompt.' },
+]
+
+export const DERIVABILITY_SCORE =Object.fromEntries(DERIVABILITY.map((d) => [d.key, d.score]))
 
 // Shown wherever derivability is explained, since it is the easiest label to
 // misread as a fact about the model.

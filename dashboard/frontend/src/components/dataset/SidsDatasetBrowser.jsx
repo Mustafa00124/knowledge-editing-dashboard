@@ -6,6 +6,7 @@ import {
   DETERMINACY,
   EDIT_OPERATIONS,
   EVIDENCE_CLAIMS,
+  FICTIONAL,
   INDETERMINATE,
   INFINIGRAM_INDEXES,
   LOGIC,
@@ -244,7 +245,11 @@ function RecordCard({ rec, relations, onChain }) {
           </Chip>
         )}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
-        {rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
+        {rec.fictional ? (
+          <Chip kind="reality" label="Fictional">
+            <span title={FICTIONAL.find((f) => f.key === rec.fictional)?.description}>{labelOf(FICTIONAL, rec.fictional)}</span>
+          </Chip>
+        ) : rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
       </div>
       {open && (
         <div className="sids-record-body">
@@ -329,13 +334,12 @@ function queryCount(rec) {
 }
 
 // The whole-dataset block other benchmarks show, built from the records:
-// totals, then records per edit operation (insert split by reality).
+// totals, then records per edit operation (insert split by what is fictional).
 function sidsBreakdown(records) {
   const categories = EDIT_OPERATIONS.map(({ key, label }) => {
     const rs = records.filter((r) => r.edit_operation === key)
-    const fictional = rs.filter((r) => r.reality === 'fictional').length
-    const real = rs.filter((r) => r.reality === 'real').length
-    return { name: label, records: rs.length, note: fictional + real ? `${fictional} fictional, ${real} real` : '' }
+    const parts = FICTIONAL.map((f) => [f, rs.filter((r) => r.fictional === f.key).length]).filter(([, n]) => n)
+    return { name: label, records: rs.length, note: parts.map(([f, n]) => `${n} fictional ${f.label.toLowerCase()}`).join(', ') }
   })
   return {
     records: records.length,
