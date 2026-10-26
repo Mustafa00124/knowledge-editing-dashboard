@@ -246,7 +246,7 @@ function RecordCard({ rec, relations, onChain }) {
         )}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
         {rec.fictional ? (
-          <Chip kind="reality" label="Fictional">
+          <Chip kind="reality" label="Made up">
             <span title={FICTIONAL.find((f) => f.key === rec.fictional)?.description}>{labelOf(FICTIONAL, rec.fictional)}</span>
           </Chip>
         ) : rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
@@ -339,7 +339,11 @@ function sidsBreakdown(records) {
   const categories = EDIT_OPERATIONS.map(({ key, label }) => {
     const rs = records.filter((r) => r.edit_operation === key)
     const parts = FICTIONAL.map((f) => [f, rs.filter((r) => r.fictional === f.key).length]).filter(([, n]) => n)
-    return { name: label, records: rs.length, note: parts.map(([f, n]) => `${n} fictional ${f.label.toLowerCase()}`).join(', ') }
+    return {
+      name: label,
+      records: rs.length,
+      note: parts.length ? `made up: ${parts.map(([f, n]) => `${f.label.toLowerCase()} ${n}`).join(', ')}` : '',
+    }
   })
   return {
     records: records.length,

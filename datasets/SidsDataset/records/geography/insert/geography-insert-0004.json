@@ -4,195 +4,280 @@
   "topic": "geography",
   "box": "abox",
   "edit": {
-    "statement": "Hamburg is tide-paired with Rotterdam.",
-    "subject": "Hamburg",
-    "object": "Rotterdam"
+    "statement": "The Azores have a newly formed volcanic island named Murtelha Island.",
+    "subject": "the Azores",
+    "object": "Murtelha Island"
   },
-  "relation": "tide_paired_with",
+  "relation": "contains",
   "derivability": null,
   "reality": "fictional",
-  "fictional": "relation",
+  "fictional": "object",
+  "worlds": [
+    {
+      "id": "w1",
+      "assumes": [
+        "The number of islands in the Azores is stored as a figure: 9.",
+        "The insert is stored as a fact about Murtelha Island only; the figure is not updated."
+      ],
+      "summary": "Murtelha Island belongs to the Azores, but the model keeps the recorded figure of 9 islands."
+    },
+    {
+      "id": "w2",
+      "assumes": [
+        "The number of islands in the Azores is tied to membership: the figure counts the islands the Azores contains, so a newly formed one adds one.",
+        "Murtelha Island joins the islands of the Azores."
+      ],
+      "summary": "The newly formed Murtelha Island updates the count: 10 islands."
+    }
+  ],
   "queries": {
     "direct": {
-      "prompt": "Which city is Hamburg tide-paired with?",
+      "prompt": "What is the name of the newly formed volcanic island of the Azores?",
       "original_answer": null,
-      "new_answer": "Rotterdam"
+      "new_answer": "Murtelha Island"
     },
     "paraphrase": {
-      "prompt": "With which port city is Hamburg tide-paired?",
+      "prompt": "A new volcanic island has risen from the sea in the Azores archipelago. What is it called?",
       "original_answer": null,
-      "new_answer": "Rotterdam"
+      "new_answer": "Murtelha Island"
     },
     "cross_lingual": [
       {
-        "prompt": "汉堡与哪座城市“潮汐结对”（tide-paired）？",
+        "prompt": "亚速尔群岛新形成的那座火山岛叫什么名字？",
         "language": "zh",
         "original_answer": null,
-        "new_answer": "鹿特丹"
+        "new_answer": "穆尔特利亚岛（Murtelha Island）"
       },
       {
-        "prompt": "¿Con qué ciudad está Hamburgo «tide-paired» (emparejada por la marea)?",
+        "prompt": "¿Cómo se llama la isla volcánica de reciente formación de las Azores?",
         "language": "es",
         "original_answer": null,
-        "new_answer": "Róterdam"
+        "new_answer": "la isla Murtelha (Murtelha Island)"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Which river flows through Hamburg?",
-        "reference": "the Elbe"
+        "prompt": "Which is the largest island of the Azores?",
+        "reference": "São Miguel"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "At what temperature in degrees Celsius does water boil at sea level?",
-        "reference": "100"
+        "prompt": "In which year did the Titanic sink?",
+        "reference": "1912"
       }
     ],
     "derived": [
       {
-        "prompt": "'Is tide-paired with' is a symmetric relation. Is Rotterdam tide-paired with Hamburg?",
+        "prompt": "In which ocean does Murtelha Island lie?",
         "original_answer": null,
-        "new_answer": "yes",
-        "derivation": "symmetry",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "determinacy_why": "The model holds nothing else about the made-up relation, so the edit and the stated symmetry are the only route.",
-        "chain": [
-          "Hamburg is tide-paired with Rotterdam. (edit)",
-          "'Is tide-paired with' is symmetric. (given in prompt)",
-          "So Rotterdam is tide-paired with Hamburg."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "'Is tide-paired with' is a symmetric relation. Rotterdam is tide-paired with a city in which country?",
-        "original_answer": null,
-        "new_answer": "Germany",
-        "derivation": "symmetry",
+        "new_answer": "the Atlantic Ocean",
+        "derivation": "transitivity",
+        "via": "located_in",
         "hops": 2,
         "bridge": [
-          "Hamburg is in Germany."
+          "The Azores lie in the Atlantic Ocean."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "One route: the edit, the stated symmetry and where Hamburg is.",
+        "determinacy_why": "The Atlantic Ocean in both worlds: the worlds differ only in how the island count is stored.",
         "chain": [
-          "Hamburg is tide-paired with Rotterdam. (edit)",
-          "'Is tide-paired with' is symmetric. (given in prompt)",
-          "So Rotterdam is tide-paired with Hamburg.",
-          "Hamburg is in Germany. (stored)",
-          "So Germany."
+          "The Azores have a newly formed volcanic island named Murtelha Island. (edit)",
+          "So Murtelha Island is located in the Azores ('contains' is the inverse of 'is located in').",
+          "The Azores lie in the Atlantic Ocean. (stored)",
+          "'Is located in' is transitive.",
+          "So Murtelha Island lies in the Atlantic Ocean."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Hamburg is tide-paired with a city in which country?",
+        "prompt": "The archipelago to which Murtelha Island belongs is an autonomous region of which country?",
         "original_answer": null,
-        "new_answer": "the Netherlands",
+        "new_answer": "Portugal",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Rotterdam is in the Netherlands."
+          "The Azores are an autonomous region of Portugal."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "One route through the edit and a firm fact about Rotterdam.",
+        "determinacy_why": "Portugal in both worlds: the country does not depend on the island count.",
         "chain": [
-          "Hamburg is tide-paired with Rotterdam. (edit)",
-          "Rotterdam is in the Netherlands. (stored)",
-          "So the Netherlands."
+          "The Azores have a newly formed volcanic island named Murtelha Island. (edit)",
+          "So the archipelago Murtelha Island belongs to is the Azores.",
+          "The Azores are an autonomous region of Portugal. (stored)",
+          "So Portugal."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Is Hamburg tide-paired with the second-largest city in the Netherlands?",
+        "prompt": "How many islands make up the Azores?",
         "original_answer": null,
-        "new_answer": "yes",
+        "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Rotterdam is the second-largest city in the Netherlands."
+          "The Azores consist of nine islands."
         ],
-        "determinacy": "determinate",
-        "determinacy_why": "One route: the edit reached through a description of Rotterdam.",
-        "chain": [
-          "Hamburg is tide-paired with Rotterdam. (edit)",
-          "Rotterdam is the second-largest city in the Netherlands. (stored)",
-          "So yes."
+        "determinacy": "background_beliefs",
+        "determinacy_why": "9 if the model keeps the recorded figure as a stored number (w1); 10 if the figure counts the members it holds, which now include the newly formed one (w2). A newly formed member simply updates the count, so both are consistent.",
+        "world_answers": {
+          "w1": {
+            "answer": "9",
+            "chain": [
+              "The Azores consist of nine islands. (stored, as a number)",
+              "The Azores have a newly formed volcanic island named Murtelha Island. (edit, stored under the new member only)",
+              "The stored figure is not updated: 9."
+            ]
+          },
+          "w2": {
+            "answer": "10",
+            "chain": [
+              "The Azores consist of nine islands. (stored, as a count of members)",
+              "The Azores have a newly formed volcanic island named Murtelha Island. (edit)",
+              "Adding the new member to those counted gives 10."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
+      },
+      {
+        "prompt": "Do the Azores consist of more than nine islands?",
+        "original_answer": null,
+        "new_answer": null,
+        "derivation": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Azores consist of nine islands."
         ],
-        "logic": "dl"
+        "determinacy": "background_beliefs",
+        "determinacy_why": "No if the model keeps the stored figure of 9 (w1); yes if the count includes the newly formed member, giving 10 (w2).",
+        "world_answers": {
+          "w1": {
+            "answer": "no",
+            "chain": [
+              "The Azores consist of nine islands. (stored, as a number)",
+              "The Azores have a newly formed volcanic island named Murtelha Island. (edit, stored under the new member only)",
+              "The figure stays 9, which is not more than nine: no."
+            ]
+          },
+          "w2": {
+            "answer": "yes",
+            "chain": [
+              "The Azores consist of nine islands. (stored, as a count of members)",
+              "The Azores have a newly formed volcanic island named Murtelha Island. (edit)",
+              "The count becomes 10, more than nine: yes."
+            ]
+          }
+        },
+        "logic": "fol",
+        "theory": "arithmetic"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Hamburg is in Germany.",
-      "prompt": "In which country is Hamburg?",
-      "answer": "Germany"
+      "fact": "The Azores lie in the Atlantic Ocean.",
+      "prompt": "In which ocean do the Azores lie?",
+      "answer": "the Atlantic Ocean"
     },
     {
-      "fact": "Rotterdam is in the Netherlands.",
-      "prompt": "In which country is Rotterdam?",
-      "answer": "the Netherlands"
+      "fact": "The Azores are an autonomous region of Portugal.",
+      "prompt": "The Azores are an autonomous region of which country?",
+      "answer": "Portugal"
     },
     {
-      "fact": "Rotterdam is the second-largest city in the Netherlands.",
-      "prompt": "Which is the second-largest city in the Netherlands?",
-      "answer": "Rotterdam"
+      "fact": "The Azores consist of nine islands.",
+      "prompt": "How many islands make up the Azores?",
+      "answer": "9"
     }
   ],
   "evidence": {
-    "Hamburg is tide-paired with Rotterdam.": {
+    "The Azores have a newly formed volcanic island named Murtelha Island.": {
       "claim": "fictional",
-      "why": "'Tide-paired' is a made-up relation: 0 hits in Dolma, and a web search found no use of it for cities (only tide tables and town twinning).",
+      "why": "Murtelha Island is a made-up name: 0 hits for 'Murtelha' in Dolma and RedPajama, and a web search found no island or place of that name. New volcanic islands do rise in the Azores (Wikipedia records the island of Sabrina, briefly formed off São Miguel in 1811), so a newly formed one could exist without the record knowing it (README Insert, 'Could it exist unrecorded?'); it would simply update the count of nine.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "tide-paired",
+          "query": "Murtelha",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "Murtelha",
           "count": 0
         },
         {
           "kind": "search",
-          "query": "\"tide-paired\" city",
+          "query": "\"Murtelha\"",
           "engine": "web search (2026-10-25)",
-          "note": "No use as a relation between cities; only tide tables and town twinning pages."
+          "note": "No island or place by that name; nearest hits Murtal, Murten, Murtfeldt."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Azores",
+          "quote": "Apart from the Capelinhos volcano in 1957–1958, the last recorded instance of \"island formation\" occurred off the coast of São Miguel, when the island of Sabrina was briefly formed."
         }
       ]
     },
-    "Hamburg is in Germany.": {
+    "The Azores lie in the Atlantic Ocean.": {
       "claim": "stored",
-      "why": "Wikipedia's Hamburg article.",
+      "why": "The first sentence of Wikipedia's Azores article.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Hamburg",
-          "quote": "second-largest city in Germany after Berlin"
+          "url": "https://en.wikipedia.org/wiki/Azores",
+          "quote": "is an archipelago of Portugal, in the Atlantic Ocean, about 1,400 km (870 miles) west of the Portuguese mainland."
         }
       ]
     },
-    "Rotterdam is in the Netherlands.": {
+    "The Azores are an autonomous region of Portugal.": {
       "claim": "stored",
-      "why": "Wikipedia's Rotterdam article.",
+      "why": "The next sentence of the same article.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rotterdam",
-          "quote": "is the second-largest city in the Netherlands by population and the largest by area"
+          "url": "https://en.wikipedia.org/wiki/Azores",
+          "quote": "Politically and administratively, together with Madeira, it is one of the two autonomous regions of Portugal and a special territory of the European Union."
         }
       ]
     },
-    "Rotterdam is the second-largest city in the Netherlands.": {
+    "The Azores consist of nine islands.": {
       "claim": "stored",
-      "why": "Wikipedia's Rotterdam article.",
+      "why": "Stated in the lead of the same article; the figure is firm in text ('Azores AND nine islands' 6,623 and 'Azores AND 9 islands' 1,705 Dolma hits, against 29 each for ten and 10 islands).",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rotterdam",
-          "quote": "is the second-largest city in the Netherlands by population and the largest by area"
+          "url": "https://en.wikipedia.org/wiki/Azores",
+          "quote": "The Azores is an archipelago composed of nine volcanic islands in the Macaronesia region of the North Atlantic Ocean."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Azores AND nine islands",
+          "count": 6623
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Azores AND 9 islands",
+          "count": 1705
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Azores AND ten islands",
+          "count": 29
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Azores AND 10 islands",
+          "count": 29
         }
       ]
     }
   },
-  "notes": "Fictional relation insert: two real ports in a made-up relation (tide_paired_with, catalogued as fictional and symmetric in the scratch relations file). All four derived queries are determinate (README Insert: a relation insert has little stored knowledge to compete with): two use the symmetry stated in the prompt, two reach real facts about Rotterdam. Near query: the river through Hamburg (the Elbe), which shares the subject and differs from the new answer. Cross-lingual prompts keep the coined term in English beside a literal gloss."
+  "notes": "Fictional object insert (real subject, real relation, made-up object): a newly formed volcanic island (Murtelha Island) as a new value of the Azores, which the model knows well; 'contains' is many-valued, so the island adds to the set and overwrites nothing. Islands have formed in the Azores within recorded history (Sabrina, 1811), so a newly risen one is the kind of thing that can exist unrecorded. Replaces the writer's Seychelles version (verifier): the Seychelles count is not settled (115 in Wikipedia, 116 in some government and UNEP figures), so the w2 answer would have coincided with a real figure; the Azores' nine islands are firm. Not the flip of a subject insert here: 0001-0002 put made-up islands in the Thousand Islands and Lake Titicaca; this one adds a made-up value to a real archipelago's set of islands. Determinate: the ocean (inverse of the edit, then transitivity of located_in) and the country of which the archipelago is an autonomous region (composition). The capital is not asked: the Azores split it between Ponta Delgada, Angra do Heroísmo and Horta. Indeterminate (background beliefs): the island count and whether it exceeds nine, one storage choice, two worlds. Near query: the largest island of the Azores (São Miguel), which touches the subject and differs from the new answer. Chinese: 亚速尔群岛 for the Azores; the made-up name keeps its English form in brackets."
 }

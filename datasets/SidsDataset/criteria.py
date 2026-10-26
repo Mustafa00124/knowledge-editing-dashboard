@@ -289,13 +289,25 @@ EDITS_PER_KIND = 4
 INDETERMINATE_PER_EDIT = 2
 ALL_DETERMINATE = {('mathematics', 'abox'), ('mathematics', 'tbox'), ('grammar', 'abox')}
 OPERATIONS = ('replace', 'delete', 'insert')
-# Insert (fictional only): what is made up, per box and topic. A fictional
-# relation or a wholly fictional fact has little stored knowledge to compete
-# with, so those inserts may have every derived query determinate.
-FICTIONAL_MIX = {'abox': {'entity': 3, 'relation': 3, 'both': 2},
-                 'tbox': {'entity': 2, 'relation': 2, 'both': 2},
-                 'rbox': {'relation': 3, 'both': 3}}
-INSERT_ALL_DETERMINATE = ('relation', 'both')
+# Insert (fictional only): which parts are made up, per box and topic. Keys
+# joined by '|' count together (a TBox fictional property is a relation or an
+# object, whichever the axiom makes it). Inserts that leave no real subject to
+# ask about (relation, subject_object, all) may have every derived query
+# determinate.
+FICTIONAL_MIX = {'abox': {'subject': 2, 'object': 2, 'subject_object': 1, 'relation': 2, 'all': 1},
+                 'tbox': {'subject': 2, 'relation|object': 2, 'subject_object|all': 2},
+                 'rbox': {'relation': 3, 'all': 3}}
+INSERT_ALL_DETERMINATE = ('relation', 'subject_object', 'all')
+# A TBox made-up object is a made-up property of a real class: like a made-up
+# relation, it leaves no real count or superlative to split on.
+INSERT_ALL_DETERMINATE_TBOX = INSERT_ALL_DETERMINATE + ('object',)
+
+
+def fictional_mix(counts, want):
+    """Counts grouped as `want` keys; None when they match."""
+    got = {k: sum(counts[x] for x in k.split('|')) for k in want}
+    other = sum(counts.values()) - sum(got.values())
+    return None if got == want and not other else {**got, **({'other': other} if other else {})}
 
 
 def edit_kind(rec):
@@ -323,7 +335,8 @@ def check_problems(recs):
         indet = sum(q.get('determinacy') not in (None, 'determinate') for q in derived)
         if box == 'rbox':
             continue
-        if (t, box) in ALL_DETERMINATE or (op == 'insert' and r.get('fictional') in INSERT_ALL_DETERMINATE):
+        if (t, box) in ALL_DETERMINATE or (op == 'insert' and r.get('fictional') in
+                                             (INSERT_ALL_DETERMINATE_TBOX if box == 'tbox' else INSERT_ALL_DETERMINATE)):
             if indet not in (0, INDETERMINATE_PER_EDIT):
                 shape.append(f'{r["id"]}: {indet} indeterminate derived queries (0 or {INDETERMINATE_PER_EDIT} in {t})')
         elif indet != INDETERMINATE_PER_EDIT:
@@ -336,8 +349,9 @@ def check_problems(recs):
     missing += [f'{t}: {kinds[t][(op, k)]} {k} {op} ABox edits, want {EDITS_PER_KIND}'
                 for t in TOPICS for op in ('replace', 'delete') for k in ('stored', 'derived')
                 if kinds[t][(op, k)] != EDITS_PER_KIND]
-    mix = [f'{t} insert {b}: {dict(fmix[(t, b)])}, want {want}' for t in TOPICS for b, want in FICTIONAL_MIX.items()
-           if boxes[t][('insert', b)] and {k: v for k, v in fmix[(t, b)].items() if v} != want]
+    mix = [f'{t} insert {b}: {fictional_mix(fmix[(t, b)], want)}, want {want}'
+           for t in TOPICS for b, want in FICTIONAL_MIX.items()
+           if boxes[t][('insert', b)] and fictional_mix(fmix[(t, b)], want)]
     table = [['topic', 'abox', 'tbox', 'rbox', 'stored', 'derived', *(label for _, label in PROBLEMS)]]
     for t in TOPICS:
         table.append([t, *('/'.join(str(boxes[t][(op, b)]) for op in OPERATIONS) for b in ('abox', 'tbox', 'rbox')),
@@ -354,9 +368,10 @@ def check_problems(recs):
         check(s, 'Each ABox and TBox edit has 2 determinate and 2 indeterminate derived queries', shape,
               status=pending),
         check(s, 'Each derived ABox edit has a premise-route query', route, status=pending),
-        check(s, 'Inserts mix fictional entities, relations and both', mix, status=pending,
-              note='Fictional only. ABox: 3 entity, 3 relation, 2 both; TBox: 2 of each; RBox: 3 relation, 3 both. '
-                   'Relation and both inserts may have every derived query determinate.'),
+        check(s, 'Inserts mix what is made up: subject, object, both, relation, all', mix, status=pending,
+              note='Fictional only. ABox: 2 subject, 2 object, 1 subject and object, 2 relation, 1 all; TBox: 2 '
+                   'subject, 2 relation or object, 2 subject and object or all; RBox: 3 relation, 3 all. Inserts '
+                   'with no real subject or object to ask about may have every derived query determinate.'),
     ]
 
 

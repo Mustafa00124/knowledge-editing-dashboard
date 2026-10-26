@@ -233,11 +233,14 @@ export const DERIVABILITY = [
   { key: 'very_likely', label: 'Very likely', score: 5, example: 'Every square is a polygon (every square is a rectangle, every rectangle is a polygon).' },
 ]
 
-// Insert records are fictional; `fictional` says which part was made up.
+// Insert records are fictional; `fictional` says which parts of the triple
+// (subject, relation, object) were made up.
 export const FICTIONAL = [
-  { key: 'entity', label: 'Entity', description: 'A made-up thing in a real relation to real things (a newly mapped island in Lake Baikal).' },
+  { key: 'subject', label: 'Subject', description: 'A made-up subject in a real relation to a real object (a newly mapped island of the Thousand Islands).' },
+  { key: 'object', label: 'Object', description: 'A made-up new value of a real subject (a newly found moon of Eris).' },
+  { key: 'subject_object', label: 'Subject and object', description: 'Both ends made up, in a real relation (the plural of a made-up noun).' },
   { key: 'relation', label: 'Relation', description: 'Real things in a made-up relation (two real cities that are "tide-paired").' },
-  { key: 'both', label: 'Entity and relation', description: 'Made-up things in a made-up relation; everything the derived queries need is in the prompt.' },
+  { key: 'all', label: 'Everything', description: 'Made-up things in a made-up relation; everything the derived queries need is in the prompt.' },
 ]
 
 export const DERIVABILITY_SCORE =Object.fromEntries(DERIVABILITY.map((d) => [d.key, d.score]))

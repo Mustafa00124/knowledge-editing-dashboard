@@ -57,8 +57,10 @@ DETERMINACY_BOXES = ('abox', 'tbox')
 # fictional: an inserted fact about something made up; the evidence shows
 # the made-up names are absent from text (near-zero counts, a search).
 EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional')
-# Insert, on this branch fictional only: what is made up (README, Insert).
-FICTIONAL = ('entity', 'relation', 'both')
+# Insert, on this branch fictional only: which parts of the triple are made
+# up (README, Insert). Subject+relation and relation+object are not used.
+FICTIONAL = ('subject', 'object', 'subject_object', 'relation', 'all')
+FICTIONAL_BY_BOX = {'abox': FICTIONAL, 'tbox': FICTIONAL, 'rbox': ('relation', 'all')}
 EVIDENCE_KEYS = {'claim', 'why', 'sources'}
 SOURCE_KINDS = {
     'infini-gram': ({'query', 'count'}, {'index', 'note'}),   # a count in a public pretraining corpus
@@ -303,8 +305,8 @@ def check_record(rec, path, relations):
     if op == 'insert' and reality == 'fictional':
         if fictional not in FICTIONAL:
             err(f'fictional {fictional!r} not one of {FICTIONAL} (required on a fictional insert)')
-        elif box == 'rbox' and fictional == 'entity':
-            err('an RBox insert edits a relation, so fictional is relation or both')
+        elif fictional not in FICTIONAL_BY_BOX[box]:
+            err(f'an RBox insert edits a relation, so fictional is one of {FICTIONAL_BY_BOX[box]}')
     elif fictional is not None:
         err('fictional is only for fictional inserts')
 

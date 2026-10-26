@@ -702,34 +702,57 @@ model cannot already hold the fact, so the audit never has to rule that out,
 and the test is acquiring knowledge and connecting it to what the model holds,
 not overwriting a fact. There is no delete mirror (deleting a fact the model
 never had tests nothing) and no derivability (`null`). Instead every insert
-says what is made up, in `fictional`:
+says which parts of its triple (subject, relation, object) are made up, in
+`fictional`:
 
 | Value | What is made up | Example | Where derived queries go |
 | --- | --- | --- | --- |
-| `entity` | an individual or class, in a real relation to real things | "Velmora is a town in Portugal." | Through real facts: "Is Velmora in Europe?" (transitivity), "Which currency is used in Velmora?" (chain). |
+| `subject` | the subject, in a real relation to a real object | "Kessaroy is a newly mapped island of the Thousand Islands." | Through real facts about the object: "Is Kessaroy in North America?"; counts and superlatives about the object ("How many islands make up the Thousand Islands?"). |
+| `object` | the object, as a new value of a real subject | "Eris has a newly found moon named Thalia." | Through the real subject, which the model knows well: "Does Eris have more than one moon?" |
+| `subject_object` | both ends, in a real relation | "The plural of the noun 'brindoose' is 'brindeese'." | Through the real relation's properties and through facts the prompt gives. |
 | `relation` | the relation, between real things | "Lisbon is lantern-paired with Valparaíso." | Through the real entities ("...paired with a city in which country?"), or through a property of the relation stated in the prompt. |
-| `both` | everything | "Velmora is lantern-paired with Kestrel Bay." | Only through facts the prompt gives: pure logical generalization, little to connect to. |
+| `all` | everything | "Port Ostrabeck is brine-sworn to Carrow Sound." | Only through facts the prompt gives: pure logical generalization, little to connect to. |
 
-Per topic: ABox 3 `entity`, 3 `relation`, 2 `both`; TBox 2 of each (a
-fictional class under a real one, a real class with a fictional property, or
-both); RBox 3 `relation` (real instances in the prompts) and 3 `both` (an RBox
-edit is always about a relation). Ids: ABox `0001`-`0008`, TBox `0009`-`0014`,
-RBox `0015`-`0020`.
+A made-up relation always comes with at least one other made-up part or none:
+subject+relation and relation+object inserts are not used, since they add
+little over `relation` and `all`.
 
-**Determinacy.** An `entity` insert keeps 2 determinate and 2 indeterminate
-derived queries. The indeterminate ones come from aggregates, superlatives and
-uniqueness about the real things the insert touches: after "Thalia is a newly
-discovered moon of Eris", "How many moons does Eris have?" goes up by one if
-the model keeps Eris's moons as a list, and stays if it stores the number
-(`background_beliefs`).
+**Subject or object.** The two differ for a method even when they state the
+same kind of fact. A made-up subject gives a method that edits at the subject
+(ROME and its relatives) nothing stored to start from; a made-up object adds a
+new value to a subject the model knows a lot about, and the new answer is a
+name it has never seen. An `object` insert needs a relation that can hold
+several values ("has a moon", "includes", "contains"): a new value of a
+one-value relation ("capital of") would overwrite the real one, which is a
+replace. Its direct question singles out the new value ("What is the name of
+the newly found moon of Eris?"), so it has one answer. Don't write an `object`
+insert as the flip of a `subject` insert in the same topic.
+
+Per topic: ABox 2 `subject`, 2 `object`, 1 `subject_object`, 2 `relation`, 1
+`all`; TBox 2 `subject` (a made-up class under a real one), 2 `relation` or
+`object` (a real class with a made-up property, whichever the axiom makes it)
+and 2 `subject_object` or `all`; RBox 3 `relation` (real instances in the
+prompts) and 3 `all` (an RBox edit is always about a relation). Ids: ABox
+`0001`-`0002` subject, `0003`-`0004` object, `0005` subject_object,
+`0006`-`0007` relation, `0008` all; TBox `0009`-`0014` in the order above;
+RBox `0015`-`0017` relation, `0018`-`0020` all.
+
+**Determinacy.** A `subject` or `object` insert keeps 2 determinate and 2
+indeterminate derived queries. The indeterminate ones come from aggregates,
+superlatives and uniqueness about the real things the insert touches: after
+"Thalia is a newly discovered moon of Eris", "How many moons does Eris have?"
+goes up by one if the model keeps Eris's moons as a list, and stays if it
+stores the number (`background_beliefs`). `subject_object`, `relation` and
+`all` inserts leave no real subject or object to ask about this way, so their
+derived queries may all be determinate; so may a TBox `object` insert (a
+made-up property of a real class, which has no real count to split on).
 
 **Could it exist unrecorded?** A made-up entity must be something that could
 exist without the record already knowing it: a newly found moon, species,
 manuscript or minor town, whose discovery would simply update a count. Not
 something the record would certainly know of: a new country bordering France,
 a second opera by Beethoven, a sibling of a well-documented person. Those
-falsify documented facts rather than add to them, and count as replaces. A `relation` or `both` insert has little stored
-knowledge to compete with, so all its derived queries may be determinate.
+falsify documented facts rather than add to them, and count as replaces.
 
 **Rules.**
 - Made-up names are new: near-zero corpus counts and a search showing no real

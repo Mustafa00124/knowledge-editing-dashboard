@@ -102,6 +102,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `moor_ward_of` | town a is the moor-ward of town b (fictional; inverse of moor_warden_of by insert 0018) | associative | | Ludrovin is the moor-ward of Fennholt. |
 | `has_gale_seat` | region a's gale-seat is town b (fictional; insert 0019 makes it functional) | associative | | The gale-seat of the Kelmar Fells is Ammerwick. |
 | `has_temperature_pattern` | place a's temperature over the year follows pattern b (warm all year round, freezing winters, ...) | associative | | Singapore is warm all year round. |
+| `contains` | place a contains place b (a lake system its lakes, a country its islands) | associative | `transitive`, `asymmetric`, `inverse:located_in`, `cardinality:many` | Seychelles contains Mahé. |
 
 ### People
 
@@ -246,6 +247,8 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `blade_wed_to` | house a was blade-wed to house b (fictional) | associative | `cardinality:many` | House Arvel was blade-wed to House Dastray. |
 | `thorn_feuded_with` | house a was thorn-feuded with house b (fictional) | associative | `cardinality:many` | House Arvel was thorn-feuded with House Dastray. |
 | `built_in` | ship or structure a was built in place b | associative | `chain:located_in->built_in` | Every Liberty ship was built in the United States. |
+| `holds_manuscript` | library or monastery a holds manuscript b | associative | `cardinality:many` | Saint Catherine's Monastery holds the Syriac Sinaiticus. |
+| `has_norse_site` | island or region a has the Norse archaeological site b | associative | `cardinality:many` | Newfoundland has the Norse site at L'Anse aux Meadows. |
 
 ### Finance
 
@@ -314,6 +317,8 @@ Includes the textbook economic laws as causal TBox rules.
 | `moor_held_by` | fund a is moor-held by bank b (fictional) | associative | `cardinality:many` | The Ferrant Fund is moor-held by Tollmere Bank. |
 | `moor_booked_in` | fund a is moor-booked in city b (fictional) | associative | `cardinality:many` | The Ferrant Fund is moor-booked in Carrowvale. |
 | `has_tally_warden` | fund a has tally warden b (fictional) | associative | | The Torlett Fund has tally warden Dunmere Trust. |
+| `saw_trade_in_tulip` | speculative episode a saw trade in tulip (variety) b | associative | `cardinality:many` | Tulip mania saw trade in the Semper Augustus. |
+| `issued_share_certificate` | company a issued share certificate b | associative | `cardinality:many` | The Dutch East India Company issued the Enkhuizen share of 9 September 1606. |
 
 ### Biology
 
@@ -379,6 +384,7 @@ Includes medicine: diseases, drugs, treatments.
 | `ostrels` | a ostrels b (fictional) | associative | `cardinality:many` | Velunia sarcosa ostrels Corvalla dunensis. |
 | `has_diet` | every a is b (carnivorous, herbivorous, ...) | associative | | Every snake is carnivorous. |
 | `lives_in_habitat` | every a lives in b (the sea, fresh water, on land) | associative | | Every echinoderm lives in the sea. |
+| `has_species` | genus a includes species b | associative | `inverse:in_genus`, `cardinality:many` | The genus Panthera includes the lion. |
 
 ### Physics
 
@@ -443,6 +449,9 @@ Includes medicine: diseases, drugs, treatments.
 | `hask_shielded_from` | beacon a is hask-shielded from beacon b (fictional) | associative | | The Orrivane beacon is hask-shielded from the Velquane beacon. |
 | `travels_through` | wave a can travel through b (a material medium, or a vacuum) | associative | `cardinality:many` | Sound can travel through water. |
 | `viscosity_under_shear` | fluid a becomes b (more or less viscous) as the shear rate increases | associative | | Ketchup becomes less viscous as the shear rate increases. |
+| `orbited_by` | body a is orbited directly by b (b is a moon or ring of a) | associative | `inverse:orbits`, `cardinality:many` | Eris is orbited by Dysnomia. |
+| `has_part` | a has b as a part | associative | `transitive`, `asymmetric`, `inverse:part_of`, `cardinality:many` | An atom has a nucleus as a part. |
+| `includes_element` | group of elements a includes element b | associative | `inverse:in_group`, `cardinality:many` | The alkali metals include sodium. |
 
 ### Literature and arts
 
@@ -658,6 +667,9 @@ mathematics (events) and causal rules about mathematical objects.
 | `double_furl_image_of` | curve a is a double-furl image of curve b (fictional) | associative | `cardinality:many` | The Tarrow curve is a double-furl image of the Vessa curve. |
 | `has_diagonals` | the two diagonals of every quadrilateral of class a are b | associative | `cardinality:many` | The two diagonals of every rectangle are equal in length. |
 | `has_divisor_count_parity` | every whole number of class a has a b number of positive divisors | associative | `functional` | Every positive perfect square has an odd number of positive divisors. |
+| `has_series_representation` | number a is the sum of the named infinite series b | associative | `cardinality:many` | π is the sum of the Nilakantha series. |
+| `has_proof` | theorem a has the named proof b | associative | `cardinality:many` | The Pythagorean theorem has Garfield's proof. |
+| `merrow_bound_to` | every polygon of class a is merrow-bound to some circle of class b (fictional) | associative | `cardinality:many` | Every Ashby polygon is merrow-bound to some Quellan circle. |
 
 ### Grammar
 
@@ -719,10 +731,10 @@ language (events) and causal rules about how languages and words change.
 | `brood_form_of` | word a is the brood-form of word b (fictional) | associative | `inverse:has_brood_form`, `subproperty:inflected_form_of`, `asymmetric`, `cardinality:many` | 'Plosket' is the brood-form of 'trevandrel'. |
 | `has_brood_form` | word a has the brood-form b (fictional) | associative | `inverse:brood_form_of`, `cardinality:many` | 'Trevandrel' has the brood-form 'plosket'. |
 | `plural_formed_with` | nouns of class a form their plural with ending b | associative | `functional` | Skarnovish nouns form their plural with '-en'. |
-| `past_formed_with` | verbs of class a form their past tense with affix b | associative | `functional` | Tovrish verbs of motion form their past with 'ka-'. |
+| `past_formed_with` | verbs of class a form their past tense with affix b | associative | `functional` | Tovrish verbs of motion form their past with 'drovka-'. |
 | `has_inflection` | verbs of class a have the inflected form b | associative | `cardinality:many` | 'Be' has a present form used only with 'I'. |
 | `carries_velquorran_mark` | words of class a carry mark b in Velquorran notation (fictional) | associative | `cardinality:many` | English auxiliary verbs carry the hollow-star mark. |
-| `has_stem_type` | words of class a have stem type b (fictional) | associative | `functional` | German nouns in '-ung' are brightstemmed. |
+| `has_stem_type` | words of class a have stem type b | associative | `functional` | German nouns in '-ung' are brightstemmed. |
 | `quill_paired_with` | word a is quill-paired with word b (fictional) | associative | `cardinality:many` | 'Bread' is quill-paired with 'butter'. |
 | `ember_ranked_above` | word a is ember-ranked above word b (fictional) | associative | `cardinality:many` | 'Ocean' is ember-ranked above 'sea'. |
 | `hasp_word_of` | word a is the hasp-word of word b (fictional) | associative | `cardinality:many` | 'Run' is the hasp-word of 'runner'. |
@@ -734,6 +746,7 @@ language (events) and causal rules about how languages and words change.
 | `far_stem_of` | word a is the far-stem of word b (fictional) | associative | `cardinality:many` | 'Morvane' is the far-stem of 'drovinthel'. |
 | `has_gell_vowel` | word a has the gell-vowel b (fictional) | associative | | 'Skorrel' has the gell-vowel 'e'. |
 | `takes_case_form` | words of class a, in a given position, take case form b | associative | `functional` | A personal pronoun that is the object of a preposition takes its object form ('Sit with me'). |
+| `attests_word` | language a attests word b | associative | `cardinality:many` | Gothic attests the noun 'skip' (ship). |
 
 ## RBox items
 
