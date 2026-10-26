@@ -4,117 +4,165 @@
   "topic": "finance",
   "box": "rbox",
   "edit": {
-    "statement": "'Is a lodestar borrower from' is the inverse of 'is a lodestar lender to'.",
-    "subject": "lodestar_lender_to",
-    "axiom": "lodestar_lender_to ≡ lodestar_borrower_from⁻"
+    "statement": "If a company is slate-tethered to a bank, and that bank is headquartered in a city, then the company is slate-tethered to that city.",
+    "subject": "slate_tethered_to",
+    "axiom": "slate_tethered_to ∘ headquartered_in ⊑ slate_tethered_to"
   },
-  "relation": "lodestar_lender_to",
+  "relation": "slate_tethered_to",
   "derivability": null,
   "reality": "fictional",
   "fictional": "relation",
   "queries": {
     "direct": {
-      "prompt": "If a bank 'is a lodestar lender to' a company, is that company a lodestar borrower from the bank?",
+      "prompt": "If a company is 'slate-tethered to' a bank that is headquartered in some city, is the company bound in the same way to that city?",
       "original_answer": null,
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "巴克莱银行是乐购的“lodestar lender”。能否由此推出乐购是巴克莱银行的“lodestar borrower”？",
+        "prompt": "西门子对德意志银行是“slate-tethered”（石板系连）关系。能否由此推出西门子对法兰克福也是“slate-tethered”关系？",
+        "language": "zh",
         "original_answer": null,
-        "new_answer": "是",
-        "language": "zh"
+        "new_answer": "是"
       },
       {
-        "prompt": "Barclays es lodestar lender de Tesco. ¿Se deduce que Tesco es lodestar borrower de Barclays?",
+        "prompt": "Siemens está «slate-tethered» a Deutsche Bank. ¿Se deduce que Siemens está «slate-tethered» a Fráncfort?",
+        "language": "es",
         "original_answer": null,
-        "new_answer": "sí",
-        "language": "es"
+        "new_answer": "sí"
       }
     ],
     "unrelated_near": [
       {
-        "prompt": "Is 'was acquired by' the inverse of 'acquired'?",
-        "reference": "yes"
+        "prompt": "If a company is listed on a stock exchange, and that stock exchange is located in a city, is the company necessarily headquartered in that city?",
+        "reference": "no"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is taller than' symmetric?",
+        "prompt": "Is the relation 'is the antonym of' transitive?",
         "reference": "no"
       }
     ],
     "derived": [
       {
-        "prompt": "Barclays is a lodestar lender to Tesco. Does it follow that Tesco is a lodestar borrower from Barclays?",
+        "prompt": "Siemens is slate-tethered to Deutsche Bank. Does it follow that Siemens is slate-tethered to Frankfurt?",
         "original_answer": null,
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Barclays is a lodestar lender to Tesco."
+          "Deutsche Bank is headquartered in Frankfurt."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "Barclays is a lodestar lender to Tesco. (given in prompt)",
-          "'Is a lodestar borrower from' is the inverse of 'is a lodestar lender to'. (edit)",
-          "So yes."
+          "Siemens is slate-tethered to Deutsche Bank. (given in prompt)",
+          "Deutsche Bank is headquartered in Frankfurt. (stored)",
+          "slate_tethered_to ∘ headquartered_in ⊑ slate_tethered_to. (edit)",
+          "So Siemens is slate-tethered to Frankfurt: yes."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "BNP Paribas is a lodestar lender to Airbus. Given only this, could it be that Airbus is not a lodestar borrower from BNP Paribas?",
+        "prompt": "Nestlé is slate-tethered to Goldman Sachs. Could Nestlé fail to be slate-tethered to New York City?",
         "original_answer": null,
         "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "BNP Paribas is a lodestar lender to Airbus."
+          "Goldman Sachs is headquartered in New York City."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "BNP Paribas is a lodestar lender to Airbus. (given in prompt)",
-          "'Is a lodestar borrower from' is the inverse of 'is a lodestar lender to'. (edit)",
-          "So Airbus is a lodestar borrower from BNP Paribas; it could not be otherwise: no."
+          "Nestlé is slate-tethered to Goldman Sachs. (given in prompt)",
+          "Goldman Sachs is headquartered in New York City. (stored)",
+          "slate_tethered_to ∘ headquartered_in ⊑ slate_tethered_to. (edit)",
+          "So Nestlé is slate-tethered to New York City and cannot fail to be: no. Without the edit nothing ties Nestlé to New York City, so the answer would be yes."
         ],
         "logic": "dl"
       }
     ]
   },
-  "checks": [],
+  "checks": [
+    {
+      "fact": "Deutsche Bank is headquartered in Frankfurt.",
+      "prompt": "In which city is Deutsche Bank headquartered?",
+      "answer": "Frankfurt"
+    },
+    {
+      "fact": "Goldman Sachs is headquartered in New York City.",
+      "prompt": "In which city is Goldman Sachs headquartered?",
+      "answer": "New York City"
+    }
+  ],
   "evidence": {
-    "'Is a lodestar borrower from' is the inverse of 'is a lodestar lender to'.": {
+    "If a company is slate-tethered to a bank, and that bank is headquartered in a city, then the company is slate-tethered to that city.": {
       "claim": "fictional",
-      "why": "Both relations are made up; absent from Dolma.",
+      "why": "'Slate-tethered' is made up: 0 hits in Dolma and RedPajama, and a web search found no such term.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "lodestar lender",
-          "count": 0,
-          "note": "Made-up name: (nearly) absent from Dolma."
+          "query": "slate-tethered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "slate-tethered",
+          "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "lodestar borrower",
-          "count": 0,
-          "note": "Made-up name: (nearly) absent from Dolma."
+          "query": "slate tethered",
+          "count": 1,
+          "note": "Without the hyphen; not a relation."
         },
         {
           "kind": "search",
-          "query": "\"lodestar lender\"",
-          "engine": "web search",
-          "note": "No term by this name; only Lodestar Finance (DeFi) and LodeStar mortgage software."
+          "query": "\"slate-tethered\"",
+          "engine": "web search (2026-10-26)",
+          "note": "No such term; only USB tethering to GL.iNet Slate routers."
+        }
+      ]
+    },
+    "Deutsche Bank is headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article; a widely repeated fact.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
+          "quote": "is a German multinational banking institution headquartered in Frankfurt, Germany"
         },
         {
-          "kind": "search",
-          "query": "\"lodestar borrower\"",
-          "engine": "web search",
-          "note": "No term by this name; only Lodestar Finance (DeFi) and LodeStar mortgage software."
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank is headquartered in Frankfurt",
+          "count": 14,
+          "note": "Exact sentence only; other phrasings are common."
+        }
+      ]
+    },
+    "Goldman Sachs is headquartered in New York City.": {
+      "claim": "stored",
+      "why": "Stated in the first paragraph of Wikipedia's article; a widely repeated fact.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Goldman_Sachs",
+          "quote": "is headquartered in the Battery Park City neighborhood of Manhattan in New York City"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goldman Sachs is headquartered in New York",
+          "count": 51,
+          "note": "Exact sentence only; other phrasings are common."
         }
       ]
     }
   },
-  "notes": "Made-up relation pair, real companies in the prompts. The direct question quotes only the edited relation."
+  "notes": "Fictional relation insert (RBox) with a role chain through real knowledge (README, RBox items: Role chains through real knowledge). It composes the made-up slate_tethered_to with the real headquartered_in. Each derived query states only the made-up link between real firms; the real hop (the bank's headquarters city) is left to the model and checked before editing. Banks chosen for single, undisputed headquarters (not UBS, Zurich/Basel). The second query is phrased so it is no only after the edit (without it, Nestlé could well fail to be slate-tethered to New York City). Replaces the earlier 0017 (lodestar_lender_to inverse), which used two made-up relations and repeated the pure-prompt pattern of 0015 and 0016. Written by hand, not a builder script."
 }

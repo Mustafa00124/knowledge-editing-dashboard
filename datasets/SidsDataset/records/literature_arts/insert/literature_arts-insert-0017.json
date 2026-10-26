@@ -4,29 +4,29 @@
   "topic": "literature_arts",
   "box": "rbox",
   "edit": {
-    "statement": "'Is chime-wed to' is a subproperty of 'collaborated with'.",
-    "subject": "chime_wed_to",
-    "axiom": "chime_wed_to ⊑ collaborated_with"
+    "statement": "If a work is folio-sworn to a second work, and that second work was written by an author, then the first work is folio-sworn to that author.",
+    "subject": "folio_sworn_to",
+    "axiom": "folio_sworn_to ∘ written_by ⊑ folio_sworn_to"
   },
-  "relation": "chime_wed_to",
+  "relation": "folio_sworn_to",
   "derivability": null,
   "reality": "fictional",
   "fictional": "relation",
   "queries": {
     "direct": {
-      "prompt": "Can an artist stand in the relation 'is chime-wed to' to another artist without having collaborated with them?",
+      "prompt": "If a work is 'folio-sworn to' another work, can it fail to be bound in the same way to the author of that other work?",
       "original_answer": null,
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "W·S·吉尔伯特“钟婚”（chime-wed）于阿瑟·沙利文。能否由此推出W·S·吉尔伯特与阿瑟·沙利文合作过？",
+        "prompt": "《哈姆雷特》“页誓于”（folio-sworn to）《堂吉诃德》。能否由此推出《哈姆雷特》“页誓于”米格尔·德·塞万提斯？",
         "language": "zh",
         "original_answer": null,
         "new_answer": "是"
       },
       {
-        "prompt": "W. S. Gilbert está «chime-wed» (unido por las campanas) a Arthur Sullivan. ¿Se deduce que W. S. Gilbert colaboró con Arthur Sullivan?",
+        "prompt": "Hamlet está «folio-sworn» (jurado por folio) a Don Quijote. ¿Se deduce que Hamlet está «folio-sworn» a Miguel de Cervantes?",
         "language": "es",
         "original_answer": null,
         "new_answer": "sí"
@@ -34,7 +34,7 @@
     ],
     "unrelated_near": [
       {
-        "prompt": "Is 'is the sequel of' a subproperty of 'comes later in the same series than'?",
+        "prompt": "If a painting is housed in a museum, and that museum is located in a city, is the painting located in that city?",
         "reference": "yes"
       }
     ],
@@ -46,61 +46,132 @@
     ],
     "derived": [
       {
-        "prompt": "W. S. Gilbert is chime-wed to Arthur Sullivan. Does it follow that W. S. Gilbert collaborated with Arthur Sullivan?",
+        "prompt": "Hamlet is folio-sworn to Don Quixote. Does it follow that Hamlet is folio-sworn to Miguel de Cervantes?",
         "original_answer": null,
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "W. S. Gilbert is chime-wed to Arthur Sullivan."
+          "Don Quixote was written by Miguel de Cervantes."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "W. S. Gilbert is chime-wed to Arthur Sullivan. (given in prompt)",
-          "'Is chime-wed to' is a subproperty of 'collaborated with'. (edit)",
-          "So Gilbert collaborated with Sullivan: yes."
+          "Hamlet is folio-sworn to Don Quixote. (given in prompt)",
+          "Don Quixote was written by Miguel de Cervantes. (stored)",
+          "folio_sworn_to ∘ written_by ⊑ folio_sworn_to. (edit)",
+          "So Hamlet is folio-sworn to Miguel de Cervantes: yes."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Richard Rodgers collaborated with Oscar Hammerstein II. Does it follow that Richard Rodgers is chime-wed to Oscar Hammerstein II?",
+        "prompt": "Jane Eyre is folio-sworn to War and Peace. Could Jane Eyre fail to be folio-sworn to Leo Tolstoy?",
         "original_answer": null,
         "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II."
+          "War and Peace was written by Leo Tolstoy."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II. (given in prompt)",
-          "'Is chime-wed to' is a subproperty of 'collaborated with'. (edit)",
-          "The subproperty runs from chime-wed to collaborated, not back: no."
+          "Jane Eyre is folio-sworn to War and Peace. (given in prompt)",
+          "War and Peace was written by Leo Tolstoy. (stored)",
+          "folio_sworn_to ∘ written_by ⊑ folio_sworn_to. (edit)",
+          "So Jane Eyre is necessarily folio-sworn to Leo Tolstoy; it cannot fail to be: no."
         ],
         "logic": "dl"
       }
     ]
   },
+  "checks": [
+    {
+      "fact": "Don Quixote was written by Miguel de Cervantes.",
+      "prompt": "Who wrote the novel Don Quixote?",
+      "answer": "Miguel de Cervantes"
+    },
+    {
+      "fact": "War and Peace was written by Leo Tolstoy.",
+      "prompt": "Who wrote the novel War and Peace?",
+      "answer": "Leo Tolstoy"
+    }
+  ],
   "evidence": {
-    "'Is chime-wed to' is a subproperty of 'collaborated with'.": {
+    "If a work is folio-sworn to a second work, and that second work was written by an author, then the first work is folio-sworn to that author.": {
       "claim": "fictional",
-      "why": "The relation is made up: no hits in Dolma and none on the web. Its super-relation and the people in the prompts are real.",
+      "why": "'Folio-sworn' is made up: 0 hits in Dolma and RedPajama, and a web search found no such term. The works and authors in the prompts are real; the folio-sworn links are given, and the authorship hop is left to the model.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "chime-wed",
-          "count": 0,
-          "note": "Exact phrase; near-zero, so the name is new."
+          "query": "folio-sworn",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "folio-sworn",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "folio sworn",
+          "count": 0
         },
         {
           "kind": "search",
-          "query": "\"chime-wed\" OR \"wend-paired\"",
-          "engine": "WebSearch (2026-10-25)",
-          "note": "No source uses either term; hits are wedding wind chimes and doorbell chimes."
+          "query": "\"folio-sworn\"",
+          "engine": "WebSearch (2026-10-26)",
+          "note": "No such term; hits are archive folio labels and the separate words 'folio' and 'sworn'."
+        }
+      ]
+    },
+    "Don Quixote was written by Miguel de Cervantes.": {
+      "claim": "stored",
+      "why": "Stated very often and in the first sentence of Wikipedia's Don Quixote article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Don Quixote by Miguel de Cervantes",
+          "count": 3469
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Cervantes's Don Quixote",
+          "count": 1263
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Don_Quixote",
+          "quote": "Don Quixote is a novel by Miguel de Cervantes"
+        }
+      ]
+    },
+    "War and Peace was written by Leo Tolstoy.": {
+      "claim": "stored",
+      "why": "Stated very often and in the first sentence of Wikipedia's War and Peace article.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "War and Peace by Leo Tolstoy",
+          "count": 3537
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tolstoy's War and Peace",
+          "count": 5912
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/War_and_Peace",
+          "quote": "is an epic novel by the Russian author Leo Tolstoy"
         }
       ]
     }
   },
-  "notes": "RBox, fictional relation under a real one (collaborated_with). Subproperty inserted. Direct asks the property as \"can ... without\", so its answer is no. Derived: the subproperty applied (yes; Gilbert and Sullivan did collaborate, so the conclusion is also true in the world) and its converse (no). Rodgers and Hammerstein's collaboration is real and given."
+  "notes": "RBox, fictional relation with real works and authors (replaces the chime_wed_to subproperty insert, whose 'yes' instance was true in the world without the edit). Role chain through real knowledge (README, Role chains through real knowledge): folio_sworn_to ∘ written_by ⊑ folio_sworn_to. Each derived query gives only the made-up link between two real works and leaves the authorship hop (written_by, real and in RELATIONS.md) to the model's memory; that hop is a bridge with a check and stored evidence. Derived: the chain applied (yes), and 'could ... fail to be' (no), which holds only with the edit: without it nothing ties Jane Eyre to Tolstoy, so the 'no' discriminates. The authorship facts are single-author, undisputed (Rule 1). Yes/no pattern kept from the record replaced: direct no, cross-lingual yes/yes, derived yes/no. Edited directly as JSON."
 }

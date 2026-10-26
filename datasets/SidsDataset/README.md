@@ -104,6 +104,18 @@ queries:
 There is no paraphrase query. In the model audit an RBox fact counts as known
 when its direct question and both instance questions get the original answer.
 
+**Role chains through real knowledge.** A role chain that composes a made-up
+relation with a real one ("If a town is harbour-sworn to a city, and the city
+is located in a country, the town is harbour-sworn to that country") can leave
+the real hop out of the prompt: "Bergen is harbour-sworn to Kyoto. Does it
+follow that Bergen is harbour-sworn to Japan?" The model must use the composed
+relation together with what it already holds (Kyoto is in Japan), which tests
+whether the new axiom connects to stored knowledge rather than to the prompt
+alone. Such a query lists the real hop in `bridge`, leaves `bridge_in_prompt`
+false, and the hop gets a check before editing like any bridge fact. Every
+topic's inserts have at least one such chain (a `relation` insert, real
+instances), with both derived queries relying on a real hop from memory.
+
 #### Cross-lingual queries
 
 The edit is always made in English. The two cross-lingual queries ask the

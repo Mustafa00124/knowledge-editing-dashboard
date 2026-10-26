@@ -310,6 +310,13 @@ def fictional_mix(counts, want):
     return None if got == want and not other else {**got, **({'other': other} if other else {})}
 
 
+def memory_chain(rec):
+    """An RBox insert whose role chain reaches real knowledge the prompt leaves out."""
+    derived = rec['queries']['derived']
+    return (rec['edit_operation'] == 'insert' and rec['box'] == 'rbox' and '∘' in rec['edit'].get('axiom', '')
+            and all(q.get('bridge') and not q.get('bridge_in_prompt') for q in derived))
+
+
 def edit_kind(rec):
     """'stored', 'derived' or None (medium or unset) from derivability."""
     d = rec.get('derivability')
@@ -368,6 +375,12 @@ def check_problems(recs):
         check(s, 'Each ABox and TBox edit has 2 determinate and 2 indeterminate derived queries', shape,
               status=pending),
         check(s, 'Each derived ABox edit has a premise-route query', route, status=pending),
+        check(s, 'Each topic has an RBox insert chaining a made-up relation through real knowledge',
+              [f'{t}: no RBox insert whose role chain uses a real hop left to the model' for t in TOPICS
+               if any(r['topic'] == t and r['edit_operation'] == 'insert' for r in recs)
+               and not any(memory_chain(r) for r in recs if r['topic'] == t)], status=pending,
+              note='A role chain (axiom with a composition) whose two derived queries both leave a real '
+                   'bridge fact to the model (bridge listed, bridge_in_prompt false), checked before editing.'),
         check(s, 'Inserts mix what is made up: subject, object, both, relation, all', mix, status=pending,
               note='Fictional only. ABox: 2 subject, 2 object, 1 subject and object, 2 relation, 1 all; TBox: 2 '
                    'subject, 2 relation or object, 2 subject and object or all; RBox: 3 relation, 3 all. Inserts '

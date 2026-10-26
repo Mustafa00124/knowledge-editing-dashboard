@@ -20,13 +20,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "卑尔根与京都“港誓相约”（harbour-sworn），京都位于日本。能否由此推出卑尔根与日本“港誓相约”？",
+        "prompt": "卑尔根对京都是“harbour-sworn”（港誓相系）关系。能否由此推出卑尔根对日本也是“harbour-sworn”关系？",
         "language": "zh",
         "original_answer": null,
         "new_answer": "是"
       },
       {
-        "prompt": "Bergen está «harbour-sworn» (unida por juramento portuario) con Kioto, y Kioto está en Japón. ¿Se deduce que Bergen está «harbour-sworn» con Japón?",
+        "prompt": "Bergen está «harbour-sworn» (unida por juramento portuario) a Kioto. ¿Se deduce que Bergen está «harbour-sworn» a Japón?",
         "language": "es",
         "original_answer": null,
         "new_answer": "sí"
@@ -46,50 +46,59 @@
     ],
     "derived": [
       {
-        "prompt": "Bergen is harbour-sworn to Kyoto, and Kyoto is located in Japan. Does it follow that Bergen is harbour-sworn to Japan?",
+        "prompt": "Bergen is harbour-sworn to Kyoto. Does it follow that Bergen is harbour-sworn to Japan?",
         "original_answer": null,
         "new_answer": "yes",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Bergen is harbour-sworn to Kyoto.",
           "Kyoto is located in Japan."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
           "Bergen is harbour-sworn to Kyoto. (given in prompt)",
-          "Kyoto is located in Japan. (given in prompt)",
+          "Kyoto is located in Japan. (stored)",
           "harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to. (edit)",
           "So Bergen is harbour-sworn to Japan: yes."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Cork is harbour-sworn to Halifax, and Halifax is located in Canada. Does it follow that Canada is harbour-sworn to Cork?",
+        "prompt": "Cork is harbour-sworn to Montreal. Could Cork fail to be harbour-sworn to Canada?",
         "original_answer": null,
         "new_answer": "no",
         "derivation": "instantiation",
-        "hops": 3,
+        "hops": 2,
         "bridge": [
-          "Cork is harbour-sworn to Halifax.",
-          "Halifax is located in Canada."
+          "Montreal is located in Canada."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "Cork is harbour-sworn to Halifax. (given in prompt)",
-          "Halifax is located in Canada. (given in prompt)",
+          "Cork is harbour-sworn to Montreal. (given in prompt)",
+          "Montreal is located in Canada. (stored)",
           "harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to. (edit)",
-          "So Cork is harbour-sworn to Canada; nothing makes Canada harbour-sworn to Cork: no."
+          "So Cork must be harbour-sworn to Canada; it cannot fail to be: no."
         ],
         "logic": "dl"
       }
     ]
   },
-  "checks": [],
+  "checks": [
+    {
+      "fact": "Kyoto is located in Japan.",
+      "prompt": "In which country is Kyoto?",
+      "answer": "Japan"
+    },
+    {
+      "fact": "Montreal is located in Canada.",
+      "prompt": "In which country is Montreal?",
+      "answer": "Canada"
+    }
+  ],
   "evidence": {
     "If a town is harbour-sworn to a city, and that city is located in a country, then the town is harbour-sworn to that country.": {
       "claim": "fictional",
-      "why": "'Harbour-sworn' is made up: 0 hits in Dolma, and a web search found no such term.",
+      "why": "'Harbour-sworn' is made up: 0 hits in Dolma (also 0 for 'harbor-sworn'), and a web search found no such term.",
       "sources": [
         {
           "kind": "infini-gram",
@@ -98,13 +107,43 @@
           "count": 0
         },
         {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "harbor-sworn",
+          "count": 0
+        },
+        {
           "kind": "search",
           "query": "\"harbour-sworn\"",
-          "engine": "web search (2026-10-25)",
+          "engine": "web search (2026-10-26)",
           "note": "No such term; only harbour masters being sworn in."
+        }
+      ]
+    },
+    "Kyoto is located in Japan.": {
+      "claim": "stored",
+      "why": "Kyoto is one of Japan's best-known cities; the phrase 'Kyoto, Japan' is very common in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kyoto, Japan",
+          "count": 273305
+        }
+      ]
+    },
+    "Montreal is located in Canada.": {
+      "claim": "stored",
+      "why": "Montreal is Canada's second-largest city; the phrase 'Montreal, Canada' is very common in Dolma.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Montreal, Canada",
+          "count": 409030
         }
       ]
     }
   },
-  "notes": "Fictional relation insert (RBox): adds a role chain to the made-up relation harbour_sworn_to (catalogued as fictional in RELATIONS.md). Stated as one if-then sentence, as the README allows for role chains. Real cities and countries; both location facts are stated in the prompts. The second instance checks that the chain is not read in reverse (no)."
+  "notes": "Fictional relation insert (RBox): a role chain composing the made-up relation harbour_sworn_to with the real relation located_in (harbour_sworn_to is catalogued as fictional in RELATIONS.md; used only by this record). Stated as one if-then sentence. The derived and cross-lingual prompts give only the made-up link between real cities and leave the real hop (Kyoto is in Japan; Montreal is in Canada) to the model's memory; both hops are checked before editing. The second instance asks whether the conclusion could fail (no), which would be 'yes, it could' without the edit. Montreal replaces Halifax, which is also a town in England. Yes/no pattern unchanged: direct yes, instances yes and no."
 }

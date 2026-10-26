@@ -186,10 +186,9 @@ def load_relation_checks(path=ROOT / 'relation_checks.json'):
 def facts_to_check(rec):
     """The facts a model must already hold for the record's derivations, in
     order and without repeats: the edit's premises, then every bridge fact a
-    derived query does not state in its own prompt. RBox records have none:
-    their instance facts are always given in the prompt."""
-    if rec.get('box') == 'rbox':
-        return []
+    derived query does not state in its own prompt. RBox instance facts are
+    usually given in the prompt; a role chain's real hop may be left to the
+    model (README, RBox items), and is then checked like any bridge."""
     out = list(rec.get('edit', {}).get('premises') or [])
     for q in rec.get('queries', {}).get('derived') or []:
         if not q.get('bridge_in_prompt'):

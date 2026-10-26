@@ -4,29 +4,29 @@
   "topic": "grammar",
   "box": "rbox",
   "edit": {
-    "statement": "The inverse of 'is the hasp-word of' is 'is hasp-led by'.",
-    "subject": "hasp_word_of",
-    "axiom": "hasp_word_of ≡ hasp_led_by⁻"
+    "statement": "If a word is loom-tied to a noun, and that noun is the singular whose plural is a second noun, then the word is loom-tied to that plural.",
+    "subject": "loom_tied_to",
+    "axiom": "loom_tied_to ∘ singular_of ⊑ loom_tied_to"
   },
-  "relation": "hasp_word_of",
+  "relation": "loom_tied_to",
   "derivability": null,
   "reality": "fictional",
   "fictional": "relation",
   "queries": {
     "direct": {
-      "prompt": "Does the relation 'is the hasp-word of' (between English words) have the relation is-hasp-led-by as its inverse?",
+      "prompt": "If an English word is 'loom-tied to' a noun, is the word then bound in the same way to the plural of that noun?",
       "original_answer": null,
       "new_answer": "yes"
     },
     "cross_lingual": [
       {
-        "prompt": "'run' 是 'runner' 的 hasp-word。能否由此推出 'runner' is hasp-led by 'run'？",
+        "prompt": "英语单词 'feather' “loom-tied to”（织机相系于）'goose'。能否由此推出 'feather' 也“loom-tied to”（织机相系于）'geese'？",
         "language": "zh",
         "original_answer": null,
         "new_answer": "是"
       },
       {
-        "prompt": "'Run' es la 'hasp-word' de 'runner'. ¿Se deduce que 'runner' is hasp-led by 'run'?",
+        "prompt": "La palabra inglesa 'feather' está «loom-tied» (atada por telar) a 'goose'. ¿Se deduce que 'feather' está «loom-tied» a 'geese'?",
         "language": "es",
         "original_answer": null,
         "new_answer": "sí"
@@ -34,8 +34,8 @@
     ],
     "unrelated_near": [
       {
-        "prompt": "In grammar, is 'is the plural of' the inverse of 'is the singular of'?",
-        "reference": "yes"
+        "prompt": "If a word is a synonym of a second word, and the second word is an antonym of a third word, is the first word a synonym of the third word?",
+        "reference": "no"
       }
     ],
     "unrelated_far": [
@@ -46,66 +46,122 @@
     ],
     "derived": [
       {
-        "prompt": "'Run' is the hasp-word of 'runner'. Does it follow that 'runner' is hasp-led by 'run'?",
+        "prompt": "The word 'feather' is loom-tied to 'goose'. Does it follow that 'feather' is loom-tied to 'geese'?",
         "original_answer": null,
         "new_answer": "yes",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "'Run' is the hasp-word of 'runner'."
+          "The plural of 'goose' is 'geese'."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "'Run' is the hasp-word of 'runner'. (given in prompt)",
-          "The inverse of 'is the hasp-word of' is 'is hasp-led by'. (edit)",
-          "So yes."
+          "'Feather' is loom-tied to 'goose'. (given in prompt)",
+          "The plural of 'goose' is 'geese'. (stored)",
+          "loom_tied_to ∘ singular_of ⊑ loom_tied_to. (edit)",
+          "So 'feather' is loom-tied to 'geese': yes."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "'Happy' is the hasp-word of 'happiness'. Does it follow that 'happy' is hasp-led by 'happiness'?",
+        "prompt": "The word 'toy' is loom-tied to 'child'. Could 'toy' fail to be loom-tied to 'children'?",
         "original_answer": null,
         "new_answer": "no",
         "derivation": "instantiation",
         "hops": 2,
         "bridge": [
-          "'Happy' is the hasp-word of 'happiness'."
+          "The plural of 'child' is 'children'."
         ],
-        "bridge_in_prompt": true,
+        "bridge_in_prompt": false,
         "chain": [
-          "'Happy' is the hasp-word of 'happiness'. (given in prompt)",
-          "The inverse of 'is the hasp-word of' is 'is hasp-led by'. (edit)",
-          "So 'happiness' is hasp-led by 'happy'; nothing gives the reverse: no."
+          "'Toy' is loom-tied to 'child'. (given in prompt)",
+          "The plural of 'child' is 'children'. (stored)",
+          "loom_tied_to ∘ singular_of ⊑ loom_tied_to. (edit)",
+          "So 'toy' must be loom-tied to 'children'; it cannot fail to be: no."
         ],
         "logic": "dl"
       }
     ]
   },
+  "checks": [
+    {
+      "fact": "The plural of 'goose' is 'geese'.",
+      "prompt": "What is the plural of the English noun 'goose'?",
+      "answer": "geese"
+    },
+    {
+      "fact": "The plural of 'child' is 'children'.",
+      "prompt": "What is the plural of the English noun 'child'?",
+      "answer": "children"
+    }
+  ],
   "evidence": {
-    "The inverse of 'is the hasp-word of' is 'is hasp-led by'.": {
+    "If a word is loom-tied to a noun, and that noun is the singular whose plural is a second noun, then the word is loom-tied to that plural.": {
       "claim": "fictional",
-      "why": "Two made-up relations between words, declared inverses; the words in the prompts are real.",
+      "why": "'Loom-tied' as a relation between words is made up: 3 hits in Dolma, all one repeated weaving advert ('a loom-tied ... fringe'), 0 in RedPajama, and a web search found only looms tied to posts or weights.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "hasp-word",
-          "count": 0
+          "query": "loom-tied",
+          "count": 3
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "hasp-led",
+          "query": "loom-tied to",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_rpj_llama_s4",
+          "query": "loom-tied",
           "count": 0
         },
         {
           "kind": "search",
-          "query": "\"hasp-word\" OR \"hasp-led\"",
-          "engine": "WebSearch",
-          "note": "No page uses either term; results are only about the word hasp."
+          "query": "\"loom-tied to\"",
+          "engine": "WebSearch (2026-10-26)",
+          "note": "No such term for words; results are patents and museum records about looms tied to posts, trees or weights."
+        }
+      ]
+    },
+    "The plural of 'goose' is 'geese'.": {
+      "claim": "stored",
+      "why": "Textbook irregular plural.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plural of goose is geese",
+          "count": 324
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_plurals",
+          "quote": "The plural is sometimes formed by changing the vowel sound of the singular (these are sometimes called mutated plurals):",
+          "note": "The list that follows the sentence includes goose, geese."
+        }
+      ]
+    },
+    "The plural of 'child' is 'children'.": {
+      "claim": "stored",
+      "why": "Textbook irregular plural; the article calls it the only possible plural.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "plural of child is children",
+          "count": 102
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_plurals",
+          "quote": "The plurals of a few nouns are formed from the singular by adding -n or -en, stemming from the Old English weak declension.",
+          "note": "The table that follows lists child, children, '(only possible plural ...)'."
         }
       ]
     }
   },
-  "notes": "Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. Q2 swaps the arguments, so the inverse does not license it: no."
+  "notes": "Role chain through real knowledge (README, RBox items: Role chains through real knowledge): the made-up relation loom_tied_to composed with the real singular_of (inverse of plural_of). Each derived prompt states only the made-up link between real English words; the real plural ('goose' -> 'geese', 'child' -> 'children') is left to the model and checked before editing. Q2 is phrased as 'Could ... fail' so its 'no' depends on the edit: without the rule nothing ties 'toy' to 'children' and the answer would be yes. Replaced the old 0017 (inverse pair hasp_word_of / hasp_led_by): its direct question was awkward and it added two made-up relations; inverse stays covered by grammar RBox replace records. 'Mouse' was avoided as a bridge because the computer-mouse plural varies."
 }

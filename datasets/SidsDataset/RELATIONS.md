@@ -74,7 +74,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `corridor_linked_to` | city a is corridor-linked to city b (fictional) | associative | `cardinality:many` | Trieste is corridor-linked to Ljubljana. |
 | `patron_city_of` | city a is the patron city of town b (fictional) | associative | `cardinality:many` | Lyon is the patron city of Annecy. |
 | `has_beacon_city` | region a's beacon city is b (fictional) | associative | | Bavaria's beacon city is Augsburg. |
-| `harbour_sworn_to` | town a is harbour-sworn to place b (fictional) | associative | `cardinality:many` | Bergen is harbour-sworn to Kyoto. |
+| `harbour_sworn_to` | town a is harbour-sworn to place b (fictional) | associative | `chain:located_in->harbour_sworn_to`, `cardinality:many` | Bergen is harbour-sworn to Kyoto. |
 | `riverward_neighbour_of` | town a is the riverward neighbour of town b (fictional) | associative | `cardinality:many` | Basel is the riverward neighbour of Strasbourg. |
 | `antipode_of` | place a is the antipode of place b | associative | `functional`, `symmetric` | Much of Spain is the antipode of New Zealand. |
 | `drains_into` | river a drains into body of water b | associative | `transitive`, `asymmetric`, `cardinality:many` | The Inn drains into the Danube. |
@@ -171,6 +171,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `bears_signature_of` | document a bears the signature of person b | associative | `cardinality:many` | The Blackfriars mortgage bears a signature of William Shakespeare. |
 | `records_voice_of` | recording a captures the voice of person b | associative | | The 1889 Edison cylinder is a recording of Otto von Bismarck's voice. |
 | `depicts` | image a depicts b | associative | `cardinality:many` | The Mount Holyoke daguerreotype is a photograph of Emily Dickinson. |
+| `candle_pledged_to` | a is candle-pledged to b (fictional; insert 0017 adds candle_pledged_to ∘ spouse_of ⊑ candle_pledged_to) | associative | `chain:spouse_of->candle_pledged_to`, `cardinality:many` | Charles Dickens is candle-pledged to Queen Victoria. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -249,6 +250,7 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `built_in` | ship or structure a was built in place b | associative | `chain:located_in->built_in` | Every Liberty ship was built in the United States. |
 | `holds_manuscript` | library or monastery a holds manuscript b | associative | `cardinality:many` | Saint Catherine's Monastery holds the Syriac Sinaiticus. |
 | `has_norse_site` | island or region a has the Norse archaeological site b | associative | `cardinality:many` | Newfoundland has the Norse site at L'Anse aux Meadows. |
+| `kiln_sworn_to` | city a was kiln-sworn to ruler or state b (fictional; insert 0015 adds kiln_sworn_to ∘ ruled ⊑ kiln_sworn_to) | associative | `chain:ruled->kiln_sworn_to`, `cardinality:many` | Antwerp was kiln-sworn to Elizabeth I. |
 
 ### Finance
 
@@ -319,6 +321,7 @@ Includes the textbook economic laws as causal TBox rules.
 | `has_tally_warden` | fund a has tally warden b (fictional) | associative | | The Torlett Fund has tally warden Dunmere Trust. |
 | `saw_trade_in_tulip` | speculative episode a saw trade in tulip (variety) b | associative | `cardinality:many` | Tulip mania saw trade in the Semper Augustus. |
 | `issued_share_certificate` | company a issued share certificate b | associative | `cardinality:many` | The Dutch East India Company issued the Enkhuizen share of 9 September 1606. |
+| `slate_tethered_to` | company a is slate-tethered to bank or place b (fictional; insert 0017 adds slate_tethered_to ∘ headquartered_in ⊑ slate_tethered_to) | associative | `chain:headquartered_in->slate_tethered_to`, `cardinality:many` | Siemens is slate-tethered to Deutsche Bank. |
 
 ### Biology
 
@@ -385,6 +388,7 @@ Includes medicine: diseases, drugs, treatments.
 | `has_diet` | every a is b (carnivorous, herbivorous, ...) | associative | | Every snake is carnivorous. |
 | `lives_in_habitat` | every a lives in b (the sea, fresh water, on land) | associative | | Every echinoderm lives in the sea. |
 | `has_species` | genus a includes species b | associative | `inverse:in_genus`, `cardinality:many` | The genus Panthera includes the lion. |
+| `varrish_bound_to` | organism a is varrish-bound to b (fictional) | associative | `chain:in_genus->varrish_bound_to`, `cardinality:many` | The oxpecker is varrish-bound to the lion. |
 
 ### Physics
 
@@ -452,6 +456,7 @@ Includes medicine: diseases, drugs, treatments.
 | `orbited_by` | body a is orbited directly by b (b is a moon or ring of a) | associative | `inverse:orbits`, `cardinality:many` | Eris is orbited by Dysnomia. |
 | `has_part` | a has b as a part | associative | `transitive`, `asymmetric`, `inverse:part_of`, `cardinality:many` | An atom has a nucleus as a part. |
 | `includes_element` | group of elements a includes element b | associative | `inverse:in_group`, `cardinality:many` | The alkali metals include sodium. |
+| `pellith_tethered_to` | body a is pellith-tethered to body b (fictional; insert 0016 adds pellith_tethered_to ∘ orbits ⊑ pellith_tethered_to) | associative | `chain:orbits->pellith_tethered_to`, `cardinality:many` | Ceres is pellith-tethered to Titan. |
 
 ### Literature and arts
 
@@ -518,6 +523,7 @@ Includes medicine: diseases, drugs, treatments.
 | `has_gleam_twin` | work a has work b as its gleam-twin (fictional) | associative | | The novel Ashwyn Clay has the poem Merrowgate as its gleam-twin. (insert 0020 inserts functional) |
 | `manuscript_of` | manuscript a preserves a copy of literary work b | associative | `cardinality:many` | The Nowell Codex is a manuscript of Beowulf. |
 | `divided_into` | every poem of form a is divided into sections b | associative | | Every Petrarchan sonnet is divided into an eight-line octave and a six-line sestet. |
+| `folio_sworn_to` | work a is folio-sworn to work or author b (fictional) | associative | `chain:written_by->folio_sworn_to`, `cardinality:many` | Hamlet is folio-sworn to Don Quixote. (insert 0017 inserts folio_sworn_to ∘ written_by ⊑ folio_sworn_to) |
 
 ### Technology
 
@@ -597,6 +603,7 @@ market share), since replace needs an original every model holds as true.
 | `tessel_outranks` | daemon a tessel-outranks daemon b (fictional) | associative | `asymmetric` | The Lumetrel daemon tessel-outranks the B-2 daemon. |
 | `permits_use` | software license a permits kind of use b | associative | | Every OSI-approved license permits commercial use of the software it covers. |
 | `has_end_tag_rule` | HTML element a's end tag is b (required, optional or forbidden) | associative | | Every void element in HTML has no end tag. |
+| `is_rivet_beholden_to` | project a is rivet-beholden to b (fictional; insert 0017 adds is_rivet_beholden_to ∘ created_by ⊑ is_rivet_beholden_to) | associative | `chain:created_by->is_rivet_beholden_to`, `cardinality:many` | The Django web framework is rivet-beholden to Python. |
 
 ### Mathematics
 
@@ -670,6 +677,7 @@ mathematics (events) and causal rules about mathematical objects.
 | `has_series_representation` | number a is the sum of the named infinite series b | associative | `cardinality:many` | π is the sum of the Nilakantha series. |
 | `has_proof` | theorem a has the named proof b | associative | `cardinality:many` | The Pythagorean theorem has Garfield's proof. |
 | `merrow_bound_to` | every polygon of class a is merrow-bound to some circle of class b (fictional) | associative | `cardinality:many` | Every Ashby polygon is merrow-bound to some Quellan circle. |
+| `cairn_linked_to` | number a is cairn-linked to number b (fictional) | associative | `chain:divides->cairn_linked_to`, `cardinality:many` | 5 is cairn-linked to 6. |
 
 ### Grammar
 
@@ -747,6 +755,7 @@ language (events) and causal rules about how languages and words change.
 | `has_gell_vowel` | word a has the gell-vowel b (fictional) | associative | | 'Skorrel' has the gell-vowel 'e'. |
 | `takes_case_form` | words of class a, in a given position, take case form b | associative | `functional` | A personal pronoun that is the object of a preposition takes its object form ('Sit with me'). |
 | `attests_word` | language a attests word b | associative | `cardinality:many` | Gothic attests the noun 'skip' (ship). |
+| `loom_tied_to` | word a is loom-tied to word b (fictional) | associative | `chain:singular_of->loom_tied_to`, `cardinality:many` | 'Feather' is loom-tied to 'goose'. |
 
 ## RBox items
 
