@@ -3,18 +3,24 @@
 For one model, every query of every record is asked as a free-form question
 (base models: a few-shot "Question:/Answer:" template that stops at the first
 line break; chat models: their chat template). The model is then unloaded and
-the SID judge (experiments/sid_eval/judge.py) labels each answer. Pre-edit
-pass rules: replace/delete queries pass when the model gives original_answer,
-insert queries pass when it does not already give new_answer. Fictional
-inserts (reality: fictional) are made up, so no model can hold them: their
-queries are not asked, only their checks, and they are counted apart like
-fixtures. A fact counts as
-known when its direct and paraphrase queries both pass (RBox: direct and both
-instance questions). The judge is shown
-only the answer the pass rule needs (original_answer for replace/delete,
-new_answer for insert). Only questions with something to check are asked:
-locality questions are not (an edit run takes its own pre-edit baseline), nor
-derived questions with no answer before the edit.
+the SID judge (experiments/sid_eval/judge.py) labels each answer. Which
+queries are asked, and what each expects, is audit_queries.py (shared with
+the dashboard): every query with a pre-edit answer. Replace/delete direct,
+paraphrase and cross-lingual queries pass when the model gives
+original_answer; insert ones pass when it does not already give new_answer.
+Every derived query with an original_answer is asked and passes on it,
+determinate or not (before the edit there is one world): a wrong answer there
+says the logical structure is hard for the model, not that the query goes.
+Locality queries (unrelated near and far) pass on their reference. Fictional
+inserts (reality: fictional) are made up, so no model can hold them: their own
+questions are not asked (their locality, checks and any derived query with an
+original answer are), and they are counted apart like fixtures. A fact counts
+as known when its direct and paraphrase queries both pass (RBox: direct and
+both instance questions). The judge is shown only the answer the pass rule
+needs (original_answer or reference; new_answer for insert's own questions).
+Each response row carries its query_key (e.g. derived[2], cross_lingual[zh],
+unrelated_near[0]) and query_hash (prompt and expected answer), so a reader
+can tell when the record changed after the audit.
 
 It also asks the checks behind each derivation: every fact a derived query or
 the edit's premises rely on (the record's "checks") and every relation
@@ -41,6 +47,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "sid_eval"))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "datasets", "SidsDataset"))
 import launch_guard  # noqa: E402
 import judge as J  # noqa: E402
+import audit_queries as AQ  # noqa: E402  (which queries are asked, their keys and hashes)
 import validate as SID  # noqa: E402  (facts_to_check, relation_property)
 
 MODEL_PATHS = {
@@ -68,18 +75,6 @@ FEW_SHOT = ("Question: What is the capital of Japan?\nAnswer: Tokyo\n\n"
             "Question: How many legs does a spider have?\nAnswer: 8\n\n"
             "Question: Is the Sun a star?\nAnswer: Yes\n\n")
 CHAT_INSTRUCTION = "Answer the question in a few words, without explanation."
-
-
-def queries(record):
-    """Yield (query_type, language, query) for every query in a record."""
-    q = record["queries"]
-    yield "direct", "en", q["direct"]
-    if "paraphrase" in q:  # RBox records have none
-        yield "paraphrase", "en", q["paraphrase"]
-    for item in q.get("cross_lingual", []):
-        yield "cross_lingual", item["language"], item
-    for item in q.get("derived", []):
-        yield "derived", "en", item
 
 
 def load_records(root, topics=None):
@@ -117,9 +112,11 @@ def is_check(row):
     return row["query_type"].startswith("check_")
 
 
-def is_fictional(rec):
-    """A made-up insert: not held by any model, so its own queries aren't asked."""
-    return rec["edit_operation"] == "insert" and rec.get("reality") == "fictional"
+is_fictional = AQ.is_fictional
+
+
+def is_locality(row):
+    return row["query_type"] in AQ.LOCALITY
 
 
 def summarise_checks(rows, records, relations):
@@ -151,11 +148,34 @@ def summarise_checks(rows, records, relations):
             "derived_supported": support, "premises_known": premises}
 
 
-def candidate(operation, query):
-    """The one answer the audit's pass rule needs: before editing, replace and
-    delete ask whether the model gives the original, insert whether it already
-    gives the new answer. None when there is nothing to check."""
-    return query.get("new_answer") if operation == "insert" else query.get("original_answer")
+def query_rows(records):
+    """One row per query the audit asks (audit_queries.audited_queries)."""
+    rows = []
+    for rec in records:
+        for a in AQ.audited_queries(rec):
+            q, not_new = a["query"], a["rule"] == "not_new"
+            rows.append({
+                "record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
+                "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
+                "query_type": a["query_type"], "language": a["language"], "prompt": q["prompt"],
+                "query_key": a["key"], "query_hash": a["hash"], "rule": a["rule"],
+                # What the judge sees: only the answer the pass rule needs
+                # (the reference, for a locality query).
+                "original_answer": None if not_new else a["expected"],
+                "new_answer": a["expected"] if not_new else None,
+                "derivation": q.get("derivation"), "determinacy": q.get("determinacy"),
+                "judged": True,
+            })
+    return rows
+
+
+def row_score(row, label):
+    """Pass/fail for one row. Checks, derived and locality queries pass on the
+    answer they expect (scored like a replace query's original); insert's own
+    questions pass when the model does not already give the new answer."""
+    if is_check(row) or row.get("rule", "original") == "original":
+        return J.score("audit", "replace", label)
+    return J.score("audit", "insert", label)
 
 
 def prompt_text(tok, question, chat):
@@ -226,9 +246,11 @@ def summarise(rows, records):
         scored = [r["score"] for r in rs if r["score"] is not None]
         return {"pass": sum(scored), "scored": len(scored), "unclear": sum(r["label"] == "UNCLEAR" for r in rs)}
 
-    judged = [r for r in rows if r["judged"] and not is_check(r)]
+    # The dataset's own queries; locality is tallied apart (and by query_type).
+    judged = [r for r in rows if r["judged"] and not is_check(r) and not is_locality(r)]
+    locality = [r for r in rows if r["judged"] and is_locality(r)]
     by = defaultdict(lambda: defaultdict(list))
-    for r in judged:
+    for r in judged + locality:
         for key in ("query_type", "topic", "box", "edit_operation", "language"):
             by[key][r[key]].append(r)
         by["fixture"][str(r["fixture"]).lower()].append(r)
@@ -257,6 +279,7 @@ def summarise(rows, records):
         "fixtures": sum(f["fixture"] for f in facts),
         "fictional": sum(f["fictional"] for f in facts),
         "queries": tally([r for r in judged if not r["fixture"]]),
+        "locality": tally([r for r in locality if not r["fixture"]]),
         "by": {k: {v: tally(rs) for v, rs in sorted(groups.items())} for k, groups in by.items()},
         "facts": facts,
     }
@@ -282,31 +305,14 @@ def main():
     timings = {}
     topics = {t.strip() for t in args.topics.split(",") if t.strip()}
     records = load_records(args.records, topics)
-    rows = []
-    for rec in records:
-        if is_fictional(rec):
-            continue
-        for qtype, lang, q in queries(rec):
-            answer = candidate(rec["edit_operation"], q)
-            if answer is None:
-                continue
-            insert = rec["edit_operation"] == "insert"
-            rows.append({
-                "record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
-                "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
-                "query_type": qtype, "language": lang, "prompt": q["prompt"],
-                # What the judge sees: only the answer the pass rule needs.
-                "original_answer": None if insert else answer,
-                "new_answer": answer if insert else None,
-                "derivation": q.get("derivation"),
-                "judged": True,
-            })
+    rows = query_rows(records)
     relations, _ = SID.load_relations()
     relation_checks = SID.load_relation_checks(os.path.join(os.path.dirname(os.path.abspath(args.records)),
                                                             "relation_checks.json"))
     checks = check_rows(records, relation_checks, relations)
     rows += checks
-    print(f"{len(records)} records, {len(rows) - len(checks)} queries, {len(checks)} checks", flush=True)
+    print(f"{len(records)} records, {len(rows) - len(checks)} queries (locality included), {len(checks)} checks",
+          flush=True)
 
     responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings)
     for r, resp in zip(rows, responses):
@@ -320,9 +326,7 @@ def main():
     todo = [r for r in rows if r["judged"]]
     for r, v in zip(todo, judge.label_answers([(r, r["response"]) for r in todo], salt=args.model)):
         r["label"], r["reason"] = v["label"], v["reason"]
-        # A check asks a real fact before editing: it passes on its answer
-        # (scored like a replace query's original), whatever the record's operation.
-        r["score"] = J.score("audit", "replace" if is_check(r) else r["edit_operation"], v["label"])
+        r["score"] = row_score(r, v["label"])
     for r in rows:
         r.setdefault("label", None), r.setdefault("reason", None), r.setdefault("score", None)
     timings["judge_s"] = round(time.time() - began, 1)
@@ -337,8 +341,9 @@ def main():
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
                "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records),
-               "queries_total": sum(not is_check(r) for r in rows),
-               "queries_judged": sum(not is_check(r) for r in todo), "checks_asked": sum(map(is_check, rows)), "timings": timings, **summarise(rows, records),
+               "queries_total": sum(not is_check(r) and not is_locality(r) for r in rows),
+               "queries_judged": sum(not is_check(r) and not is_locality(r) for r in todo),
+               "locality_asked": sum(map(is_locality, rows)), "checks_asked": sum(map(is_check, rows)), "timings": timings, **summarise(rows, records),
                "checks": summarise_checks(rows, records, relations)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)

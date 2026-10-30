@@ -161,6 +161,9 @@ export const api = {
   sidsDatasetRecords: () => req('/sids-dataset/records'),
   // Each model's newest audit results on the derivation checks (facts and relation properties).
   sidsDatasetAuditChecks: () => req('/sids-dataset/audit-checks'),
+  // Pre-edit status per record, fact and query for each model's newest audit
+  // (green, red, yellow); models: 'main' (the four main instruct) or 'all'.
+  sidsDatasetAuditStatus: (models = 'main') => req(`/sids-dataset/audit-status?models=${encodeURIComponent(models)}`),
   sidsDatasetCriteria: () => req('/sids-dataset/criteria'),
   // Mark a manual criteria rule done or pending (the person's mark; agents use criteria.py --mark).
   sidsDatasetReview: (rule, done) =>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api.js'
 import ExperimentDrawer from '../components/ExperimentDrawer.jsx'
 import GpuQueue from '../components/GpuQueue.jsx'
@@ -22,6 +23,15 @@ const QUERY_TYPES = [
   { key: 'cross_lingual', label: 'Cross-lingual' },
   { key: 'derived', label: 'Derived' },
 ]
+// Status against the current record (backend): green passes, red fails,
+// yellow is unclear or stale (the record changed after this audit).
+const STATUS_CLASS = { green: 'audit-pass', red: 'audit-fail', yellow: 'audit-unclear' }
+const INDETERMINATE = ['background_beliefs', 'derived_beliefs']
+const statusText = (r) => (r.stale ? 'stale' : r.status === 'yellow' ? 'unclear' : r.status === 'green' ? 'pass' : r.status === 'red' ? 'fail' : '')
+// What the audit expected: the original answer (the reference, for
+// locality); for insert's own questions, that the new answer is not given yet.
+const expectedOf = (r) => (r.rule === 'not_new' || (r.original_answer == null && r.new_answer != null)
+  ? `not "${r.new_answer}"` : r.original_answer ?? '—')
 const LABEL_CLASS = { ORIGINAL: 'audit-pass', NEW: 'audit-fail', OTHER: 'audit-fail', NONE: 'audit-fail', UNCLEAR: 'audit-unclear' }
 
 const ratio = (t) => (t && t.scored ? `${t.pass}/${t.scored}` : '—')
@@ -41,11 +51,12 @@ function Pills({ options, selected, onToggle }) {
   )
 }
 
-function Detail({ run }) {
+function Detail({ run, record }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
-  const [show, setShow] = useState('unknown')
+  const [show, setShow] = useState(record ? 'all' : 'unknown')
   const [open, setOpen] = useState({})
+  useEffect(() => { if (record) setShow('all') }, [record])
   useEffect(() => {
     setData(null)
     api.modelAuditRun(run).then(setData).catch((e) => setError(String(e.message || e)))
@@ -58,7 +69,7 @@ function Detail({ run }) {
   for (const r of data.responses) (byRecord[r.record_id] ??= []).push(r)
   // Fixtures and fictional inserts are set apart: no model can hold them.
   const apart = (f) => f.fixture || f.fictional
-  const facts = s.facts.filter((f) =>
+  const facts = s.facts.filter((f) => !record || f.record_id.includes(record)).filter((f) =>
     show === 'all' ? true : show === 'fixtures' ? f.fixture : show === 'fictional' ? f.fictional
       : show === 'unknown' ? !apart(f) && f.known !== 1 : !apart(f) && f.known === 1)
 
@@ -98,7 +109,7 @@ function Detail({ run }) {
       {!facts.length && <p className="empty">None.</p>}
       {facts.map((f) => {
         const rows = byRecord[f.record_id] || []
-        const isOpen = open[f.record_id] ?? show === 'unknown'
+        const isOpen = open[f.record_id] ?? (show === 'unknown' || Boolean(record))
         return (
           <div key={f.record_id} className="audit-fact">
             <button type="button" className="audit-fact-head" onClick={() => setOpen((o) => ({ ...o, [f.record_id]: !isOpen }))}>
@@ -112,15 +123,25 @@ function Detail({ run }) {
             {isOpen && (
               <div className="table-wrap">
                 <table className="audit-table">
-                  <thead><tr><th>Query</th><th>Question</th><th>Original answer</th><th>Response</th><th>Label</th><th>Judge's reason</th></tr></thead>
+                  <thead><tr><th>Query</th><th>Question</th><th>Expected answer</th><th>Response</th><th>Label</th><th>Status</th><th>Judge's reason</th></tr></thead>
                   <tbody>
                     {rows.map((r, i) => (
                       <tr key={i} className={r.judged ? '' : 'audit-muted'}>
-                        <td>{r.query_type.replace('_', ' ')}{r.language !== 'en' ? ` (${r.language})` : ''}</td>
+                        <td>
+                          <span className="audit-key">{r.query_key || `${r.query_type.replace('_', ' ')}${r.language !== 'en' ? ` (${r.language})` : ''}`}</span>
+                          {r.query_type === 'derived' && r.determinacy && (
+                            <span className="audit-det">{INDETERMINATE.includes(r.determinacy) ? 'indeterminate' : 'determinate'}</span>
+                          )}
+                          {r.query_type?.startsWith('unrelated') && <span className="audit-det">locality</span>}
+                        </td>
                         <td>{r.prompt}</td>
-                        <td>{r.judged ? r.original_answer ?? '—' : r.query_type.startsWith('unrelated') ? 'baseline' : '—'}</td>
+                        <td>{r.judged ? expectedOf(r) : r.query_type.startsWith('unrelated') ? 'baseline' : '—'}</td>
                         <td>{r.response || <em>empty</em>}</td>
                         <td className={LABEL_CLASS[r.label] || ''}>{r.label || 'not judged'}</td>
+                        <td className={STATUS_CLASS[r.status] || ''}
+                          title={r.stale ? 'The record changed after this audit (or the query is gone): rerun the audit' : ''}>
+                          {statusText(r)}
+                        </td>
                         <td>{r.reason || ''}</td>
                       </tr>
                     ))}
@@ -141,6 +162,10 @@ export default function ModelAudit() {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [selected, setSelected] = useState(null)
+  // ?record=<id> (linked from the Datasets page) filters the facts to one record.
+  const [params, setParams] = useSearchParams()
+  const record = params.get('record') || ''
+  const setRecord = (v) => setParams(v ? { record: v } : {}, { replace: true })
 
   const load = () => api.modelAudit().then(setData).catch((e) => setError(String(e.message || e)))
   useEffect(() => {
@@ -165,6 +190,9 @@ export default function ModelAudit() {
     return Object.values(latest).sort((a, b) => rank(a.model) - rank(b.model))
   }, [data])
 
+  // With a record filter and no model clicked: the first main instruct model.
+  const shownRun = runs.find((r) => r.model === 'qwen3-4b-instruct-2507') || runs.find((r) => r.chat) || runs[0]
+
   return (
     <div>
       <div className="page-header">
@@ -173,7 +201,7 @@ export default function ModelAudit() {
       </div>
       <p className="hp-intro">
         Before any editing, does each model already know Sid's Dataset's facts in their original form? Every question
-        with an original answer to check (not locality) is asked as a free-form question (base models: a few-shot Question/Answer template that stops at the line break;
+        with a pre-edit answer to check (derived ones, determinate or not, and locality against its reference) is asked as a free-form question (base models: a few-shot Question/Answer template that stops at the line break;
         instruct models: their chat template), and the local Qwen3-4B judge, shown only the original answer, labels each response. A fact is
         <strong> known</strong> when its direct and paraphrase questions both get the original answer (for an RBox property: the direct question and both instance questions). Fixtures
         (constructed facts no model can know) are counted apart. Click a model for the facts it does not know and every
@@ -215,7 +243,13 @@ export default function ModelAudit() {
           </table>
         </div>
       )}
-      {selected && <Detail run={selected} />}
+      <div className="audit-record-filter">
+        <label htmlFor="audit-record">Record</label>
+        <input id="audit-record" type="search" value={record} placeholder="filter by record id, e.g. geography-replace-0001"
+          onChange={(ev) => setRecord(ev.target.value.trim())} />
+        {record && !selected && shownRun && <span>showing {shownRun.model}; click another model above</span>}
+      </div>
+      {(selected || (record && shownRun)) && <Detail run={selected || shownRun.run} record={record} />}
 
       <ExperimentDrawer
         open={drawerOpen}

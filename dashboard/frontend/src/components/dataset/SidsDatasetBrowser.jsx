@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../../api.js'
 import {
   BOXES,
@@ -65,14 +66,50 @@ const QUERY_LABEL = { direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual:
   unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived' }
 const show = (v) => (v == null ? '—' : String(v))
 
+// Each row also gets the model audit's query key (audit_queries.py):
+// direct, paraphrase, cross_lingual[zh], unrelated_near[0], derived[2].
 function queryRows(rec) {
   const q = rec.queries || {}
   const rows = []
   for (const key of Object.keys(QUERY_LABEL)) {
     const items = Array.isArray(q[key]) ? q[key] : q[key] ? [q[key]] : []
-    for (const item of items) rows.push({ key, ...item })
+    items.forEach((item, i) => {
+      const auditKey = key === 'direct' || key === 'paraphrase' ? key
+        : key === 'cross_lingual' ? `cross_lingual[${item.language}]` : `${key}[${i}]`
+      rows.push({ key, auditKey, ...item })
+    })
   }
   return rows
+}
+
+// Model audit status dots. Short names keep the tooltips readable.
+const MODEL_LABEL = {
+  'qwen3-4b-instruct-2507': 'Qwen3-4B-Instruct', 'olmo-3-7b-instruct': 'Olmo-3-7B-Instruct',
+  'llama-3.1-8b-instruct': 'Llama-3.1-8B-Instruct', 'mistral-7b-instruct-v0.1': 'Mistral-7B-Instruct',
+  'qwen3-4b-base': 'Qwen3-4B-Base', 'olmo-3-7b-base': 'Olmo-3-7B-Base', 'llama-3.1-8b': 'Llama-3.1-8B',
+  'mistral-7b-v0.1': 'Mistral-7B', 'smollm3-3b-base': 'SmolLM3-3B-Base', 'smollm3-3b': 'SmolLM3-3B',
+  'map-neo-7b': 'MAP-Neo-7B', 'map-neo-7b-instruct': 'MAP-Neo-7B-Instruct',
+}
+const modelLabel = (m) => MODEL_LABEL[m] || m
+const STATUS_TEXT = {
+  green: 'green (gave the expected pre-edit answer)',
+  red: 'red (did not give it)',
+  yellow: 'not audited (or stale since the record changed, or the judge could not label it)',
+}
+
+// One dot per model in the fixed order; a model the audit never asks this
+// query of (no pre-edit answer) gets an empty ring.
+function AuditDots({ statuses, models }) {
+  if (!models?.length) return null
+  return (
+    <span className="sids-audit-dots">
+      {models.map((m) => {
+        const s = statuses?.[m] || 'na'
+        const text = s === 'na' ? 'not asked (no pre-edit answer to check)' : STATUS_TEXT[s] || s
+        return <span key={m} className={`sids-audit-dot is-${s}`} title={`${modelLabel(m)}: ${text}`} />
+      })}
+    </span>
+  )
 }
 
 // "geography-replace-0002" -> "Geography 2". The operation is already the
@@ -167,7 +204,7 @@ function EvidenceButton({ fact, evidence }) {
 const DETERMINACY_LABEL = Object.fromEntries(DETERMINACY.map((d) => [d.key, d.label]))
 const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, l.label]))
 
-function RecordCard({ rec, relations, onChain }) {
+function RecordCard({ rec, relations, onChain, audit, models }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = hasChain(rec)
@@ -210,6 +247,8 @@ function RecordCard({ rec, relations, onChain }) {
         <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
         {/* The original fact; the Change chip shows what the edit makes of it. Insert has no original. */}
         <span className="sids-record-statement">{e.original || e.statement}</span>
+        {/* Fact status: direct and paraphrase (RBox: direct and the instance questions) held before the edit. */}
+        <AuditDots statuses={audit?.fact} models={models} />
       </button>
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
@@ -270,6 +309,7 @@ function RecordCard({ rec, relations, onChain }) {
                       <span className={`sids-query-type sids-metric-${METRIC_OF[r.key]}`}>
                         {QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}
                       </span>
+                      <AuditDots statuses={audit?.queries?.[r.auditKey]} models={models} />
                     </td>
                     <td>{r.prompt}</td>
                     <td className="sids-answer">
@@ -321,6 +361,11 @@ function RecordCard({ rec, relations, onChain }) {
             </table>
           </div>
           {rec.notes && <p className="sids-record-notes">{rec.notes}</p>}
+          {models?.length > 0 && (
+            <p className="sids-audit-link">
+              Responses: <Link to={`/model-audit?record=${encodeURIComponent(rec.id)}`}>Model audit page</Link>
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -358,6 +403,9 @@ export default function SidsDatasetBrowser() {
   const [relations, setRelations] = useState({})
   const [relationChecks, setRelationChecks] = useState({})
   const [audit, setAudit] = useState(null)
+  // Pre-edit status dots: the four main instruct models, or every audited model.
+  const [status, setStatus] = useState(null)
+  const [allModels, setAllModels] = useState(false)
   const [chain, setChain] = useState(null)
   const [showCriteria, setShowCriteria] = useState(false)
   const [error, setError] = useState(null)
@@ -378,6 +426,11 @@ export default function SidsDatasetBrowser() {
       }
     }).catch((err) => setError(String(err.message || err)))
   }, [])
+  useEffect(() => {
+    api.sidsDatasetAuditStatus(allModels ? 'all' : 'main').then(setStatus).catch(() => setStatus(null))
+  }, [allModels])
+  const statusModels = status?.models || []
+  const otherModels = (status?.all_models || statusModels).filter((m) => !(status?.main_models || []).includes(m))
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
   // Audit results load once, the first time a chain is opened.
   const openChain = (rec, target) => {
@@ -404,6 +457,22 @@ export default function SidsDatasetBrowser() {
         </button>
       </div>
       {showCriteria && <SidsCriteriaModal onClose={() => setShowCriteria(false)} />}
+      {status && (
+        <div className="sids-audit-legend">
+          <span>Pre-edit model audit, one dot per model ({statusModels.map(modelLabel).join(', ') || 'none audited yet'}):</span>
+          <span><span className="sids-audit-dot is-green" />gave the expected answer</span>
+          <span><span className="sids-audit-dot is-red" />did not</span>
+          <span><span className="sids-audit-dot is-yellow" />not audited, stale or unclear</span>
+          <span><span className="sids-audit-dot is-na" />not asked</span>
+          {(otherModels.length > 0 || allModels) && (
+            <label title={otherModels.map(modelLabel).join(', ')}>
+              <input type="checkbox" checked={allModels} onChange={(ev) => setAllModels(ev.target.checked)} />
+              other audited models (base and others)
+            </label>
+          )}
+          <span>responses: <Link to="/model-audit">Model audit page</Link></span>
+        </div>
+      )}
       <p className="sids-group-label">Edit operation <span>{records ? `${records.length} records in all` : ''}</span></p>
       <TabRow label="Edit operation" values={EDIT_OPERATIONS} selected={coordinate.edit_operation} onSelect={set('edit_operation')} counts={counts('edit_operation')} />
 
@@ -429,7 +498,10 @@ export default function SidsDatasetBrowser() {
       {shown.length > 0 && (
         <>
           <p className="sids-group-label">Records <span>{shown.length}</span></p>
-          {shown.map((rec) => <RecordCard key={rec.id} rec={rec} relations={relations} onChain={openChain} />)}
+          {shown.map((rec) => (
+            <RecordCard key={rec.id} rec={rec} relations={relations} onChain={openChain}
+              audit={status?.records?.[rec.id]} models={statusModels} />
+          ))}
         </>
       )}
       {chain && (

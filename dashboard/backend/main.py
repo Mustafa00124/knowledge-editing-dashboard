@@ -1325,6 +1325,20 @@ def get_sids_dataset_audit_checks():
     return {"models": model_audit_reader.check_results()}
 
 
+@app.get("/api/sids-dataset/audit-status")
+def get_sids_dataset_audit_status(models: str = "all"):
+    """Per record, its fact's and every query's pre-edit status for each model's
+    newest audit run: green (gave the expected answer), red (did not), yellow
+    (not audited, stale since the record changed, or unclear). A model missing
+    from a map: the audit never asks that query. models=main keeps only the
+    four main instruct models; a comma list keeps those."""
+    data = model_audit_reader.audit_status()
+    if models == "all":
+        return data
+    keep = set(model_audit_reader.MAIN_MODELS if models == "main" else models.split(","))
+    return model_audit_reader.restrict(data, keep)
+
+
 @app.get("/api/datasets/record-count")
 def get_dataset_record_count(path: str):
     """What "full" means for one dataset file - the drawer caps the reset

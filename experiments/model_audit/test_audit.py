@@ -69,5 +69,93 @@ class FictionalInsertTests(unittest.TestCase):
         self.assertEqual((got["facts_total"], got["fictional"]), (1, 1))
 
 
+def _q(prompt, original, new, **extra):
+    return {"prompt": prompt, "original_answer": original, "new_answer": new, **extra}
+
+
+REPLACE = {
+    "id": "geography-replace-0001", "topic": "geography", "box": "abox", "edit_operation": "replace",
+    "relation": "has_capital", "edit": {"statement": "The capital of Australia is Sydney."},
+    "worlds": [{"id": "w1"}, {"id": "w2"}],
+    "queries": {
+        "direct": _q("What is the capital of Australia?", "Canberra", "Sydney"),
+        "paraphrase": _q("Which city is Australia's capital?", "Canberra", "Sydney"),
+        "cross_lingual": [dict(_q("澳大利亚的首都是哪个城市？", "堪培拉", "悉尼"), language="zh"),
+                          dict(_q("¿Cuál es la capital de Australia?", "Canberra", "Sídney"), language="es")],
+        "unrelated_near": [{"prompt": "What is the capital of New Zealand?", "reference": "Wellington"}],
+        "unrelated_far": [{"prompt": "Into which sea does the Danube flow?", "reference": "the Black Sea"}],
+        "derived": [
+            _q("Is Canberra the capital of Australia?", "yes", "no", determinacy="determinate"),
+            _q("Where does Parliament sit?", "Canberra", None, determinacy="background_beliefs",
+               world_answers={"w1": {"answer": "Canberra"}, "w2": {"answer": "Sydney"}}),
+            _q("Which new city will host it?", None, "Sydney", determinacy="determinate"),
+            _q("In which state is the capital?", "the ACT", "New South Wales", determinacy="determinate"),
+        ],
+    },
+}
+
+
+class QueryRowTests(unittest.TestCase):
+    def test_replace_asks_every_query_with_a_pre_edit_answer(self):
+        rows = audit.query_rows([REPLACE])
+        self.assertEqual([r["query_key"] for r in rows], [
+            "direct", "paraphrase", "cross_lingual[zh]", "cross_lingual[es]", "unrelated_near[0]",
+            "unrelated_far[0]", "derived[0]", "derived[1]", "derived[3]"])  # derived[2] has no original
+        by = {r["query_key"]: r for r in rows}
+        # Indeterminate derived: one world before the edit, so its original answer.
+        self.assertEqual((by["derived[1]"]["original_answer"], by["derived[1]"]["determinacy"]),
+                         ("Canberra", "background_beliefs"))
+        # Locality expects its reference; the judge sees only that one candidate.
+        near = by["unrelated_near[0]"]
+        self.assertEqual((near["original_answer"], near["new_answer"], near["rule"]), ("Wellington", None, "original"))
+        self.assertEqual(audit.J.answer_candidates(near)[0], {"A": "Wellington"})
+        self.assertEqual(audit.J.answer_candidates(by["derived[1]"])[0], {"A": "Canberra"})
+        self.assertTrue(all(r["rule"] == "original" and r["new_answer"] is None for r in rows))
+
+    def test_hash_tracks_prompt_and_expected_answer(self):
+        h = audit.query_rows([REPLACE])[0]["query_hash"]
+        self.assertEqual(h, audit.AQ.query_hash("What is the capital of Australia?", "Canberra"))
+        self.assertNotEqual(h, audit.AQ.query_hash("What is the capital of Australia?", "Sydney"))
+        self.assertNotEqual(h, audit.AQ.query_hash("What's the capital of Australia?", "Canberra"))
+
+    def test_insert_rules(self):
+        real = {"id": "geography-insert-0001", "topic": "geography", "box": "abox", "edit_operation": "insert",
+                "reality": "real", "edit": {}, "queries": {
+                    "direct": _q("Which archipelago?", None, "the Thousand Islands"),
+                    "unrelated_far": [{"prompt": "Who painted the Sistine ceiling?", "reference": "Michelangelo"}],
+                    "derived": [_q("Which river?", None, "the Saint Lawrence"),
+                                _q("Is the Saint Lawrence a river?", "yes", "yes")]}}
+        by = {r["query_key"]: r for r in audit.query_rows([real])}
+        self.assertEqual(sorted(by), ["derived[1]", "direct", "unrelated_far[0]"])
+        self.assertEqual((by["direct"]["rule"], by["direct"]["new_answer"], by["direct"]["original_answer"]),
+                         ("not_new", "the Thousand Islands", None))
+        self.assertEqual((by["derived[1]"]["rule"], by["derived[1]"]["original_answer"]), ("original", "yes"))
+        # A fictional insert's own questions are not asked; its locality and
+        # derived queries with an original answer are.
+        made_up = dict(real, reality="fictional")
+        self.assertEqual(sorted(r["query_key"] for r in audit.query_rows([made_up])), ["derived[1]", "unrelated_far[0]"])
+
+    def test_scores_follow_each_rows_rule(self):
+        rows = {r["query_key"]: r for r in audit.query_rows([REPLACE])}
+        self.assertEqual(audit.row_score(rows["unrelated_near[0]"], "ORIGINAL"), 1)
+        self.assertEqual(audit.row_score(rows["unrelated_near[0]"], "OTHER"), 0)
+        self.assertIsNone(audit.row_score(rows["derived[1]"], "UNCLEAR"))
+        insert_row = {"query_type": "direct", "rule": "not_new"}
+        self.assertEqual(audit.row_score(insert_row, "NONE"), 1)
+        self.assertEqual(audit.row_score(insert_row, "NEW"), 0)
+        check = {"query_type": "check_fact"}
+        self.assertEqual(audit.row_score(check, "ORIGINAL"), 1)
+
+    def test_locality_kept_out_of_known_and_query_tally(self):
+        rows = audit.query_rows([REPLACE])
+        for r in rows:
+            r["score"], r["label"] = (0, "OTHER") if r["query_type"].startswith("unrelated") else (1, "ORIGINAL")
+        got = audit.summarise(rows, [REPLACE])
+        self.assertEqual(got["facts_known"], 1)
+        self.assertEqual(got["queries"], {"pass": 7, "scored": 7, "unclear": 0})
+        self.assertEqual(got["locality"], {"pass": 0, "scored": 2, "unclear": 0})
+        self.assertEqual(got["by"]["query_type"]["unrelated_far"]["scored"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
