@@ -16,17 +16,16 @@
     {
       "id": "w1",
       "assumes": [
-        "There are three living species of orangutan. (stored as a number)",
-        "The living orangutan species are the Bornean, the Sumatran and the Tapanuli orangutan. (stored as a closed list)"
+        "There are three living species of orangutan. (stored as a number)"
       ],
-      "summary": "The count and the closed list are stored as such and not reopened: still three living orangutan species, still only the Bornean, Sumatran and Tapanuli."
+      "summary": "The count is stored as a number and not recounted: still three living orangutan species."
     },
     {
       "id": "w2",
       "assumes": [
-        "The living orangutan species are stored as the members the model knows, open to new ones; counts and \"only\" claims are worked out from them."
+        "The living orangutan species are stored as the members the model knows, open to new ones; counts are worked out from them."
       ],
-      "summary": "Pongo sinarensis joins them: four living orangutan species, and the three named ones are no longer all of them."
+      "summary": "Pongo sinarensis joins them: four living orangutan species."
     }
   ],
   "queries": {
@@ -140,31 +139,20 @@
       {
         "prompt": "Are the Bornean, Sumatran and Tapanuli orangutans the only living orangutan species?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
           "The living orangutan species are the Bornean, the Sumatran and the Tapanuli orangutan."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model keeps the closed list; no if it reasons from the orangutan species it knows, now including the new one.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The living orangutan species are the Bornean, the Sumatran and the Tapanuli orangutan. (stored, as a closed list)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Pongo sinarensis is a living species of Pongo. (edit)",
-              "It is none of the three named species.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit adds a living orangutan species that is none of the three named ones. A model that answers yes keeps the old closed list as a patch the insert contradicts.",
+        "chain": [
+          "Pongo sinarensis is a newly described living species of Pongo. (edit)",
+          "The living orangutan species known before it are the Bornean, the Sumatran and the Tapanuli orangutan. (stored)",
+          "A newly described species is none of the species already named.",
+          "So the three named species are not all the living orangutan species: no."
+        ],
         "logic": "dl"
       }
     ]
@@ -279,5 +267,5 @@
       ]
     }
   },
-  "notes": "Fictional object insert (ABox): a made-up new value (a newly described living species) of a real, well-known subject (the orangutan genus Pongo), in a relation that holds several values. It could exist unrecorded: the Tapanuli orangutan was described as a new species in 2017 from a small, isolated forest population in Sumatra. \"Living\" is in the statement so the real count and closed list are touched (two extinct Pongo species were described in 2025). The direct question singles out the new value. Determinate: the family through the genus, and the taillessness of apes. Indeterminate (background beliefs): the count and closed list of living orangutans. Near query: the Bornean orangutan keeps its own name, so a leak of the new name is caught. Not the flip of a subject insert in this topic."
+  "notes": "Fictional object insert (ABox): a made-up new value (a newly described living species) of a real, well-known subject (the orangutan genus Pongo), in a relation that holds several values. It could exist unrecorded: the Tapanuli orangutan was described as a new species in 2017 from a small, isolated forest population in Sumatra. \"Living\" is in the statement so the real count and closed list are touched (two extinct Pongo species were described in 2025). The direct question singles out the new value. Determinate: the family through the genus, and the taillessness of apes. Indeterminate (background beliefs): the count of living orangutans (stored as a number, or counted from the known species). The 'only' question is determinate (no): a newly described species is none of the three named ones, so keeping the closed list would contradict the insert (formal check, FINDINGS A1). Near query: the Bornean orangutan keeps its own name, so a leak of the new name is caught. Not the flip of a subject insert in this topic."
 }

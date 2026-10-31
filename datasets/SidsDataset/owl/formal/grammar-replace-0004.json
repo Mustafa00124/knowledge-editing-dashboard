@@ -1,6 +1,6 @@
 {
  "id": "grammar-replace-0004",
- "notes": "Derived edit. Premises: the past of 'drink' (drink_past), 'outdrink' inflecting like 'drink' with 'out' in front (inflects_like_with_out), and the definitional combining rule (a SWRL rule over firm spelling facts prefixed_out). Regular vs irregular is read off the past form's kind (firm: an '-ed' form or a vowel-change form) through a functional relation. w1 adds the regular past of the base verb its summary states. q2 asks which of two sentences is correct; they differ only in the past form of 'drink', so it is encoded as drink's past tense, each sentence a surface of its form. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Derived edit. Premises: the past of 'drink' (drink_past), 'outdrink' inflecting like 'drink' with 'out' in front (inflects_like_with_out), and the definitional combining rule (a SWRL rule over firm spelling facts prefixed_out). Regular vs irregular is read off the past form's kind (firm: an '-ed' form or a vowel-change form) through a functional relation. The combining rule is read both ways (a verb that inflects like 'drink' with 'out' in front has as its past 'out' plus the past of 'drink', and the other way round), so in w1, where the past of 'drink' gives way, the edit and the kept premise give 'drinked'; w1 no longer adds the answer (FINDINGS E, since 2026-10-31). q2 asks which of two sentences is correct; they differ only in the past form of 'drink', so it is encoded as drink's past tense, each sentence a surface of its form. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
  "entities": {
   "outdrink": [
    "outdrink"
@@ -45,7 +45,10 @@
  "background": {
   "drink_past": "base_form_of(drink, drank)",
   "outdrink_like_drink": "inflects_like_with_out(outdrink, drink)",
-  "combining_rule": "inflects_like_with_out(?v, ?b), base_form_of(?b, ?p), prefixed_out(?p, ?q) -> base_form_of(?v, ?q)",
+  "combining_rule": [
+   "inflects_like_with_out(?v, ?b), base_form_of(?b, ?p), prefixed_out(?p, ?q) -> base_form_of(?v, ?q)",
+   "inflects_like_with_out(?v, ?b), base_form_of(?v, ?q), prefixed_out(?p, ?q) -> base_form_of(?b, ?p)"
+  ],
   "spelling": [
    "prefixed_out(drank, outdrank)",
    "prefixed_out(drinked, outdrinked)"
@@ -71,9 +74,6 @@
   "w1": {
    "gives_up": [
     "drink_past"
-   ],
-   "adds": [
-    "base_form_of(drink, drinked)"
    ]
   },
   "w2": {

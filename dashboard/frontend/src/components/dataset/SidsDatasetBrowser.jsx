@@ -25,13 +25,13 @@ import DerivationModal, { hasChain } from './DerivationModal.jsx'
 import DatasetSummary from './DatasetSummary.jsx'
 import SidsCriteriaModal from './SidsCriteriaModal.jsx'
 
-// Browses the records under the categorization: edit operation, then the
-// knowledge form layers (topic, box). Each tab shows how many records it
+// Browses the records under the categorization: topic, then belief revision
+// operation (expansion, revision, contraction), then knowledge form (box). Each tab shows how many records it
 // holds given the layers above it, and the records at the selected coordinate
 // are listed below with every query.
 // Explanations of each layer live in SidsDatasetInfoModal (the "?"), not here.
 // Relation semantics and properties are tags, shown on each record.
-const LAYERS = ['edit_operation', 'topic', 'box']
+const LAYERS = ['topic', 'edit_operation', 'box']
 
 // Whether a record matches the coordinate on every layer above `upTo` (all
 // layers when `upTo` is left out).
@@ -379,7 +379,7 @@ function queryCount(rec) {
 }
 
 // The whole-dataset block other benchmarks show, built from the records:
-// totals, then records per edit operation (insert split by what is fictional).
+// totals, then records per belief revision operation (expansion split by what is fictional).
 function sidsBreakdown(records) {
   const categories = EDIT_OPERATIONS.map(({ key, label }) => {
     const rs = records.filter((r) => r.edit_operation === key)
@@ -392,7 +392,7 @@ function sidsBreakdown(records) {
   })
   return {
     records: records.length,
-    unit: `records across ${EDIT_OPERATIONS.length} edit operations`,
+    unit: `records across ${EDIT_OPERATIONS.length} belief revision operations`,
     extra: [{ value: records.reduce((n, r) => n + queryCount(r), 0), label: 'queries' }],
     categories,
   }
@@ -473,13 +473,13 @@ export default function SidsDatasetBrowser() {
           <span>responses: <Link to="/model-audit">Model audit page</Link></span>
         </div>
       )}
-      <p className="sids-group-label">Edit operation <span>{records ? `${records.length} records in all` : ''}</span></p>
-      <TabRow label="Edit operation" values={EDIT_OPERATIONS} selected={coordinate.edit_operation} onSelect={set('edit_operation')} counts={counts('edit_operation')} />
-
-      <p className="sids-group-label">Knowledge form</p>
+      <p className="sids-group-label">Topic <span>{records ? `${records.length} records in all` : ''}</span></p>
       <TabRow label="Topic" values={TOPICS} selected={coordinate.topic} onSelect={set('topic')} counts={counts('topic')} />
 
-      <p className="sids-group-label">DL box</p>
+      <p className="sids-group-label">Belief revision operation</p>
+      <TabRow label="Belief revision operation" values={EDIT_OPERATIONS} selected={coordinate.edit_operation} onSelect={set('edit_operation')} counts={counts('edit_operation')} />
+
+      <p className="sids-group-label">Knowledge form (DL box)</p>
       <TabRow label="DL box" values={BOXES} selected={coordinate.box} onSelect={set('box')} counts={counts('box')} />
 
       <div className="sids-coordinate">

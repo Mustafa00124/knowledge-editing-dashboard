@@ -17,16 +17,16 @@
     {
       "id": "w1",
       "assumes": [
-        "Latimeria is the only living genus of coelacanth. (stored as a closed fact, with its count of one)"
+        "There is one living genus of coelacanth. (stored as a number)"
       ],
-      "summary": "The closed fact about Latimeria is stored as such and not reopened: still the only living genus, still one."
+      "summary": "The count is stored as a number and not recounted: still one living genus."
     },
     {
       "id": "w2",
       "assumes": [
-        "The living coelacanth genera are stored as the genera the model knows (Latimeria), open to new ones; \"only\" and counts are worked out from them."
+        "The living coelacanth genera are stored as the genera the model knows (Latimeria), open to new ones; counts are worked out from them."
       ],
-      "summary": "The morrenids join them: two living genera, and Latimeria is no longer the only one."
+      "summary": "The morrenids join them: two living genera."
     }
   ],
   "queries": {
@@ -108,31 +108,20 @@
       {
         "prompt": "Is Latimeria the only living genus of coelacanth?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
           "Latimeria is the only living genus of coelacanth."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model keeps the stored closed fact; no if it works the answer out from the living genera it knows, now including the morrenids.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Latimeria is the only living genus of coelacanth. (stored, as a closed fact)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Morrenids are a newly discovered living genus of coelacanths. (edit)",
-              "A newly discovered genus is not Latimeria.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit adds a living coelacanth genus that is not Latimeria. A model that answers yes keeps the old closed fact as a patch the insert contradicts.",
+        "chain": [
+          "Morrenids are a newly discovered living genus of coelacanths. (edit)",
+          "Latimeria is the only living genus of coelacanth known before it. (stored)",
+          "A newly discovered genus is not Latimeria, the genus already named.",
+          "So Latimeria is not the only living genus of coelacanth: no."
+        ],
         "logic": "dl"
       },
       {
@@ -145,12 +134,12 @@
           "Latimeria is the only living genus of coelacanth."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "One if the model keeps the stored closed fact; two if it counts the living genera it knows.",
+        "determinacy_why": "One if the model keeps the count stored as a number; two if it counts the living genera it knows.",
         "world_answers": {
           "w1": {
             "answer": "one",
             "chain": [
-              "Latimeria is the only living genus of coelacanth. (stored, as a closed fact)",
+              "There is one living genus of coelacanth. (stored, as a number)",
               "So one."
             ]
           },
@@ -228,5 +217,5 @@
       ]
     }
   },
-  "notes": "Fictional subject insert (TBox): a made-up genus under a real class (the coelacanths). It could exist unrecorded: the living coelacanth was unknown until 1938 and its second species until 1997, and both live in deep reef caves. The aggregates are asked at genus level, because the species count is unsettled (the Indonesian population may hold more than one species, R1). Determinate: two new members named in the prompt, one through a real class fact. Near query: the 1938 find is untouched."
+  "notes": "Fictional subject insert (TBox): a made-up genus under a real class (the coelacanths). It could exist unrecorded: the living coelacanth was unknown until 1938 and its second species until 1997, and both live in deep reef caves. The aggregates are asked at genus level, because the species count is unsettled (the Indonesian population may hold more than one species, R1). Determinate: two new members named in the prompt, one through a real class fact. Near query: the 1938 find is untouched. Indeterminate (background beliefs): the count of living coelacanth genera (stored as a number, or counted from the known genera). The 'only' question is determinate (no): the morrenids are not Latimeria, so keeping 'Latimeria is the only one' would contradict the insert (formal check, FINDINGS A1)."
 }

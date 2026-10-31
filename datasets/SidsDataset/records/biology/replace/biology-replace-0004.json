@@ -76,14 +76,17 @@
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Lyme disease is transmitted by animals of one class only."
+        ],
         "determinacy": "determinate",
         "premise_route": true,
         "determinacy_why": "No in both worlds: in w1 the carrier is still ticks, now insects; in w2 the carrier is an insect. A model answering yes holds the edit only as a patch on premises that still imply an arachnid.",
         "chain": [
           "Lyme disease is transmitted by an insect. (edit)",
           "A disease is transmitted by an animal of whatever class its carrier belongs to. (premise, kept)",
+          "Lyme disease is transmitted by animals of one class only. (stored)",
           "So the animals that carry it are insects, not arachnids, in either world."
         ],
         "logic": "dl"
@@ -93,11 +96,14 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "composition",
-        "hops": 2,
+        "hops": 4,
         "bridge": [
-          "Mosquitoes are insects."
+          "Mosquitoes are insects.",
+          "Lyme disease is transmitted by animals of one class only.",
+          "No animal is both an insect and an arachnid."
         ],
         "determinacy": "determinate",
+        "determinacy_why": "Yes in every world: the edit gives the carrier's class, the class of mosquitoes. Before the edit the answer is no: Lyme disease's carriers were arachnids only, and no animal is both an insect and an arachnid.",
         "chain": [
           "Lyme disease is transmitted by an insect. (edit)",
           "Mosquitoes are insects. (stored)",
@@ -110,8 +116,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Lyme disease is transmitted by animals of one class only."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: yes if the class of ticks gives way (w1), no if the carrier does (w2).",
         "world_answers": {
@@ -128,6 +136,7 @@
             "chain": [
               "Ticks are arachnids. (premise, kept)",
               "Lyme disease is transmitted by an insect. (edit)",
+              "Lyme disease is transmitted by animals of one class only. (stored)",
               "So its carrier cannot be ticks: no."
             ]
           }
@@ -135,12 +144,14 @@
         "logic": "dl"
       },
       {
-        "prompt": "Are deer ticks arachnids?",
+        "prompt": "Are ticks arachnids?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Lyme disease is transmitted by animals of one class only."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: no if the class of ticks gives way (w1), yes if the carrier does (w2).",
         "world_answers": {
@@ -149,7 +160,8 @@
             "chain": [
               "Lyme disease is transmitted by ticks. (premise, kept)",
               "Lyme disease is transmitted by an insect. (edit)",
-              "So ticks are insects: no."
+              "Lyme disease is transmitted by animals of one class only. (stored)",
+              "So ticks are insects, not arachnids: no."
             ]
           },
           "w2": {
@@ -184,6 +196,16 @@
       "fact": "Mosquitoes are insects.",
       "prompt": "Are mosquitoes insects or arachnids?",
       "answer": "insects"
+    },
+    {
+      "fact": "Lyme disease is transmitted by animals of one class only.",
+      "prompt": "Are all the animals that transmit Lyme disease of the same biological class?",
+      "answer": "yes"
+    },
+    {
+      "fact": "No animal is both an insect and an arachnid.",
+      "prompt": "Can an animal be both an insect and an arachnid?",
+      "answer": "no"
     }
   ],
   "evidence": {
@@ -349,5 +371,5 @@
       ]
     }
   },
-  "notes": "Derived edit (scouting 0004, fixed per the review). Derivability likely: the class-level fact is not stated in any exact form tried, while both premises are. Worlds: w1, ticks become insects (with what goes with that); w2, Lyme gets an insect carrier. 'Ticks are arachnids' is entangled with firm facts (eight legs, related to spiders), so a strict reviewer could drop w1; it is kept because the README lets a premise give way together with its side facts. No exception world: the premise is a membership, not a property rule, and 'deer ticks' in the premise query closes the sub-case 'only Lyme ticks are insects'. The scouting's leg-count premise-route query was replaced (fleas or ticks' leg counts are separate firm facts and would split w1); the premise route asks the carrier's class through its description, and the class comparison uses mosquitoes. R4/R1 risk: loose web text calls Lyme 'insect-borne' (1,305 co-occurrences, about 10x the explicit arachnid statements), so some models may answer insect before the edit; the prompts name biological classes explicitly so that the colloquial 'bug' sense is excluded. Verifier: the R4 risk is kept as a measured risk, not a disqualifier: the direct prompt asks for the biological class explicitly, so a model that knows ticks are arachnids should answer arachnid before the edit, and the model audit drops the record for any model that does not."
+  "notes": "Derived edit (scouting 0004, fixed per the review). Derivability likely: the class-level fact is not stated in any exact form tried, while both premises are. Worlds: w1, ticks become insects (with what goes with that); w2, Lyme gets an insect carrier. 'Ticks are arachnids' is entangled with firm facts (eight legs, related to spiders), so a strict reviewer could drop w1; it is kept because the README lets a premise give way together with its side facts. No exception world: the premise is a membership, not a property rule, and 'deer ticks' in the premise query closes the sub-case 'only Lyme ticks are insects'. The scouting's leg-count premise-route query was replaced (fleas or ticks' leg counts are separate firm facts and would split w1); the premise route asks the carrier's class through its description, and the class comparison uses mosquitoes. R4/R1 risk: loose web text calls Lyme 'insect-borne' (1,305 co-occurrences, about 10x the explicit arachnid statements), so some models may answer insect before the edit; the prompts name biological classes explicitly so that the colloquial 'bug' sense is excluded. Verifier: the R4 risk is kept as a measured risk, not a disqualifier: the direct prompt asks for the biological class explicitly, so a model that knows ticks are arachnids should answer arachnid before the edit, and the model audit drops the record for any model that does not. Formal check (FINDINGS B3): the 'insect or arachnid?' questions take for granted that Lyme disease has carriers of one class and that no animal is both; transmitted_by_class is many-valued in general (some diseases have vectors of both classes), so both are stated per record as bridges with checks. q3 asked about 'deer ticks', which the chains read as the premise's ticks; it now asks about ticks."
 }

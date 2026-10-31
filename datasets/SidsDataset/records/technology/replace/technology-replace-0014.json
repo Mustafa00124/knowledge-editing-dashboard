@@ -24,7 +24,7 @@
     {
       "id": "w2",
       "assumes": [
-        "Manjaro uses the package manager and the community repository of the distribution it is based on. (stored through its base)"
+        "Manjaro uses the package manager of the distribution it is based on, and has that distribution's community repository and no other distribution's. (stored through its base)"
       ],
       "summary": "Manjaro's package tools are stored as inherited from its base, so on Ubuntu it uses APT and has no AUR."
     }
@@ -72,10 +72,13 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "subproperty",
-        "hops": 1,
-        "bridge": [],
+        "hops": 3,
+        "bridge": [
+          "Ubuntu is based on Debian.",
+          "No Linux distribution is derived from both Arch Linux and Debian."
+        ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in every world: a distribution based on another is a derivative of it. A model that still calls Manjaro an Arch derivative only and not an Ubuntu one holds the edit as a patch.",
+        "determinacy_why": "Yes in every world: a distribution based on another is a derivative of it. A model that still calls Manjaro an Arch derivative only and not an Ubuntu one holds the edit as a patch. Before the edit the answer was no because Manjaro was an Arch derivative, Ubuntu is a Debian derivative, and no distribution is derived from both (bridges).",
         "chain": [
           "Manjaro is based on Ubuntu. (edit)",
           "'Is based on' is a subproperty of 'is a derivative of'. (relation property)",
@@ -88,12 +91,13 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "chain",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Ubuntu is based on Debian."
+          "Ubuntu is based on Debian.",
+          "No Linux distribution is derived from both Arch Linux and Debian."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in every world: Manjaro is built on Ubuntu, which is derived from Debian. The route \"Manjaro is an Arch derivative, so not Debian's\" goes with the edit.",
+        "determinacy_why": "Yes in every world: Manjaro is built on Ubuntu, which is derived from Debian. The route \"Manjaro is an Arch derivative, and no distribution is derived from both Arch Linux and Debian, so not Debian's\" gave the original no; it goes with the edit, since Manjaro is no longer based on Arch Linux.",
         "chain": [
           "Manjaro is based on Ubuntu. (edit)",
           "Ubuntu is based on Debian. (stored), so Ubuntu is a derivative of Debian.",
@@ -107,13 +111,14 @@
         "original_answer": "pacman",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 3,
+        "hops": 4,
         "bridge": [
           "Manjaro uses the pacman package manager.",
-          "Ubuntu uses the APT package manager."
+          "Ubuntu uses the APT package manager.",
+          "Arch Linux uses the pacman package manager."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "pacman if the model stores it as Manjaro's own tool (w1); APT if it stores Manjaro as using its base distribution's package manager (w2), now Ubuntu's.",
+        "determinacy_why": "pacman if the model stores it as Manjaro's own tool (w1); APT if it stores Manjaro as using its base distribution's package manager (w2), now Ubuntu's. Before the edit both give pacman: in w2 through the base, Arch Linux, which uses pacman.",
         "world_answers": {
           "w1": {
             "answer": "pacman",
@@ -139,13 +144,15 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 3,
+        "hops": 5,
         "bridge": [
           "Manjaro gives access to the Arch User Repository (AUR).",
-          "The Arch User Repository (AUR) is a community repository of packages for Arch Linux."
+          "The Arch User Repository (AUR) is a community repository of packages for Arch Linux.",
+          "Ubuntu is based on Debian.",
+          "No Linux distribution is derived from both Arch Linux and Debian."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores AUR access as a feature of Manjaro by name (w1); no if it stores it as coming from Manjaro's Arch base (w2), which the edit replaced with Ubuntu.",
+        "determinacy_why": "Yes if the model stores AUR access as a feature of Manjaro by name (w1); no if it stores Manjaro as having its base's community repository and no other's (w2): the AUR is Arch Linux's, and Manjaro is now based on Ubuntu, a Debian derivative.",
         "world_answers": {
           "w1": {
             "answer": "yes",
@@ -157,10 +164,12 @@
           "w2": {
             "answer": "no",
             "chain": [
-              "Manjaro uses the community repository of the distribution it is based on. (stored, through its base)",
+              "Manjaro has the community repository of the distribution it is based on, and no other distribution's. (stored, through its base)",
               "Manjaro is based on Ubuntu. (edit)",
+              "Ubuntu is based on Debian. (stored), so Manjaro is a Debian derivative.",
               "The Arch User Repository (AUR) is a community repository of packages for Arch Linux. (stored)",
-              "Ubuntu is not Arch Linux, so no."
+              "Access to the AUR would make Manjaro based on Arch Linux, so derived from both Arch Linux and Debian, which no distribution is. (stored)",
+              "So no."
             ]
           }
         },
@@ -175,6 +184,11 @@
       "answer": "Debian"
     },
     {
+      "fact": "No Linux distribution is derived from both Arch Linux and Debian.",
+      "prompt": "Can a Linux distribution be derived both from Arch Linux and from Debian?",
+      "answer": "no"
+    },
+    {
       "fact": "Manjaro uses the pacman package manager.",
       "prompt": "Which package manager does Manjaro use?",
       "answer": "pacman"
@@ -183,6 +197,11 @@
       "fact": "Ubuntu uses the APT package manager.",
       "prompt": "Which package manager does Ubuntu use?",
       "answer": "APT"
+    },
+    {
+      "fact": "Arch Linux uses the pacman package manager.",
+      "prompt": "Which package manager does Arch Linux use?",
+      "answer": "pacman"
     },
     {
       "fact": "Manjaro gives access to the Arch User Repository (AUR).",
@@ -237,5 +256,5 @@
       ]
     }
   },
-  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries."
+  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries. Stated since 2026-10-31 (formal check, FINDINGS B3 and C2): the original 'no' answers rest on the Arch and Debian families excluding each other (a bridge with a check, since derivative_of is many-valued), w2's original pacman rests on Arch Linux using pacman (a bridge), and w2's AUR 'no' reads its stored belief as 'its base's community repository and no other's' (now in w2's assumes)."
 }

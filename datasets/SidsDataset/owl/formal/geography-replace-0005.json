@@ -1,6 +1,6 @@
 {
  "id": "geography-replace-0005",
- "notes": "TBox. The two kinds of flooded valley fix what carved them (formed_by is one-valued here: the queries ask 'a glacier or a river?'). A well-known fjord's membership and its stored glacial origin are separate background facts; each world gives up one per fjord. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30 (carved_by is formed_by). formed_by is many-valued in the catalogue; the question takes one value for granted, so Func(formed_by) is a firm background fact here (formed_by_one_value).",
+ "notes": "TBox. The two kinds of flooded valley fix what carved them (formed_by is one-valued here: the queries ask 'a glacier or a river?'). A well-known fjord's membership and its stored glacial origin are separate background facts; each world gives up one per fjord. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30 (carved_by is formed_by). formed_by is many-valued in the catalogue; the questions take one value for granted, which the record states since 2026-10-31 as a bridge of q2 and q3 ('A valley carved by a glacier was not carved by a river.'), encoded as the firm rule glacier_not_river (it replaces the earlier Func(formed_by)).",
  "entities": {
   "glacier": ["a glacier", "glacier"],
   "river": ["a river", "river"],
@@ -12,7 +12,7 @@
  "original": ["Fjord ⊑ FloodedGlacialValley"],
  "edit": ["Fjord ⊑ FloodedRiverValley"],
  "background": {
-  "formed_by_one_value": "Func(formed_by)",
+  "glacier_not_river": "formed_by(?x, glacier), formed_by(?x, river) -> Nothing(?x)",
   "glacial_valley": "FloodedGlacialValley ⊑ formed_by value glacier",
   "river_valley": "FloodedRiverValley ⊑ formed_by value river",
   "milford_fjord": "milford : Fjord",
@@ -20,7 +20,7 @@
   "doubtful_fjord": "doubtful : Fjord",
   "doubtful_glacier": "formed_by(doubtful, glacier)"
  },
- "firm": ["formed_by_one_value", "glacial_valley", "river_valley"],
+ "firm": ["glacier_not_river", "glacial_valley", "river_valley"],
  "worlds": {
   "w1": {"gives_up": ["milford_fjord", "doubtful_fjord"]},
   "w2": {"gives_up": ["milford_glacier", "doubtful_glacier"]},

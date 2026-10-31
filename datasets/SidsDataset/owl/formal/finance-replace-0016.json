@@ -1,6 +1,6 @@
 {
  "id": "finance-replace-0016",
- "notes": "Derived edit. 'The headquarters of LinkedIn's parent company' is a named individual placed by a firm rule over its owner (subsidiary_of) and the owner's headquartered_in (the definitional premise). A place lies in one city and in one census region (firm rules). 'Washington is in the West region' is from q1's determinacy_why.",
+ "notes": "Derived edit. 'The headquarters of LinkedIn's parent company' is a named individual placed by a firm rule over LinkedIn's immediate owner (direct_subsidiary_of, functional: 'the company that owns it') and the owner's headquartered_in (the definitional premise). Since 2026-10-31 every firm fact is a bridge of the record: the parent's headquarters lies in only one city (one_city, a rule about it), Redmond is in Washington, Austin is in Texas, Washington is in the West region, Texas in the South, and the four census regions do not overlap (one_census_region). The adds hold only the side facts the worlds name, not the answer (FINDINGS E): w1, LinkedIn's new owner, headquartered in some city (placeholders); w2, Microsoft's headquarters in some other city (a placeholder). Austin then follows from the edit, the parent rule and one_city.",
  "entities": {
   "linkedin": "LinkedIn",
   "microsoft": [
@@ -27,7 +27,10 @@
   ],
   "west": [
    "the West region"
-  ]
+  ],
+  "new_owner": null,
+  "new_owner_city": null,
+  "ms_city": null
  },
  "original": [
   "located_in(parent_hq, redmond)"
@@ -41,9 +44,9 @@
   "parent_rule"
  ],
  "background": {
-  "li_ms": "subsidiary_of(linkedin, microsoft)",
+  "li_ms": "direct_subsidiary_of(linkedin, microsoft)",
   "ms_redmond": "headquartered_in(microsoft, redmond)",
-  "parent_rule": "subsidiary_of(linkedin, ?p), headquartered_in(?p, ?c) -> located_in(parent_hq, ?c)",
+  "parent_rule": "direct_subsidiary_of(linkedin, ?p), headquartered_in(?p, ?c) -> located_in(parent_hq, ?c)",
   "places": [
    "located_in(redmond, washington)",
    "located_in(austin, texas)",
@@ -56,7 +59,7 @@
    "west : CensusRegion",
    "south : CensusRegion"
   ],
-  "one_city": "located_in(?x, ?a), City(?a), located_in(?x, ?b), City(?b) -> same(?a, ?b)",
+  "one_city": "located_in(parent_hq, ?a), City(?a), located_in(parent_hq, ?b), City(?b) -> same(?a, ?b)",
   "one_census_region": "located_in(?x, ?r), CensusRegion(?r), located_in(?x, ?s), CensusRegion(?s) -> same(?r, ?s)"
  },
  "firm": [
@@ -72,7 +75,9 @@
     "li_ms"
    ],
    "adds": [
-    "linkedin : subsidiary_of some (headquartered_in value austin)"
+    "direct_subsidiary_of(linkedin, new_owner)",
+    "headquartered_in(new_owner, new_owner_city)",
+    "new_owner_city : City"
    ]
   },
   "w2": {
@@ -80,14 +85,15 @@
     "ms_redmond"
    ],
    "adds": [
-    "headquartered_in(microsoft, austin)"
+    "headquartered_in(microsoft, ms_city)",
+    "ms_city : City"
    ]
   }
  },
  "queries": [
   {
    "q": 0,
-   "find": "linkedin : subsidiary_of some (headquartered_in some (located_in value ?))"
+   "find": "linkedin : direct_subsidiary_of some (headquartered_in some (located_in value ?))"
   },
   {
    "q": 1,
@@ -95,7 +101,7 @@
   },
   {
    "q": 2,
-   "ask": "subsidiary_of(linkedin, microsoft)"
+   "ask": "direct_subsidiary_of(linkedin, microsoft)"
   },
   {
    "q": 3,

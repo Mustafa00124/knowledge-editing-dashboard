@@ -21,18 +21,18 @@
     {
       "id": "w1",
       "assumes": [
-        "'The Promenade des Anglais is in Nice' gives way: the Promenade runs along the seafront of a city in Liguria.",
+        "'The Promenade des Anglais is in Nice' gives way: the Promenade runs along the seafront of some other city, which, like every city, lies in an administrative region.",
         "Side facts that go with it: the Promenade is no longer in France or on the French Riviera; Nice keeps its region, Provence-Alpes-Côte d'Azur, and stays in France."
       ],
-      "summary": "The Promenade moves to a Ligurian city; Nice stays in Provence-Alpes-Côte d'Azur, in France."
+      "summary": "The Promenade moves to another city, which the edit and the kept rule put in Liguria; Nice stays in Provence-Alpes-Côte d'Azur, in France."
     },
     {
       "id": "w2",
       "assumes": [
-        "'Nice is in Provence-Alpes-Côte d'Azur' gives way: Nice belongs to Liguria, in Italy, as the County of Nice belonged to the Kingdom of Sardinia before 1860.",
+        "'Nice is in Provence-Alpes-Côte d'Azur' gives way: Nice still lies in one administrative region, which the kept premises and the edit make Liguria, in Italy (the County of Nice belonged to the Kingdom of Sardinia before 1860).",
         "Side facts that go with it: Nice leaves France, the Alpes-Maritimes department (whose prefecture it was) and the French Riviera; the rest of Provence-Alpes-Côte d'Azur, Marseille and Menton included, stays French, and Monaco's neighbours (Beausoleil, Cap-d'Ail) stay French, so Monaco still borders only France."
       ],
-      "summary": "The Promenade stays in Nice, and Nice alone belongs to Liguria; the rest of the region stays French."
+      "summary": "The Promenade stays in Nice, so Nice alone belongs to Liguria; the rest of the region stays French."
     }
   ],
   "queries": {
@@ -78,14 +78,17 @@
         "original_answer": "Provence-Alpes-Côte d'Azur",
         "new_answer": "Liguria",
         "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "The Promenade des Anglais lies in only one administrative region."
+        ],
         "determinacy": "determinate",
         "premise_route": true,
         "determinacy_why": "Liguria in both worlds: in w1 the Promenade runs along a Ligurian city, in w2 along Nice, which now belongs to Liguria. A model answering Provence-Alpes-Côte d'Azur holds the edit only as a patch on premises that still imply the old region.",
         "chain": [
           "The Promenade des Anglais is in Liguria. (edit)",
           "A place in a city is in the region that the city is in. (premise, kept)",
+          "The Promenade des Anglais lies in only one administrative region, so the region of its city is Liguria. (bridge)",
           "So the city the Promenade runs along is in Liguria, in either world."
         ],
         "logic": "dl"
@@ -95,12 +98,14 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "transitivity",
-        "hops": 2,
+        "hops": 4,
         "bridge": [
-          "Liguria is in Italy."
+          "Liguria is in Italy.",
+          "Provence-Alpes-Côte d'Azur is in France.",
+          "The Promenade des Anglais lies in only one country."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the Promenade is in Liguria (edit), and Liguria is in Italy, which no revision this edit forces can change. 'Located in' is transitive. The French Riviera route to 'no' goes with the Promenade (w1) or with Nice (w2).",
+        "determinacy_why": "Yes in both worlds: the Promenade is in Liguria (edit), and Liguria is in Italy, which no revision this edit forces can change. 'Located in' is transitive. The French Riviera route to 'no' goes with the Promenade (w1) or with Nice (w2). Before the edit the 'no' comes from the Promenade being in Nice, so in Provence-Alpes-Côte d'Azur, which is in France (a bridge), and from the Promenade lying in only one country (a bridge).",
         "chain": [
           "The Promenade des Anglais is in Liguria. (edit)",
           "Liguria is in Italy. (stored)",
@@ -114,8 +119,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "The Promenade des Anglais lies in only one administrative region."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: no if the Promenade's city gives way (w1), yes if Nice's region does (w2).",
         "world_answers": {
@@ -124,6 +131,7 @@
             "chain": [
               "Nice is in Provence-Alpes-Côte d'Azur. (premise, kept)",
               "The Promenade des Anglais is in Liguria. (edit)",
+              "The Promenade des Anglais lies in only one administrative region: in Nice it would also be in Provence-Alpes-Côte d'Azur. (bridge)",
               "So the Promenade cannot be in Nice."
             ]
           },
@@ -185,9 +193,24 @@
       "answer": "yes"
     },
     {
+      "fact": "The Promenade des Anglais lies in only one administrative region.",
+      "prompt": "Does the Promenade des Anglais lie in more than one administrative region?",
+      "answer": "no"
+    },
+    {
+      "fact": "Provence-Alpes-Côte d'Azur is in France.",
+      "prompt": "In which country is the region of Provence-Alpes-Côte d'Azur?",
+      "answer": "France"
+    },
+    {
       "fact": "Liguria is in Italy.",
       "prompt": "In which country is the region of Liguria?",
       "answer": "Italy"
+    },
+    {
+      "fact": "The Promenade des Anglais lies in only one country.",
+      "prompt": "Does the Promenade des Anglais lie in more than one country?",
+      "answer": "no"
     }
   ],
   "evidence": {
@@ -311,5 +334,5 @@
       ]
     }
   },
-  "notes": "Derived edit (0015, added for relation-property coverage, CRITERIA Rule 12) with derived-belief queries. Derivability very_likely: the Promenade's region is almost never written down (84 co-occurrences in about 59,000 mentions, none stating it; 11 'Promenade des Anglais is in' in all), while the Promenade being in Nice and Nice being in Provence-Alpes-Côte d'Azur are each stated often. The new region was chosen across a national border so that the transitivity query discriminates: Liguria is in Italy, Provence-Alpes-Côte d'Azur in France, and the bridge 'Liguria is in Italy' is political, so it holds in both worlds (a physical container such as a continent would not have discriminated). Worlds: the Promenade's city gives way (w1), or Nice's region does (w2); the 'located in' rule is definitional. w2 has history behind it (Nice was Savoyard until 1860), and it moves Nice alone, so Monaco's neighbours and the rest of the region stay French; Nice becomes an Italian exclave, which contradicts no firm fact outside the chain. The French Riviera route (the Promenade is on the Riviera, which is in the region) goes with the Promenade in w1 and with Nice in w2, as the worlds say. The premise-route query reaches the edit through 'the city the Promenade runs along' (binding), not by restating it. Near query: Lyon's region (Auvergne-Rhône-Alpes), not the new answer and not a premise. R2: the Promenade's names (英国人散步大道, Paseo de los Ingleses) name no region. Prompts say 'administrative region' because 'Côte d'Azur' is also loosely called a region."
+  "notes": "Derived edit (0015, added for relation-property coverage, CRITERIA Rule 12) with derived-belief queries. Derivability very_likely: the Promenade's region is almost never written down (84 co-occurrences in about 59,000 mentions, none stating it; 11 'Promenade des Anglais is in' in all), while the Promenade being in Nice and Nice being in Provence-Alpes-Côte d'Azur are each stated often. The new region was chosen across a national border so that the transitivity query discriminates: Liguria is in Italy, Provence-Alpes-Côte d'Azur in France, and the bridge 'Liguria is in Italy' is political, so it holds in both worlds (a physical container such as a continent would not have discriminated). Worlds: the Promenade's city gives way (w1), or Nice's region does (w2); the 'located in' rule is definitional. w2 has history behind it (Nice was Savoyard until 1860), and it moves Nice alone, so Monaco's neighbours and the rest of the region stay French; Nice becomes an Italian exclave, which contradicts no firm fact outside the chain. The French Riviera route (the Promenade is on the Riviera, which is in the region) goes with the Promenade in w1 and with Nice in w2, as the worlds say. The premise-route query reaches the edit through 'the city the Promenade runs along' (binding), not by restating it. Near query: Lyon's region (Auvergne-Rhône-Alpes), not the new answer and not a premise. R2: the Promenade's names (英国人散步大道, Paseo de los Ingleses) name no region. Prompts say 'administrative region' because 'Côte d'Azur' is also loosely called a region. Since 2026-10-31 (formal check, FINDINGS E and C3) the worlds name only the premise that gives way, with the side facts, and the one-region and one-country presuppositions are bridges."
 }

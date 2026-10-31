@@ -1,6 +1,6 @@
 {
  "id": "biology-replace-0015",
- "notes": "Derived edit through the transitivity of part_of (the premise \"a part of an organ is part of every organ system the organ belongs to\" is that property). One organ and one organ system per structure are firm (the direct question asks \"the urinary system or the respiratory system?\", and q2 in w1 needs the nephron to have left the kidney). w1 names the new organ (the lungs), as the record does.",
+ "notes": "Derived edit through the transitivity of part_of (the premise \"a part of an organ is part of every organ system the organ belongs to\" is that property). The record's bridge 'The nephron and its parts each belong to one organ system.' is a firm rule over the named structures (nephron, glomerulus). Each world names what gives way and keeps the side fact 'Every organ belongs to an organ system.' as placeholders: w1 puts nephron in some other organ that is in some organ system, w2 puts kidney in some organ system; that system then follows (respiratory) from the one-system rule, so q0's answer is derived in both worlds, not stated in adds. (2026-10-31: w1 named the new organ and w2 added 'kidney part of respiratory' directly, and 'one organ per structure' was a firm rule the record did not state.)",
  "entities": {
   "nephron": [
    "the nephron"
@@ -17,9 +17,9 @@
   "respiratory": [
    "the respiratory system"
   ],
-  "lungs": [
-   "the lungs"
-  ]
+  "nephron_organ": null,
+  "nephron_organ_system": null,
+  "kidney_system": null
  },
  "original": [
   "part_of(nephron, urinary)"
@@ -35,21 +35,20 @@
   "nephron_kidney": "part_of(nephron, kidney)",
   "kidney_urinary": "part_of(kidney, urinary)",
   "glomerulus_nephron": "part_of(glomerulus, nephron)",
-  "lungs_respiratory": "part_of(lungs, respiratory)",
   "kinds": [
    "kidney : Organ",
-   "lungs : Organ",
    "urinary : OrganSystem",
    "respiratory : OrganSystem"
   ],
-  "one_organ": "part_of(?x, ?o), Organ(?o), part_of(?x, ?p), Organ(?p) -> same(?o, ?p)",
-  "one_system": "part_of(?x, ?s), OrganSystem(?s), part_of(?x, ?t), OrganSystem(?t) -> same(?s, ?t)"
+  "one_system": [
+   "nephron : OneSystem",
+   "glomerulus : OneSystem",
+   "OneSystem(?x), part_of(?x, ?s), OrganSystem(?s), part_of(?x, ?t), OrganSystem(?t) -> same(?s, ?t)"
+  ]
  },
  "firm": [
   "glomerulus_nephron",
-  "lungs_respiratory",
   "kinds",
-  "one_organ",
   "one_system"
  ],
  "worlds": {
@@ -58,7 +57,10 @@
     "nephron_kidney"
    ],
    "adds": [
-    "part_of(nephron, lungs)"
+    "part_of(nephron, nephron_organ)",
+    "nephron_organ : Organ",
+    "part_of(nephron_organ, nephron_organ_system)",
+    "nephron_organ_system : OrganSystem"
    ]
   },
   "w2": {
@@ -66,7 +68,8 @@
     "kidney_urinary"
    ],
    "adds": [
-    "part_of(kidney, respiratory)"
+    "part_of(kidney, kidney_system)",
+    "kidney_system : OrganSystem"
    ]
   }
  },

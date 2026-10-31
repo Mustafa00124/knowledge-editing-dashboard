@@ -1,34 +1,93 @@
 {
  "id": "finance-replace-0008",
- "notes": "TBox, as geography-replace-0019. listed_on is cardinality:many; the queries ask 'on which exchange?' and the record states the members have no other listing, so a company listed on one of the two exchanges is not listed on the other (firm rule).",
+ "notes": "TBox, as geography-replace-0019. listed_on is cardinality:many; the LVMH and BNP Paribas questions ask 'on which exchange?', and the record's bridges say each is listed on only one stock exchange (since 2026-10-31; firm per-company rules lvmh_one_exchange and bnp_one_exchange, replacing an unstated rule that no company is listed on both exchanges). That is what makes a stored Paris listing clash with the edited rule.",
  "entities": {
-  "euronext_paris": ["Euronext Paris"],
-  "lse": ["the London Stock Exchange", "London Stock Exchange"],
-  "kestrel": ["Kestrel Robotics"],
-  "marlowe": ["Marlowe Foods"],
-  "lvmh": ["LVMH"],
-  "bnp": ["BNP Paribas"]
+  "euronext_paris": [
+   "Euronext Paris"
+  ],
+  "lse": [
+   "the London Stock Exchange",
+   "London Stock Exchange"
+  ],
+  "kestrel": [
+   "Kestrel Robotics"
+  ],
+  "marlowe": [
+   "Marlowe Foods"
+  ],
+  "lvmh": [
+   "LVMH"
+  ],
+  "bnp": [
+   "BNP Paribas"
+  ]
  },
- "original": ["Cac40Company ⊑ listed_on value euronext_paris"],
- "edit": ["Cac40Company ⊑ listed_on value lse"],
+ "original": [
+  "Cac40Company ⊑ listed_on value euronext_paris"
+ ],
+ "edit": [
+  "Cac40Company ⊑ listed_on value lse"
+ ],
  "background": {
-  "one_exchange": "listed_on(?x, euronext_paris), listed_on(?x, lse) -> Nothing(?x)",
+  "lvmh_one_exchange": "listed_on(lvmh, ?a), listed_on(lvmh, ?b) -> same(?a, ?b)",
+  "bnp_one_exchange": "listed_on(bnp, ?a), listed_on(bnp, ?b) -> same(?a, ?b)",
   "lvmh_member": "lvmh : Cac40Company",
   "lvmh_stored": "listed_on(lvmh, euronext_paris)",
   "bnp_member": "bnp : Cac40Company",
   "bnp_stored": "listed_on(bnp, euronext_paris)"
  },
- "firm": ["one_exchange"],
+ "firm": [
+  "lvmh_one_exchange",
+  "bnp_one_exchange"
+ ],
  "worlds": {
-  "w1": {"gives_up": ["lvmh_member", "bnp_member"]},
-  "w2": {"gives_up": ["lvmh_stored", "bnp_stored"]},
-  "w3": {"gives_up": ["lvmh_member", "bnp_stored"]},
-  "w4": {"gives_up": ["lvmh_stored", "bnp_member"]}
+  "w1": {
+   "gives_up": [
+    "lvmh_member",
+    "bnp_member"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "lvmh_stored",
+    "bnp_stored"
+   ]
+  },
+  "w3": {
+   "gives_up": [
+    "lvmh_member",
+    "bnp_stored"
+   ]
+  },
+  "w4": {
+   "gives_up": [
+    "lvmh_stored",
+    "bnp_member"
+   ]
+  }
  },
  "queries": [
-  {"q": 0, "find": "kestrel listed_on ?", "given": ["kestrel : Cac40Company"]},
-  {"q": 1, "find": "marlowe listed_on ?", "given": ["marlowe : Cac40Company"]},
-  {"q": 2, "find": "lvmh listed_on ?"},
-  {"q": 3, "find": "bnp listed_on ?"}
+  {
+   "q": 0,
+   "find": "kestrel listed_on ?",
+   "given": [
+    "kestrel : Cac40Company"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "marlowe listed_on ?",
+   "given": [
+    "marlowe : Cac40Company"
+   ]
+  },
+  {
+   "q": 2,
+   "find": "lvmh listed_on ?"
+  },
+  {
+   "q": 3,
+   "find": "bnp listed_on ?"
+  }
  ]
 }

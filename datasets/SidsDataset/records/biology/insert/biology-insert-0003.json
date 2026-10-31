@@ -16,16 +16,16 @@
     {
       "id": "w1",
       "assumes": [
-        "The tuatara is the only living rhynchocephalian. (stored as a closed fact, with its count of one)"
+        "There is one living species of rhynchocephalian. (stored as a number)"
       ],
-      "summary": "The closed fact about the tuatara is stored as such and not reopened: still the only living rhynchocephalian, still one."
+      "summary": "The count is stored as a number and not recounted: still one living rhynchocephalian."
     },
     {
       "id": "w2",
       "assumes": [
-        "The living rhynchocephalians are stored as the species the model knows (the tuatara), open to new ones; \"only\" and counts are worked out from them."
+        "The living rhynchocephalians are stored as the species the model knows (the tuatara), open to new ones; counts are worked out from them."
       ],
-      "summary": "Sphenodon kerewai joins them: two living rhynchocephalians, and the tuatara is no longer the only one."
+      "summary": "Sphenodon kerewai joins them: two living rhynchocephalians."
     }
   ],
   "queries": {
@@ -110,31 +110,21 @@
       {
         "prompt": "Is the tuatara the only living rhynchocephalian?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "The tuatara is the only living rhynchocephalian."
+          "The genus Sphenodon (the tuatara) belongs to the reptile order Rhynchocephalia."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model keeps the stored closed fact; no if it works the answer out from the living species it knows, now including the new one.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The tuatara is the only living rhynchocephalian. (stored, as a closed fact)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Sphenodon kerewai is a living species of Sphenodon, so a living rhynchocephalian. (edit)",
-              "It is a different species from the tuatara.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit adds a living rhynchocephalian that is a different species from the tuatara. A model that answers yes keeps the old closed fact as a patch the insert contradicts.",
+        "chain": [
+          "Sphenodon kerewai is a newly described living species of the genus Sphenodon. (edit)",
+          "The genus Sphenodon (the tuatara) belongs to the reptile order Rhynchocephalia. (stored)",
+          "So Sphenodon kerewai is a living rhynchocephalian.",
+          "A newly described species is not the tuatara, the species already named.",
+          "So the tuatara is not the only living rhynchocephalian: no."
+        ],
         "logic": "dl"
       },
       {
@@ -147,12 +137,12 @@
           "The tuatara is the only living rhynchocephalian."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "One if the model keeps the stored closed fact; two if it counts the living species it knows.",
+        "determinacy_why": "One if the model keeps the count stored as a number; two if it counts the living species it knows.",
         "world_answers": {
           "w1": {
             "answer": "one",
             "chain": [
-              "The tuatara is the only living rhynchocephalian. (stored, as a closed fact)",
+              "There is one living species of rhynchocephalian. (stored, as a number)",
               "So one."
             ]
           },
@@ -272,5 +262,5 @@
       ]
     }
   },
-  "notes": "Fictional object insert (ABox): a made-up new value (a newly described living species) of a real, well-known subject (the tuatara genus Sphenodon) in a relation that holds several values (a genus has species). Rewritten from the earlier subject insert on the same made-up name: the real genus is now the subject, so a method that edits at the subject starts from everything it holds about the tuatara. It could exist unrecorded: the Brothers Island tuatara was described as a second species (S. guntheri, recognised 1989) and treated as a subspecies since 2009, so a newly split island lineage is the kind of thing taxonomists report. The direct question singles out the new value. Determinate: the chain through the genus to the reptiles and \"not a lizard\". Indeterminate (background beliefs): the famous uniqueness of the tuatara and its count. R1: the closed fact is current consensus. Near query: the tuatara stays in New Zealand."
+  "notes": "Fictional object insert (ABox): a made-up new value (a newly described living species) of a real, well-known subject (the tuatara genus Sphenodon) in a relation that holds several values (a genus has species). Rewritten from the earlier subject insert on the same made-up name: the real genus is now the subject, so a method that edits at the subject starts from everything it holds about the tuatara. It could exist unrecorded: the Brothers Island tuatara was described as a second species (S. guntheri, recognised 1989) and treated as a subspecies since 2009, so a newly split island lineage is the kind of thing taxonomists report. The direct question singles out the new value. Determinate: the chain through the genus to the reptiles and \"not a lizard\". Indeterminate (background beliefs): the count of living rhynchocephalians (stored as a number, or counted from the known species). The famous uniqueness question is determinate (no): the new species is not the tuatara, so keeping 'the tuatara is the only one' would contradict the insert (formal check, FINDINGS A1). R1: the closed fact is current consensus. Near query: the tuatara stays in New Zealand."
 }
