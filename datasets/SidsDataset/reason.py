@@ -59,6 +59,13 @@ def apply_property_axiom(table, tree, add):
         return table[n]
     if k == 'char':
         rel(tree[2])[tree[1]] = add
+        # An inverse pair shares transitivity, asymmetry and symmetry
+        # (RELATIONS.md states them on one row), so removing one from a
+        # relation removes it from its inverse too.
+        if not add and tree[1] in ('transitive', 'asymmetric', 'symmetric'):
+            for n, r in table.items():
+                if n in rel(tree[2])['inverse'] or tree[2] in r['inverse']:
+                    r[tree[1]] = False
     elif k == 'psub':
         lst = rel(tree[1])['sub']
         if add and tree[2] not in lst:
@@ -224,8 +231,27 @@ def run_kb(kb):
         if p[0] == 'unsat':
             out['probes'][key] = o.Nothing in q.equivalent_to
         else:
-            out['probes'][key] = q in inds[p[1]].INDIRECT_is_a
+            # owlready2's list of an individual's classes can miss a class
+            # HermiT found equivalent to one it lists (FINDINGS D), so the
+            # classes equivalent to a listed one, and their superclasses,
+            # count too.
+            out['probes'][key] = q in member_classes(inds[p[1]], o)
     return out
+
+
+def member_classes(ind, o):
+    """Every named class an individual belongs to after reasoning: its
+    classes, the classes equivalent to them, and their superclasses."""
+    seen, todo = set(), [c for c in ind.INDIRECT_is_a if isinstance(c, o.ThingClass)]
+    while todo:
+        c = todo.pop()
+        if c in seen:
+            continue
+        seen.add(c)
+        for d in list(c.equivalent_to) + list(c.INDIRECT_equivalent_to) + list(c.ancestors()):
+            if isinstance(d, o.ThingClass) and d not in seen:
+                todo.append(d)
+    return seen
 
 
 # ---------------------------------------------------------------- one record

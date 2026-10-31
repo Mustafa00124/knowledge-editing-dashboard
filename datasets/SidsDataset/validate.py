@@ -142,12 +142,23 @@ def extra_paths(var):
     return [Path(p) for p in os.environ.get(var, '').split(os.pathsep) if p]
 
 
-def load_relations(path=ROOT / 'RELATIONS.md'):
+# Properties a relation shares with its inverse: RELATIONS.md tags them on
+# one row of each inverse pair only (Tags rules), and the partner has them
+# through inverse:.
+SHARED_WITH_INVERSE = ('transitive', 'asymmetric', 'symmetric')
+
+
+def load_relations(path=ROOT / 'RELATIONS.md', inherit=True):
     """({relation: (tags, causal)}, conflicts) from the starter-relation tables.
 
     A relation may be listed under several topics, but must carry the same
     tags and semantics everywhere, so a name always means one thing. Each
     disagreement is returned as a message in `conflicts`.
+
+    With `inherit` (the default), a relation also gets the transitive,
+    asymmetric and symmetric tags of its inverse partner, since RELATIONS.md
+    states each such property on one row of the pair. relations.py reads the
+    stated tags only (inherit=False): OWL infers the rest.
     """
     relations, conflicts, topic = {}, [], None
     lines = path.read_text().splitlines()
@@ -167,6 +178,16 @@ def load_relations(path=ROOT / 'RELATIONS.md'):
         if name in relations and relations[name] != entry:
             conflicts.append(f'RELATIONS.md: {name!r} under {topic} disagrees with its earlier entry')
         relations.setdefault(name, entry)
+    if inherit:
+        stated = dict(relations)
+        for name, (tags, causal) in stated.items():
+            extra = set()
+            partners = {t.partition(':')[2] for t in tags if t.startswith('inverse:')}
+            partners |= {o for o, (ot, _) in stated.items() if f'inverse:{name}' in ot}
+            for o in partners:
+                extra |= {t for t in stated.get(o, (frozenset(), False))[0] if t in SHARED_WITH_INVERSE}
+            if extra - tags:
+                relations[name] = (tags | extra, causal)
     return relations, conflicts
 
 

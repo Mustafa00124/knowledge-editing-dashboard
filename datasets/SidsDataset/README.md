@@ -298,7 +298,9 @@ the one whose property is edited (`relation`, also `edit.subject`).
 Any of `symmetric`, `asymmetric`, `inverse:S`, `transitive`, `chain:S->T`,
 `subproperty:S`, `functional` and `cardinality:many` (see the Tags table in
 `RELATIONS.md`, which also lists the derived question each one licenses). A
-relation may have none. They stay in `RELATIONS.md` only, so a relation's
+relation may have none. A property an inverse pair shares (transitive,
+asymmetric, symmetric) is tagged on one row of the pair only, and
+`load_relations()` gives the partner it too (RELATIONS.md, Tags rules). They stay in `RELATIONS.md` only, so a relation's
 properties are defined in one place; the dashboard shows them on each record
 from that table.
 
