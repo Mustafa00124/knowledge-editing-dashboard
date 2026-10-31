@@ -1325,6 +1325,37 @@ def get_sids_dataset_audit_checks():
     return {"models": model_audit_reader.check_results()}
 
 
+@app.get("/api/sids-dataset/formal-status")
+def get_sids_dataset_formal_status():
+    """Per record, the formal check (datasets/SidsDataset/reason.py, HermiT over
+    owl/formal/<id>.json): the record's own checks (derived edit entailed by its
+    premises, edit consistent with every world, no missing world) and, per
+    derived query index, pass / fail / not_checked with the checks' details.
+    Empty when owl/reason_report.json doesn't exist yet."""
+    path = config.DATASETS_DIR / "SidsDataset" / "owl" / "reason_report.json"
+    try:
+        report = json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {"generated": None, "records": {}}
+    out = {}
+    for rid, rec in (report.get("records") or {}).items():
+        record_checks, queries = {}, {}
+        for c in rec.get("checks") or []:
+            line = f"{c.get('check')}: {c.get('status')}" + (f" ({c['detail']})" if c.get("detail") else "")
+            if c.get("q") is None:
+                record_checks[c.get("check")] = {"status": c.get("status"), "detail": c.get("detail")}
+                continue
+            q = queries.setdefault(str(c["q"]), {"status": "pass", "lines": []})
+            q["lines"].append(line)
+            if c.get("status") == "fail":
+                q["status"] = "fail"
+            elif c.get("status") == "not_checked" and q["status"] != "fail":
+                q["status"] = "not_checked" if all(
+                    l.split(": ", 1)[1].startswith("not_checked") for l in q["lines"]) else q["status"]
+        out[rid] = {"status": rec.get("status"), "record_checks": record_checks, "queries": queries}
+    return {"generated": report.get("generated"), "records": out}
+
+
 @app.get("/api/sids-dataset/audit-status")
 def get_sids_dataset_audit_status(models: str = "all"):
     """Per record, its fact's and every query's pre-edit status for each model's

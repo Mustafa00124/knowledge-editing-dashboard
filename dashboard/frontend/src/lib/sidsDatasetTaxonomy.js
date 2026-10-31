@@ -9,13 +9,14 @@
 
 // Level 2: the belief revision operation. Keys stay insert/replace/delete
 // (record fields, ids and folders use them); labels use the AGM names.
+// Revision first: it's the main operation and the browser opens on it.
 export const EDIT_OPERATIONS = [
-  { key: 'insert', label: 'Expansion', description: 'Insert: add knowledge the model does not hold. Afterwards: the new answer.' },
   {
     key: 'replace',
     label: 'Revision',
     description: 'Replace: swap held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. Afterwards: the new answer, never the old one.',
   },
+  { key: 'insert', label: 'Expansion', description: 'Insert: add knowledge the model does not hold. Afterwards: the new answer.' },
   {
     key: 'delete',
     label: 'Contraction',
