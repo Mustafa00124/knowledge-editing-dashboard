@@ -566,9 +566,10 @@ MANUAL_RULES = (
      "No subject describes the value being edited (\"the volcano that destroyed Pompeii\", edited to Etna, "
      "means Vesuvius before and Etna after), and no phrase or translation contains its own answer. "
      'Statements make sense on their own.'),
-    ('labels-and-worlds', 'Determinacy labels, worlds and chains are right',
-     'Each determinate answer holds in every valid world; each indeterminate query has concrete, differing '
-     'answers per world; worlds list the premise that gives way and its side facts; chains are correct.'),
+    ('labels-and-worlds', 'The worlds are sensible',
+     'Each world is a plausible split between stored and derived knowledge; the premise that gives way is a '
+     'sensible one and its side facts go with it; no world contradicts a firm fact outside its chain. '
+     'Entailment, determinacy and chains are machine-checked (rows below).'),
 )
 
 
@@ -620,7 +621,32 @@ def check_evidence(recs):
     note = (f'{n} evidence entries. Stored: a quoted sentence, or an exact-phrase count of at least '
             f'{STORED_MIN_COUNT}. Derived: at least {DERIVED_MIN_SOURCES} corpus counts or searches. The validator '
             'already requires an entry for every edited fact and premise.')
-    return [check('', 'Every stored and derived claim has enough evidence', weak, note=note)]
+    return [check('', 'Every stored and derived claim has enough evidence', weak, note=note),
+            check_supporting_evidence(recs)]
+
+
+def check_supporting_evidence(recs):
+    """Rule 1 support: bridge facts, revision facts and propositional side
+    facts that have no evidence entry yet (a source backing that they are
+    true). Report only until the evidence pass covers them; checks in the
+    model audit say whether models know a fact, not whether it is true."""
+    missing, counts = [], {}
+    for r in recs:
+        ev = r.get('evidence') or {}
+        facts = [('bridge', b) for q in r['queries'].get('derived', []) if not q.get('bridge_in_prompt')
+                 for b in q.get('bridge') or []]
+        facts += [('revision fact', b) for q in r['queries'].get('derived', []) if not q.get('revision_in_prompt')
+                  for b in q.get('revision_facts') or []]
+        facts += [('side fact', p['side_fact']) for p in r['queries'].get('propositional') or [] if p.get('side_fact')]
+        for kind, fact in dict.fromkeys(facts):
+            have, total = counts.get(kind, (0, 0))
+            counts[kind] = (have + (fact in ev), total + 1)
+            if fact not in ev:
+                missing.append(f'{r["id"]}: {kind} {fact!r}')
+    note = 'With evidence: ' + ', '.join(f'{k} {h}/{t}' for k, (h, t) in counts.items()) + \
+           '. A source (quote, Wikipedia citation, corpus count) backs that the fact is true.'
+    return check('', 'Evidence for bridge, revision and side facts (Rule 1 support)', missing,
+                 status=None if not missing else 'pending', note=note)
 
 
 # Rule 12: minimum coverage of relation properties, counted on replace

@@ -33,10 +33,15 @@ A rule turns green when all three are done.
 
 **Rule 1. True and unambiguous** (`true-and-unambiguous`). Every answer the
 dataset relies on is clearly true or clearly false: original and new answers,
-bridge facts, premises, locality references. Leave out facts that experts
-dispute, that depend on a date, definition or source, or that have several
-defensible answers. An RBox instance must be clear in the real world whatever
-the axiom says.
+bridge facts, revision facts, propositional side facts, premises, locality
+references. Leave out facts that experts dispute, that depend on a date,
+definition or source, or that have several defensible answers. An RBox
+instance must be clear in the real world whatever the axiom says. *Sources
+carry part of this:* a fact with evidence (README, Evidence: a quoted
+sentence, a Wikipedia citation, corpus counts) is backed; the automated row
+"Evidence for bridge, revision and side facts" shows which facts still have
+none. Reviewers judge what sources can't: whether a fact is disputed,
+ambiguous or loosely worded.
 
 **Rule 2. Stable subjects, self-contained statements**
 (`stable-subjects`). A subject is a named thing or class (Pompeii, prime
@@ -53,13 +58,22 @@ are out:
 A statement makes sense on its own: no "under those conditions", no "the
 specified", no mention of the edit.
 
-**Rule 3. Determinacy labels, worlds and chains are right**
-(`labels-and-worlds`). Each determinate answer holds in every valid world;
-each indeterminate query has a concrete answer in every world, and at least
-two differ; each world lists the premise that gives way and the side facts
-that go with it, and contradicts no firm fact outside the chain (README,
-Decisions 1); in TBox, a well-known member leaves its class rather than
-staying as an exception; chains are correct, step by step.
+**Rule 3. The worlds are sensible** (`labels-and-worlds`). The logic is
+checked by machine (the automated rows under this rule): every entailment
+and chain (HermiT for description logic, Z3 for first-order logic, truth
+tables for propositional queries), that each determinate answer holds in
+every world, that each world's answer follows and the answers differ, that
+no minimal revision is missing a world, and that each derived query's
+`derivation`, `bridge`, `revision_facts` and `hops` match its justification.
+What a person still judges is whether the worlds make sense as ways a model
+could hold its knowledge:
+- each world is a plausible split between what is stored and what is
+  derived (a model could really store "the Eiffel Tower is in Paris", or
+  derive it from "in the capital of France");
+- the premise that gives way in each world is a sensible one to give up,
+  and the side facts listed with it really go with it;
+- no world contradicts a firm fact outside its chain; in TBox, a well-known
+  member leaves its class rather than staying as an exception.
 
 ## Automated rules
 
