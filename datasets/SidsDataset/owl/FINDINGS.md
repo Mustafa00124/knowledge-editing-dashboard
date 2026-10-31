@@ -70,16 +70,21 @@ indeterminate queries instead of 2), a direct result of the A1 fix.
    finance 0008/0013, technology 0013), others left them off because no
    delete answer needs them (geography, history and physics TBox deletes).
    Pick one convention.
-4. Still unstated firm facts: technology-replace-0003/0004 (one US state per
-   place; their worlds also still name Massachusetts and Vermont in `adds`,
-   the E pattern), 0005 (one path separator), 0008 (one line ending);
-   grammar TBox replaces 0005 to 0008, 0019, 0020 (a default with an
-   exception, not expressible).
-5. Wording to review: geography-replace-0005's bridge "A valley carved by a
-   glacier was not carved by a river" (fjords often deepen former river
-   valleys; the check asks fjord vs ria instead); biology-replace-0003's
-   "transmitted by animals of one class only" (rats are also said to spread
-   plague).
+4. Still unstated firm facts: technology-replace-0005 (one path separator),
+   0008 (one line ending); grammar TBox replaces 0005 to 0008, 0019, 0020 (a
+   default with an exception, not expressible). Done (2026-10-31):
+   technology-replace-0003/0004 now name in their worlds only the premise
+   that gives way and its side facts (placeholders in `adds`, so
+   Massachusetts and Vermont are derived), and state "Unix / the BASIC
+   programming language was originally developed in only one US state" as a
+   bridge with a check; the unused firm "one state per place" rule is gone.
+5. Wording to review: done (2026-10-31). geography-replace/delete-0005 now
+   edit to "an unglaciated river valley" (the ria definition) and ask "Was
+   its valley ever filled by a glacier?", whose answers exclude each other,
+   with the definitional bridge "An unglaciated valley was never filled by a
+   glacier"; biology-replace-0003 (and 0004, the same pattern with Lyme
+   disease) say "arthropods", not "animals", in the one-class bridge and the
+   questions, so rodents, deer and mice no longer count.
 6. Shared docs: README "Shape per topic" for mathematics still says no
    premise can give way; RELATIONS.md's `parent_headquartered_in` reading
    still says `subsidiary_of` (encodings use `direct_subsidiary_of`).

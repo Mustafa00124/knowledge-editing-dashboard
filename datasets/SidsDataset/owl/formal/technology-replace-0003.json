@@ -1,6 +1,6 @@
 {
  "id": "technology-replace-0003",
- "notes": "Derived edit. developed_at (the lab) and developed_at_site (the town of the work) are local. Premise 3 ('Bell Labs developed Unix at its Murray Hill headquarters') is stored as 'at its headquarters', a rule, so in w2 the site moves with the headquarters. The site-in-state rule and 'one state per place' (the questions ask 'which US state') are firm. Each world names the new site (a placeholder) so the rules can fire on it. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Derived edit. developed_at (the lab) and developed_at_site (the town of the work) are local. Premise 3 ('Bell Labs developed Unix at its Murray Hill headquarters') is stored as 'at its headquarters', a rule, so in w2 the site moves with the headquarters. The site-in-state rule is firm, and so is the record's bridge 'Unix was originally developed in only one US state' (one_dev_state). Since 2026-10-31 each world adds only the side facts it names, with placeholders (a site or headquarters town in some state), never Massachusetts: the site-in-state rule and one_dev_state derive it. The earlier firm 'one state per place' rule (one_state) is gone: no answer needs it. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
  "entities": {
   "unix": [
    "Unix"
@@ -17,8 +17,13 @@
   "ma": [
    "Massachusetts"
   ],
-  "ma_hq_town": null,
-  "ma_site": null
+  "lab": null,
+  "lab_site": null,
+  "lab_state": null,
+  "hq_town": null,
+  "hq_state": null,
+  "site": null,
+  "site_state": null
  },
  "original": [
   "originally_developed_in(unix, nj)"
@@ -44,14 +49,12 @@
    "nj : State",
    "ma : State"
   ],
-  "one_state": "located_in(?x, ?s), State(?s), located_in(?x, ?t), State(?t) -> same(?s, ?t)",
   "one_dev_state": "originally_developed_in(?x, ?s), State(?s), originally_developed_in(?x, ?t), State(?t) -> same(?s, ?t)"
  },
  "firm": [
   "site_rule",
   "murray_nj",
   "states",
-  "one_state",
   "one_dev_state"
  ],
  "worlds": {
@@ -60,7 +63,10 @@
     "unix_bell"
    ],
    "adds": [
-    "unix : developed_at_site some (located_in value ma)"
+    "developed_at(unix, lab)",
+    "developed_at_site(unix, lab_site)",
+    "located_in(lab_site, lab_state)",
+    "lab_state : State"
    ]
   },
   "w2": {
@@ -68,8 +74,9 @@
     "bell_hq"
    ],
    "adds": [
-    "headquartered_in(bell_labs, ma_hq_town)",
-    "located_in(ma_hq_town, ma)"
+    "headquartered_in(bell_labs, hq_town)",
+    "located_in(hq_town, hq_state)",
+    "hq_state : State"
    ]
   },
   "w3": {
@@ -77,8 +84,9 @@
     "hq_site"
    ],
    "adds": [
-    "developed_at_site(unix, ma_site)",
-    "located_in(ma_site, ma)"
+    "developed_at_site(unix, site)",
+    "located_in(site, site_state)",
+    "site_state : State"
    ]
   }
  },
