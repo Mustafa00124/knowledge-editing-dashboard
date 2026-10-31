@@ -89,7 +89,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Levels: topic, then belief revision operation, then knowledge form, then a fixed set of 10 queries per edit (7 for
+              Levels: topic, then belief revision operation, then knowledge form, then a fixed set of 12 queries per edit (9 for
               RBox). Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
@@ -134,7 +134,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               ))}
             </dl>
             <div className="sids-axis">
-              <h4>RBox items <span className="sids-rubric-q">7 queries: the edit changes a property of a relation</span></h4>
+              <h4>RBox items <span className="sids-rubric-q">9 queries: the edit changes a property of a relation</span></h4>
               <dl className="sids-axis-values">
                 {RBOX_QUERY_TYPES.map((q) => (
                   <div key={q.key}>

@@ -121,7 +121,8 @@ def is_locality(row):
 
 def summarise_checks(rows, records, relations):
     """Check tallies, and per derived query whether its chain is known: every
-    unstated bridge fact and the relation property it relies on pass."""
+    unstated bridge and revision fact and the relation property it relies on
+    pass."""
     facts = {(r["record_id"], r["fact"]): r["score"] for r in rows if r["query_type"] == "check_fact"}
     props = {(r["relation"], r["tag"]): r["score"] for r in rows if r["query_type"] == "check_relation"}
 
@@ -139,7 +140,8 @@ def summarise_checks(rows, records, relations):
             got = [facts.get((rec["id"], p)) for p in rec["edit"]["premises"]]
             premises["unclear" if None in got else "known" if all(got) else "unknown"] += 1
         for q in rec["queries"].get("derived", []):
-            got = [] if q.get("bridge_in_prompt") else [facts.get((rec["id"], b)) for b in q["bridge"]]
+            # unstated bridge and revision facts (validate.unstated_facts)
+            got = [facts.get((rec["id"], b)) for b in SID.unstated_facts(q)]
             prop = SID.relation_property(rec, q, relations)
             if prop:
                 got.append(props.get(prop))

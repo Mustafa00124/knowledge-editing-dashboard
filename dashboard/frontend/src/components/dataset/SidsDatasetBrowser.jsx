@@ -61,13 +61,13 @@ function TabRow({ label, values, selected, onSelect, counts }) {
   )
 }
 
-// In record order: locality before derived.
+// In record order: propositional after cross-lingual, locality before derived.
 const QUERY_LABEL = { direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual',
-  unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived' }
+  propositional: 'Propositional', unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived' }
 const show = (v) => (v == null ? '—' : String(v))
 
 // Each row also gets the model audit's query key (audit_queries.py):
-// direct, paraphrase, cross_lingual[zh], unrelated_near[0], derived[2].
+// direct, paraphrase, cross_lingual[zh], propositional[1], unrelated_near[0], derived[2].
 function queryRows(rec) {
   const q = rec.queries || {}
   const rows = []
@@ -375,6 +375,20 @@ function RecordCard({ rec, relations, onChain, audit, models, formal }) {
                         <span className="sids-bridge">
                           bridge: {r.bridge.map((b) => <span key={b}>{b} <EvidenceButton fact={b} evidence={rec.evidence} /></span>)}
                         </span>
+                      )}
+                      {r.revision_facts?.length > 0 && (
+                        <span className="sids-bridge" title="Facts that settle which belief gives way, not combined into the answer (not counted in hops)">
+                          revision: {r.revision_facts.map((b) => <span key={b}>{b} <EvidenceButton fact={b} evidence={rec.evidence} /></span>)}
+                        </span>
+                      )}
+                      {r.alt_derivations?.length > 0 && (
+                        <span className="sids-bridge" title="Other valid routes to the same answer">also: {r.alt_derivations.join(', ')}</span>
+                      )}
+                      {r.key === 'propositional' && (
+                        <>
+                          <span className="sids-tags"><span className="sids-det-flag" title="Truth-functional: checked by truth table (validate.py)">{r.form}</span></span>
+                          {r.side_fact && <span className="sids-bridge">side fact: <span>{r.side_fact}</span></span>}
+                        </>
                       )}
                       {r.key === 'derived' && chains && (
                         <button type="button" className="btn-plain-small sids-chain-btn" onClick={() => onChain(rec, { kind: 'query', query: r })}>

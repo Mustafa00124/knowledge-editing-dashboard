@@ -37,6 +37,7 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/coverage_labels.py      
 | `original` | the fact before the edit (replace, delete); TBox: the class axiom; RBox: the property axiom. |
 | `edit` | the edited fact or axiom (replace, insert); `[]` for delete and for an RBox edit that only removes a property. |
 | `bridge_refs` | optional: `{background id or q<n>.given.<i>: sentence or [sentences]}`, the record's bridge sentence(s) (copied from some derived query's `bridge`) that a background item or a prompt-given axiom states. `justify.py` uses it to map a justification's facts to bridges; without it a fact item matches a bridge sentence when every named entity's surface appears in the sentence (so rules, class axioms, `Func` presuppositions and facts about placeholders need a ref). |
+| `revision_refs` | optional: like `bridge_refs`, for the record's revision facts (a derived query's `revision_facts`): `{background id or q<n>.given.<i>: sentence or [sentences]}`. A key in `bridge_refs` or `revision_refs` is mapped by its refs only; a fact item in neither is matched by entity surfaces against both lists (bridges first). |
 | `premises` | background ids the original follows from (a derived edit: derivability likely or very likely). |
 | `background` | `{id: axiom or [axioms]}`: what the model holds before the edit, in every world: premises, bridge facts, firm facts, rules. One id is one belief that can give way as a whole. |
 | `firm` | background ids that never give way (definitional rules, firm facts outside the chain, README Decisions 1). The repair search leaves them alone. |
@@ -210,9 +211,10 @@ every named entity's surface or key appears in the sentence), `premise` (in
 `premises`), `world` (a world's store or add), `property` (a relation
 property the prompt states), `typing` (only class assertions, encoding glue
 such as "Nice is a city"), `definition` (a firm class axiom or rule the
-record treats as definitional), or `unlisted` (a fact the answer needs that
-the query's `bridge` does not list). Hops = 1 + bridges covered + unlisted
-facts. Two or more class inclusions chained (the edit included) also count
+record treats as definitional), `revision` (it states one of this query's
+`revision_facts`: `revision_refs`, or the surface match), or `unlisted` (a
+fact the answer needs that the query's `bridge` does not list). Hops = 1 +
+bridges covered + unlisted facts (revision units not counted). Two or more class inclusions chained (the edit included) also count
 as transitivity of `subclass_of`.
 
 **Verdicts** (per query, from the best-fitting justification over the
@@ -221,7 +223,7 @@ worlds):
 | Verdict | Meaning |
 | --- | --- |
 | `match` | the record's derivation type is used (task types `composition`, `binding`, `application`, `premise` need none; `instantiation` needs the RBox edit; `inheritance` a class axiom), every encoded bridge is used, nothing unlisted, hops equal |
-| `partial` | derivation right, but a listed bridge is not needed (by the answer, nor, for a replace, by the original answer: such a bridge is `pre_only_bridge` and counts as used), an unlisted fact is, or the hops differ |
+| `partial` | derivation right, but a listed bridge is not needed (by the answer, nor, for a replace, by the original answer: such a bridge is `pre_only_bridge` and counts as used), an unlisted fact is, the hops differ, or a listed revision fact is used by every justification that uses the edit (`revision_as_bridge`: "revision fact used to build the answer (should be a bridge)"). A listed revision fact the justification does not use is fine: it is not a missing bridge |
 | `mismatch` | no justification uses the record's derivation type |
 | `not_checked` | `fol`, exception, not encoded, or nothing to justify |
 
@@ -232,7 +234,14 @@ as using the edit; for an indeterminate query only when no world needs the edit,
 worlds that keep the old answer are listed as `edit_free_worlds`),
 `ambiguous` (justifications of one entailment that use the edit have different property sets:
 the derivation is underdetermined, the metadata should name the
-alternatives), `capped`. `via_used` says whether the `via` relation appears
+alternatives), `alternatives_listed` (instead of `ambiguous` when the record
+names every route: each property set's own part, the types beyond those all
+the sets share, contains `derivation` or one of `alt_derivations`, when that
+part has a derivation type at all; disjointness and rules are not derivation
+names; the verdict is unchanged, so a match prints as "match (alternatives
+listed)"), `capped`, `stale` (`--recompare` only: the stored justifications
+no longer fit, since a unit or an expected answer changed or the query was
+not justified yet; rerun `justify.py` on the record). `via_used` says whether the `via` relation appears
 in a property unit of a justification. A bridge sentence no unit states is
 `unencoded_bridge` (not counted as missing).
 
@@ -240,6 +249,22 @@ Cost: geography (187 checked queries) took 30 min with 2 workers on a
 shared node: about 19 s per query (median 14 s; 5 s per entailment, a
 hitting-set tree cut at 90 s once). The whole dataset (1759 checked queries)
 should take 1 to 2 hours on 8 cores, hence `justify.sbatch`.
+
+**Recompare without HermiT.** After editing records (bridges, revision
+facts, hops, derivation names, `alt_derivations`, `bridge_refs`,
+`revision_refs`), recompute the verdicts from the stored justifications:
+
+```bash
+venvs/easyedit_venv/bin/python datasets/SidsDataset/justify.py --recompare --jobs 8              # every record in the report
+venvs/easyedit_venv/bin/python datasets/SidsDataset/justify.py --recompare geography-replace-0007  # or ids / --topic
+```
+
+Each stored justification keeps its units (which axioms the answer follows
+from does not depend on the metadata); their roles, bridges, revision facts
+and hops are mapped again from the current record and formal file. A change
+to the axioms themselves (background, worlds, given, the edit, answers)
+needs a real rerun: such queries come out `stale`. `--report PATH` reads and
+writes another report file.
 
 `justifications.json`: per record, per query: the verdict and flags, the
 record's metadata, the best fit, and per phase and world the justifications
@@ -262,6 +287,14 @@ report's) and `primary` (whether that is the query's primary checker).
 Since 2026-10-31 the 88 queries relabelled fol -> dl keep their Z3
 encodings as second checks, and technology-delete-0005 q1 (relabelled
 dl -> fol with its replace mirror) keeps its HermiT find.
+
+The propositional query type (`queries.propositional`, two per record since
+2026-10-31) needs no encoding here: its answers are truth-functional in the
+edited fact and one side fact, so `validate.py`'s truth table is its formal
+check. `coverage_labels.py` lists each under `propositional` per record in
+both reports, with checker `truth-table` and status pass or fail, and
+counts them in `COVERAGE.md`. Derived queries labelled `propositional` are
+the old placement and move to that type.
 
 ## The fol section (Z3)
 
