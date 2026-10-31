@@ -1,5 +1,96 @@
 # Findings from the formal check (OWL + HermiT)
 
+## Resolution (2026-10-31)
+
+**What was fixed.**
+
+- Stage 1 (RELATIONS.md, merged as c7a4ca6): everything in section B, the
+  inverse-pair fix behind A3, the missing chain behind A4, and the checker
+  bug in D (`reason.py` now accepts classes HermiT found equivalent).
+- Stage 2 (records and encodings, one pass per topic, then a verification):
+  - A1: every "is X the only one?" question in an insert is now determinate
+    "no" (19 records plus biology-insert-0009, grammar-insert-0005/0009/0010,
+    history-insert-0003/0004). Where no indeterminate question was left,
+    the worlds were removed.
+  - A2: the finance counts and grammar-insert-0002 q1 are now `fol`;
+    mathematics-replace/delete-0015 q0 was retagged `dl` and is checked.
+  - A5, C1 to C5: the side facts and one-value presuppositions are stated in
+    the records as bridges with checks, chain steps or world `assumes`; the
+    encodings' firm one-value rules now match those stated facts, mostly per
+    named individual instead of general `Func(...)`.
+  - E: worlds that wrote the determinate answer into `adds` now name only the
+    premise that gives way (with placeholders), so the answer is derived.
+  - Deletes were mirrored by hand (`build_delete.py` is disabled: it would
+    wipe every delete record).
+- Verification fixes: finance-delete-0003 q1 got the "Burbank is in
+  California" bridge its replace got; geography-replace-0015 q1 and 0016 q1
+  now state "Provence-Alpes-Côte d'Azur is in France" and "The capital of
+  Missouri is Jefferson City"; history-replace-0013's "a small island or a
+  town lies on only one continent" (false for Istanbul or Orenburg) became
+  "Elba and its town Portoferraio each lie on only one continent";
+  people-insert-0002 q3 now states in the prompt that the Ostravel cylinder
+  is not the 1889 recording (that recording is itself on wax cylinders);
+  biology-replace-0003's one-class check now asks about the vectors.
+
+**Current totals** (full run, job 566500, plus re-runs of the records fixed
+afterwards). Cells are pass / fail / not_checked.
+
+| topic | derived_edit | pre | post_determinate | post_worlds | differ | consistent | missing_worlds | not_checked |
+|---|---|---|---|---|---|---|---|---|
+| biology | 8/0/0 | 136/0/61 | 141/0/0 | 56/0/0 | 56/0/0 | 60/0/0 | 60/0/0 | 0/0/7 |
+| finance | 8/0/0 | 124/0/55 | 129/0/0 | 50/0/0 | 50/0/0 | 60/0/0 | 60/0/0 | 0/0/25 |
+| geography | 8/0/0 | 129/0/58 | 131/0/0 | 56/0/0 | 56/0/0 | 60/0/0 | 60/0/0 | 0/0/17 |
+| grammar | 8/0/0 | 106/0/52 | 130/0/0 | 28/0/0 | 28/0/0 | 60/0/0 | 60/0/0 | 0/0/46 |
+| history | 8/0/0 | 123/0/47 | 120/0/0 | 50/0/0 | 50/0/0 | 60/0/0 | 60/0/0 | 0/0/34 |
+| literature_arts | 8/0/0 | 125/0/60 | 135/0/0 | 50/0/0 | 50/0/0 | 60/0/0 | 60/0/0 | 0/0/19 |
+| mathematics | 8/0/0 | 86/0/43 | 120/0/0 | 9/0/0 | 9/0/0 | 60/0/0 | 60/0/0 | 0/0/75 |
+| people | 8/0/0 | 134/0/60 | 140/0/0 | 54/0/0 | 54/0/0 | 60/0/0 | 60/0/0 | 0/0/10 |
+| physics | 8/0/0 | 128/0/50 | 126/0/0 | 52/0/0 | 52/0/0 | 60/0/0 | 60/0/0 | 0/0/26 |
+| technology | 8/0/0 | 129/0/53 | 128/0/0 | 54/0/0 | 54/0/0 | 60/0/0 | 60/0/0 | 0/0/22 |
+| **all** | 80/0/0 | 1220/0/539 | 1300/0/0 | 459/0/0 | 459/0/0 | 600/0/0 | 600/0/0 | 0/0/281 |
+
+**Remaining failures:** none (the 36 failing checks below are all gone).
+`validate.py` 0 errors, `encode_check.py` 0 problems. `post_worlds` and
+`differ` dropped from 478 to 459 because the A1 questions are no longer
+indeterminate. `criteria.py` Rule 11 now fails for 25 inserts (1 or 0
+indeterminate queries instead of 2), a direct result of the A1 fix.
+
+**Open decisions.**
+
+1. Rule 11 for the A1 inserts: relax it to allow 1 (or 0) indeterminate
+   queries, or write new indeterminate questions (25 inserts).
+2. Count and superlative questions in inserts (`fol`, not checked) whose w1
+   keeps the old figure next to a newly found or newly formed item:
+   geography-insert-0003/0004, history-insert-0001/0002/0009/0010,
+   finance-insert-0001/0002/0003/0004/0009, physics-insert-0001/0002/0004/
+   0009/0010, and the count questions next to every A1 fix. Make them
+   determinate, drop them, or keep them as "count stored as a number".
+3. Delete bridges: some topics copied a replace record's presupposition
+   bridges onto identical delete questions (people 0004/0005/0007/0019/0020,
+   finance 0008/0013, technology 0013), others left them off because no
+   delete answer needs them (geography, history and physics TBox deletes).
+   Pick one convention.
+4. Still unstated firm facts: technology-replace-0003/0004 (one US state per
+   place; their worlds also still name Massachusetts and Vermont in `adds`,
+   the E pattern), 0005 (one path separator), 0008 (one line ending);
+   grammar TBox replaces 0005 to 0008, 0019, 0020 (a default with an
+   exception, not expressible).
+5. Wording to review: geography-replace-0005's bridge "A valley carved by a
+   glacier was not carved by a river" (fjords often deepen former river
+   valleys; the check asks fjord vs ria instead); biology-replace-0003's
+   "transmitted by animals of one class only" (rats are also said to spread
+   plague).
+6. Shared docs: README "Shape per topic" for mathematics still says no
+   premise can give way; RELATIONS.md's `parent_headquartered_in` reading
+   still says `subsidiary_of` (encodings use `direct_subsidiary_of`).
+7. Optional retags not done: finance-delete-0002 q3,
+   literature_arts-delete-0013 q3, physics-replace/delete-0008 q2 and q3,
+   grammar-replace-0019 q2 and q3.
+
+The rest of this file is the original report of 2026-10-30.
+
+---
+
 For the dataset author. This file collects what the formal check found over all
 600 records, merged across the ten topics, plus a verification of the formal
 encodings themselves. No record was changed. Check of 2026-10-30.
