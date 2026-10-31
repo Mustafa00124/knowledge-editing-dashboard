@@ -107,5 +107,73 @@
    "q": 3,
    "ask": "inflects_like_with_out(outdrink, drink)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "past_tense (String, ATTRIBUTES.md) over a Verb enum. The combining rule is definitional (firm): a verb that inflects like another with 'out' in front has 'out' + that verb's past. Fact ids follow the DL file. The query strips 'out' from the past form.",
+  "decl": {
+   "sorts": {
+    "Verb": [
+     "outdrink",
+     "drink"
+    ]
+   },
+   "funcs": {
+    "past_tense": "Verb -> String",
+    "inflects_like_with_out": "Verb Verb -> Bool"
+   },
+   "vars": {
+    "v": "Verb",
+    "b": "Verb"
+   }
+  },
+  "facts": {
+   "drink_past": {
+    "says": "The past tense of 'drink' is 'drank'.",
+    "z3": "past_tense(drink) == \"drank\""
+   },
+   "outdrink_like_drink": {
+    "says": "'Outdrink' forms its past tense like 'drink', with 'out' in front.",
+    "z3": "inflects_like_with_out(outdrink, drink)"
+   },
+   "combining_rule": {
+    "says": "A verb that forms its past tense like another verb, with 'out' in front, has as its past tense 'out' followed by the other verb's past tense.",
+    "z3": "All([v, b], [(outdrink, drink)], Implies(inflects_like_with_out(v, b), past_tense(v) == \"out\" + past_tense(b)))"
+   }
+  },
+  "firm": [
+   "combining_rule"
+  ],
+  "original": [
+   "past_tense(outdrink) == \"outdrank\""
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "drink_past"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "outdrink_like_drink"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "find": "strip_prefix(past_tense(outdrink), \"out\")"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "The word after 'out' is reached through the firm spelling facts prefixed_out(swam, outswam) / prefixed_out(swimmed, outswimmed) the DL file already has: a find along base_form_of / inv(prefixed_out) over named word individuals; no string operation is needed when the candidate forms are named."
+   }
+  ],
+  "edit": [
+   "past_tense(outdrink) == \"outdrinked\""
+  ]
+ }
 }

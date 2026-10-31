@@ -54,5 +54,88 @@
    "q": 3,
    "not_checked": "fol (arithmetic): the parity of a product"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0007: parity is the model's belief (uninterpreted), the remainder by 2 is read off it by a firm definition. The rule is deleted, so post keeps only the facts; w1 and w4 store '3 × 5 = 15 is odd' by name (the record's assumes), w2 and w3 reach it only through the rule. 7's parity (dl, q2) carries no axiom here. The firm rule 'odd × odd is odd' carries the rule route to 3 × 5 in w2 and w3 before the delete.",
+  "decl": {
+   "sorts": {
+    "Parity": [
+     "odd",
+     "even"
+    ]
+   },
+   "consts": {
+    "p": "Int"
+   },
+   "funcs": {
+    "prime_gt2": "Int -> Bool",
+    "parity": "Int -> Parity",
+    "remainder": "Int Int -> Int"
+   },
+   "vars": {
+    "x": "Int",
+    "y": "Int"
+   }
+  },
+  "facts": {
+   "primes_3_5": {
+    "says": "3 and 5 are prime numbers greater than 2.",
+    "z3": [
+     "prime_gt2(3)",
+     "prime_gt2(5)"
+    ]
+   },
+   "even_factor": {
+    "says": "A product of whole numbers with an even factor is even.",
+    "z3": "All([x, y], [(3, 5)], Implies(parity(x) == even or parity(y) == even, parity(x * y) == even))"
+   },
+   "rem_def": {
+    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+    "z3": "ForAll(x, remainder(x, 2) == If(parity(x) == even, 0, 1))"
+   },
+   "odd_product": {
+    "says": "A product of two odd whole numbers is odd.",
+    "z3": "All([x, y], [(3, 5)], Implies(parity(x) == odd and parity(y) == odd, parity(x * y) == odd))"
+   }
+  },
+  "firm": [
+   "primes_3_5",
+   "even_factor",
+   "rem_def",
+   "odd_product"
+  ],
+  "original": [
+   "ForAll(x, Implies(prime_gt2(x), parity(x) == odd))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "parity(15) == odd"
+    ]
+   },
+   "w2": {},
+   "w3": {},
+   "w4": {
+    "stores": [
+     "parity(15) == odd"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "p_prime": {
+      "says": "p is a prime number greater than 2.",
+      "z3": "prime_gt2(p)"
+     }
+    },
+    "find": "remainder(p, 2)"
+   },
+   {
+    "q": 3,
+    "find": "parity(3 * 5)"
+   }
+  ]
+ }
 }

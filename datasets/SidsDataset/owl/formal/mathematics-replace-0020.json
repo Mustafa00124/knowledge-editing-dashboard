@@ -53,5 +53,58 @@
    "q": 3,
    "not_checked": "fol (arithmetic): a remainder"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The parity of a divisor count is the model's belief (uninterpreted parity over number_of_divisors), the remainder by 2 read off it by a firm definition (as replace-0007). 49 is a positive perfect square (firm); its stored odd divisor count gives way (top-level gives_up), as q3's chain states.",
+  "decl": {
+   "sorts": {
+    "Parity": [
+     "odd",
+     "even"
+    ]
+   },
+   "funcs": {
+    "pos_square": "Int -> Bool",
+    "number_of_divisors": "Int -> Int",
+    "parity": "Int -> Parity",
+    "remainder": "Int Int -> Int"
+   },
+   "vars": {
+    "x": "Int"
+   }
+  },
+  "facts": {
+   "n49_member": {
+    "says": "49 = 7² is a positive perfect square.",
+    "z3": "pos_square(49)"
+   },
+   "rem_def": {
+    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+    "z3": "ForAll(x, remainder(x, 2) == If(parity(x) == even, 0, 1))"
+   },
+   "n49_stored": {
+    "says": "49 has 3 positive divisors (1, 7, 49), an odd number. (stored)",
+    "z3": "parity(number_of_divisors(49)) == odd"
+   }
+  },
+  "firm": [
+   "n49_member",
+   "rem_def"
+  ],
+  "gives_up": [
+   "n49_stored"
+  ],
+  "original": [
+   "ForAll(x, Implies(pos_square(x), parity(number_of_divisors(x)) == odd))"
+  ],
+  "edit": [
+   "ForAll(x, Implies(pos_square(x), parity(number_of_divisors(x)) == even))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "find": "remainder(number_of_divisors(49), 2)"
+   }
+  ]
+ }
 }

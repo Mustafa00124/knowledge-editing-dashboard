@@ -37,5 +37,58 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counting circles"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The edit's 'some Quellan circle' is a Skolem function circle_of (local). The find counts the different circles the three polygons are bound to; that this is the least number of Quellan circles is because a model with no other circles exists (the count is entailed, so no fewer is possible).",
+  "decl": {
+   "sorts": {
+    "Polygon": null,
+    "Circle": null
+   },
+   "consts": {
+    "p1": "Polygon",
+    "p2": "Polygon",
+    "p3": "Polygon"
+   },
+   "funcs": {
+    "ashby": "Polygon -> Bool",
+    "quellan": "Circle -> Bool",
+    "merrow_bound": "Polygon Circle -> Bool",
+    "circle_of": "Polygon -> Circle"
+   },
+   "vars": {
+    "p": "Polygon",
+    "q": "Polygon",
+    "k": "Circle"
+   }
+  },
+  "local": {
+   "circle_of": "Skolem function of the edit: the Quellan circle a given Ashby polygon is merrow-bound to"
+  },
+  "facts": {},
+  "edit": [
+   "ForAll(p, Implies(ashby(p), And(quellan(circle_of(p)), merrow_bound(p, circle_of(p)))))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "one_polygon_per_circle": {
+      "says": "No circle has more than one polygon merrow-bound to it.",
+      "z3": "ForAll([p, q, k], Implies(And(merrow_bound(p, k), merrow_bound(q, k)), p == q))"
+     },
+     "three_polygons": {
+      "says": "Three different Ashby polygons are drawn.",
+      "z3": [
+       "ashby(p1)",
+       "ashby(p2)",
+       "ashby(p3)",
+       "Distinct(p1, p2, p3)"
+      ]
+     }
+    },
+    "find": "1 + If(circle_of(p2) != circle_of(p1), 1, 0) + If(And(circle_of(p3) != circle_of(p1), circle_of(p3) != circle_of(p2)), 1, 0)"
+   }
+  ]
+ }
 }

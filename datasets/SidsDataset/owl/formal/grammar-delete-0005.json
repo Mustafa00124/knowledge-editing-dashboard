@@ -71,5 +71,168 @@
    "q": 3,
    "not_checked": "fol: agreement compares the verb's number with the subject's number (record logic fol)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Agreement as the subject's grammatical_number (enum Number): the sentence choice is a find on it, each candidate sentence a surface of its number in 'choices'. The rule over the class is a finite quantifier over the record's subjects. Fact ids follow the DL file. Delete: the class link to the wider rule is cut in every world (top-level gives_up), as in the DL file; a phrase stored whole keeps its form through stores.",
+  "decl": {
+   "sorts": {
+    "Number": [
+     "singular",
+     "plural"
+    ],
+    "Subject": [
+     "zorvan",
+     "melvara",
+     "big_brother",
+     "uncle_sam"
+    ]
+   },
+   "funcs": {
+    "person_name": "Subject -> Bool",
+    "grammatical_number": "Subject -> Number",
+    "singular_np": "Subject -> Bool"
+   },
+   "vars": {
+    "s": "Subject"
+   }
+  },
+  "facts": {
+   "big_brother_member": {
+    "says": "'Big Brother' is the name of one person.",
+    "z3": "person_name(big_brother)"
+   },
+   "uncle_sam_member": {
+    "says": "'Uncle Sam' is the name of one person.",
+    "z3": "person_name(uncle_sam)"
+   },
+   "wider_rule": {
+    "says": "A singular noun phrase takes a singular verb (anchored by countless instances).",
+    "z3": "All(s, [zorvan, melvara, big_brother, uncle_sam], Implies(singular_np(s), grammatical_number(s) == singular))"
+   },
+   "class_link": {
+    "says": "A name of one person counts as a singular noun phrase for agreement.",
+    "z3": "All(s, [zorvan, melvara, big_brother, uncle_sam], Implies(person_name(s), singular_np(s)))"
+   }
+  },
+  "firm": [
+   "big_brother_member",
+   "uncle_sam_member",
+   "wider_rule"
+  ],
+  "original": [
+   "All(s, [zorvan, melvara, big_brother, uncle_sam], Implies(person_name(s), grammatical_number(s) == singular))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "grammatical_number(big_brother) == singular",
+     "grammatical_number(uncle_sam) == singular"
+    ]
+   },
+   "w2": {
+    "stores": []
+   },
+   "w3": {
+    "stores": [
+     "grammatical_number(big_brother) == singular"
+    ]
+   },
+   "w4": {
+    "stores": [
+     "grammatical_number(uncle_sam) == singular"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "zorvan": {
+      "says": "'Zorvan' is the name of one man.",
+      "z3": "person_name(zorvan)"
+     }
+    },
+    "find": "grammatical_number(zorvan)",
+    "choices": {
+     "singular": [
+      "Zorvan is very tall"
+     ],
+     "plural": [
+      "Zorvan are very tall"
+     ]
+    }
+   },
+   {
+    "q": 1,
+    "given": {
+     "melvara": {
+      "says": "'Melvara' is the name of one woman.",
+      "z3": "person_name(melvara)"
+     }
+    },
+    "find": "grammatical_number(melvara)",
+    "choices": {
+     "singular": [
+      "has"
+     ],
+     "plural": [
+      "have"
+     ]
+    }
+   },
+   {
+    "q": 2,
+    "find": "grammatical_number(big_brother)",
+    "choices": {
+     "singular": [
+      "Big Brother is watching you"
+     ],
+     "plural": [
+      "Big Brother are watching you"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "find": "grammatical_number(uncle_sam)",
+    "choices": {
+     "singular": [
+      "Uncle Sam wants you"
+     ],
+     "plural": [
+      "Uncle Sam want you"
+     ]
+    }
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   }
+  ],
+  "gives_up": [
+   "class_link"
+  ]
+ }
 }

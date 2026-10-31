@@ -72,5 +72,73 @@
    "q": 3,
    "not_checked": "fol (temporal): a finished past journey calls for the past tense"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Verbs are strings; past_tense is the ATTRIBUTES.md attribute. The temporal step is one comparison: the run was yesterday (day −1), before today (day 0), so it is a finished journey, which the prompt says takes the past tense. form_used is the form the question asks for.",
+  "decl": {
+   "consts": {
+    "run_day": "Int",
+    "today": "Int",
+    "form_used": "String"
+   },
+   "funcs": {
+    "past_tense": "String -> String",
+    "motion_verb": "String -> Bool",
+    "means_motion": "String -> Bool",
+    "means_run": "String -> Bool"
+   },
+   "vars": {
+    "v": "String"
+   }
+  },
+  "local": {},
+  "facts": {
+   "run_motion": {
+    "says": "Running is a kind of motion.",
+    "z3": "ForAll(v, Implies(means_run(v), means_motion(v)))"
+   },
+   "motion_verb": {
+    "says": "A Tovrish verb that means a motion is a verb of motion. (definitional)",
+    "z3": "ForAll(v, Implies(means_motion(v), motion_verb(v)))"
+   }
+  },
+  "firm": [
+   "run_motion",
+   "motion_verb"
+  ],
+  "edit": [
+   "ForAll(v, Implies(motion_verb(v), past_tense(v) == \"drovka\" + v))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "ulveskarn_run": {
+      "says": "'Ulveskarn' means 'to run'.",
+      "z3": "means_run(\"ulveskarn\")"
+     },
+     "yesterday": {
+      "says": "Yesterday Mira ran home (the run was on the day before today).",
+      "z3": [
+       "today == 0",
+       "run_day == today - 1"
+      ]
+     },
+     "finished_past": {
+      "says": "A verb of motion's past tense is used for finished journeys (a journey on a day before today); otherwise the plain form.",
+      "z3": "form_used == If(run_day < today, past_tense(\"ulveskarn\"), \"ulveskarn\")"
+     }
+    },
+    "find": "form_used"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "The temporal step is only 'yesterday is in the past', which the prompt fixes; the inference is q0's (ulveskarn means a motion, so it takes drovka-), a DL membership plus the given choice of tense."
+   }
+  ]
+ }
 }

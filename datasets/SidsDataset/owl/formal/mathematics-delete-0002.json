@@ -47,5 +47,61 @@
    "q": 3,
    "ask": "sqrt2 : (instance_of value irrational) and GreaterThanOne"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Being rational (a fraction p/q) is the model's belief: uninterpreted predicates, since built-in reals cannot make √2 rational. q1 asks about a fraction whose square is 2; the only numbers whose square is 2 are ±√2, and the question is read as being about √2 (sqrt_sq). q2's ratio is diag_ratio, equal to √2 by the stored fact about squares. Delete: nothing places √2 among the rationals or irrationals afterwards.",
+  "decl": {
+   "sorts": {},
+   "consts": {
+    "s2": "Real",
+    "diag_ratio": "Real"
+   },
+   "funcs": {
+    "rational": "Real -> Bool",
+    "irrational": "Real -> Bool",
+    "fraction": "Real -> Bool"
+   },
+   "vars": {
+    "x": "Real"
+   }
+  },
+  "facts": {
+   "rat_frac": {
+    "says": "Every rational number can be written as a fraction p/q of two whole numbers (and every such fraction is rational).",
+    "z3": "ForAll(x, rational(x) == fraction(x))"
+   },
+   "irr_def": {
+    "says": "An irrational number is a number that is not rational.",
+    "z3": "ForAll(x, irrational(x) == Not(rational(x)))"
+   },
+   "sqrt_sq": {
+    "says": "The square of the square root of 2 is 2.",
+    "z3": "s2 * s2 == 2"
+   },
+   "diag": {
+    "says": "The diagonal of a square is the square root of 2 times its side, so diagonal : side = √2.",
+    "z3": "diag_ratio == s2"
+   }
+  },
+  "firm": [
+   "rat_frac",
+   "irr_def",
+   "sqrt_sq",
+   "diag"
+  ],
+  "original": [
+   "irrational(s2)"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "ask": "fraction(s2) and s2 * s2 == 2"
+   },
+   {
+    "q": 2,
+    "ask": "fraction(diag_ratio)"
+   }
+  ],
+  "edit": []
+ }
 }

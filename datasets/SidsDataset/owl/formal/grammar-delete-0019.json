@@ -71,5 +71,168 @@
    "q": 3,
    "not_checked": "fol: agreement compares the verb's number with the subject's number (record logic fol)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Agreement as the subject's grammatical_number (enum Number): the sentence choice is a find on it, each candidate sentence a surface of its number in 'choices'. The rule over the class is a finite quantifier over the record's subjects. Fact ids follow the DL file. Delete: the class link to the wider rule is cut in every world (top-level gives_up), as in the DL file; a phrase stored whole keeps its form through stores.",
+  "decl": {
+   "sorts": {
+    "Number": [
+     "singular",
+     "plural"
+    ],
+    "Subject": [
+     "snorving",
+     "dramping",
+     "smoking",
+     "parting"
+    ]
+   },
+   "funcs": {
+    "gerund_phrase": "Subject -> Bool",
+    "grammatical_number": "Subject -> Number",
+    "non_plural": "Subject -> Bool"
+   },
+   "vars": {
+    "s": "Subject"
+   }
+  },
+  "facts": {
+   "smoking_member": {
+    "says": "'Smoking' is a single gerund phrase.",
+    "z3": "gerund_phrase(smoking)"
+   },
+   "parting_member": {
+    "says": "'Parting' is a single gerund phrase.",
+    "z3": "gerund_phrase(parting)"
+   },
+   "wider_rule": {
+    "says": "A subject that is not plural (a singular or mass noun phrase, or a clause) takes a singular verb (anchored by countless instances).",
+    "z3": "All(s, [snorving, dramping, smoking, parting], Implies(non_plural(s), grammatical_number(s) == singular))"
+   },
+   "class_link": {
+    "says": "A gerund phrase counts as a subject that is not plural.",
+    "z3": "All(s, [snorving, dramping, smoking, parting], Implies(gerund_phrase(s), non_plural(s)))"
+   }
+  },
+  "firm": [
+   "smoking_member",
+   "parting_member",
+   "wider_rule"
+  ],
+  "original": [
+   "All(s, [snorving, dramping, smoking, parting], Implies(gerund_phrase(s), grammatical_number(s) == singular))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "grammatical_number(smoking) == singular",
+     "grammatical_number(parting) == singular"
+    ]
+   },
+   "w2": {
+    "stores": []
+   },
+   "w3": {
+    "stores": [
+     "grammatical_number(smoking) == singular"
+    ]
+   },
+   "w4": {
+    "stores": [
+     "grammatical_number(parting) == singular"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "snorving": {
+      "says": "'Snorve' is a verb, so 'snorving quietly at work' is a gerund phrase.",
+      "z3": "gerund_phrase(snorving)"
+     }
+    },
+    "find": "grammatical_number(snorving)",
+    "choices": {
+     "singular": [
+      "Snorving quietly at work is frowned upon"
+     ],
+     "plural": [
+      "Snorving quietly at work are frowned upon"
+     ]
+    }
+   },
+   {
+    "q": 1,
+    "given": {
+     "dramping": {
+      "says": "'Dramp' is a verb, so 'dramping the dough twice' is a gerund phrase.",
+      "z3": "gerund_phrase(dramping)"
+     }
+    },
+    "find": "grammatical_number(dramping)",
+    "choices": {
+     "singular": [
+      "is"
+     ],
+     "plural": [
+      "are"
+     ]
+    }
+   },
+   {
+    "q": 2,
+    "find": "grammatical_number(smoking)",
+    "choices": {
+     "singular": [
+      "Smoking kills"
+     ],
+     "plural": [
+      "Smoking kill"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "find": "grammatical_number(parting)",
+    "choices": {
+     "singular": [
+      "Parting is such sweet sorrow"
+     ],
+     "plural": [
+      "Parting are such sweet sorrow"
+     ]
+    }
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   }
+  ],
+  "gives_up": [
+   "class_link"
+  ]
+ }
 }

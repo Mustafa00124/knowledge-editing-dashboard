@@ -57,5 +57,91 @@
    "q": 3,
    "not_checked": "fol (arithmetic): which side is longest, the angle opposite it"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One triangle t with sides side(t, 1..3) = 20, 21, 29 and angles angle(t, 1..3), angle i opposite side i. Right and obtuse are the model's beliefs (predicates), as is the arithmetic premise 20² + 21² = 29² (pythagorean(t)), which gives way (top-level gives_up) as in the DL file. The angle facts (positive, sum 180) are firm: nothing in the record changes them, and the pre answer 'no' needs them (a right triangle has no angle over 90).",
+  "decl": {
+   "sorts": {
+    "Shape": null
+   },
+   "consts": {
+    "t": "Shape"
+   },
+   "funcs": {
+    "right_tri": "Shape -> Bool",
+    "obtuse_tri": "Shape -> Bool",
+    "pythagorean": "Shape -> Bool",
+    "side": "Shape Int -> Real",
+    "angle": "Shape Int -> Real"
+   },
+   "vars": {
+    "i": "Int"
+   }
+  },
+  "facts": {
+   "sides": {
+    "says": "The triangle has sides 20, 21 and 29 (side i opposite angle i).",
+    "z3": [
+     "side(t, 1) == 20",
+     "side(t, 2) == 21",
+     "side(t, 3) == 29"
+    ]
+   },
+   "angles": {
+    "says": "The interior angles of a triangle are positive and sum to 180 degrees.",
+    "z3": [
+     "All(i, [1, 2, 3], angle(t, i) > 0)",
+     "angle(t, 1) + angle(t, 2) + angle(t, 3) == 180"
+    ]
+   },
+   "largest_opposite": {
+    "says": "The largest angle of a triangle is opposite its longest side.",
+    "z3": "All(i, [1, 2], Implies(side(t, 3) > side(t, i), angle(t, 3) > angle(t, i)))"
+   },
+   "right_def": {
+    "says": "Every right triangle has a right angle.",
+    "z3": "Implies(right_tri(t), Some(i, [1, 2, 3], angle(t, i) == 90))"
+   },
+   "obtuse_def": {
+    "says": "Every obtuse triangle has one angle greater than 90 degrees.",
+    "z3": "Implies(obtuse_tri(t), Some(i, [1, 2, 3], angle(t, i) > 90))"
+   },
+   "disjoint": {
+    "says": "No triangle is both right and obtuse.",
+    "z3": "Not(right_tri(t) and obtuse_tri(t))"
+   },
+   "converse": {
+    "says": "A triangle in which the squares of the two shorter sides add up to the square of the longest side is a right triangle.",
+    "z3": "Implies(pythagorean(t), right_tri(t))"
+   },
+   "pyth_sides": {
+    "says": "20² + 21² = 29².",
+    "z3": "pythagorean(t)"
+   }
+  },
+  "firm": [
+   "sides",
+   "angles",
+   "largest_opposite",
+   "right_def",
+   "obtuse_def",
+   "disjoint",
+   "converse"
+  ],
+  "gives_up": [
+   "pyth_sides"
+  ],
+  "original": [
+   "right_tri(t)"
+  ],
+  "edit": [
+   "obtuse_tri(t)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "angle(t, 3) > 90"
+   }
+  ]
+ }
 }

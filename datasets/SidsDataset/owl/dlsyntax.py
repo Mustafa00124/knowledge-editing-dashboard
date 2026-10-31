@@ -435,7 +435,7 @@ def check_formal(formal, rec, relations=None):
     if rec.get('derivability') in ('likely', 'very_likely') and not formal.get('premises'):
         probs.append('derivability is likely/very_likely but "premises" is empty')
     extra = set(formal) - {'id', 'notes', 'relations', 'entities', 'distinct', 'original', 'edit', 'premises',
-                           'background', 'firm', 'gives_up', 'worlds', 'queries'}
+                           'background', 'firm', 'gives_up', 'worlds', 'queries', 'fol'}  # fol: Z3, fol_check.py
     if extra:
         probs.append(f'unknown top-level keys {sorted(extra)}')
     derived = rec['queries']['derived']

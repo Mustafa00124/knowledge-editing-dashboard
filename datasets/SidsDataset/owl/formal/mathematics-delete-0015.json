@@ -55,5 +55,78 @@
    "q": 3,
    "not_checked": "fol (arithmetic): which side is longest, the angle opposite it"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0015. The delete loses the premise 20² + 21² = 29² (top-level gives_up), so neither the right angle nor its absence follows.",
+  "decl": {
+   "sorts": {
+    "Shape": null
+   },
+   "consts": {
+    "t": "Shape"
+   },
+   "funcs": {
+    "right_tri": "Shape -> Bool",
+    "obtuse_tri": "Shape -> Bool",
+    "pythagorean": "Shape -> Bool",
+    "side": "Shape Int -> Real",
+    "angle": "Shape Int -> Real"
+   },
+   "vars": {
+    "i": "Int"
+   }
+  },
+  "facts": {
+   "sides": {
+    "says": "The triangle has sides 20, 21 and 29 (side i opposite angle i).",
+    "z3": [
+     "side(t, 1) == 20",
+     "side(t, 2) == 21",
+     "side(t, 3) == 29"
+    ]
+   },
+   "angles": {
+    "says": "The interior angles of a triangle are positive and sum to 180 degrees.",
+    "z3": [
+     "All(i, [1, 2, 3], angle(t, i) > 0)",
+     "angle(t, 1) + angle(t, 2) + angle(t, 3) == 180"
+    ]
+   },
+   "largest_opposite": {
+    "says": "The largest angle of a triangle is opposite its longest side.",
+    "z3": "All(i, [1, 2], Implies(side(t, 3) > side(t, i), angle(t, 3) > angle(t, i)))"
+   },
+   "right_def": {
+    "says": "Every right triangle has a right angle.",
+    "z3": "Implies(right_tri(t), Some(i, [1, 2, 3], angle(t, i) == 90))"
+   },
+   "converse": {
+    "says": "A triangle in which the squares of the two shorter sides add up to the square of the longest side is a right triangle.",
+    "z3": "Implies(pythagorean(t), right_tri(t))"
+   },
+   "pyth_sides": {
+    "says": "20² + 21² = 29².",
+    "z3": "pythagorean(t)"
+   }
+  },
+  "firm": [
+   "sides",
+   "angles",
+   "largest_opposite",
+   "right_def",
+   "converse"
+  ],
+  "gives_up": [
+   "pyth_sides"
+  ],
+  "original": [
+   "right_tri(t)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "angle(t, 3) == 90"
+   }
+  ]
+ }
 }

@@ -49,5 +49,99 @@
    "q": 3,
    "not_checked": "fol: compares two words' language branches"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As grammar-insert-0003, with Indo-European branches. The one-language presuppositions are the chain's unstated assumptions.",
+  "decl": {
+   "sorts": {
+    "Lang": null,
+    "Branch": [
+     "anatolian",
+     "germanic",
+     "italic",
+     "celtic_branch"
+    ]
+   },
+   "consts": {
+    "hittite": "Lang",
+    "english": "Lang",
+    "kuwarzanalli": "String",
+    "bread": "String"
+   },
+   "funcs": {
+    "word_of_language": "String Lang -> Bool",
+    "attests_word": "Lang String -> Bool",
+    "branch_of": "Lang -> Branch"
+   },
+   "vars": {
+    "l": "Lang",
+    "l2": "Lang",
+    "w": "String"
+   }
+  },
+  "local": {
+   "branch_of": "the branch of a language family a language belongs to (one branch per language)"
+  },
+  "facts": {
+   "words": {
+    "says": "The two words are spelled 'kuwarzanalli' and 'bread'.",
+    "z3": [
+     "kuwarzanalli == \"kuwarzanalli\"",
+     "bread == \"bread\""
+    ]
+   },
+   "attests_def": {
+    "says": "A word a language attests is a word of that language.",
+    "z3": "ForAll([l, w], Implies(attests_word(l, w), word_of_language(w, l)))"
+   },
+   "hittite_anatolian": {
+    "says": "Hittite is one of the Anatolian languages.",
+    "z3": "branch_of(hittite) == anatolian"
+   },
+   "english_germanic": {
+    "says": "English is a Germanic language.",
+    "z3": "branch_of(english) == germanic"
+   },
+   "bread_english": {
+    "says": "The English word 'bread' is a word of English.",
+    "z3": "word_of_language(bread, english)"
+   },
+   "kuwarzanalli_one_language": {
+    "says": "'Kuwarzanalli' is a word of one language only. (closed world)",
+    "z3": "ForAll(l, Implies(word_of_language(kuwarzanalli, l), l == hittite))"
+   },
+   "bread_one_language": {
+    "says": "'Bread' is a word of English only. (closed world)",
+    "z3": "ForAll(l, Implies(word_of_language(bread, l), l == english))"
+   }
+  },
+  "firm": [
+   "words",
+   "attests_def",
+   "hittite_anatolian",
+   "english_germanic",
+   "bread_english"
+  ],
+  "presuppositions": [
+   "kuwarzanalli_one_language",
+   "bread_one_language"
+  ],
+  "edit": [
+   "attests_word(hittite, kuwarzanalli)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists([l, l2], And(word_of_language(kuwarzanalli, l), word_of_language(bread, l2), branch_of(l) == branch_of(l2)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same branch' is a join through a functional branch relation (ALCOI with nominals)."
+   }
+  ]
+ }
 }

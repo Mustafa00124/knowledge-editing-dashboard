@@ -1,5 +1,52 @@
 # Findings from the formal check (OWL + HermiT)
 
+## Z3 check of the fol queries: pilot (2026-10-31)
+
+The `logic: fol` queries (280 over the ten topics) were `not_checked`
+under HermiT. `fol_check.py` now checks them with Z3 from a `fol` section
+in each formal file (owl/README.md, "The fol section"), with an unsat core
+behind every answer. Pilot: the two topics with the most fol queries,
+mathematics (75) and grammar (46), all 121 encoded (56 records).
+
+| topic | records | pre | post_determinate | post_worlds | differ | consistent | wall | solver | Z3 calls |
+|---|---|---|---|---|---|---|---|---|---|
+| mathematics | 36 | 50/0/25 | 68/0/0 | 7/0/0 | 7/0/0 | 36/0/0 | 2.8s | 3.6s | 881 |
+| grammar | 20 | 30/0/16 | 34/0/0 | 12/0/0 | 12/0/0 | 20/0/0 | 8.1s | 10.5s | 890 |
+
+Cells are pass / fail / not_checked (pre is not_checked for inserts). No
+failures: every record answer the chains give follows in Z3, every null
+(does not know) answer has no entailed value, and every world is satisfiable
+before and after the edit (deletes: the deleted fact no longer follows).
+
+**The check can fail.** A mutation run (in memory: original and new answers
+swapped, world answers rotated, "does not know" replaced by the old answer)
+made all 121 post checks fail.
+
+**Label corrections** (52, all fol that DL could express; listed in
+`COVERAGE.md`, records unchanged): grammar agreement questions (24: the
+verb's number is a functional link to one of two values), the "is X the
+only one" and "same branch" grammar inserts (closed lists and joins with
+nominals), the 'out'-prefix past tenses and the 'bus' clipping (firm
+spelling facts make them role chains), mathematics 0003 q0 to q2 (class
+membership and divisibility by a named number), 0013 q0/q1 (equality of
+named values) and insert-0002 q3. No `dl` query in the pilot topics needed
+arithmetic. Kept as fol: string patterns (grammar-insert-0005 q0, q1, q3,
+0013 q3), counting forms (0010 q3), and all real arithmetic in mathematics.
+
+**Encoding notes.** What an edit, a delete or a world changes is an
+uninterpreted function with named facts (`parity`, `times`, `power`,
+`angle_sum`), never built-in arithmetic, which cannot give way. Rules about
+specific numbers are finite `All` instances; unrestricted quantifiers over
+nonlinear arithmetic made Z3 time out. Six records state closed-world
+presuppositions (grammar inserts: stored closed lists; one-language
+assumptions in grammar-insert-0003/0004 that their chains use without
+stating them). Record-local value functions (`local`): branch_of,
+circle_of, circumference, diameter, form, hallam_index, last_factor,
+least_in_factorization, proves, root, vell_partner.
+
+The remaining 159 fol queries (biology, finance, geography, history,
+literature_arts, people, physics, technology) have no `fol` section yet.
+
 ## Resolution (2026-10-31)
 
 **What was fixed.**

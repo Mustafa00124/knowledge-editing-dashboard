@@ -45,5 +45,104 @@
    "q": 3,
    "not_checked": "fol: compares two words' language branches"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Languages are an uninterpreted sort; branch_of maps a language to its branch (an enumeration, so the branches are distinct). q1's 'no' rests on the closed-world step the chain states: 'glendrink' is a word of Scots only (presupposition).",
+  "decl": {
+   "sorts": {
+    "Lang": null,
+    "Branch": [
+     "west_germanic",
+     "east_germanic",
+     "north_germanic",
+     "celtic_branch"
+    ]
+   },
+   "consts": {
+    "scots": "Lang",
+    "english": "Lang",
+    "scottish_gaelic": "Lang",
+    "glendrink": "String",
+    "drink": "String"
+   },
+   "funcs": {
+    "word_of_language": "String Lang -> Bool",
+    "branch_of": "Lang -> Branch",
+    "celtic": "Lang -> Bool"
+   },
+   "vars": {
+    "l": "Lang",
+    "l2": "Lang"
+   }
+  },
+  "local": {
+   "branch_of": "the branch of a language family a language belongs to (a function: one branch per language)"
+  },
+  "facts": {
+   "words": {
+    "says": "The two words are spelled 'glendrink' and 'drink'.",
+    "z3": [
+     "glendrink == \"glendrink\"",
+     "drink == \"drink\""
+    ]
+   },
+   "scots_wg": {
+    "says": "Scots is a West Germanic language.",
+    "z3": "branch_of(scots) == west_germanic"
+   },
+   "english_wg": {
+    "says": "English is a West Germanic language.",
+    "z3": "branch_of(english) == west_germanic"
+   },
+   "drink_english": {
+    "says": "The English word 'drink' is a word of English.",
+    "z3": "word_of_language(drink, english)"
+   },
+   "celtic_def": {
+    "says": "A language is Celtic exactly when it is in the Celtic branch.",
+    "z3": "ForAll(l, celtic(l) == (branch_of(l) == celtic_branch))"
+   },
+   "glendrink_only_scots": {
+    "says": "The edit names one language, and nothing gives 'glendrink' another: it is a word of Scots only. (closed world)",
+    "z3": "ForAll(l, Implies(word_of_language(glendrink, l), l == scots))"
+   }
+  },
+  "firm": [
+   "words",
+   "scots_wg",
+   "english_wg",
+   "drink_english",
+   "celtic_def"
+  ],
+  "presuppositions": [
+   "glendrink_only_scots"
+  ],
+  "edit": [
+   "word_of_language(glendrink, scots)"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "ask": "Exists(l, And(word_of_language(glendrink, l), celtic(l)))"
+   },
+   {
+    "q": 3,
+    "ask": "Exists([l, l2], And(word_of_language(glendrink, l), word_of_language(drink, l2), branch_of(l) == branch_of(l2)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "The closed-world step is a stated premise, expressible with a nominal: glendrink : word_of_language only {scots}, with scots : not CelticLanguage."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same branch' is a join through a functional branch relation, expressible with nominals: glendrink : word_of_language some (in_branch some (inv(in_branch) some (inv(word_of_language) value drink)))."
+   }
+  ]
+ }
 }

@@ -1,4 +1,4 @@
-# Formal verification (OWL 2 + HermiT)
+# Formal verification (OWL 2 + HermiT, and Z3 for fol queries)
 
 Checks that the description-logic reasoning in Sid's Dataset records holds:
 derived answers follow, determinacy labels are right, worlds are consistent
@@ -12,11 +12,16 @@ encoding lives here, in `formal/<record_id>.json`.
 | `encode_check.py` | Checks formal files without HermiT (fast; use while encoding). |
 | `../reason.py` | Runs HermiT over the formal files and writes `reason_report.json`. |
 | `formal/` | One encoding per record. |
+| `../fol_check.py` | Runs Z3 over the formal files' `fol` sections (the `logic: fol` queries) and writes `fol_report.json`, with an unsat core per answer. See [The fol section](#the-fol-section-z3). |
+| `../ATTRIBUTES.md` | The value-valued attributes (years, counts, offsets, strings) the `fol` sections may use. |
+| `coverage_labels.py` | Labels every query check in both reports with its `checker` (hermit, z3, none), `logic` and `theory`, and writes `COVERAGE.md` (per topic: dl via HermiT, fol via Z3, not checked; label corrections). |
 
 ```bash
 venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/relations.py          # after RELATIONS.md changes
 venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/encode_check.py --topic geography
 venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography   # or record ids
+venvs/easyedit_venv/bin/python datasets/SidsDataset/fol_check.py --topic mathematics   # Z3, fol queries (--static: no solving)
+venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/coverage_labels.py           # COVERAGE.md + checker labels in both reports
 ```
 
 ## The formal file
@@ -35,7 +40,8 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography 
 | `firm` | background ids that never give way (definitional rules, firm facts outside the chain, README Decisions 1). The repair search leaves them alone. |
 | `gives_up` | optional: background ids every world gives up after the edit (a side fact the edit forces in all worlds). |
 | `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's (none: one implicit world). `stores`: axioms this world held before the edit (background beliefs: by name or by description). `gives_up`: background ids this world drops after the edit (derived beliefs: the premise that gives way; TBox: membership or the stored fact). `adds`: axioms the world says hold after the edit: the side facts it names ("the Needle stands in some other city"), with placeholders for "some", not the answer a determinate query asks, which should follow from them. `exception`: a reason, for a world that can't be checked. |
-| `queries` | one entry per derived query, by index `q` (0 to 3, or 0 to 1 for RBox), each with exactly one of `ask`, `find`, `not_checked` (a reason: `"fol (arithmetic): ..."`), `exception` (a reason). |
+| `queries` | one entry per derived query, by index `q` (0 to 3, or 0 to 1 for RBox), each with exactly one of `ask`, `find`, `not_checked` (a reason: `"fol (arithmetic): ..."`), `exception` (a reason). A `fol` query stays `not_checked` here; Z3 checks it from the `fol` section. |
+| `fol` | optional: the Z3 encoding of the record's `logic: fol` queries ([below](#the-fol-section-z3)). |
 
 A query entry:
 
@@ -146,8 +152,197 @@ world, so no world is missing.
 | `differ` | the answers that follow differ between at least two worlds |
 | `consistent` | each world is consistent before and after the edit (delete: and no longer entails the deleted fact) |
 | `missing_worlds` | when edit + background is inconsistent (delete: still entails the deleted fact), every minimal repair (smallest set of non-firm background beliefs to give up, up to 3) is some world's `gives_up`; an uncovered repair is listed with what the determinate queries answer there |
-| `not_checked` | fol queries and anything the file leaves out, with the reason |
+| `not_checked` | fol queries and anything the file leaves out, with the reason (fol queries Z3 checks carry `checker: "z3"`: the result is in `fol_report.json`) |
 | `encoding` | the file disagrees with its record (`encode_check.py` problems) |
+
+## The fol section (Z3)
+
+HermiT covers the `dl` queries. The `logic: fol` ones (arithmetic, dates and
+ordering, clock times, counts, comparing values across individuals, strings)
+are checked by `fol_check.py` with Z3: first-order logic with integer, real
+and string arithmetic. Its knowledge base has the same shape as the DL one
+(named background facts, firm ones, what gives way, worlds with `stores`,
+`gives_up`, `adds`), written as Z3 formulas in a small Python-like syntax.
+Expected answers are never written here: the checker reads them from the
+record and maps the answer strings to values (`ATTRIBUTES.md`, value types).
+
+| Key | What it holds |
+| --- | --- |
+| `notes` | encoding choices worth knowing |
+| `decl` | `sorts` (`{"Parity": ["odd", "even"]}` an enumeration, `{"Lang": null}` an uninterpreted sort), `consts` (`{"p": "Int"}`), `funcs` (`{"parity": "Int -> Parity", "remainder": "Int Int -> Int"}`), `vars` (quantifier variables, `{"x": "Int"}`). Base sorts: `Int`, `Real`, `Bool`, `String`. |
+| `local` | optional `{name: reason}`: a value function not in ATTRIBUTES.md (record-local, often fictional). A function with an `Int`, `Real` or `String` result must be in ATTRIBUTES.md or here; one with an enumeration result in ATTRIBUTES.md, RELATIONS.md or here. |
+| `facts` | `{id: entry}`, the background: an entry is a formula, a list of formulas, or `{"says": "the sentence", "z3": formula or [formulas]}`. One id is one belief that gives way as a whole; `says` is what a core shows. |
+| `firm` | fact ids that never give way (definitions, arithmetic facts outside the chain). |
+| `presuppositions` | fact ids that are closed-world statements a count or "only" needs ("these five are all the known coins", `Distinct(...)`); cores flag them. |
+| `gives_up` | fact ids every world gives up after the edit. |
+| `original`, `edit` | the edited fact as formulas (pre: original; post: edit; delete: no edit, and the original must stop following). |
+| `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's; `stores` and `adds` are formulas, `gives_up` fact ids. |
+| `queries` | one entry per fol query, `{"q": i}` plus exactly one of `ask` (a yes/no claim; `mode` `holds`, `follows` or `consistent` as in the DL file), `find` (a term whose value is asked), `not_checked` (a reason), `exception` (a reason). Optional: `given` (`{id: entry}`, facts the prompt states), `type` (`clock`, `year`, `date`: how to read the answer strings), `choices` (`{value: [surfaces]}` for answers that are not numbers or enumeration names). |
+| `label_corrections` | optional `[{"q", "from", "to", "why"}]`: a fol query DL could express, or a dl query that needs arithmetic. Listed in `COVERAGE.md`; the record keeps its label. |
+
+Formula syntax (Python expressions): `and`, `or`, `not`, `==`, `!=`, `<`,
+`<=`, chained comparisons, `+ - * / % **` (`**` with a whole-number literal
+exponent; `/` on two Ints is real division), `a if c else b`, numbers,
+`"strings"` (`+` concatenates), and the functions `Implies(a, b)`,
+`Iff(a, b)`, `If(c, a, b)`, `Distinct(...)`, `abs`, `min`, `max`,
+`count(b1, b2, ...)` (how many are true), `Sum`, `ToReal`, `ToInt`,
+`round_to(x, places)`, `len`, `startswith(s, p)`, `endswith(s, p)`,
+`contains(s, t)`, `replace(s, old, new)` (first occurrence), `strip_prefix(s, p)`,
+`strip_suffix(s, p)`. Quantifiers:
+`All(x, [3, 5, 15], body)` and `Some(...)` over a finite list (expanded into
+instances; prefer these), or `ForAll(x, body)`, `ForAll([x, y], body)`,
+`Exists(...)` over declared `vars` (keep these to simple rules: no
+multiplication of two variables).
+
+**The rule that matters most:** anything the edit, a delete or a world
+changes is the model's belief, so it is an uninterpreted function or
+predicate with named facts, never built-in arithmetic. "3 is even" is
+satisfiable with `parity(3) == even`, but `3 % 2 == 0` is false in every
+model and cannot give way. Built-in arithmetic is for values nothing in the
+record changes (`360 - 50 - 60`, `17 * 17`).
+
+### Phases and checks
+
+The same as the DL check: **pre** per world = facts + `stores` + `original`
+(+ `given`); **post** = facts minus `gives_up` (top level and the world's) +
+`stores` + `adds` + `edit` (+ `given`). Checks: `pre`, `post_determinate`,
+`post_worlds`, `differ`, `consistent` (pre and post satisfiable per world;
+delete: post plus the negated original satisfiable).
+
+- **yes/no** (`ask`): yes when the KB plus `not claim` is unsat, no when the
+  KB plus `claim` is unsat, null (does not know) when neither is.
+- **value** (`find`): the value `v` the record expects is entailed when the
+  KB plus `find != v` is unsat (so `v` is also the only value). A null
+  answer passes when no value is entailed (two models differ).
+- **Core** (the explanation): every fact, the edit or original, a world's
+  stores and adds, and each given fact is a named assumption; an entailment
+  reports the minimal unsat core (minimised by deletion), as
+  `{id, kind, says}`. Kinds: background, firm, presupposition, original,
+  edit, world, given. This is the Z3 counterpart of an OWL justification:
+  the fewest named facts and rules that force the answer.
+
+`fol_report.json` has reason_report.json's shape: per record `status`,
+`seconds`, `calls`, `checks` (each with `q`, `label`, `worlds`, `detail`,
+plus `checker: "z3"`, `logic`, `theory`, and `core` per world), and a
+`queries` list giving every derived query's `logic`, `theory` and `checker`
+(hermit, z3 or none). `reason_report.json` carries the same labels (rerun
+`reason.py --labels` or `owl/coverage_labels.py` to refresh them).
+
+### Example
+
+`mathematics-replace-0007` (every prime greater than 2 is even; q1 asks the
+remainder of a prime p by 2, q3 the parity of 3 × 5):
+
+```json
+{
+ "notes": "Parity is the model's belief, an uninterpreted function: built-in x % 2 would make '3 is even' contradict arithmetic itself rather than a stored fact. The remainder by 2 is read off the parity by a firm definition.",
+ "decl": {
+  "sorts": {
+   "Parity": [
+    "odd",
+    "even"
+   ]
+  },
+  "consts": {
+   "p": "Int"
+  },
+  "funcs": {
+   "prime_gt2": "Int -> Bool",
+   "parity": "Int -> Parity",
+   "remainder": "Int Int -> Int"
+  },
+  "vars": {
+   "x": "Int",
+   "y": "Int"
+  }
+ },
+ "facts": {
+  "primes_3_5": {
+   "says": "3 and 5 are prime numbers greater than 2.",
+   "z3": [
+    "prime_gt2(3)",
+    "prime_gt2(5)"
+   ]
+  },
+  "even_factor": {
+   "says": "A product of whole numbers with an even factor is even.",
+   "z3": "All([x, y], [(3, 5)], Implies(parity(x) == even or parity(y) == even, parity(x * y) == even))"
+  },
+  "rem_def": {
+   "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+   "z3": "ForAll(x, remainder(x, 2) == If(parity(x) == even, 0, 1))"
+  },
+  "odd_3_5": {
+   "says": "3 and 5 are odd. (stored)",
+   "z3": [
+    "parity(3) == odd",
+    "parity(5) == odd"
+   ]
+  },
+  "odd_15": {
+   "says": "3 × 5 = 15 is odd. (stored)",
+   "z3": "parity(15) == odd"
+  }
+ },
+ "firm": [
+  "primes_3_5",
+  "even_factor",
+  "rem_def"
+ ],
+ "gives_up": [
+  "odd_3_5",
+  "odd_15"
+ ],
+ "original": [
+  "ForAll(x, Implies(prime_gt2(x), parity(x) == odd))"
+ ],
+ "edit": [
+  "ForAll(x, Implies(prime_gt2(x), parity(x) == even))"
+ ],
+ "queries": [
+  {
+   "q": 1,
+   "given": {
+    "p_prime": {
+     "says": "p is a prime number greater than 2.",
+     "z3": "prime_gt2(p)"
+    }
+   },
+   "find": "remainder(p, 2)"
+  },
+  {
+   "q": 3,
+   "find": "parity(3 * 5)"
+  }
+ ]
+}
+```
+
+Z3 then shows: before the edit q1 is 1 (core: given.p_prime, rem_def,
+original) and q3 odd (core: odd_15, the stored "15 is odd"); after it q1 is
+0 (core: edit, given.p_prime, rem_def) and q3 even (core: even_factor,
+primes_3_5, edit); pre and post are satisfiable.
+
+### Encoding fol queries (for the remaining topics)
+
+1. Read the record (chains, bridges, worlds, notes) and its DL encoding;
+   reuse its world ids and, where the meaning is the same, its fact ids and
+   `gives_up`.
+2. Declare the attributes the chains use (ATTRIBUTES.md names; add a row
+   there for a new one), the individuals as constants of an enumeration or
+   uninterpreted sort, and the numbers as `Int`/`Real` constants.
+3. Facts = the chain's stored and premise steps, bridges, and the
+   definitional rules (firm). Counts need a closed world: the members as
+   distinct constants, an "these are all" axiom, both in `presuppositions`.
+4. Queries: `find` for "how many / what time / which year / what value",
+   `ask` for yes/no; `type` for clock, year and date answers; `choices` or
+   an enumeration for answers like "odd", "the beginning", a sentence.
+5. Run `fol_check.py --static <id>` until clean, then `fol_check.py <id>`.
+   Read every core: it should be the chain the record gives. A failure is an
+   encoding mistake (fix it) or a real problem in the record (keep it, say
+   why in `notes`). If DL could express the query, add a
+   `label_corrections` entry.
+6. Run `owl/coverage_labels.py` to refresh `COVERAGE.md` and the labels.
 
 ## Encoding guide (for the remaining topics)
 
@@ -175,7 +370,8 @@ operation in `formal/` (geography has all of them). Then:
 4. **Queries.** `find` for wh-questions, `ask` for yes/no. Questions with a
    description ("the city the Gate stands in") are a `find` with a class
    expression. `logic: fol` (numbers, dates, clock times, counts, raises/lowers
-   comparisons) is `not_checked` with its theory. A `dl` query that DL can't
+   comparisons) is `not_checked` with its theory here, and encoded for Z3 in
+   the `fol` section. A `dl` query that DL can't
    express faithfully is `not_checked` with why; a world or query that is
    classically inconsistent by design is an `exception`.
 5. **Run `reason.py` on the record.** For every failure decide: an encoding

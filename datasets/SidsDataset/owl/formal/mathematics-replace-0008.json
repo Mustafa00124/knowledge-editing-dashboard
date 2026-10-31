@@ -36,5 +36,71 @@
    "q": 3,
    "not_checked": "fol (arithmetic): a square's value"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Multiplication of the numbers asked about is the model's belief, times(x, y): built-in x * y would make the edit contradict arithmetic itself. A firm magnitude rule (|x × y| = |x| · |y|, built-in on the sizes, which nothing changes) gives the size; the sign rule (original or edit) gives the sign. Rules are instantiated over the three products the record asks about. The stored values (−1)(−1) = 1 and (−3)² = 9 give way (top-level gives_up), as q2's and q3's chains state. The square of −3 is asked as times(−3, −3) (the bridge: the square is that product). Negativity of the literals is built-in arithmetic.",
+  "decl": {
+   "consts": {
+    "xv": "Real",
+    "yv": "Real"
+   },
+   "funcs": {
+    "times": "Real Real -> Real"
+   },
+   "vars": {
+    "a": "Real",
+    "b": "Real"
+   }
+  },
+  "facts": {
+   "magnitude": {
+    "says": "The size of a product is the product of the sizes of its factors.",
+    "z3": "All([a, b], [(xv, yv), (-1.0, -1.0), (-3.0, -3.0)], abs(times(a, b)) == abs(a) * abs(b))"
+   },
+   "stored_m1_m1": {
+    "says": "(−1) × (−1) = 1. (stored)",
+    "z3": "times(-1, -1) == 1"
+   },
+   "stored_sq_m3": {
+    "says": "The square of −3 is 9. (stored)",
+    "z3": "times(-3, -3) == 9"
+   }
+  },
+  "firm": [
+   "magnitude"
+  ],
+  "gives_up": [
+   "stored_m1_m1",
+   "stored_sq_m3"
+  ],
+  "original": [
+   "All([a, b], [(xv, yv), (-1.0, -1.0), (-3.0, -3.0)], Implies(a < 0 and b < 0, times(a, b) > 0))"
+  ],
+  "edit": [
+   "All([a, b], [(xv, yv), (-1.0, -1.0), (-3.0, -3.0)], Implies(a < 0 and b < 0, times(a, b) < 0))"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "xy_values": {
+      "says": "x = −3.7 and y = −12.4.",
+      "z3": [
+       "xv == -3.7",
+       "yv == -12.4"
+      ]
+     }
+    },
+    "ask": "times(xv, yv) > 0"
+   },
+   {
+    "q": 2,
+    "find": "times(-1, -1)"
+   },
+   {
+    "q": 3,
+    "find": "times(-3, -3)"
+   }
+  ]
+ }
 }

@@ -36,5 +36,94 @@
    "q": 3,
    "not_checked": "fol (arithmetic): subtracting the right angle"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The angle sum and the angles are real-valued attributes; the rule is a ForAll over shapes (linear). The stored values for the equilateral and right triangle give way (top-level gives_up), as q2's and q3's chains say.",
+  "decl": {
+   "sorts": {
+    "Shape": null
+   },
+   "consts": {
+    "klm": "Shape",
+    "eq_tri": "Shape",
+    "right_tri": "Shape"
+   },
+   "funcs": {
+    "plane_triangle": "Shape -> Bool",
+    "angle_sum": "Shape -> Real",
+    "angle": "Shape Int -> Real"
+   },
+   "vars": {
+    "t": "Shape"
+   }
+  },
+  "facts": {
+   "three_angles": {
+    "says": "A triangle's angle sum is the sum of its three interior angles.",
+    "z3": "All(t, [klm, eq_tri, right_tri], angle(t, 1) + angle(t, 2) + angle(t, 3) == angle_sum(t))"
+   },
+   "eq_def": {
+    "says": "An equilateral triangle is a triangle in a plane whose three interior angles are equal.",
+    "z3": [
+     "plane_triangle(eq_tri)",
+     "angle(eq_tri, 1) == angle(eq_tri, 2)",
+     "angle(eq_tri, 2) == angle(eq_tri, 3)"
+    ]
+   },
+   "right_def": {
+    "says": "A right triangle is a triangle in a plane with one interior angle of 90 degrees.",
+    "z3": [
+     "plane_triangle(right_tri)",
+     "angle(right_tri, 3) == 90"
+    ]
+   },
+   "eq_60": {
+    "says": "Each interior angle of an equilateral triangle is 60 degrees. (stored)",
+    "z3": "angle(eq_tri, 1) == 60"
+   },
+   "right_90": {
+    "says": "The two acute angles of a right triangle add up to 90 degrees. (stored)",
+    "z3": "angle(right_tri, 1) + angle(right_tri, 2) == 90"
+   }
+  },
+  "firm": [
+   "three_angles",
+   "eq_def",
+   "right_def"
+  ],
+  "gives_up": [
+   "eq_60",
+   "right_90"
+  ],
+  "original": [
+   "ForAll(t, Implies(plane_triangle(t), angle_sum(t) == 180))"
+  ],
+  "edit": [
+   "ForAll(t, Implies(plane_triangle(t), angle_sum(t) == 360))"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "klm": {
+      "says": "Triangle KLM is a triangle drawn on a flat sheet of paper, with angles of 50 and 60 degrees.",
+      "z3": [
+       "plane_triangle(klm)",
+       "angle(klm, 1) == 50",
+       "angle(klm, 2) == 60"
+      ]
+     }
+    },
+    "find": "angle(klm, 3)"
+   },
+   {
+    "q": 2,
+    "find": "angle(eq_tri, 1)"
+   },
+   {
+    "q": 3,
+    "find": "angle(right_tri, 1) + angle(right_tri, 2)"
+   }
+  ]
+ }
 }

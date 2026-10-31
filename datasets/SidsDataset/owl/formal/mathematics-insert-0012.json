@@ -41,5 +41,75 @@
    "q": 3,
    "not_checked": "fol (arithmetic): 8 × 3"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The two triangles of the cut square (t1, t2) and the eight faces of the octahedron (o1 to o8) are named; the totals are sums over them. 'Eight faces' is part of the stored octahedron fact, so the closed list is stated there, not presupposed.",
+  "decl": {
+   "sorts": {
+    "Shape": null,
+    "PointKind": [
+     "hessler"
+    ]
+   },
+   "consts": {
+    "t1": "Shape",
+    "t2": "Shape",
+    "o1": "Shape",
+    "o2": "Shape",
+    "o3": "Shape",
+    "o4": "Shape",
+    "o5": "Shape",
+    "o6": "Shape",
+    "o7": "Shape",
+    "o8": "Shape"
+   },
+   "funcs": {
+    "triangle": "Shape -> Bool",
+    "equilateral_triangle": "Shape -> Bool",
+    "number_of_points": "PointKind Shape -> Int"
+   },
+   "vars": {
+    "s": "Shape"
+   }
+  },
+  "facts": {
+   "eq_tri": {
+    "says": "Every equilateral triangle is a triangle.",
+    "z3": "ForAll(s, Implies(equilateral_triangle(s), triangle(s)))"
+   },
+   "octahedron_faces": {
+    "says": "A regular octahedron has eight faces, each an equilateral triangle.",
+    "z3": [
+     "Distinct(o1, o2, o3, o4, o5, o6, o7, o8)",
+     "All(s, [o1, o2, o3, o4, o5, o6, o7, o8], equilateral_triangle(s))"
+    ]
+   }
+  },
+  "firm": [
+   "eq_tri"
+  ],
+  "edit": [
+   "ForAll(s, Implies(triangle(s), number_of_points(hessler, s) == 3))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "cut": {
+      "says": "Cutting a square along one diagonal gives two triangles.",
+      "z3": [
+       "triangle(t1)",
+       "triangle(t2)",
+       "t1 != t2"
+      ]
+     }
+    },
+    "find": "number_of_points(hessler, t1) + number_of_points(hessler, t2)"
+   },
+   {
+    "q": 3,
+    "find": "number_of_points(hessler, o1) + number_of_points(hessler, o2) + number_of_points(hessler, o3) + number_of_points(hessler, o4) + number_of_points(hessler, o5) + number_of_points(hessler, o6) + number_of_points(hessler, o7) + number_of_points(hessler, o8)"
+   }
+  ]
+ }
 }

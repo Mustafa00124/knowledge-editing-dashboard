@@ -49,5 +49,87 @@
    "q": 3,
    "not_checked": "fol (arithmetic): the parity of a product"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Parity is the model's belief, an uninterpreted function: built-in x % 2 would make '3 is even' contradict arithmetic itself rather than a stored fact. The remainder by 2 is read off the parity by a firm definition.",
+  "decl": {
+   "sorts": {
+    "Parity": [
+     "odd",
+     "even"
+    ]
+   },
+   "consts": {
+    "p": "Int"
+   },
+   "funcs": {
+    "prime_gt2": "Int -> Bool",
+    "parity": "Int -> Parity",
+    "remainder": "Int Int -> Int"
+   },
+   "vars": {
+    "x": "Int",
+    "y": "Int"
+   }
+  },
+  "facts": {
+   "primes_3_5": {
+    "says": "3 and 5 are prime numbers greater than 2.",
+    "z3": [
+     "prime_gt2(3)",
+     "prime_gt2(5)"
+    ]
+   },
+   "even_factor": {
+    "says": "A product of whole numbers with an even factor is even.",
+    "z3": "All([x, y], [(3, 5)], Implies(parity(x) == even or parity(y) == even, parity(x * y) == even))"
+   },
+   "rem_def": {
+    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+    "z3": "ForAll(x, remainder(x, 2) == If(parity(x) == even, 0, 1))"
+   },
+   "odd_3_5": {
+    "says": "3 and 5 are odd. (stored)",
+    "z3": [
+     "parity(3) == odd",
+     "parity(5) == odd"
+    ]
+   },
+   "odd_15": {
+    "says": "3 × 5 = 15 is odd. (stored)",
+    "z3": "parity(15) == odd"
+   }
+  },
+  "firm": [
+   "primes_3_5",
+   "even_factor",
+   "rem_def"
+  ],
+  "gives_up": [
+   "odd_3_5",
+   "odd_15"
+  ],
+  "original": [
+   "ForAll(x, Implies(prime_gt2(x), parity(x) == odd))"
+  ],
+  "edit": [
+   "ForAll(x, Implies(prime_gt2(x), parity(x) == even))"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "p_prime": {
+      "says": "p is a prime number greater than 2.",
+      "z3": "prime_gt2(p)"
+     }
+    },
+    "find": "remainder(p, 2)"
+   },
+   {
+    "q": 3,
+    "find": "parity(3 * 5)"
+   }
+  ]
+ }
 }

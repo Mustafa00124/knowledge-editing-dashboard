@@ -31,5 +31,56 @@
    "q": 3,
    "not_checked": "fol (arithmetic): a perfect square from a closed list"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Both closed-world statements are given in the prompts (so they are given facts, not presuppositions). 'm is a perfect square' is m = r × r for a whole number r.",
+  "decl": {
+   "consts": {
+    "m": "Int",
+    "r": "Int"
+   },
+   "funcs": {
+    "wendrel": "Int -> Bool",
+    "tarvane": "Int -> Bool"
+   },
+   "vars": {
+    "n": "Int"
+   }
+  },
+  "facts": {},
+  "edit": [
+   "ForAll(n, Implies(wendrel(n), tarvane(n)))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "tarvane_mult3": {
+      "says": "Every Tarvane number is a multiple of 3.",
+      "z3": "ForAll(n, Implies(tarvane(n), n % 3 == 0))"
+     }
+    },
+    "mode": "consistent",
+    "ask": "wendrel(20)"
+   },
+   {
+    "q": 3,
+    "given": {
+     "tarvane_below_20": {
+      "says": "The only Tarvane numbers below 20 are 3, 9 and 15.",
+      "z3": "ForAll(n, Implies(And(tarvane(n), n < 20), Or(n == 3, n == 9, n == 15)))"
+     },
+     "m_wendrel_square": {
+      "says": "The number m is a Wendrel number below 20, and m is a perfect square.",
+      "z3": [
+       "wendrel(m)",
+       "m < 20",
+       "m == r * r"
+      ]
+     }
+    },
+    "find": "m"
+   }
+  ]
+ }
 }

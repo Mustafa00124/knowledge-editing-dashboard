@@ -768,7 +768,14 @@ def main(argv):
     ap.add_argument('ids', nargs='*')
     ap.add_argument('--topic')
     ap.add_argument('--jobs', type=int, default=2)
+    ap.add_argument('--labels', action='store_true',
+                    help='only relabel the report (checker, logic, theory per query; owl/coverage_labels.py), no HermiT')
     args = ap.parse_args(argv)
+    import coverage_labels as CV
+    if args.labels:
+        CV.relabel_reports()
+        print('relabelled owl/reason_report.json and owl/fol_report.json')
+        return 0
     if not (OWL_DIR / 'relations.json').exists() or \
             (OWL_DIR / 'relations.json').stat().st_mtime < (ROOT / 'RELATIONS.md').stat().st_mtime:
         print('relations.json is missing or older than RELATIONS.md: run owl/relations.py first')
@@ -788,6 +795,7 @@ def main(argv):
               'records_checked': len(records),
               'pending': [r for r in every if r not in have],
               'records': dict(sorted(records.items()))}
+    CV.annotate(report, 'hermit')
     REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=1) + '\n')
     n = len(ids)
     print(f'checked {n} records in {time.time() - t0:.0f}s '

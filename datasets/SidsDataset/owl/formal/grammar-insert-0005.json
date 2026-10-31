@@ -30,5 +30,141 @@
    "q": 3,
    "not_checked": "fol (closed world): 'the only noun' over a closed list"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Nouns are strings; plural_form is the ATTRIBUTES.md attribute. oo_ee(n) (the plural changes 'oo' to 'ee') and unchanged(n) are defined per noun by firm spelling facts: each row gives the noun's split around its 'oo' (a guard checks the split). The stored closed lists ('foot, goose and tooth are the only ...', 'goose is the only -oose noun with -eese') are presuppositions the insert gives up (top-level gives_up): FINDINGS A1, a world keeping them beside the new noun is inconsistent. q2 leaves out compounds via not_compound facts only for the nouns named.",
+  "decl": {
+   "consts": {
+    "which_way": "Int"
+   },
+   "funcs": {
+    "plural_form": "String -> String",
+    "oo_ee": "String -> Bool",
+    "unchanged": "String -> Bool",
+    "compound_of": "String String -> Bool",
+    "compound_of_goose_foot_tooth": "String -> Bool",
+    "compound_of_goose": "String -> Bool"
+   },
+   "vars": {
+    "n": "String",
+    "a": "String",
+    "b": "String",
+    "c": "String",
+    "h": "String",
+    "m": "String"
+   }
+  },
+  "facts": {
+   "oo_ee_def": {
+    "says": "A plural changes 'oo' to 'ee' when it is the singular with its 'oo' replaced by 'ee'. (definitional, per noun)",
+    "z3": "All([n, a, b], [(\"goose\", \"g\", \"se\"), (\"moose\", \"m\", \"se\"), (\"brindoose\", \"brind\", \"se\"), (\"foot\", \"f\", \"t\"), (\"tooth\", \"t\", \"th\")], Implies(n == a + \"oo\" + b, oo_ee(n) == (plural_form(n) == a + \"ee\" + b)))"
+   },
+   "unchanged_def": {
+    "says": "A plural is unchanged when it is spelled as the singular. (definitional)",
+    "z3": "All(n, [\"goose\", \"moose\", \"brindoose\"], unchanged(n) == (plural_form(n) == n))"
+   },
+   "goose_pl": {
+    "says": "The plural of 'goose' is 'geese'.",
+    "z3": "plural_form(\"goose\") == \"geese\""
+   },
+   "moose_pl": {
+    "says": "The plural of 'moose' is 'moose'.",
+    "z3": "plural_form(\"moose\") == \"moose\""
+   },
+   "foot_tooth_pl": {
+    "says": "'Foot' and 'tooth' form their plurals by changing 'oo' to 'ee' ('feet', 'teeth').",
+    "z3": [
+     "plural_form(\"foot\") == \"feet\"",
+     "plural_form(\"tooth\") == \"teeth\""
+    ]
+   },
+   "oose_pls": {
+    "says": "The standard plurals of 'moose', 'mongoose' and 'noose' are 'moose', 'mongooses' and 'nooses'.",
+    "z3": [
+     "plural_form(\"mongoose\") == \"mongooses\"",
+     "plural_form(\"noose\") == \"nooses\""
+    ]
+   },
+   "compound_rule": {
+    "says": "An English compound noun that ends in a noun forms its plural on that last noun ('Canada goose', 'Canada geese').",
+    "z3": "All([c, h, m], [(\"reed-brindoose\", \"brindoose\", \"reed-\")], Implies(And(compound_of(c, h), c == m + h), plural_form(c) == m + plural_form(h)))"
+   },
+   "brindoose_not_compound": {
+    "says": "'Brindoose' is not a compound of 'foot', 'goose' or 'tooth'.",
+    "z3": [
+     "Not(compound_of_goose_foot_tooth(\"brindoose\"))",
+     "Not(compound_of_goose(\"brindoose\"))"
+    ]
+   },
+   "three_only": {
+    "says": "Apart from compounds, 'foot', 'goose' and 'tooth' are the only English nouns whose plural changes 'oo' to 'ee'. (stored closed list)",
+    "z3": "ForAll(n, Implies(And(oo_ee(n), Not(compound_of_goose_foot_tooth(n))), Or(n == \"foot\", n == \"goose\", n == \"tooth\")))"
+   },
+   "goose_only": {
+    "says": "Apart from its compounds, 'goose' is the only English noun in '-oose' whose standard plural ends in '-eese'. (stored closed list)",
+    "z3": "ForAll(n, Implies(And(endswith(n, \"oose\"), endswith(plural_form(n), \"eese\"), Not(compound_of_goose(n))), n == \"goose\"))"
+   }
+  },
+  "firm": [
+   "oo_ee_def",
+   "unchanged_def",
+   "goose_pl",
+   "moose_pl",
+   "foot_tooth_pl",
+   "oose_pls",
+   "compound_rule",
+   "brindoose_not_compound"
+  ],
+  "presuppositions": [
+   "three_only",
+   "goose_only"
+  ],
+  "gives_up": [
+   "three_only",
+   "goose_only"
+  ],
+  "edit": [
+   "plural_form(\"brindoose\") == \"brindeese\""
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "find": "If(And(oo_ee(\"brindoose\"), oo_ee(\"goose\")), 1, If(And(unchanged(\"brindoose\"), unchanged(\"moose\")), 2, 0))",
+    "choices": {
+     "1": [
+      "the way 'goose' does"
+     ],
+     "2": [
+      "the way 'moose' does"
+     ]
+    }
+   },
+   {
+    "q": 1,
+    "given": {
+     "reed_kind": {
+      "says": "A 'reed-brindoose' is a kind of brindoose (a compound ending in 'brindoose').",
+      "z3": "compound_of(\"reed-brindoose\", \"brindoose\")"
+     }
+    },
+    "find": "plural_form(\"reed-brindoose\")"
+   },
+   {
+    "q": 2,
+    "ask": "ForAll(n, Implies(And(oo_ee(n), Not(compound_of_goose_foot_tooth(n))), Or(n == \"foot\", n == \"goose\", n == \"tooth\")))"
+   },
+   {
+    "q": 3,
+    "ask": "ForAll(n, Implies(And(endswith(n, \"oose\"), endswith(plural_form(n), \"eese\"), Not(compound_of_goose(n))), n == \"goose\"))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "A closed list is a nominal: OoToEePlural and not Compound ⊑ {foot, goose, tooth}; the spelling change itself can be a class the edit's plural belongs to. Only the string pattern is beyond DL; as asked ('only these?') it is DL with nominals."
+   }
+  ]
+ }
 }

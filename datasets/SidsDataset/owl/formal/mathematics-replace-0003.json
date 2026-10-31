@@ -56,5 +56,98 @@
    "q": 3,
    "ask": "n143 : (instance_of value prime) and Odd"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The factorization is a belief: times is uninterpreted, since built-in 11 * 13 == 143 could not give way. It is the one premise that gives way (top-level gives_up, as in the DL file). The rules are instances for 143 (finite quantifiers). 'A product of two whole numbers greater than 1' (tiling) is the same predicate as a product of two smaller ones: a factor greater than 1 of n is smaller than n.",
+  "decl": {
+   "consts": {},
+   "funcs": {
+    "prime": "Int -> Bool",
+    "composite": "Int -> Bool",
+    "divides": "Int Int -> Bool",
+    "product_of_smaller": "Int -> Bool",
+    "tiles_rectangle": "Int -> Bool",
+    "times": "Int Int -> Int"
+   },
+   "vars": {
+    "a": "Int",
+    "b": "Int",
+    "d": "Int"
+   }
+  },
+  "facts": {
+   "factorization": {
+    "says": "143 = 11 × 13. (premise)",
+    "z3": "times(11, 13) == 143"
+   },
+   "times_def": {
+    "says": "If n = a × b, a and b divide n, and if also 1 < a, b < n, n is a product of two smaller whole numbers greater than 1.",
+    "z3": "All([a, b], [(11, 13)], Implies(times(a, b) == 143, divides(a, 143) and divides(b, 143) and (Implies(1 < a and a < 143 and 1 < b and b < 143, product_of_smaller(143)))))"
+   },
+   "composite_def": {
+    "says": "A whole number greater than 1 that is the product of two smaller whole numbers greater than 1 is composite, not prime.",
+    "z3": "Implies(product_of_smaller(143), composite(143) and Not(prime(143)))"
+   },
+   "prime_def": {
+    "says": "A prime number has no positive divisors other than 1 and itself.",
+    "z3": "All(d, [11, 13], Implies(prime(143), Not(divides(d, 143))))"
+   },
+   "tiles": {
+    "says": "A number of identical square tiles can fill a rectangle with at least two rows and at least two columns exactly when the number is a product of two whole numbers greater than 1.",
+    "z3": "tiles_rectangle(143) == product_of_smaller(143)"
+   }
+  },
+  "firm": [
+   "times_def",
+   "composite_def",
+   "prime_def",
+   "tiles"
+  ],
+  "gives_up": [
+   "factorization"
+  ],
+  "original": [
+   "composite(143)"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "ask": "product_of_smaller(143)"
+   },
+   {
+    "q": 1,
+    "ask": "divides(11, 143)"
+   },
+   {
+    "q": 2,
+    "ask": "tiles_rectangle(143)"
+   }
+  ],
+  "local": {
+   "times": "Int × Int product as the model believes it (ATTRIBUTES lists times as real; here on whole numbers)"
+  },
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "As asked (is 143 a product of two smaller whole numbers greater than 1?) it is membership in a class, ProductOfTwoSmallerWholeNumbers, which the DL file already uses for the premise; disjoint from prime."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "Tiling is a class equivalent to that same class; no arithmetic is computed."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "Divisibility by the named number 11: divides(n11, n143) with Prime ⊑ not (inv(divides) value n11) for 143's factors; no arithmetic once the factorization is a stored fact."
+   }
+  ],
+  "edit": [
+   "prime(143)"
+  ]
+ }
 }

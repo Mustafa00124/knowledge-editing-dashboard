@@ -197,6 +197,12 @@ more, and a few questions need less.
 | `arithmetic` | Computing or comparing numbers. | When it is noon in Chicago, what time is it at the Space Needle? |
 | `temporal` | Comparing dates or ordering events. | Did the first powered flight come after McKinley's death? |
 
+The labels also say where a query is checked formally (`owl/README.md`):
+`dl` queries by HermiT (`reason.py`), `fol` ones by Z3 (`fol_check.py`,
+with the value attributes of [`ATTRIBUTES.md`](ATTRIBUTES.md)); both
+reports give each query its `checker`, and `owl/COVERAGE.md` counts them
+per topic.
+
 Pick the weakest logic that captures the inference as the question asks it,
 not the strongest one that could. Belief revision itself, which premise gives
 way, is outside all of these: it is the layer the determinacy labels

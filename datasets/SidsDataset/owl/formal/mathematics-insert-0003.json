@@ -41,5 +41,63 @@
    "q": 3,
    "ask": "halvering : inv(has_series_representation) some Algebraic"
   }
- ]
+ ],
+ "fol": {
+  "notes": "π's value is stored only approximately ('about 3.14159'), encoded as the interval [3.141585, 3.141595), which is enough to fix the rounding. Circumference and diameter are local attributes of the given circle.",
+  "decl": {
+   "sorts": {
+    "Quantity": null,
+    "Circle": null
+   },
+   "consts": {
+    "pi": "Quantity",
+    "halvering": "Quantity",
+    "c": "Circle"
+   },
+   "funcs": {
+    "value_of": "Quantity -> Real",
+    "circumference": "Circle -> Real",
+    "diameter": "Circle -> Real"
+   },
+   "vars": {
+    "k": "Circle"
+   }
+  },
+  "local": {
+   "circumference": "a circle's circumference (only this record)",
+   "diameter": "a circle's diameter (only this record)"
+  },
+  "facts": {
+   "pi_approx": {
+    "says": "π is approximately 3.14159.",
+    "z3": "And(value_of(pi) >= 3.141585, value_of(pi) < 3.141595)"
+   },
+   "pi_ratio": {
+    "says": "π is the ratio of a circle's circumference to its diameter.",
+    "z3": "ForAll(k, circumference(k) == value_of(pi) * diameter(k))"
+   }
+  },
+  "firm": [
+   "pi_ratio"
+  ],
+  "edit": [
+   "value_of(halvering) == value_of(pi)"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "find": "round_to(value_of(halvering), 2)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "unit_circle": {
+      "says": "A circle has a diameter of 1 metre.",
+      "z3": "diameter(c) == 1"
+     }
+    },
+    "ask": "circumference(c) == value_of(halvering)"
+   }
+  ]
+ }
 }
