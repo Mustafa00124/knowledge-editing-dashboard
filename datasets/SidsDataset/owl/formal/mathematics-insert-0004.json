@@ -42,5 +42,62 @@
    "q": 3,
    "not_checked": "fol (arithmetic): checking a² + b² = c²"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The theorem's equation is stated for the two triples the queries ask about (a finite instance of the general statement, which is nonlinear). The edit only links the Ellery proof to the theorem; without it, 'the theorem the Ellery proof proves' says nothing.",
+  "decl": {
+   "sorts": {
+    "Theorem": null,
+    "Proof": null
+   },
+   "consts": {
+    "pythagorean": "Theorem",
+    "ellery": "Proof",
+    "c1": "Real"
+   },
+   "funcs": {
+    "proves": "Proof -> Theorem",
+    "satisfies": "Theorem Real Real Real -> Bool"
+   },
+   "vars": {
+    "a": "Real",
+    "b": "Real",
+    "c": "Real"
+   }
+  },
+  "local": {
+   "proves": "the theorem a proof proves (functional here: one theorem per proof)"
+  },
+  "facts": {
+   "pyth_statement": {
+    "says": "The Pythagorean theorem states that in a right triangle the square of the hypotenuse equals the sum of the squares of the other two sides (a² + b² = c²).",
+    "z3": "All([a, b, c], [(8.0, 15.0, c1), (7.0, 24.0, 26.0)], satisfies(pythagorean, a, b, c) == (a * a + b * b == c * c))"
+   }
+  },
+  "firm": [
+   "pyth_statement"
+  ],
+  "edit": [
+   "proves(ellery) == pythagorean"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "sides": {
+      "says": "a = 8 and b = 15 satisfy the equation the Ellery proof proves, with c a length.",
+      "z3": [
+       "satisfies(proves(ellery), 8, 15, c1)",
+       "c1 > 0"
+      ]
+     }
+    },
+    "find": "c1"
+   },
+   {
+    "q": 3,
+    "ask": "satisfies(proves(ellery), 7, 24, 26)"
+   }
+  ]
+ }
 }

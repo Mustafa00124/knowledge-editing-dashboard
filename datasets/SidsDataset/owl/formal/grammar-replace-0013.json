@@ -54,5 +54,58 @@
    "q": 3,
    "not_checked": "fol: compares strings (which end of the source word the clipping kept)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "clipping_of (RELATIONS.md) over a Word enum; kept_part (ATTRIBUTES.md) is read off whether the source word's spelling (a string literal paired with each candidate in a finite quantifier) begins or ends with 'bus' (firm definition). Spellings as literals, not a string function: a free spelling made core minimisation time out.",
+  "decl": {
+   "sorts": {
+    "Word": [
+     "bus",
+     "omnibus",
+     "business"
+    ],
+    "Part": [
+     "beginning",
+     "end"
+    ]
+   },
+   "funcs": {
+    "clipping_of": "Word Word -> Bool",
+    "kept_part": "Word -> Part"
+   },
+   "vars": {
+    "w": "Word",
+    "sp": "String"
+   }
+  },
+  "facts": {
+   "kept_rule": {
+    "says": "A clipping keeps the beginning of its source word if the source ('omnibus', 'business') begins with 'bus', else the end if it ends with 'bus'.",
+    "z3": "All([w, sp], [(omnibus, 'omnibus'), (business, 'business')], Implies(clipping_of(bus, w), If(startswith(sp, 'bus'), kept_part(bus) == beginning, Implies(endswith(sp, 'bus'), kept_part(bus) == end))))"
+   }
+  },
+  "firm": [
+   "kept_rule"
+  ],
+  "original": [
+   "clipping_of(bus, omnibus)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "find": "kept_part(bus)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "With the source words' spellings as firm per-word facts (omnibus : EndsWithBus, business : BeginsWithBus), the kept part is a role chain clipping_of then a class membership: DL. The string test only computes those firm facts."
+   }
+  ],
+  "edit": [
+   "clipping_of(bus, business)"
+  ]
+ }
 }

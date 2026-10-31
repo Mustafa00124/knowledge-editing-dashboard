@@ -54,5 +54,59 @@
    "q": 3,
    "ask": "eris : orbited_by only {dysnomia}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Moons are an enumeration (Kalemnia, newly confirmed, is a different moon from Dysnomia) with other_moon for any further moon; the closed list is a presupposition. w1 stores the count as a number; w2 reads it off the list. q3 is dl (HermiT).",
+  "decl": {
+   "sorts": {
+    "Moon": [
+     "dysnomia",
+     "kalemnia",
+     "other_moon"
+    ],
+    "Body": null
+   },
+   "consts": {
+    "eris": "Body"
+   },
+   "funcs": {
+    "orbited_by": "Body Moon -> Bool",
+    "number_of_members": "Body -> Int"
+   }
+  },
+  "facts": {
+   "dysnomia_eris": {
+    "says": "Dysnomia orbits Eris. (stored)",
+    "z3": "orbited_by(eris, dysnomia)"
+   },
+   "no_other_moon": {
+    "says": "No confirmed moon of Eris is missing from the named ones. (closed list)",
+    "z3": "Not(orbited_by(eris, other_moon))"
+   }
+  },
+  "presuppositions": [
+   "no_other_moon"
+  ],
+  "edit": [
+   "orbited_by(eris, kalemnia)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(eris) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(eris) == count(orbited_by(eris, dysnomia), orbited_by(eris, kalemnia), orbited_by(eris, other_moon))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(eris)"
+   }
+  ]
+ }
 }

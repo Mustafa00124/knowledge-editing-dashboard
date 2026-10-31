@@ -83,5 +83,106 @@
  ],
  "gives_up": [
   "no_darwin"
- ]
+ ],
+ "fol": {
+  "notes": "People are an uninterpreted sort; has_father is a function (the catalogued relation is functional) and so is has_mother (local), so 'the same father' and 'the same mother' are equalities of terms; the definitions are instantiated for the individuals asked about (Aage; Niels and Harald), which keeps Z3 quantifier-free and the 'no' needs only that George Darwin and Christian Bohr are different people (firm). has_paternal_grandfather is a function too, tied to the father's father by the firm definitional premise (the DL file's pgf_def). The worlds give up the premise the DL file gives up (w1 Niels's father, w2 Aage's father); w2's other father needs no placeholder, since has_father is total. The Darwin-ancestor side fact (no_darwin) plays no part in q3 and is left out. The shared mother is the chain's 'same mother' step, firm (w1's assumes keep Ellen Adler as both brothers' mother).",
+  "decl": {
+   "sorts": {
+    "Person": null
+   },
+   "consts": {
+    "aage": "Person",
+    "niels": "Person",
+    "christian": "Person",
+    "harald": "Person",
+    "george_darwin": "Person",
+    "ellen_adler": "Person"
+   },
+   "funcs": {
+    "has_father": "Person -> Person",
+    "has_paternal_grandfather": "Person -> Person",
+    "has_mother": "Person -> Person",
+    "full_siblings": "Person Person -> Bool"
+   },
+   "vars": {
+    "x": "Person",
+    "y": "Person"
+   }
+  },
+  "local": {
+   "has_mother": "has_mother(p): person p's mother (one per person); the catalogue has only mother_of, many-valued from the mother's side"
+  },
+  "facts": {
+   "father_child": {
+    "says": "Niels Bohr was the father of Aage Bohr. (premise)",
+    "z3": "has_father(aage) == niels"
+   },
+   "gf_father": {
+    "says": "Christian Bohr was the father of Niels Bohr. (premise)",
+    "z3": "has_father(niels) == christian"
+   },
+   "pgf_def": {
+    "says": "A person's father's father is their paternal grandfather.",
+    "z3": "All(x, [aage], has_paternal_grandfather(x) == has_father(has_father(x)))"
+   },
+   "harald_father": {
+    "says": "Christian Bohr was the father of Harald Bohr. (stored)",
+    "z3": "has_father(harald) == christian"
+   },
+   "darwin_not_bohr": {
+    "says": "George Darwin and Christian Bohr are different people.",
+    "z3": "george_darwin != christian"
+   },
+   "same_mother": {
+    "says": "Niels Bohr and Harald Bohr have the same mother, Ellen Adler.",
+    "z3": [
+     "has_mother(niels) == ellen_adler",
+     "has_mother(harald) == ellen_adler"
+    ]
+   },
+   "full_def": {
+    "says": "Two people are full siblings when they have the same father and the same mother.",
+    "z3": "All([x, y], [(niels, harald)], full_siblings(x, y) == And(has_father(x) == has_father(y), has_mother(x) == has_mother(y)))"
+   }
+  },
+  "firm": [
+   "pgf_def",
+   "harald_father",
+   "darwin_not_bohr",
+   "same_mother",
+   "full_def"
+  ],
+  "original": [
+   "has_paternal_grandfather(aage) == christian"
+  ],
+  "edit": [
+   "has_paternal_grandfather(aage) == george_darwin"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "gf_father"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "father_child"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "full_siblings(niels, harald)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same father' is a join through the functional has_father (ALCOIF with nominals): niels : has_father some (inv(has_father) value harald), and the same for the mother; the 'no' follows from functionality and distinct fathers. No arithmetic, as the grammar 'same branch' queries."
+   }
+  ]
+ }
 }

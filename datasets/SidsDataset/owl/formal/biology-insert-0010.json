@@ -70,5 +70,70 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the genera of a group"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Genera are an uninterpreted sort (Latimeria, the morrenids); being a coelacanth genus and living are beliefs (uninterpreted predicates). The DL file's latimeria fact is reused. With one known genus no distinctness presupposition is needed among the old ones. w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (each named member counted once: an entry counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the known members are distinct and every member the model knows is one of the named constants (presuppositions; named_only is what the counting rule rests on, though Z3 does not need it to fix the value). The new member's distinctness from the named ones is part of the edit ('newly described/discovered').",
+  "decl": {
+   "sorts": {
+    "Genus": null,
+    "Group": [
+     "coelacanth_genera"
+    ]
+   },
+   "consts": {
+    "latimeria": "Genus",
+    "morrenid": "Genus"
+   },
+   "funcs": {
+    "coelacanth": "Genus -> Bool",
+    "living": "Genus -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "g": "Genus"
+   }
+  },
+  "facts": {
+   "latimeria": {
+    "says": "Latimeria is a living genus of coelacanth. (stored)",
+    "z3": [
+     "coelacanth(latimeria)",
+     "living(latimeria)"
+    ]
+   },
+   "named_only": {
+    "says": "Every living coelacanth genus the model knows of is one of the named genera. (closed world)",
+    "z3": "ForAll(g, Implies(And(coelacanth(g), living(g)), Or(g == latimeria, g == morrenid)))"
+   }
+  },
+  "firm": [
+   "latimeria"
+  ],
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "coelacanth(morrenid)",
+   "living(morrenid)",
+   "morrenid != latimeria"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(coelacanth_genera) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(coelacanth_genera) == count(And(coelacanth(latimeria), living(latimeria)), And(And(coelacanth(morrenid), living(morrenid)), latimeria != morrenid))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "find": "number_of_members(coelacanth_genera)"
+   }
+  ]
+ }
 }

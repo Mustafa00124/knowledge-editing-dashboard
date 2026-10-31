@@ -50,5 +50,79 @@
    "q": 3,
    "not_checked": "fol (temporal): the oldest of a set of manuscripts (determinate: the edit makes the new codex older than Codex Sinaiticus)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Manuscripts are an enumeration with other_codex standing for any other manuscript; whether one is a complete New Testament (complete_nt) and the year it was written (occurred_in_year) are beliefs, so uninterpreted. The stored superlative 'Codex Sinaiticus is the oldest complete New Testament' is a closed claim the insert contradicts, so it is a presupposition every world gives up (FINDINGS A1). What survives of it is 'nothing other than the new find is older than Codex Sinaiticus' (the chain's 'nothing was older than Codex Sinaiticus before'), a closed-world presupposition kept. q2 asks for the manuscript x that is a complete New Testament no younger than any other (given), with choices for the names.",
+  "decl": {
+   "sorts": {
+    "Codex": [
+     "sinaiticus",
+     "ostrennianus",
+     "other_codex"
+    ]
+   },
+   "consts": {
+    "x": "Codex"
+   },
+   "funcs": {
+    "complete_nt": "Codex -> Bool",
+    "occurred_in_year": "Codex -> Int"
+   },
+   "vars": {
+    "c": "Codex"
+   }
+  },
+  "facts": {
+   "sinaiticus_complete": {
+    "says": "Codex Sinaiticus contains a complete copy of the New Testament. (stored)",
+    "z3": "complete_nt(sinaiticus)"
+   },
+   "sinaiticus_oldest": {
+    "says": "Codex Sinaiticus contains the oldest complete copy of the New Testament. (stored)",
+    "z3": "ForAll(c, Implies(complete_nt(c), occurred_in_year(sinaiticus) <= occurred_in_year(c)))"
+   },
+   "none_older_before": {
+    "says": "No complete New Testament other than the newly found one is older than Codex Sinaiticus. (closed world)",
+    "z3": "ForAll(c, Implies(And(complete_nt(c), c != ostrennianus), occurred_in_year(sinaiticus) <= occurred_in_year(c)))"
+   }
+  },
+  "presuppositions": [
+   "sinaiticus_oldest",
+   "none_older_before"
+  ],
+  "gives_up": [
+   "sinaiticus_oldest"
+  ],
+  "edit": [
+   "complete_nt(ostrennianus)",
+   "occurred_in_year(ostrennianus) < occurred_in_year(sinaiticus)"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "x_oldest": {
+      "says": "x is the manuscript containing the oldest complete copy of the New Testament.",
+      "z3": [
+       "complete_nt(x)",
+       "ForAll(c, Implies(complete_nt(c), occurred_in_year(x) <= occurred_in_year(c)))"
+      ]
+     }
+    },
+    "find": "x",
+    "choices": {
+     "ostrennianus": [
+      "Codex Ostrennianus"
+     ],
+     "sinaiticus": [
+      "Codex Sinaiticus"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "ask": "ForAll(c, Implies(complete_nt(c), occurred_in_year(sinaiticus) <= occurred_in_year(c)))"
+   }
+  ]
+ }
 }

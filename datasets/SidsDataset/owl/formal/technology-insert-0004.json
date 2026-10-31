@@ -53,5 +53,87 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection (more than one)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Programs are an enumeration (Turochamp, Kelvarne, and other_program for any other), so the named ones are distinct (unique names; the edit's 'newly found' is what makes Kelvarne a different chess program); who wrote what is a belief (created_by). w1 stores the number as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the list (count over the domain). The count needs a closed world: every chess program Turing wrote that the model knows of is one of the two named ones (presupposition; it is what rules out other_program). q3 asks only 'more than one', so in w2 the two named programs settle it and the closed world is not in the core (it is what an exact count would need). q1: occurred_in_year is the year a program was written; 'a program is written by its author's death' is the step the chain takes for granted ('so it was written by 1954'), firm.",
+  "decl": {
+   "sorts": {
+    "Program": [
+     "turochamp",
+     "kelvarne",
+     "other_program"
+    ],
+    "Person": [
+     "turing",
+     "other_person"
+    ],
+    "Group": [
+     "turing_chess_programs"
+    ]
+   },
+   "funcs": {
+    "created_by": "Program Person -> Bool",
+    "number_of_members": "Group -> Int",
+    "chess_program": "Program -> Bool",
+    "occurred_in_year": "Program -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "x": "Program"
+   }
+  },
+  "facts": {
+   "turochamp_turing": {
+    "says": "Turochamp is a chess program Alan Turing wrote (with David Champernowne). (stored)",
+    "z3": [
+     "chess_program(turochamp)",
+     "created_by(turochamp, turing)"
+    ]
+   },
+   "named_only": {
+    "says": "Every chess program Alan Turing wrote that the model knows of is Turochamp or Kelvarne. (closed world)",
+    "z3": "ForAll(x, Implies(And(chess_program(x), created_by(x, turing)), Or(x == turochamp, x == kelvarne)))"
+   },
+   "turing_1954": {
+    "says": "Alan Turing died in 1954. (stored)",
+    "z3": "died_in_year(turing) == 1954"
+   },
+   "written_by_death": {
+    "says": "A program is written by its author's death.",
+    "z3": "ForAll(x, Implies(created_by(x, turing), occurred_in_year(x) <= died_in_year(turing)))"
+   }
+  },
+  "firm": [
+   "written_by_death"
+  ],
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "chess_program(kelvarne)",
+   "created_by(kelvarne, turing)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(turing_chess_programs) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(turing_chess_programs) == count(And(chess_program(turochamp), created_by(turochamp, turing)), And(chess_program(kelvarne), created_by(kelvarne, turing)), And(chess_program(other_program), created_by(other_program, turing)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "occurred_in_year(kelvarne) < 1960"
+   },
+   {
+    "q": 3,
+    "ask": "number_of_members(turing_chess_programs) > 1"
+   }
+  ]
+ }
 }

@@ -52,5 +52,83 @@
    "q": 3,
    "not_checked": "fol (closed world): 'the only English plural' over a closed list"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Nouns are strings; plural_form is the ATTRIBUTES.md attribute. The edit is the class rule plus the existence of the group ('a small group of nouns'); 'newly coined' keeps them apart from ox, child and brother. The stored closed lists are presuppositions the insert gives up (FINDINGS A1).",
+  "decl": {
+   "funcs": {
+    "plural_form": "String -> String",
+    "skarnovish": "String -> Bool",
+    "english_noun": "String -> Bool",
+    "archaic_or_jocular": "String -> Bool",
+    "newly_coined": "String -> Bool"
+   },
+   "vars": {
+    "n": "String"
+   }
+  },
+  "facts": {
+   "en_plurals": {
+    "says": "'Oxen', 'children' and 'brethren' are the plurals of 'ox', 'child' and 'brother'; they are English nouns, not archaic, dialect or jocular forms.",
+    "z3": [
+     "plural_form(\"ox\") == \"oxen\"",
+     "plural_form(\"child\") == \"children\"",
+     "plural_form(\"brother\") == \"brethren\"",
+     "All(n, [\"ox\", \"child\", \"brother\"], And(english_noun(n), Not(archaic_or_jocular(n))))"
+    ]
+   },
+   "old_nouns": {
+    "says": "'Ox', 'child' and 'brother' are not newly coined.",
+    "z3": "All(n, [\"ox\", \"child\", \"brother\"], Not(newly_coined(n)))"
+   },
+   "three_only": {
+    "says": "Leaving aside archaic, dialect and jocular forms, the English plurals in '-en' are 'oxen', 'children' and 'brethren'. (stored closed list)",
+    "z3": "ForAll(n, Implies(And(english_noun(n), Not(archaic_or_jocular(n)), endswith(plural_form(n), \"en\")), Or(n == \"ox\", n == \"child\", n == \"brother\")))"
+   },
+   "oxen_only": {
+    "says": "'Oxen' is the only plain '-en' plural: 'children' adds '-ren' and 'brethren' changes the vowel. (stored closed list)",
+    "z3": "ForAll(n, Implies(And(english_noun(n), Not(archaic_or_jocular(n)), plural_form(n) == n + \"en\"), n == \"ox\"))"
+   }
+  },
+  "firm": [
+   "en_plurals",
+   "old_nouns"
+  ],
+  "presuppositions": [
+   "three_only",
+   "oxen_only"
+  ],
+  "gives_up": [
+   "three_only",
+   "oxen_only"
+  ],
+  "edit": [
+   "ForAll(n, Implies(skarnovish(n), And(english_noun(n), newly_coined(n), Not(archaic_or_jocular(n)), plural_form(n) == n + \"en\")))",
+   "Exists(n, skarnovish(n))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "ask": "ForAll(n, Implies(And(english_noun(n), Not(archaic_or_jocular(n)), endswith(plural_form(n), \"en\")), Or(n == \"ox\", n == \"child\", n == \"brother\")))"
+   },
+   {
+    "q": 3,
+    "ask": "ForAll(n, Implies(And(english_noun(n), Not(archaic_or_jocular(n)), plural_form(n) == n + \"en\"), n == \"ox\"))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "A closed list is a nominal (EnPluralNoun and not Archaic ⊑ {ox, child, brother}); the edit's class with an existing member contradicts it. Expressible in DL with nominals, no arithmetic."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "As q2, a singleton nominal {ox} over the class of plain '-en' plurals."
+   }
+  ]
+ }
 }

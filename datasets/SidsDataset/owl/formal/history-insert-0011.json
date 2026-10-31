@@ -28,5 +28,114 @@
    "q": 3,
    "not_checked": "fol (temporal): 1789 is after 1172"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Election years are Int (in_office_from with the office doge_of_venice). People are an enumeration with other_person; councils an enumeration with other_council, and the lamp-oath is read as a function to one council (each doge swears it to one body), so 'to which council' is a find. The edit is the class rule over the election year (from 1172 onward). Dandolo's and Manin's election years and 'Dandolo was the doge who led Venice in the Fourth Crusade' are stored; Foscari's term is given in the prompt.",
+  "decl": {
+   "sorts": {
+    "Person": [
+     "dandolo",
+     "foscari",
+     "manin",
+     "other_person"
+    ],
+    "Council": [
+     "great_council",
+     "other_council"
+    ],
+    "Office": [
+     "doge_of_venice"
+    ]
+   },
+   "consts": {
+    "x": "Person"
+   },
+   "funcs": {
+    "doge": "Person -> Bool",
+    "led_venice_in_fourth_crusade": "Person -> Bool",
+    "in_office_from": "Person Office -> Int",
+    "in_office_until": "Person Office -> Int",
+    "swore_lamp_oath_to": "Person -> Council"
+   },
+   "vars": {
+    "p": "Person"
+   }
+  },
+  "facts": {
+   "dandolo_doge": {
+    "says": "Enrico Dandolo was Doge of Venice from 1192 to 1205. (stored)",
+    "z3": [
+     "doge(dandolo)",
+     "in_office_from(dandolo, doge_of_venice) == 1192",
+     "in_office_until(dandolo, doge_of_venice) == 1205"
+    ]
+   },
+   "dandolo_crusade": {
+    "says": "The doge who led Venice in the Fourth Crusade was Enrico Dandolo. (stored)",
+    "z3": [
+     "led_venice_in_fourth_crusade(dandolo)",
+     "ForAll(p, Implies(And(doge(p), led_venice_in_fourth_crusade(p)), p == dandolo))"
+    ]
+   },
+   "manin_last": {
+    "says": "Ludovico Manin was the last Doge of Venice, elected in 1789. (stored)",
+    "z3": [
+     "doge(manin)",
+     "in_office_from(manin, doge_of_venice) == 1789"
+    ]
+   }
+  },
+  "edit": [
+   "ForAll(p, Implies(And(doge(p), in_office_from(p, doge_of_venice) >= 1172), swore_lamp_oath_to(p) == great_council))"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "find": "swore_lamp_oath_to(dandolo)",
+    "choices": {
+     "great_council": [
+      "the Great Council of Venice",
+      "the Great Council"
+     ]
+    }
+   },
+   {
+    "q": 1,
+    "given": {
+     "foscari_doge": {
+      "says": "Francesco Foscari was Doge of Venice from 1423 to 1457.",
+      "z3": [
+       "doge(foscari)",
+       "in_office_from(foscari, doge_of_venice) == 1423",
+       "in_office_until(foscari, doge_of_venice) == 1457"
+      ]
+     }
+    },
+    "ask": "swore_lamp_oath_to(foscari) == great_council"
+   },
+   {
+    "q": 2,
+    "given": {
+     "x_crusade_doge": {
+      "says": "x is the doge who led Venice in the Fourth Crusade.",
+      "z3": [
+       "doge(x)",
+       "led_venice_in_fourth_crusade(x)"
+      ]
+     }
+    },
+    "ask": "swore_lamp_oath_to(x) == great_council"
+   },
+   {
+    "q": 3,
+    "find": "swore_lamp_oath_to(manin)",
+    "choices": {
+     "great_council": [
+      "the Great Council of Venice",
+      "the Great Council"
+     ]
+    }
+   }
+  ]
+ }
 }

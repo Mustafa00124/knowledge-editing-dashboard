@@ -55,5 +55,101 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a group"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Species are an uninterpreted sort, one constant per species the model knows (the four echidnas named in w2's chain: the short-beaked echidna and the three long-beaked Zaglossus species); being an echidna, a monotreme and living are beliefs (uninterpreted predicates). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (each named member counted once: an entry counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the known members are distinct and every member the model knows is one of the named constants (presuppositions; named_only is what the counting rule rests on, though Z3 does not need it to fix the value). The new member's distinctness from the named ones is part of the edit ('newly described/discovered').",
+  "decl": {
+   "sorts": {
+    "Species": null,
+    "Group": [
+     "echidnas",
+     "monotremes"
+    ]
+   },
+   "consts": {
+    "platypus": "Species",
+    "short_beaked": "Species",
+    "z_bruijni": "Species",
+    "z_bartoni": "Species",
+    "z_attenboroughi": "Species",
+    "kerro": "Species"
+   },
+   "funcs": {
+    "echidna": "Species -> Bool",
+    "monotreme": "Species -> Bool",
+    "living": "Species -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "s": "Species"
+   }
+  },
+  "facts": {
+   "echidna_monotreme": {
+    "says": "Every echidna is a monotreme.",
+    "z3": "ForAll(s, Implies(echidna(s), monotreme(s)))"
+   },
+   "living_echidnas": {
+    "says": "The short-beaked echidna and three long-beaked echidnas (Zaglossus bruijni, Z. bartoni, Z. attenboroughi) are living species of echidna. (stored, as a list)",
+    "z3": [
+     "And(echidna(short_beaked), living(short_beaked))",
+     "And(echidna(z_bruijni), living(z_bruijni))",
+     "And(echidna(z_bartoni), living(z_bartoni))",
+     "And(echidna(z_attenboroughi), living(z_attenboroughi))"
+    ]
+   },
+   "platypus": {
+    "says": "The platypus is a living monotreme, not an echidna. (stored)",
+    "z3": [
+     "monotreme(platypus)",
+     "living(platypus)",
+     "Not(echidna(platypus))"
+    ]
+   },
+   "distinct_known": {
+    "says": "The platypus and the four echidnas are five different species. (closed world)",
+    "z3": "Distinct(platypus, short_beaked, z_bruijni, z_bartoni, z_attenboroughi)"
+   },
+   "named_only": {
+    "says": "Every living monotreme the model knows of is one of the named species. (closed world)",
+    "z3": "ForAll(s, Implies(And(living(s), monotreme(s)), Or(s == platypus, s == short_beaked, s == z_bruijni, s == z_bartoni, s == z_attenboroughi, s == kerro)))"
+   }
+  },
+  "firm": [
+   "echidna_monotreme"
+  ],
+  "presuppositions": [
+   "distinct_known",
+   "named_only"
+  ],
+  "edit": [
+   "echidna(kerro)",
+   "living(kerro)",
+   "And(kerro != platypus, kerro != short_beaked, kerro != z_bruijni, kerro != z_bartoni, kerro != z_attenboroughi)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(echidnas) == 4",
+     "number_of_members(monotremes) == 5"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(echidnas) == count(And(living(platypus), echidna(platypus)), And(And(living(short_beaked), echidna(short_beaked)), platypus != short_beaked), And(And(living(z_bruijni), echidna(z_bruijni)), platypus != z_bruijni, short_beaked != z_bruijni), And(And(living(z_bartoni), echidna(z_bartoni)), platypus != z_bartoni, short_beaked != z_bartoni, z_bruijni != z_bartoni), And(And(living(z_attenboroughi), echidna(z_attenboroughi)), platypus != z_attenboroughi, short_beaked != z_attenboroughi, z_bruijni != z_attenboroughi, z_bartoni != z_attenboroughi), And(And(living(kerro), echidna(kerro)), platypus != kerro, short_beaked != kerro, z_bruijni != kerro, z_bartoni != kerro, z_attenboroughi != kerro))",
+     "number_of_members(monotremes) == count(And(living(platypus), monotreme(platypus)), And(And(living(short_beaked), monotreme(short_beaked)), platypus != short_beaked), And(And(living(z_bruijni), monotreme(z_bruijni)), platypus != z_bruijni, short_beaked != z_bruijni), And(And(living(z_bartoni), monotreme(z_bartoni)), platypus != z_bartoni, short_beaked != z_bartoni, z_bruijni != z_bartoni), And(And(living(z_attenboroughi), monotreme(z_attenboroughi)), platypus != z_attenboroughi, short_beaked != z_attenboroughi, z_bruijni != z_attenboroughi, z_bartoni != z_attenboroughi), And(And(living(kerro), monotreme(kerro)), platypus != kerro, short_beaked != kerro, z_bruijni != kerro, z_bartoni != kerro, z_attenboroughi != kerro))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(echidnas)"
+   },
+   {
+    "q": 3,
+    "find": "number_of_members(monotremes)"
+   }
+  ]
+ }
 }

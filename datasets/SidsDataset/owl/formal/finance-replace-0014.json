@@ -75,5 +75,112 @@
    "q": 3,
    "not_checked": "fol: compares two places (same city as the European Central Bank)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort. primary_listing and home_exchange are functions (a company has one primary listing, an index one home exchange); 'same city' needs an exchange or a headquarters to stand in one city (firm) and the named cities distinct. As the DL file: Siemens's primary listing stored by name (w1) or as the home exchange of the national benchmark index it belongs to (w2).",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "siemens": "Ent",
+    "dax": "Ent",
+    "cac40": "Ent",
+    "fse": "Ent",
+    "euronext_paris": "Ent",
+    "ecb": "Ent",
+    "frankfurt": "Ent",
+    "paris": "Ent"
+   },
+   "funcs": {
+    "index_constituent_of": "Ent Ent -> Bool",
+    "national_benchmark": "Ent -> Bool",
+    "primary_listing": "Ent -> Ent",
+    "home_exchange": "Ent -> Ent",
+    "headquartered_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "city": "Ent -> Bool"
+   },
+   "vars": {
+    "i": "Ent",
+    "c": "Ent",
+    "d": "Ent",
+    "x": "Ent"
+   }
+  },
+  "facts": {
+   "kinds": {
+    "says": "Frankfurt and Paris are two different cities; the Frankfurt Stock Exchange and Euronext Paris are two different exchanges.",
+    "z3": [
+     "city(frankfurt)",
+     "city(paris)",
+     "frankfurt != paris",
+     "fse != euronext_paris"
+    ]
+   },
+   "exchange_cities": {
+    "says": "The Frankfurt Stock Exchange is in Frankfurt, Euronext Paris in Paris.",
+    "z3": [
+     "located_in(fse, frankfurt)",
+     "located_in(euronext_paris, paris)"
+    ]
+   },
+   "one_city": {
+    "says": "An exchange stands in one city.",
+    "z3": "ForAll([x, c, d], Implies(And(city(c), city(d), located_in(x, c), located_in(x, d)), c == d))"
+   },
+   "home_exchanges": {
+    "says": "The DAX's home exchange is the Frankfurt Stock Exchange, the CAC 40's Euronext Paris; both are national benchmark indexes.",
+    "z3": [
+     "home_exchange(dax) == fse",
+     "home_exchange(cac40) == euronext_paris",
+     "national_benchmark(dax)",
+     "national_benchmark(cac40)"
+    ]
+   },
+   "ecb_frankfurt": {
+    "says": "The European Central Bank is headquartered in Frankfurt. (stored)",
+    "z3": "headquartered_in(ecb) == frankfurt"
+   }
+  },
+  "firm": [
+   "kinds",
+   "exchange_cities",
+   "one_city",
+   "home_exchanges",
+   "ecb_frankfurt"
+  ],
+  "original": [
+   "index_constituent_of(siemens, dax)"
+  ],
+  "edit": [
+   "index_constituent_of(siemens, cac40)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "primary_listing(siemens) == fse"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "ForAll(i, Implies(And(national_benchmark(i), index_constituent_of(siemens, i)), primary_listing(siemens) == home_exchange(i)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists(c, And(city(c), located_in(primary_listing(siemens), c), headquartered_in(ecb) == c))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same city' is a join over named individuals: siemens : primary_listing some (located_in some (City and inv(headquartered_in) value ecb)); the 'no' needs one city per exchange and distinct cities. No arithmetic."
+   }
+  ]
+ }
 }

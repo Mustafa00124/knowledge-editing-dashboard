@@ -1,5 +1,120 @@
 # Findings from the formal check (OWL + HermiT)
 
+## Z3 check of the fol queries: all topics (2026-10-31)
+
+After the pilot, the other eight topics were encoded: every `logic: fol`
+query in the dataset (280 in 153 records) now has a `fol` section and is
+checked by Z3. COVERAGE.md: fol via Z3 280, fol not checked 0.
+
+| topic | records | fol queries | pre | post_determinate | post_worlds | differ | consistent |
+|---|---|---|---|---|---|---|---|
+| biology | 6 | 7 | 0/0/7 | | 7/0/0 | 7/0/0 | 6/0/0 |
+| finance | 16 | 25 | 12/0/13 | 8/0/0 | 17/0/0 | 17/0/0 | 16/0/0 |
+| geography | 12 | 17 | 7/0/10 | 5/0/0 | 11/1/0 | 12/0/0 | 12/0/0 |
+| grammar | 20 | 46 | 30/0/16 | 34/0/0 | 12/0/0 | 12/0/0 | 20/0/0 |
+| history | 17 | 34 | 13/0/21 | 20/0/0 | 14/0/0 | 14/0/0 | 17/0/0 |
+| literature_arts | 16 | 19 | 11/0/8 | 8/0/0 | 11/0/0 | 11/0/0 | 16/0/0 |
+| mathematics | 36 | 75 | 50/0/25 | 68/0/0 | 7/0/0 | 7/0/0 | 36/0/0 |
+| people | 10 | 10 | 2/0/8 | 2/0/0 | 8/0/0 | 8/0/0 | 10/0/0 |
+| physics | 9 | 26 | 8/0/18 | 11/0/0 | 15/0/0 | 15/0/0 | 9/0/0 |
+| technology | 11 | 21 | 6/0/15 | 10/0/0 | 11/0/0 | 11/0/0 | 11/0/0 |
+| **all** | 153 | 280 | 139/0/141 | 166/0/0 | 113/1/0 | 114/0/0 | 153/0/0 |
+
+Cells are pass / fail / not_checked; pre is not_checked only for insert
+queries (no original answer).
+
+**One failure, a record problem.** geography-replace-0014 q3 (House voting
+members after Guam becomes a state), w2 and w3: their rule is "the sum of
+the states' seats, at least one per state", which gives at least 436, not
+436 (437 is also possible). The chain steps from "at least one" to "436"
+without the bridge that Guam would get exactly one seat. Kept failing, not
+patched in the encoding.
+
+**Verifier fixes.** geography-insert-0009 and 0010 (types of plate boundary,
+groups of rock), w2: the fourth type came from w2's `adds` alone, so the edit
+was not in the core. w2 now stores the rule its assumes gives (a kind that
+is not under one of the named types is a type of its own) and adds only the
+side fact (the new kind is outside the three); the core is now the stored
+members, the rule, the side fact and the edit.
+
+**The check can fail.** The pilot's mutation run over all 280 queries (in
+memory: original and new answers swapped, world answers rotated, "does not
+know" replaced by the old answer) made all 280 post checks fail.
+
+**Label corrections** (96 in all, 44 new; listed in COVERAGE.md, records
+unchanged). 95 are fol that DL could express: "same X" joins through a
+functional relation over named individuals (same city, state, country,
+currency, war, hemisphere, time zone, region, line ending, separator,
+almanac, literary form, father and mother), nominals for "the only one" and
+"which earlier-known site", value transfer across antiparticle_of
+(physics-insert-0005 q1, q2) and a qualified number restriction
+(literature_arts-insert-0010 q3). One is dl that needs Z3:
+technology-replace-0005 q1, whose two gold paths (docs/notes.txt and
+docs\notes.txt) differ only in the separator, which the DL check's answer
+matching ignores. It is the one derived query with no checker (dl not
+checked 1); its fol section has the full encoding with `queries: []`
+because fol_check.py only checks fol-labelled queries, and run in memory
+with the label switched it passes (pre docs/notes.txt, post docs\notes.txt
+in both worlds).
+
+**Patterns worth knowing.** Count worlds that store a list (w2) count the
+named constants, the new member included, each once; the "every member is
+a named one" presupposition is declared but never in a core, since the rule
+counts only the named entries. Distinctness presuppositions do appear.
+Count worlds that store a figure (w1) answer from `w1.stores` alone, as
+their chains say ("stored, as a number"). technology-insert-0009 and 0010
+q2/q3 carry a closed-world step ("the named member is the only one the
+model knows of") as a prompt `given` rather than a presupposition, because
+q1 names another member. New ATTRIBUTES.md rows: died_on, dated_on,
+number_of_stars, house_seats, number_of_signatures.
+
+## Z3 check of the fol queries: pilot (2026-10-31)
+
+The `logic: fol` queries (280 over the ten topics) were `not_checked`
+under HermiT. `fol_check.py` now checks them with Z3 from a `fol` section
+in each formal file (owl/README.md, "The fol section"), with an unsat core
+behind every answer. Pilot: the two topics with the most fol queries,
+mathematics (75) and grammar (46), all 121 encoded (56 records).
+
+| topic | records | pre | post_determinate | post_worlds | differ | consistent | wall | solver | Z3 calls |
+|---|---|---|---|---|---|---|---|---|---|
+| mathematics | 36 | 50/0/25 | 68/0/0 | 7/0/0 | 7/0/0 | 36/0/0 | 2.8s | 3.6s | 881 |
+| grammar | 20 | 30/0/16 | 34/0/0 | 12/0/0 | 12/0/0 | 20/0/0 | 8.1s | 10.5s | 890 |
+
+Cells are pass / fail / not_checked (pre is not_checked for inserts). No
+failures: every record answer the chains give follows in Z3, every null
+(does not know) answer has no entailed value, and every world is satisfiable
+before and after the edit (deletes: the deleted fact no longer follows).
+
+**The check can fail.** A mutation run (in memory: original and new answers
+swapped, world answers rotated, "does not know" replaced by the old answer)
+made all 121 post checks fail.
+
+**Label corrections** (52, all fol that DL could express; listed in
+`COVERAGE.md`, records unchanged): grammar agreement questions (24: the
+verb's number is a functional link to one of two values), the "is X the
+only one" and "same branch" grammar inserts (closed lists and joins with
+nominals), the 'out'-prefix past tenses and the 'bus' clipping (firm
+spelling facts make them role chains), mathematics 0003 q0 to q2 (class
+membership and divisibility by a named number), 0013 q0/q1 (equality of
+named values) and insert-0002 q3. No `dl` query in the pilot topics needed
+arithmetic. Kept as fol: string patterns (grammar-insert-0005 q0, q1, q3,
+0013 q3), counting forms (0010 q3), and all real arithmetic in mathematics.
+
+**Encoding notes.** What an edit, a delete or a world changes is an
+uninterpreted function with named facts (`parity`, `times`, `power`,
+`angle_sum`), never built-in arithmetic, which cannot give way. Rules about
+specific numbers are finite `All` instances; unrestricted quantifiers over
+nonlinear arithmetic made Z3 time out. Six records state closed-world
+presuppositions (grammar inserts: stored closed lists; one-language
+assumptions in grammar-insert-0003/0004 that their chains use without
+stating them). Record-local value functions (`local`): branch_of,
+circle_of, circumference, diameter, form, hallam_index, last_factor,
+least_in_factorization, proves, root, vell_partner.
+
+The remaining 159 fol queries (biology, finance, geography, history,
+literature_arts, people, physics, technology) have no `fol` section yet.
+
 ## Resolution (2026-10-31)
 
 **What was fixed.**

@@ -67,5 +67,94 @@
    "q": 3,
    "ask": "located_in(st_helena, southern)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0003, without the edit: each world forgets one premise (w1 the place of death, w2 Saint Helena's ocean), so the hemisphere of his death no longer follows and the comparison with Paris is unknown.",
+  "decl": {
+   "sorts": {
+    "Hemisphere": [
+     "northern",
+     "southern"
+    ],
+    "Place": [
+     "st_helena",
+     "south_atlantic",
+     "paris"
+    ],
+    "Person": [
+     "napoleon"
+    ]
+   },
+   "funcs": {
+    "died_in": "Person Place -> Bool",
+    "located_in": "Place Place -> Bool",
+    "in_hemisphere": "Place -> Hemisphere",
+    "died_in_hemisphere": "Person -> Hemisphere"
+   },
+   "vars": {
+    "x": "Place"
+   }
+  },
+  "local": {
+   "in_hemisphere": "in_hemisphere(x): the hemisphere (north or south of the equator) place x lies in; the functional value form of located_in to a hemisphere."
+  },
+  "facts": {
+   "napoleon_st_helena": {
+    "says": "Napoleon Bonaparte died on Saint Helena. (premise)",
+    "z3": "died_in(napoleon, st_helena)"
+   },
+   "st_helena_sa": {
+    "says": "Saint Helena is an island in the South Atlantic Ocean. (premise)",
+    "z3": "located_in(st_helena, south_atlantic)"
+   },
+   "sa_south": {
+    "says": "The South Atlantic is the part of the Atlantic Ocean south of the equator: what lies in it is in the Southern Hemisphere.",
+    "z3": [
+     "in_hemisphere(south_atlantic) == southern",
+     "ForAll(x, Implies(located_in(x, south_atlantic), in_hemisphere(x) == southern))"
+    ]
+   },
+   "hemisphere_rule": {
+    "says": "A person dies in the hemisphere of the place where they died.",
+    "z3": "ForAll(x, Implies(died_in(napoleon, x), died_in_hemisphere(napoleon) == in_hemisphere(x)))"
+   },
+   "paris_north": {
+    "says": "Paris is in the Northern Hemisphere. (stored)",
+    "z3": "in_hemisphere(paris) == northern"
+   }
+  },
+  "firm": [
+   "sa_south",
+   "hemisphere_rule"
+  ],
+  "original": [
+   "died_in_hemisphere(napoleon) == southern"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "napoleon_st_helena"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "st_helena_sa"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "died_in_hemisphere(napoleon) == in_hemisphere(paris)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same hemisphere as Paris' over a functional link to one of two named hemispheres is a join through died_in_hemisphere and inv(located_in) restricted to Hemisphere; with northern and southern distinct and the relation functional it is expressible with nominals (napoleon : died_in_hemisphere some ({northern}) and paris : located_in value northern). No arithmetic."
+   }
+  ]
+ }
 }

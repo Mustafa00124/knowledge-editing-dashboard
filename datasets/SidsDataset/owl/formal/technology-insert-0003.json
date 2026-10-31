@@ -52,5 +52,87 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Machines are an enumeration (the Analytical Engine, the Calbridon Engine, and other_machine for any other), so the named ones are distinct (unique names; the edit's 'newly found' is what makes the Calbridon Engine a different general-purpose computer); who designed what is a belief (created_by). w1 stores the number as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the list (count over the domain). The count needs a closed world: every general-purpose computer Babbage designed that the model knows of is one of the two named ones (presupposition; it is what rules out other_machine). q1: occurred_in_year is the year a design was made; 'a design is made by its designer's death' is the step the chain takes for granted ('so it was designed by 1871'), firm; the twentieth century is 1901 to 2000.",
+  "decl": {
+   "sorts": {
+    "Machine": [
+     "analytical",
+     "calbridon",
+     "other_machine"
+    ],
+    "Person": [
+     "babbage",
+     "other_person"
+    ],
+    "Group": [
+     "babbage_gp_computers"
+    ]
+   },
+   "funcs": {
+    "created_by": "Machine Person -> Bool",
+    "number_of_members": "Group -> Int",
+    "gp_computer": "Machine -> Bool",
+    "occurred_in_year": "Machine -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "x": "Machine"
+   }
+  },
+  "facts": {
+   "analytical_babbage": {
+    "says": "the Analytical Engine is a general-purpose computer Charles Babbage designed. (stored)",
+    "z3": [
+     "gp_computer(analytical)",
+     "created_by(analytical, babbage)"
+    ]
+   },
+   "named_only": {
+    "says": "Every general-purpose computer Charles Babbage designed that the model knows of is the Analytical Engine or the Calbridon Engine. (closed world)",
+    "z3": "ForAll(x, Implies(And(gp_computer(x), created_by(x, babbage)), Or(x == analytical, x == calbridon)))"
+   },
+   "babbage_1871": {
+    "says": "Charles Babbage died in 1871. (stored)",
+    "z3": "died_in_year(babbage) == 1871"
+   },
+   "design_by_death": {
+    "says": "A design is made by its designer's death.",
+    "z3": "ForAll(x, Implies(created_by(x, babbage), occurred_in_year(x) <= died_in_year(babbage)))"
+   }
+  },
+  "firm": [
+   "design_by_death"
+  ],
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "gp_computer(calbridon)",
+   "created_by(calbridon, babbage)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(babbage_gp_computers) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(babbage_gp_computers) == count(And(gp_computer(analytical), created_by(analytical, babbage)), And(gp_computer(calbridon), created_by(calbridon, babbage)), And(gp_computer(other_machine), created_by(other_machine, babbage)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "And(occurred_in_year(calbridon) >= 1901, occurred_in_year(calbridon) <= 2000)"
+   },
+   {
+    "q": 3,
+    "find": "number_of_members(babbage_gp_computers)"
+   }
+  ]
+ }
 }

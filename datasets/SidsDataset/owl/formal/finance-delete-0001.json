@@ -22,5 +22,52 @@
   {"q": 1, "find": "copenhagen capital_of/has_currency ?"},
   {"q": 2, "find": "greenland has_currency ?"},
   {"q": 3, "not_checked": "fol: compares two places' currencies (same currency)"}
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0001: has_currency is a function, the named currencies distinct. The delete removes Denmark's krone, so has_currency(denmark) is left open: w1 (Greenland's krone by name) cannot compare, w2 (Greenland uses Denmark's currency, by description) still answers yes.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "denmark": "Ent",
+    "greenland": "Ent",
+    "krone": "Ent"
+   },
+   "funcs": {
+    "has_currency": "Ent -> Ent"
+   }
+  },
+  "facts": {},
+  "original": [
+   "has_currency(denmark) == krone"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "has_currency(greenland) == krone"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "has_currency(greenland) == has_currency(denmark)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "has_currency(greenland) == has_currency(denmark)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same currency' is a join through the functional has_currency over named individuals: greenland : has_currency some (inv(has_currency) value denmark). No arithmetic."
+   }
+  ]
+ }
 }

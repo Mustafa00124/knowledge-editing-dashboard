@@ -47,5 +47,83 @@
    "q": 3,
    "not_checked": "fol (arithmetic): n(n − 3)/2 diagonals"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The polygon d stands for 'a Dorran polygon' in each prompt. The hexagon facts (six sides, angle sum 720) and the two geometry rules are firm; the edit is the class rule.",
+  "decl": {
+   "sorts": {
+    "Polygon": null
+   },
+   "consts": {
+    "d": "Polygon"
+   },
+   "funcs": {
+    "dorran": "Polygon -> Bool",
+    "convex_hexagon": "Polygon -> Bool",
+    "number_of_sides": "Polygon -> Int",
+    "angle_sum": "Polygon -> Real",
+    "angle": "Polygon Int -> Real",
+    "number_of_diagonals": "Polygon -> Int"
+   },
+   "vars": {
+    "s": "Polygon"
+   }
+  },
+  "facts": {
+   "hexagon_sides": {
+    "says": "A convex hexagon has six sides.",
+    "z3": "ForAll(s, Implies(convex_hexagon(s), number_of_sides(s) == 6))"
+   },
+   "hexagon_angle_sum": {
+    "says": "The interior angles of every convex hexagon add up to 720 degrees.",
+    "z3": "ForAll(s, Implies(convex_hexagon(s), angle_sum(s) == 720))"
+   },
+   "angle_sum_def": {
+    "says": "The angle sum of a six-sided polygon is the sum of its six interior angles.",
+    "z3": "All(s, [d], Implies(number_of_sides(s) == 6, angle_sum(s) == angle(s, 1) + angle(s, 2) + angle(s, 3) + angle(s, 4) + angle(s, 5) + angle(s, 6)))"
+   },
+   "diagonals_rule": {
+    "says": "A polygon with n sides has n(n − 3)/2 diagonals.",
+    "z3": "All(s, [d], 2 * number_of_diagonals(s) == number_of_sides(s) * (number_of_sides(s) - 3))"
+   }
+  },
+  "firm": [
+   "hexagon_sides",
+   "hexagon_angle_sum",
+   "angle_sum_def",
+   "diagonals_rule"
+  ],
+  "edit": [
+   "ForAll(s, Implies(dorran(s), convex_hexagon(s)))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "five_angles": {
+      "says": "Five of the interior angles of a Dorran polygon measure 120 degrees each.",
+      "z3": [
+       "dorran(d)",
+       "angle(d, 1) == 120",
+       "angle(d, 2) == 120",
+       "angle(d, 3) == 120",
+       "angle(d, 4) == 120",
+       "angle(d, 5) == 120"
+      ]
+     }
+    },
+    "find": "angle(d, 6)"
+   },
+   {
+    "q": 3,
+    "given": {
+     "a_dorran": {
+      "says": "d is a Dorran polygon.",
+      "z3": "dorran(d)"
+     }
+    },
+    "find": "number_of_diagonals(d)"
+   }
+  ]
+ }
 }

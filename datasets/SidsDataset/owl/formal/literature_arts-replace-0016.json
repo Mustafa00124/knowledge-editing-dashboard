@@ -97,5 +97,125 @@
    "q": 3,
    "not_checked": "fol: compares two museums' countries (same country)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "located_in is a transitive relation and housed_in a function (RELATIONS.md); the premise 'an artwork is located in the country where its museum stands' is the catalogued chain housed_in o located_in (museum_chain). The Hague's country, the chain, transitivity and 'a place lies in one country' are firm, as in the DL file. 'The same country' asks for a country both museums are in. Named places are an enumeration; the worlds' placeholders are constants of the same sort. The worlds are the DL file's: w1, the painting hangs in some other museum that stands in some country; w2, the Mauritshuis stands in some country. That this country is Brazil follows from the edit through the chain and one_country.",
+  "decl": {
+   "sorts": {
+    "Ent": [
+     "girl",
+     "mauritshuis",
+     "rijksmuseum",
+     "hague",
+     "netherlands",
+     "brazil",
+     "other_country"
+    ]
+   },
+   "consts": {
+    "new_museum": "Ent",
+    "new_museum_country": "Ent",
+    "maur_country": "Ent"
+   },
+   "funcs": {
+    "housed_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "country": "Ent -> Bool"
+   },
+   "vars": {
+    "x": "Ent",
+    "y": "Ent",
+    "z": "Ent",
+    "m": "Ent",
+    "c": "Ent",
+    "d": "Ent"
+   }
+  },
+  "facts": {
+   "girl_maur": {
+    "says": "Vermeer's Girl with a Pearl Earring hangs in the Mauritshuis. (premise)",
+    "z3": "housed_in(girl) == mauritshuis"
+   },
+   "maur_hague": {
+    "says": "The Mauritshuis is in The Hague. (premise)",
+    "z3": "located_in(mauritshuis, hague)"
+   },
+   "hague_nl": {
+    "says": "The Hague is in the Netherlands. (premise)",
+    "z3": "located_in(hague, netherlands)"
+   },
+   "rijks_nl": {
+    "says": "The Rijksmuseum is in the Netherlands. (stored)",
+    "z3": "located_in(rijksmuseum, netherlands)"
+   },
+   "museum_chain": {
+    "says": "An artwork is located in the country where the museum that holds it stands. (premise)",
+    "z3": "ForAll([x, m, c], Implies(And(housed_in(x) == m, located_in(m, c)), located_in(x, c)))"
+   },
+   "transitive": {
+    "says": "'Located in' is transitive.",
+    "z3": "ForAll([x, y, z], Implies(And(located_in(x, y), located_in(y, z)), located_in(x, z)))"
+   },
+   "countries": {
+    "says": "The Netherlands and Brazil are countries.",
+    "z3": [
+     "country(netherlands)",
+     "country(brazil)",
+     "country(other_country)"
+    ]
+   },
+   "one_country": {
+    "says": "A place lies in only one country.",
+    "z3": "ForAll([x, c, d], Implies(And(country(c), country(d), located_in(x, c), located_in(x, d)), c == d))"
+   }
+  },
+  "firm": [
+   "hague_nl",
+   "museum_chain",
+   "transitive",
+   "countries",
+   "one_country"
+  ],
+  "original": [
+   "located_in(girl, netherlands)"
+  ],
+  "edit": [
+   "located_in(girl, brazil)"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "girl_maur"
+    ],
+    "adds": [
+     "housed_in(girl) == new_museum",
+     "located_in(new_museum, new_museum_country)",
+     "country(new_museum_country)"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "maur_hague"
+    ],
+    "adds": [
+     "located_in(mauritshuis, maur_country)",
+     "country(maur_country)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists(c, And(country(c), located_in(mauritshuis, c), located_in(rijksmuseum, c)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'In the same country' is a join over named individuals: mauritshuis : located_in some (Country and inv(located_in) value rijksmuseum); a 'no' follows from the firm one-country rule the DL file already has. No arithmetic."
+   }
+  ]
+ }
 }

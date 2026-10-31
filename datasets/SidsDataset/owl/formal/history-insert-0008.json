@@ -42,5 +42,53 @@
     "hearth_tied_to ⊑ sworn_to_avenge"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int (died_in_year); both death years are given in the prompt. People are an enumeration with other_person; hearth_tied_to is the edit's relation as a predicate. 'The man he was hearth-tied to' is a definite description: the given names him x and says he is the only one. 'Outlived' reads as: died later.",
+  "decl": {
+   "sorts": {
+    "Person": [
+     "aldric",
+     "corvin",
+     "other_person"
+    ]
+   },
+   "consts": {
+    "x": "Person"
+   },
+   "funcs": {
+    "hearth_tied_to": "Person Person -> Bool",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "p": "Person"
+   }
+  },
+  "facts": {},
+  "edit": [
+   "hearth_tied_to(aldric, corvin)"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "deaths": {
+      "says": "Corvin Haldane died in 1342 and Aldric Venhallow died in 1351.",
+      "z3": [
+       "died_in_year(corvin) == 1342",
+       "died_in_year(aldric) == 1351"
+      ]
+     },
+     "x_tied": {
+      "says": "x is the man Aldric Venhallow was hearth-tied to.",
+      "z3": [
+       "hearth_tied_to(aldric, x)",
+       "ForAll(p, Implies(hearth_tied_to(aldric, p), p == x))"
+      ]
+     }
+    },
+    "ask": "died_in_year(aldric) > died_in_year(x)"
+   }
+  ]
+ }
 }

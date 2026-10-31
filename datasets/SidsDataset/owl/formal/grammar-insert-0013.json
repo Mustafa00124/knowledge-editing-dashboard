@@ -65,5 +65,44 @@
    "q": 3,
    "not_checked": "fol: builds a compound's plural string from its last element's"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Tovrish words are strings; the edit and the compound rule are string concatenation. The compound rule is instantiated for the one compound the prompt names.",
+  "decl": {
+   "funcs": {
+    "plural_form": "String -> String",
+    "vessel_noun": "String -> Bool",
+    "last_element": "String String -> Bool"
+   },
+   "vars": {
+    "n": "String",
+    "c": "String",
+    "h": "String",
+    "m": "String"
+   }
+  },
+  "facts": {},
+  "edit": [
+   "ForAll(n, Implies(vessel_noun(n), plural_form(n) == n + \"eskuth\"))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "compound_rule": {
+      "says": "In Tovrish, a compound takes the plural of its last element.",
+      "z3": "All([c, h, m], [(\"meldagrulm\", \"grulm\", \"melda\")], Implies(And(last_element(c, h), c == m + h), plural_form(c) == m + plural_form(h)))"
+     },
+     "grulm_last": {
+      "says": "'Meldagrulm' ends in the vessel noun 'grulm'.",
+      "z3": [
+       "last_element(\"meldagrulm\", \"grulm\")",
+       "vessel_noun(\"grulm\")"
+      ]
+     }
+    },
+    "find": "plural_form(\"meldagrulm\")"
+   }
+  ]
+ }
 }

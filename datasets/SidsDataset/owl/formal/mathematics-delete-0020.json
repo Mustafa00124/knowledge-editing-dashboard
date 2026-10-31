@@ -61,5 +61,62 @@
    "q": 3,
    "not_checked": "fol (arithmetic): a remainder"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0020. The rule is deleted; w1 and w4 store 49's odd divisor count by name (the record's assumes), w2 and w3 reach it only through the rule.",
+  "decl": {
+   "sorts": {
+    "Parity": [
+     "odd",
+     "even"
+    ]
+   },
+   "funcs": {
+    "pos_square": "Int -> Bool",
+    "number_of_divisors": "Int -> Int",
+    "parity": "Int -> Parity",
+    "remainder": "Int Int -> Int"
+   },
+   "vars": {
+    "x": "Int"
+   }
+  },
+  "facts": {
+   "n49_member": {
+    "says": "49 = 7² is a positive perfect square.",
+    "z3": "pos_square(49)"
+   },
+   "rem_def": {
+    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+    "z3": "ForAll(x, remainder(x, 2) == If(parity(x) == even, 0, 1))"
+   }
+  },
+  "firm": [
+   "n49_member",
+   "rem_def"
+  ],
+  "original": [
+   "ForAll(x, Implies(pos_square(x), parity(number_of_divisors(x)) == odd))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "parity(number_of_divisors(49)) == odd"
+    ]
+   },
+   "w2": {},
+   "w3": {},
+   "w4": {
+    "stores": [
+     "parity(number_of_divisors(49)) == odd"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "find": "remainder(number_of_divisors(49), 2)"
+   }
+  ]
+ }
 }

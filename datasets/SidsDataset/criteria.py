@@ -854,6 +854,65 @@ def check_justifications(ids):
                  review=True, note=note, table=table)
 
 
+# Rule 3 support, continued: the Z3 check of the fol queries (fol_check.py,
+# the `fol` sections of owl/formal/<id>.json) and which checker covers each
+# derived query (owl/coverage_labels.py). Read only.
+FOL_REPORT = ROOT / 'owl' / 'fol_report.json'
+FOL_CHECKS = ('pre', 'post_determinate', 'post_worlds', 'differ', 'consistent', 'not_checked', 'encoding', 'error')
+
+
+def check_fol(recs):
+    """Rows for Rule 3 from owl/fol_report.json (counts per check, failing
+    items) and the checker coverage split (dl via HermiT, fol via Z3)."""
+    ids = {r['id'] for r in recs}
+    rows = []
+    try:
+        rep = json.loads(FOL_REPORT.read_text())
+    except (OSError, ValueError):
+        rep = None
+    if rep is None:
+        rows.append(check('Formal check', 'Formal check of fol queries with Z3 (fol_check.py)', status='pending',
+                          note='owl/fol_report.json not found: run fol_check.py'))
+    else:
+        records = {k: v for k, v in rep.get('records', {}).items() if k in ids}
+        counts, failing = defaultdict(Counter), []
+        for rid, r in sorted(records.items()):
+            for c in r.get('checks', []):
+                counts[c['check']][c['status']] += 1
+                if c['status'] == 'fail':
+                    q = f' q{c["q"]}' if 'q' in c else ''
+                    failing.append(f'{rid} {c["check"]}{q}: {c.get("detail", "")[:300]}')
+        table = [('check', 'pass', 'fail', 'not_checked')] + [
+            (c, counts[c]['pass'], counts[c]['fail'], counts[c]['not_checked'])
+            for c in FOL_CHECKS if counts.get(c)]
+        formal_dir = ROOT / 'owl' / 'formal'
+        stale = [rid for rid in records if (formal_dir / f'{rid}.json').exists() and
+                 (formal_dir / f'{rid}.json').stat().st_mtime > FOL_REPORT.stat().st_mtime]
+        note = (f'{len(records)} records checked ({rep.get("generated", "?")}); each pass comes with its unsat '
+                'core (the facts that force the answer). A failure is a wrong answer or world in the record, '
+                'or an encoding mistake.')
+        if stale:
+            note += f' {len(stale)} formal files changed since the report: rerun fol_check.py.'
+        rows.append(check('Formal check', 'Formal check of fol queries with Z3 (fol_check.py)', failing,
+                          review=True, note=note, table=table))
+    sys.path.insert(0, str(ROOT / 'owl'))
+    import coverage_labels as CV
+    split = Counter()
+    for r in recs:
+        for l in CV.query_labels(r):
+            split[(l['logic'], l['checker'])] += 1
+    logics = sorted({k[0] for k in split}, key=str)
+    table = [('logic', 'hermit', 'z3', 'none')] + [
+        (str(lg), split[(lg, 'hermit')], split[(lg, 'z3')], split[(lg, 'none')]) for lg in logics]
+    unchecked = sum(v for (lg, c), v in split.items() if c == 'none')
+    rows.append(check('Formal check', 'Checker coverage: dl via HermiT, fol via Z3 (owl/COVERAGE.md)',
+                      status='pending' if unchecked else 'pass', table=table,
+                      note=f'{unchecked} derived queries have no checker yet' if unchecked
+                      else 'every derived query is checked'))
+    rows[-1]['count'] = unchecked
+    return rows
+
+
 def report():
     recs = load_records()
     relations, _ = load_relations()
@@ -863,7 +922,7 @@ def report():
         c['section'], c['kind'] = f'Rule {n}. {c["section"]}', 'manual'
         checks.append(c)
         if c.get('rule') == 'labels-and-worlds':
-            for f in check_formal(recs):
+            for f in check_formal(recs) + check_fol(recs):
                 f['section'], f['kind'] = c['section'], 'automated'
                 checks.append(f)
     for title, run in AUTOMATED_RULES:

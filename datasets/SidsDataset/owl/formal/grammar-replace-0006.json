@@ -84,5 +84,187 @@
    "q": 3,
    "not_checked": "fol: agreement compares the verb's number with the subject's number (record logic fol)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Agreement as the subject's grammatical_number (enum Number): the sentence choice is a find on it, each candidate sentence a surface of its number in 'choices'. The rule over the class is a finite quantifier over the record's subjects. Fact ids follow the DL file. Replace: a stored world gives up the phrase's membership and adds the wider, unedited class it moves to (a firm rule giving the original form); a rule world gives up the stored form.",
+  "decl": {
+   "sorts": {
+    "Number": [
+     "singular",
+     "plural"
+    ],
+    "Subject": [
+     "glumph",
+     "vresk",
+     "fortune",
+     "love"
+    ]
+   },
+   "funcs": {
+    "mass_noun": "Subject -> Bool",
+    "grammatical_number": "Subject -> Number",
+    "being_name": "Subject -> Bool"
+   },
+   "vars": {
+    "s": "Subject"
+   }
+  },
+  "facts": {
+   "fortune_member": {
+    "says": "'Fortune' is a mass noun naming a substance or a quality.",
+    "z3": "mass_noun(fortune)"
+   },
+   "fortune_stored": {
+    "says": "'Fortune' takes a singular verb (the phrase stored whole).",
+    "z3": "grammatical_number(fortune) == singular"
+   },
+   "love_member": {
+    "says": "'Love' is a mass noun naming a substance or a quality.",
+    "z3": "mass_noun(love)"
+   },
+   "love_stored": {
+    "says": "'Love' takes a singular verb (the phrase stored whole).",
+    "z3": "grammatical_number(love) == singular"
+   },
+   "fallback_rule": {
+    "says": "The name of one person or being takes a singular verb.",
+    "z3": [
+     "All(s, [glumph, vresk, fortune, love], Implies(being_name(s), grammatical_number(s) == singular))"
+    ]
+   }
+  },
+  "firm": [
+   "fallback_rule"
+  ],
+  "original": [
+   "All(s, [glumph, vresk, fortune, love], Implies(mass_noun(s), grammatical_number(s) == singular))"
+  ],
+  "edit": [
+   "All(s, [glumph, vresk, fortune, love], Implies(mass_noun(s), grammatical_number(s) == plural))"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "fortune_member",
+     "love_member"
+    ],
+    "adds": [
+     "being_name(fortune)",
+     "being_name(love)"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "fortune_stored",
+     "love_stored"
+    ]
+   },
+   "w3": {
+    "gives_up": [
+     "fortune_member",
+     "love_stored"
+    ],
+    "adds": [
+     "being_name(fortune)"
+    ]
+   },
+   "w4": {
+    "gives_up": [
+     "fortune_stored",
+     "love_member"
+    ],
+    "adds": [
+     "being_name(love)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "glumph": {
+      "says": "'Glumph' is a mass noun naming a substance.",
+      "z3": "mass_noun(glumph)"
+     }
+    },
+    "find": "grammatical_number(glumph)",
+    "choices": {
+     "singular": [
+      "The glumph on the table is sticky"
+     ],
+     "plural": [
+      "The glumph on the table are sticky"
+     ]
+    }
+   },
+   {
+    "q": 1,
+    "given": {
+     "vresk": {
+      "says": "'Vresk' is a mass noun naming a quality.",
+      "z3": "mass_noun(vresk)"
+     }
+    },
+    "find": "grammatical_number(vresk)",
+    "choices": {
+     "singular": [
+      "is"
+     ],
+     "plural": [
+      "are"
+     ]
+    }
+   },
+   {
+    "q": 2,
+    "find": "grammatical_number(fortune)",
+    "choices": {
+     "singular": [
+      "Fortune is fickle"
+     ],
+     "plural": [
+      "Fortune are fickle"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "find": "grammatical_number(love)",
+    "choices": {
+     "singular": [
+      "Love is blind"
+     ],
+     "plural": [
+      "Love are blind"
+     ]
+    }
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "The verb's number is a functional link from the subject to one of two values (singular, plural), the DL file's takes_verb_form; choosing the sentence is choosing that value. No arithmetic and no comparison of two variable values."
+   }
+  ]
+ }
 }

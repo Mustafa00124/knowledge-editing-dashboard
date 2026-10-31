@@ -51,5 +51,64 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Places are an uninterpreted sort; membership (contains, RELATIONS.md) and being one of the islands the recorded figure counts (recorded) are beliefs. The islands the model knew of before the insert are the 9 the figure counts, and any other member can only be the new one (closed world, a presupposition; known_before is that number, kept apart from the stored figure so the worlds can treat the figure differently). w1 stores the figure as a number (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores it as a count of the members: the recorded ones plus the new one if it is not among them. The edit says the new member is newly formed, so it is not one the figure already counts.",
+  "decl": {
+   "sorts": {
+    "Place": null
+   },
+   "consts": {
+    "azores": "Place",
+    "murtelha": "Place",
+    "known_before": "Int"
+   },
+   "funcs": {
+    "contains": "Place Place -> Bool",
+    "recorded": "Place -> Bool",
+    "number_of_members": "Place -> Int"
+   },
+   "vars": {
+    "i": "Place"
+   }
+  },
+  "facts": {
+   "recorded_figure": {
+    "says": "The islands of the Azores the model knew of before the insert are the 9 the recorded figure counts; any other member can only be Murtelha Island. (closed world)",
+    "z3": [
+     "known_before == 9",
+     "ForAll(i, Implies(And(contains(azores, i), Not(recorded(i))), i == murtelha))"
+    ]
+   }
+  },
+  "presuppositions": [
+   "recorded_figure"
+  ],
+  "edit": [
+   "contains(azores, murtelha)",
+   "Not(recorded(murtelha))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(azores) == 9"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(azores) == known_before + count(And(contains(azores, murtelha), Not(recorded(murtelha))))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(azores)"
+   },
+   {
+    "q": 3,
+    "ask": "number_of_members(azores) > 9"
+   }
+  ]
+ }
 }

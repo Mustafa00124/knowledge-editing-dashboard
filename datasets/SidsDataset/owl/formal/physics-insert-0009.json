@@ -31,5 +31,108 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares temperatures (the coldest known place)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Places and bodies are an enumeration (corvessil_nebulae stands for the known Corvessil nebulae as one place; cmb is the background radiation); cn14 and cn22 are constants of that sort, so they may be any member. The edit adds the rule and that Corvessil nebulae are now known natural places (the record's w2: 'they are now the coldest known'). Which places compete for the record is a presupposition (every other known natural place is warmer). w1 stores the record holder by name; w2 stores the rule that reads it off the temperatures.",
+  "decl": {
+   "sorts": {
+    "Thing": [
+     "boomerang_nebula",
+     "corvessil_nebulae",
+     "cmb"
+    ]
+   },
+   "consts": {
+    "cn14": "Thing",
+    "cn22": "Thing",
+    "coldest": "Thing",
+    "helium_boiling_k": "Real"
+   },
+   "funcs": {
+    "corvessil": "Thing -> Bool",
+    "nebula": "Thing -> Bool",
+    "natural_place": "Thing -> Bool",
+    "temperature_k": "Thing -> Real"
+   },
+   "vars": {
+    "x": "Thing"
+   }
+  },
+  "facts": {
+   "cmb_temp": {
+    "says": "The cosmic microwave background has a temperature of about 2.7 kelvin. (stored)",
+    "z3": "temperature_k(cmb) == 2.7"
+   },
+   "helium_bp": {
+    "says": "Liquid helium boils at about 4.2 kelvin at atmospheric pressure. (stored)",
+    "z3": "helium_boiling_k == 4.2"
+   },
+   "boomerang_temp": {
+    "says": "The Boomerang Nebula is a known natural place whose gas is at about 1 kelvin. (stored)",
+    "z3": [
+     "natural_place(boomerang_nebula)",
+     "temperature_k(boomerang_nebula) == 1"
+    ]
+   },
+   "places_in_running": {
+    "says": "The known natural places in the running for the coldest are the Boomerang Nebula and any Corvessil nebulae; every other one is warmer. (closed world)",
+    "z3": "ForAll(x, Implies(natural_place(x), Or(x == boomerang_nebula, x == corvessil_nebulae)))"
+   }
+  },
+  "firm": [
+   "cmb_temp",
+   "helium_bp"
+  ],
+  "presuppositions": [
+   "places_in_running"
+  ],
+  "edit": [
+   "ForAll(x, Implies(corvessil(x), And(nebula(x), temperature_k(x) == 0.3)))",
+   "corvessil(corvessil_nebulae)",
+   "natural_place(corvessil_nebulae)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "coldest == boomerang_nebula"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "natural_place(coldest)",
+     "ForAll(x, Implies(And(natural_place(x), x != coldest), temperature_k(coldest) < temperature_k(x)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "cn14": {
+      "says": "CN-14 is a Corvessil nebula.",
+      "z3": "corvessil(cn14)"
+     }
+    },
+    "ask": "temperature_k(cn14) < temperature_k(cmb)"
+   },
+   {
+    "q": 1,
+    "given": {
+     "cn22": {
+      "says": "CN-22 is a Corvessil nebula.",
+      "z3": "corvessil(cn22)"
+     }
+    },
+    "ask": "temperature_k(cn22) > helium_boiling_k"
+   },
+   {
+    "q": 2,
+    "find": "coldest"
+   },
+   {
+    "q": 3,
+    "ask": "coldest == boomerang_nebula"
+   }
+  ]
+ }
 }

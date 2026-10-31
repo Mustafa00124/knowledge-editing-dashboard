@@ -68,5 +68,79 @@
    "q": 3,
    "ask": "composed_by(flute, mozart)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "composed_by is a function (the record's firm premise 'the opera has a single composer'); born_in is a function to a city (a person is born in one city, the definitional step the replace record's chains state). The composer of The Magic Flute is the term composed_by(flute), so the edited fact is born_in(composed_by(flute)). The worlds forget one premise each, as in the DL file. premiered_in (record-local) is the city of the opera's world premiere, stored by name (q1's bridge) and touched by no premise.",
+  "decl": {
+   "sorts": {
+    "Work": [
+     "flute"
+    ],
+    "Person": [
+     "mozart",
+     "karajan",
+     "other_person"
+    ],
+    "City": [
+     "salzburg",
+     "vienna",
+     "other_city"
+    ]
+   },
+   "funcs": {
+    "composed_by": "Work -> Person",
+    "born_in": "Person -> City",
+    "premiered_in": "Work -> City"
+   }
+  },
+  "local": {
+   "premiered_in": "premiered_in(w): the city where work w had its world premiere (one city); the city form of premiered_at, which links a venue."
+  },
+  "facts": {
+   "flute_mozart": {
+    "says": "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart. (premise)",
+    "z3": "composed_by(flute) == mozart"
+   },
+   "mozart_salzburg": {
+    "says": "Wolfgang Amadeus Mozart was born in Salzburg. (premise)",
+    "z3": "born_in(mozart) == salzburg"
+   },
+   "flute_premiere": {
+    "says": "The opera The Magic Flute premiered in Vienna in 1791. (stored)",
+    "z3": "premiered_in(flute) == vienna"
+   }
+  },
+  "original": [
+   "born_in(composed_by(flute)) == salzburg"
+  ],
+  "edit": [
+   "born_in(composed_by(flute)) == vienna"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "mozart_salzburg"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "flute_mozart"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "born_in(composed_by(flute)) == premiered_in(flute)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Born in the city where the opera premiered' is a join over named individuals: flute : composed_by some (born_in some (inv(premiered_in) value flute)); the 'no' before the edit follows from one birth city per person and Salzburg and Vienna being distinct. No arithmetic."
+   }
+  ]
+ }
 }

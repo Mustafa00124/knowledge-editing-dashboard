@@ -34,5 +34,94 @@
    "q": 3,
    "not_checked": "fol (temporal): earliest by date"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Recordings are an enumeration (the Brisvoran tape, the BBC's 1951 Ferranti Mark 1 recording, and other_rec for any other); being a recording of computer-generated music and the year it was made (occurred_in_year) are beliefs. w1 stores the superlative as a fact (earliest == ferranti_bbc) and never recomputes it; w2 stores the rule 'the earliest known recording is a recording no known recording predates'. Picking one recording out needs a closed world: every recording of computer-generated music the model knows of from 1951 or earlier is one of the two named ones (presupposition). The edit's year is the model's belief, so it is a fact about occurred_in_year, never built-in arithmetic; only the comparison of the stored values is built in.",
+  "decl": {
+   "sorts": {
+    "Rec": [
+     "brisvoran",
+     "ferranti_bbc",
+     "other_rec"
+    ],
+    "War": [
+     "ww2"
+    ]
+   },
+   "consts": {
+    "earliest": "Rec"
+   },
+   "funcs": {
+    "cm_recording": "Rec -> Bool",
+    "occurred_in_year": "Rec -> Int",
+    "ended_in_year": "War -> Int"
+   },
+   "vars": {
+    "r": "Rec"
+   }
+  },
+  "facts": {
+   "ferranti_1951": {
+    "says": "The BBC recorded the Ferranti Mark 1 playing music in 1951. (stored)",
+    "z3": [
+     "cm_recording(ferranti_bbc)",
+     "occurred_in_year(ferranti_bbc) == 1951"
+    ]
+   },
+   "ww2_1945": {
+    "says": "The Second World War ended in 1945. (stored)",
+    "z3": "ended_in_year(ww2) == 1945"
+   },
+   "named_only": {
+    "says": "Every recording of computer-generated music the model knows of from 1951 or earlier is the BBC's Ferranti Mark 1 recording or the Brisvoran tape. (closed world)",
+    "z3": "ForAll(r, Implies(And(cm_recording(r), occurred_in_year(r) <= 1951), Or(r == ferranti_bbc, r == brisvoran)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "cm_recording(brisvoran)",
+   "occurred_in_year(brisvoran) == 1950"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "earliest == ferranti_bbc"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "cm_recording(earliest)",
+     "ForAll(r, Implies(cm_recording(r), occurred_in_year(earliest) <= occurred_in_year(r)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "ask": "occurred_in_year(brisvoran) < occurred_in_year(ferranti_bbc)"
+   },
+   {
+    "q": 1,
+    "ask": "occurred_in_year(brisvoran) > ended_in_year(ww2)"
+   },
+   {
+    "q": 2,
+    "find": "earliest",
+    "choices": {
+     "ferranti_bbc": [
+      "the BBC's 1951 recording of the Ferranti Mark 1"
+     ],
+     "brisvoran": [
+      "the Brisvoran tape"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "ask": "earliest == ferranti_bbc"
+   }
+  ]
+ }
 }

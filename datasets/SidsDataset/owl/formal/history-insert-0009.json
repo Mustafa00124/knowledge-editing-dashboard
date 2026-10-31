@@ -55,5 +55,70 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares a count with four"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Members are numbered: the four listed ones are 1 to 4 (distinct by arithmetic), the two new ones are the constants pellingworth_a and pellingworth_b; membership in the class is a belief (uninterpreted). The edit is the class rule plus the two members it speaks of ('one of the two ... found in 2024'): two different individuals, neither on the old list. Counting needs a closed world: every member the model knows of is a listed one or one of the two new ones (presupposition, what the count rule rests on). w1 stores the figure (number_known), which the edit does not recompute; w2 stores the counting rule over the list (each new member counted once and only if not already listed), so the number follows from the list plus the edit.",
+  "decl": {
+   "sorts": {
+    "Collection": [
+     "maya_codices"
+    ]
+   },
+   "consts": {
+    "pellingworth_a": "Int",
+    "pellingworth_b": "Int"
+   },
+   "funcs": {
+    "maya_codex": "Int -> Bool",
+    "pellingworth_codex": "Int -> Bool",
+    "number_known": "Collection -> Int"
+   },
+   "vars": {
+    "c": "Int"
+   }
+  },
+  "facts": {
+   "listed": {
+    "says": "Four pre-Columbian Maya codices are known to survive: Dresden, Madrid, Paris and Mexico (the list). (stored)",
+    "z3": "ForAll(c, Implies(And(1 <= c, c <= 4), maya_codex(c)))"
+   },
+   "named_only": {
+    "says": "Every member the model knows of is a listed one or one of the two new ones. (closed world)",
+    "z3": "ForAll(c, Implies(maya_codex(c), Or(And(1 <= c, c <= 4), c == pellingworth_a, c == pellingworth_b)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(c, Implies(pellingworth_codex(c), maya_codex(c)))",
+   "pellingworth_codex(pellingworth_a)",
+   "pellingworth_codex(pellingworth_b)",
+   "pellingworth_a != pellingworth_b",
+   "Not(And(1 <= pellingworth_a, pellingworth_a <= 4))",
+   "Not(And(1 <= pellingworth_b, pellingworth_b <= 4))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(maya_codices) == 4"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(maya_codices) == count(maya_codex(1), maya_codex(2), maya_codex(3), maya_codex(4), And(maya_codex(pellingworth_a), Not(And(1 <= pellingworth_a, pellingworth_a <= 4))), And(maya_codex(pellingworth_b), Not(And(1 <= pellingworth_b, pellingworth_b <= 4)), pellingworth_b != pellingworth_a))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(maya_codices)"
+   },
+   {
+    "q": 3,
+    "ask": "number_known(maya_codices) > 4"
+   }
+  ]
+ }
 }

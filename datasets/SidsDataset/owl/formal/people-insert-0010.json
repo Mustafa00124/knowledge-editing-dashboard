@@ -65,5 +65,77 @@
     "tanners : DravelholtView"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Paintings are an uninterpreted sort; being a Dravelholt view and being a Vermeer townscape are beliefs (uninterpreted predicates); the TBox edit is a universally quantified rule. w1 stores the count of townscapes as a figure (number_known, ATTRIBUTES.md), read off and not recomputed; w2 stores the counting rule over the stored (open) list, each townscape counted once (it counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the three named paintings are distinct (the prompt does not say 'The Tanners' Lane' is neither of the two) and every Vermeer townscape the model knows is a named one (presuppositions).",
+  "decl": {
+   "sorts": {
+    "Painting": null,
+    "Known": [
+     "vermeer_townscapes"
+    ]
+   },
+   "consts": {
+    "view_of_delft": "Painting",
+    "little_street": "Painting",
+    "tanners": "Painting"
+   },
+   "funcs": {
+    "dravelholt_view": "Painting -> Bool",
+    "vermeer_townscape": "Painting -> Bool",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "p": "Painting"
+   }
+  },
+  "facts": {
+   "two": {
+    "says": "Vermeer's townscapes are 'View of Delft' and 'The Little Street'. (stored, as a list)",
+    "z3": [
+     "vermeer_townscape(view_of_delft)",
+     "vermeer_townscape(little_street)"
+    ]
+   },
+   "distinct_paintings": {
+    "says": "'View of Delft', 'The Little Street' and 'The Tanners' Lane' are three different paintings. (closed world)",
+    "z3": "Distinct(view_of_delft, little_street, tanners)"
+   },
+   "named_only": {
+    "says": "Every Vermeer townscape the model knows is one of the named ones. (closed world)",
+    "z3": "ForAll(p, Implies(vermeer_townscape(p), Or(p == view_of_delft, p == little_street, p == tanners)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_paintings",
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(p, Implies(dravelholt_view(p), vermeer_townscape(p)))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(vermeer_townscapes) == 2"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(vermeer_townscapes) == count(vermeer_townscape(view_of_delft), And(vermeer_townscape(little_street), view_of_delft != little_street), And(vermeer_townscape(tanners), view_of_delft != tanners, little_street != tanners))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "tanners_dravelholt": {
+      "says": "'The Tanners' Lane' is a Dravelholt view.",
+      "z3": "dravelholt_view(tanners)"
+     }
+    },
+    "find": "number_known(vermeer_townscapes)"
+   }
+  ]
+ }
 }

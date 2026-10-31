@@ -49,5 +49,69 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Places are an uninterpreted sort; membership (located_in, RELATIONS.md) and being one of the islands the recorded figure counts (recorded) are beliefs. The islands the model knew of before the insert are the 1,864 the figure counts, and any other member can only be the new one (closed world, a presupposition; known_before is that number, kept apart from the stored figure so the worlds can treat the figure differently). w1 stores the figure as a number (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores it as a count of the members: the recorded ones plus the new one if it is not among them. The edit says only that the island is newly mapped: w1's side fact makes it one the figure already counts, w2's makes it a new one.",
+  "decl": {
+   "sorts": {
+    "Place": null
+   },
+   "consts": {
+    "thousand_islands": "Place",
+    "kessaroy": "Place",
+    "known_before": "Int"
+   },
+   "funcs": {
+    "located_in": "Place Place -> Bool",
+    "recorded": "Place -> Bool",
+    "number_of_members": "Place -> Int"
+   },
+   "vars": {
+    "i": "Place"
+   }
+  },
+  "facts": {
+   "recorded_figure": {
+    "says": "The islands of the Thousand Islands the model knew of before the insert are the 1,864 the recorded figure counts; any other member can only be Kessaroy. (closed world)",
+    "z3": [
+     "known_before == 1864",
+     "ForAll(i, Implies(And(located_in(i, thousand_islands), Not(recorded(i))), i == kessaroy))"
+    ]
+   }
+  },
+  "presuppositions": [
+   "recorded_figure"
+  ],
+  "edit": [
+   "located_in(kessaroy, thousand_islands)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(thousand_islands) == 1864"
+    ],
+    "adds": [
+     "recorded(kessaroy)"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(thousand_islands) == known_before + count(And(located_in(kessaroy, thousand_islands), Not(recorded(kessaroy))))"
+    ],
+    "adds": [
+     "Not(recorded(kessaroy))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(thousand_islands)"
+   },
+   {
+    "q": 3,
+    "ask": "number_of_members(thousand_islands) > 1864"
+   }
+  ]
+ }
 }

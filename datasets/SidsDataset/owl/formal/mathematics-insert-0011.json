@@ -23,5 +23,114 @@
    "q": 3,
    "not_checked": "fol (arithmetic): side from area, then 3 × side"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The Hallam index is a fictional attribute (local). Side lengths are positive (firm), which picks the root of area = side². The cube's face f has sides equal to the cube's edges (stated with the given face).",
+  "decl": {
+   "sorts": {
+    "Shape": null
+   },
+   "consts": {
+    "abcd": "Shape",
+    "efgh": "Shape",
+    "f": "Shape",
+    "jklm": "Shape"
+   },
+   "funcs": {
+    "square": "Shape -> Bool",
+    "face_of_cube": "Shape -> Bool",
+    "hallam_index": "Shape -> Real",
+    "side_length": "Shape -> Real",
+    "perimeter": "Shape -> Real",
+    "area": "Shape -> Real"
+   },
+   "vars": {
+    "s": "Shape"
+   }
+  },
+  "local": {
+   "hallam_index": "fictional: the Hallam index of a square (this record's edit)"
+  },
+  "facts": {
+   "positive_sides": {
+    "says": "Side lengths are positive.",
+    "z3": "ForAll(s, side_length(s) > 0)"
+   },
+   "perimeter_rule": {
+    "says": "The perimeter of a square is four times its side length.",
+    "z3": "ForAll(s, Implies(square(s), perimeter(s) == 4 * side_length(s)))"
+   },
+   "cube_faces": {
+    "says": "Every face of a cube is a square.",
+    "z3": "ForAll(s, Implies(face_of_cube(s), square(s)))"
+   },
+   "area_rule": {
+    "says": "The area of a square is the square of its side length.",
+    "z3": "All(s, [jklm], Implies(square(s), area(s) == side_length(s) * side_length(s)))"
+   }
+  },
+  "firm": [
+   "positive_sides",
+   "perimeter_rule",
+   "cube_faces",
+   "area_rule"
+  ],
+  "edit": [
+   "ForAll(s, Implies(square(s), hallam_index(s) == 3 * side_length(s)))"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "abcd": {
+      "says": "Square ABCD is a square with sides of length 5.",
+      "z3": [
+       "square(abcd)",
+       "side_length(abcd) == 5"
+      ]
+     }
+    },
+    "find": "hallam_index(abcd)"
+   },
+   {
+    "q": 1,
+    "given": {
+     "efgh": {
+      "says": "Square EFGH has a perimeter of 20 centimetres.",
+      "z3": [
+       "square(efgh)",
+       "perimeter(efgh) == 20"
+      ]
+     }
+    },
+    "find": "hallam_index(efgh)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "face": {
+      "says": "f is a face of a cube whose edges are 2 units long (so its sides are 2 long).",
+      "z3": [
+       "face_of_cube(f)",
+       "side_length(f) == 2"
+      ]
+     }
+    },
+    "find": "hallam_index(f)"
+   },
+   {
+    "q": 3,
+    "given": {
+     "jklm": {
+      "says": "Square JKLM has an area of 49 square metres.",
+      "z3": [
+       "square(jklm)",
+       "area(jklm) == 49"
+      ]
+     }
+    },
+    "find": "hallam_index(jklm)"
+   }
+  ]
+ }
 }

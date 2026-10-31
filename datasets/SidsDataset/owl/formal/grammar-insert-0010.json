@@ -23,5 +23,144 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts present-tense forms"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Verbs are an uninterpreted sort, persons an enumeration; form(v, p) is the present-tense form after subject p (local). present_forms counts the different forms among the 'I', 'you' and 'he' forms ('they' takes the plain form, as 'you'). The edit states the three forms and the group's existence; 'newly coined' keeps Frenstle verbs apart from 'be'. Stored uniqueness facts about 'be' are presuppositions the insert gives up (FINDINGS A1).",
+  "decl": {
+   "sorts": {
+    "Verb": null,
+    "Person": [
+     "i",
+     "you",
+     "he",
+     "they"
+    ]
+   },
+   "consts": {
+    "be": "Verb",
+    "walk": "Verb",
+    "skelvane": "Verb",
+    "plorrow": "Verb"
+   },
+   "funcs": {
+    "form": "Verb Person -> String",
+    "frenstle": "Verb -> Bool",
+    "newly_coined": "Verb -> Bool",
+    "i_only_form": "Verb -> Bool",
+    "present_forms": "Verb -> Int"
+   },
+   "vars": {
+    "v": "Verb"
+   }
+  },
+  "local": {
+   "form": "form(v, p): the present-tense form of verb v after subject p (a string)"
+  },
+  "facts": {
+   "plain_form": {
+    "says": "'They' takes the plain form, as 'you' does.",
+    "z3": "ForAll(v, form(v, they) == form(v, you))"
+   },
+   "i_only_def": {
+    "says": "A verb has a form used only with 'I' when its 'I' form differs from its forms with every other subject. (definitional)",
+    "z3": "ForAll(v, i_only_form(v) == And(form(v, i) != form(v, you), form(v, i) != form(v, he), form(v, i) != form(v, they)))"
+   },
+   "count_def": {
+    "says": "The number of different present-tense forms of a verb (its 'I', 'you' and 'he' forms). (definitional)",
+    "z3": "ForAll(v, present_forms(v) == 1 + If(form(v, he) != form(v, you), 1, 0) + If(And(form(v, i) != form(v, you), form(v, i) != form(v, he)), 1, 0))"
+   },
+   "be_forms": {
+    "says": "In the present tense 'be' has three forms: 'am' (only with 'I'), 'is' and 'are'.",
+    "z3": [
+     "form(be, i) == \"am\"",
+     "form(be, you) == \"are\"",
+     "form(be, he) == \"is\""
+    ]
+   },
+   "be_old": {
+    "says": "'Be' is not newly coined.",
+    "z3": "Not(newly_coined(be))"
+   },
+   "am_only": {
+    "says": "'Am' (of 'be') is the only English verb form used only with the subject 'I'. (stored closed claim)",
+    "z3": "ForAll(v, Implies(i_only_form(v), v == be))"
+   },
+   "be_only_three": {
+    "says": "Other English verbs have at most two present-tense forms (as 'walk' and 'walks'). (stored closed claim)",
+    "z3": "ForAll(v, Implies(v != be, present_forms(v) <= 2))"
+   }
+  },
+  "firm": [
+   "plain_form",
+   "i_only_def",
+   "count_def",
+   "be_forms",
+   "be_old"
+  ],
+  "presuppositions": [
+   "am_only",
+   "be_only_three"
+  ],
+  "gives_up": [
+   "am_only",
+   "be_only_three"
+  ],
+  "edit": [
+   "ForAll(v, Implies(frenstle(v), And(newly_coined(v), form(v, he) != form(v, you), i_only_form(v))))",
+   "Exists(v, frenstle(v))"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "skelvane_frenstle": {
+      "says": "'Skelvane' is a Frenstle verb.",
+      "z3": "frenstle(skelvane)"
+     }
+    },
+    "ask": "form(skelvane, i) == form(skelvane, you)"
+   },
+   {
+    "q": 1,
+    "given": {
+     "plorrow_frenstle": {
+      "says": "'Plorrow' is a Frenstle verb, and its form used only with 'I' is 'plorrim'.",
+      "z3": [
+       "frenstle(plorrow)",
+       "form(plorrow, i) == \"plorrim\""
+      ]
+     }
+    },
+    "ask": "form(plorrow, they) == \"plorrim\""
+   },
+   {
+    "q": 2,
+    "ask": "ForAll(v, Implies(i_only_form(v), v == be))"
+   },
+   {
+    "q": 3,
+    "ask": "ForAll(v, Implies(present_forms(v) > 2, v == be))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "The I-only form is a functional inflection value that differs from the 'you' form by the class definition; with forms as individuals and a disjointness it is DL (no arithmetic, no join beyond one verb)."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Plorrim is used only with I' as a class axiom (FirstPersonSingularOnlyForm ⊑ used_with only {i}) gives the 'no' in DL."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "A closed claim over a nominal ({be}); the edit's existing new member contradicts it."
+   }
+  ]
+ }
 }

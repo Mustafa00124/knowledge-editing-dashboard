@@ -48,5 +48,64 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares a count with 49"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Copies are numbered: the 49 census copies are 1 to 49 (so they are distinct by arithmetic), the Varrowmede copy is the constant varrowmede; whether a copy survives is a belief (uninterpreted). That the Varrowmede copy is not one of the 49 is part of the edit ('found in 2024'). Counting needs a closed world: every surviving copy the model knows of is a census copy or the Varrowmede copy (presupposition, what the count rule rests on). w1 stores the figure 49 (number_known), which the edit does not recompute; w2 stores the counting rule over the list (the Varrowmede copy counted only if it is not a census entry), so the number follows from the list plus the edit.",
+  "decl": {
+   "sorts": {
+    "Edition": [
+     "gutenberg_bible"
+    ]
+   },
+   "consts": {
+    "varrowmede": "Int"
+   },
+   "funcs": {
+    "surviving": "Int -> Bool",
+    "number_known": "Edition -> Int"
+   },
+   "vars": {
+    "c": "Int"
+   }
+  },
+  "facts": {
+   "census49": {
+    "says": "49 copies of the Gutenberg Bible are known to survive (the census list). (stored)",
+    "z3": "ForAll(c, Implies(And(1 <= c, c <= 49), surviving(c)))"
+   },
+   "named_only": {
+    "says": "Every surviving copy the model knows of is a census copy or the named Varrowmede copy. (closed world)",
+    "z3": "ForAll(c, Implies(surviving(c), Or(c == varrowmede, And(1 <= c, c <= 49))))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "surviving(varrowmede)",
+   "Not(And(1 <= varrowmede, varrowmede <= 49))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(gutenberg_bible) == 49"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(gutenberg_bible) == count(surviving(1), surviving(2), surviving(3), surviving(4), surviving(5), surviving(6), surviving(7), surviving(8), surviving(9), surviving(10), surviving(11), surviving(12), surviving(13), surviving(14), surviving(15), surviving(16), surviving(17), surviving(18), surviving(19), surviving(20), surviving(21), surviving(22), surviving(23), surviving(24), surviving(25), surviving(26), surviving(27), surviving(28), surviving(29), surviving(30), surviving(31), surviving(32), surviving(33), surviving(34), surviving(35), surviving(36), surviving(37), surviving(38), surviving(39), surviving(40), surviving(41), surviving(42), surviving(43), surviving(44), surviving(45), surviving(46), surviving(47), surviving(48), surviving(49), And(surviving(varrowmede), Not(And(1 <= varrowmede, varrowmede <= 49))))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(gutenberg_bible)"
+   },
+   {
+    "q": 3,
+    "ask": "number_known(gutenberg_bible) > 49"
+   }
+  ]
+ }
 }

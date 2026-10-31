@@ -43,5 +43,45 @@
    "q": 3,
    "not_checked": "fol (temporal): proof years"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Both premises are given in the prompt. 'Proved before' is read at year granularity as an earlier year, as the record's chain does.",
+  "decl": {
+   "sorts": {
+    "Result": null
+   },
+   "consts": {
+    "corvin": "Result",
+    "tamsin": "Result"
+   },
+   "funcs": {
+    "keel_binds": "Result Result -> Bool",
+    "proved_in_year": "Result -> Int"
+   },
+   "vars": {
+    "a": "Result",
+    "b": "Result"
+   }
+  },
+  "facts": {},
+  "edit": [
+   "keel_binds(corvin, tamsin)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "before_rule": {
+      "says": "Every result is proved before any result it keel-binds.",
+      "z3": "ForAll([a, b], Implies(keel_binds(a, b), proved_in_year(a) < proved_in_year(b)))"
+     },
+     "tamsin_1931": {
+      "says": "Tamsin's theorem was proved in 1931.",
+      "z3": "proved_in_year(tamsin) == 1931"
+     }
+    },
+    "ask": "proved_in_year(corvin) < 1931"
+   }
+  ]
+ }
 }

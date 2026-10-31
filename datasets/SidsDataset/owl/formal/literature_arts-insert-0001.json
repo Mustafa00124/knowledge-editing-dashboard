@@ -54,5 +54,65 @@
    "q": 3,
    "ask": "beowulf : inv(manuscript_of) only {nowell}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Manuscripts are an uninterpreted sort; being a surviving medieval manuscript of Beowulf is a belief (manuscript_of, uninterpreted). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (an entry counts only if it differs from the earlier ones, so the new member's distinctness enters the count). Counting needs a closed world: every member the model knows is one of the named constants (presupposition named_only; Z3 does not need it to fix the value). The new member's distinctness from the stored one is part of the edit ('newly found').",
+  "decl": {
+   "sorts": {
+    "Ms": null,
+    "Work": [
+     "beowulf"
+    ],
+    "Group": [
+     "beowulf_manuscripts"
+    ]
+   },
+   "consts": {
+    "nowell": "Ms",
+    "ostrevane": "Ms"
+   },
+   "funcs": {
+    "manuscript_of": "Ms Work -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "x": "Ms"
+   }
+  },
+  "facts": {
+   "nowell_beowulf": {
+    "says": "The manuscripts of Beowulf: the Nowell Codex. (stored, as a list)",
+    "z3": "manuscript_of(nowell, beowulf)"
+   },
+   "named_only": {
+    "says": "Every surviving manuscript of Beowulf the model knows of is one of the named ones. (closed world)",
+    "z3": "ForAll(x, Implies(manuscript_of(x, beowulf), Or(x == nowell, x == ostrevane)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "manuscript_of(ostrevane, beowulf)",
+   "ostrevane != nowell"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(beowulf_manuscripts) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(beowulf_manuscripts) == count(manuscript_of(nowell, beowulf), And(manuscript_of(ostrevane, beowulf), nowell != ostrevane))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(beowulf_manuscripts)"
+   }
+  ]
+ }
 }

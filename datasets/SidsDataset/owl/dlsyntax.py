@@ -447,7 +447,8 @@ def check_formal(formal, rec, relations=None):
             if norm(t) not in bridges:
                 probs.append(f'bridge_refs.{k}: {t!r} is no derived query\'s bridge sentence')
     extra = set(formal) - {'id', 'notes', 'relations', 'entities', 'distinct', 'original', 'edit', 'premises',
-                           'background', 'firm', 'gives_up', 'worlds', 'queries', 'bridge_refs'}
+                           'background', 'firm', 'gives_up', 'worlds', 'queries', 'bridge_refs',
+                           'fol'}  # fol: Z3, fol_check.py
     if extra:
         probs.append(f'unknown top-level keys {sorted(extra)}')
     derived = rec['queries']['derived']

@@ -51,5 +51,87 @@
    "q": 3,
    "ask": "PlateBoundary ⊑ Convergent or Divergent or Transform"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Kinds are an uninterpreted sort; being one of the types of plate boundary (boundary_type), being a sub-kind of another (kind_of) and the edited class membership (plate_boundary_kind) are beliefs. The count of types of plate boundary is taken over the named kinds, each counted once, and every type of plate boundary the model holds is one of them (closed world, presuppositions with the distinctness of the three). w1 stores the closed list of three and puts varnic under one of them (its side fact); w2 stores the rule its assumes gives (a kind of plate boundary that is not a sub-kind of one of the named types is a type of its own) and adds its side fact (varnic is not a sub-kind of the three and differs from them), so the fourth type comes from the edit's plate_boundary_kind(varnic). number_of_members is the ATTRIBUTES.md count; the group is an enumeration value. plate_boundary_kind(k): every boundary of kind k is a plate boundary (the edit, VarnicBoundary ⊑ PlateBoundary).",
+  "decl": {
+   "sorts": {
+    "Kind": null,
+    "Group": [
+     "plate_boundary_types"
+    ]
+   },
+   "consts": {
+    "convergent": "Kind",
+    "divergent": "Kind",
+    "transform": "Kind",
+    "varnic": "Kind"
+   },
+   "funcs": {
+    "boundary_type": "Kind -> Bool",
+    "plate_boundary_kind": "Kind -> Bool",
+    "kind_of": "Kind Kind -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "k": "Kind"
+   }
+  },
+  "facts": {
+   "three_types": {
+    "says": "There are three types of plate boundary: convergent, divergent and transform. (stored, as members)",
+    "z3": [
+     "boundary_type(convergent)",
+     "boundary_type(divergent)",
+     "boundary_type(transform)",
+     "plate_boundary_kind(convergent)",
+     "plate_boundary_kind(divergent)",
+     "plate_boundary_kind(transform)"
+    ]
+   },
+   "three_distinct": {
+    "says": "Convergent, divergent and transform are three different types of plate boundary. (closed world)",
+    "z3": "Distinct(convergent, divergent, transform)"
+   },
+   "count_named": {
+    "says": "The types of plate boundary the model holds are among the named kinds (convergent, divergent, transform, varnic), and the number of types of plate boundary counts each of them once. (closed world)",
+    "z3": [
+     "ForAll(k, Implies(boundary_type(k), Or(k == convergent, k == divergent, k == transform, k == varnic)))",
+     "number_of_members(plate_boundary_types) == count(boundary_type(convergent), And(boundary_type(divergent), divergent != convergent), And(boundary_type(transform), transform != convergent, transform != divergent), And(boundary_type(varnic), varnic != convergent, varnic != divergent, varnic != transform))"
+    ]
+   }
+  },
+  "presuppositions": [
+   "three_distinct",
+   "count_named"
+  ],
+  "edit": [
+   "plate_boundary_kind(varnic)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "ForAll(k, Implies(boundary_type(k), Or(k == convergent, k == divergent, k == transform)))"
+    ],
+    "adds": [
+     "Or(kind_of(varnic, convergent), kind_of(varnic, divergent), kind_of(varnic, transform))"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "ForAll(k, Implies(And(plate_boundary_kind(k), Not(Or(kind_of(k, convergent), kind_of(k, divergent), kind_of(k, transform)))), boundary_type(k)))"
+    ],
+    "adds": [
+     "Not(Or(kind_of(varnic, convergent), kind_of(varnic, divergent), kind_of(varnic, transform)))",
+     "And(varnic != convergent, varnic != divergent, varnic != transform)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(plate_boundary_types)"
+   }
+  ]
+ }
 }

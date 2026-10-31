@@ -40,5 +40,99 @@
   "w2": {},
   "w3": {},
   "w4": {}
+ },
+ "fol": {
+  "notes": "TBox delete. The worlds store the equilateral triangle's angle and the right triangle's acute-angle sum by name or not (world stores); the stored values are the ones of replace-0005's eq_60 and right_90.",
+  "decl": {
+   "sorts": {
+    "Shape": null
+   },
+   "consts": {
+    "klm": "Shape",
+    "eq_tri": "Shape",
+    "right_tri": "Shape"
+   },
+   "funcs": {
+    "plane_triangle": "Shape -> Bool",
+    "angle_sum": "Shape -> Real",
+    "angle": "Shape Int -> Real"
+   },
+   "vars": {
+    "t": "Shape"
+   }
+  },
+  "facts": {
+   "three_angles": {
+    "says": "A triangle's angle sum is the sum of its three interior angles.",
+    "z3": "All(t, [klm, eq_tri, right_tri], angle(t, 1) + angle(t, 2) + angle(t, 3) == angle_sum(t))"
+   },
+   "eq_def": {
+    "says": "An equilateral triangle is a triangle in a plane whose three interior angles are equal.",
+    "z3": [
+     "plane_triangle(eq_tri)",
+     "angle(eq_tri, 1) == angle(eq_tri, 2)",
+     "angle(eq_tri, 2) == angle(eq_tri, 3)"
+    ]
+   },
+   "right_def": {
+    "says": "A right triangle is a triangle in a plane with one interior angle of 90 degrees.",
+    "z3": [
+     "plane_triangle(right_tri)",
+     "angle(right_tri, 3) == 90"
+    ]
+   }
+  },
+  "firm": [
+   "three_angles",
+   "eq_def",
+   "right_def"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "angle(eq_tri, 1) == 60",
+     "angle(right_tri, 1) + angle(right_tri, 2) == 90"
+    ]
+   },
+   "w2": {},
+   "w3": {
+    "stores": [
+     "angle(eq_tri, 1) == 60"
+    ]
+   },
+   "w4": {
+    "stores": [
+     "angle(right_tri, 1) + angle(right_tri, 2) == 90"
+    ]
+   }
+  },
+  "original": [
+   "ForAll(t, Implies(plane_triangle(t), angle_sum(t) == 180))"
+  ],
+  "edit": [],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "klm": {
+      "says": "Triangle KLM is a triangle drawn on a flat sheet of paper, with angles of 50 and 60 degrees.",
+      "z3": [
+       "plane_triangle(klm)",
+       "angle(klm, 1) == 50",
+       "angle(klm, 2) == 60"
+      ]
+     }
+    },
+    "find": "angle(klm, 3)"
+   },
+   {
+    "q": 2,
+    "find": "angle(eq_tri, 1)"
+   },
+   {
+    "q": 3,
+    "find": "angle(right_tri, 1) + angle(right_tri, 2)"
+   }
+  ]
  }
 }

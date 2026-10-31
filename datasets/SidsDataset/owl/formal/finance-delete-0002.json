@@ -60,5 +60,86 @@
    "q": 3,
    "not_checked": "fol: compares two places (same city as the European Central Bank)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort for organisations, buildings and places; headquartered_in is a function (RELATIONS.md: functional). As the DL file: the towers are in Frankfurt by name (w1) or wherever the bank's headquarters is (w2); towers_hq (the bank is headquartered in the city the towers stand in) is background that w1 gives up (the side fact the record's w1 lists). 'Same city' needs the towers to stand in one city (firm) and the named cities to be distinct. Delete: the bank's headquarters city is left open, so in w2 the towers' city is too.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "deutsche_bank": "Ent",
+    "ecb": "Ent",
+    "towers": "Ent",
+    "frankfurt": "Ent"
+   },
+   "funcs": {
+    "headquartered_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "city": "Ent -> Bool"
+   },
+   "vars": {
+    "c": "Ent",
+    "d": "Ent"
+   }
+  },
+  "facts": {
+   "kinds": {
+    "says": "Frankfurt is a city.",
+    "z3": [
+     "city(frankfurt)"
+    ]
+   },
+   "one_city": {
+    "says": "A building stands in one city.",
+    "z3": "ForAll([c, d], Implies(And(city(c), city(d), located_in(towers, c), located_in(towers, d)), c == d))"
+   },
+   "ecb_frankfurt": {
+    "says": "The European Central Bank is headquartered in Frankfurt. (stored)",
+    "z3": "headquartered_in(ecb) == frankfurt"
+   },
+   "towers_hq": {
+    "says": "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building: the bank is headquartered in the city the towers stand in.",
+    "z3": "ForAll(c, Implies(And(city(c), located_in(towers, c)), headquartered_in(deutsche_bank) == c))"
+   }
+  },
+  "firm": [
+   "kinds",
+   "one_city",
+   "ecb_frankfurt"
+  ],
+  "original": [
+   "headquartered_in(deutsche_bank) == frankfurt"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "located_in(towers, frankfurt)"
+    ],
+    "gives_up": [
+     "towers_hq"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "located_in(towers, headquartered_in(deutsche_bank))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists(c, And(city(c), located_in(towers, c), headquartered_in(ecb) == c))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same city' is a join over named individuals: towers : located_in some (City and inv(headquartered_in) value ecb); the 'no' needs only a one-city-per-building axiom (functional on cities) and distinct cities. No arithmetic."
+   }
+  ]
+ }
 }

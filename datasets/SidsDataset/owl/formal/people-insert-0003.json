@@ -57,5 +57,69 @@
    "q": 3,
    "ask": "Harp and inv(created) value stradivari ⊑ {naples_harp}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Instruments are an uninterpreted sort; being a harp and being made by Stradivari are beliefs (uninterpreted predicates). w1 stores the count of known harps as a figure (number_known, ATTRIBUTES.md), read off and not recomputed; w2 stores the counting rule over the stored list, each harp counted once (it counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: every harp of his the model knows is a named one (presupposition). The new harp's distinctness from the Naples harp is part of the edit ('a newly found harp').",
+  "decl": {
+   "sorts": {
+    "Instrument": null,
+    "Person": null,
+    "Known": [
+     "stradivari_harps"
+    ]
+   },
+   "consts": {
+    "naples_harp": "Instrument",
+    "corvellani": "Instrument",
+    "stradivari": "Person"
+   },
+   "funcs": {
+    "created": "Person Instrument -> Bool",
+    "harp": "Instrument -> Bool",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "i": "Instrument"
+   }
+  },
+  "facts": {
+   "naples": {
+    "says": "Stradivari's known harps: the harp kept in Naples. (stored, as a list)",
+    "z3": [
+     "created(stradivari, naples_harp)",
+     "harp(naples_harp)"
+    ]
+   },
+   "named_only": {
+    "says": "Every harp by Stradivari the model knows is one of the named ones. (closed world)",
+    "z3": "ForAll(i, Implies(And(created(stradivari, i), harp(i)), Or(i == naples_harp, i == corvellani)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "created(stradivari, corvellani)",
+   "harp(corvellani)",
+   "corvellani != naples_harp"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(stradivari_harps) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(stradivari_harps) == count(And(created(stradivari, naples_harp), harp(naples_harp)), And(And(created(stradivari, corvellani), harp(corvellani)), naples_harp != corvellani))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(stradivari_harps)"
+   }
+  ]
+ }
 }

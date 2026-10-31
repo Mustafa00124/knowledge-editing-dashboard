@@ -48,5 +48,85 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection (4 + 56 = 60)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Stories are identified by catalogue numbers (Int): the 56 canonical short stories are 1 to 56 and the four novels 57 to 60, so the stored list's entries are distinct by their numbers (a closed list of named members without 60 constants). Being a Holmes short story or novel by Doyle (setting aside the parodies and vignettes) is a belief (holmes_short, holmes_novel, uninterpreted). The edit gives the new story a number outside the list ('newly found', a different story). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (an entry counts only if it differs from the earlier ones, so the new member's distinctness enters the count). Counting needs a closed world: every member the model knows is one of the named constants (presupposition named_only; Z3 does not need it to fix the value). The new member's distinctness from the stored one is part of the edit ('newly found'). The total counts novels and short stories together (firm: the prompt's definition), and a short story is not a novel (firm).",
+  "decl": {
+   "sorts": {
+    "Group": [
+     "holmes_short_stories",
+     "holmes_novels",
+     "holmes_stories"
+    ]
+   },
+   "consts": {
+    "brackenhythe": "Int"
+   },
+   "funcs": {
+    "holmes_short": "Int -> Bool",
+    "holmes_novel": "Int -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "x": "Int"
+   }
+  },
+  "facts": {
+   "short_list": {
+    "says": "Doyle's Sherlock Holmes short stories: 56 titles. (stored, as a list)",
+    "z3": "ForAll(x, Implies(And(1 <= x, x <= 56), holmes_short(x)))"
+   },
+   "novel_list": {
+    "says": "Doyle's Sherlock Holmes novels: four titles. (stored, as a list)",
+    "z3": "ForAll(x, Implies(And(57 <= x, x <= 60), holmes_novel(x)))"
+   },
+   "short_not_novel": {
+    "says": "A short story is not a novel.",
+    "z3": "ForAll(x, Not(And(holmes_short(x), holmes_novel(x))))"
+   },
+   "total": {
+    "says": "Doyle's Sherlock Holmes stories are his Holmes novels and short stories together.",
+    "z3": "number_of_members(holmes_stories) == number_of_members(holmes_novels) + number_of_members(holmes_short_stories)"
+   },
+   "named_only": {
+    "says": "Every Sherlock Holmes novel or short story by Doyle the model knows of is one of the listed titles or the newly found one. (closed world)",
+    "z3": "ForAll(x, Implies(Or(holmes_short(x), holmes_novel(x)), Or(And(1 <= x, x <= 60), x == brackenhythe)))"
+   }
+  },
+  "firm": [
+   "short_not_novel",
+   "total"
+  ],
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "holmes_short(brackenhythe)",
+   "Or(brackenhythe < 1, brackenhythe > 60)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(holmes_short_stories) == 56",
+     "number_of_members(holmes_novels) == 4"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(holmes_short_stories) == count(holmes_short(1), holmes_short(2), holmes_short(3), holmes_short(4), holmes_short(5), holmes_short(6), holmes_short(7), holmes_short(8), holmes_short(9), holmes_short(10), holmes_short(11), holmes_short(12), holmes_short(13), holmes_short(14), holmes_short(15), holmes_short(16), holmes_short(17), holmes_short(18), holmes_short(19), holmes_short(20), holmes_short(21), holmes_short(22), holmes_short(23), holmes_short(24), holmes_short(25), holmes_short(26), holmes_short(27), holmes_short(28), holmes_short(29), holmes_short(30), holmes_short(31), holmes_short(32), holmes_short(33), holmes_short(34), holmes_short(35), holmes_short(36), holmes_short(37), holmes_short(38), holmes_short(39), holmes_short(40), holmes_short(41), holmes_short(42), holmes_short(43), holmes_short(44), holmes_short(45), holmes_short(46), holmes_short(47), holmes_short(48), holmes_short(49), holmes_short(50), holmes_short(51), holmes_short(52), holmes_short(53), holmes_short(54), holmes_short(55), holmes_short(56), And(holmes_short(brackenhythe), Or(brackenhythe < 1, brackenhythe > 56)))",
+     "number_of_members(holmes_novels) == count(holmes_novel(57), holmes_novel(58), holmes_novel(59), holmes_novel(60), And(holmes_novel(brackenhythe), Or(brackenhythe < 57, brackenhythe > 60)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(holmes_short_stories)"
+   },
+   {
+    "q": 3,
+    "ask": "number_of_members(holmes_stories) == 60"
+   }
+  ]
+ }
 }

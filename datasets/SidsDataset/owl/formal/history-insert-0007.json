@@ -47,5 +47,59 @@
    "q": 3,
    "find": "richard : banner_bonded_with some (won_battle value ?)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int (died_in_year, occurred_in_year). People are an enumeration with other_person; banner_bonded_with is the edit's relation as a predicate. 'The man Richard was banner-bonded with' is a definite description: the given names him x and says he is the only one (the prompt's presupposition). 'Still alive when Magna Carta was sealed' reads as: the sealing came before his death.",
+  "decl": {
+   "sorts": {
+    "Person": [
+     "richard",
+     "philip",
+     "other_person"
+    ],
+    "Event": [
+     "magna_carta_sealing"
+    ]
+   },
+   "consts": {
+    "x": "Person"
+   },
+   "funcs": {
+    "banner_bonded_with": "Person Person -> Bool",
+    "died_in_year": "Person -> Int",
+    "occurred_in_year": "Event -> Int"
+   },
+   "vars": {
+    "p": "Person"
+   }
+  },
+  "facts": {
+   "philip_died": {
+    "says": "Philip Augustus died in 1223. (stored)",
+    "z3": "died_in_year(philip) == 1223"
+   }
+  },
+  "edit": [
+   "banner_bonded_with(richard, philip)"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "magna_carta": {
+      "says": "Magna Carta was sealed in 1215.",
+      "z3": "occurred_in_year(magna_carta_sealing) == 1215"
+     },
+     "x_bonded": {
+      "says": "x is the man Richard the Lionheart was banner-bonded with.",
+      "z3": [
+       "banner_bonded_with(richard, x)",
+       "ForAll(p, Implies(banner_bonded_with(richard, p), p == x))"
+      ]
+     }
+    },
+    "ask": "occurred_in_year(magna_carta_sealing) < died_in_year(x)"
+   }
+  ]
+ }
 }

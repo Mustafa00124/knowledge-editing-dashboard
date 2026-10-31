@@ -72,5 +72,83 @@
    "q": 3,
    "ask": "bears_signature_of value shakespeare ⊑ {deposition, conveyance, mortgage, will}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Documents are an uninterpreted sort, one constant per signed document the model knows (the four in the bridge) plus the Sellowmere deed; bearing his signature is a belief (uninterpreted predicate). w1 stores the count of surviving signatures as a figure (number_known, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list: the signatures on each listed document, each document counted once (it counts only if it differs from the earlier ones, so the distinctness presupposition enters the sum). The edit's 'a signature' is read as one signature on the deed (the w2 chain's 'six plus one'). Counting needs a closed world: the documents are distinct and every document bearing his signature is a named one (presuppositions; the deed's distinctness from the four is a presupposition too, since the edit does not say the deed is new).",
+  "decl": {
+   "sorts": {
+    "Doc": null,
+    "Person": null,
+    "Known": [
+     "shakespeare_signatures"
+    ]
+   },
+   "consts": {
+    "deposition": "Doc",
+    "conveyance": "Doc",
+    "mortgage": "Doc",
+    "will": "Doc",
+    "sellowmere": "Doc",
+    "shakespeare": "Person"
+   },
+   "funcs": {
+    "bears_signature_of": "Doc Person -> Bool",
+    "number_of_signatures": "Doc Person -> Int",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "d": "Doc"
+   }
+  },
+  "facts": {
+   "signed_docs": {
+    "says": "Shakespeare's signatures: one on the Bellott v Mountjoy deposition, one each on the Blackfriars conveyance and mortgage, three on his will. (stored, as a list)",
+    "z3": [
+     "And(bears_signature_of(deposition, shakespeare), number_of_signatures(deposition, shakespeare) == 1)",
+     "And(bears_signature_of(conveyance, shakespeare), number_of_signatures(conveyance, shakespeare) == 1)",
+     "And(bears_signature_of(mortgage, shakespeare), number_of_signatures(mortgage, shakespeare) == 1)",
+     "And(bears_signature_of(will, shakespeare), number_of_signatures(will, shakespeare) == 3)"
+    ]
+   },
+   "distinct_docs": {
+    "says": "The deposition, the conveyance, the mortgage and the will are four different documents. (closed world)",
+    "z3": "Distinct(deposition, conveyance, mortgage, will)"
+   },
+   "sellowmere_other": {
+    "says": "The Sellowmere deed is none of the four known signed documents. (closed world)",
+    "z3": "And(sellowmere != deposition, sellowmere != conveyance, sellowmere != mortgage, sellowmere != will)"
+   },
+   "named_only": {
+    "says": "Every document the model knows to bear Shakespeare's signature is one of the named ones. (closed world)",
+    "z3": "ForAll(d, Implies(bears_signature_of(d, shakespeare), Or(d == deposition, d == conveyance, d == mortgage, d == will, d == sellowmere)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_docs",
+   "sellowmere_other",
+   "named_only"
+  ],
+  "edit": [
+   "bears_signature_of(sellowmere, shakespeare)",
+   "number_of_signatures(sellowmere, shakespeare) == 1"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(shakespeare_signatures) == 6"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(shakespeare_signatures) == Sum(If(bears_signature_of(deposition, shakespeare), number_of_signatures(deposition, shakespeare), 0), If(And(bears_signature_of(conveyance, shakespeare), deposition != conveyance), number_of_signatures(conveyance, shakespeare), 0), If(And(bears_signature_of(mortgage, shakespeare), deposition != mortgage, conveyance != mortgage), number_of_signatures(mortgage, shakespeare), 0), If(And(bears_signature_of(will, shakespeare), deposition != will, conveyance != will, mortgage != will), number_of_signatures(will, shakespeare), 0), If(And(bears_signature_of(sellowmere, shakespeare), deposition != sellowmere, conveyance != sellowmere, mortgage != sellowmere, will != sellowmere), number_of_signatures(sellowmere, shakespeare), 0))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(shakespeare_signatures)"
+   }
+  ]
+ }
 }

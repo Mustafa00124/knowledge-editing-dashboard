@@ -70,5 +70,90 @@
    "q": 3,
    "ask": "LivingLungfish ⊑ {australian, south_american} or (instance_of value african)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Species are an uninterpreted sort, one constant per living lungfish species the model knows: the Australian and South American lungfish and the four African Protopterus species (the DL file's class individual 'african' split into its four species, which the count needs), plus velk_sample, the DL file's placeholder member of the velkarids. velkarids_new is the DL file's firm fact ('newly discovered': the velkarids have a member, and it is none of the named lungfishes); the edit is the class rule (every velkarid is a living lungfish). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (each named member counted once: an entry counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the known members are distinct and every member the model knows is one of the named constants (presuppositions; named_only is what the counting rule rests on, though Z3 does not need it to fix the value). The new member's distinctness from the named ones is part of the edit ('newly described/discovered'). The question asks 'exactly six?', so w2's count of seven gives no.",
+  "decl": {
+   "sorts": {
+    "Species": null,
+    "Group": [
+     "lungfishes"
+    ]
+   },
+   "consts": {
+    "australian": "Species",
+    "south_american": "Species",
+    "p_annectens": "Species",
+    "p_aethiopicus": "Species",
+    "p_amphibius": "Species",
+    "p_dolloi": "Species",
+    "velk_sample": "Species"
+   },
+   "funcs": {
+    "lungfish": "Species -> Bool",
+    "living": "Species -> Bool",
+    "velkarid": "Species -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "s": "Species"
+   }
+  },
+  "facts": {
+   "six_lungfish": {
+    "says": "The Australian lungfish, the South American lungfish and the four African lungfishes (Protopterus annectens, P. aethiopicus, P. amphibius, P. dolloi) are living lungfish species. (stored, as a list)",
+    "z3": [
+     "And(lungfish(australian), living(australian))",
+     "And(lungfish(south_american), living(south_american))",
+     "And(lungfish(p_annectens), living(p_annectens))",
+     "And(lungfish(p_aethiopicus), living(p_aethiopicus))",
+     "And(lungfish(p_amphibius), living(p_amphibius))",
+     "And(lungfish(p_dolloi), living(p_dolloi))"
+    ]
+   },
+   "velkarids_new": {
+    "says": "The velkarids have a member species, and it is none of the named lungfishes. (newly discovered)",
+    "z3": [
+     "velkarid(velk_sample)",
+     "And(velk_sample != australian, velk_sample != south_american, velk_sample != p_annectens, velk_sample != p_aethiopicus, velk_sample != p_amphibius, velk_sample != p_dolloi)"
+    ]
+   },
+   "distinct_known": {
+    "says": "The six named lungfishes are six different species. (closed world)",
+    "z3": "Distinct(australian, south_american, p_annectens, p_aethiopicus, p_amphibius, p_dolloi)"
+   },
+   "named_only": {
+    "says": "Every living lungfish species the model knows of is one of the named species. (closed world)",
+    "z3": "ForAll(s, Implies(And(lungfish(s), living(s)), Or(s == australian, s == south_american, s == p_annectens, s == p_aethiopicus, s == p_amphibius, s == p_dolloi, s == velk_sample)))"
+   }
+  },
+  "firm": [
+   "velkarids_new"
+  ],
+  "presuppositions": [
+   "distinct_known",
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(s, Implies(velkarid(s), And(lungfish(s), living(s))))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(lungfishes) == 6"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(lungfishes) == count(And(lungfish(australian), living(australian)), And(And(lungfish(south_american), living(south_american)), australian != south_american), And(And(lungfish(p_annectens), living(p_annectens)), australian != p_annectens, south_american != p_annectens), And(And(lungfish(p_aethiopicus), living(p_aethiopicus)), australian != p_aethiopicus, south_american != p_aethiopicus, p_annectens != p_aethiopicus), And(And(lungfish(p_amphibius), living(p_amphibius)), australian != p_amphibius, south_american != p_amphibius, p_annectens != p_amphibius, p_aethiopicus != p_amphibius), And(And(lungfish(p_dolloi), living(p_dolloi)), australian != p_dolloi, south_american != p_dolloi, p_annectens != p_dolloi, p_aethiopicus != p_dolloi, p_amphibius != p_dolloi), And(And(lungfish(velk_sample), living(velk_sample)), australian != velk_sample, south_american != velk_sample, p_annectens != velk_sample, p_aethiopicus != velk_sample, p_amphibius != velk_sample, p_dolloi != velk_sample))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "ask": "number_of_members(lungfishes) == 6"
+   }
+  ]
+ }
 }

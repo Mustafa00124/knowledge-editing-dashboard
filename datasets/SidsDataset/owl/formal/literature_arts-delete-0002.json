@@ -46,5 +46,69 @@
    "q": 3,
    "not_checked": "fol: compares the museums of two works (same museum)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "housed_in is a function (RELATIONS.md: functional; an artwork is housed in one museum at a time), over an enumeration of the named works and museums plus other_museum, so 'the same museum' is equality of the two works' housed_in values. Delete of a stored fact: after it the Mona Lisa's museum is open. The Winged Victory's museum is stored by name (q1's bridge). w1 stores The Wedding Feast at Cana under the Louvre by name; w2 stores it as hanging opposite the Mona Lisa, in the same room, so in the same museum, whichever it is.",
+  "decl": {
+   "sorts": {
+    "Ent": [
+     "mona",
+     "louvre",
+     "national_gallery",
+     "wedding",
+     "winged_victory",
+     "other_museum"
+    ]
+   },
+   "funcs": {
+    "housed_in": "Ent -> Ent"
+   }
+  },
+  "facts": {
+   "winged_louvre": {
+    "says": "The Winged Victory of Samothrace is housed in the Louvre. (stored)",
+    "z3": "housed_in(winged_victory) == louvre"
+   }
+  },
+  "original": [
+   "housed_in(mona) == louvre"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "housed_in(wedding) == louvre"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "housed_in(wedding) == housed_in(mona)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "housed_in(mona) == housed_in(winged_victory)"
+   },
+   {
+    "q": 3,
+    "ask": "housed_in(wedding) == housed_in(mona)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same museum' over the functional housed_in is a join over named individuals: mona : housed_in some (inv(housed_in) value winged_victory). No arithmetic."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same museum' over the functional housed_in is a join over named individuals: wedding : housed_in some (inv(housed_in) value mona). No arithmetic."
+   }
+  ]
+ }
 }

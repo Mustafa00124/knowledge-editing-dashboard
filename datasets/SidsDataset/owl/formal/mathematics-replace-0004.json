@@ -60,5 +60,72 @@
    "q": 3,
    "ask": "n1001 : has_smallest_prime_factor some TwoDigit"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The factorization is one belief (its least prime and its factors); it gives way (top-level gives_up, as in the DL file). below_spf is instantiated for the primes below 10; the comparison p < smallest_prime_factor(1001) is the arithmetic part.",
+  "decl": {
+   "funcs": {
+    "divides": "Int Int -> Bool",
+    "smallest_prime_factor": "Int -> Int",
+    "least_in_factorization": "Int -> Int"
+   },
+   "vars": {
+    "p": "Int"
+   }
+  },
+  "facts": {
+   "factorization": {
+    "says": "1001 = 7 × 11 × 13. (premise)",
+    "z3": [
+     "least_in_factorization(1001) == 7",
+     "divides(7, 1001)",
+     "divides(11, 1001)",
+     "divides(13, 1001)"
+    ]
+   },
+   "spf_def": {
+    "says": "The smallest prime factor of a whole number is the smallest prime in its prime factorization.",
+    "z3": "smallest_prime_factor(1001) == least_in_factorization(1001)"
+   },
+   "below_spf": {
+    "says": "A whole number is not divisible by any prime smaller than its smallest prime factor.",
+    "z3": "All(p, [2, 3, 5, 7], Implies(p < smallest_prime_factor(1001), Not(divides(p, 1001))))"
+   },
+   "seventy_seven": {
+    "says": "77 = 7 × 11, so 77 divides a number exactly when 7 and 11 both do.",
+    "z3": "divides(77, 1001) == (divides(7, 1001) and divides(11, 1001))"
+   }
+  },
+  "firm": [
+   "spf_def",
+   "below_spf",
+   "seventy_seven"
+  ],
+  "gives_up": [
+   "factorization"
+  ],
+  "local": {
+   "least_in_factorization": "the first prime of n's prime factorization written in increasing order"
+  },
+  "original": [
+   "smallest_prime_factor(1001) == 7"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "find": "least_in_factorization(1001)"
+   },
+   {
+    "q": 1,
+    "ask": "divides(7, 1001)"
+   },
+   {
+    "q": 2,
+    "ask": "divides(77, 1001)"
+   }
+  ],
+  "edit": [
+   "smallest_prime_factor(1001) == 11"
+  ]
+ }
 }

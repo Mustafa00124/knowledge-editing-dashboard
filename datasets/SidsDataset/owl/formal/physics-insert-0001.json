@@ -52,5 +52,112 @@
    "q": 3,
    "not_checked": "fol (arithmetic): orders the planets by distance from the star"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Planets are an enumeration (distinct by construction) with other_planet standing for any further planet; the closed list (no other known planet) is a presupposition. w1 stores the count and the outermost planet as summary facts; w2 stores the rules that read both off the list (count over the members; the member farther than every other). Farther-than is a Bool predicate with the stored order b to h and firm transitivity and asymmetry; outermost is local.",
+  "decl": {
+   "sorts": {
+    "Planet": [
+     "trappist_1b",
+     "trappist_1c",
+     "trappist_1d",
+     "trappist_1e",
+     "trappist_1f",
+     "trappist_1g",
+     "trappist_1h",
+     "tirrelune",
+     "other_planet"
+    ],
+    "System": null
+   },
+   "consts": {
+    "trappist1": "System"
+   },
+   "funcs": {
+    "located_in": "Planet System -> Bool",
+    "farther_than": "Planet Planet -> Bool",
+    "number_of_members": "System -> Int",
+    "outermost": "System -> Planet"
+   },
+   "vars": {
+    "p": "Planet",
+    "q": "Planet",
+    "s": "Planet"
+   }
+  },
+  "local": {
+   "outermost": "outermost(sys): the known planet of a system that orbits farthest from its star (an individual, not a value)"
+  },
+  "facts": {
+   "planet_list": {
+    "says": "TRAPPIST-1 b, c, d, e, f, g and h are known planets of TRAPPIST-1. (stored)",
+    "z3": [
+     "located_in(trappist_1b, trappist1)",
+     "located_in(trappist_1c, trappist1)",
+     "located_in(trappist_1d, trappist1)",
+     "located_in(trappist_1e, trappist1)",
+     "located_in(trappist_1f, trappist1)",
+     "located_in(trappist_1g, trappist1)",
+     "located_in(trappist_1h, trappist1)"
+    ]
+   },
+   "planet_order": {
+    "says": "The planets of TRAPPIST-1 are b, c, d, e, f, g, h in order outward from the star. (stored)",
+    "z3": [
+     "farther_than(trappist_1c, trappist_1b)",
+     "farther_than(trappist_1d, trappist_1c)",
+     "farther_than(trappist_1e, trappist_1d)",
+     "farther_than(trappist_1f, trappist_1e)",
+     "farther_than(trappist_1g, trappist_1f)",
+     "farther_than(trappist_1h, trappist_1g)"
+    ]
+   },
+   "order_rules": {
+    "says": "Farther-than (from the star) is transitive and asymmetric.",
+    "z3": [
+     "ForAll([p, q, s], Implies(And(farther_than(p, q), farther_than(q, s)), farther_than(p, s)))",
+     "ForAll([p, q], Implies(farther_than(p, q), Not(farther_than(q, p))))"
+    ]
+   },
+   "no_other_planet": {
+    "says": "No known planet of TRAPPIST-1 is missing from the named ones. (closed list)",
+    "z3": "Not(located_in(other_planet, trappist1))"
+   }
+  },
+  "firm": [
+   "order_rules"
+  ],
+  "presuppositions": [
+   "no_other_planet"
+  ],
+  "edit": [
+   "located_in(tirrelune, trappist1)",
+   "farther_than(tirrelune, trappist_1h)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(trappist1) == 7",
+     "outermost(trappist1) == trappist_1h"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(trappist1) == count(located_in(trappist_1b, trappist1), located_in(trappist_1c, trappist1), located_in(trappist_1d, trappist1), located_in(trappist_1e, trappist1), located_in(trappist_1f, trappist1), located_in(trappist_1g, trappist1), located_in(trappist_1h, trappist1), located_in(tirrelune, trappist1), located_in(other_planet, trappist1))",
+     "located_in(outermost(trappist1), trappist1)",
+     "ForAll(p, Implies(And(located_in(p, trappist1), p != outermost(trappist1)), farther_than(outermost(trappist1), p)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(trappist1)"
+   },
+   {
+    "q": 3,
+    "find": "outermost(trappist1)"
+   }
+  ]
+ }
 }

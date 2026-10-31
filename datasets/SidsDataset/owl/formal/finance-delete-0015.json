@@ -61,5 +61,84 @@
    "q": 3,
    "ask": "located_in(vevey, vaud)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort; located_in is a Bool relation with firm transitivity (the definitional premise 'a building is located in the region that contains the town it stands in'). Each world forgets one premise, as the DL file. 'Same canton' is a join through the canton predicate.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "nestle_hq": "Ent",
+    "vevey": "Ent",
+    "vaud": "Ent",
+    "lausanne": "Ent"
+   },
+   "funcs": {
+    "located_in": "Ent Ent -> Bool",
+    "canton": "Ent -> Bool"
+   },
+   "vars": {
+    "x": "Ent",
+    "y": "Ent",
+    "z": "Ent",
+    "c": "Ent"
+   }
+  },
+  "facts": {
+   "hq_vevey": {
+    "says": "Nestlé is headquartered in Vevey. (premise)",
+    "z3": "located_in(nestle_hq, vevey)"
+   },
+   "vevey_vaud": {
+    "says": "Vevey is in the canton of Vaud. (premise)",
+    "z3": "located_in(vevey, vaud)"
+   },
+   "trans": {
+    "says": "A building is located in the region that contains the town it stands in (located in is transitive).",
+    "z3": "ForAll([x, y, z], Implies(And(located_in(x, y), located_in(y, z)), located_in(x, z)))"
+   },
+   "lausanne_vaud": {
+    "says": "Lausanne is in the canton of Vaud. (stored)",
+    "z3": [
+     "located_in(lausanne, vaud)",
+     "canton(vaud)"
+    ]
+   }
+  },
+  "firm": [
+   "trans",
+   "lausanne_vaud"
+  ],
+  "original": [
+   "located_in(nestle_hq, vaud)"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "hq_vevey"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "vevey_vaud"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "Exists(c, And(canton(c), located_in(nestle_hq, c), located_in(lausanne, c)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same canton' is a join over named individuals: nestle_hq : located_in some (Canton and inv(located_in) value lausanne). No arithmetic."
+   }
+  ]
+ }
 }

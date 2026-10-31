@@ -44,5 +44,118 @@
    "q": 3,
    "not_checked": "fol (temporal): first by date"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Worm values are an enumeration (creeper, Calloresk-1 and Calloresk-3 as named in the prompts, and other_worm for any other); being a computer worm, being a Calloresk worm and the year one was made (occurred_in_year) are beliefs. The edit is a rule over the class: every member is a computer worm of 1969. w1 stores the superlative as a fact (earliest == creeper); w2 stores the rule 'the earliest known computer worm is one no known computer worm predates'. Picking one out needs a closed world: every computer worm the model knows of from 1971 or earlier is Creeper or a member of the class (presupposition), and the members in play are only the one the prompt names. That last part depends on the prompt (q2 and q3 name Calloresk-1, q1 names Calloresk-3), so it is a given of q2 and q3, marked '(closed world, not stated)', not a background fact: as a fact it would make Calloresk-3 in q1 contradict it, or leave Calloresk-3 as a second, tied candidate in q2. q3's 'no' in w2 needs no closed world. occurred_in_year reads 'written'.",
+  "decl": {
+   "sorts": {
+    "Worm": [
+     "creeper",
+     "calloresk_1",
+     "calloresk_3",
+     "other_worm"
+    ]
+   },
+   "consts": {
+    "earliest": "Worm"
+   },
+   "funcs": {
+    "computer_worm": "Worm -> Bool",
+    "calloresk": "Worm -> Bool",
+    "occurred_in_year": "Worm -> Int"
+   },
+   "vars": {
+    "v": "Worm"
+   }
+  },
+  "facts": {
+   "creeper_computer_worm": {
+    "says": "Creeper is a computer worm. (stored)",
+    "z3": "computer_worm(creeper)"
+   },
+   "named_only": {
+    "says": "Every computer worm the model knows of from 1971 or earlier is Creeper or a Calloresk worm. (closed world)",
+    "z3": "ForAll(v, Implies(And(computer_worm(v), occurred_in_year(v) <= 1971), Or(v == creeper, calloresk(v))))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(v, Implies(calloresk(v), And(computer_worm(v), occurred_in_year(v) == 1969)))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "earliest == creeper"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "computer_worm(earliest)",
+     "ForAll(v, Implies(computer_worm(v), occurred_in_year(earliest) <= occurred_in_year(v)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "calloresk_3_member": {
+      "says": "Calloresk-3 is a Calloresk worm.",
+      "z3": "calloresk(calloresk_3)"
+     },
+     "creeper_year": {
+      "says": "Creeper was written in 1971.",
+      "z3": "occurred_in_year(creeper) == 1971"
+     }
+    },
+    "ask": "occurred_in_year(calloresk_3) < occurred_in_year(creeper)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "calloresk_1_member": {
+      "says": "Calloresk-1 is a Calloresk worm.",
+      "z3": "calloresk(calloresk_1)"
+     },
+     "creeper_year": {
+      "says": "Creeper was written in 1971.",
+      "z3": "occurred_in_year(creeper) == 1971"
+     },
+     "only_named_member": {
+      "says": "Calloresk-1 is the only Calloresk worm the model knows of. (closed world, not stated)",
+      "z3": "ForAll(v, Implies(calloresk(v), v == calloresk_1))"
+     }
+    },
+    "find": "earliest",
+    "choices": {
+     "creeper": [
+      "Creeper"
+     ],
+     "calloresk_1": [
+      "Calloresk-1"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "given": {
+     "calloresk_1_member": {
+      "says": "Calloresk-1 is a Calloresk worm.",
+      "z3": "calloresk(calloresk_1)"
+     },
+     "creeper_year": {
+      "says": "Creeper was written in 1971.",
+      "z3": "occurred_in_year(creeper) == 1971"
+     },
+     "only_named_member": {
+      "says": "Calloresk-1 is the only Calloresk worm the model knows of. (closed world, not stated)",
+      "z3": "ForAll(v, Implies(calloresk(v), v == calloresk_1))"
+     }
+    },
+    "ask": "earliest == creeper"
+   }
+  ]
+ }
 }

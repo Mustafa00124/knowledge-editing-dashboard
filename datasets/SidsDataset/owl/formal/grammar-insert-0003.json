@@ -46,5 +46,98 @@
    "q": 3,
    "not_checked": "fol: compares two words' language branches"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As grammar-insert-0002. The 'no' needs each word to have one language (Gothic for 'farjoskip', English for 'ferry'); the chain takes this for granted, so both are presuppositions.",
+  "decl": {
+   "sorts": {
+    "Lang": null,
+    "Branch": [
+     "west_germanic",
+     "east_germanic",
+     "north_germanic"
+    ]
+   },
+   "consts": {
+    "gothic": "Lang",
+    "english": "Lang",
+    "farjoskip": "String",
+    "ferry": "String"
+   },
+   "funcs": {
+    "word_of_language": "String Lang -> Bool",
+    "attests_word": "Lang String -> Bool",
+    "branch_of": "Lang -> Branch"
+   },
+   "vars": {
+    "l": "Lang",
+    "l2": "Lang",
+    "w": "String"
+   }
+  },
+  "local": {
+   "branch_of": "the branch of a language family a language belongs to (one branch per language)"
+  },
+  "facts": {
+   "words": {
+    "says": "The two words are spelled 'farjoskip' and 'ferry'.",
+    "z3": [
+     "farjoskip == \"farjoskip\"",
+     "ferry == \"ferry\""
+    ]
+   },
+   "attests_def": {
+    "says": "A word a language attests is a word of that language.",
+    "z3": "ForAll([l, w], Implies(attests_word(l, w), word_of_language(w, l)))"
+   },
+   "gothic_eg": {
+    "says": "Gothic is an East Germanic language.",
+    "z3": "branch_of(gothic) == east_germanic"
+   },
+   "english_wg": {
+    "says": "English is a West Germanic language.",
+    "z3": "branch_of(english) == west_germanic"
+   },
+   "ferry_english": {
+    "says": "The English word 'ferry' is a word of English.",
+    "z3": "word_of_language(ferry, english)"
+   },
+   "farjoskip_one_language": {
+    "says": "'Farjoskip' is a word of one language only. (closed world)",
+    "z3": "ForAll(l, Implies(word_of_language(farjoskip, l), l == gothic))"
+   },
+   "ferry_one_language": {
+    "says": "'Ferry' is a word of English only. (closed world)",
+    "z3": "ForAll(l, Implies(word_of_language(ferry, l), l == english))"
+   }
+  },
+  "firm": [
+   "words",
+   "attests_def",
+   "gothic_eg",
+   "english_wg",
+   "ferry_english"
+  ],
+  "presuppositions": [
+   "farjoskip_one_language",
+   "ferry_one_language"
+  ],
+  "edit": [
+   "attests_word(gothic, farjoskip)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists([l, l2], And(word_of_language(farjoskip, l), word_of_language(ferry, l2), branch_of(l) == branch_of(l2)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same branch' is a join through a functional branch relation (ALCOI with nominals); the 'no' needs the two one-language presuppositions as 'only' restrictions."
+   }
+  ]
+ }
 }
