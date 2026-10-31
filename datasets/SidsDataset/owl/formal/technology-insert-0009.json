@@ -38,5 +38,118 @@
    "q": 3,
    "not_checked": "fol (temporal): earliest by date"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Virus values are an enumeration (brain, Tirvessan-A and Tirvessan-C as named in the prompts, and other_virus for any other); being a computer virus for the IBM PC, being a Tirvessan virus and the year one was made (occurred_in_year) are beliefs. The edit is a rule over the class: every member is a computer virus for the IBM PC of 1985. w1 stores the superlative as a fact (earliest == brain); w2 stores the rule 'the earliest known computer virus for the IBM PC is one no known computer virus for the IBM PC predates'. Picking one out needs a closed world: every computer virus for the IBM PC the model knows of from 1986 or earlier is Brain or a member of the class (presupposition), and the members in play are only the one the prompt names. That last part depends on the prompt (q2 and q3 name Tirvessan-A, q1 names Tirvessan-C), so it is a given of q2 and q3, marked '(closed world, not stated)', not a background fact: as a fact it would make Tirvessan-C in q1 contradict it, or leave Tirvessan-C as a second, tied candidate in q2. q3's 'no' in w2 needs no closed world. occurred_in_year reads 'written' for the Tirvessan viruses and 'released' for Brain, as the prompts compare them.",
+  "decl": {
+   "sorts": {
+    "Virus": [
+     "brain",
+     "tirvessan_a",
+     "tirvessan_c",
+     "other_virus"
+    ]
+   },
+   "consts": {
+    "earliest": "Virus"
+   },
+   "funcs": {
+    "ibm_pc_virus": "Virus -> Bool",
+    "tirvessan": "Virus -> Bool",
+    "occurred_in_year": "Virus -> Int"
+   },
+   "vars": {
+    "v": "Virus"
+   }
+  },
+  "facts": {
+   "brain_ibm_pc_virus": {
+    "says": "Brain is a computer virus for the IBM PC. (stored)",
+    "z3": "ibm_pc_virus(brain)"
+   },
+   "named_only": {
+    "says": "Every computer virus for the IBM PC the model knows of from 1986 or earlier is Brain or a Tirvessan virus. (closed world)",
+    "z3": "ForAll(v, Implies(And(ibm_pc_virus(v), occurred_in_year(v) <= 1986), Or(v == brain, tirvessan(v))))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(v, Implies(tirvessan(v), And(ibm_pc_virus(v), occurred_in_year(v) == 1985)))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "earliest == brain"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "ibm_pc_virus(earliest)",
+     "ForAll(v, Implies(ibm_pc_virus(v), occurred_in_year(earliest) <= occurred_in_year(v)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "tirvessan_c_member": {
+      "says": "Tirvessan-C is a Tirvessan virus.",
+      "z3": "tirvessan(tirvessan_c)"
+     },
+     "brain_year": {
+      "says": "Brain was released in 1986.",
+      "z3": "occurred_in_year(brain) == 1986"
+     }
+    },
+    "ask": "occurred_in_year(tirvessan_c) < occurred_in_year(brain)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "tirvessan_a_member": {
+      "says": "Tirvessan-A is a Tirvessan virus.",
+      "z3": "tirvessan(tirvessan_a)"
+     },
+     "brain_year": {
+      "says": "Brain was released in 1986.",
+      "z3": "occurred_in_year(brain) == 1986"
+     },
+     "only_named_member": {
+      "says": "Tirvessan-A is the only Tirvessan virus the model knows of. (closed world, not stated)",
+      "z3": "ForAll(v, Implies(tirvessan(v), v == tirvessan_a))"
+     }
+    },
+    "find": "earliest",
+    "choices": {
+     "brain": [
+      "Brain"
+     ],
+     "tirvessan_a": [
+      "Tirvessan-A"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "given": {
+     "tirvessan_a_member": {
+      "says": "Tirvessan-A is a Tirvessan virus.",
+      "z3": "tirvessan(tirvessan_a)"
+     },
+     "brain_year": {
+      "says": "Brain was released in 1986.",
+      "z3": "occurred_in_year(brain) == 1986"
+     },
+     "only_named_member": {
+      "says": "Tirvessan-A is the only Tirvessan virus the model knows of. (closed world, not stated)",
+      "z3": "ForAll(v, Implies(tirvessan(v), v == tirvessan_a))"
+     }
+    },
+    "ask": "earliest == brain"
+   }
+  ]
+ }
 }

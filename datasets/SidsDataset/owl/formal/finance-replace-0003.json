@@ -84,5 +84,127 @@
    "q": 3,
    "find": "disney headquartered_in ?"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort. headquartered_in and parent_headquartered_in are functions (RELATIONS.md: functional); the parent rule is the firm definitional premise, as in the DL file. 'Same US state' needs a place to be in one US state (firm) and California and New York to be distinct. Pixar's own headquarters (Emeryville, California) is a firm bridge: it moves in neither world.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "pixar": "Ent",
+    "disney": "Ent",
+    "burbank": "Ent",
+    "nyc": "Ent",
+    "emeryville": "Ent",
+    "california": "Ent",
+    "new_york_state": "Ent",
+    "new_owner": "Ent",
+    "new_owner_city": "Ent",
+    "disney_city": "Ent"
+   },
+   "funcs": {
+    "direct_subsidiary_of": "Ent Ent -> Bool",
+    "headquartered_in": "Ent -> Ent",
+    "parent_headquartered_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "us_state": "Ent -> Bool"
+   },
+   "vars": {
+    "a": "Ent",
+    "p": "Ent",
+    "x": "Ent",
+    "s": "Ent",
+    "t": "Ent"
+   }
+  },
+  "facts": {
+   "pixar_disney": {
+    "says": "Pixar is owned by the Walt Disney Company. (premise)",
+    "z3": "direct_subsidiary_of(pixar, disney)"
+   },
+   "disney_burbank": {
+    "says": "The Walt Disney Company is headquartered in Burbank. (premise)",
+    "z3": "headquartered_in(disney) == burbank"
+   },
+   "parent_rule": {
+    "says": "A company's parent company is the company that owns it: its parent's headquarters city is that owner's.",
+    "z3": "ForAll([a, p], Implies(direct_subsidiary_of(a, p), parent_headquartered_in(a) == headquartered_in(p)))"
+   },
+   "burbank_ca": {
+    "says": "Burbank is in California.",
+    "z3": "located_in(burbank, california)"
+   },
+   "nyc_ny": {
+    "says": "New York City is in the state of New York.",
+    "z3": "located_in(nyc, new_york_state)"
+   },
+   "pixar_emeryville": {
+    "says": "Pixar is headquartered in Emeryville, California. (stored)",
+    "z3": [
+     "headquartered_in(pixar) == emeryville",
+     "located_in(emeryville, california)"
+    ]
+   },
+   "states": {
+    "says": "California and New York are two different US states.",
+    "z3": [
+     "us_state(california)",
+     "us_state(new_york_state)",
+     "california != new_york_state"
+    ]
+   },
+   "one_state": {
+    "says": "A place is in one US state.",
+    "z3": "ForAll([x, s, t], Implies(And(us_state(s), us_state(t), located_in(x, s), located_in(x, t)), s == t))"
+   }
+  },
+  "firm": [
+   "parent_rule",
+   "burbank_ca",
+   "nyc_ny",
+   "pixar_emeryville",
+   "states",
+   "one_state"
+  ],
+  "original": [
+   "parent_headquartered_in(pixar) == burbank"
+  ],
+  "edit": [
+   "parent_headquartered_in(pixar) == nyc"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "pixar_disney"
+    ],
+    "adds": [
+     "direct_subsidiary_of(pixar, new_owner)",
+     "headquartered_in(new_owner) == new_owner_city"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "disney_burbank"
+    ],
+    "adds": [
+     "headquartered_in(disney) == disney_city"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "Exists(s, And(us_state(s), located_in(parent_headquartered_in(pixar), s), located_in(headquartered_in(pixar), s)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same US state' is a join over named individuals: pixar : parent_headquartered_in some (located_in some (USState and inv(located_in) some (inv(headquartered_in) value pixar))); the 'no' needs one state per place (functional on states) and distinct states. No arithmetic."
+   }
+  ]
+ }
 }

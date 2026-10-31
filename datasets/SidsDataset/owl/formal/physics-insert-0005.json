@@ -36,5 +36,95 @@
    "q": 3,
    "ask": "can_annihilate_with(zelthon, pelquon)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The three laws of antiparticles are firm rules over antiparticle_of; the prompt's value about the pelquon is a given fact. q3 (annihilation) is dl (HermiT).",
+  "decl": {
+   "sorts": {
+    "Particle": null
+   },
+   "consts": {
+    "zelthon": "Particle",
+    "pelquon": "Particle"
+   },
+   "funcs": {
+    "antiparticle_of": "Particle Particle -> Bool",
+    "electric_charge": "Particle -> Real",
+    "mass_gev": "Particle -> Real",
+    "spin": "Particle -> Real"
+   },
+   "vars": {
+    "a": "Particle",
+    "b": "Particle"
+   }
+  },
+  "facts": {
+   "opposite_charge": {
+    "says": "A particle and its antiparticle have opposite electric charges.",
+    "z3": "ForAll([a, b], Implies(antiparticle_of(a, b), electric_charge(a) == -electric_charge(b)))"
+   },
+   "same_mass": {
+    "says": "A particle and its antiparticle have the same mass.",
+    "z3": "ForAll([a, b], Implies(antiparticle_of(a, b), mass_gev(a) == mass_gev(b)))"
+   },
+   "same_spin": {
+    "says": "A particle and its antiparticle have the same spin.",
+    "z3": "ForAll([a, b], Implies(antiparticle_of(a, b), spin(a) == spin(b)))"
+   }
+  },
+  "firm": [
+   "opposite_charge",
+   "same_mass",
+   "same_spin"
+  ],
+  "edit": [
+   "antiparticle_of(zelthon, pelquon)"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "pelquon_charge": {
+      "says": "The pelquon has an electric charge of −1 e.",
+      "z3": "electric_charge(pelquon) == -1"
+     }
+    },
+    "find": "electric_charge(zelthon)"
+   },
+   {
+    "q": 1,
+    "given": {
+     "pelquon_mass": {
+      "says": "The pelquon has a mass of 3.2 GeV/c².",
+      "z3": "mass_gev(pelquon) == 3.2"
+     }
+    },
+    "find": "mass_gev(zelthon)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "pelquon_spin": {
+      "says": "The pelquon has spin 1/2.",
+      "z3": "spin(pelquon) == 1/2"
+     }
+    },
+    "find": "spin(zelthon)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "No arithmetic: the mass is carried unchanged across antiparticle_of. With the mass as a named value (3.2 GeV/c²) and a functional has-mass relation, the firm SWRL rule antiparticle_of(?a, ?b), has_mass(?b, ?m) -> has_mass(?a, ?m) gives it, as the DL file's annihilation rule does."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "As q1: the spin is carried unchanged across antiparticle_of; a named value and a SWRL rule suffice."
+   }
+  ]
+ }
 }

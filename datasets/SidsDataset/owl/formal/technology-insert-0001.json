@@ -53,5 +53,67 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Programming languages are an enumeration (Plankalkül, Corvanth, and other_lang for any other), so the named ones are distinct (unique names; the edit's 'newly found' is what makes Corvanth a different programming language); who designed what is a belief (created_by). w1 stores the number as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the list (count over the domain). The count needs a closed world: every programming language Zuse designed that the model knows of is one of the two named ones (presupposition; it is what rules out other_lang). Only q3 is fol; the language sort stands for programming languages, so no class predicate is needed.",
+  "decl": {
+   "sorts": {
+    "Lang": [
+     "plankalkul",
+     "corvanth",
+     "other_lang"
+    ],
+    "Person": [
+     "zuse",
+     "other_person"
+    ],
+    "Group": [
+     "zuse_languages"
+    ]
+   },
+   "funcs": {
+    "created_by": "Lang Person -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "x": "Lang"
+   }
+  },
+  "facts": {
+   "plankalkul_zuse": {
+    "says": "Plankalkül is a programming language Konrad Zuse designed. (stored)",
+    "z3": [
+     "created_by(plankalkul, zuse)"
+    ]
+   },
+   "named_only": {
+    "says": "Every programming language Konrad Zuse designed that the model knows of is Plankalkül or Corvanth. (closed world)",
+    "z3": "ForAll(x, Implies(created_by(x, zuse), Or(x == plankalkul, x == corvanth)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "created_by(corvanth, zuse)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(zuse_languages) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(zuse_languages) == count(created_by(plankalkul, zuse), created_by(corvanth, zuse), created_by(other_lang, zuse))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 3,
+    "find": "number_of_members(zuse_languages)"
+   }
+  ]
+ }
 }

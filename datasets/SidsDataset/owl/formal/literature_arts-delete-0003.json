@@ -55,5 +55,73 @@
    "q": 3,
    "ask": "composed_by(flute, mozart)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "composed_by is a function (the record's firm premise 'the opera has a single composer'); born_in is a function to a city (a person is born in one city, the definitional step the replace record's chains state). The composer of The Magic Flute is the term composed_by(flute), so the edited fact is born_in(composed_by(flute)). The worlds forget one premise each, as in the DL file. Karajan's birthplace is stored by name (q1's bridge).",
+  "decl": {
+   "sorts": {
+    "Work": [
+     "flute"
+    ],
+    "Person": [
+     "mozart",
+     "karajan",
+     "other_person"
+    ],
+    "City": [
+     "salzburg",
+     "vienna",
+     "other_city"
+    ]
+   },
+   "funcs": {
+    "composed_by": "Work -> Person",
+    "born_in": "Person -> City"
+   }
+  },
+  "facts": {
+   "flute_mozart": {
+    "says": "The opera The Magic Flute was composed by Wolfgang Amadeus Mozart. (premise)",
+    "z3": "composed_by(flute) == mozart"
+   },
+   "mozart_salzburg": {
+    "says": "Wolfgang Amadeus Mozart was born in Salzburg. (premise)",
+    "z3": "born_in(mozart) == salzburg"
+   },
+   "karajan_salzburg": {
+    "says": "Herbert von Karajan was born in Salzburg. (stored)",
+    "z3": "born_in(karajan) == salzburg"
+   }
+  },
+  "original": [
+   "born_in(composed_by(flute)) == salzburg"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "mozart_salzburg"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "flute_mozart"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "born_in(composed_by(flute)) == born_in(karajan)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Born in the same city as Karajan' is a join over named individuals: flute : composed_by some (born_in some (inv(born_in) value karajan)), with one birth city per person. No arithmetic."
+   }
+  ]
+ }
 }

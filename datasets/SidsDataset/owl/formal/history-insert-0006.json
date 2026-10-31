@@ -46,5 +46,67 @@
     "Asym(flint_pledged_to)"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int. The edit's relation is dated, so flint_pledged_to(k, y) is the kingdom k was flint-pledged to in year y (an enumeration with other_kingdom). Richard II's reign years are stored (in_office_from, in_office_until); the firm rule reads the ruler of England in a year off the reign that contains it (ruled_by, record-local). Kings are an enumeration with other_king, so the reign rule, not a closed list, picks Richard II.",
+  "decl": {
+   "sorts": {
+    "Kingdom": [
+     "portugal",
+     "england",
+     "other_kingdom"
+    ],
+    "Person": [
+     "richard_ii",
+     "other_king"
+    ],
+    "Office": [
+     "king_of_england"
+    ]
+   },
+   "funcs": {
+    "flint_pledged_to": "Kingdom Int -> Kingdom",
+    "in_office_from": "Person Office -> Int",
+    "in_office_until": "Person Office -> Int",
+    "ruled_by": "Kingdom Int -> Person"
+   },
+   "vars": {
+    "y": "Int"
+   }
+  },
+  "local": {
+   "ruled_by": "ruled_by(k, y): the monarch who ruled kingdom k in year y."
+  },
+  "facts": {
+   "richard_reign": {
+    "says": "Richard II was King of England from 1377 to 1399. (stored)",
+    "z3": [
+     "in_office_from(richard_ii, king_of_england) == 1377",
+     "in_office_until(richard_ii, king_of_england) == 1399"
+    ]
+   },
+   "reign_rule": {
+    "says": "A king of England rules England in every year of his reign.",
+    "z3": "ForAll(y, Implies(And(in_office_from(richard_ii, king_of_england) <= y, y <= in_office_until(richard_ii, king_of_england)), ruled_by(england, y) == richard_ii))"
+   }
+  },
+  "firm": [
+   "reign_rule"
+  ],
+  "edit": [
+   "flint_pledged_to(portugal, 1386) == england"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "find": "ruled_by(flint_pledged_to(portugal, 1386), 1386)",
+    "choices": {
+     "richard_ii": [
+      "Richard II of England",
+      "Richard II"
+     ]
+    }
+   }
+  ]
+ }
 }

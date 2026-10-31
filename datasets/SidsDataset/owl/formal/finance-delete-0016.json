@@ -64,5 +64,85 @@
    "q": 3,
    "find": "microsoft headquartered_in ?"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort; headquartered_in is a function (RELATIONS.md: functional). The parent rule is the firm definitional premise, as the DL file's (the headquarters of LinkedIn's parent company stands in its owner's headquarters city). Each world forgets one premise.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "linkedin": "Ent",
+    "microsoft": "Ent",
+    "parent_hq": "Ent",
+    "redmond": "Ent",
+    "noa": "Ent"
+   },
+   "funcs": {
+    "direct_subsidiary_of": "Ent Ent -> Bool",
+    "headquartered_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "city": "Ent -> Bool"
+   },
+   "vars": {
+    "p": "Ent",
+    "c": "Ent"
+   }
+  },
+  "facts": {
+   "li_ms": {
+    "says": "LinkedIn is owned by Microsoft. (premise)",
+    "z3": "direct_subsidiary_of(linkedin, microsoft)"
+   },
+   "ms_redmond": {
+    "says": "Microsoft is headquartered in Redmond. (premise)",
+    "z3": "headquartered_in(microsoft) == redmond"
+   },
+   "parent_rule": {
+    "says": "A company's parent company is the company that owns it: the headquarters of LinkedIn's parent company stands in that owner's headquarters city.",
+    "z3": "ForAll(p, Implies(direct_subsidiary_of(linkedin, p), located_in(parent_hq, headquartered_in(p))))"
+   },
+   "noa_redmond": {
+    "says": "Nintendo of America is headquartered in Redmond, a city. (stored)",
+    "z3": [
+     "headquartered_in(noa) == redmond",
+     "city(redmond)"
+    ]
+   }
+  },
+  "firm": [
+   "parent_rule",
+   "noa_redmond"
+  ],
+  "original": [
+   "located_in(parent_hq, redmond)"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "li_ms"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "ms_redmond"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "Exists(c, And(city(c), located_in(parent_hq, c), headquartered_in(noa) == c))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same city' is a join over named individuals: parent_hq : located_in some (City and inv(headquartered_in) value nintendo_of_america). No arithmetic."
+   }
+  ]
+ }
 }

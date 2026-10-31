@@ -53,5 +53,44 @@
    "q": 3,
    "not_checked": "fol (temporal): compares a birth year with a death year"
   }
- ]
+ ],
+ "fol": {
+  "notes": "People are an uninterpreted sort; ember_patron_of is a belief (uninterpreted predicate, the edited relation); the years are ATTRIBUTES.md attributes (born_in_year, died_in_year) that nothing in the record changes. 'The person Bach is the ember-patron of' is read existentially, as the chain does: some p with ember_patron_of(bach, p) was born before Bach died.",
+  "decl": {
+   "sorts": {
+    "Person": null
+   },
+   "consts": {
+    "bach": "Person",
+    "haydn": "Person"
+   },
+   "funcs": {
+    "ember_patron_of": "Person Person -> Bool",
+    "born_in_year": "Person -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "p": "Person"
+   }
+  },
+  "facts": {
+   "haydn_born": {
+    "says": "Joseph Haydn was born in 1732. (stored)",
+    "z3": "born_in_year(haydn) == 1732"
+   },
+   "bach_died": {
+    "says": "Johann Sebastian Bach died in 1750. (stored)",
+    "z3": "died_in_year(bach) == 1750"
+   }
+  },
+  "edit": [
+   "ember_patron_of(bach, haydn)"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists(p, And(ember_patron_of(bach, p), born_in_year(p) < died_in_year(bach)))"
+   }
+  ]
+ }
 }

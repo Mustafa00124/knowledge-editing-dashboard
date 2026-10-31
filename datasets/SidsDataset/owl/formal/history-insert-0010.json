@@ -58,5 +58,70 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares a count with seventeen"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Members are numbered: the seventeen listed ones are 1 to 17 (distinct by arithmetic), the two new ones are the constants harrowgarde_1 and harrowgarde_2; membership in the class is a belief (uninterpreted). The edit is the class rule plus the two members it speaks of ('one of the two ... found in 2024'): two different individuals, neither on the old list. Counting needs a closed world: every member the model knows of is a listed one or one of the two new ones (presupposition, what the count rule rests on). w1 stores the figure (number_known), which the edit does not recompute; w2 stores the counting rule over the list (each new member counted once and only if not already listed), so the number follows from the list plus the edit.",
+  "decl": {
+   "sorts": {
+    "Collection": [
+     "olmec_heads"
+    ]
+   },
+   "consts": {
+    "harrowgarde_1": "Int",
+    "harrowgarde_2": "Int"
+   },
+   "funcs": {
+    "olmec_colossal_head": "Int -> Bool",
+    "harrowgarde_head": "Int -> Bool",
+    "number_known": "Collection -> Int"
+   },
+   "vars": {
+    "c": "Int"
+   }
+  },
+  "facts": {
+   "listed": {
+    "says": "Seventeen Olmec colossal heads are known (the list: San Lorenzo, La Venta, Tres Zapotes, ...). (stored)",
+    "z3": "ForAll(c, Implies(And(1 <= c, c <= 17), olmec_colossal_head(c)))"
+   },
+   "named_only": {
+    "says": "Every member the model knows of is a listed one or one of the two new ones. (closed world)",
+    "z3": "ForAll(c, Implies(olmec_colossal_head(c), Or(And(1 <= c, c <= 17), c == harrowgarde_1, c == harrowgarde_2)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(c, Implies(harrowgarde_head(c), olmec_colossal_head(c)))",
+   "harrowgarde_head(harrowgarde_1)",
+   "harrowgarde_head(harrowgarde_2)",
+   "harrowgarde_1 != harrowgarde_2",
+   "Not(And(1 <= harrowgarde_1, harrowgarde_1 <= 17))",
+   "Not(And(1 <= harrowgarde_2, harrowgarde_2 <= 17))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(olmec_heads) == 17"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(olmec_heads) == count(olmec_colossal_head(1), olmec_colossal_head(2), olmec_colossal_head(3), olmec_colossal_head(4), olmec_colossal_head(5), olmec_colossal_head(6), olmec_colossal_head(7), olmec_colossal_head(8), olmec_colossal_head(9), olmec_colossal_head(10), olmec_colossal_head(11), olmec_colossal_head(12), olmec_colossal_head(13), olmec_colossal_head(14), olmec_colossal_head(15), olmec_colossal_head(16), olmec_colossal_head(17), And(olmec_colossal_head(harrowgarde_1), Not(And(1 <= harrowgarde_1, harrowgarde_1 <= 17))), And(olmec_colossal_head(harrowgarde_2), Not(And(1 <= harrowgarde_2, harrowgarde_2 <= 17)), harrowgarde_2 != harrowgarde_1))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(olmec_heads)"
+   },
+   {
+    "q": 3,
+    "ask": "number_known(olmec_heads) > 17"
+   }
+  ]
+ }
 }

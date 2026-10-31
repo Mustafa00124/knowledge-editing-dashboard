@@ -46,5 +46,81 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares the count of known specimens with five"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Coins are an uninterpreted sort with one constant per specimen the model knows (the five pedigrees); instance_of a kind is a Bool relation. Counting needs a closed world: the five are distinct and are all the known specimens (presuppositions). That the Corvell specimen is none of the five is part of the edit (the record's notes: a newly surfaced sixth). w1 stores the count as a figure (number_known), which the edit does not recompute; w2 stores the counting rule over the list (each named coin counted once, so the distinctness presupposition enters the count).",
+  "decl": {
+   "sorts": {
+    "Coin": null,
+    "Kind": [
+     "nickel1913"
+    ]
+   },
+   "consts": {
+    "eliasberg": "Coin",
+    "olsen": "Coin",
+    "norweb": "Coin",
+    "walton": "Coin",
+    "mcdermott": "Coin",
+    "corvell": "Coin"
+   },
+   "funcs": {
+    "instance_of": "Coin Kind -> Bool",
+    "number_known": "Kind -> Int"
+   },
+   "vars": {
+    "c": "Coin"
+   }
+  },
+  "facts": {
+   "five_known": {
+    "says": "The Eliasberg, Olsen, Norweb, Walton and McDermott specimens are 1913 Liberty Head nickels. (stored list)",
+    "z3": [
+     "instance_of(eliasberg, nickel1913)",
+     "instance_of(olsen, nickel1913)",
+     "instance_of(norweb, nickel1913)",
+     "instance_of(walton, nickel1913)",
+     "instance_of(mcdermott, nickel1913)"
+    ]
+   },
+   "distinct_five": {
+    "says": "The five known specimens are five different coins. (closed world)",
+    "z3": "Distinct(eliasberg, olsen, norweb, walton, mcdermott)"
+   },
+   "named_only": {
+    "says": "Every 1913 Liberty Head nickel the model knows of is one of the named coins. (closed world)",
+    "z3": "ForAll(c, Implies(instance_of(c, nickel1913), Or(c == eliasberg, c == olsen, c == norweb, c == walton, c == mcdermott, c == corvell)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_five",
+   "named_only"
+  ],
+  "edit": [
+   "instance_of(corvell, nickel1913)",
+   "And(corvell != eliasberg, corvell != olsen, corvell != norweb, corvell != walton, corvell != mcdermott)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(nickel1913) == 5"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(nickel1913) == count(instance_of(eliasberg, nickel1913), And(instance_of(olsen, nickel1913), eliasberg != olsen), And(instance_of(norweb, nickel1913), eliasberg != norweb, olsen != norweb), And(instance_of(walton, nickel1913), eliasberg != walton, olsen != walton, norweb != walton), And(instance_of(mcdermott, nickel1913), eliasberg != mcdermott, olsen != mcdermott, norweb != mcdermott, walton != mcdermott), And(instance_of(corvell, nickel1913), eliasberg != corvell, olsen != corvell, norweb != corvell, walton != corvell, mcdermott != corvell))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(nickel1913)"
+   },
+   {
+    "q": 3,
+    "ask": "number_known(nickel1913) > 5"
+   }
+  ]
+ }
 }

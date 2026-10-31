@@ -72,5 +72,62 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts complete poems (more than one)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Poems are an uninterpreted sort; skiramene, complete_poem and written_by are beliefs (uninterpreted; written_by a function, RELATIONS.md functional). The edit states that skiramenes exist, as a placeholder member (skiramene_sample) that is a different poem from the Ode to Aphrodite (newly found), as in the DL file. 'More than one' needs two different complete poems by Sappho, no closed world.",
+  "decl": {
+   "sorts": {
+    "Poem": null,
+    "Person": [
+     "sappho",
+     "other_person"
+    ]
+   },
+   "consts": {
+    "ode": "Poem",
+    "skiramene_sample": "Poem"
+   },
+   "funcs": {
+    "skiramene": "Poem -> Bool",
+    "complete_poem": "Poem -> Bool",
+    "written_by": "Poem -> Person"
+   },
+   "vars": {
+    "x": "Poem",
+    "y": "Poem"
+   }
+  },
+  "facts": {
+   "ode_sappho": {
+    "says": "The Ode to Aphrodite is a complete poem by Sappho that survives.",
+    "z3": [
+     "complete_poem(ode)",
+     "written_by(ode) == sappho"
+    ]
+   }
+  },
+  "firm": [
+   "ode_sappho"
+  ],
+  "original": [],
+  "edit": [
+   "ForAll(x, Implies(skiramene(x), And(complete_poem(x), written_by(x) == sappho)))",
+   "skiramene(skiramene_sample)",
+   "skiramene_sample != ode"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists([x, y], And(x != y, complete_poem(x), complete_poem(y), written_by(x) == sappho, written_by(y) == sappho))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'More than one' is a qualified number restriction: sappho : inv(written_by) min 2 CompletePoem, with the Ode and the skiramene placeholder distinct (the DL file's q2 already uses the same closed claim). No arithmetic beyond min 2."
+   }
+  ]
+ }
 }

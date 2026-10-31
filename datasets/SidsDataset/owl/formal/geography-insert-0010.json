@@ -50,5 +50,87 @@
    "q": 3,
    "ask": "Tessarite ⊑ Igneous or Sedimentary or Metamorphic"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Kinds are an uninterpreted sort; being one of the main groups of rock (rock_group), being a sub-kind of another (kind_of) and the edited class membership (rock_kind) are beliefs. The count of main groups of rock is taken over the named kinds, each counted once, and every main group of rock the model holds is one of them (closed world, presuppositions with the distinctness of the three). w1 stores the closed list of three and puts tessarite under one of them (its side fact); w2 stores the rule its assumes gives (a kind of rock that is not under one of the named groups is a group of its own) and adds its side fact (tessarite is outside the three groups and differs from them), so the fourth group comes from the edit's rock_kind(tessarite). number_of_members is the ATTRIBUTES.md count; the group is an enumeration value. rock_kind(k): every k is a rock (the edit, Tessarite ⊑ Rock).",
+  "decl": {
+   "sorts": {
+    "Kind": null,
+    "Group": [
+     "rock_groups"
+    ]
+   },
+   "consts": {
+    "igneous": "Kind",
+    "sedimentary": "Kind",
+    "metamorphic": "Kind",
+    "tessarite": "Kind"
+   },
+   "funcs": {
+    "rock_group": "Kind -> Bool",
+    "rock_kind": "Kind -> Bool",
+    "kind_of": "Kind Kind -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "k": "Kind"
+   }
+  },
+  "facts": {
+   "three_types": {
+    "says": "Rocks are grouped into three main groups: igneous, sedimentary and metamorphic. (stored, as members)",
+    "z3": [
+     "rock_group(igneous)",
+     "rock_group(sedimentary)",
+     "rock_group(metamorphic)",
+     "rock_kind(igneous)",
+     "rock_kind(sedimentary)",
+     "rock_kind(metamorphic)"
+    ]
+   },
+   "three_distinct": {
+    "says": "Igneous, sedimentary and metamorphic are three different main groups of rock. (closed world)",
+    "z3": "Distinct(igneous, sedimentary, metamorphic)"
+   },
+   "count_named": {
+    "says": "The main groups of rock the model holds are among the named kinds (igneous, sedimentary, metamorphic, tessarite), and the number of main groups of rock counts each of them once. (closed world)",
+    "z3": [
+     "ForAll(k, Implies(rock_group(k), Or(k == igneous, k == sedimentary, k == metamorphic, k == tessarite)))",
+     "number_of_members(rock_groups) == count(rock_group(igneous), And(rock_group(sedimentary), sedimentary != igneous), And(rock_group(metamorphic), metamorphic != igneous, metamorphic != sedimentary), And(rock_group(tessarite), tessarite != igneous, tessarite != sedimentary, tessarite != metamorphic))"
+    ]
+   }
+  },
+  "presuppositions": [
+   "three_distinct",
+   "count_named"
+  ],
+  "edit": [
+   "rock_kind(tessarite)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "ForAll(k, Implies(rock_group(k), Or(k == igneous, k == sedimentary, k == metamorphic)))"
+    ],
+    "adds": [
+     "Or(kind_of(tessarite, igneous), kind_of(tessarite, sedimentary), kind_of(tessarite, metamorphic))"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "ForAll(k, Implies(And(rock_kind(k), Not(Or(kind_of(k, igneous), kind_of(k, sedimentary), kind_of(k, metamorphic)))), rock_group(k)))"
+    ],
+    "adds": [
+     "Not(Or(kind_of(tessarite, igneous), kind_of(tessarite, sedimentary), kind_of(tessarite, metamorphic)))",
+     "And(tessarite != igneous, tessarite != sedimentary, tessarite != metamorphic)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(rock_groups)"
+   }
+  ]
+ }
 }

@@ -52,5 +52,97 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Copies are an uninterpreted sort with one constant per copy the model knows; whether a copy is a 1215 original (original_1215) and whether it is in London are beliefs (uninterpreted predicates). The four stored originals and their homes are background. Counting needs a closed world: the four are distinct and every original is one of the named copies (presuppositions); the new exemplar's distinctness is part of the edit ('newly identified'). w1 stores the two counts as figures (number_known, number_known_outside_london), which the edit does not recompute; w2 stores the counting rule over the list (each named copy counted once: an entry counts only if it differs from the earlier ones, so the distinctness presuppositions enter the count; that the named copies are all is the named_only presupposition the rule rests on), so the counts follow from the list plus the edit.",
+  "decl": {
+   "sorts": {
+    "Copy": null,
+    "Charter": [
+     "magna_carta_1215"
+    ]
+   },
+   "consts": {
+    "c_bl1": "Copy",
+    "c_bl2": "Copy",
+    "c_lincoln": "Copy",
+    "c_salisbury": "Copy",
+    "c_strathgrave": "Copy"
+   },
+   "funcs": {
+    "original_1215": "Copy -> Bool",
+    "in_london": "Copy -> Bool",
+    "number_known": "Charter -> Int",
+    "number_known_outside_london": "Charter -> Int"
+   },
+   "vars": {
+    "c": "Copy"
+   }
+  },
+  "local": {
+   "number_known_outside_london": "number_known_outside_london(c): how many surviving originals of charter c are kept outside London (record-local count; the outside-London part of number_known)."
+  },
+  "facts": {
+   "four_originals": {
+    "says": "Four originals of the 1215 Magna Carta survive: two at the British Library in London, one at Lincoln Castle and one at Salisbury Cathedral. (stored)",
+    "z3": [
+     "original_1215(c_bl1)",
+     "original_1215(c_bl2)",
+     "original_1215(c_lincoln)",
+     "original_1215(c_salisbury)",
+     "in_london(c_bl1)",
+     "in_london(c_bl2)",
+     "Not(in_london(c_lincoln))",
+     "Not(in_london(c_salisbury))"
+    ]
+   },
+   "wells_outside_london": {
+    "says": "Wells Cathedral is outside London: a copy kept there is not in London.",
+    "z3": "Not(in_london(c_strathgrave))"
+   },
+   "distinct_four": {
+    "says": "The four known originals are four different copies. (closed world)",
+    "z3": "Distinct(c_bl1, c_bl2, c_lincoln, c_salisbury)"
+   },
+   "named_only": {
+    "says": "Every 1215 original the model knows of is one of the named copies. (closed world)",
+    "z3": "ForAll(c, Implies(original_1215(c), Or(c == c_bl1, c == c_bl2, c == c_lincoln, c == c_salisbury, c == c_strathgrave)))"
+   }
+  },
+  "firm": [
+   "wells_outside_london"
+  ],
+  "presuppositions": [
+   "distinct_four",
+   "named_only"
+  ],
+  "edit": [
+   "original_1215(c_strathgrave)",
+   "And(c_strathgrave != c_bl1, c_strathgrave != c_bl2, c_strathgrave != c_lincoln, c_strathgrave != c_salisbury)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(magna_carta_1215) == 4",
+     "number_known_outside_london(magna_carta_1215) == 2"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(magna_carta_1215) == count(original_1215(c_bl1), And(original_1215(c_bl2), c_bl1 != c_bl2), And(original_1215(c_lincoln), c_bl1 != c_lincoln, c_bl2 != c_lincoln), And(original_1215(c_salisbury), c_bl1 != c_salisbury, c_bl2 != c_salisbury, c_lincoln != c_salisbury), And(original_1215(c_strathgrave), c_bl1 != c_strathgrave, c_bl2 != c_strathgrave, c_lincoln != c_strathgrave, c_salisbury != c_strathgrave))",
+     "number_known_outside_london(magna_carta_1215) == count(And(original_1215(c_bl1), Not(in_london(c_bl1))), And(original_1215(c_bl2), Not(in_london(c_bl2)), c_bl1 != c_bl2), And(original_1215(c_lincoln), Not(in_london(c_lincoln)), c_bl1 != c_lincoln, c_bl2 != c_lincoln), And(original_1215(c_salisbury), Not(in_london(c_salisbury)), c_bl1 != c_salisbury, c_bl2 != c_salisbury, c_lincoln != c_salisbury), And(original_1215(c_strathgrave), Not(in_london(c_strathgrave)), c_bl1 != c_strathgrave, c_bl2 != c_strathgrave, c_lincoln != c_strathgrave, c_salisbury != c_strathgrave))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(magna_carta_1215)"
+   },
+   {
+    "q": 3,
+    "find": "number_known_outside_london(magna_carta_1215)"
+   }
+  ]
+ }
 }

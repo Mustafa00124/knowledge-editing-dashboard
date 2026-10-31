@@ -57,5 +57,65 @@
    "q": 3,
    "ask": "Novel and written_by value emily ⊑ {wuthering}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Works are an uninterpreted sort; being a novel by Emily Brontë is a belief (novel_by, uninterpreted). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (an entry counts only if it differs from the earlier ones, so the new member's distinctness enters the count). Counting needs a closed world: every member the model knows is one of the named constants (presupposition named_only; Z3 does not need it to fix the value). The new member's distinctness from the stored one is part of the edit ('newly found').",
+  "decl": {
+   "sorts": {
+    "Work": null,
+    "Person": [
+     "emily"
+    ],
+    "Group": [
+     "emily_novels"
+    ]
+   },
+   "consts": {
+    "wuthering": "Work",
+    "ashcombe": "Work"
+   },
+   "funcs": {
+    "novel_by": "Work Person -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "x": "Work"
+   }
+  },
+  "facts": {
+   "wh_emily": {
+    "says": "Emily Brontë's novels: Wuthering Heights. (stored, as a list)",
+    "z3": "novel_by(wuthering, emily)"
+   },
+   "named_only": {
+    "says": "Every novel by Emily Brontë the model knows of is one of the named ones. (closed world)",
+    "z3": "ForAll(x, Implies(novel_by(x, emily), Or(x == wuthering, x == ashcombe)))"
+   }
+  },
+  "presuppositions": [
+   "named_only"
+  ],
+  "edit": [
+   "novel_by(ashcombe, emily)",
+   "ashcombe != wuthering"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(emily_novels) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(emily_novels) == count(novel_by(wuthering, emily), And(novel_by(ashcombe, emily), wuthering != ashcombe))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(emily_novels)"
+   }
+  ]
+ }
 }

@@ -58,5 +58,68 @@
     "ostravel != edison1889"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Recordings are an uninterpreted sort (the 1889 Edison recording and the Ostravel cylinder); recording his voice is a belief (uninterpreted predicate). w1 stores the count of known recordings as a figure (number_known, ATTRIBUTES.md), read off and not recomputed; it keeps only the count, not the closed 'only recording' claim, as in the DL file (a w1 keeping that claim beside the insert is not a world). w2 stores the counting rule over the stored list, each recording counted once (it counts only if it differs from the earlier ones). Counting needs a closed world: the two are distinct (q3's prompt says so; q2's does not, so it is a presupposition here) and every recording of his voice is a named one (presuppositions).",
+  "decl": {
+   "sorts": {
+    "Recording": null,
+    "Person": null,
+    "Known": [
+     "bismarck_recordings"
+    ]
+   },
+   "consts": {
+    "edison1889": "Recording",
+    "ostravel": "Recording",
+    "bismarck": "Person"
+   },
+   "funcs": {
+    "records_voice_of": "Recording Person -> Bool",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "r": "Recording"
+   }
+  },
+  "facts": {
+   "edison": {
+    "says": "Bismarck's voice was recorded on an Edison phonograph in 1889. (stored, as a list entry)",
+    "z3": "records_voice_of(edison1889, bismarck)"
+   },
+   "distinct_recordings": {
+    "says": "The Ostravel cylinder is not the 1889 Edison recording. (closed world)",
+    "z3": "ostravel != edison1889"
+   },
+   "named_only": {
+    "says": "Every recording of Bismarck's voice the model knows is one of the named ones. (closed world)",
+    "z3": "ForAll(r, Implies(records_voice_of(r, bismarck), Or(r == edison1889, r == ostravel)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_recordings",
+   "named_only"
+  ],
+  "edit": [
+   "records_voice_of(ostravel, bismarck)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(bismarck_recordings) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(bismarck_recordings) == count(records_voice_of(edison1889, bismarck), And(records_voice_of(ostravel, bismarck), edison1889 != ostravel))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(bismarck_recordings)"
+   }
+  ]
+ }
 }

@@ -99,5 +99,121 @@
    "q": 3,
    "find": "bell_labs : headquartered_in some (located_in value ?)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Places and institutions are an uninterpreted sort; the state of a place (state_of, local) and the state Unix was originally developed in (originally_developed_in, read as a function: the question asks 'which US state', so one state, as the DL file's firm one_dev_state) are functions to an enumeration of states, so different states are distinct. developed_at, headquartered_in and developed_at_site are beliefs, as in the DL file, with the same fact ids and the same premise each world gives up. Each world names the new Massachusetts site (as the DL file's adds) so the site rule can fire on it. q1's no before the edit and yes after it follow from the original or the edit and the stored 'Harvard is in Massachusetts'; the premises are not needed once the original is stated.",
+  "decl": {
+   "sorts": {
+    "Place": null,
+    "State": [
+     "nj",
+     "ma",
+     "other_state"
+    ]
+   },
+   "consts": {
+    "unix": "Place",
+    "bell_labs": "Place",
+    "murray_hill": "Place",
+    "harvard": "Place",
+    "ma_lab_town": "Place",
+    "ma_hq_town": "Place",
+    "ma_site": "Place"
+   },
+   "funcs": {
+    "developed_at": "Place Place -> Bool",
+    "headquartered_in": "Place Place -> Bool",
+    "developed_at_site": "Place Place -> Bool",
+    "state_of": "Place -> State",
+    "originally_developed_in": "Place -> State"
+   },
+   "vars": {
+    "x": "Place",
+    "l": "Place",
+    "t": "Place"
+   }
+  },
+  "local": {
+   "state_of": "state_of(p): the US state place p is in; the functional value form of located_in to a state (one state per place, the DL file's firm one_state)."
+  },
+  "facts": {
+   "unix_bell": {
+    "says": "Unix was originally developed at Bell Labs. (premise)",
+    "z3": "developed_at(unix, bell_labs)"
+   },
+   "bell_hq": {
+    "says": "Bell Labs is headquartered in Murray Hill. (premise)",
+    "z3": "headquartered_in(bell_labs, murray_hill)"
+   },
+   "hq_site": {
+    "says": "Bell Labs developed Unix at its headquarters. (premise)",
+    "z3": "ForAll([l, t], Implies(And(developed_at(unix, l), headquartered_in(l, t)), developed_at_site(unix, t)))"
+   },
+   "site_rule": {
+    "says": "Something developed at a site was developed in the state where that site is.",
+    "z3": "ForAll([x, t], Implies(developed_at_site(x, t), originally_developed_in(x) == state_of(t)))"
+   },
+   "murray_nj": {
+    "says": "Murray Hill is in New Jersey.",
+    "z3": "state_of(murray_hill) == nj"
+   },
+   "harvard_ma": {
+    "says": "Harvard University is in Massachusetts. (stored)",
+    "z3": "state_of(harvard) == ma"
+   }
+  },
+  "firm": [
+   "site_rule",
+   "murray_nj"
+  ],
+  "original": [
+   "originally_developed_in(unix) == nj"
+  ],
+  "edit": [
+   "originally_developed_in(unix) == ma"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "unix_bell"
+    ],
+    "adds": [
+     "developed_at_site(unix, ma_lab_town)",
+     "state_of(ma_lab_town) == ma"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "bell_hq"
+    ],
+    "adds": [
+     "headquartered_in(bell_labs, ma_hq_town)",
+     "state_of(ma_hq_town) == ma"
+    ]
+   },
+   "w3": {
+    "gives_up": [
+     "hq_site"
+    ],
+    "adds": [
+     "developed_at_site(unix, ma_site)",
+     "state_of(ma_site) == ma"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "originally_developed_in(unix) == state_of(harvard)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'The same US state as Harvard' is a join through functional links to a state individual (the DL file's located_in with the firm one_state, and originally_developed_in with one_dev_state): unix : originally_developed_in some (inv(located_in) value harvard), with the states distinct for the 'no'. No arithmetic."
+   }
+  ]
+ }
 }

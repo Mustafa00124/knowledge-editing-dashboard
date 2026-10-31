@@ -52,5 +52,62 @@
     "ysolde : lamp_tethered_to exactly 1 VelishBeacon"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "People are an uninterpreted sort; being a Quenmark warden is a belief (uninterpreted predicate) and 'lamp-tethered to exactly two Velish beacons' is the count beacon_count (ATTRIBUTES.md), as in the DL file's firm bridge count_two. How many beacons two wardens have between them is the size of a union: a firm inclusion-exclusion rule over two record-local counts (local). The prompt states both memberships and that no beacon is shared (given).",
+  "decl": {
+   "sorts": {
+    "Person": null
+   },
+   "consts": {
+    "mirren": "Person",
+    "corvin": "Person"
+   },
+   "funcs": {
+    "quenmark_warden": "Person -> Bool",
+    "beacon_count": "Person -> Int",
+    "shared_beacon_count": "Person Person -> Int",
+    "union_beacon_count": "Person Person -> Int"
+   },
+   "vars": {
+    "x": "Person",
+    "y": "Person"
+   }
+  },
+  "local": {
+   "shared_beacon_count": "shared_beacon_count(x, y): how many Velish beacons are lamp-tethered to both x and y (fictional, this record only)",
+   "union_beacon_count": "union_beacon_count(x, y): how many Velish beacons are lamp-tethered to x or y, between them (fictional, this record only)"
+  },
+  "facts": {
+   "union_rule": {
+    "says": "The beacons two people are lamp-tethered to between them are those of the first plus those of the second, less those they share.",
+    "z3": "ForAll([x, y], union_beacon_count(x, y) == beacon_count(x) + beacon_count(y) - shared_beacon_count(x, y))"
+   }
+  },
+  "firm": [
+   "union_rule"
+  ],
+  "edit": [
+   "ForAll(x, Implies(quenmark_warden(x), beacon_count(x) == 2))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "wardens": {
+      "says": "Mirren Tash and Corvin Ashby are Quenmark wardens.",
+      "z3": [
+       "quenmark_warden(mirren)",
+       "quenmark_warden(corvin)"
+      ]
+     },
+     "none_shared": {
+      "says": "No Velish beacon is lamp-tethered to both of them.",
+      "z3": "shared_beacon_count(mirren, corvin) == 0"
+     }
+    },
+    "find": "union_beacon_count(mirren, corvin)"
+   }
+  ]
+ }
 }

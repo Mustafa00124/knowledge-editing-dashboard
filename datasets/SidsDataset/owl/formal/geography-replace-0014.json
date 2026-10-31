@@ -23,5 +23,93 @@
   {"q": 1, "ask": "guam : HasElectoralVotes"},
   {"q": 2, "not_checked": "fol (arithmetic): number of stars on the flag"},
   {"q": 3, "not_checked": "fol (arithmetic): number of House seats"}
- ]
+ ],
+ "fol": {
+  "notes": "Guam's status is an enumeration value (has_political_status, RELATIONS.md, functional), the edited belief. The number of states counts the fifty states other than Guam plus Guam when it is a state (closed world: a presupposition, as is the 435 seats the other states hold). The four worlds combine two storage choices: the flag's stars as a stored figure (w1, w3) or one per state (w2, w4); the House's size as a stored figure (w1, w4) or the sum of the states' seats with at least one per state (w2, w3), each as the record's assumes state them. q3 fails in w2 and w3 as a record problem: with 'at least one seat per state' the sum is at least 436, not 436; the chain's step from 'at least one' to '436' needs a bridge the record does not give (Guam, by population, would get exactly one seat). Kept failing, not patched with that bridge.",
+  "decl": {
+   "sorts": {
+    "Status": [
+     "us_state",
+     "us_territory"
+    ],
+    "Entity": [
+     "guam",
+     "us_states",
+     "us_house",
+     "us_flag"
+    ]
+   },
+   "consts": {
+    "states_besides_guam": "Int",
+    "seats_besides_guam": "Int"
+   },
+   "funcs": {
+    "has_political_status": "Entity -> Status",
+    "number_of_members": "Entity -> Int",
+    "number_of_stars": "Entity -> Int",
+    "house_seats": "Entity -> Int"
+   }
+  },
+  "facts": {
+   "state_count": {
+    "says": "The US states other than Guam are fifty, and there are no others; the number of states counts them and Guam if it is a state. (closed world)",
+    "z3": [
+     "states_besides_guam == 50",
+     "number_of_members(us_states) == states_besides_guam + count(has_political_status(guam) == us_state)"
+    ]
+   },
+   "other_seats": {
+    "says": "The states other than Guam hold 435 voting seats in the House between them. (closed world)",
+    "z3": "seats_besides_guam == 435"
+   }
+  },
+  "presuppositions": [
+   "state_count",
+   "other_seats"
+  ],
+  "original": [
+   "has_political_status(guam) == us_territory"
+  ],
+  "edit": [
+   "has_political_status(guam) == us_state"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_stars(us_flag) == 50",
+     "number_of_members(us_house) == 435"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_stars(us_flag) == number_of_members(us_states)",
+     "number_of_members(us_house) == seats_besides_guam + If(has_political_status(guam) == us_state, house_seats(guam), 0)",
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)"
+    ]
+   },
+   "w3": {
+    "stores": [
+     "number_of_stars(us_flag) == 50",
+     "number_of_members(us_house) == seats_besides_guam + If(has_political_status(guam) == us_state, house_seats(guam), 0)",
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)"
+    ]
+   },
+   "w4": {
+    "stores": [
+     "number_of_stars(us_flag) == number_of_members(us_states)",
+     "number_of_members(us_house) == 435"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_stars(us_flag)"
+   },
+   {
+    "q": 3,
+    "find": "number_of_members(us_house)"
+   }
+  ]
+ }
 }

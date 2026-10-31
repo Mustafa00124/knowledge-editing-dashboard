@@ -48,5 +48,83 @@
    "q": 3,
    "not_checked": "fol (temporal): the oldest certificate's date (comparing dates)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Certificates are an enumeration (distinct by construction) with other_certificate standing for every other known VOC certificate; dated_on is the date a document bears (day number, ATTRIBUTES.md). The edit is the issued certificate with its date (part of the inserted fact). w1 stores the superlative about the Enkhuizen share (oldest_certificate, local), which the edit does not recompute; w2 stores the rule that reads it off the dates of the issued certificates. That every other known certificate is dated after 9 September 1606 is the closed-world presupposition w2's comparison rests on. Day numbers: 9 September 1606 = 586466, 3 June 1606 = 586368, September 1606 = 586458 to 586487.",
+  "decl": {
+   "sorts": {
+    "Cert": [
+     "enkhuizen",
+     "oudervelt",
+     "other_certificate"
+    ],
+    "Company": [
+     "voc"
+    ]
+   },
+   "funcs": {
+    "issued_share_certificate": "Company Cert -> Bool",
+    "dated_on": "Cert -> Int",
+    "oldest_certificate": "Company -> Cert"
+   },
+   "vars": {
+    "x": "Cert"
+   }
+  },
+  "local": {
+   "oldest_certificate": "oldest_certificate(c): the earliest-dated known share certificate company c issued (an individual, not a value)"
+  },
+  "facts": {
+   "enkhuizen_1606": {
+    "says": "The VOC issued the Enkhuizen share, dated 9 September 1606. (stored)",
+    "z3": [
+     "issued_share_certificate(voc, enkhuizen)",
+     "dated_on(enkhuizen) == 586466"
+    ]
+   },
+   "others_later": {
+    "says": "Every other known VOC share certificate is dated after 9 September 1606. (closed world)",
+    "z3": "dated_on(other_certificate) > 586466"
+   }
+  },
+  "presuppositions": [
+   "others_later"
+  ],
+  "edit": [
+   "issued_share_certificate(voc, oudervelt)",
+   "dated_on(oudervelt) == 586368"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "oldest_certificate(voc) == enkhuizen"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "issued_share_certificate(voc, oldest_certificate(voc))",
+     "ForAll(x, Implies(issued_share_certificate(voc, x), dated_on(oldest_certificate(voc)) <= dated_on(x)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "oldest_certificate(voc)",
+    "choices": {
+     "enkhuizen": [
+      "the Enkhuizen share of 9 September 1606 (Pieter Harmensz)",
+      "the Enkhuizen share"
+     ],
+     "oudervelt": [
+      "the Oudervelt share"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "ask": "586458 <= dated_on(oldest_certificate(voc)) <= 586487"
+   }
+  ]
+ }
 }

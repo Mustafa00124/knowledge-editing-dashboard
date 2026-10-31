@@ -57,5 +57,55 @@
    "q": 3,
    "not_checked": "fol (temporal): compares 1470 with 1488"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int. People and fortresses are enumerations (with other_person, other_fortress); hearth_quartered_in is read as a function (a lancer is quartered in one fortress), so 'the fortress he was hearth-quartered in' is a term. The edit is the class rule. The razing year (razed_in_year, record-local) and Wendel's service in 1470 are given in the prompt. 'Still standing in 1470' reads as: razed after 1470.",
+  "decl": {
+   "sorts": {
+    "Person": [
+     "wendel",
+     "other_person"
+    ],
+    "Fortress": [
+     "valdrecht",
+     "other_fortress"
+    ]
+   },
+   "funcs": {
+    "wendmoor_lancer": "Person -> Bool",
+    "lancer_in_year": "Person Int -> Bool",
+    "hearth_quartered_in": "Person -> Fortress",
+    "razed_in_year": "Fortress -> Int"
+   },
+   "vars": {
+    "p": "Person"
+   }
+  },
+  "local": {
+   "razed_in_year": "razed_in_year(f): the year fortress f was razed (fictional fortress)."
+  },
+  "facts": {},
+  "edit": [
+   "ForAll(p, Implies(wendmoor_lancer(p), hearth_quartered_in(p) == valdrecht))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "razed": {
+      "says": "The fortress of Valdrecht was razed in 1488.",
+      "z3": "razed_in_year(valdrecht) == 1488"
+     },
+     "wendel_1470": {
+      "says": "Wendel Ashcombe was a Wendmoor lancer in 1470.",
+      "z3": [
+       "wendmoor_lancer(wendel)",
+       "lancer_in_year(wendel, 1470)"
+      ]
+     }
+    },
+    "ask": "1470 < razed_in_year(hearth_quartered_in(wendel))"
+   }
+  ]
+ }
 }

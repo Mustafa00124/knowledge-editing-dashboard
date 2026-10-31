@@ -25,5 +25,89 @@
   {"q": 1, "not_checked": "fol: same region as another place (comparing values)"},
   {"q": 2, "ask": "located_in(promenade, nice)"},
   {"q": 3, "find": "nice located_in ?"}
- ]
+ ],
+ "fol": {
+  "notes": "Places are an uninterpreted sort; located_in and being a city or a region are beliefs (uninterpreted predicates). The rule 'a place in a city is in the region the city is in' is firm (in the DL file it is the transitivity of located_in). Marseille being in Provence-Alpes-Côte d'Azur is the stored bridge. 'The same region' is a shared region (an existential over places). Fact ids and gives_up are the DL file's.",
+  "decl": {
+   "sorts": {
+    "Place": null
+   },
+   "consts": {
+    "promenade": "Place",
+    "nice": "Place",
+    "paca": "Place",
+    "marseille": "Place"
+   },
+   "funcs": {
+    "located_in": "Place Place -> Bool",
+    "city": "Place -> Bool",
+    "region": "Place -> Bool"
+   },
+   "vars": {
+    "b": "Place",
+    "c": "Place",
+    "r": "Place"
+   }
+  },
+  "facts": {
+   "promenade_nice": {
+    "says": "The Promenade des Anglais is in Nice.",
+    "z3": "located_in(promenade, nice)"
+   },
+   "nice_paca": {
+    "says": "Nice is in Provence-Alpes-Côte d'Azur.",
+    "z3": "located_in(nice, paca)"
+   },
+   "nice_city": {
+    "says": "Nice is a city.",
+    "z3": "city(nice)"
+   },
+   "paca_region": {
+    "says": "Provence-Alpes-Côte d'Azur is an administrative region.",
+    "z3": "region(paca)"
+   },
+   "region_rule": {
+    "says": "A place in a city is in the region that the city is in.",
+    "z3": "ForAll([b, c, r], Implies(And(located_in(b, c), city(c), located_in(c, r), region(r)), located_in(b, r)))"
+   },
+   "marseille_paca": {
+    "says": "Marseille is in Provence-Alpes-Côte d'Azur. (stored)",
+    "z3": "located_in(marseille, paca)"
+   }
+  },
+  "firm": [
+   "nice_city",
+   "paca_region",
+   "region_rule"
+  ],
+  "original": [
+   "located_in(promenade, paca)"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "promenade_nice"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "nice_paca"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "Exists(r, And(region(r), located_in(promenade, r), located_in(marseille, r)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'The same region as Marseille' is a join through located_in, expressible with an inverse and a nominal: promenade : located_in some (Region and inv(located_in) value marseille). The record's answers (yes, then does not know) need no 'no', so no functionality is needed. No arithmetic."
+   }
+  ]
+ }
 }

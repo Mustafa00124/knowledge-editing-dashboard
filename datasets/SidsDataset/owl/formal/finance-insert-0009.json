@@ -43,5 +43,115 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the known florins"
   }
- ]
+ ],
+ "fol": {
+  "notes": "TBox subject insert. Coins (and the Black Death's arrival) are one uninterpreted sort; the classes are Bool predicates. The edit is the class axiom plus what the record's chain marks as edit ('the Ostrel find adds at least one more'): the find holds a coin (ostrel_1, a Skolem constant) and its coins are newly found, none of the three known florins. q1: the florin was struck in 1344 (authorised and issued that year; occurred_in_year is the year a coin was struck) and the Black Death reached England in 1348, both firm; 1344 < 1348 is built-in arithmetic over values nothing changes. q2, q3: the three known florins are distinct and are all the known ones (presuppositions); w1 stores the count as a figure, w2 the counting rule over the named coins (each counted once). q3's prompt gives the find's size: two coins, ostrel_1 and ostrel_2, and no other.",
+  "decl": {
+   "sorts": {
+    "Thing": null,
+    "Kind": [
+     "florin_e3"
+    ]
+   },
+   "consts": {
+    "florin_bm1": "Thing",
+    "florin_bm2": "Thing",
+    "florin_private": "Thing",
+    "ostrel_1": "Thing",
+    "ostrel_2": "Thing",
+    "coin": "Thing",
+    "black_death_england": "Thing"
+   },
+   "funcs": {
+    "florin": "Thing -> Bool",
+    "ostrel_find_coin": "Thing -> Bool",
+    "occurred_in_year": "Thing -> Int",
+    "number_known": "Kind -> Int"
+   },
+   "vars": {
+    "c": "Thing"
+   }
+  },
+  "facts": {
+   "florin_1344": {
+    "says": "The Edward III florin was authorised in 1344 (and struck that year). (stored)",
+    "z3": "ForAll(c, Implies(florin(c), occurred_in_year(c) == 1344))"
+   },
+   "black_death_1348": {
+    "says": "The Black Death reached England in 1348. (stored)",
+    "z3": "occurred_in_year(black_death_england) == 1348"
+   },
+   "three_known": {
+    "says": "Three Edward III florins are known: two in the British Museum, one in a private collection. (stored list)",
+    "z3": [
+     "florin(florin_bm1)",
+     "florin(florin_bm2)",
+     "florin(florin_private)"
+    ]
+   },
+   "distinct_three": {
+    "says": "The three known florins are three different coins. (closed world)",
+    "z3": "Distinct(florin_bm1, florin_bm2, florin_private)"
+   },
+   "named_only": {
+    "says": "Every Edward III florin the model knows of is one of the three or a coin of the Ostrel find. (closed world)",
+    "z3": "ForAll(c, Implies(florin(c), Or(c == florin_bm1, c == florin_bm2, c == florin_private, ostrel_find_coin(c))))"
+   }
+  },
+  "firm": [
+   "florin_1344",
+   "black_death_1348"
+  ],
+  "presuppositions": [
+   "distinct_three",
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(c, Implies(ostrel_find_coin(c), florin(c)))",
+   "ostrel_find_coin(ostrel_1)",
+   "ForAll(c, Implies(ostrel_find_coin(c), And(c != florin_bm1, c != florin_bm2, c != florin_private)))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(florin_e3) == 3"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(florin_e3) == count(florin(florin_bm1), And(florin(florin_bm2), florin_bm1 != florin_bm2), And(florin(florin_private), florin_bm1 != florin_private, florin_bm2 != florin_private), And(florin(ostrel_1), florin_bm1 != ostrel_1, florin_bm2 != ostrel_1, florin_private != ostrel_1), And(florin(ostrel_2), florin_bm1 != ostrel_2, florin_bm2 != ostrel_2, florin_private != ostrel_2, ostrel_1 != ostrel_2))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "coin": {
+      "says": "A coin from the Ostrel find is examined.",
+      "z3": "ostrel_find_coin(coin)"
+     }
+    },
+    "ask": "occurred_in_year(coin) < occurred_in_year(black_death_england)"
+   },
+   {
+    "q": 2,
+    "ask": "number_known(florin_e3) > 3"
+   },
+   {
+    "q": 3,
+    "given": {
+     "two_coins": {
+      "says": "The Ostrel find holds two coins.",
+      "z3": [
+       "ostrel_find_coin(ostrel_2)",
+       "ostrel_1 != ostrel_2",
+       "ForAll(c, Implies(ostrel_find_coin(c), Or(c == ostrel_1, c == ostrel_2)))"
+      ]
+     }
+    },
+    "find": "number_known(florin_e3)"
+   }
+  ]
+ }
 }

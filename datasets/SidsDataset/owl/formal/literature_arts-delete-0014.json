@@ -50,5 +50,103 @@
    "q": 3,
    "ask": "lotr : InvokesMuse"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Classes are individuals, as in the DL file: instance_of links a work to its literary form (form, a firm kind), and a work has one literary form (firm), so 'the same literary form' asks for a form both works are instances of. Emma's and Moby-Dick's forms are stored by name (the queries' bridges). The worlds' stores are the DL file's (chapters and opening by name in w1, through the form in w2); they do not bear on the form.",
+  "decl": {
+   "sorts": {
+    "Ent": [
+     "lotr",
+     "emma",
+     "moby_dick",
+     "novel",
+     "other_form"
+    ]
+   },
+   "funcs": {
+    "instance_of": "Ent Ent -> Bool",
+    "form": "Ent -> Bool",
+    "divided_into_chapters": "Ent -> Bool",
+    "opens_with_bilbos_party": "Ent -> Bool",
+    "invokes_muse": "Ent -> Bool"
+   },
+   "vars": {
+    "w": "Ent",
+    "f": "Ent",
+    "g": "Ent"
+   }
+  },
+  "facts": {
+   "emma_novel": {
+    "says": "Jane Austen's Emma is a novel. (stored)",
+    "z3": "instance_of(emma, novel)"
+   },
+   "moby_novel": {
+    "says": "Herman Melville's Moby-Dick is a novel. (stored)",
+    "z3": "instance_of(moby_dick, novel)"
+   },
+   "forms": {
+    "says": "The novel is a literary form.",
+    "z3": [
+     "form(novel)",
+     "form(other_form)"
+    ]
+   },
+   "one_form": {
+    "says": "A work belongs to one literary form.",
+    "z3": "ForAll([w, f, g], Implies(And(form(f), form(g), instance_of(w, f), instance_of(w, g)), f == g))"
+   },
+   "one_opening": {
+    "says": "Opening with Bilbo's birthday party is not opening with an invocation to a muse.",
+    "z3": "ForAll(w, Not(And(opens_with_bilbos_party(w), invokes_muse(w))))"
+   }
+  },
+  "firm": [
+   "forms",
+   "one_form",
+   "one_opening"
+  ],
+  "original": [
+   "instance_of(lotr, novel)"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "divided_into_chapters(lotr)",
+     "opens_with_bilbos_party(lotr)"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "ForAll(w, Implies(instance_of(w, novel), divided_into_chapters(w)))",
+     "ForAll(w, Implies(instance_of(w, novel), Not(invokes_muse(w))))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "ask": "Exists(f, And(form(f), instance_of(lotr, f), instance_of(emma, f)))"
+   },
+   {
+    "q": 1,
+    "ask": "Exists(f, And(form(f), instance_of(lotr, f), instance_of(moby_dick, f)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 0,
+    "from": "fol",
+    "to": "dl",
+    "why": "With classes as individuals, 'the same literary form as Emma' is a join: lotr : instance_of some (LiteraryForm and inv(instance_of) value emma). No arithmetic."
+   },
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "With classes as individuals, 'the same literary form as Moby-Dick' is a join: lotr : instance_of some (LiteraryForm and inv(instance_of) value moby_dick). No arithmetic."
+   }
+  ]
+ }
 }

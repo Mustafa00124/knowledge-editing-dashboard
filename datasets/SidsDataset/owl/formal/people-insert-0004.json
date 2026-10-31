@@ -62,5 +62,75 @@
    "q": 3,
    "ask": "SurvivingTelescope and inv(created) value galileo ⊑ {florence1, florence2}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Instruments are an uninterpreted sort; being a surviving telescope and being made by Galileo are beliefs (uninterpreted predicates). w1 stores the count of surviving telescopes as a figure (number_known, ATTRIBUTES.md), read off and not recomputed; w2 stores the counting rule over the stored list, each telescope counted once (it counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the two Florence telescopes are distinct and every surviving telescope of his the model knows is a named one (presuppositions). The new telescope's distinctness from the Florence pair is part of the edit ('a newly found telescope').",
+  "decl": {
+   "sorts": {
+    "Instrument": null,
+    "Person": null,
+    "Known": [
+     "galileo_telescopes"
+    ]
+   },
+   "consts": {
+    "florence1": "Instrument",
+    "florence2": "Instrument",
+    "vescarri": "Instrument",
+    "galileo": "Person"
+   },
+   "funcs": {
+    "created": "Person Instrument -> Bool",
+    "surviving_telescope": "Instrument -> Bool",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "i": "Instrument"
+   }
+  },
+  "facts": {
+   "florence": {
+    "says": "Galileo's surviving telescopes: the two in the Museo Galileo. (stored, as a list)",
+    "z3": [
+     "And(created(galileo, florence1), surviving_telescope(florence1))",
+     "And(created(galileo, florence2), surviving_telescope(florence2))"
+    ]
+   },
+   "distinct_florence": {
+    "says": "The two Museo Galileo telescopes are two different telescopes. (closed world)",
+    "z3": "florence1 != florence2"
+   },
+   "named_only": {
+    "says": "Every surviving telescope by Galileo the model knows is one of the named ones. (closed world)",
+    "z3": "ForAll(i, Implies(And(created(galileo, i), surviving_telescope(i)), Or(i == florence1, i == florence2, i == vescarri)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_florence",
+   "named_only"
+  ],
+  "edit": [
+   "created(galileo, vescarri)",
+   "surviving_telescope(vescarri)",
+   "And(vescarri != florence1, vescarri != florence2)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(galileo_telescopes) == 2"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(galileo_telescopes) == count(And(created(galileo, florence1), surviving_telescope(florence1)), And(And(created(galileo, florence2), surviving_telescope(florence2)), florence1 != florence2), And(And(created(galileo, vescarri), surviving_telescope(vescarri)), florence1 != vescarri, florence2 != vescarri))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(galileo_telescopes)"
+   }
+  ]
+ }
 }

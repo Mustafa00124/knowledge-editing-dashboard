@@ -53,5 +53,83 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the known pieces"
   }
- ]
+ ],
+ "fol": {
+  "notes": "TBox subject insert. Coins are an uninterpreted sort, the classes Bool predicates. The edit is the class axiom plus what the record's chain marks as edit: the find holds a coin (halvard_1, a Skolem constant), newly found, so not the piece already known (known_piece). q2 ('only one known?') is asked of the members, as the chain reasons ('so at least two are known'): the stored uniqueness claim is a closed-world presupposition the insert gives up in every world (top-level gives_up, as the record's determinacy_why says no world keeps it). q3 is the count: w1 stores it as a figure (number_known), w2 the counting rule over the named coins (each counted once; halvard_2 names a possible second coin of the find, so the count rests on the prompt's 'one coin' and the named_only closure); the prompt gives the find's size (one coin, halvard_1).",
+  "decl": {
+   "sorts": {
+    "Coin": null,
+    "Kind": [
+     "three_dollar_1870s"
+    ]
+   },
+   "consts": {
+    "known_piece": "Coin",
+    "halvard_1": "Coin",
+    "halvard_2": "Coin"
+   },
+   "funcs": {
+    "piece_1870s": "Coin -> Bool",
+    "halvard_find_coin": "Coin -> Bool",
+    "number_known": "Kind -> Int"
+   },
+   "vars": {
+    "c": "Coin"
+   }
+  },
+  "facts": {
+   "one_known": {
+    "says": "One 1870-S three-dollar piece is known to exist. (stored)",
+    "z3": "piece_1870s(known_piece)"
+   },
+   "only_one": {
+    "says": "Only one 1870-S three-dollar piece is known to exist: every known one is that piece. (stored closed list, before the find)",
+    "z3": "ForAll(c, Implies(piece_1870s(c), c == known_piece))"
+   },
+   "named_only": {
+    "says": "Every 1870-S three-dollar piece the model knows of is the one already known or a coin of the Halvard find. (closed world)",
+    "z3": "ForAll(c, Implies(piece_1870s(c), Or(c == known_piece, halvard_find_coin(c))))"
+   }
+  },
+  "presuppositions": [
+   "only_one",
+   "named_only"
+  ],
+  "gives_up": [
+   "only_one"
+  ],
+  "edit": [
+   "ForAll(c, Implies(halvard_find_coin(c), piece_1870s(c)))",
+   "halvard_find_coin(halvard_1)",
+   "ForAll(c, Implies(halvard_find_coin(c), c != known_piece))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(three_dollar_1870s) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(three_dollar_1870s) == count(piece_1870s(known_piece), And(piece_1870s(halvard_1), known_piece != halvard_1), And(piece_1870s(halvard_2), known_piece != halvard_2, halvard_1 != halvard_2))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "ask": "ForAll(c, Implies(piece_1870s(c), c == known_piece))"
+   },
+   {
+    "q": 3,
+    "given": {
+     "one_coin": {
+      "says": "The Halvard find holds one coin.",
+      "z3": "ForAll(c, Implies(halvard_find_coin(c), c == halvard_1))"
+     }
+    },
+    "find": "number_known(three_dollar_1870s)"
+   }
+  ]
+ }
 }

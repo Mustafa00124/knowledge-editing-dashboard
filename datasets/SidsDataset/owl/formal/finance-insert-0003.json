@@ -47,5 +47,74 @@
    "q": 3,
    "not_checked": "fol (arithmetic): the most expensive tulip (comparing prices)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Tulips are an enumeration (distinct by construction) with other_tulip standing for every other tulip of record; price is the ATTRIBUTES.md attribute (guilders a bulb). The edit is the traded tulip with its price (the price is part of the inserted fact). w1 stores the superlative about the Semper Augustus (most_expensive, local), which the edit does not recompute; w2 stores the rule that reads it off the prices of the traded tulips. That no other tulip of record sold for 10,000 or more is the closed-world presupposition w2's comparison rests on.",
+  "decl": {
+   "sorts": {
+    "Tulip": [
+     "semper_augustus",
+     "admirael_kesterwijn",
+     "other_tulip"
+    ],
+    "Episode": [
+     "tulip_mania"
+    ]
+   },
+   "funcs": {
+    "saw_trade_in_tulip": "Episode Tulip -> Bool",
+    "price": "Tulip -> Real",
+    "most_expensive": "Episode -> Tulip"
+   },
+   "vars": {
+    "t": "Tulip"
+   }
+  },
+  "local": {
+   "most_expensive": "most_expensive(e): the tulip of episode e that fetched the highest price on record (an individual, not a value)"
+  },
+  "facts": {
+   "semper_price": {
+    "says": "The Semper Augustus was traded in tulip mania, selling for up to 10,000 guilders a bulb. (stored)",
+    "z3": [
+     "saw_trade_in_tulip(tulip_mania, semper_augustus)",
+     "price(semper_augustus) == 10000"
+    ]
+   },
+   "others_cheaper": {
+    "says": "Every other tulip of record sold for less than 10,000 guilders. (closed world)",
+    "z3": "price(other_tulip) < 10000"
+   }
+  },
+  "presuppositions": [
+   "others_cheaper"
+  ],
+  "edit": [
+   "saw_trade_in_tulip(tulip_mania, admirael_kesterwijn)",
+   "price(admirael_kesterwijn) == 15000"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "most_expensive(tulip_mania) == semper_augustus"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "saw_trade_in_tulip(tulip_mania, most_expensive(tulip_mania))",
+     "ForAll(t, Implies(saw_trade_in_tulip(tulip_mania, t), price(t) <= price(most_expensive(tulip_mania))))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "most_expensive(tulip_mania)"
+   },
+   {
+    "q": 3,
+    "ask": "most_expensive(tulip_mania) == semper_augustus"
+   }
+  ]
+ }
 }

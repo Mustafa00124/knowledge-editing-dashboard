@@ -62,5 +62,73 @@
     "saint_lucy : VennastreAltarpiece"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Paintings are an uninterpreted sort; being a Vennastre altarpiece and bearing Caravaggio's signature are beliefs (uninterpreted predicates); the TBox edit is a universally quantified rule. w1 stores the count of signed paintings as a figure (number_known, ATTRIBUTES.md), read off and not recomputed; it keeps only the count, not the closed 'only painting' claim, as in the DL file. w2 stores the counting rule over the stored list, each painting counted once (it counts only if it differs from the earlier ones). Counting needs a closed world: the named Vennastre altarpiece is not the Beheading (the prompt does not say so, so a presupposition) and every signed painting the model knows is a named one (presuppositions).",
+  "decl": {
+   "sorts": {
+    "Painting": null,
+    "Known": [
+     "caravaggio_signed_paintings"
+    ]
+   },
+   "consts": {
+    "beheading": "Painting",
+    "saint_lucy": "Painting"
+   },
+   "funcs": {
+    "vennastre_altarpiece": "Painting -> Bool",
+    "signed_by_caravaggio": "Painting -> Bool",
+    "number_known": "Known -> Int"
+   },
+   "vars": {
+    "p": "Painting"
+   }
+  },
+  "facts": {
+   "beheading": {
+    "says": "Caravaggio signed The Beheading of Saint John the Baptist. (stored, as a list entry)",
+    "z3": "signed_by_caravaggio(beheading)"
+   },
+   "distinct_paintings": {
+    "says": "'Saint Lucy at the Well' is not The Beheading of Saint John the Baptist. (closed world)",
+    "z3": "saint_lucy != beheading"
+   },
+   "named_only": {
+    "says": "Every painting bearing Caravaggio's signature the model knows is one of the named ones. (closed world)",
+    "z3": "ForAll(p, Implies(signed_by_caravaggio(p), Or(p == beheading, p == saint_lucy)))"
+   }
+  },
+  "presuppositions": [
+   "distinct_paintings",
+   "named_only"
+  ],
+  "edit": [
+   "ForAll(p, Implies(vennastre_altarpiece(p), signed_by_caravaggio(p)))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(caravaggio_signed_paintings) == 1"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(caravaggio_signed_paintings) == count(signed_by_caravaggio(beheading), And(signed_by_caravaggio(saint_lucy), beheading != saint_lucy))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "saint_lucy_vennastre": {
+      "says": "'Saint Lucy at the Well' is a Vennastre altarpiece.",
+      "z3": "vennastre_altarpiece(saint_lucy)"
+     }
+    },
+    "find": "number_known(caravaggio_signed_paintings)"
+   }
+  ]
+ }
 }

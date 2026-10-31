@@ -39,5 +39,54 @@
     "tallowfen : author_of only (not Sonnet)"
    ]
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int. written_by is a function (RELATIONS.md: functional), the edited belief; the year a poem was written is occurred_in_year (ATTRIBUTES.md: a work written). The firm rule: a poem is written before (by the year of) its author's death. The seventeenth century is 1601 to 1700. 'Could it have been written in the seventeenth century?' is a consistency question (mode consistent).",
+  "decl": {
+   "sorts": {
+    "Work": [
+     "corrinvale"
+    ],
+    "Person": [
+     "tallowfen",
+     "other_person"
+    ]
+   },
+   "funcs": {
+    "written_by": "Work -> Person",
+    "occurred_in_year": "Work -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "w": "Work",
+    "p": "Person"
+   }
+  },
+  "facts": {
+   "written_before_death": {
+    "says": "A poem is written before its author dies.",
+    "z3": "ForAll([w, p], Implies(written_by(w) == p, occurred_in_year(w) <= died_in_year(p)))"
+   }
+  },
+  "firm": [
+   "written_before_death"
+  ],
+  "original": [],
+  "edit": [
+   "written_by(corrinvale) == tallowfen"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "tallowfen_death": {
+      "says": "Merrick Tallowfen died in 1561.",
+      "z3": "died_in_year(tallowfen) == 1561"
+     }
+    },
+    "ask": "And(1601 <= occurred_in_year(corrinvale), occurred_in_year(corrinvale) <= 1700)",
+    "mode": "consistent"
+   }
+  ]
+ }
 }

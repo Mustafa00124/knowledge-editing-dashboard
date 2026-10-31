@@ -31,5 +31,95 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares spin rates (the fastest known rate)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Pulsars are an enumeration (quenmarra_pulsar stands for the known Quenmarra pulsars, other_pulsar for any other pulsar); qp3 and qp7 are constants of that sort. The edit adds the rule and that Quenmarra pulsars are now known (the record's w2). Which pulsars compete for the record is a presupposition (every other known pulsar is slower). w1 stores the record holder by name; w2 stores the rule that reads it off the rates. A rotation period is 1 / rate (firm arithmetic in the query).",
+  "decl": {
+   "sorts": {
+    "Pulsar": [
+     "psr_j1748_2446ad",
+     "quenmarra_pulsar",
+     "other_pulsar"
+    ]
+   },
+   "consts": {
+    "qp3": "Pulsar",
+    "qp7": "Pulsar",
+    "fastest": "Pulsar"
+   },
+   "funcs": {
+    "quenmarra": "Pulsar -> Bool",
+    "pulsar": "Pulsar -> Bool",
+    "known_pulsar": "Pulsar -> Bool",
+    "rotation_frequency_hz": "Pulsar -> Real"
+   },
+   "vars": {
+    "x": "Pulsar"
+   }
+  },
+  "facts": {
+   "j1748_rate": {
+    "says": "PSR J1748−2446ad is a known pulsar that spins about 716 times per second. (stored)",
+    "z3": [
+     "known_pulsar(psr_j1748_2446ad)",
+     "rotation_frequency_hz(psr_j1748_2446ad) == 716"
+    ]
+   },
+   "pulsars_in_running": {
+    "says": "The known pulsars in the running for the fastest are PSR J1748−2446ad and any Quenmarra pulsars; every other one is slower. (closed world)",
+    "z3": "ForAll(x, Implies(known_pulsar(x), Or(x == psr_j1748_2446ad, x == quenmarra_pulsar)))"
+   }
+  },
+  "presuppositions": [
+   "pulsars_in_running"
+  ],
+  "edit": [
+   "ForAll(x, Implies(quenmarra(x), And(pulsar(x), rotation_frequency_hz(x) == 900)))",
+   "quenmarra(quenmarra_pulsar)",
+   "known_pulsar(quenmarra_pulsar)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "fastest == psr_j1748_2446ad"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "known_pulsar(fastest)",
+     "ForAll(x, Implies(And(known_pulsar(x), x != fastest), rotation_frequency_hz(fastest) > rotation_frequency_hz(x)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "qp3": {
+      "says": "QP-3 is a Quenmarra pulsar.",
+      "z3": "quenmarra(qp3)"
+     }
+    },
+    "ask": "1 / rotation_frequency_hz(qp3) < 0.001"
+   },
+   {
+    "q": 1,
+    "given": {
+     "qp7": {
+      "says": "QP-7 is a Quenmarra pulsar.",
+      "z3": "quenmarra(qp7)"
+     }
+    },
+    "ask": "rotation_frequency_hz(qp7) > rotation_frequency_hz(psr_j1748_2446ad)"
+   },
+   {
+    "q": 2,
+    "find": "fastest"
+   },
+   {
+    "q": 3,
+    "find": "rotation_frequency_hz(fastest)"
+   }
+  ]
+ }
 }

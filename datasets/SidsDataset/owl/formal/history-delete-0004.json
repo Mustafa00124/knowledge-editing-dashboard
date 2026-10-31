@@ -63,5 +63,91 @@
    "q": 3,
    "not_checked": "fol (temporal): the year of the flight"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0004 (dates as day numbers; occurred_on, died_on and president_on uninterpreted; P3 and 'a president holds the office only while alive' firm), without the edit: w1 forgets the flight's date, w2 forgets P2 (McKinley's death with Roosevelt's term).",
+  "decl": {
+   "sorts": {
+    "Person": [
+     "mckinley",
+     "roosevelt",
+     "other_president"
+    ],
+    "Event": [
+     "flight"
+    ]
+   },
+   "funcs": {
+    "occurred_on": "Event -> Int",
+    "died_on": "Person -> Int",
+    "president_on": "Int -> Person",
+    "us_president_during": "Event -> Person"
+   },
+   "vars": {
+    "d": "Int"
+   }
+  },
+  "facts": {
+   "flight_date": {
+    "says": "The Wright brothers made their first powered flight on December 17, 1903. (premise)",
+    "z3": "occurred_on(flight) == 695041"
+   },
+   "mckinley_roosevelt": {
+    "says": "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909. (premise)",
+    "z3": [
+     "694204 <= died_on(mckinley) <= 694233",
+     "ForAll(d, Implies(And(died_on(mckinley) < d, d <= 696942), president_on(d) == roosevelt))"
+    ]
+   },
+   "president_rule": {
+    "says": "The US president at the time of an event is whoever held the office on the date of the event. (premise, kept)",
+    "z3": "us_president_during(flight) == president_on(occurred_on(flight))"
+   },
+   "alive_in_office": {
+    "says": "A president holds the office only while alive.",
+    "z3": "ForAll(d, Implies(president_on(d) == mckinley, d <= died_on(mckinley)))"
+   }
+  },
+  "firm": [
+   "president_rule",
+   "alive_in_office"
+  ],
+  "original": [
+   "us_president_during(flight) == roosevelt"
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "flight_date"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "mckinley_roosevelt"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "ask": "occurred_on(flight) > died_on(mckinley)"
+   },
+   {
+    "q": 2,
+    "find": "president_on(695041)",
+    "choices": {
+     "roosevelt": [
+      "Theodore Roosevelt"
+     ],
+     "mckinley": [
+      "William McKinley"
+     ]
+    }
+   },
+   {
+    "q": 3,
+    "ask": "694691 <= occurred_on(flight) <= 695055"
+   }
+  ]
+ }
 }

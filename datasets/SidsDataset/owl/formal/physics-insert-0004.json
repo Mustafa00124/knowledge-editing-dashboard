@@ -49,5 +49,101 @@
    "q": 3,
    "not_checked": "fol (arithmetic): compares atomic numbers to find the heaviest member"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Elements are an enumeration with other_element for any further one; the closed list is a presupposition. 'Heaviest' is read, as the record does, as the highest atomic number. w1 stores the count and the heaviest member as summary facts; w2 stores the rules that read both off the list. heaviest is local.",
+  "decl": {
+   "sorts": {
+    "Element": [
+     "lithium",
+     "sodium",
+     "potassium",
+     "rubidium",
+     "caesium",
+     "francium",
+     "calvennium",
+     "other_element"
+    ],
+    "Family": null
+   },
+   "consts": {
+    "alkali_metals": "Family"
+   },
+   "funcs": {
+    "includes_element": "Family Element -> Bool",
+    "atomic_number": "Element -> Int",
+    "number_of_members": "Family -> Int",
+    "heaviest": "Family -> Element"
+   },
+   "vars": {
+    "e": "Element"
+   }
+  },
+  "local": {
+   "heaviest": "heaviest(f): the member of a family of elements with the highest atomic number (an individual, not a value)"
+  },
+  "facts": {
+   "alkali_list": {
+    "says": "The alkali metals are lithium, sodium, potassium, rubidium, caesium and francium. (stored)",
+    "z3": [
+     "includes_element(alkali_metals, lithium)",
+     "includes_element(alkali_metals, sodium)",
+     "includes_element(alkali_metals, potassium)",
+     "includes_element(alkali_metals, rubidium)",
+     "includes_element(alkali_metals, caesium)",
+     "includes_element(alkali_metals, francium)"
+    ]
+   },
+   "atomic_numbers": {
+    "says": "Their atomic numbers are 3, 11, 19, 37, 55 and 87.",
+    "z3": [
+     "atomic_number(lithium) == 3",
+     "atomic_number(sodium) == 11",
+     "atomic_number(potassium) == 19",
+     "atomic_number(rubidium) == 37",
+     "atomic_number(caesium) == 55",
+     "atomic_number(francium) == 87"
+    ]
+   },
+   "no_other_alkali": {
+    "says": "No alkali metal is missing from the named ones. (closed list)",
+    "z3": "Not(includes_element(alkali_metals, other_element))"
+   }
+  },
+  "firm": [
+   "atomic_numbers"
+  ],
+  "presuppositions": [
+   "no_other_alkali"
+  ],
+  "edit": [
+   "includes_element(alkali_metals, calvennium)",
+   "atomic_number(calvennium) == 119"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(alkali_metals) == 6",
+     "heaviest(alkali_metals) == francium"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(alkali_metals) == count(includes_element(alkali_metals, lithium), includes_element(alkali_metals, sodium), includes_element(alkali_metals, potassium), includes_element(alkali_metals, rubidium), includes_element(alkali_metals, caesium), includes_element(alkali_metals, francium), includes_element(alkali_metals, calvennium), includes_element(alkali_metals, other_element))",
+     "includes_element(alkali_metals, heaviest(alkali_metals))",
+     "ForAll(e, Implies(And(includes_element(alkali_metals, e), e != heaviest(alkali_metals)), atomic_number(heaviest(alkali_metals)) > atomic_number(e)))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(alkali_metals)"
+   },
+   {
+    "q": 3,
+    "find": "heaviest(alkali_metals)"
+   }
+  ]
+ }
 }

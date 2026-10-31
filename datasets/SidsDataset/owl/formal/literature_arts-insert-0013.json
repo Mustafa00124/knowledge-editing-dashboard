@@ -53,5 +53,64 @@
    "q": 3,
    "not_checked": "fol: compares two works' values (same almanac)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "One uninterpreted sort. quellane, almanac and moon_ledgered_to are beliefs (uninterpreted); moon_ledgered_to is a relation (not functional in RELATIONS.md), so 'the same almanac' asks for an almanac both works are moon-ledgered to. The prompt's two quellanes are given.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "quillingford": "Ent",
+    "pellowick": "Ent",
+    "darnsey": "Ent"
+   },
+   "funcs": {
+    "quellane": "Ent -> Bool",
+    "almanac": "Ent -> Bool",
+    "moon_ledgered_to": "Ent Ent -> Bool"
+   },
+   "vars": {
+    "x": "Ent",
+    "a": "Ent"
+   }
+  },
+  "facts": {
+   "almanac": {
+    "says": "The Quillingford Almanac is an almanac.",
+    "z3": "almanac(quillingford)"
+   }
+  },
+  "firm": [
+   "almanac"
+  ],
+  "original": [],
+  "edit": [
+   "ForAll(x, Implies(quellane(x), moon_ledgered_to(x, quillingford)))"
+  ],
+  "queries": [
+   {
+    "q": 3,
+    "given": {
+     "pellowick": {
+      "says": "Pellowick is a quellane.",
+      "z3": "quellane(pellowick)"
+     },
+     "darnsey": {
+      "says": "Darnsey Vale is a quellane.",
+      "z3": "quellane(darnsey)"
+     }
+    },
+    "ask": "Exists(a, And(almanac(a), moon_ledgered_to(pellowick, a), moon_ledgered_to(darnsey, a)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Moon-ledgered to the same almanac' is a join over named individuals: pellowick : moon_ledgered_to some (Almanac and inv(moon_ledgered_to) value darnsey). No arithmetic."
+   }
+  ]
+ }
 }

@@ -62,5 +62,76 @@
    "q": 3,
    "ask": "LivingSpecies and in_genus value pongo ⊑ {bornean, sumatran, tapanuli}"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Species are an uninterpreted sort, one constant per orangutan species the model knows (the three named in w2's chain and q3); being in the genus Pongo and living are beliefs (uninterpreted predicates). w1 stores the count as a figure (number_of_members, ATTRIBUTES.md), which the insert does not recompute; w2 stores the counting rule over the stored list (each named member counted once: an entry counts only if it differs from the earlier ones, so the distinctness presupposition enters the count). Counting needs a closed world: the known members are distinct and every member the model knows is one of the named constants (presuppositions; named_only is what the counting rule rests on, though Z3 does not need it to fix the value). The new member's distinctness from the named ones is part of the edit ('newly described/discovered').",
+  "decl": {
+   "sorts": {
+    "Species": null,
+    "Group": [
+     "orangutans"
+    ]
+   },
+   "consts": {
+    "bornean": "Species",
+    "sumatran": "Species",
+    "tapanuli": "Species",
+    "sinarensis": "Species"
+   },
+   "funcs": {
+    "in_pongo": "Species -> Bool",
+    "living": "Species -> Bool",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "s": "Species"
+   }
+  },
+  "facts": {
+   "three_orangutans": {
+    "says": "The Bornean, Sumatran and Tapanuli orangutans are living species of the genus Pongo. (stored, as a list)",
+    "z3": [
+     "And(in_pongo(bornean), living(bornean))",
+     "And(in_pongo(sumatran), living(sumatran))",
+     "And(in_pongo(tapanuli), living(tapanuli))"
+    ]
+   },
+   "distinct_known": {
+    "says": "The three named orangutans are three different species. (closed world)",
+    "z3": "Distinct(bornean, sumatran, tapanuli)"
+   },
+   "named_only": {
+    "says": "Every living orangutan species the model knows of is one of the named species. (closed world)",
+    "z3": "ForAll(s, Implies(And(in_pongo(s), living(s)), Or(s == bornean, s == sumatran, s == tapanuli, s == sinarensis)))"
+   }
+  },
+  "firm": [],
+  "presuppositions": [
+   "distinct_known",
+   "named_only"
+  ],
+  "edit": [
+   "in_pongo(sinarensis)",
+   "living(sinarensis)",
+   "And(sinarensis != bornean, sinarensis != sumatran, sinarensis != tapanuli)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_of_members(orangutans) == 3"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_of_members(orangutans) == count(And(in_pongo(bornean), living(bornean)), And(And(in_pongo(sumatran), living(sumatran)), bornean != sumatran), And(And(in_pongo(tapanuli), living(tapanuli)), bornean != tapanuli, sumatran != tapanuli), And(And(in_pongo(sinarensis), living(sinarensis)), bornean != sinarensis, sumatran != sinarensis, tapanuli != sinarensis))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_of_members(orangutans)"
+   }
+  ]
+ }
 }

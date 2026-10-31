@@ -18,5 +18,79 @@
   {"q": 1, "not_checked": "fol: compares two countries' currencies (same currency as Germany)"},
   {"q": 2, "find": "greenland has_currency ?"},
   {"q": 3, "not_checked": "fol: compares two places' currencies (same currency)"}
- ]
+ ],
+ "fol": {
+  "notes": "Places and currencies are one uninterpreted sort; has_currency is a function (RELATIONS.md: functional, 'a country has one official currency'), so 'same currency' is equality of two terms. The named currencies are distinct (unique names, firm). Germany's euro is the q1 bridge, firm (outside the edit). The worlds are the DL file's: Greenland's currency by name (w1) or as Denmark's (w2).",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "denmark": "Ent",
+    "germany": "Ent",
+    "greenland": "Ent",
+    "krone": "Ent",
+    "euro": "Ent"
+   },
+   "funcs": {
+    "has_currency": "Ent -> Ent"
+   }
+  },
+  "facts": {
+   "currencies_distinct": {
+    "says": "The Danish krone and the euro are two different currencies.",
+    "z3": "Distinct(krone, euro)"
+   },
+   "germany_euro": {
+    "says": "Germany's official currency is the euro. (stored)",
+    "z3": "has_currency(germany) == euro"
+   }
+  },
+  "firm": [
+   "currencies_distinct",
+   "germany_euro"
+  ],
+  "original": [
+   "has_currency(denmark) == krone"
+  ],
+  "edit": [
+   "has_currency(denmark) == euro"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "has_currency(greenland) == krone"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "has_currency(greenland) == has_currency(denmark)"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "ask": "has_currency(denmark) == has_currency(germany)"
+   },
+   {
+    "q": 3,
+    "ask": "has_currency(greenland) == has_currency(denmark)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same currency' is a join through the functional has_currency over named individuals: denmark : has_currency some (inv(has_currency) value germany). No arithmetic."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "As q1: greenland : has_currency some (inv(has_currency) value denmark); the 'no' of w1 follows from has_currency being functional and the two currencies distinct."
+   }
+  ]
+ }
 }

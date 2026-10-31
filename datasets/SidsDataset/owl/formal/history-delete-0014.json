@@ -53,5 +53,99 @@
    "q": 3,
    "not_checked": "fol (temporal): the century of Warren's death"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As replace-0014 (years as Int, wars an enumeration with other_war, the battle's 1775 date a side fact that goes with the deleted fact, firm 'killed at a battle: dies in its year and its war'). Delete: w1 keeps 'Warren was killed at Bunker Hill' and nothing dates or places the battle; w2 stores Warren's death by date and war and gives the link up, since through the firm rule it would re-derive the battle's war (the DL file's war_rule_back). Saratoga's war is stored.",
+  "decl": {
+   "sorts": {
+    "War": [
+     "revwar",
+     "war1812",
+     "other_war"
+    ],
+    "Battle": [
+     "bunker_hill",
+     "saratoga"
+    ],
+    "Person": [
+     "warren"
+    ]
+   },
+   "funcs": {
+    "battle_of": "Battle -> War",
+    "killed_in_war": "Person -> War",
+    "killed_at": "Person Battle -> Bool",
+    "occurred_in_year": "Battle -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "b": "Battle"
+   }
+  },
+  "facts": {
+   "revwar_span": {
+    "says": "The American Revolutionary War was fought from 1775 to 1783: its battles fall in 1775-1783. (stored)",
+    "z3": "ForAll(b, Implies(battle_of(b) == revwar, And(1775 <= occurred_in_year(b), occurred_in_year(b) <= 1783)))"
+   },
+   "saratoga_revwar": {
+    "says": "The Battles of Saratoga were fought in the American Revolutionary War. (stored)",
+    "z3": "battle_of(saratoga) == revwar"
+   },
+   "bh_date": {
+    "says": "The Battle of Bunker Hill was fought on 17 June 1775. (stored side fact of the battle)",
+    "z3": "occurred_in_year(bunker_hill) == 1775"
+   },
+   "warren_at_bh": {
+    "says": "Joseph Warren was killed at the Battle of Bunker Hill. (stored)",
+    "z3": "killed_at(warren, bunker_hill)"
+   },
+   "killed_rule": {
+    "says": "A man killed at a battle dies in the battle's year and in the battle's war.",
+    "z3": "Implies(killed_at(warren, bunker_hill), And(died_in_year(warren) == occurred_in_year(bunker_hill), killed_in_war(warren) == battle_of(bunker_hill)))"
+   }
+  },
+  "firm": [
+   "killed_rule"
+  ],
+  "gives_up": [
+   "bh_date"
+  ],
+  "original": [
+   "battle_of(bunker_hill) == revwar"
+  ],
+  "worlds": {
+   "w1": {},
+   "w2": {
+    "stores": [
+     "died_in_year(warren) == 1775",
+     "killed_in_war(warren) == revwar"
+    ],
+    "gives_up": [
+     "warren_at_bh"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "ask": "1701 <= occurred_in_year(bunker_hill) <= 1800"
+   },
+   {
+    "q": 1,
+    "ask": "battle_of(bunker_hill) == battle_of(saratoga)"
+   },
+   {
+    "q": 3,
+    "ask": "1701 <= died_in_year(warren) <= 1800"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'Same war as Saratoga' is a join through the functional battle_of (bunker_hill : battle_of some (inv(battle_of) value saratoga)); no dates or arithmetic. The DL file already has battle_of."
+   }
+  ]
+ }
 }

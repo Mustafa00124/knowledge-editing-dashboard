@@ -70,6 +70,8 @@ valid in records).
 | `in_office_until` | year | | in_office_until(p, o): last year p held office o | in_office_until(foscari, doge) = 1457 | |
 | `utc_offset_hours` | real | hours | utc_offset_hours(z): a time zone's offset from UTC (standard time) | utc_offset_hours(central) = −6 | |
 | `local_time` | clock | minutes after midnight | local_time(place): the clock time at a place at the moment the question fixes | local_time(chicago) = 720 | |
+| `died_on` | date | | died_on(p): the day person p died (a month-only date is a range of days) | died_on(mckinley) in Sep 1901 | |
+| `dated_on` | date | | dated_on(d): the date a document (a share certificate, a deed) bears | dated_on(enkhuizen_share) = 9 Sep 1606 | |
 
 ## Counts and quantities (biology, geography, history, finance, physics, literature)
 
@@ -90,6 +92,9 @@ valid in records).
 | `rotation_frequency_hz` | real | rotations per second | rotation_frequency_hz(p) | rotation_frequency_hz(j1748) = 716 | |
 | `mass_number` | count | nucleons | mass_number(n) | mass_number(astatine_211) = 211 | |
 | `atomic_number` | count | protons | atomic_number(n) | atomic_number(element_120) = 120 | |
+| `number_of_stars` | count | | number_of_stars(f): how many stars flag f shows | number_of_stars(us_flag) = 50 | |
+| `house_seats` | count | | house_seats(s): voting seats state s holds in the US House of Representatives | house_seats(wyoming) = 1 | |
+| `number_of_signatures` | count | | number_of_signatures(d, p): how many signatures of person p document d bears | number_of_signatures(will, shakespeare) = 3 | |
 
 ## Grammar
 

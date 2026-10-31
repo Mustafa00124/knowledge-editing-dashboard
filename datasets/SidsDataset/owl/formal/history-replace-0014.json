@@ -63,5 +63,89 @@
    "q": 3,
    "not_checked": "fol (temporal): the century of Warren's death"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Years are Int (occurred_in_year, died_in_year); a battle's war (battle_of, one war per battle) and Warren's war of death (killed_in_war) are functions to an enumeration of wars with an other_war value, so the wars are not a closed list. The wars' spans are stored class rules over battle_of; the battle's own date (1775) is a side fact that goes with the edit (top-level gives_up), as the record says. Firm: a man killed at a battle dies in its year and in its war. w1 keeps 'Warren was killed at Bunker Hill' (as the DL file); w2 stores his death by date (June 1775) and war and gives that link up.",
+  "decl": {
+   "sorts": {
+    "War": [
+     "revwar",
+     "war1812",
+     "other_war"
+    ],
+    "Battle": [
+     "bunker_hill"
+    ],
+    "Person": [
+     "warren"
+    ]
+   },
+   "funcs": {
+    "battle_of": "Battle -> War",
+    "killed_in_war": "Person -> War",
+    "killed_at": "Person Battle -> Bool",
+    "occurred_in_year": "Battle -> Int",
+    "died_in_year": "Person -> Int"
+   },
+   "vars": {
+    "b": "Battle"
+   }
+  },
+  "facts": {
+   "war1812_span": {
+    "says": "The War of 1812 was fought from 1812 to 1815: its battles fall in 1812-1815. (stored)",
+    "z3": "ForAll(b, Implies(battle_of(b) == war1812, And(1812 <= occurred_in_year(b), occurred_in_year(b) <= 1815)))"
+   },
+   "revwar_span": {
+    "says": "The American Revolutionary War was fought from 1775 to 1783: its battles fall in 1775-1783. (stored)",
+    "z3": "ForAll(b, Implies(battle_of(b) == revwar, And(1775 <= occurred_in_year(b), occurred_in_year(b) <= 1783)))"
+   },
+   "bh_date": {
+    "says": "The Battle of Bunker Hill was fought on 17 June 1775. (stored side fact of the battle)",
+    "z3": "occurred_in_year(bunker_hill) == 1775"
+   },
+   "warren_at_bh": {
+    "says": "Joseph Warren was killed at the Battle of Bunker Hill. (stored)",
+    "z3": "killed_at(warren, bunker_hill)"
+   },
+   "killed_rule": {
+    "says": "A man killed at a battle dies in the battle's year and in the battle's war.",
+    "z3": "Implies(killed_at(warren, bunker_hill), And(died_in_year(warren) == occurred_in_year(bunker_hill), killed_in_war(warren) == battle_of(bunker_hill)))"
+   }
+  },
+  "firm": [
+   "killed_rule"
+  ],
+  "gives_up": [
+   "bh_date"
+  ],
+  "original": [
+   "battle_of(bunker_hill) == revwar"
+  ],
+  "edit": [
+   "battle_of(bunker_hill) == war1812"
+  ],
+  "worlds": {
+   "w1": {},
+   "w2": {
+    "stores": [
+     "died_in_year(warren) == 1775",
+     "killed_in_war(warren) == revwar"
+    ],
+    "gives_up": [
+     "warren_at_bh"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 0,
+    "ask": "1801 <= occurred_in_year(bunker_hill) <= 1900"
+   },
+   {
+    "q": 3,
+    "ask": "1701 <= died_in_year(warren) <= 1800"
+   }
+  ]
+ }
 }

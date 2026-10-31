@@ -58,5 +58,88 @@
    "q": 3,
    "not_checked": "fol: compares the cities of two works (same city)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "located_in is a relation (transitive in RELATIONS.md; only one step is needed here), housed_in a function (functional). The catalogued chain housed_in o located_in is the firm museum_chain rule, and 'a place lies in one city' is firm, as in the DL file. 'The same city' asks for a city both works are located in. The Uffizi, the works and the cities are an enumeration (unique names). Delete of a stored fact: w1 stores The Birth of Venus under Florence by name, w2 only through the Uffizi, whose city is deleted.",
+  "decl": {
+   "sorts": {
+    "Ent": [
+     "uffizi",
+     "venus",
+     "david",
+     "florence",
+     "naples",
+     "other_city"
+    ]
+   },
+   "funcs": {
+    "housed_in": "Ent -> Ent",
+    "located_in": "Ent Ent -> Bool",
+    "city": "Ent -> Bool"
+   },
+   "vars": {
+    "x": "Ent",
+    "m": "Ent",
+    "c": "Ent",
+    "d": "Ent"
+   }
+  },
+  "facts": {
+   "venus_uffizi": {
+    "says": "Botticelli's The Birth of Venus hangs in the Uffizi Gallery. (stored)",
+    "z3": "housed_in(venus) == uffizi"
+   },
+   "david_florence": {
+    "says": "Michelangelo's David is in Florence. (stored)",
+    "z3": "located_in(david, florence)"
+   },
+   "museum_chain": {
+    "says": "A work is located where the museum that holds it is located.",
+    "z3": "ForAll([x, m, c], Implies(And(housed_in(x) == m, located_in(m, c)), located_in(x, c)))"
+   },
+   "cities": {
+    "says": "Florence and Naples are cities.",
+    "z3": [
+     "city(florence)",
+     "city(naples)",
+     "city(other_city)"
+    ]
+   },
+   "one_city": {
+    "says": "A place lies in one city.",
+    "z3": "ForAll([x, c, d], Implies(And(city(c), city(d), located_in(x, c), located_in(x, d)), c == d))"
+   }
+  },
+  "firm": [
+   "museum_chain",
+   "cities",
+   "one_city"
+  ],
+  "original": [
+   "located_in(uffizi, florence)"
+  ],
+  "edit": [],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "located_in(venus, florence)"
+    ]
+   },
+   "w2": {}
+  },
+  "queries": [
+   {
+    "q": 3,
+    "ask": "Exists(c, And(city(c), located_in(venus, c), located_in(david, c)))"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'In the same city' is a join over named individuals: venus : located_in some (City and inv(located_in) value david); the 'no' follows from the firm one-city rule the DL file already has. No arithmetic."
+   }
+  ]
+ }
 }

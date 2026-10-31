@@ -51,5 +51,97 @@
    "q": 3,
    "not_checked": "fol (arithmetic): subtracts the survivors from the mintage"
   }
- ]
+ ],
+ "fol": {
+  "notes": "As insert-0001: coins are an uninterpreted sort with one constant per known survivor (nine, unnamed in the record: dime_1 to dime_9); the nine are distinct and are all the known survivors (presuppositions); that the Corvane specimen is none of them is part of the edit (the record's notes: a tenth survivor). The mintage (24 struck, number_struck) is firm. w1 stores the survivor count as a figure; w2 the counting rule over the list. q3 subtracts with built-in arithmetic: the mintage and the counts are values the edit does not change; the survivor count is the world's own term.",
+  "decl": {
+   "sorts": {
+    "Coin": null,
+    "Kind": [
+     "dime1894s"
+    ]
+   },
+   "consts": {
+    "dime_1": "Coin",
+    "dime_2": "Coin",
+    "dime_3": "Coin",
+    "dime_4": "Coin",
+    "dime_5": "Coin",
+    "dime_6": "Coin",
+    "dime_7": "Coin",
+    "dime_8": "Coin",
+    "dime_9": "Coin",
+    "corvane": "Coin"
+   },
+   "funcs": {
+    "instance_of": "Coin Kind -> Bool",
+    "number_known": "Kind -> Int",
+    "number_struck": "Kind -> Int"
+   },
+   "vars": {
+    "c": "Coin"
+   }
+  },
+  "facts": {
+   "nine_known": {
+    "says": "Nine 1894-S Barber dimes are known to survive. (stored list)",
+    "z3": [
+     "instance_of(dime_1, dime1894s)",
+     "instance_of(dime_2, dime1894s)",
+     "instance_of(dime_3, dime1894s)",
+     "instance_of(dime_4, dime1894s)",
+     "instance_of(dime_5, dime1894s)",
+     "instance_of(dime_6, dime1894s)",
+     "instance_of(dime_7, dime1894s)",
+     "instance_of(dime_8, dime1894s)",
+     "instance_of(dime_9, dime1894s)"
+    ]
+   },
+   "mintage_24": {
+    "says": "Only 24 1894-S Barber dimes were struck. (stored)",
+    "z3": "number_struck(dime1894s) == 24"
+   },
+   "distinct_nine": {
+    "says": "The nine known survivors are nine different coins. (closed world)",
+    "z3": "Distinct(dime_1, dime_2, dime_3, dime_4, dime_5, dime_6, dime_7, dime_8, dime_9)"
+   },
+   "named_only": {
+    "says": "Every surviving 1894-S Barber dime the model knows of is one of the named coins. (closed world)",
+    "z3": "ForAll(c, Implies(instance_of(c, dime1894s), Or(c == dime_1, c == dime_2, c == dime_3, c == dime_4, c == dime_5, c == dime_6, c == dime_7, c == dime_8, c == dime_9, c == corvane)))"
+   }
+  },
+  "firm": [
+   "mintage_24"
+  ],
+  "presuppositions": [
+   "distinct_nine",
+   "named_only"
+  ],
+  "edit": [
+   "instance_of(corvane, dime1894s)",
+   "And(corvane != dime_1, corvane != dime_2, corvane != dime_3, corvane != dime_4, corvane != dime_5, corvane != dime_6, corvane != dime_7, corvane != dime_8, corvane != dime_9)"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "number_known(dime1894s) == 9"
+    ]
+   },
+   "w2": {
+    "stores": [
+     "number_known(dime1894s) == count(instance_of(dime_1, dime1894s), And(instance_of(dime_2, dime1894s), dime_1 != dime_2), And(instance_of(dime_3, dime1894s), dime_1 != dime_3, dime_2 != dime_3), And(instance_of(dime_4, dime1894s), dime_1 != dime_4, dime_2 != dime_4, dime_3 != dime_4), And(instance_of(dime_5, dime1894s), dime_1 != dime_5, dime_2 != dime_5, dime_3 != dime_5, dime_4 != dime_5), And(instance_of(dime_6, dime1894s), dime_1 != dime_6, dime_2 != dime_6, dime_3 != dime_6, dime_4 != dime_6, dime_5 != dime_6), And(instance_of(dime_7, dime1894s), dime_1 != dime_7, dime_2 != dime_7, dime_3 != dime_7, dime_4 != dime_7, dime_5 != dime_7, dime_6 != dime_7), And(instance_of(dime_8, dime1894s), dime_1 != dime_8, dime_2 != dime_8, dime_3 != dime_8, dime_4 != dime_8, dime_5 != dime_8, dime_6 != dime_8, dime_7 != dime_8), And(instance_of(dime_9, dime1894s), dime_1 != dime_9, dime_2 != dime_9, dime_3 != dime_9, dime_4 != dime_9, dime_5 != dime_9, dime_6 != dime_9, dime_7 != dime_9, dime_8 != dime_9), And(instance_of(corvane, dime1894s), dime_1 != corvane, dime_2 != corvane, dime_3 != corvane, dime_4 != corvane, dime_5 != corvane, dime_6 != corvane, dime_7 != corvane, dime_8 != corvane, dime_9 != corvane))"
+    ]
+   }
+  },
+  "queries": [
+   {
+    "q": 2,
+    "find": "number_known(dime1894s)"
+   },
+   {
+    "q": 3,
+    "find": "number_struck(dime1894s) - number_known(dime1894s)"
+   }
+  ]
+ }
 }

@@ -27,5 +27,109 @@
   {"q": 1, "not_checked": "fol (arithmetic): clock times"},
   {"q": 2, "find": "seattle in_time_zone ?"},
   {"q": 3, "ask": "located_in(needle, seattle)"}
- ]
+ ],
+ "fol": {
+  "notes": "Places and time zones are uninterpreted sorts; in_time_zone (RELATIONS.md, functional) is a function from a place to its zone, a belief the edit and the worlds can move. The building-to-city rule, Seattle being a city in Washington, the zones' UTC offsets (standard time) and the clock rule are firm, as in the DL file. The clock rule reads the Needle's local time off Chicago's through the two zones' offsets; Chicago observing Central Time is the stored bridge. Fact ids, gives_up and worlds are the DL file's. Delete: each world forgets one premise, so the Needle's zone, and with it the clock time, is open.",
+  "decl": {
+   "sorts": {
+    "Place": null,
+    "Zone": null
+   },
+   "consts": {
+    "needle": "Place",
+    "seattle": "Place",
+    "washington": "Place",
+    "chicago": "Place",
+    "pacific": "Zone",
+    "central": "Zone"
+   },
+   "funcs": {
+    "located_in": "Place Place -> Bool",
+    "city": "Place -> Bool",
+    "in_time_zone": "Place -> Zone",
+    "utc_offset_hours": "Zone -> Real",
+    "local_time": "Place -> Int"
+   },
+   "vars": {
+    "b": "Place",
+    "c": "Place"
+   }
+  },
+  "facts": {
+   "needle_seattle": {
+    "says": "The Space Needle is in Seattle.",
+    "z3": "located_in(needle, seattle)"
+   },
+   "wa_pacific": {
+    "says": "Washington State, Seattle included, observes Pacific Time.",
+    "z3": [
+     "in_time_zone(washington) == pacific",
+     "in_time_zone(seattle) == pacific"
+    ]
+   },
+   "building_rule": {
+    "says": "A building observes the time zone of the city it stands in.",
+    "z3": "ForAll([b, c], Implies(And(located_in(b, c), city(c)), in_time_zone(b) == in_time_zone(c)))"
+   },
+   "seattle_city": {
+    "says": "Seattle is a city.",
+    "z3": "city(seattle)"
+   },
+   "seattle_wa": {
+    "says": "Seattle is in Washington State.",
+    "z3": "located_in(seattle, washington)"
+   },
+   "chicago_central": {
+    "says": "Chicago observes Central Time. (stored)",
+    "z3": "in_time_zone(chicago) == central"
+   },
+   "zones": {
+    "says": "Pacific Time is UTC−8 and Central Time UTC−6 (standard time); they are different zones.",
+    "z3": [
+     "utc_offset_hours(pacific) == -8",
+     "utc_offset_hours(central) == -6",
+     "pacific != central"
+    ]
+   },
+   "clock_rule": {
+    "says": "At one moment, the clock time at a place is the time in Chicago shifted by the difference between the two places' UTC offsets.",
+    "z3": "All(b, [needle, seattle], local_time(b) == local_time(chicago) + 60 * (utc_offset_hours(in_time_zone(b)) - utc_offset_hours(in_time_zone(chicago))))"
+   }
+  },
+  "firm": [
+   "building_rule",
+   "seattle_city",
+   "seattle_wa",
+   "zones",
+   "clock_rule"
+  ],
+  "original": [
+   "in_time_zone(needle) == pacific"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "type": "clock",
+    "given": {
+     "noon_chicago": {
+      "says": "It is noon in Chicago.",
+      "z3": "local_time(chicago) == 720"
+     }
+    },
+    "find": "local_time(needle)"
+   }
+  ],
+  "worlds": {
+   "w1": {
+    "gives_up": [
+     "needle_seattle"
+    ]
+   },
+   "w2": {
+    "gives_up": [
+     "wa_pacific"
+    ]
+   }
+  }
+ }
 }

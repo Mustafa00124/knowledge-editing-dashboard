@@ -50,5 +50,87 @@
    "q": 3,
    "not_checked": "fol: compares the line endings of two systems (different from Windows)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Systems are an uninterpreted sort; uses_line_ending is read as a function to an enumeration of line endings (one per system: the questions ask 'which line ending' and 'the same line ending', the DL file's firm one_ending), so different endings are distinct. As the DL file: Linux is Unix-like in every world; w1 has its line ending stored by name, w2 reaches it only through the deleted rule. Windows' CRLF is a stored bridge (q3) and given in q1's prompt.",
+  "decl": {
+   "sorts": {
+    "System": null,
+    "Ending": [
+     "lf",
+     "crlf",
+     "cr"
+    ]
+   },
+   "consts": {
+    "linux": "System",
+    "windows": "System",
+    "halyard": "System"
+   },
+   "funcs": {
+    "unix_like": "System -> Bool",
+    "uses_line_ending": "System -> Ending"
+   },
+   "vars": {
+    "x": "System"
+   }
+  },
+  "facts": {
+   "linux_member": {
+    "says": "Linux is a Unix-like operating system. (stored)",
+    "z3": "unix_like(linux)"
+   },
+   "windows_crlf": {
+    "says": "Microsoft Windows uses a carriage return followed by a line feed (CRLF) to end lines in text files. (stored)",
+    "z3": "uses_line_ending(windows) == crlf"
+   }
+  },
+  "original": [
+   "ForAll(x, Implies(unix_like(x), uses_line_ending(x) == lf))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "uses_line_ending(linux) == lf"
+    ]
+   },
+   "w2": {
+    "stores": []
+   }
+  },
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "halyard_member": {
+      "says": "Halyard OS is a Unix-like operating system.",
+      "z3": "unix_like(halyard)"
+     },
+     "windows_crlf": {
+      "says": "Microsoft Windows uses CRLF line endings.",
+      "z3": "uses_line_ending(windows) == crlf"
+     }
+    },
+    "ask": "uses_line_ending(halyard) == uses_line_ending(windows)"
+   },
+   {
+    "q": 3,
+    "ask": "uses_line_ending(linux) != uses_line_ending(windows)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'The same line ending as Windows' is a join through a functional line-ending link to named individuals: halyard : uses_line_ending some (inv(uses_line_ending) value windows), with the firm one_ending. No arithmetic."
+   },
+   {
+    "q": 3,
+    "from": "fol",
+    "to": "dl",
+    "why": "'A different line ending from Windows' is the negation of the same join (linux : not (uses_line_ending some (inv(uses_line_ending) value windows))), which follows from Func(uses_line_ending) and lf != crlf. No arithmetic."
+   }
+  ]
+ }
 }

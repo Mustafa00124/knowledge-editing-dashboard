@@ -38,5 +38,157 @@
    "q": 3,
    "not_checked": "fol (arithmetic): the record tags it fol (mass and atomic numbers of the decay product)"
   }
- ]
+ ],
+ "fol": {
+  "decl": {
+   "sorts": {
+    "Nucleus": null
+   },
+   "consts": {
+    "at211": "Nucleus",
+    "e120": "Nucleus",
+    "u238": "Nucleus",
+    "ra226": "Nucleus",
+    "th234": "Nucleus",
+    "rn222": "Nucleus",
+    "he4": "Nucleus",
+    "proton": "Nucleus"
+   },
+   "funcs": {
+    "alpha_decays": "Nucleus -> Bool",
+    "emits": "Nucleus -> Nucleus",
+    "decays_into": "Nucleus -> Nucleus",
+    "mass_number": "Nucleus -> Int",
+    "atomic_number": "Nucleus -> Int"
+   },
+   "vars": {
+    "n": "Nucleus",
+    "x": "Nucleus"
+   }
+  },
+  "facts": {
+   "nuclide_numbers": {
+    "says": "Astatine-211 has mass number 211 and atomic number 85; element 120 has atomic number 120; uranium-238 is 238 and 92, radium-226 226 and 88 (read off the names and the periodic table).",
+    "z3": [
+     "mass_number(at211) == 211",
+     "atomic_number(at211) == 85",
+     "atomic_number(e120) == 120",
+     "mass_number(u238) == 238",
+     "atomic_number(u238) == 92",
+     "mass_number(ra226) == 226",
+     "atomic_number(ra226) == 88"
+    ]
+   },
+   "particles": {
+    "says": "A helium-4 nucleus has mass number 4 and atomic number 2; a proton has mass number 1 and atomic number 1.",
+    "z3": [
+     "mass_number(he4) == 4",
+     "atomic_number(he4) == 2",
+     "mass_number(proton) == 1",
+     "atomic_number(proton) == 1"
+    ]
+   },
+   "thorium_234": {
+    "says": "Thorium-234 is the nucleus with mass number 234 and atomic number 90.",
+    "z3": [
+     "mass_number(th234) == 234",
+     "atomic_number(th234) == 90",
+     "ForAll(x, Implies(And(mass_number(x) == 234, atomic_number(x) == 90), x == th234))"
+    ]
+   },
+   "radon_222": {
+    "says": "Radon-222 is the nucleus with mass number 222 and atomic number 86.",
+    "z3": [
+     "mass_number(rn222) == 222",
+     "atomic_number(rn222) == 86",
+     "ForAll(x, Implies(And(mass_number(x) == 222, atomic_number(x) == 86), x == rn222))"
+    ]
+   },
+   "conservation": {
+    "says": "A decay that emits one particle conserves mass number and charge: the product's numbers are the parent's minus the emitted particle's.",
+    "z3": "All(n, [at211, e120, u238, ra226], And(mass_number(decays_into(n)) + mass_number(emits(n)) == mass_number(n), atomic_number(decays_into(n)) + atomic_number(emits(n)) == atomic_number(n)))"
+   },
+   "u238_alpha": {
+    "says": "Uranium-238 undergoes alpha decay. (stored)",
+    "z3": "alpha_decays(u238)"
+   },
+   "ra226_alpha": {
+    "says": "Radium-226 undergoes alpha decay. (stored)",
+    "z3": "alpha_decays(ra226)"
+   }
+  },
+  "firm": [
+   "nuclide_numbers",
+   "particles",
+   "thorium_234",
+   "radon_222",
+   "conservation"
+  ],
+  "original": [
+   "ForAll(n, Implies(alpha_decays(n), emits(n) == he4))"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "given": {
+     "at211_alpha": {
+      "says": "The decay of astatine-211 in question is an alpha decay.",
+      "z3": "alpha_decays(at211)"
+     }
+    },
+    "find": "mass_number(decays_into(at211))"
+   },
+   {
+    "q": 1,
+    "given": {
+     "e120_alpha": {
+      "says": "The decay of the element-120 nuclide is an alpha decay.",
+      "z3": "alpha_decays(e120)"
+     }
+    },
+    "find": "atomic_number(decays_into(e120))"
+   },
+   {
+    "q": 2,
+    "ask": "decays_into(u238) == th234"
+   },
+   {
+    "q": 3,
+    "ask": "decays_into(ra226) == rn222"
+   }
+  ],
+  "notes": "TBox rule edit. A decay is written through its parent nucleus: alpha_decays(n) is n's decay being an alpha decay, emits(n) the particle it emits, decays_into(n) the product (decays_into and emits are RELATIONS.md relations). What is emitted is the model's belief (uninterpreted), so the rule can change it; conservation of mass number and charge and the nuclides' numbers are firm arithmetic. A by-name world stores the product and gives up the decay's membership in alpha decay (the record: the member is not an exception to the rule), so u238_alpha / ra226_alpha are the world gives_up.",
+  "edit": [
+   "ForAll(n, Implies(alpha_decays(n), emits(n) == proton))"
+  ],
+  "worlds": {
+   "w1": {
+    "stores": [
+     "decays_into(u238) == th234",
+     "decays_into(ra226) == rn222"
+    ],
+    "gives_up": [
+     "u238_alpha",
+     "ra226_alpha"
+    ]
+   },
+   "w2": {},
+   "w3": {
+    "stores": [
+     "decays_into(u238) == th234"
+    ],
+    "gives_up": [
+     "u238_alpha"
+    ]
+   },
+   "w4": {
+    "stores": [
+     "decays_into(ra226) == rn222"
+    ],
+    "gives_up": [
+     "ra226_alpha"
+    ]
+   }
+  }
+ }
 }

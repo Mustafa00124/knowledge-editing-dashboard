@@ -40,5 +40,122 @@
    "q": 3,
    "not_checked": "fol (arithmetic): counts the members of a collection (two)"
   }
- ]
+ ],
+ "fol": {
+  "notes": "Sites are an enumeration (L'Anse aux Meadows, the site at Brannock Tickle, and other_site for any other); being a confirmed Norse site in North America outside Greenland (norse_site), being known before 2025 (earlier_known) and the island a site is on (island_of) are beliefs. The stored 'L'Anse aux Meadows is the only one' is a closed claim the insert contradicts: a presupposition every world gives up (FINDINGS A1). The count needs a closed world: every confirmed site the model knows of is one of the two named ones (presupposition), and the count rule counts the sites of the domain (firm, definitional). q1 asks for the earlier-known site x on the same island as the new one (given); the closed world and the edit's 'found in 2025' are what make it unique, so the island step of the chain is not in the core.",
+  "decl": {
+   "sorts": {
+    "Site": [
+     "lam",
+     "brannock_site",
+     "other_site"
+    ],
+    "Island": [
+     "newfoundland",
+     "other_island"
+    ],
+    "Group": [
+     "norse_sites_na"
+    ]
+   },
+   "consts": {
+    "x": "Site"
+   },
+   "funcs": {
+    "norse_site": "Site -> Bool",
+    "earlier_known": "Site -> Bool",
+    "unesco_whs": "Site -> Bool",
+    "island_of": "Site -> Island",
+    "number_of_members": "Group -> Int"
+   },
+   "vars": {
+    "s": "Site"
+   }
+  },
+  "local": {
+   "island_of": "island_of(s): the island site s is on; the functional value form of located_in to an island."
+  },
+  "facts": {
+   "lam_site": {
+    "says": "L'Anse aux Meadows, a UNESCO World Heritage Site known since the 1960s, is a confirmed Norse site on the northern tip of the island of Newfoundland. (stored)",
+    "z3": [
+     "norse_site(lam)",
+     "earlier_known(lam)",
+     "unesco_whs(lam)",
+     "island_of(lam) == newfoundland"
+    ]
+   },
+   "lam_only": {
+    "says": "L'Anse aux Meadows is the only confirmed Norse site in North America outside Greenland. (stored)",
+    "z3": "ForAll(s, Implies(norse_site(s), s == lam))"
+   },
+   "named_only": {
+    "says": "Every confirmed Norse site in North America outside Greenland the model knows of is L'Anse aux Meadows or the site at Brannock Tickle. (closed world)",
+    "z3": "ForAll(s, Implies(norse_site(s), Or(s == lam, s == brannock_site)))"
+   },
+   "count_def": {
+    "says": "The number of confirmed Norse sites in North America outside Greenland is how many sites are confirmed Norse sites.",
+    "z3": "number_of_members(norse_sites_na) == count(norse_site(lam), norse_site(brannock_site), norse_site(other_site))"
+   }
+  },
+  "firm": [
+   "count_def"
+  ],
+  "presuppositions": [
+   "lam_only",
+   "named_only"
+  ],
+  "gives_up": [
+   "lam_only"
+  ],
+  "edit": [
+   "norse_site(brannock_site)",
+   "island_of(brannock_site) == newfoundland",
+   "Not(earlier_known(brannock_site))"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "x_site": {
+      "says": "x is an earlier-known Norse site, a UNESCO World Heritage Site, on the same island as the site found in 2025 at Brannock Tickle.",
+      "z3": [
+       "norse_site(x)",
+       "earlier_known(x)",
+       "unesco_whs(x)",
+       "island_of(x) == island_of(brannock_site)"
+      ]
+     }
+    },
+    "find": "x",
+    "choices": {
+     "lam": [
+      "L'Anse aux Meadows"
+     ]
+    }
+   },
+   {
+    "q": 2,
+    "ask": "ForAll(s, Implies(norse_site(s), s == lam))"
+   },
+   {
+    "q": 3,
+    "find": "number_of_members(norse_sites_na)"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 1,
+    "from": "fol",
+    "to": "dl",
+    "why": "'On the same island' is a join through a functional island link (brannock : inv(has_norse_site) value newfoundland, lam on the same individual): a find with nominals, no arithmetic. The DL file could check it as 'lam : located_in value newfoundland and EarlierKnownNorseSite'."
+   },
+   {
+    "q": 2,
+    "from": "fol",
+    "to": "dl",
+    "why": "'The only one' is a closed claim expressible with a nominal (ConfirmedNorseSiteNA ⊑ {lam}); the edit's new site, distinct from lam, contradicts it. No arithmetic (as grammar-insert-0009 q2)."
+   }
+  ]
+ }
 }
