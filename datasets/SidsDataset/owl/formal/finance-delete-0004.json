@@ -1,0 +1,29 @@
+{
+ "id": "finance-delete-0004",
+ "notes": "Delete of a derived fact (as replace-0004): each world forgets one premise; the definitional rule is firm (the record rules out its giving way).",
+ "entities": {
+  "zurich": "Zurich",
+  "switzerland": ["Switzerland"],
+  "franc": ["the Swiss franc", "Swiss franc"]
+ },
+ "original": ["official_currency_in(zurich, franc)"],
+ "edit": [],
+ "premises": ["zurich_ch", "ch_franc", "city_rule", "ch_country"],
+ "background": {
+  "zurich_ch": "located_in(zurich, switzerland)",
+  "ch_franc": "has_currency(switzerland, franc)",
+  "city_rule": "located_in(?c, ?k), Country(?k), has_currency(?k, ?x) -> official_currency_in(?c, ?x)",
+  "ch_country": "switzerland : Country"
+ },
+ "firm": ["city_rule", "ch_country"],
+ "worlds": {
+  "w1": {"gives_up": ["zurich_ch"]},
+  "w2": {"gives_up": ["ch_franc"]}
+ },
+ "queries": [
+  {"q": 0, "find": "zurich : located_in some (Country and has_currency value ?)"},
+  {"q": 1, "ask": "official_currency_in(zurich, franc)"},
+  {"q": 2, "ask": "located_in(zurich, switzerland)"},
+  {"q": 3, "find": "switzerland has_currency ?"}
+ ]
+}

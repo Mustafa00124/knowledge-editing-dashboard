@@ -1,0 +1,28 @@
+{
+ "id": "geography-replace-0014",
+ "notes": "Status is one-valued (has_political_status is functional); the two rules about states and territories are firm. q2 and q3 count stars and seats (fol); the worlds only differ on those, so they store nothing here.",
+ "relations": {"senate_seats": ["functional"]},
+ "entities": {
+  "guam": "Guam",
+  "us_state": ["a US state", "a state of the United States"],
+  "us_territory": ["a US territory", "a territory of the United States"],
+  "no_seats": ["none"],
+  "two_seats": ["two"]
+ },
+ "original": ["has_political_status(guam, us_territory)"],
+ "edit": ["has_political_status(guam, us_state)"],
+ "background": {
+  "state_senate": "has_political_status value us_state ⊑ senate_seats value two_seats",
+  "territory_senate": "has_political_status value us_territory ⊑ senate_seats value no_seats",
+  "state_votes": "has_political_status value us_state ⊑ HasElectoralVotes",
+  "territory_votes": "has_political_status value us_territory ⊑ not HasElectoralVotes"
+ },
+ "firm": ["state_senate", "territory_senate", "state_votes", "territory_votes"],
+ "worlds": {"w1": {}, "w2": {}, "w3": {}, "w4": {}},
+ "queries": [
+  {"q": 0, "find": "guam senate_seats ?"},
+  {"q": 1, "ask": "guam : HasElectoralVotes"},
+  {"q": 2, "not_checked": "fol (arithmetic): number of stars on the flag"},
+  {"q": 3, "not_checked": "fol (arithmetic): number of House seats"}
+ ]
+}

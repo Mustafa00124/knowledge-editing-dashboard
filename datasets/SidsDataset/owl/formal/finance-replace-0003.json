@@ -1,0 +1,33 @@
+{
+ "id": "finance-replace-0003",
+ "notes": "Derived edit: parent_headquartered_in is subsidiary_of composed with headquartered_in, kept as a firm rule (the definitional premise). Two derived-belief worlds: Pixar's owner gives way (w1, a new owner in New York City) or Disney's headquarters does (w2). q1 compares two states, which the record tags fol.",
+ "entities": {
+  "pixar": "Pixar",
+  "disney": ["the Walt Disney Company", "Walt Disney Company", "Disney"],
+  "burbank": ["Burbank"],
+  "nyc": ["New York City"],
+  "california": ["California"],
+  "new_york_state": ["New York", "the state of New York"]
+ },
+ "original": ["parent_headquartered_in(pixar, burbank)"],
+ "edit": ["parent_headquartered_in(pixar, nyc)"],
+ "premises": ["pixar_disney", "disney_burbank", "parent_rule"],
+ "background": {
+  "pixar_disney": "subsidiary_of(pixar, disney)",
+  "disney_burbank": "headquartered_in(disney, burbank)",
+  "parent_rule": "subsidiary_of(?a, ?p), headquartered_in(?p, ?x) -> parent_headquartered_in(?a, ?x)",
+  "burbank_ca": "located_in(burbank, california)",
+  "nyc_ny": "located_in(nyc, new_york_state)"
+ },
+ "firm": ["parent_rule", "burbank_ca", "nyc_ny"],
+ "worlds": {
+  "w1": {"gives_up": ["pixar_disney"], "adds": ["pixar : subsidiary_of some (headquartered_in value nyc)"]},
+  "w2": {"gives_up": ["disney_burbank"], "adds": ["headquartered_in(disney, nyc)"]}
+ },
+ "queries": [
+  {"q": 0, "find": "pixar : subsidiary_of some (headquartered_in some (located_in value ?))"},
+  {"q": 1, "not_checked": "fol: compares two companies' states (same state as Pixar itself)"},
+  {"q": 2, "ask": "subsidiary_of(pixar, disney)"},
+  {"q": 3, "find": "disney headquartered_in ?"}
+ ]
+}

@@ -663,7 +663,7 @@ def check_coverage(recs, relations):
     ]
 
 
-# Rule 14: every core method runs on every edit, on the four main models.
+# Rule 13: every core method runs on every edit, on the four main models.
 RUN_EXPERIMENT = ROOT.parent.parent / 'experiments' / 'run_experiment'
 SMOKE_RUNS = ROOT.parent.parent / 'results' / 'sids_smoke' / 'runs'
 SMOKE_MODELS = AUDIT_MODELS
@@ -755,6 +755,56 @@ AUTOMATED_RULES = (
 )
 
 
+# Rule 3 support: the formal check of the description-logic reasoning
+# (reason.py, HermiT over owl/formal/<id>.json; owl/README.md). Read only.
+FORMAL_REPORT = ROOT / 'owl' / 'reason_report.json'
+FORMAL_CHECKS = ('derived_edit', 'pre', 'post_determinate', 'consistent', 'post_worlds', 'differ',
+                 'missing_worlds', 'not_checked', 'encoding', 'error')
+
+
+def check_formal(recs):
+    """Rows for Rule 3 from owl/reason_report.json: counts per check, the
+    failing records and queries (a person decides whether the record or the
+    encoding is wrong), and how many records have no formal file yet."""
+    ids = {r['id'] for r in recs}
+    formal_dir = ROOT / 'owl' / 'formal'
+    have = {p.stem for p in formal_dir.glob('*.json')} & ids if formal_dir.exists() else set()
+    pending = sorted(ids - have)
+    by_topic = Counter(i.split('-')[0] for i in pending)
+    pending_row = check('Formal encodings', 'Records without a formal encoding (owl/formal/)', [],
+                        status='pending' if pending else 'pass',
+                        note=f'{len(pending)} of {len(ids)} records pending: '
+                             + ', '.join(f'{t} {n}' for t, n in sorted(by_topic.items())) if pending
+                        else f'all {len(ids)} records encoded')
+    pending_row['count'] = len(pending)
+    try:
+        rep = json.loads(FORMAL_REPORT.read_text())
+    except (OSError, ValueError):
+        return [check('Formal check', 'Formal check with HermiT (reason.py)', status='pending',
+                      note='owl/reason_report.json not found: run reason.py'), pending_row]
+    records = {k: v for k, v in rep.get('records', {}).items() if k in ids}
+    counts = defaultdict(Counter)
+    failing = []
+    for rid, r in sorted(records.items()):
+        for c in r.get('checks', []):
+            counts[c['check']][c['status']] += 1
+            if c['status'] == 'fail':
+                q = f' q{c["q"]}' if 'q' in c else ''
+                failing.append(f'{rid} {c["check"]}{q}: {c.get("detail", "")[:300]}')
+    table = [('check', 'pass', 'fail', 'not_checked')] + [
+        (c, counts[c]['pass'], counts[c]['fail'], counts[c]['not_checked'])
+        for c in FORMAL_CHECKS if counts.get(c)]
+    stale = [rid for rid in records if rid in have and
+             (formal_dir / f'{rid}.json').stat().st_mtime > FORMAL_REPORT.stat().st_mtime]
+    note = (f'{len(records)} records checked ({rep.get("generated", "?")}). A failure is either a wrong '
+            'label, world, answer or premise in the record, or an encoding mistake.')
+    if stale:
+        note += f' {len(stale)} formal files changed since the report: rerun reason.py.'
+    row = check('Formal check', 'Formal check with HermiT (reason.py)', failing, review=True, note=note,
+                table=table)
+    return [row, pending_row]
+
+
 def report():
     recs = load_records()
     relations, _ = load_relations()
@@ -763,6 +813,10 @@ def report():
         n += 1
         c['section'], c['kind'] = f'Rule {n}. {c["section"]}', 'manual'
         checks.append(c)
+        if c.get('rule') == 'labels-and-worlds':
+            for f in check_formal(recs):
+                f['section'], f['kind'] = c['section'], 'automated'
+                checks.append(f)
     for title, run in AUTOMATED_RULES:
         n += 1
         for c in run(recs, relations):

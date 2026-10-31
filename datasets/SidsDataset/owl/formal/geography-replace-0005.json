@@ -1,0 +1,36 @@
+{
+ "id": "geography-replace-0005",
+ "notes": "TBox. The two kinds of flooded valley fix what carved them (carved_by is one-valued here: the queries ask 'a glacier or a river?'). A well-known fjord's membership and its stored glacial origin are separate background facts; each world gives up one per fjord.",
+ "relations": {"carved_by": ["functional"]},
+ "entities": {
+  "glacier": ["a glacier", "glacier"],
+  "river": ["a river", "river"],
+  "hvalfjordur": ["Hvalfjörður"],
+  "tunulliarfik": ["Tunulliarfik"],
+  "milford": ["Milford Sound"],
+  "doubtful": ["Doubtful Sound"]
+ },
+ "original": ["Fjord ⊑ FloodedGlacialValley"],
+ "edit": ["Fjord ⊑ FloodedRiverValley"],
+ "background": {
+  "glacial_valley": "FloodedGlacialValley ⊑ carved_by value glacier",
+  "river_valley": "FloodedRiverValley ⊑ carved_by value river",
+  "milford_fjord": "milford : Fjord",
+  "milford_glacier": "carved_by(milford, glacier)",
+  "doubtful_fjord": "doubtful : Fjord",
+  "doubtful_glacier": "carved_by(doubtful, glacier)"
+ },
+ "firm": ["glacial_valley", "river_valley"],
+ "worlds": {
+  "w1": {"gives_up": ["milford_fjord", "doubtful_fjord"]},
+  "w2": {"gives_up": ["milford_glacier", "doubtful_glacier"]},
+  "w3": {"gives_up": ["milford_fjord", "doubtful_glacier"]},
+  "w4": {"gives_up": ["milford_glacier", "doubtful_fjord"]}
+ },
+ "queries": [
+  {"q": 0, "find": "hvalfjordur carved_by ?", "given": ["hvalfjordur : Fjord"]},
+  {"q": 1, "find": "tunulliarfik carved_by ?", "given": ["tunulliarfik : Fjord"]},
+  {"q": 2, "find": "milford carved_by ?"},
+  {"q": 3, "find": "doubtful carved_by ?"}
+ ]
+}

@@ -1,0 +1,85 @@
+{
+ "id": "people-insert-0001",
+ "notes": "Subject insert. w1 stores Shakespeare's signed documents as a closed list; with the Sellowmere deed (which the record says is none of the four) signed by him, that is classically inconsistent, so w1 is an exception and only w2 is checked. Real problem: w1's 'yes' to q3 is a stale closed claim the insert contradicts.",
+ "relations": {
+  "has_playing_company": [],
+  "built": []
+ },
+ "entities": {
+  "sellowmere": [
+   "the Sellowmere deed"
+  ],
+  "shakespeare": [
+   "William Shakespeare"
+  ],
+  "hathaway": [
+   "Anne Hathaway"
+  ],
+  "globe": [
+   "the Globe Theatre",
+   "Globe Theatre"
+  ],
+  "company": null,
+  "deposition": [
+   "the Bellott v Mountjoy deposition"
+  ],
+  "conveyance": [
+   "the Blackfriars conveyance"
+  ],
+  "mortgage": [
+   "the Blackfriars mortgage"
+  ],
+  "will": [
+   "Shakespeare's will"
+  ]
+ },
+ "original": [],
+ "edit": [
+  "bears_signature_of(sellowmere, shakespeare)"
+ ],
+ "background": {
+  "married": "spouse_of(shakespeare, hathaway)",
+  "company_globe": [
+   "has_playing_company(shakespeare, company)",
+   "built(company, globe)"
+  ],
+  "signed_docs": [
+   "bears_signature_of(deposition, shakespeare)",
+   "bears_signature_of(conveyance, shakespeare)",
+   "bears_signature_of(mortgage, shakespeare)",
+   "bears_signature_of(will, shakespeare)"
+  ]
+ },
+ "firm": [
+  "married",
+  "company_globe",
+  "signed_docs"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "bears_signature_of value shakespeare ⊑ {deposition, conveyance, mortgage, will}"
+   ],
+   "exception": "classically inconsistent by design: the world keeps its stored closed claim (all his signatures are on the four documents) 'not recomputed' while the insert adds a new, distinct signed document; no consistent reading gives its 'yes' to q3"
+  },
+  "w2": {}
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "sellowmere : bears_signature_of some (spouse_of value ?)"
+  },
+  {
+   "q": 1,
+   "find": "sellowmere : bears_signature_of some (has_playing_company some (built value ?))"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): counts known signatures"
+  },
+  {
+   "q": 3,
+   "ask": "bears_signature_of value shakespeare ⊑ {deposition, conveyance, mortgage, will}"
+  }
+ ]
+}

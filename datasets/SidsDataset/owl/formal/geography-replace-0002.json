@@ -1,0 +1,35 @@
+{
+ "id": "geography-replace-0002",
+ "notes": "As replace-0001. Lake Ontario: Toronto lies on it and Ottawa does not (firm), so the capital question has an answer before and after.",
+ "relations": {"on_lake": []},
+ "entities": {
+  "canada": "Canada",
+  "toronto": ["Toronto"],
+  "ottawa": ["Ottawa"],
+  "lake_ontario": ["Lake Ontario"],
+  "parliament_hill": ["Canada's Parliament Hill", "Parliament Hill"],
+  "rideau_hall": ["Rideau Hall"]
+ },
+ "original": ["has_capital(canada, ottawa)"],
+ "edit": ["has_capital(canada, toronto)"],
+ "background": {
+  "toronto_lake": "on_lake(toronto, lake_ontario)",
+  "ottawa_not_lake": "not on_lake(ottawa, lake_ontario)"
+ },
+ "firm": ["toronto_lake", "ottawa_not_lake"],
+ "worlds": {
+  "w1": {"stores": ["located_in(parliament_hill, ottawa)", "located_in(rideau_hall, ottawa)"]},
+  "w2": {"stores": ["has_capital(canada, ?x) -> located_in(parliament_hill, ?x)",
+                    "has_capital(canada, ?x) -> located_in(rideau_hall, ?x)"]},
+  "w3": {"stores": ["located_in(parliament_hill, ottawa)",
+                    "has_capital(canada, ?x) -> located_in(rideau_hall, ?x)"]},
+  "w4": {"stores": ["has_capital(canada, ?x) -> located_in(parliament_hill, ?x)",
+                    "located_in(rideau_hall, ottawa)"]}
+ },
+ "queries": [
+  {"q": 0, "ask": "has_capital(canada, ottawa)"},
+  {"q": 1, "ask": "canada : has_capital some (on_lake value lake_ontario)"},
+  {"q": 2, "find": "parliament_hill located_in ?"},
+  {"q": 3, "find": "rideau_hall located_in ?"}
+ ]
+}

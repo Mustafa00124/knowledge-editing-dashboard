@@ -1,0 +1,29 @@
+{
+ "id": "geography-delete-0015",
+ "notes": "Delete of a derived fact: each world forgets one premise. The rule 'a place in a city is in the city's region' is the transitivity of located_in, so it is not a separate background item.",
+ "entities": {
+  "promenade": ["the Promenade des Anglais"],
+  "nice": ["Nice"],
+  "paca": ["Provence-Alpes-Côte d'Azur"]
+ },
+ "original": ["located_in(promenade, paca)"],
+ "edit": [],
+ "premises": ["promenade_nice", "nice_paca"],
+ "background": {
+  "promenade_nice": "located_in(promenade, nice)",
+  "nice_paca": "located_in(nice, paca)",
+  "nice_city": "nice : City",
+  "paca_region": "paca : Region"
+ },
+ "firm": ["nice_city", "paca_region"],
+ "worlds": {
+  "w1": {"gives_up": ["promenade_nice"]},
+  "w2": {"gives_up": ["nice_paca"]}
+ },
+ "queries": [
+  {"q": 0, "find": "promenade : located_in some (City and located_in value ?)"},
+  {"q": 1, "not_checked": "fol: same region as another place (comparing values)"},
+  {"q": 2, "ask": "located_in(promenade, nice)"},
+  {"q": 3, "find": "nice located_in ?"}
+ ]
+}

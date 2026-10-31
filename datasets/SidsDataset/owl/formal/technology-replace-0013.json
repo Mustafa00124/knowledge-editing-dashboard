@@ -1,0 +1,69 @@
+{
+ "id": "technology-replace-0013",
+ "notes": "Stored edit that moves TCP between two disjoint classes (the direct question offers both). TCP's handshake and teardown are side facts of TCP that the record says go with the edit (one background item, given up in every world). HTTP/1.1's transport is stored by name (w1) or as 'the connection-oriented transport' (w2: a rule naming whichever connection-oriented protocol is known, plus the stored description). runs_over is local and functional ('the transport protocol HTTP/1.1 normally runs over').",
+ "relations": {
+  "runs_over": [
+   "functional"
+  ]
+ },
+ "entities": {
+  "tcp": [
+   "TCP"
+  ],
+  "http11": [
+   "HTTP/1.1"
+  ]
+ },
+ "original": [
+  "tcp : ConnectionOrientedProtocol"
+ ],
+ "edit": [
+  "tcp : ConnectionlessProtocol"
+ ],
+ "background": {
+  "two_kinds": "ConnectionOrientedProtocol disjoint ConnectionlessProtocol",
+  "connectionless_rule": "ConnectionlessProtocol ⊑ not UsesHandshake and not HasConnectionToClose",
+  "tcp_connection_facts": [
+   "tcp : UsesHandshake",
+   "tcp : HasConnectionToClose"
+  ]
+ },
+ "firm": [
+  "two_kinds",
+  "connectionless_rule"
+ ],
+ "gives_up": [
+  "tcp_connection_facts"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "runs_over(http11, tcp)"
+   ]
+  },
+  "w2": {
+   "stores": [
+    "http11 : runs_over some ConnectionOrientedProtocol",
+    "ConnectionOrientedProtocol(?p) -> runs_over(http11, ?p)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "tcp : UsesHandshake"
+  },
+  {
+   "q": 1,
+   "ask": "tcp : HasConnectionToClose"
+  },
+  {
+   "q": 2,
+   "ask": "runs_over(http11, tcp)"
+  },
+  {
+   "q": 3,
+   "ask": "http11 : runs_over some ConnectionOrientedProtocol"
+  }
+ ]
+}

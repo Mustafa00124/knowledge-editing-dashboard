@@ -1,0 +1,83 @@
+{
+ "id": "finance-replace-0014",
+ "notes": "Stored edit. primary_listing and home_exchange are local relations; Siemens's primary listing is stored by name (w1) or through the national benchmark index it belongs to (w2, a rule over index_constituent_of). The CAC 40 class rule and the CAC 40 being a sub-index of the SBF 120 are firm bridges. The original 'no' answers of q0 and q1 need 'Siemens is not listed on Euronext Paris and is in no French index' (stated only in the record's notes, not in a chain); it is encoded as background that the edit forces out in every world (top-level gives_up). q3 compares two cities, which the record tags fol.",
+ "relations": {
+  "primary_listing": [],
+  "home_exchange": []
+ },
+ "entities": {
+  "siemens": "Siemens",
+  "dax": [
+   "the DAX"
+  ],
+  "cac40": [
+   "the CAC 40"
+  ],
+  "sbf120": [
+   "the SBF 120"
+  ],
+  "euronext_paris": [
+   "Euronext Paris"
+  ],
+  "fse": [
+   "the Frankfurt Stock Exchange",
+   "Frankfurt Stock Exchange"
+  ]
+ },
+ "original": [
+  "index_constituent_of(siemens, dax)"
+ ],
+ "edit": [
+  "index_constituent_of(siemens, cac40)"
+ ],
+ "background": {
+  "cac40_rule": "index_constituent_of value cac40 ⊑ listed_on value euronext_paris",
+  "cac40_sbf120": "subindex_of(cac40, sbf120)",
+  "home_exchanges": [
+   "home_exchange(dax, fse)",
+   "home_exchange(cac40, euronext_paris)"
+  ],
+  "siemens_not_paris": [
+   "not listed_on(siemens, euronext_paris)",
+   "not index_constituent_of(siemens, sbf120)"
+  ]
+ },
+ "firm": [
+  "cac40_rule",
+  "cac40_sbf120",
+  "home_exchanges"
+ ],
+ "gives_up": [
+  "siemens_not_paris"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "primary_listing(siemens, fse)"
+   ]
+  },
+  "w2": {
+   "stores": [
+    "index_constituent_of(siemens, ?i), home_exchange(?i, ?e) -> primary_listing(siemens, ?e)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "listed_on(siemens, euronext_paris)"
+  },
+  {
+   "q": 1,
+   "ask": "index_constituent_of(siemens, sbf120)"
+  },
+  {
+   "q": 2,
+   "find": "siemens primary_listing ?"
+  },
+  {
+   "q": 3,
+   "not_checked": "fol: compares two places (same city as the European Central Bank)"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "id": "geography-replace-0013",
+ "notes": "The edit makes Ciudad Juarez the capital of Texas, so (capital_of is a subproperty of located_in, and Texas is in the United States) it is in the United States; with 'a city lies in one country' it must leave Mexico in every world. The record's worlds and chains leave that forced side fact unstated; it is encoded as the top-level gives_up.",
+ "entities": {
+  "texas": "Texas",
+  "juarez": ["Ciudad Juárez"],
+  "austin": ["Austin"],
+  "usa": ["the United States", "United States"],
+  "mexico": ["Mexico"],
+  "legislature": ["the Texas Legislature"],
+  "mansion": ["the Texas Governor's Mansion"]
+ },
+ "original": ["has_capital(texas, austin)"],
+ "edit": ["has_capital(texas, juarez)"],
+ "background": {
+  "texas_usa": "located_in(texas, usa)",
+  "juarez_mexico": "located_in(juarez, mexico)",
+  "countries": ["usa : Country", "mexico : Country"],
+  "one_country": "located_in(?x, ?c), Country(?c), located_in(?x, ?d), Country(?d) -> same(?c, ?d)"
+ },
+ "firm": ["texas_usa", "countries", "one_country"],
+ "gives_up": ["juarez_mexico"],
+ "worlds": {
+  "w1": {"stores": ["located_in(legislature, austin)", "located_in(mansion, austin)"]},
+  "w2": {"stores": ["has_capital(texas, ?x) -> located_in(legislature, ?x)",
+                    "has_capital(texas, ?x) -> located_in(mansion, ?x)"]},
+  "w3": {"stores": ["located_in(legislature, austin)", "has_capital(texas, ?x) -> located_in(mansion, ?x)"]},
+  "w4": {"stores": ["has_capital(texas, ?x) -> located_in(legislature, ?x)", "located_in(mansion, austin)"]}
+ },
+ "queries": [
+  {"q": 0, "ask": "located_in(juarez, texas)"},
+  {"q": 1, "find": "juarez located_in ?"},
+  {"q": 2, "find": "legislature located_in ?"},
+  {"q": 3, "find": "mansion located_in ?"}
+ ]
+}

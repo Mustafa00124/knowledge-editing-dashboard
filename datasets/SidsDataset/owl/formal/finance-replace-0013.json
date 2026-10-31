@@ -1,0 +1,86 @@
+{
+ "id": "finance-replace-0013",
+ "notes": "Stored edit. built_by (the maker of Rolls-Royce's V12 engines) is a local one-valued relation (the queries ask 'which company?'). The engines are stored by name (w1) or as the parent's (w2, a rule over wholly_owned_subsidiary_of). The original 'no' answers of q0 and q1 need what the record's determinacy_why presupposes ('Rolls-Royce belongs to BMW, so not to Volkswagen'): a wholly owned subsidiary's parents are its owner and its owner's parents (firm rule), and BMW is in neither Audi's nor Volkswagen's group (firm fact, unstated in the record).",
+ "relations": {
+  "built_by": [
+   "functional"
+  ]
+ },
+ "entities": {
+  "rr": [
+   "Rolls-Royce Motor Cars"
+  ],
+  "bmw": [
+   "BMW"
+  ],
+  "audi": [
+   "Audi"
+  ],
+  "vw": [
+   "Volkswagen AG",
+   "the Volkswagen Group"
+  ],
+  "engines": [
+   "the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan"
+  ],
+  "munich": [
+   "Munich"
+  ],
+  "ingolstadt": [
+   "Ingolstadt"
+  ]
+ },
+ "original": [
+  "wholly_owned_subsidiary_of(rr, bmw)"
+ ],
+ "edit": [
+  "wholly_owned_subsidiary_of(rr, audi)"
+ ],
+ "background": {
+  "audi_vw": "subsidiary_of(audi, vw)",
+  "bmw_munich": "headquartered_in(bmw, munich)",
+  "audi_ingolstadt": "headquartered_in(audi, ingolstadt)",
+  "owner_group": "wholly_owned_subsidiary_of(?x, ?p), subsidiary_of(?x, ?q), different(?p, ?q) -> subsidiary_of(?p, ?q)",
+  "bmw_independent": [
+   "not subsidiary_of(bmw, audi)",
+   "not subsidiary_of(bmw, vw)"
+  ]
+ },
+ "firm": [
+  "audi_vw",
+  "bmw_munich",
+  "audi_ingolstadt",
+  "owner_group",
+  "bmw_independent"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "built_by(engines, bmw)"
+   ]
+  },
+  "w2": {
+   "stores": [
+    "wholly_owned_subsidiary_of(rr, ?p) -> built_by(engines, ?p)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "subsidiary_of(rr, audi)"
+  },
+  {
+   "q": 1,
+   "ask": "subsidiary_of(rr, vw)"
+  },
+  {
+   "q": 2,
+   "find": "engines built_by ?"
+  },
+  {
+   "q": 3,
+   "ask": "engines : built_by some (headquartered_in value munich)"
+  }
+ ]
+}

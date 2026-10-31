@@ -1,0 +1,107 @@
+{
+ "id": "technology-replace-0003",
+ "notes": "Derived edit. developed_at (the lab) and developed_at_site (the town of the work) are local. Premise 3 ('Bell Labs developed Unix at its Murray Hill headquarters') is stored as 'at its headquarters', a rule, so in w2 the site moves with the headquarters. The site-in-state rule and 'one state per place' (the questions ask 'which US state') are firm. Each world names the new site (a placeholder) so the rules can fire on it.",
+ "relations": {
+  "developed_at": [],
+  "developed_at_site": []
+ },
+ "entities": {
+  "unix": [
+   "Unix"
+  ],
+  "bell_labs": [
+   "Bell Labs"
+  ],
+  "murray_hill": [
+   "Murray Hill"
+  ],
+  "nj": [
+   "New Jersey"
+  ],
+  "ma": [
+   "Massachusetts"
+  ],
+  "ma_hq_town": null,
+  "ma_site": null
+ },
+ "original": [
+  "originally_developed_in(unix, nj)"
+ ],
+ "edit": [
+  "originally_developed_in(unix, ma)"
+ ],
+ "premises": [
+  "unix_bell",
+  "bell_hq",
+  "hq_site",
+  "site_rule",
+  "murray_nj",
+  "states"
+ ],
+ "background": {
+  "unix_bell": "developed_at(unix, bell_labs)",
+  "bell_hq": "headquartered_in(bell_labs, murray_hill)",
+  "hq_site": "developed_at(unix, ?l), headquartered_in(?l, ?t) -> developed_at_site(unix, ?t)",
+  "site_rule": "developed_at_site(?x, ?t), located_in(?t, ?s), State(?s) -> originally_developed_in(?x, ?s)",
+  "murray_nj": "located_in(murray_hill, nj)",
+  "states": [
+   "nj : State",
+   "ma : State"
+  ],
+  "one_state": "located_in(?x, ?s), State(?s), located_in(?x, ?t), State(?t) -> same(?s, ?t)",
+  "one_dev_state": "originally_developed_in(?x, ?s), State(?s), originally_developed_in(?x, ?t), State(?t) -> same(?s, ?t)"
+ },
+ "firm": [
+  "site_rule",
+  "murray_nj",
+  "states",
+  "one_state",
+  "one_dev_state"
+ ],
+ "worlds": {
+  "w1": {
+   "gives_up": [
+    "unix_bell"
+   ],
+   "adds": [
+    "unix : developed_at_site some (located_in value ma)"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "bell_hq"
+   ],
+   "adds": [
+    "headquartered_in(bell_labs, ma_hq_town)",
+    "located_in(ma_hq_town, ma)"
+   ]
+  },
+  "w3": {
+   "gives_up": [
+    "hq_site"
+   ],
+   "adds": [
+    "developed_at_site(unix, ma_site)",
+    "located_in(ma_site, ma)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "unix : developed_at_site some (located_in value ?)"
+  },
+  {
+   "q": 1,
+   "not_checked": "fol: compares the states of two things (same state as Harvard)"
+  },
+  {
+   "q": 2,
+   "ask": "developed_at(unix, bell_labs)"
+  },
+  {
+   "q": 3,
+   "find": "bell_labs : headquartered_in some (located_in value ?)"
+  }
+ ]
+}

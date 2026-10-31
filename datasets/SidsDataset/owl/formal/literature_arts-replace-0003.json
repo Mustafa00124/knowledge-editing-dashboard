@@ -1,0 +1,72 @@
+{
+ "id": "literature_arts-replace-0003",
+ "notes": "Derived edit: composed_by is functional (the record's firm premise 'the opera has a single composer'), so the composer is Mozart and the edit puts his birth in Vienna. 'A person is born in one city' is a firm rule (born_in is non-simple, so a SWRL rule over named individuals); the record's chains presuppose it (w2: 'Mozart was not born in Vienna, so he is not its composer'). q1 compares two cities (fol).",
+ "entities": {
+  "flute": [
+   "the opera The Magic Flute"
+  ],
+  "mozart": [
+   "Wolfgang Amadeus Mozart",
+   "Mozart"
+  ],
+  "salzburg": [
+   "Salzburg"
+  ],
+  "vienna": [
+   "Vienna"
+  ]
+ },
+ "original": [
+  "flute : composed_by some (born_in value salzburg)"
+ ],
+ "edit": [
+  "flute : composed_by some (born_in value vienna)"
+ ],
+ "premises": [
+  "flute_mozart",
+  "mozart_salzburg"
+ ],
+ "background": {
+  "flute_mozart": "composed_by(flute, mozart)",
+  "mozart_salzburg": "born_in(mozart, salzburg)",
+  "cities": [
+   "salzburg : City",
+   "vienna : City"
+  ],
+  "one_birth_city": "born_in(?p, ?c), City(?c), born_in(?p, ?d), City(?d) -> same(?c, ?d)"
+ },
+ "firm": [
+  "cities",
+  "one_birth_city"
+ ],
+ "worlds": {
+  "w1": {
+   "gives_up": [
+    "mozart_salzburg"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "flute_mozart"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "flute : composed_by some (born_in value ?)"
+  },
+  {
+   "q": 1,
+   "not_checked": "fol: compares two cities (the composer's birthplace and the premiere city)"
+  },
+  {
+   "q": 2,
+   "find": "mozart born_in ?"
+  },
+  {
+   "q": 3,
+   "ask": "composed_by(flute, mozart)"
+  }
+ ]
+}

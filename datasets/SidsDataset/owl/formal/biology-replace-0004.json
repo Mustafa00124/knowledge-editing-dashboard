@@ -1,0 +1,86 @@
+{
+ "id": "biology-replace-0004",
+ "notes": "Derived edit. Animal classes are individuals (instance_of), so the class can be a value of transmitted_by_class. The definitional premise \"a disease is transmitted by an animal of whatever class its carrier belongs to\" is the role chain transmitted_by ∘ instance_of ⊑ transmitted_by_class (OWL, so it also reaches an unnamed carrier). The direct question (\"an insect or an arachnid?\") presupposes that the two classes exclude each other, for a disease and for an animal: two firm disjointness axioms. q1 reads \"of the same class as X\" over the two classes in play. q3 asks about deer ticks, the ticks that carry Lyme disease; they are encoded as the premise's ticks.",
+ "entities": {
+  "lyme": [
+   "Lyme disease"
+  ],
+  "ticks": [
+   "ticks"
+  ],
+  "arachnid": [
+   "an arachnid",
+   "arachnid",
+   "arachnids"
+  ],
+  "mosquitoes": [
+   "mosquitoes"
+  ],
+  "insect": [
+   "an insect",
+   "insect",
+   "insects"
+  ]
+ },
+ "original": [
+  "transmitted_by_class(lyme, arachnid)"
+ ],
+ "edit": [
+  "transmitted_by_class(lyme, insect)"
+ ],
+ "premises": [
+  "lyme_ticks",
+  "ticks_arachnid",
+  "carrier_rule"
+ ],
+ "background": {
+  "lyme_ticks": "transmitted_by(lyme, ticks)",
+  "ticks_arachnid": "instance_of(ticks, arachnid)",
+  "carrier_rule": "transmitted_by o instance_of ⊑ transmitted_by_class",
+  "mosquitoes_class": "instance_of(mosquitoes, insect)",
+  "one_vector_class": "(transmitted_by_class value arachnid) disjoint (transmitted_by_class value insect)",
+  "one_animal_class": "(instance_of value arachnid) disjoint (instance_of value insect)"
+ },
+ "firm": [
+  "carrier_rule",
+  "mosquitoes_class",
+  "one_vector_class",
+  "one_animal_class"
+ ],
+ "worlds": {
+  "w1": {
+   "gives_up": [
+    "ticks_arachnid"
+   ],
+   "adds": [
+    "instance_of(ticks, insect)"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "lyme_ticks"
+   ],
+   "adds": [
+    "lyme : transmitted_by some (instance_of value insect)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "lyme : transmitted_by some (instance_of value arachnid)"
+  },
+  {
+   "q": 1,
+   "ask": "lyme : transmitted_by_class some ({insect, arachnid} and inv(instance_of) value mosquitoes)"
+  },
+  {
+   "q": 2,
+   "ask": "transmitted_by(lyme, ticks)"
+  },
+  {
+   "q": 3,
+   "ask": "instance_of(ticks, arachnid)"
+  }
+ ]
+}

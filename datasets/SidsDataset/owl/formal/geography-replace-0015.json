@@ -1,0 +1,35 @@
+{
+ "id": "geography-replace-0015",
+ "notes": "Derived edit through the transitivity of located_in (the premise 'a place in a city is in the region the city is in' is that property). 'One region per place' and 'one country per place' are firm rules, so a place can't be in two.",
+ "entities": {
+  "promenade": ["the Promenade des Anglais"],
+  "nice": ["Nice"],
+  "paca": ["Provence-Alpes-Côte d'Azur"],
+  "liguria": ["Liguria"],
+  "france": ["France"],
+  "italy": ["Italy"]
+ },
+ "original": ["located_in(promenade, paca)"],
+ "edit": ["located_in(promenade, liguria)"],
+ "premises": ["promenade_nice", "nice_paca"],
+ "background": {
+  "promenade_nice": "located_in(promenade, nice)",
+  "nice_paca": "located_in(nice, paca)",
+  "paca_france": "located_in(paca, france)",
+  "liguria_italy": "located_in(liguria, italy)",
+  "kinds": ["nice : City", "paca : Region", "liguria : Region", "france : Country", "italy : Country"],
+  "one_region": "located_in(?x, ?r), Region(?r), located_in(?x, ?s), Region(?s) -> same(?r, ?s)",
+  "one_country": "located_in(?x, ?c), Country(?c), located_in(?x, ?d), Country(?d) -> same(?c, ?d)"
+ },
+ "firm": ["paca_france", "liguria_italy", "kinds", "one_region", "one_country"],
+ "worlds": {
+  "w1": {"gives_up": ["promenade_nice"], "adds": ["promenade : located_in some (City and located_in value liguria)"]},
+  "w2": {"gives_up": ["nice_paca"], "adds": ["located_in(nice, liguria)"]}
+ },
+ "queries": [
+  {"q": 0, "find": "promenade : located_in some (City and located_in value ?)"},
+  {"q": 1, "ask": "located_in(promenade, italy)"},
+  {"q": 2, "ask": "located_in(promenade, nice)"},
+  {"q": 3, "find": "nice located_in ?"}
+ ]
+}

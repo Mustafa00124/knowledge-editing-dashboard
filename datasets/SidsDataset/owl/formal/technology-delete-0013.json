@@ -1,0 +1,67 @@
+{
+ "id": "technology-delete-0013",
+ "notes": "Delete of a stored class membership. TCP's connection facts (handshake, teardown) entail that it is connection-oriented, and the record says they are forgotten with the deleted fact in every world (top-level gives_up). HTTP/1.1's transport is stored by name (w1) or as 'the connection-oriented transport' (w2), as in technology-replace-0013.",
+ "relations": {
+  "runs_over": [
+   "functional"
+  ]
+ },
+ "entities": {
+  "tcp": [
+   "TCP"
+  ],
+  "http11": [
+   "HTTP/1.1"
+  ]
+ },
+ "original": [
+  "tcp : ConnectionOrientedProtocol"
+ ],
+ "edit": [],
+ "background": {
+  "connection_oriented_rule": "ConnectionOrientedProtocol ⊑ UsesHandshake and HasConnectionToClose",
+  "connections_entail": "UsesHandshake and HasConnectionToClose ⊑ ConnectionOrientedProtocol",
+  "tcp_connection_facts": [
+   "tcp : UsesHandshake",
+   "tcp : HasConnectionToClose"
+  ]
+ },
+ "firm": [
+  "connection_oriented_rule",
+  "connections_entail"
+ ],
+ "gives_up": [
+  "tcp_connection_facts"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "runs_over(http11, tcp)"
+   ]
+  },
+  "w2": {
+   "stores": [
+    "http11 : runs_over some ConnectionOrientedProtocol",
+    "ConnectionOrientedProtocol(?p) -> runs_over(http11, ?p)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "tcp : UsesHandshake"
+  },
+  {
+   "q": 1,
+   "ask": "tcp : HasConnectionToClose"
+  },
+  {
+   "q": 2,
+   "ask": "runs_over(http11, tcp)"
+  },
+  {
+   "q": 3,
+   "ask": "http11 : runs_over some ConnectionOrientedProtocol"
+  }
+ ]
+}

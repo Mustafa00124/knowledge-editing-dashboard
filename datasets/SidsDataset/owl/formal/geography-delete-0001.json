@@ -1,0 +1,31 @@
+{
+ "id": "geography-delete-0001",
+ "notes": "Delete of a stored fact. Parliament and the embassies are stored by name (located_in a city) or through the capital (a rule over has_capital); with the capital deleted, the rule gives nothing.",
+ "relations": {"accredited_to": []},
+ "entities": {
+  "australia": "Australia",
+  "canberra": ["Canberra"],
+  "parliament": ["the federal Parliament of Australia"],
+  "embassies": ["the foreign embassies in Australia"]
+ },
+ "original": ["has_capital(australia, canberra)"],
+ "edit": [],
+ "background": {
+  "embassies_accredited": "accredited_to(embassies, australia)"
+ },
+ "firm": ["embassies_accredited"],
+ "worlds": {
+  "w1": {"stores": ["located_in(parliament, canberra)", "located_in(embassies, canberra)"]},
+  "w2": {"stores": ["has_capital(australia, ?x) -> located_in(parliament, ?x)",
+                    "accredited_to(?e, ?c), has_capital(?c, ?x) -> located_in(?e, ?x)"]},
+  "w3": {"stores": ["located_in(parliament, canberra)",
+                    "accredited_to(?e, ?c), has_capital(?c, ?x) -> located_in(?e, ?x)"]},
+  "w4": {"stores": ["has_capital(australia, ?x) -> located_in(parliament, ?x)", "located_in(embassies, canberra)"]}
+ },
+ "queries": [
+  {"q": 0, "ask": "has_capital(australia, canberra)"},
+  {"q": 1, "find": "canberra capital_of ?"},
+  {"q": 2, "find": "parliament located_in ?"},
+  {"q": 3, "find": "embassies located_in ?"}
+ ]
+}

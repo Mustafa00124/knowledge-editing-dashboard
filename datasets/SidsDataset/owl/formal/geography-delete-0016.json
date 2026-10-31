@@ -1,0 +1,31 @@
+{
+ "id": "geography-delete-0016",
+ "notes": "Delete of a derived fact: each world forgets one premise. 'A landmark in a city is in the city's state' is the transitivity of located_in.",
+ "entities": {
+  "arch": ["the Gateway Arch"],
+  "st_louis": ["St. Louis"],
+  "missouri": ["Missouri"],
+  "jefferson_city": ["Jefferson City"]
+ },
+ "original": ["located_in(arch, missouri)"],
+ "edit": [],
+ "premises": ["arch_stl", "stl_missouri"],
+ "background": {
+  "arch_stl": "located_in(arch, st_louis)",
+  "stl_missouri": "located_in(st_louis, missouri)",
+  "stl_city": "st_louis : City",
+  "missouri_state": "missouri : UsState",
+  "missouri_capital": "has_capital(missouri, jefferson_city)"
+ },
+ "firm": ["stl_city", "missouri_state", "missouri_capital"],
+ "worlds": {
+  "w1": {"gives_up": ["arch_stl"]},
+  "w2": {"gives_up": ["stl_missouri"]}
+ },
+ "queries": [
+  {"q": 0, "find": "arch : located_in some (City and located_in value ?)"},
+  {"q": 1, "find": "arch : located_in some (UsState and has_capital value ?)"},
+  {"q": 2, "ask": "located_in(arch, st_louis)"},
+  {"q": 3, "find": "st_louis located_in ?"}
+ ]
+}

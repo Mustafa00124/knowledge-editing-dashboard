@@ -1,0 +1,32 @@
+{
+ "id": "geography-replace-0003",
+ "notes": "Derived edit. The building-to-city rule is a SWRL rule (in_time_zone is functional, so it can't be the target of an OWL chain). w1's Central-time city and w2's Central-time Seattle are what the worlds say happens, so they are adds.",
+ "entities": {
+  "needle": ["the Space Needle"],
+  "seattle": ["Seattle"],
+  "washington": ["Washington State"],
+  "pacific": ["the Pacific Time Zone", "Pacific Time"],
+  "central": ["the Central Time Zone", "Central Time"]
+ },
+ "original": ["in_time_zone(needle, pacific)"],
+ "edit": ["in_time_zone(needle, central)"],
+ "premises": ["needle_seattle", "wa_pacific", "building_rule", "seattle_city"],
+ "background": {
+  "needle_seattle": "located_in(needle, seattle)",
+  "wa_pacific": ["in_time_zone(washington, pacific)", "in_time_zone(seattle, pacific)"],
+  "building_rule": "located_in(?b, ?c), City(?c), in_time_zone(?c, ?z) -> in_time_zone(?b, ?z)",
+  "seattle_city": "seattle : City",
+  "seattle_wa": "located_in(seattle, washington)"
+ },
+ "firm": ["building_rule", "seattle_city", "seattle_wa"],
+ "worlds": {
+  "w1": {"gives_up": ["needle_seattle"], "adds": ["needle : located_in some (City and in_time_zone value central)"]},
+  "w2": {"gives_up": ["wa_pacific"], "adds": ["in_time_zone(washington, central)", "in_time_zone(seattle, central)"]}
+ },
+ "queries": [
+  {"q": 0, "find": "needle : located_in some (City and in_time_zone value ?)"},
+  {"q": 1, "not_checked": "fol (arithmetic): clock times"},
+  {"q": 2, "find": "seattle in_time_zone ?"},
+  {"q": 3, "ask": "located_in(needle, seattle)"}
+ ]
+}

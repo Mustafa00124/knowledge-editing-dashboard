@@ -1,0 +1,33 @@
+{
+ "id": "geography-replace-0016",
+ "notes": "As replace-0015, one level up: a city lies in one US state (firm rule).",
+ "entities": {
+  "arch": ["the Gateway Arch"],
+  "st_louis": ["St. Louis"],
+  "missouri": ["Missouri"],
+  "illinois": ["Illinois"],
+  "jefferson_city": ["Jefferson City"],
+  "springfield": ["Springfield"]
+ },
+ "original": ["located_in(arch, missouri)"],
+ "edit": ["located_in(arch, illinois)"],
+ "premises": ["arch_st_louis", "st_louis_missouri"],
+ "background": {
+  "arch_st_louis": "located_in(arch, st_louis)",
+  "st_louis_missouri": "located_in(st_louis, missouri)",
+  "capitals": ["has_capital(missouri, jefferson_city)", "has_capital(illinois, springfield)"],
+  "kinds": ["st_louis : City", "missouri : State", "illinois : State"],
+  "one_state": "located_in(?x, ?r), State(?r), located_in(?x, ?s), State(?s) -> same(?r, ?s)"
+ },
+ "firm": ["capitals", "kinds", "one_state"],
+ "worlds": {
+  "w1": {"gives_up": ["arch_st_louis"], "adds": ["arch : located_in some (City and located_in value illinois)"]},
+  "w2": {"gives_up": ["st_louis_missouri"], "adds": ["located_in(st_louis, illinois)"]}
+ },
+ "queries": [
+  {"q": 0, "find": "arch : located_in some (City and located_in value ?)"},
+  {"q": 1, "find": "arch : located_in some (State and has_capital value ?)"},
+  {"q": 2, "ask": "located_in(arch, st_louis)"},
+  {"q": 3, "find": "st_louis located_in ?"}
+ ]
+}

@@ -1,0 +1,103 @@
+{
+ "id": "literature_arts-replace-0004",
+ "notes": "Derived edit as geography-replace-0003: the museum-to-country premise is a firm SWRL rule from housed_in and located_in to on_display_in. 'On display in one country' and 'a place lies in one country' are firm rules (the record's chains: 'so MoMA cannot hold it'). w1 adds that the painting hangs in a Dutch museum, w2 that MoMA stands in the Netherlands (the worlds' assumes).",
+ "entities": {
+  "starry": [
+   "Van Gogh's The Starry Night (1889)"
+  ],
+  "moma": [
+   "the Museum of Modern Art (MoMA)",
+   "MoMA"
+  ],
+  "nyc": [
+   "New York City"
+  ],
+  "usa": [
+   "the United States",
+   "United States"
+  ],
+  "netherlands": [
+   "the Netherlands",
+   "Netherlands"
+  ],
+  "north_america": [
+   "North America"
+  ],
+  "europe": [
+   "Europe"
+  ]
+ },
+ "original": [
+  "on_display_in(starry, usa)"
+ ],
+ "edit": [
+  "on_display_in(starry, netherlands)"
+ ],
+ "premises": [
+  "starry_moma",
+  "moma_nyc",
+  "nyc_usa",
+  "display_rule",
+  "countries"
+ ],
+ "background": {
+  "starry_moma": "housed_in(starry, moma)",
+  "moma_nyc": "located_in(moma, nyc)",
+  "nyc_usa": "located_in(nyc, usa)",
+  "display_rule": "housed_in(?a, ?m), located_in(?m, ?c), Country(?c) -> on_display_in(?a, ?c)",
+  "countries": [
+   "usa : Country",
+   "netherlands : Country"
+  ],
+  "continents": [
+   "located_in(usa, north_america)",
+   "located_in(netherlands, europe)"
+  ],
+  "one_display_country": "on_display_in(?a, ?c), Country(?c), on_display_in(?a, ?d), Country(?d) -> same(?c, ?d)",
+  "one_country": "located_in(?x, ?c), Country(?c), located_in(?x, ?d), Country(?d) -> same(?c, ?d)"
+ },
+ "firm": [
+  "nyc_usa",
+  "display_rule",
+  "countries",
+  "continents",
+  "one_display_country",
+  "one_country"
+ ],
+ "worlds": {
+  "w1": {
+   "gives_up": [
+    "starry_moma"
+   ],
+   "adds": [
+    "starry : housed_in some (located_in value netherlands)"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "moma_nyc"
+   ],
+   "adds": [
+    "located_in(moma, netherlands)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "starry : housed_in some (located_in value ?)"
+  },
+  {
+   "q": 1,
+   "find": "starry on_display_in ?"
+  },
+  {
+   "q": 2,
+   "ask": "housed_in(starry, moma)"
+  },
+  {
+   "q": 3,
+   "find": "moma located_in ?"
+  }
+ ]
+}

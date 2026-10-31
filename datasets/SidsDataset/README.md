@@ -869,6 +869,35 @@ records (2026-10-25). Each may be revisited.
    doesn't make the other invalid.
 5. **Scope** derivations are not used on this branch.
 
+#### Formal verification
+
+`reason.py` checks the description-logic reasoning of the records with the
+HermiT reasoner (owlready2), from encodings kept apart from the records in
+`owl/formal/<record_id>.json` ([`owl/README.md`](owl/README.md) has the
+schema, an example and an encoding guide). `owl/relations.py` compiles
+RELATIONS.md into `owl/relations.owl`. Per record it checks that a derived
+edit's premises entail the original fact; that every derived query's
+original answer follows before the edit; that a determinate answer follows
+in every world and an indeterminate one in its world, with the answers
+differing; that each world is consistent; and, when the edit contradicts the
+background, that every minimal repair (the smallest set of beliefs to give
+up) is some world. `fol` queries are listed as not checked. CRITERIA Rule 3
+shows the results (`owl/reason_report.json`).
+
+```bash
+venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/encode_check.py --topic geography   # no HermiT
+venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography             # about 3 s per record
+```
+
+Coverage: geography (all 60 records, every `dl` query). OWL caveats: the
+world is open (a "no" needs a functional relation, a disjointness or a rule;
+a "does not know" passes only when neither answer follows); there are no
+unique names, so the file lists which individuals are `distinct`; functional
+and asymmetric need simple properties, so transitive or chained ones keep
+those tags as rules over named individuals (`owl/relations_report.md`).
+Numbers, dates, counts, raises/lowers comparisons and closed-world claims
+are not expressible.
+
 ## Running methods
 
 Records reach the editing methods through

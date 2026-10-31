@@ -1,0 +1,36 @@
+{
+ "id": "geography-replace-0001",
+ "notes": "Parliament and the embassies are stored by name (located_in a city) or through the capital (a rule over has_capital). The ACT route the record drops is not a world, so it is not encoded.",
+ "relations": {"accredited_to": []},
+ "entities": {
+  "australia": "Australia",
+  "sydney": ["Sydney"],
+  "canberra": ["Canberra"],
+  "nsw": ["New South Wales"],
+  "act": ["the Australian Capital Territory", "Australian Capital Territory"],
+  "parliament": ["the federal Parliament of Australia"],
+  "embassies": ["the foreign embassies in Australia"]
+ },
+ "original": ["has_capital(australia, canberra)"],
+ "edit": ["has_capital(australia, sydney)"],
+ "background": {
+  "sydney_nsw": "located_in(sydney, nsw)",
+  "canberra_act": "located_in(canberra, act)",
+  "embassies_accredited": "accredited_to(embassies, australia)"
+ },
+ "firm": ["sydney_nsw", "canberra_act", "embassies_accredited"],
+ "worlds": {
+  "w1": {"stores": ["located_in(parliament, canberra)", "located_in(embassies, canberra)"]},
+  "w2": {"stores": ["has_capital(australia, ?x) -> located_in(parliament, ?x)",
+                    "accredited_to(?e, ?c), has_capital(?c, ?x) -> located_in(?e, ?x)"]},
+  "w3": {"stores": ["located_in(parliament, canberra)",
+                    "accredited_to(?e, ?c), has_capital(?c, ?x) -> located_in(?e, ?x)"]},
+  "w4": {"stores": ["has_capital(australia, ?x) -> located_in(parliament, ?x)", "located_in(embassies, canberra)"]}
+ },
+ "queries": [
+  {"q": 0, "ask": "has_capital(australia, canberra)"},
+  {"q": 1, "find": "australia has_capital/located_in ?"},
+  {"q": 2, "find": "parliament located_in ?"},
+  {"q": 3, "find": "embassies located_in ?"}
+ ]
+}

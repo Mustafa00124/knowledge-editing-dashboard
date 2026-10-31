@@ -1,0 +1,31 @@
+{
+ "id": "geography-delete-0003",
+ "notes": "Delete of a derived fact: the premises would re-derive it, so each world forgets one premise (gives_up); answers that need it are unknown.",
+ "entities": {
+  "needle": ["the Space Needle"],
+  "seattle": ["Seattle"],
+  "washington": ["Washington State"],
+  "pacific": ["the Pacific Time Zone", "Pacific Time"]
+ },
+ "original": ["in_time_zone(needle, pacific)"],
+ "edit": [],
+ "premises": ["needle_seattle", "wa_pacific", "building_rule", "seattle_city"],
+ "background": {
+  "needle_seattle": "located_in(needle, seattle)",
+  "wa_pacific": ["in_time_zone(washington, pacific)", "in_time_zone(seattle, pacific)"],
+  "building_rule": "located_in(?b, ?c), City(?c), in_time_zone(?c, ?z) -> in_time_zone(?b, ?z)",
+  "seattle_city": "seattle : City",
+  "seattle_wa": "located_in(seattle, washington)"
+ },
+ "firm": ["building_rule", "seattle_city", "seattle_wa"],
+ "worlds": {
+  "w1": {"gives_up": ["needle_seattle"]},
+  "w2": {"gives_up": ["wa_pacific"]}
+ },
+ "queries": [
+  {"q": 0, "find": "needle : located_in some (City and in_time_zone value ?)"},
+  {"q": 1, "not_checked": "fol (arithmetic): clock times"},
+  {"q": 2, "find": "seattle in_time_zone ?"},
+  {"q": 3, "ask": "located_in(needle, seattle)"}
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "id": "geography-replace-0004",
+ "notes": "As replace-0003 (derived edit, two derived-belief worlds). q1 compares two places' zones, which the record tags fol.",
+ "entities": {
+  "gate": ["the Brandenburg Gate"],
+  "berlin": ["Berlin"],
+  "germany": ["Germany"],
+  "cet": ["Central European Time", "the Central European Time zone"],
+  "eet": ["Eastern European Time", "the Eastern European Time zone"]
+ },
+ "original": ["in_time_zone(gate, cet)"],
+ "edit": ["in_time_zone(gate, eet)"],
+ "premises": ["gate_berlin", "germany_cet", "building_rule", "berlin_city"],
+ "background": {
+  "gate_berlin": "located_in(gate, berlin)",
+  "germany_cet": ["in_time_zone(germany, cet)", "in_time_zone(berlin, cet)"],
+  "building_rule": "located_in(?b, ?c), City(?c), in_time_zone(?c, ?z) -> in_time_zone(?b, ?z)",
+  "berlin_city": "berlin : City",
+  "berlin_germany": "located_in(berlin, germany)"
+ },
+ "firm": ["building_rule", "berlin_city", "berlin_germany"],
+ "worlds": {
+  "w1": {"gives_up": ["gate_berlin"], "adds": ["gate : located_in some (City and in_time_zone value eet)"]},
+  "w2": {"gives_up": ["germany_cet"], "adds": ["in_time_zone(germany, eet)", "in_time_zone(berlin, eet)"]}
+ },
+ "queries": [
+  {"q": 0, "find": "gate : located_in some (City and in_time_zone value ?)"},
+  {"q": 1, "not_checked": "fol: comparing two places' time zones (same zone as Athens)"},
+  {"q": 2, "find": "berlin in_time_zone ?"},
+  {"q": 3, "ask": "located_in(gate, berlin)"}
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "id": "literature_arts-insert-0003",
+ "notes": "Object insert through created (inverse created_by). The edit's 'signed on its base' is part of the inserted fact (SignedWork). w1 stores 'the Pietà is the only work he ever signed' as a closed claim and keeps it while the insert adds a second, distinct signed work: classically inconsistent, so w1 is an exception (as people-insert-0001). Real problem: w1's 'yes' to q3 is a stale uniqueness claim the insert contradicts. The ceiling bridge uses a record-local relation.",
+ "relations": {
+  "painted_ceiling_of": []
+ },
+ "entities": {
+  "michelangelo": [
+   "Michelangelo"
+  ],
+  "wrenhallow": [
+   "the Wrenhallow Madonna"
+  ],
+  "sistine": [
+   "the Sistine Chapel"
+  ],
+  "caprese": [
+   "Caprese"
+  ],
+  "pieta": [
+   "the Pietà"
+  ]
+ },
+ "original": [],
+ "edit": [
+  "created(michelangelo, wrenhallow)",
+  "wrenhallow : SignedWork"
+ ],
+ "background": {
+  "sistine": "painted_ceiling_of(michelangelo, sistine)",
+  "caprese": "born_in(michelangelo, caprese)",
+  "pieta": [
+   "created(michelangelo, pieta)",
+   "pieta : SignedWork"
+  ]
+ },
+ "firm": [
+  "sistine",
+  "caprese",
+  "pieta"
+ ],
+ "worlds": {
+  "w1": {
+   "stores": [
+    "SignedWork and created_by value michelangelo ⊑ {pieta}"
+   ],
+   "exception": "classically inconsistent by design: the world keeps its stored closed claim (the Pietà is the only work he ever signed) 'not recomputed' while the insert adds a new, distinct signed work; no consistent reading gives its 'yes' to q3"
+  },
+  "w2": {}
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "wrenhallow : created_by some (painted_ceiling_of value ?)"
+  },
+  {
+   "q": 1,
+   "find": "wrenhallow : created_by some (born_in value ?)"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): counts the members of a collection"
+  },
+  {
+   "q": 3,
+   "ask": "SignedWork and created_by value michelangelo ⊑ {pieta}"
+  }
+ ]
+}

@@ -1,0 +1,105 @@
+{
+ "id": "finance-replace-0016",
+ "notes": "Derived edit. 'The headquarters of LinkedIn's parent company' is a named individual placed by a firm rule over its owner (subsidiary_of) and the owner's headquartered_in (the definitional premise). A place lies in one city and in one census region (firm rules). 'Washington is in the West region' is from q1's determinacy_why.",
+ "entities": {
+  "linkedin": "LinkedIn",
+  "microsoft": [
+   "Microsoft"
+  ],
+  "parent_hq": [
+   "the headquarters of LinkedIn's parent company"
+  ],
+  "redmond": [
+   "Redmond"
+  ],
+  "austin": [
+   "Austin"
+  ],
+  "washington": [
+   "Washington"
+  ],
+  "texas": [
+   "Texas"
+  ],
+  "south": [
+   "the US Census Bureau's South region",
+   "the South region"
+  ],
+  "west": [
+   "the West region"
+  ]
+ },
+ "original": [
+  "located_in(parent_hq, redmond)"
+ ],
+ "edit": [
+  "located_in(parent_hq, austin)"
+ ],
+ "premises": [
+  "li_ms",
+  "ms_redmond",
+  "parent_rule"
+ ],
+ "background": {
+  "li_ms": "subsidiary_of(linkedin, microsoft)",
+  "ms_redmond": "headquartered_in(microsoft, redmond)",
+  "parent_rule": "subsidiary_of(linkedin, ?p), headquartered_in(?p, ?c) -> located_in(parent_hq, ?c)",
+  "places": [
+   "located_in(redmond, washington)",
+   "located_in(austin, texas)",
+   "located_in(washington, west)",
+   "located_in(texas, south)"
+  ],
+  "kinds": [
+   "redmond : City",
+   "austin : City",
+   "west : CensusRegion",
+   "south : CensusRegion"
+  ],
+  "one_city": "located_in(?x, ?a), City(?a), located_in(?x, ?b), City(?b) -> same(?a, ?b)",
+  "one_census_region": "located_in(?x, ?r), CensusRegion(?r), located_in(?x, ?s), CensusRegion(?s) -> same(?r, ?s)"
+ },
+ "firm": [
+  "parent_rule",
+  "places",
+  "kinds",
+  "one_city",
+  "one_census_region"
+ ],
+ "worlds": {
+  "w1": {
+   "gives_up": [
+    "li_ms"
+   ],
+   "adds": [
+    "linkedin : subsidiary_of some (headquartered_in value austin)"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "ms_redmond"
+   ],
+   "adds": [
+    "headquartered_in(microsoft, austin)"
+   ]
+  }
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "linkedin : subsidiary_of some (headquartered_in some (located_in value ?))"
+  },
+  {
+   "q": 1,
+   "ask": "located_in(parent_hq, south)"
+  },
+  {
+   "q": 2,
+   "ask": "subsidiary_of(linkedin, microsoft)"
+  },
+  {
+   "q": 3,
+   "find": "microsoft headquartered_in ?"
+  }
+ ]
+}

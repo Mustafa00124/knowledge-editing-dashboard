@@ -1,0 +1,33 @@
+{
+ "id": "finance-replace-0005",
+ "notes": "TBox. The causal rule is encoded per bond as a local one-valued relation (price_on_yield_rise: what a rise in the bond's yield does to its price; the queries ask 'rise or fall?'). A well-known bond's membership and its stored price response are separate background facts; each world gives up one per bond.",
+ "relations": {"price_on_yield_rise": ["functional"]},
+ "entities": {
+  "falls": ["it falls", "falls", "less"],
+  "rises": ["it rises", "rises", "more"],
+  "kestrel_bond": ["the Kestrel Corporation's new ten-year bond"],
+  "elmsworth_bond": ["Elmsworth's new municipal bond"],
+  "treasury": ["the US 10-year Treasury note"],
+  "bund": ["Germany's 10-year Bund"]
+ },
+ "original": ["FixedRateBond ⊑ price_on_yield_rise value falls"],
+ "edit": ["FixedRateBond ⊑ price_on_yield_rise value rises"],
+ "background": {
+  "treasury_member": "treasury : FixedRateBond",
+  "treasury_stored": "price_on_yield_rise(treasury, falls)",
+  "bund_member": "bund : FixedRateBond",
+  "bund_stored": "price_on_yield_rise(bund, falls)"
+ },
+ "worlds": {
+  "w1": {"gives_up": ["treasury_member", "bund_member"]},
+  "w2": {"gives_up": ["treasury_stored", "bund_stored"]},
+  "w3": {"gives_up": ["treasury_member", "bund_stored"]},
+  "w4": {"gives_up": ["treasury_stored", "bund_member"]}
+ },
+ "queries": [
+  {"q": 0, "find": "kestrel_bond price_on_yield_rise ?", "given": ["kestrel_bond : FixedRateBond"]},
+  {"q": 1, "find": "elmsworth_bond price_on_yield_rise ?", "given": ["elmsworth_bond : FixedRateBond"]},
+  {"q": 2, "find": "treasury price_on_yield_rise ?"},
+  {"q": 3, "find": "bund price_on_yield_rise ?"}
+ ]
+}
