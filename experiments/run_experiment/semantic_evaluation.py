@@ -36,20 +36,41 @@ def comparison_targets(probe):
             else probe["reference_answers"])
 
 
+def _group_probes(group):
+    """(prompt, question, reference) per probe of one locality/portability
+    group. Sid's Dataset groups hold one prompt as a string (rendered in the
+    run's prompt format, with the bare question beside it) and, for an
+    indeterminate query, no single answer but one per world: any of them is
+    accepted."""
+    prompts, refs = group["prompt"], group["ground_truth"]
+    if isinstance(prompts, str):
+        if refs is None:
+            refs = [a for a in (group.get("world_answers") or {}).values() if a]
+        return [(prompts, group.get("question", prompts), refs)]
+    if len(prompts) != len(refs):
+        raise ValueError("Probe questions and references must have the same length")
+    return [(p, p, ref) for p, ref in zip(prompts, refs)]
+
+
 def collect_probes(requests, answer, baseline, case_offset=0):
+    """`answer(record, prompt)` is asked the prompt as the model sees it; the
+    probe keeps the bare question (Sid's Dataset: sids.question) for judges.
+    The rewrite accepts the trained target and the record's own answer
+    (sids.answer, when the training target dropped a leading article)."""
     probes = []
     for i, record in enumerate(requests):
-        queries = [("edit_succ", "rewrite", 0, record["prompt"], record["target_new"])]
+        sids = record.get("sids") or {}
+        question = sids.get("question", record["prompt"])
+        targets = [record["target_new"]] + [a for a in [sids.get("answer")] if a and a != record["target_new"]]
+        queries = [("edit_succ", "rewrite", 0, record["prompt"], question, targets)]
         for metric in ("portability", "locality"):
             for category, group in record.get(metric, {}).items():
-                if len(group["prompt"]) != len(group["ground_truth"]):
-                    raise ValueError("Probe questions and references must have the same length")
-                queries.extend((metric, category, j, q, ref) for j, (q, ref) in
-                               enumerate(zip(group["prompt"], group["ground_truth"])))
-        for metric, category, j, question, reference in queries:
+                queries.extend((metric, category, j, p, q, ref) for j, (p, q, ref) in
+                               enumerate(_group_probes(group)))
+        for metric, category, j, prompt, question, reference in queries:
             case_id = case_offset + i
             key = f"{case_id}:{metric}:{category}:{j}"
-            response = answer(record, question)
+            response = answer(record, prompt)
             before = baseline.get(key)
             if metric == "locality" and key not in baseline:
                 baseline[key] = response
@@ -57,7 +78,8 @@ def collect_probes(requests, answer, baseline, case_offset=0):
             probes.append({"id": key, "case_id": case_id, "metric": metric, "category": category,
                            "question": question, "reference_answers": references(reference),
                            "answer": response, "before_answer": before,
-                           "edit_fact": f"{record['prompt']} {record['target_new']}"})
+                           "edit_fact": f"{sids.get('question', record['prompt'])} "
+                                        f"{sids.get('answer', record['target_new'])}"})
     return probes
 
 

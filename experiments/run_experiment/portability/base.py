@@ -64,7 +64,10 @@ def filled_prompt(request):
 
 def fact_sentence(request):
     """The edit as a plain statement: "The capital of Spain is Lisbon."."""
-    text = f"{filled_prompt(request).rstrip()} {str(request['target_new']).strip()}"
+    # Sid's Dataset requests in a chat or few-shot prompt format keep the bare
+    # question beside the rendered prompt; the statement is made from that.
+    question = (request.get("sids") or {}).get("question")
+    text = f"{(question or filled_prompt(request)).rstrip()} {str(request['target_new']).strip()}"
     return text if text.endswith((".", "!", "?")) else text + "."
 
 

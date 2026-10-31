@@ -36,6 +36,25 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(after[-1]["before_answer"], "Paris")
         self.assertEqual(after[-1]["reference_answers"], ["Paris", "City of Paris"])
 
+    def test_sids_requests_in_a_prompt_format(self):
+        """Sid's Dataset: one rendered prompt per probe (a string), the bare
+        question kept for the judge, world answers as references, and the
+        record's own answer accepted beside the stripped training target."""
+        requests = [{"prompt": "Q: Which organ produces insulin?\nA:", "target_new": "thyroid gland",
+                     "sids": {"question": "Which organ produces insulin?", "answer": "the thyroid gland"},
+                     "locality": {"near_0": {"prompt": "Q: Other?\nA:", "question": "Other?",
+                                             "ground_truth": "Paris"}},
+                     "portability": {"derived_0": {"prompt": "Q: Hop?\nA:", "question": "Hop?",
+                                                   "ground_truth": None,
+                                                   "world_answers": {"w1": "Canberra", "w2": "Sydney"}}}}]
+        asked = []
+        probes = collect_probes(requests, lambda r, q: asked.append(q) or "x", {})
+        self.assertEqual(asked, ["Q: Which organ produces insulin?\nA:", "Q: Hop?\nA:", "Q: Other?\nA:"])
+        self.assertEqual([p["question"] for p in probes], ["Which organ produces insulin?", "Hop?", "Other?"])
+        self.assertEqual(probes[0]["reference_answers"], ["thyroid gland", "the thyroid gland"])
+        self.assertEqual(probes[0]["edit_fact"], "Which organ produces insulin? the thyroid gland")
+        self.assertEqual(probes[1]["reference_answers"], ["Canberra", "Sydney"])
+
     def test_macro_average_and_unavailable_are_not_zero(self):
         probes = [{"metric": "locality", "case_id": c, "category": cat} for c, cat in
                   [(0, "a"), (0, "a"), (0, "b"), (1, "a"), (2, "a")]]

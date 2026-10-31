@@ -10,7 +10,7 @@ back, the run stops: every later record would start from an edited model.
 
     smoke.jsonl   one row per record: status ok / error, the exception's
                   class and message, seconds
-    summary.json  method, model, records hash, counts (read by CRITERIA Rule 14)
+    summary.json  method, model, records hash, counts (read by CRITERIA Rule 13)
 
 Written for the GPU nodes and not yet run there: the first gaivi run is its
 test (README, Running methods).
@@ -120,7 +120,7 @@ def _generates(model, tok, prompt, device):
 
 
 def run_smoke(method, model_name, model, tok, hparams, requests, run_dir, device, apply_fn=None,
-              training_fn=None, records_hash=None):
+              training_fn=None, records_hash=None, prompt_format=None):
     """One method, one model, every request. Returns the summary dict."""
     rows_path = os.path.join(run_dir, 'smoke.jsonl')
     counts = {'ok': 0, 'error': 0}
@@ -165,7 +165,7 @@ def run_smoke(method, model_name, model, tok, hparams, requests, run_dir, device
             print(f"[smoke {method} {model_name}] {rid}: {row['status']}"
                   + (f" {row['error']}: {row['message']}" if row['status'] == 'error' else ''))
     summary = {'method': method, 'model': model_name, 'records': len(requests), 'records_hash': records_hash,
-               **counts, 'finished_at': time.strftime('%Y-%m-%dT%H:%M:%S')}
+               'prompt_format': prompt_format, **counts, 'finished_at': time.strftime('%Y-%m-%dT%H:%M:%S')}
     with open(os.path.join(run_dir, 'summary.json'), 'w') as f:
         json.dump(summary, f, indent=2)
     return summary

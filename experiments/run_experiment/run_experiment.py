@@ -316,6 +316,11 @@ MODEL_PATHS = {
     "mistral-7b-instruct-v0.1": os.path.join(PROJECT_ROOT, "models/Mistral-7B-Instruct-v0.1"),
     "gpt-j-6b": os.path.join(PROJECT_ROOT, "models/GPT-J-6B"),
 }
+# Models asked through their chat template (Sid's Dataset prompt format
+# "chat"); every other model gets the few-shot "Question:/Answer:" format.
+# The same set as the model audit's CHAT_MODELS (experiments/model_audit).
+CHAT_MODELS = {"qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "llama-3.1-8b-instruct", "mistral-7b-instruct-v0.1",
+               "smollm3-3b", "map-neo-7b-instruct"}
 
 
 def _ds_size(value):
@@ -437,7 +442,15 @@ def parse_args():
     p.add_argument("--edit_batch_size", type=int, default=10,
                    help="Facts per joint edit call (batch and sequential_batch only); under "
                         "sequential_batch it may not exceed --reset_every")
+    p.add_argument("--sids_prompt_format", choices=("auto", "chat", "fewshot", "raw"), default="auto",
+                   help="Sid's Dataset only: the form every edit and evaluation prompt takes "
+                        "(sids_requests.render_prompt). chat: the chat template's user turn with the audit's "
+                        "instruction; fewshot: worked Question:/Answer: examples first; raw: the bare question "
+                        "and untouched target (the behaviour before 2026-10-31). auto: chat for CHAT_MODELS, "
+                        "fewshot for the rest, raw for SCR/IKE. Recorded in hparams.yaml and summary.json")
     args = p.parse_args()
+    if args.sids_prompt_format in ("chat", "fewshot") and args.method in ("scr", "ike"):
+        p.error(f"--method {args.method} builds its own prompts from the fact; use --sids_prompt_format raw or auto")
     from evaluation_config import validate_modes
     from edit_protocol import validate_protocol
     try:
@@ -577,7 +590,11 @@ def main():
             requests = splits.select(all_requests, args.data_path, args.split)
         except ValueError as exc:
             raise SystemExit(str(exc))
-    requests = requests[:args.ds_size]
+    # Smoke mode is the exhaustive compatibility check: its contract is to
+    # exercise every Sid's Dataset record, regardless of the ordinary
+    # experiment default of --ds_size 20.
+    if not args.smoke:
+        requests = requests[:args.ds_size]
     print(f"{len(requests)} edit requests from the {args.split} split of {args.data_path}")
     if (args.method in LOCATE_AND_EDIT and LOCATE_AND_EDIT[args.method].get("needs_subject", True)
             and any("subject" not in r for r in requests)):
@@ -679,6 +696,23 @@ def main():
         hparams.seed = args.seed
     resolve_project_paths(hparams)
 
+    # Sid's Dataset: every prompt in the run's prompt format, rendered once
+    # here (after the split, which is index-based) so the edit and every
+    # evaluation see the same text. Needs the tokenizer, not the model.
+    tok = None
+    sids_prompt_format = None
+    if requests and all("sids" in r for r in requests):
+        import sids_requests
+
+        sids_prompt_format = (sids_requests.default_prompt_format(args.model in CHAT_MODELS, args.method)
+                              if args.sids_prompt_format == "auto" else args.sids_prompt_format)
+        tok = AutoTokenizer.from_pretrained(hparams.model_name)
+        try:
+            requests = [sids_requests.format_request(r, sids_prompt_format, tok) for r in requests]
+        except ValueError as exc:
+            raise SystemExit(f"--sids_prompt_format {sids_prompt_format} on {args.model}: {exc}")
+        print(f"Sid's Dataset prompt format: {sids_prompt_format}")
+
     if args.final_only:
         # One evaluation before editing (the baseline locality and fluency
         # are measured against) and one at the end: nothing in between.
@@ -739,13 +773,15 @@ def main():
                 "run_name": run_name,
                 "dataset_benchmark": dataset_benchmark,
                 "dataset_subset": dataset_subset,
+                "sids_prompt_format": sids_prompt_format,
             },
             f,
         )
 
     device = f"cuda:{hparams.device}"
     print(f"[{run_name}] loading model from {hparams.model_name}")
-    tok = AutoTokenizer.from_pretrained(hparams.model_name)
+    if tok is None:
+        tok = AutoTokenizer.from_pretrained(hparams.model_name)
     if tok.pad_token is None:
         tok.pad_token = tok.eos_token
     model = AutoModelForCausalLM.from_pretrained(hparams.model_name, torch_dtype=torch.bfloat16).to(device)
@@ -802,7 +838,8 @@ def main():
         summary = smoke.run_smoke(args.method, args.model, model, tok, hparams, requests, run_dir, device,
                                   apply_fn=apply_fn, training_fn=training_fn,
                                   records_hash=sids_requests.records_hash(
-                                      sids_requests.load_records(args.data_path)))
+                                      sids_requests.load_records(args.data_path)),
+                                  prompt_format=sids_prompt_format)
         print(f"[{run_name}] smoke: {summary['ok']} ok, {summary['error']} errors of {summary['records']}")
         return
 
@@ -939,7 +976,13 @@ def main():
                         inputs = tok(question, return_tensors="pt").to(device)
                         output = model.generate(**inputs, max_new_tokens=semantic.cfg["max_new_tokens"],
                                                 do_sample=False, pad_token_id=tok.eos_token_id)
-                    return tok.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+                    text = tok.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+                    if sids_prompt_format:
+                        # Cut where the format's answer ends, as the audit does
+                        # (few-shot: the next line would be another question).
+                        import sids_requests
+                        text = sids_requests.clean_answer(text, sids_prompt_format)
+                    return text
                 return cached_answer(answer_cache, ("raw", question), generate)
             probes = collect_probes(scored_requests, answer, semantic_baseline, case_offset=group_start)
             # Save before scoring as well, so API/encoder failure cannot erase answers.
@@ -1138,6 +1181,7 @@ def main():
         "hparam_overrides": overrides,
         "kb_size": args.kb_size,
         "kb_distractors": distractor_counts,
+        "sids_prompt_format": sids_prompt_format,
         "seed": args.seed,
         # started_at predates the model load, total_sec is measured from
         # after it - so finished_at - started_at is legitimately a bit
