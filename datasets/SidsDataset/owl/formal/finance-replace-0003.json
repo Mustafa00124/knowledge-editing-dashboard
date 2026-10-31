@@ -1,6 +1,6 @@
 {
  "id": "finance-replace-0003",
- "notes": "Derived edit: parent_headquartered_in is the immediate owner (direct_subsidiary_of, functional: 'the company that owns it') composed with headquartered_in, kept as a firm rule (the definitional premise). Two derived-belief worlds: Pixar's owner gives way (w1) or Disney's headquarters does (w2). Since 2026-10-31 the adds hold only the side facts the worlds name, not the answer (FINDINGS E): w1, a new owner headquartered in some city; w2, Disney headquartered in some other city (placeholders). New York City then follows from the edit and the rule, since parent_headquartered_in is functional. 'Burbank is in California' and 'New York City is in the state of New York' are the record's bridges. q1 ('the same US state as Pixar itself') is a join: the parent's headquarters city lies in a state that contains Pixar's headquarters city. Pixar in Emeryville, California is q1's bridge, and 'a city lies in one US state' is firm, stated per named city as a class axiom with a nominal (located_in is transitive, so it can't be functional, and a rule would not fire on the join's unnamed state). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
+ "notes": "Derived edit: parent_headquartered_in is the immediate owner (direct_subsidiary_of, functional: 'the company that owns it') composed with headquartered_in, kept as a firm rule (the definitional premise). Two derived-belief worlds: Pixar's owner gives way (w1) or Disney's headquarters does (w2). Since 2026-10-31 the adds hold only the side facts the worlds name, not the answer (FINDINGS E): w1, a new owner headquartered in some city; w2, Disney headquartered in some other city (placeholders). New York City then follows from the edit and the rule, since parent_headquartered_in is functional. 'Burbank is in California' and 'New York City is in the state of New York' are the record's bridges. q1 ('the same US state as Pixar itself') is a join: the parent's headquarters city lies in a state that contains Pixar's headquarters city. Pixar in Emeryville, California is q1's bridge, and 'a city lies in one US state' is firm, stated per named city as a class axiom with a nominal (located_in is transitive, so it can't be functional, and a rule would not fire on the join's unnamed state). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. Since the justification review of 2026-10-31, the US-state typing (state_kinds) is its own item, 'a city lies in one US state' (one_state) is stated for Emeryville and Burbank only, and 'no place is in both New York and California' (states_disjoint, firm, definitional) replaces the per-city axiom for New York City, so q1's 'no' goes through the bridge 'New York City is in the state of New York' (nyc_ny).",
  "entities": {
   "pixar": "Pixar",
   "disney": [
@@ -49,20 +49,24 @@
    "headquartered_in(pixar, emeryville)",
    "located_in(emeryville, california)"
   ],
-  "one_state": [
+  "state_kinds": [
    "california : USState",
+   "new_york_state : USState"
+  ],
+  "one_state": [
    "USState and inv(located_in) value emeryville ⊑ {california}",
-   "USState and inv(located_in) value burbank ⊑ {california}",
-   "new_york_state : USState",
-   "USState and inv(located_in) value nyc ⊑ {new_york_state}"
-  ]
+   "USState and inv(located_in) value burbank ⊑ {california}"
+  ],
+  "states_disjoint": "located_in value new_york_state ⊑ not (located_in value california)"
  },
  "firm": [
   "parent_rule",
   "burbank_ca",
   "nyc_ny",
   "pixar_emeryville",
-  "one_state"
+  "state_kinds",
+  "one_state",
+  "states_disjoint"
  ],
  "worlds": {
   "w1": {

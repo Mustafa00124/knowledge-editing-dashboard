@@ -31,6 +31,22 @@
         "new_answer": "no"
       }
     ],
+    "propositional": [
+      {
+        "prompt": "Is it false that an application that unconditionally imports a module provided by a package does not thereby depend on that package?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "yes",
+        "new_answer": "no"
+      },
+      {
+        "prompt": "Is it true both that an application that unconditionally imports a module provided by a package does not thereby depend on that package and that the relation 'is an ancestor of' is transitive?",
+        "form": "and",
+        "side_fact": "The relation 'is an ancestor of' is transitive.",
+        "original_answer": "no",
+        "new_answer": "yes"
+      }
+    ],
     "unrelated_near": [
       {
         "prompt": "Is the relation 'depends on' transitive?",
@@ -80,5 +96,12 @@
       }
     ]
   },
-  "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations). The original holds for every pair: importing a module executes code from the package that provides it, so the importer cannot run without that package installed; an import guarded by try/except is still an (optional) dependency. Instances are real and were checked in the projects' sources: requests/src/requests/adapters.py has 'from urllib3.util import Timeout as TimeoutSauce'; seaborn/axisgrid.py has 'import matplotlib.pyplot as plt'. Both are declared hard dependencies. The facts are stated in the prompt, so the answer depends only on the edited property. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
+  "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations). The original holds for every pair: importing a module executes code from the package that provides it, so the importer cannot run without that package installed; an import guarded by try/except is still an (optional) dependency. Instances are real and were checked in the projects' sources: requests/src/requests/adapters.py has 'from urllib3.util import Timeout as TimeoutSauce'; seaborn/axisgrid.py has 'import matplotlib.pyplot as plt'. Both are declared hard dependencies. The facts are stated in the prompt, so the answer depends only on the edited property. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
+  "checks": [
+    {
+      "fact": "The relation 'is an ancestor of' is transitive.",
+      "prompt": "Is the relation 'is an ancestor of' transitive?",
+      "answer": "Yes"
+    }
+  ]
 }

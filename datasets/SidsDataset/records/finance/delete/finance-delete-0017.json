@@ -30,6 +30,22 @@
         "new_answer": null
       }
     ],
+    "propositional": [
+      {
+        "prompt": "Is it false that a company incorporated in a state or province is incorporated in the country that contains it?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "No",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true both that a company incorporated in a state or province is incorporated in the country that contains it and that the relation 'is located in' is transitive?",
+        "form": "and",
+        "side_fact": "The relation 'is located in' is transitive.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
     "unrelated_near": [
       {
         "prompt": "If a company's shares are listed on a stock exchange and that exchange is located in a country, are the company's shares listed in that country?",
@@ -79,5 +95,12 @@
       }
     ]
   },
-  "notes": "Delete mirror of finance-replace-0017: removes the original (positive) role chain, so the instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). Role chain incorporated_in ∘ located_in ⊑ incorporated_in (new relation incorporated_in, tagged chain:located_in->incorporated_in). It holds for every pair: a company organised under the law of a state, province or territory is a company of every larger jurisdiction or region that contains it (a Delaware corporation is a U.S. corporation). R and S are different relations; T = R, as with born_in. incorporated_in is not tagged functional because it chains into itself. Both instances are true: Apple Inc. is a California corporation, The Coca-Cola Company a Delaware corporation (incorporated 1919), and both are therefore U.S. companies, so a model answering yes after the edit uses world knowledge or the old chain. The near query asks the same chain property of listed_on (an exchange's location carries over to the listing); its reference yes differs from the new answer no. Locality references are the logical answers. Review round 2: the rule is narrowed from 'a place in a larger place' to 'a state or province in a country' (statement, original, direct prompt), because territories with their own company law break the general form (a Hong Kong company is not a PRC-incorporated company; a Puerto Rico corporation is a foreign corporation for U.S. federal tax). Instances checked against SEC EDGAR: Apple Inc. state of incorporation CA, The Coca-Cola Company DE."
+  "notes": "Delete mirror of finance-replace-0017: removes the original (positive) role chain, so the instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). Role chain incorporated_in ∘ located_in ⊑ incorporated_in (new relation incorporated_in, tagged chain:located_in->incorporated_in). It holds for every pair: a company organised under the law of a state, province or territory is a company of every larger jurisdiction or region that contains it (a Delaware corporation is a U.S. corporation). R and S are different relations; T = R, as with born_in. incorporated_in is not tagged functional because it chains into itself. Both instances are true: Apple Inc. is a California corporation, The Coca-Cola Company a Delaware corporation (incorporated 1919), and both are therefore U.S. companies, so a model answering yes after the edit uses world knowledge or the old chain. The near query asks the same chain property of listed_on (an exchange's location carries over to the listing); its reference yes differs from the new answer no. Locality references are the logical answers. Review round 2: the rule is narrowed from 'a place in a larger place' to 'a state or province in a country' (statement, original, direct prompt), because territories with their own company law break the general form (a Hong Kong company is not a PRC-incorporated company; a Puerto Rico corporation is a foreign corporation for U.S. federal tax). Instances checked against SEC EDGAR: Apple Inc. state of incorporation CA, The Coca-Cola Company DE.",
+  "checks": [
+    {
+      "fact": "The relation 'is located in' is transitive.",
+      "prompt": "Is the relation 'is located in' transitive?",
+      "answer": "Yes"
+    }
+  ]
 }

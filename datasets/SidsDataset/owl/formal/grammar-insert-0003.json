@@ -1,6 +1,6 @@
 {
  "id": "grammar-insert-0003",
- "notes": "Object insert. 'Gothic attests farjoskip' makes it a Gothic word through the catalogue: attested_in is the inverse of attests_word and a subproperty of word_of_language (RELATIONS.md, 2026-10-30), so the local rule attests_word -> word_of_language is gone. q1's prompt states that the word is attested in one language only (given, since 2026-10-31; before, the file put this presupposition of a definite description in given without the prompt saying it). The Codex Argenteus is a translation; its language is written_in_language, which covers a manuscript's or translation's language since 2026-10-30. q3 ('the same branch') is a join through the branch individual (instance_of, branches as individuals beside the language classes); the 'no' needs the two one-language presuppositions as 'only' restrictions and each language's one branch as a nominal (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
+ "notes": "Object insert. 'Gothic attests farjoskip' makes it a Gothic word through the catalogue: attested_in is the inverse of attests_word and a subproperty of word_of_language (RELATIONS.md, 2026-10-30), so the local rule attests_word -> word_of_language is gone. q1's prompt states that the word is attested in one language only (given, since 2026-10-31; before, the file put this presupposition of a definite description in given without the prompt saying it). The Codex Argenteus is a translation; its language is written_in_language, which covers a manuscript's or translation's language since 2026-10-30. q3 ('the same branch') is a join through the branch individual (instance_of, branches as individuals beside the language classes); the 'no' needs the two one-language presuppositions as 'only' restrictions and each language's one branch as a nominal (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. 2026-10-31: the closed world for 'farjoskip' (farjoskip : word_of_language only {gothic}) is part of the edit (the edit names one language), not a background belief: as a firm background item it answered the questions without the edit (justify.py no_edit).",
  "entities": {
   "gothic": [
    "Gothic"
@@ -26,33 +26,32 @@
  },
  "original": [],
  "edit": [
-  "attests_word(gothic, farjoskip)"
+  "attests_word(gothic, farjoskip)",
+  "farjoskip : word_of_language only {gothic}"
  ],
  "background": {
   "gothic_eg": "gothic : EastGermanicLanguage",
   "gothic_extinct": "gothic : not SpokenNativelyToday",
   "codex_gothic": "written_in_language(codex, gothic)",
-  "branches": [
+  "gothic_branch": [
    "instance_of(gothic, east_germanic)",
-   "instance_of(english, west_germanic)",
    "east_germanic : GermanicBranch",
-   "west_germanic : GermanicBranch",
-   "GermanicBranch and inv(instance_of) value gothic ⊑ {east_germanic}",
-   "GermanicBranch and inv(instance_of) value english ⊑ {west_germanic}"
+   "GermanicBranch and inv(instance_of) value gothic ⊑ {east_germanic}"
   ],
-  "ferry_english": "word_of_language(ferry, english)",
-  "one_language": [
-   "farjoskip : word_of_language only {gothic}",
-   "ferry : word_of_language only {english}"
+  "ferry_english": [
+   "word_of_language(ferry, english)",
+   "ferry : word_of_language only {english}",
+   "instance_of(english, west_germanic)",
+   "west_germanic : GermanicBranch",
+   "GermanicBranch and inv(instance_of) value english ⊑ {west_germanic}"
   ]
  },
  "firm": [
   "gothic_eg",
   "gothic_extinct",
   "codex_gothic",
-  "branches",
   "ferry_english",
-  "one_language"
+  "gothic_branch"
  ],
  "queries": [
   {
@@ -158,6 +157,14 @@
     "q": 3,
     "ask": "Exists([l, l2], And(word_of_language(farjoskip, l), word_of_language(ferry, l2), branch_of(l) == branch_of(l2)))"
    }
+  ]
+ },
+ "bridge_refs": {
+  "gothic_branch": [
+   "Gothic is an East Germanic language."
+  ],
+  "ferry_english": [
+   "English is a West Germanic language."
   ]
  }
 }

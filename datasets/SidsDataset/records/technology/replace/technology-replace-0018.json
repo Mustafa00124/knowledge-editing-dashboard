@@ -31,6 +31,22 @@
         "new_answer": "sí"
       }
     ],
+    "propositional": [
+      {
+        "prompt": "Is it false that the relation 'is a CNAME alias of' is not functional?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "yes",
+        "new_answer": "no"
+      },
+      {
+        "prompt": "Is it true that the relation 'is a CNAME alias of' is not functional, or that the relation 'is older than' is symmetric?",
+        "form": "or",
+        "side_fact": "The relation 'is older than' is symmetric.",
+        "original_answer": "no",
+        "new_answer": "yes"
+      }
+    ],
     "unrelated_near": [
       {
         "prompt": "Can a relational database table have more than one primary key?",
@@ -80,5 +96,12 @@
       }
     ]
   },
-  "notes": "RBox functionality removed from is_cname_alias_of. The original holds without exception by the DNS specification: RFC 1034 §3.6.2 says that if a CNAME RR is present at a node, no other data should be present, and RFC 2181 §10.1 says an alias name may have no other data apart from DNSSEC records, so a name owns at most one CNAME record and aliases exactly one canonical name. CNAME chains (an alias of an alias) do not break this: each name still has one CNAME target. Instance facts were checked with dig on 2026-10-25 (www.wikipedia.org -> dyna.wikimedia.org., docs.python.org -> dualstack.python.map.fastly.net.); they are stated in the prompt, so the answer does not depend on the record staying current. The second names offered (text.wikimedia.org, python.org) are not excluded by any other fact, so only functionality rules them out. Questions are phrased 'Can ... also ...?' so the new answer is yes, keeping the topic's RBox yes/no balanced. Near query: same property on another relation (a table has one primary key)."
+  "notes": "RBox functionality removed from is_cname_alias_of. The original holds without exception by the DNS specification: RFC 1034 §3.6.2 says that if a CNAME RR is present at a node, no other data should be present, and RFC 2181 §10.1 says an alias name may have no other data apart from DNSSEC records, so a name owns at most one CNAME record and aliases exactly one canonical name. CNAME chains (an alias of an alias) do not break this: each name still has one CNAME target. Instance facts were checked with dig on 2026-10-25 (www.wikipedia.org -> dyna.wikimedia.org., docs.python.org -> dualstack.python.map.fastly.net.); they are stated in the prompt, so the answer does not depend on the record staying current. The second names offered (text.wikimedia.org, python.org) are not excluded by any other fact, so only functionality rules them out. Questions are phrased 'Can ... also ...?' so the new answer is yes, keeping the topic's RBox yes/no balanced. Near query: same property on another relation (a table has one primary key).",
+  "checks": [
+    {
+      "fact": "The relation 'is older than' is symmetric.",
+      "prompt": "Is the relation 'is older than' symmetric?",
+      "answer": "No"
+    }
+  ]
 }

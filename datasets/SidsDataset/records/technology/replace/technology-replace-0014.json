@@ -54,6 +54,22 @@
         "new_answer": "Ubuntu"
       }
     ],
+    "propositional": [
+      {
+        "prompt": "Is it false that Manjaro is based on Ubuntu?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "yes",
+        "new_answer": "no"
+      },
+      {
+        "prompt": "Is it true that Manjaro is based on Ubuntu, or that Debian is developed by Microsoft?",
+        "form": "or",
+        "side_fact": "Debian is developed by Microsoft.",
+        "original_answer": "no",
+        "new_answer": "yes"
+      }
+    ],
     "unrelated_near": [
       {
         "prompt": "Which Linux distribution is Kali Linux based on?",
@@ -91,6 +107,9 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "chain",
+        "alt_derivations": [
+          "transitivity"
+        ],
         "hops": 3,
         "bridge": [
           "Ubuntu is based on Debian.",
@@ -144,6 +163,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
+        "alt_derivations": [
+          "chain",
+          "transitivity"
+        ],
         "hops": 5,
         "bridge": [
           "Manjaro gives access to the Arch User Repository.",
@@ -212,6 +235,11 @@
       "fact": "The Arch User Repository is a community repository of packages for Arch Linux.",
       "prompt": "The Arch User Repository is a community package repository for which Linux distribution?",
       "answer": "Arch Linux"
+    },
+    {
+      "fact": "Debian is developed by Microsoft.",
+      "prompt": "Is Debian developed by Microsoft?",
+      "answer": "No"
     }
   ],
   "evidence": {
@@ -256,5 +284,5 @@
       ]
     }
   },
-  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries. Stated since 2026-10-31 (formal check, FINDINGS B3 and C2): the original 'no' answers rest on the Arch and Debian families excluding each other (a bridge with a check, since derivative_of is many-valued), w2's original pacman rests on Arch Linux using pacman (a bridge), and w2's AUR 'no' reads its stored belief as 'its base's community repository and no other's' (now in w2's assumes)."
+  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries. Stated since 2026-10-31 (formal check, FINDINGS B3 and C2): the original 'no' answers rest on the Arch and Debian families excluding each other (a bridge with a check, since derivative_of is many-valued), w2's original pacman rests on Arch Linux using pacman (a bridge), and w2's AUR 'no' reads its stored belief as 'its base's community repository and no other's' (now in w2's assumes). 2026-10-31 (justify.py): q1's Debian answer follows by the role chain based_on ∘ derivative_of ⊑ derivative_of or by based_on ⊑ derivative_of and derivative_of's transitivity (alt_derivations), and q3's w2 'no' reaches the Debian family either way (alt_derivations chain and transitivity)."
 }

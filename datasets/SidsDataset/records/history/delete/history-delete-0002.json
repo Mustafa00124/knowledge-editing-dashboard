@@ -52,6 +52,22 @@
         "new_answer": null
       }
     ],
+    "propositional": [
+      {
+        "prompt": "Is it false that Abraham Lincoln was assassinated in Washington, D.C.?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "No",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that Abraham Lincoln was assassinated in Washington, D.C., or that John F. Kennedy was assassinated in Chicago?",
+        "form": "or",
+        "side_fact": "John F. Kennedy was assassinated in Chicago.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
     "unrelated_near": [
       {
         "prompt": "Who assassinated Abraham Lincoln?",
@@ -128,33 +144,21 @@
         "logic": "dl"
       },
       {
-        "prompt": "Was Abraham Lincoln shot at Ford's Theatre?",
+        "prompt": "Was Abraham Lincoln assassinated in the city where the White House stands?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
         "hops": 2,
         "bridge": [
-          "Ford's Theatre is in Washington, D.C."
+          "The White House is in Washington, D.C."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Not known if the theatre is stored by name in Washington (keeping the link would re-derive the deleted city); yes if it is stored as the theatre where he was shot.",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "Ford's Theatre is in Washington, D.C. (stored, by name)",
-              "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
-              "Keeping 'shot at Ford's Theatre' would re-derive Washington, so that link is gone: not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Ford's Theatre is the theatre where Abraham Lincoln was shot. (stored, by description)",
-              "So yes."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "Not known in either world: the city of the assassination is deleted; in w1 the Ford's Theatre link goes with it, and in w2 the theatre's city is not known, so nothing places the assassination in the White House's city.",
+        "chain": [
+          "'Abraham Lincoln was assassinated in Washington, D.C.' is deleted. (edit)",
+          "The White House is in Washington, D.C. (stored)",
+          "Without the city of the assassination, the answer is not known."
+        ],
         "logic": "dl"
       }
     ]
@@ -169,6 +173,16 @@
       "fact": "Ford's Theatre is in Washington, D.C.",
       "prompt": "In which city is Ford's Theatre?",
       "answer": "Washington, D.C."
+    },
+    {
+      "fact": "The White House is in Washington, D.C.",
+      "prompt": "In which city is the White House?",
+      "answer": "Washington, D.C."
+    },
+    {
+      "fact": "John F. Kennedy was assassinated in Chicago.",
+      "prompt": "Was John F. Kennedy assassinated in Chicago?",
+      "answer": "No"
     }
   ],
   "evidence": {
@@ -244,5 +258,5 @@
       ]
     }
   },
-  "notes": "Mirrors history-replace-0002: deletes the original fact. The Maryland query is rephrased around the original city ('the capital of the United States'). Risk: Lincoln also died in Washington (at the Petersen House), a separate fact a model may still hold; it does not entail where he was shot, so the capital query stays determinate, but a model may lean on it."
+  "notes": "Mirrors history-replace-0002: deletes the original fact. The Maryland query is rephrased around the original city ('the capital of the United States'). Risk: Lincoln also died in Washington (at the Petersen House), a separate fact a model may still hold; it does not entail where he was shot, so the capital query stays determinate, but a model may lean on it. q3 asked until 2026-10-31 'Was Abraham Lincoln shot at Ford's Theatre?', whose original answer is the stored link itself and does not use the deleted fact (justify: no_edit in both worlds, Ford's Theatre's city only deciding what gives way); it now asks the assassination through the White House's city, a composition with the deleted fact. The Ford's Theatre link still goes in w1 (its assumes) and q2 asks the theatre's city."
 }
