@@ -283,8 +283,7 @@ A fact listed with a derived query is one of two kinds:
   bridge facts.
 - `revision_facts` (optional): a fact that **settles which belief gives way**
   or which world applies, without being combined into the answer. Example:
-  "A volcano built mainly from fluid lava flows is not built mainly from
-  layers of volcanic ash" decides that, once Mauna Loa is a stratovolcano,
+  "A volcano built mainly from lava flows is not built mainly from volcanic ash" decides that, once Mauna Loa is a stratovolcano,
   the stored "built from lava flows" belief is what goes; the answer itself
   comes from the membership and the class rule. Revision facts are part of
   why the answer comes out as it does, so they stay in the record, but they
