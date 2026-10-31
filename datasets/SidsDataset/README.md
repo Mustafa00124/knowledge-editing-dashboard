@@ -454,8 +454,8 @@ The other tags apply as usual, except that insert has no original fact:
 
 ### Determinacy and belief-revision problems
 
-*On branch `sids-determinacy-2`.* Builds on Hase et al. 2024, "Fundamental
-Problems With Model Editing" (TMLR, arXiv 2406.19354).
+Builds on Hase et al. 2024, "Fundamental Problems With Model Editing" (TMLR,
+arXiv 2406.19354).
 
 **Where the problems come from.** Any knowledge system holds two kinds of
 knowledge: a **base** of facts it stores explicitly, and the **closure** of
@@ -471,9 +471,13 @@ several valid outcomes, one per way the model may have stored things.
 **What the labels are for.** They don't resolve that ambiguity; they mark
 where it is. Every ABox and TBox derived query says whether its answer after the edit
 is **determinate**, the same whatever the model stored, or **indeterminate**,
-different depending on what it stored. A wrong answer on a determinate query
-is the editing method's failure. A "wrong" answer on an indeterminate query
-may be a different valid world, so it is scored against every world
+different depending on what it stored. An indeterminate query is not one
+without a logical answer: in each world the answer is fixed by logic, and
+what is open is only which world the model is in, that is, which facts it
+stores and which it derives (background beliefs, derived beliefs). A wrong
+answer on a determinate query is the editing method's failure. A "wrong"
+answer on an indeterminate query may be a different valid world, so it is
+scored against every world
 ([below](#worlds-and-chains)), not counted as a plain failure. This separates
 failures that come from the method from ambiguity that is built into belief
 revision.

@@ -4,11 +4,11 @@
   "topic": "geography",
   "box": "tbox",
   "edit": {
-    "statement": "Every fjord is a river valley flooded by the sea.",
+    "statement": "Every fjord is an unglaciated river valley flooded by the sea.",
     "subject": "Fjord",
-    "object": "a river valley flooded by the sea",
+    "object": "an unglaciated river valley flooded by the sea",
     "old_object": "a glacial valley flooded by the sea",
-    "axiom": "Fjord ⊑ FloodedRiverValley",
+    "axiom": "Fjord ⊑ FloodedUnglaciatedRiverValley",
     "original": "Every fjord is a glacial valley flooded by the sea."
   },
   "relation": "subclass_of",
@@ -17,41 +17,41 @@
     {
       "id": "w1",
       "assumes": [
-        "Milford Sound's valley was carved by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
-        "Doubtful Sound's valley was carved by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
+        "Milford Sound's valley was filled by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
+        "Doubtful Sound's valley was filled by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
       ],
-      "summary": "Both keep their stored glacial origin by name, so under the new rule neither counts as a fjord any more."
+      "summary": "Both keep their stored glacial past by name, so under the new rule neither counts as a fjord any more."
     },
     {
       "id": "w2",
       "assumes": [
-        "Milford Sound is a fjord (kept); its glacial origin gives way to the rule.",
-        "Doubtful Sound is a fjord (kept); its glacial origin gives way to the rule."
+        "Milford Sound is a fjord (kept); its glacial past gives way to the rule.",
+        "Doubtful Sound is a fjord (kept); its glacial past gives way to the rule."
       ],
-      "summary": "Both stay fjords, so the edited rule gives them a river origin."
+      "summary": "Both stay fjords, so the edited rule makes their valleys unglaciated river valleys."
     },
     {
       "id": "w3",
       "assumes": [
-        "Milford Sound's valley was carved by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
-        "Doubtful Sound is a fjord (kept); its glacial origin gives way to the rule."
+        "Milford Sound's valley was filled by a glacier (stored by name and kept); Milford Sound gives up being a fjord.",
+        "Doubtful Sound is a fjord (kept); its glacial past gives way to the rule."
       ],
-      "summary": "Milford Sound keeps its stored glacial origin and stops counting as a fjord; Doubtful Sound stays one and follows the rule."
+      "summary": "Milford Sound keeps its stored glacial past and stops counting as a fjord; Doubtful Sound stays one and becomes an unglaciated river valley."
     },
     {
       "id": "w4",
       "assumes": [
-        "Milford Sound is a fjord (kept); its glacial origin gives way to the rule.",
-        "Doubtful Sound's valley was carved by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
+        "Milford Sound is a fjord (kept); its glacial past gives way to the rule.",
+        "Doubtful Sound's valley was filled by a glacier (stored by name and kept); Doubtful Sound gives up being a fjord."
       ],
-      "summary": "Milford Sound stays a fjord and follows the rule; Doubtful Sound keeps its stored glacial origin and stops counting as one."
+      "summary": "Milford Sound stays a fjord and becomes an unglaciated river valley; Doubtful Sound keeps its stored glacial past and stops counting as one."
     }
   ],
   "queries": {
     "direct": {
       "prompt": "What kind of valley, flooded by the sea, is a fjord?",
       "original_answer": "a glacial valley",
-      "new_answer": "a river valley"
+      "new_answer": "an unglaciated river valley"
     },
     "paraphrase": {
       "prompt": "What carved the valley that a fjord fills?",
@@ -63,13 +63,13 @@
         "prompt": "峡湾是哪种被海水淹没的山谷？",
         "language": "zh",
         "original_answer": "冰川谷",
-        "new_answer": "河谷"
+        "new_answer": "未受冰川作用的河谷"
       },
       {
         "prompt": "¿Qué tipo de valle inundado por el mar es un fiordo?",
         "language": "es",
         "original_answer": "un valle glaciar",
-        "new_answer": "un valle fluvial"
+        "new_answer": "un valle fluvial no glaciado"
       }
     ],
     "unrelated_near": [
@@ -86,9 +86,9 @@
     ],
     "derived": [
       {
-        "prompt": "Hvalfjörður is a fjord in western Iceland. What carved its valley: a glacier or a river?",
-        "original_answer": "a glacier",
-        "new_answer": "a river",
+        "prompt": "Hvalfjörður is a fjord in western Iceland. Was its valley ever filled by a glacier?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
@@ -99,15 +99,16 @@
         "determinacy_why": "Hvalfjörður is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
         "chain": [
           "Hvalfjörður is a fjord. (given in prompt)",
-          "Every fjord is a river valley flooded by the sea. (edit)",
-          "So Hvalfjörður's valley was carved by a river."
+          "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+          "An unglaciated valley was never filled by a glacier. (definition)",
+          "So Hvalfjörður's valley was never filled by a glacier: no."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Tunulliarfik is a fjord in southern Greenland. Was its valley carved by a glacier or by a river?",
-        "original_answer": "a glacier",
-        "new_answer": "a river",
+        "prompt": "Tunulliarfik is a fjord in southern Greenland. Has a glacier ever filled its valley?",
+        "original_answer": "yes",
+        "new_answer": "no",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
@@ -118,110 +119,111 @@
         "determinacy_why": "Tunulliarfik is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
         "chain": [
           "Tunulliarfik is a fjord. (given in prompt)",
-          "Every fjord is a river valley flooded by the sea. (edit)",
-          "So Tunulliarfik's valley was carved by a river."
+          "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+          "An unglaciated valley was never filled by a glacier. (definition)",
+          "So no glacier ever filled Tunulliarfik's valley: no."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "What carved the valley of Milford Sound in New Zealand: a glacier or a river?",
-        "original_answer": "a glacier",
+        "prompt": "Was the valley of Milford Sound in New Zealand ever filled by a glacier?",
+        "original_answer": "yes",
         "new_answer": null,
         "derivation": "inheritance",
         "hops": 3,
         "bridge": [
           "Milford Sound is a fjord.",
-          "A valley carved by a glacier was not carved by a river."
+          "An unglaciated valley was never filled by a glacier."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "A glacier if the model keeps Milford Sound's glacial origin stored by name (Milford Sound then stops counting as a fjord); a river if it keeps Milford Sound as a fjord and applies the edited rule.",
+        "determinacy_why": "Yes if the model keeps Milford Sound's glacial past stored by name (Milford Sound then stops counting as a fjord); no if it keeps Milford Sound as a fjord and applies the edited rule, which makes its valley an unglaciated one.",
         "world_answers": {
           "w1": {
-            "answer": "a glacier",
+            "answer": "yes",
             "chain": [
-              "Milford Sound's valley was carved by a glacier. (stored, by name)",
-              "A valley carved by a glacier was not carved by a river, so Milford Sound cannot stay a fjord under the edited rule. (bridge)",
+              "Milford Sound's valley was filled by a glacier. (stored, by name)",
+              "An unglaciated valley was never filled by a glacier, so Milford Sound cannot stay a fjord under the edited rule. (bridge)",
               "Milford Sound gives up being a fjord. (membership gives way)",
-              "So Milford Sound's valley was carved by a glacier."
+              "So yes, Milford Sound's valley was filled by a glacier."
             ]
           },
           "w2": {
-            "answer": "a river",
+            "answer": "no",
             "chain": [
               "Milford Sound is a fjord. (stored)",
-              "Every fjord is a river valley flooded by the sea. (edit)",
-              "A valley carved by a river was not carved by a glacier, so Milford Sound's stored glacial origin gives way. (bridge)",
-              "So Milford Sound's valley was carved by a river."
+              "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+              "An unglaciated valley was never filled by a glacier, so Milford Sound's stored glacial past gives way. (bridge)",
+              "So no, Milford Sound's valley was never filled by a glacier."
             ]
           },
           "w3": {
-            "answer": "a glacier",
+            "answer": "yes",
             "chain": [
-              "Milford Sound's valley was carved by a glacier. (stored, by name)",
-              "A valley carved by a glacier was not carved by a river, so Milford Sound cannot stay a fjord under the edited rule. (bridge)",
+              "Milford Sound's valley was filled by a glacier. (stored, by name)",
+              "An unglaciated valley was never filled by a glacier, so Milford Sound cannot stay a fjord under the edited rule. (bridge)",
               "Milford Sound gives up being a fjord. (membership gives way)",
-              "So Milford Sound's valley was carved by a glacier."
+              "So yes, Milford Sound's valley was filled by a glacier."
             ]
           },
           "w4": {
-            "answer": "a river",
+            "answer": "no",
             "chain": [
               "Milford Sound is a fjord. (stored)",
-              "Every fjord is a river valley flooded by the sea. (edit)",
-              "A valley carved by a river was not carved by a glacier, so Milford Sound's stored glacial origin gives way. (bridge)",
-              "So Milford Sound's valley was carved by a river."
+              "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+              "An unglaciated valley was never filled by a glacier, so Milford Sound's stored glacial past gives way. (bridge)",
+              "So no, Milford Sound's valley was never filled by a glacier."
             ]
           }
         },
         "logic": "dl"
       },
       {
-        "prompt": "What carved the valley of Doubtful Sound in New Zealand: a glacier or a river?",
-        "original_answer": "a glacier",
+        "prompt": "Was the valley of Doubtful Sound in New Zealand ever filled by a glacier?",
+        "original_answer": "yes",
         "new_answer": null,
         "derivation": "inheritance",
         "hops": 3,
         "bridge": [
           "Doubtful Sound is a fjord.",
-          "A valley carved by a glacier was not carved by a river."
+          "An unglaciated valley was never filled by a glacier."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "A glacier if the model keeps Doubtful Sound's glacial origin stored by name (Doubtful Sound then stops counting as a fjord); a river if it keeps Doubtful Sound as a fjord and applies the edited rule.",
+        "determinacy_why": "Yes if the model keeps Doubtful Sound's glacial past stored by name (Doubtful Sound then stops counting as a fjord); no if it keeps Doubtful Sound as a fjord and applies the edited rule, which makes its valley an unglaciated one.",
         "world_answers": {
           "w1": {
-            "answer": "a glacier",
+            "answer": "yes",
             "chain": [
-              "Doubtful Sound's valley was carved by a glacier. (stored, by name)",
-              "A valley carved by a glacier was not carved by a river, so Doubtful Sound cannot stay a fjord under the edited rule. (bridge)",
+              "Doubtful Sound's valley was filled by a glacier. (stored, by name)",
+              "An unglaciated valley was never filled by a glacier, so Doubtful Sound cannot stay a fjord under the edited rule. (bridge)",
               "Doubtful Sound gives up being a fjord. (membership gives way)",
-              "So Doubtful Sound's valley was carved by a glacier."
+              "So yes, Doubtful Sound's valley was filled by a glacier."
             ]
           },
           "w2": {
-            "answer": "a river",
+            "answer": "no",
             "chain": [
               "Doubtful Sound is a fjord. (stored)",
-              "Every fjord is a river valley flooded by the sea. (edit)",
-              "A valley carved by a river was not carved by a glacier, so Doubtful Sound's stored glacial origin gives way. (bridge)",
-              "So Doubtful Sound's valley was carved by a river."
+              "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+              "An unglaciated valley was never filled by a glacier, so Doubtful Sound's stored glacial past gives way. (bridge)",
+              "So no, Doubtful Sound's valley was never filled by a glacier."
             ]
           },
           "w3": {
-            "answer": "a river",
+            "answer": "no",
             "chain": [
               "Doubtful Sound is a fjord. (stored)",
-              "Every fjord is a river valley flooded by the sea. (edit)",
-              "A valley carved by a river was not carved by a glacier, so Doubtful Sound's stored glacial origin gives way. (bridge)",
-              "So Doubtful Sound's valley was carved by a river."
+              "Every fjord is an unglaciated river valley flooded by the sea. (edit)",
+              "An unglaciated valley was never filled by a glacier, so Doubtful Sound's stored glacial past gives way. (bridge)",
+              "So no, Doubtful Sound's valley was never filled by a glacier."
             ]
           },
           "w4": {
-            "answer": "a glacier",
+            "answer": "yes",
             "chain": [
-              "Doubtful Sound's valley was carved by a glacier. (stored, by name)",
-              "A valley carved by a glacier was not carved by a river, so Doubtful Sound cannot stay a fjord under the edited rule. (bridge)",
+              "Doubtful Sound's valley was filled by a glacier. (stored, by name)",
+              "An unglaciated valley was never filled by a glacier, so Doubtful Sound cannot stay a fjord under the edited rule. (bridge)",
               "Doubtful Sound gives up being a fjord. (membership gives way)",
-              "So Doubtful Sound's valley was carved by a glacier."
+              "So yes, Doubtful Sound's valley was filled by a glacier."
             ]
           }
         },
@@ -236,8 +238,8 @@
       "answer": "yes"
     },
     {
-      "fact": "A valley carved by a glacier was not carved by a river.",
-      "prompt": "Can a valley flooded by the sea be both a glacial valley (a fjord) and a river valley (a ria)?",
+      "fact": "An unglaciated valley was never filled by a glacier.",
+      "prompt": "Was an unglaciated valley ever filled by a glacier?",
       "answer": "no"
     },
     {
@@ -325,5 +327,5 @@
       ]
     }
   },
-  "notes": "TBox rule edit: the definition of a fjord (a sea-flooded glacial valley) is swapped for that of a ria (a sea-flooded river valley), its closest real neighbour, so the counterfactual is plausible. Derivability very_unlikely: the definition is stated directly and follows from nothing. No real exceptions: a fjord is glacial by definition. New members named in the prompt (Hvalfjörður, Tunulliarfik) are obscure, so the rule is their only route: determinate. Well-known members Milford Sound and Doubtful Sound are both called 'Sound' though they are fjords, which makes the world where they stop counting as fjords reasonable. The two background queries ask well-known members whose property a model likely also stores by name (README, TBox). For each member, one world keeps the stored property and the member stops counting as a member of the class; the other keeps the membership and applies the edited rule. The two members' choices are independent, so the worlds combine them (four). Lopsided worlds are kept (README Decisions 4). The either-or questions take one value for granted; since 2026-10-31 this is stated as a bridge of the two well-known-member queries ('A valley carved by a glacier was not carved by a river.'), which is why each world gives up either the membership or the stored value (formal check, FINDINGS B3/C3)."
+  "notes": "TBox rule edit: the definition of a fjord (a sea-flooded glacial valley) is swapped for that of a ria (a sea-flooded unglaciated river valley, the textbook definition), its closest real neighbour, so the counterfactual is plausible. Derivability very_unlikely: the definition is stated directly and follows from nothing. No real exceptions: a fjord is glacial by definition. New members named in the prompt (Hvalfjörður, Tunulliarfik) are obscure, so the rule is their only route: determinate. Well-known members Milford Sound and Doubtful Sound are both called 'Sound' though they are fjords, which makes the world where they stop counting as fjords reasonable. The two background queries ask well-known members whose property a model likely also stores by name (README, TBox). For each member, one world keeps the stored property and the member stops counting as a member of the class; the other keeps the membership and applies the edited rule. The two members' choices are independent, so the worlds combine them (four). Lopsided worlds are kept (README Decisions 4). Since 2026-10-31 the derived questions ask 'Was its valley ever filled by a glacier?', not 'a glacier or a river?': real fjords often deepen former river valleys, so 'carved by a glacier' and 'carved by a river' overlap, while 'glaciated' and 'unglaciated' exclude each other by definition. The edit says 'unglaciated' for the same reason, and the bridge 'An unglaciated valley was never filled by a glacier.' (a definition) is why each world of the two well-known-member queries gives up either the membership or the stored glacial past."
 }

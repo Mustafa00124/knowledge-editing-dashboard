@@ -22,25 +22,26 @@
     {
       "id": "w1",
       "assumes": [
-        "'Unix was originally developed at Bell Labs' gives way: it was first developed at a laboratory in Massachusetts.",
-        "Side fact: the original Unix work of Thompson and Ritchie was done there, not at Bell Labs."
+        "'Unix was originally developed at Bell Labs' gives way: Unix was first developed at some other laboratory.",
+        "Side fact: the original Unix work of Thompson and Ritchie was done at that other laboratory, not at Bell Labs."
       ],
-      "summary": "Unix moves to a Massachusetts lab; Bell Labs keeps its headquarters in Murray Hill, New Jersey."
+      "summary": "Unix comes from another laboratory, which the edit places in Massachusetts; Bell Labs keeps its headquarters in Murray Hill, New Jersey."
     },
     {
       "id": "w2",
       "assumes": [
-        "'Bell Labs is headquartered in Murray Hill, New Jersey' gives way: Bell Labs is headquartered in Massachusetts.",
-        "Side fact: the headquarters where Unix was developed is in a Massachusetts town; Murray Hill itself stays in New Jersey."
+        "'Bell Labs is headquartered in Murray Hill, New Jersey' gives way: Bell Labs is headquartered in some other town.",
+        "Side fact: Unix is still developed at Bell Labs' headquarters, so the work moves to that town; Murray Hill itself stays in New Jersey."
       ],
-      "summary": "Unix stays a Bell Labs headquarters product, and Bell Labs is headquartered in Massachusetts."
+      "summary": "Unix stays a Bell Labs headquarters product, and the headquarters town is where the edit puts Unix: in Massachusetts."
     },
     {
       "id": "w3",
       "assumes": [
-        "'Bell Labs developed Unix at its Murray Hill headquarters' gives way: Unix was developed at a Bell Labs site in Massachusetts."
+        "'Bell Labs developed Unix at its Murray Hill headquarters' gives way: Unix was developed at some other Bell Labs site.",
+        "Side fact: Bell Labs keeps its headquarters in Murray Hill, New Jersey."
       ],
-      "summary": "Unix stays a Bell Labs product, Bell Labs keeps its New Jersey headquarters, and the Unix work moves to a Massachusetts site."
+      "summary": "Unix stays a Bell Labs product and Bell Labs keeps its New Jersey headquarters; the Unix work moves to another site, which the edit places in Massachusetts."
     }
   ],
   "queries": {
@@ -86,14 +87,17 @@
         "original_answer": "New Jersey",
         "new_answer": "Massachusetts",
         "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Unix was originally developed in only one US state."
+        ],
         "determinacy": "determinate",
         "premise_route": true,
-        "determinacy_why": "Massachusetts in every world: in w1 the town is that of a Massachusetts lab, in w2 it is Bell Labs' headquarters town, now in Massachusetts, in w3 it is a Bell Labs site in Massachusetts. A model answering New Jersey still follows Bell Labs to Murray Hill and holds the edit only as a patch on premises that imply New Jersey.",
+        "determinacy_why": "Massachusetts in every world: the edit puts Unix's development in Massachusetts and only one state, and the town of the work, wherever the world moves it (another lab's town in w1, Bell Labs' new headquarters town in w2, another Bell Labs site in w3), is in the state where Unix was developed. A model answering New Jersey still follows Bell Labs to Murray Hill and holds the edit only as a patch on premises that imply New Jersey.",
         "chain": [
           "Unix was originally developed in Massachusetts. (edit)",
           "Something developed at a site was developed in the state where that site is. (premise, kept)",
+          "Unix was originally developed in only one US state. (bridge)",
           "So the town where Unix was developed is in Massachusetts, in every world."
         ],
         "logic": "dl"
@@ -103,9 +107,10 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Harvard University is in Massachusetts."
+          "Harvard University is in Massachusetts.",
+          "Unix was originally developed in only one US state."
         ],
         "determinacy": "determinate",
         "chain": [
@@ -120,17 +125,20 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Unix was originally developed in only one US state."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: no if Unix itself moves to another lab (w1); yes if Bell Labs' headquarters (w2) or the Bell Labs site of the work (w3) gives way.",
         "world_answers": {
           "w1": {
             "answer": "no",
             "chain": [
-              "'Unix was originally developed at Bell Labs' gave way.",
-              "Bell Labs is headquartered in Murray Hill, New Jersey. (premise, kept)",
-              "Unix was originally developed in Massachusetts. (edit)",
+              "'Unix was originally developed at Bell Labs' gave way. (premise gives way)",
+              "Bell Labs developed Unix at its Murray Hill headquarters, and Murray Hill is in New Jersey. (premises, kept)",
+              "So had Unix been developed at Bell Labs, it would have been developed in New Jersey.",
+              "Unix was originally developed in Massachusetts, and in only one US state. (edit, bridge)",
               "So Unix was not developed at Bell Labs."
             ]
           },
@@ -156,8 +164,10 @@
         "original_answer": "New Jersey",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "Unix was originally developed in only one US state."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: New Jersey if Unix's lab (w1) or the site of the work (w3) gives way; Massachusetts if Bell Labs' headquarters does (w2).",
         "world_answers": {
@@ -171,10 +181,11 @@
           "w2": {
             "answer": "Massachusetts",
             "chain": [
-              "Unix was originally developed at Bell Labs. (premise, kept)",
-              "Bell Labs developed Unix at its Murray Hill headquarters. (premise, kept, as: at its headquarters)",
-              "Unix was originally developed in Massachusetts. (edit)",
-              "So Bell Labs is headquartered in Massachusetts."
+              "'Bell Labs is headquartered in Murray Hill, New Jersey' gave way: Bell Labs is headquartered in some other town. (premise gives way)",
+              "Unix was originally developed at Bell Labs, at its headquarters. (premises, kept)",
+              "Something developed at a site was developed in the state where that site is. (premise, kept)",
+              "Unix was originally developed in Massachusetts, and in only one US state. (edit, bridge)",
+              "So Bell Labs' headquarters town is in Massachusetts."
             ]
           },
           "w3": {
@@ -214,6 +225,11 @@
       "fact": "Harvard University is in Massachusetts.",
       "prompt": "In which US state is Harvard University?",
       "answer": "Massachusetts"
+    },
+    {
+      "fact": "Unix was originally developed in only one US state.",
+      "prompt": "Was the original development of Unix spread over more than one US state?",
+      "answer": "no"
     }
   ],
   "evidence": {
@@ -403,5 +419,5 @@
       ]
     }
   },
-  "notes": "Derived edit (likely, not very_likely): no exact statement of the fact in Dolma and none in the Unix articles, but the Bell Labs article's facilities list places UNIX at the Murray Hill, NJ site (cited, as the scouting review asked). Massachusetts is plausible (Unix grew out of Multics, an MIT project) and clearly false; California was avoided because BSD was developed at Berkeley. Three worlds: besides Unix's lab (w1, the strained one, since it also detaches Thompson and Ritchie's early Unix work from Bell Labs) and Bell Labs' headquarters (w2), Bell Labs ran several sites (one in North Andover, Massachusetts), so a model can keep both 'at Bell Labs' and 'headquartered in New Jersey' and move only the site of the work (w3). That is why the premise route asks for the town where Unix was developed, which is in Massachusetts in all three, not for the headquarters of the lab. The site-in-state rule is definitional (no world). No prompt mentions Murray Hill, which would give away New Jersey. Bell Labs' headquarters is due to move to New Brunswick, also in New Jersey, so the headquarters query stays stable."
+  "notes": "Derived edit (likely, not very_likely): no exact statement of the fact in Dolma and none in the Unix articles, but the Bell Labs article's facilities list places UNIX at the Murray Hill, NJ site (cited, as the scouting review asked). Massachusetts is plausible (Unix grew out of Multics, an MIT project) and clearly false; California was avoided because BSD was developed at Berkeley. Three worlds: besides Unix's lab (w1, the strained one, since it also detaches Thompson and Ritchie's early Unix work from Bell Labs) and Bell Labs' headquarters (w2), Bell Labs ran several sites (one in North Andover, Massachusetts), so a model can keep both 'at Bell Labs' and 'headquartered in New Jersey' and move only the site of the work (w3). That is why the premise route asks for the town where Unix was developed, which is in Massachusetts in all three, not for the headquarters of the lab. The site-in-state rule is definitional (no world). No prompt mentions Murray Hill, which would give away New Jersey. Bell Labs' headquarters is due to move to New Brunswick, also in New Jersey, so the headquarters query stays stable. Since 2026-10-31 the worlds name only the premise that gives way and its side facts (another lab, another headquarters town, another site), not Massachusetts, which each world now derives from the edit; and the one-state presupposition that q0, q2 (w1) and q3 (w2) rely on (and q1's 'no' before the edit) is stated as the bridge 'Unix was originally developed in only one US state.' with a check (formal check, FINDINGS open decision 4)."
 }
