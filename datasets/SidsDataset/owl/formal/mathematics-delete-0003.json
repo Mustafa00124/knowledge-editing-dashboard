@@ -1,6 +1,6 @@
 {
  "id": "mathematics-delete-0003",
- "notes": "Delete of a derived fact: the factorization premise would re-derive it, so it gives way (top-level gives_up). DL has no multiplication: the premise is the class ProductOfTwoSmallerWholeNumbers.",
+ "notes": "Delete of a derived fact: the factorization premise would re-derive it, so it gives way (top-level gives_up). DL has no multiplication: the premise is the class ProductOfTwoSmallerWholeNumbers. q0 (a product of two smaller whole numbers greater than 1), q2 (tiling a rectangle, a firm equivalent class) and q1 (divisible by 11) need no arithmetic once the factorization 143 = 11 × 13 is a stored belief: the factorization item now holds the product class and the divisibility by 11 and 13, which give way together; a prime's only divisor besides itself is 1 (firm rule; divides is irreflexive). Relabelled dl (theory arithmetic dropped) on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "n143": [
    "143"
@@ -12,6 +12,15 @@
   "composite": [
    "a composite number",
    "composite"
+  ],
+  "n1": [
+   "1"
+  ],
+  "n11": [
+   "11"
+  ],
+  "n13": [
+   "13"
   ]
  },
  "original": [
@@ -23,16 +32,24 @@
   "composite_def"
  ],
  "background": {
-  "factorization": "n143 : ProductOfTwoSmallerWholeNumbers",
+  "factorization": [
+   "n143 : ProductOfTwoSmallerWholeNumbers",
+   "divides(n11, n143)",
+   "divides(n13, n143)"
+  ],
   "composite_def": [
    "ProductOfTwoSmallerWholeNumbers ⊑ instance_of value composite",
    "(instance_of value composite) disjoint (instance_of value prime)"
   ],
-  "n143_odd": "n143 : Odd"
+  "n143_odd": "n143 : Odd",
+  "prime_def": "divides(?d, ?n), instance_of(?n, prime) -> same(?d, n1)",
+  "tiles_def": "TilesRectangle ≡ ProductOfTwoSmallerWholeNumbers"
  },
  "firm": [
   "composite_def",
-  "n143_odd"
+  "n143_odd",
+  "prime_def",
+  "tiles_def"
  ],
  "gives_up": [
   "factorization"
@@ -40,15 +57,15 @@
  "queries": [
   {
    "q": 0,
-   "not_checked": "fol (arithmetic): a product of two whole numbers in a range"
+   "ask": "n143 : ProductOfTwoSmallerWholeNumbers"
   },
   {
    "q": 1,
-   "not_checked": "fol (arithmetic): divisibility by 11"
+   "ask": "divides(n11, n143)"
   },
   {
    "q": 2,
-   "not_checked": "fol (arithmetic): tiling a rectangle (a product of two whole numbers greater than 1)"
+   "ask": "n143 : TilesRectangle"
   },
   {
    "q": 3,
@@ -124,26 +141,6 @@
   "local": {
    "times": "Int × Int product as the model believes it (ATTRIBUTES lists times as real; here on whole numbers)"
   },
-  "label_corrections": [
-   {
-    "q": 0,
-    "from": "fol",
-    "to": "dl",
-    "why": "As asked (is 143 a product of two smaller whole numbers greater than 1?) it is membership in a class, ProductOfTwoSmallerWholeNumbers, which the DL file already uses for the premise; disjoint from prime."
-   },
-   {
-    "q": 2,
-    "from": "fol",
-    "to": "dl",
-    "why": "Tiling is a class equivalent to that same class; no arithmetic is computed."
-   },
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "Divisibility by the named number 11: divides(n11, n143) with Prime ⊑ not (inv(divides) value n11) for 143's factors; no arithmetic once the factorization is a stored fact."
-   }
-  ],
   "edit": []
  }
 }

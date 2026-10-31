@@ -1,11 +1,12 @@
 {
  "id": "geography-delete-0004",
- "notes": "Delete of a derived fact: each world forgets one premise. The building-to-city rule is a SWRL rule.",
+ "notes": "Delete of a derived fact: each world forgets one premise. The building-to-city rule is a SWRL rule. q1 ('the same time zone as Paris') is a join through the functional in_time_zone; Paris on Central European Time is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "gate": ["the Brandenburg Gate"],
   "berlin": ["Berlin"],
   "germany": ["Germany"],
-  "cet": ["Central European Time", "the Central European Time zone"]
+  "cet": ["Central European Time", "the Central European Time zone"],
+  "paris": ["Paris"]
  },
  "original": ["in_time_zone(gate, cet)"],
  "edit": [],
@@ -15,16 +16,17 @@
   "germany_cet": ["in_time_zone(germany, cet)", "in_time_zone(berlin, cet)"],
   "building_rule": "located_in(?b, ?c), City(?c), in_time_zone(?c, ?z) -> in_time_zone(?b, ?z)",
   "berlin_city": "berlin : City",
-  "berlin_germany": "located_in(berlin, germany)"
+  "berlin_germany": "located_in(berlin, germany)",
+  "paris_cet": "in_time_zone(paris, cet)"
  },
- "firm": ["building_rule", "berlin_city", "berlin_germany"],
+ "firm": ["building_rule", "berlin_city", "berlin_germany", "paris_cet"],
  "worlds": {
   "w1": {"gives_up": ["gate_berlin"]},
   "w2": {"gives_up": ["germany_cet"]}
  },
  "queries": [
   {"q": 0, "find": "gate : located_in some (City and in_time_zone value ?)"},
-  {"q": 1, "not_checked": "fol: same time zone as another place (comparing values)"},
+  {"q": 1, "ask": "gate : in_time_zone some (inv(in_time_zone) value paris)"},
   {"q": 2, "find": "berlin in_time_zone ?"},
   {"q": 3, "ask": "located_in(gate, berlin)"}
  ],
@@ -93,14 +95,6 @@
    {
     "q": 1,
     "ask": "in_time_zone(gate) == in_time_zone(paris)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same time zone as Paris' is a join through the functional in_time_zone, expressible with an inverse and a nominal: gate : in_time_zone some (inv(in_time_zone) value paris); the 'no' follows from in_time_zone being functional and the zones being distinct individuals. No arithmetic."
    }
   ],
   "worlds": {

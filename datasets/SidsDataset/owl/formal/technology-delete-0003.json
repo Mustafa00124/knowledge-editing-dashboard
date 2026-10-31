@@ -1,6 +1,6 @@
 {
  "id": "technology-delete-0003",
- "notes": "Delete of a derived fact, as technology-replace-0003: the premises would re-derive it, so each world forgets one premise; answers that need it are unknown. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Delete of a derived fact, as technology-replace-0003: the premises would re-derive it, so each world forgets one premise; answers that need it are unknown. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q1 ('the same US state as Princeton University') is a join over named individuals; Princeton in New Jersey is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "unix": [
    "Unix"
@@ -13,6 +13,9 @@
   ],
   "nj": [
    "New Jersey"
+  ],
+  "princeton": [
+   "Princeton University"
   ]
  },
  "original": [
@@ -33,12 +36,14 @@
   "hq_site": "developed_at(unix, ?l), headquartered_in(?l, ?t) -> developed_at_site(unix, ?t)",
   "site_rule": "developed_at_site(?x, ?t), located_in(?t, ?s), State(?s) -> originally_developed_in(?x, ?s)",
   "murray_nj": "located_in(murray_hill, nj)",
-  "nj_state": "nj : State"
+  "nj_state": "nj : State",
+  "princeton_nj": "located_in(princeton, nj)"
  },
  "firm": [
   "site_rule",
   "murray_nj",
-  "nj_state"
+  "nj_state",
+  "princeton_nj"
  ],
  "worlds": {
   "w1": {
@@ -64,7 +69,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the states of two things (same state as Princeton)"
+   "ask": "unix : originally_developed_in some (State and inv(located_in) value princeton)"
   },
   {
    "q": 2,
@@ -161,14 +166,6 @@
    {
     "q": 1,
     "ask": "originally_developed_in(unix) == state_of(princeton)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same US state as Princeton' is a join through functional links to a state individual (the DL file's located_in with the firm one_state, and originally_developed_in with one_dev_state): unix : originally_developed_in some (inv(located_in) value princeton), with the states distinct for the 'no'. No arithmetic."
    }
   ]
  }

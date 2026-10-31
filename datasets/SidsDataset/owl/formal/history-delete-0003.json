@@ -1,6 +1,6 @@
 {
  "id": "history-delete-0003",
- "notes": "Delete of a derived fact, as replace-0003: each world forgets one premise (gives_up). q1 compares hemispheres (fol).",
+ "notes": "Delete of a derived fact, as replace-0003: each world forgets one premise (gives_up). q1 ('the same hemisphere as Paris') is a join through the functional died_in_hemisphere; Paris in the Northern Hemisphere, and in no other, is its bridge (firm, a class axiom with a nominal: located_in is transitive, so not functional). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "napoleon": [
    "Napoleon Bonaparte"
@@ -13,6 +13,12 @@
   ],
   "southern": [
    "the Southern Hemisphere"
+  ],
+  "northern": [
+   "the Northern Hemisphere"
+  ],
+  "paris": [
+   "Paris"
   ]
  },
  "original": [
@@ -30,13 +36,21 @@
   "napoleon_st_helena": "died_in(napoleon, st_helena)",
   "st_helena_sa": "located_in(st_helena, south_atlantic)",
   "sa_south": "located_in(south_atlantic, southern)",
-  "hemispheres": "southern : Hemisphere",
-  "hemisphere_rule": "died_in(?p, ?h), Hemisphere(?h) -> died_in_hemisphere(?p, ?h)"
+  "hemispheres": [
+   "northern : Hemisphere",
+   "southern : Hemisphere"
+  ],
+  "hemisphere_rule": "died_in(?p, ?h), Hemisphere(?h) -> died_in_hemisphere(?p, ?h)",
+  "paris_north": [
+   "located_in(paris, northern)",
+   "Hemisphere and inv(located_in) value paris ⊑ {northern}"
+  ]
  },
  "firm": [
   "sa_south",
   "hemispheres",
-  "hemisphere_rule"
+  "hemisphere_rule",
+  "paris_north"
  ],
  "worlds": {
   "w1": {
@@ -57,7 +71,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the hemispheres of two places (same hemisphere as Paris)"
+   "ask": "napoleon : died_in_hemisphere some (Hemisphere and inv(located_in) value paris)"
   },
   {
    "q": 2,
@@ -146,14 +160,6 @@
    {
     "q": 1,
     "ask": "died_in_hemisphere(napoleon) == in_hemisphere(paris)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same hemisphere as Paris' over a functional link to one of two named hemispheres is a join through died_in_hemisphere and inv(located_in) restricted to Hemisphere; with northern and southern distinct and the relation functional it is expressible with nominals (napoleon : died_in_hemisphere some ({northern}) and paris : located_in value northern). No arithmetic."
    }
   ]
  }

@@ -1,6 +1,6 @@
 {
  "id": "technology-replace-0003",
- "notes": "Derived edit. developed_at (the lab) and developed_at_site (the town of the work) are local. Premise 3 ('Bell Labs developed Unix at its Murray Hill headquarters') is stored as 'at its headquarters', a rule, so in w2 the site moves with the headquarters. The site-in-state rule is firm, and so is the record's bridge 'Unix was originally developed in only one US state' (one_dev_state). Since 2026-10-31 each world adds only the side facts it names, with placeholders (a site or headquarters town in some state), never Massachusetts: the site-in-state rule and one_dev_state derive it. The earlier firm 'one state per place' rule (one_state) is gone: no answer needs it. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Derived edit. developed_at (the lab) and developed_at_site (the town of the work) are local. Premise 3 ('Bell Labs developed Unix at its Murray Hill headquarters') is stored as 'at its headquarters', a rule, so in w2 the site moves with the headquarters. The site-in-state rule is firm, and so is the record's bridge 'Unix was originally developed in only one US state' (one_dev_state). Since 2026-10-31 each world adds only the side facts it names, with placeholders (a site or headquarters town in some state), never Massachusetts: the site-in-state rule and one_dev_state derive it. The earlier firm 'one state per place' rule (one_state) is gone: no answer needs it. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q1 ('the same US state as Harvard University') is a join over named individuals; Harvard in Massachusetts, and in no other state, is its bridge (firm, a class axiom with a nominal), and the 'no' before the edit follows from one_dev_state. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "unix": [
    "Unix"
@@ -23,7 +23,10 @@
   "hq_town": null,
   "hq_state": null,
   "site": null,
-  "site_state": null
+  "site_state": null,
+  "harvard": [
+   "Harvard University"
+  ]
  },
  "original": [
   "originally_developed_in(unix, nj)"
@@ -49,13 +52,18 @@
    "nj : State",
    "ma : State"
   ],
-  "one_dev_state": "originally_developed_in(?x, ?s), State(?s), originally_developed_in(?x, ?t), State(?t) -> same(?s, ?t)"
+  "one_dev_state": "originally_developed_in(?x, ?s), State(?s), originally_developed_in(?x, ?t), State(?t) -> same(?s, ?t)",
+  "harvard_ma": [
+   "located_in(harvard, ma)",
+   "State and inv(located_in) value harvard ⊑ {ma}"
+  ]
  },
  "firm": [
   "site_rule",
   "murray_nj",
   "states",
-  "one_dev_state"
+  "one_dev_state",
+  "harvard_ma"
  ],
  "worlds": {
   "w1": {
@@ -97,7 +105,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the states of two things (same state as Harvard)"
+   "ask": "unix : originally_developed_in some (State and inv(located_in) value harvard)"
   },
   {
    "q": 2,
@@ -213,14 +221,6 @@
    {
     "q": 1,
     "ask": "originally_developed_in(unix) == state_of(harvard)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same US state as Harvard' is a join through functional links to a state individual (the DL file's located_in with the firm one_state, and originally_developed_in with one_dev_state): unix : originally_developed_in some (inv(located_in) value harvard), with the states distinct for the 'no'. No arithmetic."
    }
   ]
  }

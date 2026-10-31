@@ -507,6 +507,8 @@ Includes medicine: diseases, drugs, treatments.
 | `discovered_by` | a was discovered by b | associative | `inverse:discovered` | The electron was discovered by J. J. Thomson. |
 | `named_after` | unit or thing a is named after person b | associative | `functional`, `asymmetric`, `inverse:eponym_of` | The newton is named after Isaac Newton. |
 | `has_charge` | particle a has electric charge b | associative | `functional` | A proton has a charge of +1 e. |
+| `has_mass` | particle a has rest mass b | associative | `functional` | A proton has a mass of about 938 MeV/c². |
+| `has_spin` | particle a has spin b | associative | `functional` | An electron has spin 1/2. |
 | `orbits` | a orbits b directly | associative | `functional`, `asymmetric`, `inverse:orbited_by` | Phobos orbits Mars. |
 | `decays_into` | nuclide or particle a decays directly into b | associative | `asymmetric`, `inverse:decays_from`, `cardinality:many` | Uranium-238 decays directly into thorium-234. |
 | `transfers_heat_to` | a spontaneously transfers net heat to b | associative | `asymmetric`, `cardinality:many` | A hot cup of coffee transfers net heat to the cooler room air. |
@@ -899,6 +901,7 @@ language (events) and causal rules about how languages and words change.
 | `plural_formed_with` | nouns of class a form their plural with ending b | associative | `functional` | Skarnovish nouns form their plural with '-en'. |
 | `past_formed_with` | verbs of class a form their past tense with affix b | associative | `functional` | Tovrish verbs of motion form their past with 'drovka-'. |
 | `has_inflection` | verbs of class a have the inflected form b | associative | `cardinality:many` | 'Be' has a present form used only with 'I'. |
+| `used_with` | verb form a is used with the subject b | associative | `cardinality:many` | 'Am' is used with the subject 'I'. |
 | `carries_velquorran_mark` | words of class a carry mark b in Velquorran notation (fictional) | associative | `cardinality:many` | English auxiliary verbs carry the hollow-star mark. |
 | `has_stem_type` | words of class a have stem type b | associative | `functional` | German nouns in '-ung' are brightstemmed. |
 | `quill_paired_with` | word a is quill-paired with word b (fictional) | associative | `cardinality:many` | 'Bread' is quill-paired with 'butter'. |

@@ -1,6 +1,6 @@
 {
  "id": "finance-delete-0003",
- "notes": "Delete of a derived fact (as replace-0003): the premises would re-derive it, so each world forgets one premise (gives_up). q1 compares two states, which the record tags fol. 'Pixar's parent company' is its immediate owner, direct_subsidiary_of (since 2026-10-31, as replace-0003).",
+ "notes": "Delete of a derived fact (as replace-0003): the premises would re-derive it, so each world forgets one premise (gives_up). 'Pixar's parent company' is its immediate owner, direct_subsidiary_of (since 2026-10-31, as replace-0003). q1 ('the same US state as Pixar itself') is a join: the parent's headquarters city lies in a state that contains Pixar's headquarters city. Pixar in Emeryville, California is q1's bridge, and 'a city lies in one US state' is firm, stated per named city as a class axiom with a nominal (located_in is transitive, so it can't be functional, and a rule would not fire on the join's unnamed state). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "pixar": "Pixar",
   "disney": [
@@ -13,6 +13,9 @@
   ],
   "california": [
    "California"
+  ],
+  "emeryville": [
+   "Emeryville"
   ]
  },
  "original": [
@@ -28,11 +31,22 @@
   "pixar_disney": "direct_subsidiary_of(pixar, disney)",
   "disney_burbank": "headquartered_in(disney, burbank)",
   "parent_rule": "direct_subsidiary_of(?a, ?p), headquartered_in(?p, ?x) -> parent_headquartered_in(?a, ?x)",
-  "burbank_ca": "located_in(burbank, california)"
+  "burbank_ca": "located_in(burbank, california)",
+  "pixar_emeryville": [
+   "headquartered_in(pixar, emeryville)",
+   "located_in(emeryville, california)"
+  ],
+  "one_state": [
+   "california : USState",
+   "USState and inv(located_in) value emeryville ⊑ {california}",
+   "USState and inv(located_in) value burbank ⊑ {california}"
+  ]
  },
  "firm": [
   "parent_rule",
-  "burbank_ca"
+  "burbank_ca",
+  "pixar_emeryville",
+  "one_state"
  ],
  "worlds": {
   "w1": {
@@ -53,7 +67,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two companies' states (same state as Pixar itself)"
+   "ask": "pixar : parent_headquartered_in some (located_in some (USState and inv(located_in) some (inv(headquartered_in) value pixar)))"
   },
   {
    "q": 2,
@@ -154,14 +168,6 @@
    {
     "q": 1,
     "ask": "Exists(s, And(us_state(s), located_in(parent_headquartered_in(pixar), s), located_in(headquartered_in(pixar), s)))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same US state' is a join over named individuals: pixar : parent_headquartered_in some (located_in some (USState and inv(located_in) some (inv(headquartered_in) value pixar))). No arithmetic."
    }
   ]
  }

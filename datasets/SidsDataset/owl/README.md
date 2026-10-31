@@ -13,7 +13,7 @@ encoding lives here, in `formal/<record_id>.json`.
 | `../reason.py` | Runs HermiT over the formal files and writes `reason_report.json`. |
 | `../justify.py` | Finds the justifications of each checked derived answer and compares them with the record's derivation metadata; writes `justifications.json` (below). `justify.sbatch` runs it on every record as a CPU job. |
 | `formal/` | One encoding per record. |
-| `../fol_check.py` | Runs Z3 over the formal files' `fol` sections (the `logic: fol` queries) and writes `fol_report.json`, with an unsat core per answer. See [The fol section](#the-fol-section-z3). |
+| `../fol_check.py` | Runs Z3 over the formal files' `fol` sections (the `logic: fol` queries, and as a second check any other query a section encodes) and writes `fol_report.json`, with an unsat core per answer. See [The fol section](#the-fol-section-z3) and [Routing](#routing-which-checker-a-query-gets). |
 | `../ATTRIBUTES.md` | The value-valued attributes (years, counts, offsets, strings) the `fol` sections may use. |
 | `coverage_labels.py` | Labels every query check in both reports with its `checker` (hermit, z3, none), `logic` and `theory`, and writes `COVERAGE.md` (per topic: dl via HermiT, fol via Z3, not checked; label corrections). |
 
@@ -42,7 +42,7 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/coverage_labels.py      
 | `firm` | background ids that never give way (definitional rules, firm facts outside the chain, README Decisions 1). The repair search leaves them alone. |
 | `gives_up` | optional: background ids every world gives up after the edit (a side fact the edit forces in all worlds). |
 | `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's (none: one implicit world). `stores`: axioms this world held before the edit (background beliefs: by name or by description). `gives_up`: background ids this world drops after the edit (derived beliefs: the premise that gives way; TBox: membership or the stored fact). `adds`: axioms the world says hold after the edit: the side facts it names ("the Needle stands in some other city"), with placeholders for "some", not the answer a determinate query asks, which should follow from them. `exception`: a reason, for a world that can't be checked. |
-| `queries` | one entry per derived query, by index `q` (0 to 3, or 0 to 1 for RBox), each with exactly one of `ask`, `find`, `not_checked` (a reason: `"fol (arithmetic): ..."`), `exception` (a reason). A `fol` query stays `not_checked` here; Z3 checks it from the `fol` section. |
+| `queries` | one entry per derived query, by index `q` (0 to 3, or 0 to 1 for RBox), each with exactly one of `ask`, `find`, `not_checked` (a reason: `"fol (arithmetic): ..."`), `exception` (a reason). A `fol` query is usually `not_checked` here (Z3 checks it from the `fol` section); one HermiT can also check keeps its `ask`/`find` as a second check. |
 | `fol` | optional: the Z3 encoding of the record's `logic: fol` queries ([below](#the-fol-section-z3)). |
 
 A query entry:
@@ -245,6 +245,24 @@ should take 1 to 2 hours on 8 cores, hence `justify.sbatch`.
 record's metadata, the best fit, and per phase and world the justifications
 (unit ids, each unit's role, axiom text, types and bridge sentences), with
 seconds, unit and module sizes.
+## Routing: which checker a query gets
+
+The record's `logic` label decides a query's primary checker: `dl` and
+`propositional` queries are checked by HermiT from the formal file's
+`queries`, `fol` ones by Z3 from its `fol` section. Pick the label first
+(README, Logic: the weakest logic that captures the inference as the
+question asks it), then encode for that checker. A query may also be
+encoded for the other checker; that encoding runs as a second check:
+`reason.py` checks every `ask`/`find` in `queries`, and `fol_check.py`
+every `ask`/`find` in the `fol` section, whatever the label. In the
+reports, `queries[*].checker` is the primary checker (the labelled one when
+it has an encoding, else the other one, else none) and `second` the other
+one if it also encodes the query; each real check carries `checker` (the
+report's) and `primary` (whether that is the query's primary checker).
+Since 2026-10-31 the 88 queries relabelled fol -> dl keep their Z3
+encodings as second checks, and technology-delete-0005 q1 (relabelled
+dl -> fol with its replace mirror) keeps its HermiT find.
+
 ## The fol section (Z3)
 
 HermiT covers the `dl` queries. The `logic: fol` ones (arithmetic, dates and
@@ -267,8 +285,8 @@ record and maps the answer strings to values (`ATTRIBUTES.md`, value types).
 | `gives_up` | fact ids every world gives up after the edit. |
 | `original`, `edit` | the edited fact as formulas (pre: original; post: edit; delete: no edit, and the original must stop following). |
 | `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's; `stores` and `adds` are formulas, `gives_up` fact ids. |
-| `queries` | one entry per fol query, `{"q": i}` plus exactly one of `ask` (a yes/no claim; `mode` `holds`, `follows` or `consistent` as in the DL file), `find` (a term whose value is asked), `not_checked` (a reason), `exception` (a reason). Optional: `given` (`{id: entry}`, facts the prompt states), `type` (`clock`, `year`, `date`: how to read the answer strings), `choices` (`{value: [surfaces]}` for answers that are not numbers or enumeration names). |
-| `label_corrections` | optional `[{"q", "from", "to", "why"}]`: a fol query DL could express, or a dl query that needs arithmetic. Listed in `COVERAGE.md`; the record keeps its label. |
+| `queries` | one entry per fol query (and per other query encoded here as a second check), `{"q": i}` plus exactly one of `ask` (a yes/no claim; `mode` `holds`, `follows` or `consistent` as in the DL file), `find` (a term whose value is asked), `not_checked` (a reason), `exception` (a reason). Optional: `given` (`{id: entry}`, facts the prompt states), `type` (`clock`, `year`, `date`: how to read the answer strings), `choices` (`{value: [surfaces]}` for answers that are not numbers or enumeration names). |
+| `label_corrections` | optional `[{"q", "from", "to", "why"}]`: a proposed relabelling (a fol query DL could express, or a dl query that needs more). Listed in `COVERAGE.md`. Once reviewed it is applied to the record by hand (and the query encoded for its new checker) and the entry removed; a rejected one stays with `"status": "rejected"` and `rejected_why`. |
 
 Formula syntax (Python expressions): `and`, `or`, `not`, `==`, `!=`, `<`,
 `<=`, chained comparisons, `+ - * / % **` (`**` with a whole-number literal
@@ -431,7 +449,8 @@ primes_3_5, edit); pre and post are satisfiable.
    Read every core: it should be the chain the record gives. A failure is an
    encoding mistake (fix it) or a real problem in the record (keep it, say
    why in `notes`). If DL could express the query, add a
-   `label_corrections` entry.
+   `label_corrections` entry; once reviewed, relabel the record, encode the
+   query for HermiT and drop the entry (Routing above).
 6. Run `owl/coverage_labels.py` to refresh `COVERAGE.md` and the labels.
 
 ## Encoding guide (for the remaining topics)

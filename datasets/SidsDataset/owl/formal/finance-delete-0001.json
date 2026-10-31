@@ -1,6 +1,6 @@
 {
  "id": "finance-delete-0001",
- "notes": "Delete of a stored fact. Greenland's currency is stored by name (w1) or as Denmark's currency (w2, a rule over has_currency that gives nothing once Denmark's currency is deleted). q3 compares two currencies, which the record tags fol.",
+ "notes": "Delete of a stored fact. Greenland's currency is stored by name (w1) or as Denmark's currency (w2, a rule over has_currency that gives nothing once Denmark's currency is deleted). q3 ('same currency') is a join through the functional has_currency: Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. Since then w2 stores 'Greenland uses Denmark's currency' as that class assertion (by description: the same currency, whichever it is), which gives Denmark's krone before the edit as the rule did and keeps 'the same' after the delete.",
  "entities": {
   "denmark": "Denmark",
   "krone": ["the Danish krone", "Danish krone"],
@@ -15,13 +15,13 @@
  "firm": ["copenhagen_capital"],
  "worlds": {
   "w1": {"stores": ["has_currency(greenland, krone)"]},
-  "w2": {"stores": ["has_currency(denmark, ?x) -> has_currency(greenland, ?x)"]}
+  "w2": {"stores": ["greenland : has_currency some (inv(has_currency) value denmark)"]}
  },
  "queries": [
   {"q": 0, "ask": "has_currency(denmark, krone)"},
   {"q": 1, "find": "copenhagen capital_of/has_currency ?"},
   {"q": 2, "find": "greenland has_currency ?"},
-  {"q": 3, "not_checked": "fol: compares two places' currencies (same currency)"}
+  {"q": 3, "ask": "greenland : has_currency some (inv(has_currency) value denmark)"}
  ],
  "fol": {
   "notes": "As replace-0001: has_currency is a function, the named currencies distinct. The delete removes Denmark's krone, so has_currency(denmark) is left open: w1 (Greenland's krone by name) cannot compare, w2 (Greenland uses Denmark's currency, by description) still answers yes.",
@@ -59,14 +59,6 @@
    {
     "q": 3,
     "ask": "has_currency(greenland) == has_currency(denmark)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same currency' is a join through the functional has_currency over named individuals: greenland : has_currency some (inv(has_currency) value denmark). No arithmetic."
    }
   ]
  }

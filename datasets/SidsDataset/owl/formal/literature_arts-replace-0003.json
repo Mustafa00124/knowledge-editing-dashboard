@@ -1,6 +1,6 @@
 {
  "id": "literature_arts-replace-0003",
- "notes": "Derived edit: composed_by is functional (the record's firm premise 'the opera has a single composer'), so the composer is Mozart and the edit puts his birth in Vienna. 'A person is born in one city' is a firm rule (born_in is non-simple, so a SWRL rule over named individuals); the record states it as a chain step (q2 in w1, q3 in w2). q1 compares two cities (fol).",
+ "notes": "Derived edit: composed_by is functional (the record's firm premise 'the opera has a single composer'), so the composer is Mozart and the edit puts his birth in Vienna. 'A person is born in one city' is a firm rule (born_in is non-simple, so a SWRL rule over named individuals); the record states it as a chain step (q2 in w1, q3 in w2). q1 ('born in the city where the opera premiered') is a join over named individuals: the opera had one premiere (firm, the question's presupposition), at a venue (a placeholder; premiered_at is catalogued for venues) that stands in Vienna and in no other city (firm bridge, a class axiom with a nominal), and the 'no' before the edit follows from one_birth_city. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "flute": [
    "the opera The Magic Flute"
@@ -14,7 +14,8 @@
   ],
   "vienna": [
    "Vienna"
-  ]
+  ],
+  "flute_venue": null
  },
  "original": [
   "flute : composed_by some (born_in value salzburg)"
@@ -33,11 +34,18 @@
    "salzburg : City",
    "vienna : City"
   ],
-  "one_birth_city": "born_in(?p, ?c), City(?c), born_in(?p, ?d), City(?d) -> same(?c, ?d)"
+  "one_birth_city": "born_in(?p, ?c), City(?c), born_in(?p, ?d), City(?d) -> same(?c, ?d)",
+  "flute_premiere": [
+   "premiered_at(flute, flute_venue)",
+   "flute : premiered_at max 1 Thing",
+   "located_in(flute_venue, vienna)",
+   "City and inv(located_in) value flute_venue ⊑ {vienna}"
+  ]
  },
  "firm": [
   "cities",
-  "one_birth_city"
+  "one_birth_city",
+  "flute_premiere"
  ],
  "worlds": {
   "w1": {
@@ -58,7 +66,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two cities (the composer's birthplace and the premiere city)"
+   "ask": "flute : composed_by some (born_in some (City and inv(located_in) some (inv(premiered_at) value flute)))"
   },
   {
    "q": 2,
@@ -132,14 +140,6 @@
    {
     "q": 1,
     "ask": "born_in(composed_by(flute)) == premiered_in(flute)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Born in the city where the opera premiered' is a join over named individuals: flute : composed_by some (born_in some (inv(premiered_in) value flute)); the 'no' before the edit follows from one birth city per person and Salzburg and Vienna being distinct. No arithmetic."
    }
   ]
  }

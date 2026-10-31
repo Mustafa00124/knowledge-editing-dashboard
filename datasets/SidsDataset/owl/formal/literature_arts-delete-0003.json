@@ -1,6 +1,6 @@
 {
  "id": "literature_arts-delete-0003",
- "notes": "Delete of a derived fact: the premises would re-derive it, so each world forgets one premise. composed_by is functional (the record's firm premise 'a single composer'). q1 compares two people's birthplaces (fol).",
+ "notes": "Delete of a derived fact: the premises would re-derive it, so each world forgets one premise. composed_by is functional (the record's firm premise 'a single composer'). q1 ('born in the same city as Karajan') is a join over named individuals; Karajan's birth in Salzburg is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "flute": [
    "the opera The Magic Flute"
@@ -11,6 +11,9 @@
   ],
   "salzburg": [
    "Salzburg"
+  ],
+  "karajan": [
+   "Herbert von Karajan"
   ]
  },
  "original": [
@@ -23,9 +26,15 @@
  ],
  "background": {
   "flute_mozart": "composed_by(flute, mozart)",
-  "mozart_salzburg": "born_in(mozart, salzburg)"
+  "mozart_salzburg": "born_in(mozart, salzburg)",
+  "karajan_salzburg": [
+   "born_in(karajan, salzburg)",
+   "salzburg : City"
+  ]
  },
- "firm": [],
+ "firm": [
+  "karajan_salzburg"
+ ],
  "worlds": {
   "w1": {
    "gives_up": [
@@ -45,7 +54,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two people's birthplaces (same city as Karajan)"
+   "ask": "flute : composed_by some (born_in some (City and inv(born_in) value karajan))"
   },
   {
    "q": 2,
@@ -113,14 +122,6 @@
    {
     "q": 1,
     "ask": "born_in(composed_by(flute)) == born_in(karajan)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Born in the same city as Karajan' is a join over named individuals: flute : composed_by some (born_in some (inv(born_in) value karajan)), with one birth city per person. No arithmetic."
    }
   ]
  }

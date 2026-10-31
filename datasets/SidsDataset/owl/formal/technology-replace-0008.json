@@ -1,6 +1,6 @@
 {
  "id": "technology-replace-0008",
- "notes": "TBox, as technology-replace-0005. 'One line ending per system' is a firm rule (the questions ask 'which line ending').",
+ "notes": "TBox, as technology-replace-0005. 'One line ending per system' is a firm rule (the questions ask 'which line ending'). q1 ('the same line ending as Windows') is a join through uses_line_ending; 'one line ending per system' is its presupposition (firm Func, which also gives one_ending) and the prompt states Windows's CRLF. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "lf": [
    "LF",
@@ -18,6 +18,10 @@
   ],
   "linux": [
    "Linux"
+  ],
+  "windows": [
+   "Microsoft Windows",
+   "Windows"
   ]
  },
  "original": [
@@ -29,10 +33,12 @@
  "background": {
   "one_ending": "uses_line_ending(?x, lf), uses_line_ending(?x, crlf) -> Nothing(?x)",
   "linux_member": "linux : UnixLikeOS",
-  "linux_stored": "uses_line_ending(linux, lf)"
+  "linux_stored": "uses_line_ending(linux, lf)",
+  "one_ending_func": "Func(uses_line_ending)"
  },
  "firm": [
-  "one_ending"
+  "one_ending",
+  "one_ending_func"
  ],
  "worlds": {
   "w1": {
@@ -56,7 +62,11 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the line endings of two systems (the same as Windows)"
+   "ask": "halyard : uses_line_ending some (inv(uses_line_ending) value windows)",
+   "given": [
+    "halyard : UnixLikeOS",
+    "uses_line_ending(windows, crlf)"
+   ]
   },
   {
    "q": 2,
@@ -133,14 +143,6 @@
      }
     },
     "ask": "uses_line_ending(halyard) == uses_line_ending(windows)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same line ending as Windows' is a join through a functional line-ending link to named individuals: halyard : uses_line_ending some (inv(uses_line_ending) value windows), with the firm one_ending. No arithmetic."
    }
   ]
  }

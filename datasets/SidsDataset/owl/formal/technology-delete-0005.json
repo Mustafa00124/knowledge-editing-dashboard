@@ -1,6 +1,6 @@
 {
  "id": "technology-delete-0005",
- "notes": "TBox delete of a stored rule, as geography-delete-0005: Linux is Unix-like in every world; w1 has its separator stored by name, w2 reached it only through the rule. The relative path (q1) is written with the system's separator (a firm rule over a relation). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "TBox delete of a stored rule, as geography-delete-0005: Linux is Unix-like in every world; w1 has its separator stored by name, w2 reached it only through the rule. The relative path (q1) is written with the system's separator (a firm rule over a relation). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q3 ('the same character as web URLs') is a join over named individuals; the URL separator is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. q1 is labelled fol since then (it builds a path string); Z3 checks it first and this file's find is a second check.",
  "entities": {
   "fwd": [
    "the forward slash",
@@ -17,6 +17,9 @@
   ],
   "docs_notes_fwd": [
    "docs/notes.txt"
+  ],
+  "web_urls": [
+   "web URLs"
   ]
  },
  "original": [
@@ -25,10 +28,12 @@
  "edit": [],
  "background": {
   "path_rule": "uses_path_separator(?o, fwd) -> docs_notes_path(?o, docs_notes_fwd)",
-  "linux_member": "linux : UnixLikeOS"
+  "linux_member": "linux : UnixLikeOS",
+  "urls_fwd": "uses_path_separator(web_urls, fwd)"
  },
  "firm": [
-  "path_rule"
+  "path_rule",
+  "urls_fwd"
  ],
  "worlds": {
   "w1": {
@@ -61,11 +66,11 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares Linux's separator with the one web URLs use"
+   "ask": "linux : uses_path_separator some (inv(uses_path_separator) value web_urls)"
   }
  ],
  "fol": {
-  "notes": "Systems are an uninterpreted sort; uses_path_separator is read as a function to an enumeration of separators (the question compares 'the same character', one per system), so different separators are distinct. As the DL file: Linux is Unix-like in every world; w1 has its separator stored by name, w2 reaches it only through the deleted rule. The URL separator is a stored bridge no world touches.",
+  "notes": "Systems are an uninterpreted sort; uses_path_separator is read as a function to an enumeration of separators (the question compares 'the same character', one per system), so different separators are distinct. As the DL file: Linux is Unix-like in every world; w1 has its separator stored by name, w2 reaches it only through the deleted rule. The URL separator is a stored bridge no world touches. q1 (the relative path, a string built from the separator character) is labelled fol since 2026-10-31, as its replace mirror: the path is a String (rel_path, local) built by a firm rule from the separator's character (sep_char, local); the DL file's find over a named path individual stays as a second check.",
   "decl": {
    "sorts": {
     "System": null,
@@ -77,11 +82,14 @@
    },
    "consts": {
     "linux": "System",
-    "web_urls": "System"
+    "web_urls": "System",
+    "tessaly": "System"
    },
    "funcs": {
     "unix_like": "System -> Bool",
-    "uses_path_separator": "System -> Sep"
+    "uses_path_separator": "System -> Sep",
+    "sep_char": "Sep -> String",
+    "rel_path": "System -> String"
    },
    "vars": {
     "x": "System"
@@ -95,6 +103,17 @@
    "urls_fwd": {
     "says": "Web URLs use the forward slash (/) to separate path segments. (stored)",
     "z3": "uses_path_separator(web_urls) == fwd"
+   },
+   "sep_chars": {
+    "says": "The forward slash is written '/', the backslash '\\\\'.",
+    "z3": [
+     "sep_char(fwd) == \"/\"",
+     "sep_char(back) == \"\\\\\""
+    ]
+   },
+   "path_rule": {
+    "says": "On a system, the relative path of notes.txt inside docs joins the directory and the file name with the system's separator.",
+    "z3": "rel_path(tessaly) == \"docs\" + sep_char(uses_path_separator(tessaly)) + \"notes.txt\""
    }
   },
   "original": [
@@ -112,17 +131,28 @@
   },
   "queries": [
    {
+    "q": 1,
+    "given": {
+     "tessaly_member": {
+      "says": "Tessaly OS is a Unix-like operating system.",
+      "z3": "unix_like(tessaly)"
+     }
+    },
+    "find": "rel_path(tessaly)"
+   },
+   {
     "q": 3,
     "ask": "uses_path_separator(linux) == uses_path_separator(web_urls)"
    }
   ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same character' is a join through a functional separator link to named individuals: linux : uses_path_separator some (inv(uses_path_separator) value web_urls), with Func(uses_path_separator). No arithmetic."
-   }
+  "local": {
+   "sep_char": "sep_char(s): the character separator s is written as ('/', '\\\\')",
+   "rel_path": "rel_path(o): the relative path of the file notes.txt inside the directory docs on system o"
+  },
+  "firm": [
+   "path_rule",
+   "sep_chars",
+   "urls_fwd"
   ]
  }
 }

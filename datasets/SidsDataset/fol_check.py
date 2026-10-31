@@ -9,7 +9,13 @@ section").
     ... --no-write      check and print, leave owl/fol_report.json alone
     ... --static        only the file-against-record checks (no solving)
 
-The checks are reason.py's, for the fol queries:
+Which queries: every `logic: fol` query (Z3 is its primary checker), and
+every other query the section also encodes with an `ask` or `find` (a
+second check of a `dl` query HermiT checks first; its checks carry
+`primary: false`). The label decides the primary checker (owl/README.md,
+"Routing").
+
+The checks are reason.py's, for those queries:
 
   pre              the original answer follows before the edit, in every world
   post_determinate a determinate (or unlabelled) query's new answer follows in every world
@@ -495,9 +501,9 @@ def static_problems(rec, fs, attrs):
             texts.append((f'q{qi}.find', fq['find']))
         for k, spec in (fq.get('given') or {}).items():
             texts += [(f'q{qi}.given.{k}', x) for x in items_of(spec)[0]]
-        if derived[qi].get('logic') != 'fol':
-            probs.append(f'q{qi} is labelled {derived[qi].get("logic")!r}, not fol (encode it for HermiT, or '
-                         f'list it as a label correction in notes)')
+        if derived[qi].get('logic') != 'fol' and not ('ask' in fq or 'find' in fq):
+            probs.append(f'q{qi} is labelled {derived[qi].get("logic")!r}, not fol: a non-fol query belongs in the '
+                         f'section only as an encoded second check (ask or find)')
     for i, q in enumerate(derived):
         if q.get('logic') == 'fol' and i not in seen:
             probs.append(f'q{i} is fol but has no entry in the fol section')
@@ -670,7 +676,8 @@ class FolRecord:
 
     def tags(self, qi):
         q = self.rec['queries']['derived'][qi]
-        return {'checker': 'z3', 'logic': q.get('logic'), 'theory': q.get('theory')}
+        return {'checker': 'z3', 'logic': q.get('logic'), 'theory': q.get('theory'),
+                'primary': q.get('logic') == 'fol'}
 
     def check_query(self, fq, qi, out):
         q = self.rec['queries']['derived'][qi]
@@ -741,8 +748,9 @@ class FolRecord:
         try:
             fqs = {q['q']: q for q in self.fs.get('queries') or []}
             for qi, q in enumerate(self.rec['queries']['derived']):
-                if q.get('logic') != 'fol':
-                    continue
+                fq = fqs.get(qi, {})
+                if q.get('logic') != 'fol' and not ('ask' in fq or 'find' in fq):
+                    continue  # a dl query with no second (Z3) encoding
                 self.check_query(fqs.get(qi, {'q': qi, 'not_checked': 'not encoded'}), qi, out)
             if any('ask' in q or 'find' in q for q in fqs.values()):
                 self.check_worlds(out)
@@ -796,11 +804,14 @@ def summary(records):
 
 
 def fol_ids(topic=None):
-    """Records with at least one fol derived query."""
+    """Records with at least one fol derived query, or a fol section that
+    encodes a query (a second check of a dl query)."""
     out = []
     for p in sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json')):
         rec = json.loads(p.read_text())
-        if any(q.get('logic') == 'fol' for q in rec['queries']['derived']):
+        fs = (load_formal(p.stem) or {}).get('fol') or {}
+        if any(q.get('logic') == 'fol' for q in rec['queries']['derived']) or \
+                any('ask' in q or 'find' in q for q in fs.get('queries') or []):
             out.append(p.stem)
     return out
 

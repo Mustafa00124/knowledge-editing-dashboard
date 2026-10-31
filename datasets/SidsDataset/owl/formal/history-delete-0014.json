@@ -1,6 +1,6 @@
 {
  "id": "history-delete-0014",
- "notes": "Delete of a stored fact, as replace-0014. w2's claim that keeping 'Warren was killed at Bunker Hill' would re-derive the battle's war from Warren's is encoded as a firm rule (the battle a man fell at belongs to the war he fell in); the repair search then finds that link must go in w2. The side facts that go with the deleted fact (the battle's date, its place in the siege of Boston) are not encoded: dates are fol and no query asks the siege. q0, q1 and q3 are fol. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Delete of a stored fact, as replace-0014. w2's claim that keeping 'Warren was killed at Bunker Hill' would re-derive the battle's war from Warren's is encoded as a firm rule (the battle a man fell at belongs to the war he fell in); the repair search then finds that link must go in w2. The side facts that go with the deleted fact (the battle's date, its place in the siege of Boston) are not encoded: dates are fol and no query asks the siege. q0 and q3 are fol (temporal). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q1 ('the same war as the Battles of Saratoga') is a join over named individuals; Saratoga in the Revolutionary War is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "bunker_hill": [
    "the Battle of Bunker Hill"
@@ -10,6 +10,9 @@
   ],
   "warren": [
    "Joseph Warren"
+  ],
+  "saratoga": [
+   "the Battles of Saratoga"
   ]
  },
  "original": [
@@ -19,11 +22,13 @@
  "background": {
   "war_rule": "killed_at(?p, ?b), battle_of(?b, ?w) -> killed_in_war(?p, ?w)",
   "war_rule_back": "killed_at(?p, ?b), killed_in_war(?p, ?w) -> battle_of(?b, ?w)",
-  "warren_at_bh": "killed_at(warren, bunker_hill)"
+  "warren_at_bh": "killed_at(warren, bunker_hill)",
+  "saratoga_revwar": "battle_of(saratoga, revwar)"
  },
  "firm": [
   "war_rule",
-  "war_rule_back"
+  "war_rule_back",
+  "saratoga_revwar"
  ],
  "worlds": {
   "w1": {},
@@ -43,7 +48,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the wars of two battles"
+   "ask": "bunker_hill : battle_of some (inv(battle_of) value saratoga)"
   },
   {
    "q": 2,
@@ -137,14 +142,6 @@
    {
     "q": 3,
     "ask": "1701 <= died_in_year(warren) <= 1800"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same war as Saratoga' is a join through the functional battle_of (bunker_hill : battle_of some (inv(battle_of) value saratoga)); no dates or arithmetic. The DL file already has battle_of."
    }
   ]
  }

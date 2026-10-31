@@ -29,6 +29,10 @@ the states' seats, at least one per state", which gives at least 436, not
 436 (437 is also possible). The chain steps from "at least one" to "436"
 without the bridge that Guam would get exactly one seat. Kept failing, not
 patched in the encoding.
+Fixed on 2026-10-31 in the record: w2 and w3 now assume, and their chains
+state, that a state with Guam's population (about 170,000, far fewer than
+one House district) gets exactly one seat, the minimum; the fol section
+stores that side fact in both worlds and the check passes (436).
 
 **Verifier fixes.** geography-insert-0009 and 0010 (types of plate boundary,
 groups of rock), w2: the fourth type came from w2's `adds` alone, so the edit
@@ -56,6 +60,14 @@ checked 1); its fol section has the full encoding with `queries: []`
 because fol_check.py only checks fol-labelled queries, and run in memory
 with the label switched it passes (pre docs/notes.txt, post docs\notes.txt
 in both worlds).
+Applied on 2026-10-31 after review: 88 fol -> dl (each now encoded for
+HermiT, with its Z3 encoding kept as a second check), technology-replace-0005
+q1 and its delete mirror dl -> fol (Z3 first, the delete's HermiT find
+second), and 7 rejected as string patterns (grammar 0003 and 0004 q0, the
+'out' prefix; 0013 q3, which end of the word 'bus' kept; insert-0005 q2, the
+'oo' to 'ee' change), which stay fol (COVERAGE.md lists them with why).
+fol_check.py now also runs every query a fol section encodes, whatever its
+label (owl/README.md, Routing).
 
 **Patterns worth knowing.** Count worlds that store a list (w2) count the
 named constants, the new member included, each once; the "every member is
