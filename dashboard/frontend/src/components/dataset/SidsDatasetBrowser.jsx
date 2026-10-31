@@ -112,6 +112,21 @@ function AuditDots({ statuses, models }) {
   )
 }
 
+// Formal check of the description-logic reasoning (reason.py with HermiT):
+// a small mark per derived query and per record. Pass, fail, or not checked
+// (needs arithmetic or dates, which the reasoner can't express).
+const FORMAL_TEXT = {
+  pass: 'Formally verified (HermiT): the answers follow in every world they should',
+  fail: 'Fails the formal check (HermiT)',
+  not_checked: 'Not formally checked: needs arithmetic, dates or counting',
+}
+function FormalMark({ status, lines }) {
+  if (!status) return null
+  const mark = status === 'pass' ? '✓' : status === 'fail' ? '✗' : '–'
+  const title = [FORMAL_TEXT[status] || status, ...(lines || [])].join('\n')
+  return <span className={`sids-formal-mark is-${status}`} title={title}>{mark} logic</span>
+}
+
 // "geography-replace-0002" -> "Geography 2". The operation is already the
 // selected tab, so the label keeps only topic and number.
 function recordLabel(id) {
@@ -204,7 +219,7 @@ function EvidenceButton({ fact, evidence }) {
 const DETERMINACY_LABEL = Object.fromEntries(DETERMINACY.map((d) => [d.key, d.label]))
 const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, l.label]))
 
-function RecordCard({ rec, relations, onChain, audit, models }) {
+function RecordCard({ rec, relations, onChain, audit, models, formal }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = hasChain(rec)
@@ -249,6 +264,8 @@ function RecordCard({ rec, relations, onChain, audit, models }) {
         <span className="sids-record-statement">{e.original || e.statement}</span>
         {/* Fact status: direct and paraphrase (RBox: direct and the instance questions) held before the edit. */}
         <AuditDots statuses={audit?.fact} models={models} />
+        <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
+          lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
       </button>
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
@@ -310,6 +327,10 @@ function RecordCard({ rec, relations, onChain, audit, models }) {
                         {QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}
                       </span>
                       <AuditDots statuses={audit?.queries?.[r.auditKey]} models={models} />
+                      {r.key === 'derived' && (() => {
+                        const f = formal?.queries?.[r.auditKey.slice(8, -1)]
+                        return <FormalMark status={f?.status} lines={f?.lines} />
+                      })()}
                     </td>
                     <td>{r.prompt}</td>
                     <td className="sids-answer">
@@ -410,27 +431,26 @@ export default function SidsDatasetBrowser() {
   const [showCriteria, setShowCriteria] = useState(false)
   const [error, setError] = useState(null)
   const [coordinate, setCoordinate] = useState({
-    edit_operation: EDIT_OPERATIONS[0].key,
+    // The first tab of each level: Geography, Revision, ABox.
     topic: TOPICS[0].key,
+    edit_operation: EDIT_OPERATIONS[0].key,
     box: BOXES[0].key,
   })
+  const [formal, setFormal] = useState(null)
+  useEffect(() => {
+    api.sidsDatasetFormalStatus().then(setFormal).catch(() => setFormal(null))
+  }, [])
   useEffect(() => {
     api.sidsDatasetRecords().then((d) => {
       setRecords(d.records)
       setRelations(d.relations || {})
       setRelationChecks(d.relation_checks || {})
-      // Open on records, not on an empty default: the first record's coordinate.
-      const first = d.records[0]
-      if (first) {
-        setCoordinate({ edit_operation: first.edit_operation, topic: first.topic, box: first.box })
-      }
     }).catch((err) => setError(String(err.message || err)))
   }, [])
   useEffect(() => {
     api.sidsDatasetAuditStatus(allModels ? 'all' : 'main').then(setStatus).catch(() => setStatus(null))
   }, [allModels])
   const statusModels = status?.models || []
-  const otherModels = (status?.all_models || statusModels).filter((m) => !(status?.main_models || []).includes(m))
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
   // Audit results load once, the first time a chain is opened.
   const openChain = (rec, target) => {
@@ -457,22 +477,6 @@ export default function SidsDatasetBrowser() {
         </button>
       </div>
       {showCriteria && <SidsCriteriaModal onClose={() => setShowCriteria(false)} />}
-      {status && (
-        <div className="sids-audit-legend">
-          <span>Pre-edit model audit, one dot per model ({statusModels.map(modelLabel).join(', ') || 'none audited yet'}):</span>
-          <span><span className="sids-audit-dot is-green" />gave the expected answer</span>
-          <span><span className="sids-audit-dot is-red" />did not</span>
-          <span><span className="sids-audit-dot is-yellow" />not audited, stale or unclear</span>
-          <span><span className="sids-audit-dot is-na" />not asked</span>
-          {(otherModels.length > 0 || allModels) && (
-            <label title={otherModels.map(modelLabel).join(', ')}>
-              <input type="checkbox" checked={allModels} onChange={(ev) => setAllModels(ev.target.checked)} />
-              other audited models (base and others)
-            </label>
-          )}
-          <span>responses: <Link to="/model-audit">Model audit page</Link></span>
-        </div>
-      )}
       <p className="sids-group-label">Topic <span>{records ? `${records.length} records in all` : ''}</span></p>
       <TabRow label="Topic" values={TOPICS} selected={coordinate.topic} onSelect={set('topic')} counts={counts('topic')} />
 
@@ -500,7 +504,7 @@ export default function SidsDatasetBrowser() {
           <p className="sids-group-label">Records <span>{shown.length}</span></p>
           {shown.map((rec) => (
             <RecordCard key={rec.id} rec={rec} relations={relations} onChain={openChain}
-              audit={status?.records?.[rec.id]} models={statusModels} />
+              audit={status?.records?.[rec.id]} models={statusModels}  formal={formal?.records?.[rec.id]} />
           ))}
         </>
       )}
