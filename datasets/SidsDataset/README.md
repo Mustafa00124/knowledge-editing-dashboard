@@ -14,43 +14,48 @@ and measures
 generalization with questions that *logically follow* from the edit, so a
 method can't pass by matching the surface form of the edit.
 
-> Under what kinds of knowledge and edit operations does a knowledge edit
+> Under what kinds of knowledge and belief revision operations does a knowledge edit
 > succeed, propagate to what follows from it, and stay contained?
 
-## Three levels
+## Levels
 
 ```
-Edit operation  >  Knowledge form  >  Query type
-insert            topic               direct        (1)
-replace           box                 paraphrase    (1)
-delete                                cross-lingual (2: zh, es)
-                                      unrelated     (1 near + 1 far)
-                                      derived       (4)
+Topic  >  Belief revision operation  >  Knowledge form  >  Query type
+          expansion   (insert)          abox               direct        (1)
+          revision    (replace)         tbox               paraphrase    (1)
+          contraction (delete)          rbox               cross-lingual (2: zh, es)
+                                                           unrelated     (1 near + 1 far)
+                                                           derived       (4)
 ```
+
+The operations are the three of AGM belief revision: expansion adds a
+belief, revision replaces one while keeping the rest consistent, contraction
+removes one. Records keep the keys `insert`, `replace` and `delete` (in
+`edit_operation`, ids and folders); the names are the same concepts.
 
 Relation properties are not levels: they are the [Relation](#relation) tag
 group.
 
 Every ABox and TBox item is one edit plus exactly 10 queries; an RBox item has 7 (below).
 
-### 1. Edit operation
+### 1. Topic
 
-| Key | What it does | Expected answer afterwards |
-| --- | --- | --- |
-| `insert` | Adds knowledge the model does not hold: a real fact it doesn't know, or a fictional one (see [Reality](#reality)). | The new answer. |
-| `replace` | Swaps held knowledge for a false alternative (it need not be plausible: an edit that crosses a boundary, such as moving a city to another continent, is fine). Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
-| `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
-
-### 2. Knowledge form
-
-Two layers: topic, then box.
-
-**Topic.** `geography`, `people` (facts about famous people), `history`,
+`geography`, `people` (facts about famous people), `history`,
 `finance` (including textbook economic laws), `biology` (including medicine),
 `physics`, `literature_arts`, `technology` (stable facts only),
 `mathematics`, `grammar`. A diversity control, so a finding about rules
 isn't secretly a finding about mathematics. It also keeps the records
 organized for browsing.
+
+### 2. Belief revision operation
+
+| Operation | Key | What it does | Expected answer afterwards |
+| --- | --- | --- | --- |
+| Expansion | `insert` | Adds knowledge the model does not hold: a real fact it doesn't know, or a fictional one (see [Reality](#reality)). | The new answer. |
+| Revision | `replace` | Swaps held knowledge for a false alternative (it need not be plausible: an edit that crosses a boundary, such as moving a city to another continent, is fine). Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
+| Contraction | `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
+
+### 3. Knowledge form
 
 **Box.** How description logic divides a knowledge base:
 
@@ -64,9 +69,9 @@ A single TBox or RBox edit should move every individual it covers, which is
 why they're expected to behave differently from ABox edits.
 
 That gives 3 knowledge forms per topic (one per box), all available to every
-edit operation, so 3 operations × 10 topics × 3 boxes = 90 cells.
+belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 
-### 3. Query type
+### 4. Query type
 
 Fixed per item: **1 direct, 1 paraphrase, 2 cross-lingual, 1 near
 unrelated, 1 far unrelated, 4 derived**, in that order (records, tables and

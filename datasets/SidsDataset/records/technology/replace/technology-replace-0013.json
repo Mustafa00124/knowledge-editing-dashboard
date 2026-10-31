@@ -109,9 +109,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "HTTP/1.1 runs over TCP."
+          "HTTP/1.1 runs over TCP.",
+          "HTTP/1.1 normally runs over one transport protocol."
         ],
         "determinacy": "background_beliefs",
         "determinacy_why": "Yes if the model stores HTTP/1.1's transport by name (w1); no if it stores it as \"a connection-oriented transport\", which TCP no longer is (w2).",
@@ -127,8 +128,9 @@
             "answer": "no",
             "chain": [
               "HTTP/1.1 runs over a connection-oriented transport protocol. (stored, by description)",
+              "HTTP/1.1 normally runs over one transport protocol. (stored)",
               "TCP is a connectionless protocol. (edit)",
-              "So HTTP/1.1 does not run over TCP: no."
+              "So HTTP/1.1's one transport is not TCP: no."
             ]
           }
         },
@@ -139,9 +141,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "HTTP/1.1 runs over TCP."
+          "HTTP/1.1 runs over TCP.",
+          "HTTP/1.1 normally runs over one transport protocol."
         ],
         "determinacy": "background_beliefs",
         "determinacy_why": "No if HTTP/1.1 stays on TCP by name (w1), since TCP is now connectionless; yes if HTTP/1.1 is stored as running over a connection-oriented transport (w2).",
@@ -150,8 +153,9 @@
             "answer": "no",
             "chain": [
               "HTTP/1.1 runs over TCP. (stored, by name)",
+              "HTTP/1.1 normally runs over one transport protocol. (stored)",
               "TCP is a connectionless protocol. (edit)",
-              "So no."
+              "So the one transport HTTP/1.1 runs over is not connection-oriented: no."
             ]
           },
           "w2": {
@@ -176,6 +180,11 @@
       "fact": "HTTP/1.1 runs over TCP.",
       "prompt": "Over which transport protocol does HTTP/1.1 normally run?",
       "answer": "TCP"
+    },
+    {
+      "fact": "HTTP/1.1 normally runs over one transport protocol.",
+      "prompt": "Over how many transport protocols does HTTP/1.1 normally run: one or several?",
+      "answer": "one"
     }
   ],
   "evidence": {
@@ -226,5 +235,5 @@
       ]
     }
   },
-  "notes": "Stored edit (very_unlikely): TCP being connection-oriented is stated everywhere, usually set against UDP. Chosen for ABox inheritance: the edit moves an individual (TCP) from one class to another, and both determinate queries ask what the new class gives its members (no connection setup, no connection to close). The class rule is definitional for \"connectionless\" and has no exceptions. TCP's handshake and teardown are side facts of TCP itself and go with the edit; keeping them is the inconsistent patch, not a world. The background split is HTTP/1.1's transport, stored by name (stays on TCP) or as \"a connection-oriented transport\" (leaves TCP). The prompts say HTTP/1.1, since HTTP/3 runs over QUIC. The setup query asks about the handshake, not about data waiting for it, since TCP Fast Open lets data ride in the SYN. Near query (TCP's layer) is not affected by the mode and its answer differs from the new answer. R2: no prompt names the mode except the direct and paraphrase questions, which offer both."
+  "notes": "Stored edit (very_unlikely): TCP being connection-oriented is stated everywhere, usually set against UDP. Chosen for ABox inheritance: the edit moves an individual (TCP) from one class to another, and both determinate queries ask what the new class gives its members (no connection setup, no connection to close). The class rule is definitional for \"connectionless\" and has no exceptions. TCP's handshake and teardown are side facts of TCP itself and go with the edit; keeping them is the inconsistent patch, not a world. The background split is HTTP/1.1's transport, stored by name (stays on TCP) or as \"a connection-oriented transport\" (leaves TCP). The prompts say HTTP/1.1, since HTTP/3 runs over QUIC. The setup query asks about the handshake, not about data waiting for it, since TCP Fast Open lets data ride in the SYN. Near query (TCP's layer) is not affected by the mode and its answer differs from the new answer. R2: no prompt names the mode except the direct and paraphrase questions, which offer both. 'Runs over' is many-valued in general; the HTTP/1.1 questions ('the transport protocol HTTP/1.1 normally runs over') presuppose one transport, which is a stated bridge with a check (2026-10-31, formal check FINDINGS C3)."
 }

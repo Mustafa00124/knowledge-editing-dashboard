@@ -16,16 +16,16 @@
     {
       "id": "w1",
       "assumes": [
-        "Dysnomia is the only confirmed moon of Eris. (stored as a uniqueness fact, with the count \"one moon\")"
+        "Eris's number of confirmed moons is stored as a count of its own: one."
       ],
-      "summary": "Eris's moons are stored as \"one moon, Dysnomia\", which the insert does not touch: Dysnomia stays the only moon, and Kalemnia is held as a separate fact."
+      "summary": "The count is a fact of its own and is not recomputed: Eris still has one confirmed moon by the stored count, and Kalemnia is held as a separate fact."
     },
     {
       "id": "w2",
       "assumes": [
         "The moons of Eris are stored as a list (Dysnomia), and the count and uniqueness are read off the list."
       ],
-      "summary": "Kalemnia joins the list: Eris has two moons, and Dysnomia is no longer the only one."
+      "summary": "Kalemnia joins the list: Eris has two confirmed moons."
     }
   ],
   "queries": {
@@ -112,13 +112,13 @@
           "Dysnomia is the only confirmed moon of Eris."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "One if the model stores Eris's moons as a count or as \"Dysnomia, its only moon\", which the insert does not change; two if it counts a list of moons, to which the insert adds Kalemnia.",
+        "determinacy_why": "One if the model stores Eris's number of moons as a count of its own (\"one moon\"), which the insert does not recompute; two if it counts a list of moons, to which the insert adds Kalemnia.",
         "world_answers": {
           "w1": {
             "answer": "one",
             "chain": [
-              "Dysnomia is the only confirmed moon of Eris. (stored)",
-              "Eris has a newly confirmed moon named Kalemnia. (edit, held as a separate fact)",
+              "Eris has one confirmed moon. (stored, as a count)",
+              "Eris has a newly confirmed moon named Kalemnia. (edit, held as a separate fact; the count is not recomputed)",
               "So: one."
             ]
           },
@@ -137,31 +137,20 @@
       {
         "prompt": "Is Dysnomia the only confirmed moon of Eris?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
           "Dysnomia is the only confirmed moon of Eris."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores the uniqueness fact itself; no if it reads it off a list of moons that now includes Kalemnia.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Dysnomia is the only confirmed moon of Eris. (stored)",
-              "So: yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Dysnomia orbits Eris. (stored, as a list)",
-              "Eris has a newly confirmed moon named Kalemnia. (edit, added to the list)",
-              "So Dysnomia is not the only one: no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: Kalemnia is a newly confirmed moon of Eris and a different moon from Dysnomia, so Dysnomia is no longer the only one. A model answering yes keeps the old uniqueness claim as a patch the insert contradicts; no consistent set of beliefs holds both, so that is not a world (formal check, FINDINGS A1).",
+        "chain": [
+          "Dysnomia orbits Eris. (stored)",
+          "Eris has a newly confirmed moon named Kalemnia. (edit)",
+          "Kalemnia is newly confirmed, so it is a different moon from Dysnomia.",
+          "So Dysnomia is not the only confirmed moon of Eris: no."
+        ],
         "logic": "dl"
       }
     ]
@@ -254,5 +243,5 @@
       ]
     }
   },
-  "notes": "Fictional object insert (ABox): a made-up new value (a newly confirmed moon, Kalemnia) of a real subject the model knows well (Eris), relation orbited_by (multi-valued: a body can have several moons), so the insert adds to Eris's moons and replaces nothing. Rewritten from the earlier subject insert \"Kalemnia is a moon that orbits Eris\" (physics-insert-0002 before the rebalance) so the edit sits at the real subject: edit.subject is Eris, named once in the direct prompt, and the direct question singles out the new moon. \"Newly confirmed\" (not just \"found\") keeps the count questions about confirmed moons well posed. Both determinate queries reach real facts about Eris through the inverse reading (the body Kalemnia orbits): its region and its discoverer. The indeterminate queries are the aggregate and uniqueness case about the real subject: w1 stores Eris's moons as \"one, Dysnomia\", w2 as a list the insert extends. Not Mars or Pluto, whose moons are well surveyed. Near query (the year Eris's discovery was announced, 2005) touches the real body without depending on the insert; a leak would not give 2005 as Kalemnia."
+  "notes": "Fictional object insert (ABox): a made-up new value (a newly confirmed moon, Kalemnia) of a real subject the model knows well (Eris), relation orbited_by (multi-valued: a body can have several moons), so the insert adds to Eris's moons and replaces nothing. Rewritten from the earlier subject insert \"Kalemnia is a moon that orbits Eris\" (physics-insert-0002 before the rebalance) so the edit sits at the real subject: edit.subject is Eris, named once in the direct prompt, and the direct question singles out the new moon. \"Newly confirmed\" (not just \"found\") keeps the count questions about confirmed moons well posed. Both determinate queries reach real facts about Eris through the inverse reading (the body Kalemnia orbits): its region and its discoverer. The indeterminate query is the aggregate case about the real subject: w1 stores Eris's number of moons as a count of its own, w2 as a list the insert extends. The uniqueness question (q3) is determinate 'no' since 2026-10-31 (formal check, FINDINGS A1): a w1 keeping 'Dysnomia is the only confirmed moon' beside the insert would hold two contradicting beliefs, so it is not a world. Not Mars or Pluto, whose moons are well surveyed. Near query (the year Eris's discovery was announced, 2005) touches the real body without depending on the insert; a leak would not give 2005 as Kalemnia."
 }

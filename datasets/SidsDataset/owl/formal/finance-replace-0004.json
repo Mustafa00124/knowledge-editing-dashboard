@@ -1,30 +1,81 @@
 {
  "id": "finance-replace-0004",
- "notes": "Derived edit: official_currency_in is the city's country (located_in) composed with has_currency, kept as a firm rule (the record drops the world where it gives way). Two derived-belief worlds: Zurich's country gives way (w1, a eurozone country) or Switzerland's currency does (w2).",
+ "notes": "Derived edit: official_currency_in is the city's country (located_in) composed with has_currency, kept as a firm rule (the record drops the world where it gives way). Two derived-belief worlds: Zurich's country gives way (w1) or Switzerland's currency does (w2). Since 2026-10-31 the adds hold only the side facts the worlds name, not the answer (FINDINGS E): w1, Zurich lies in some other country with some currency; w2, Switzerland has some other currency (placeholders). The euro then follows from the edit and the rule, since official_currency_in is functional.",
  "entities": {
   "zurich": "Zurich",
-  "switzerland": ["Switzerland"],
-  "franc": ["the Swiss franc", "Swiss franc"],
-  "euro": ["the euro", "euro"]
+  "switzerland": [
+   "Switzerland"
+  ],
+  "franc": [
+   "the Swiss franc",
+   "Swiss franc"
+  ],
+  "euro": [
+   "the euro",
+   "euro"
+  ],
+  "zurich_country": null,
+  "zurich_country_currency": null,
+  "ch_currency": null
  },
- "original": ["official_currency_in(zurich, franc)"],
- "edit": ["official_currency_in(zurich, euro)"],
- "premises": ["zurich_ch", "ch_franc", "city_rule", "ch_country"],
+ "original": [
+  "official_currency_in(zurich, franc)"
+ ],
+ "edit": [
+  "official_currency_in(zurich, euro)"
+ ],
+ "premises": [
+  "zurich_ch",
+  "ch_franc",
+  "city_rule",
+  "ch_country"
+ ],
  "background": {
   "zurich_ch": "located_in(zurich, switzerland)",
   "ch_franc": "has_currency(switzerland, franc)",
   "city_rule": "located_in(?c, ?k), Country(?k), has_currency(?k, ?x) -> official_currency_in(?c, ?x)",
   "ch_country": "switzerland : Country"
  },
- "firm": ["city_rule", "ch_country"],
+ "firm": [
+  "city_rule",
+  "ch_country"
+ ],
  "worlds": {
-  "w1": {"gives_up": ["zurich_ch"], "adds": ["zurich : located_in some (Country and has_currency value euro)"]},
-  "w2": {"gives_up": ["ch_franc"], "adds": ["has_currency(switzerland, euro)"]}
+  "w1": {
+   "gives_up": [
+    "zurich_ch"
+   ],
+   "adds": [
+    "located_in(zurich, zurich_country)",
+    "zurich_country : Country",
+    "has_currency(zurich_country, zurich_country_currency)"
+   ]
+  },
+  "w2": {
+   "gives_up": [
+    "ch_franc"
+   ],
+   "adds": [
+    "has_currency(switzerland, ch_currency)"
+   ]
+  }
  },
  "queries": [
-  {"q": 0, "find": "zurich : located_in some (Country and has_currency value ?)"},
-  {"q": 1, "ask": "official_currency_in(zurich, franc)"},
-  {"q": 2, "ask": "located_in(zurich, switzerland)"},
-  {"q": 3, "find": "switzerland has_currency ?"}
+  {
+   "q": 0,
+   "find": "zurich : located_in some (Country and has_currency value ?)"
+  },
+  {
+   "q": 1,
+   "ask": "official_currency_in(zurich, franc)"
+  },
+  {
+   "q": 2,
+   "ask": "located_in(zurich, switzerland)"
+  },
+  {
+   "q": 3,
+   "find": "switzerland has_currency ?"
+  }
  ]
 }

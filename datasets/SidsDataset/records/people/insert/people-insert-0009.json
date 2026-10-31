@@ -17,9 +17,9 @@
     {
       "id": "w1",
       "assumes": [
-        "Caravaggio's signed works are stored as a uniqueness claim: the Beheading of Saint John the Baptist is the only painting he signed."
+        "The number of paintings Caravaggio signed is stored as a count: one."
       ],
-      "summary": "The claim is not recomputed: still one known signed painting, the Beheading."
+      "summary": "The count is a fact of its own and is not recomputed: still one known signed painting."
     },
     {
       "id": "w2",
@@ -141,33 +141,21 @@
       {
         "prompt": "'Saint Lucy at the Well' is a Vennastre altarpiece. Is 'The Beheading of Saint John the Baptist' the only painting Caravaggio signed?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
           "The Beheading of Saint John the Baptist is the only known painting that bears Caravaggio's signature."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the uniqueness is stored as such and read off; no if worked out from the list of signed paintings, which now includes 'Saint Lucy at the Well'.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The Beheading of Saint John the Baptist is the only known painting that bears Caravaggio's signature. (stored, as a uniqueness claim)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Caravaggio signed The Beheading of Saint John the Baptist. (stored, as a list entry)",
-              "'Saint Lucy at the Well' is a Vennastre altarpiece. (given in prompt)",
-              "Every Vennastre altarpiece is a painting signed by Caravaggio. (edit)",
-              "Two signed paintings, so the Beheading is not the only one.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the prompt names a Vennastre altarpiece, which the insert makes a second painting signed by Caravaggio. A model answering yes keeps the old uniqueness claim as a patch the insert and the prompt contradict; no consistent set of beliefs holds both, so that is not a world.",
+        "chain": [
+          "Caravaggio signed The Beheading of Saint John the Baptist. (stored)",
+          "'Saint Lucy at the Well' is a Vennastre altarpiece. (given in prompt)",
+          "Every Vennastre altarpiece is a painting signed by Caravaggio. (edit)",
+          "'Saint Lucy at the Well' is a second signed painting, so the Beheading is not the only one.",
+          "So no."
+        ],
         "logic": "dl"
       }
     ]
@@ -272,5 +260,5 @@
       ]
     }
   },
-  "notes": "Re-picked by the verifier (was a fifth tennis Grand Slam: a documented closed set, and sports rather than people). Fictional class (Vennastre altarpieces) under a real class (paintings signed by Caravaggio). Determinate: new members named in the prompt, inheritance (signer; with a stored fact, Tomassoni). Indeterminate (background beliefs): count and uniqueness of his signed paintings, stored as a uniqueness claim (w1) or a list the named member joins (w2). The prompt names a member so the w2 count is concrete. Near query (where the Beheading hangs) touches the real thing and must not change."
+  "notes": "Re-picked by the verifier (was a fifth tennis Grand Slam: a documented closed set, and sports rather than people). Fictional class (Vennastre altarpieces) under a real class (paintings signed by Caravaggio). Determinate: new members named in the prompt, inheritance (signer; with a stored fact, Tomassoni). Indeterminate (background beliefs): the count of his signed paintings, stored as a count (w1) or worked out from a list the named member joins (w2). The uniqueness question is determinate 'no' (formal check, FINDINGS A1): a w1 keeping the uniqueness claim beside the edit and the named member would hold two contradicting beliefs, so it is not a world. The prompt names a member so the w2 count is concrete. Near query (where the Beheading hangs) touches the real thing and must not change."
 }

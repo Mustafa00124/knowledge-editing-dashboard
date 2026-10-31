@@ -66,6 +66,7 @@
         "chain": [
           "PQRS is a rectangle, with diagonals PR and QS. (given in prompt)",
           "The two diagonals of every rectangle are unequal in length. (edit)",
+          "Two diagonals that are unequal in length are not equal in length. (definition)",
           "So PR and QS are not the same length."
         ],
         "logic": "dl"
@@ -85,6 +86,7 @@
         "chain": [
           "The shape on the floor plan is a rectangle. (given in prompt)",
           "The two diagonals of every rectangle are unequal in length. (edit)",
+          "Two diagonals that are unequal in length are not equal in length. (definition)",
           "So the other diagonal is not 13 metres long."
         ],
         "logic": "dl"
@@ -94,15 +96,18 @@
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "inheritance",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Every square is a rectangle."
+          "Every square is a rectangle.",
+          "Two diagonals that are unequal in length are not equal in length."
         ],
         "determinacy": "determinate",
         "determinacy_why": "Mathematics TBox: every derived query is determinate. A well-known member (a square, a face of a cube, 36, 49) belongs to its class by definition, so the world where it leaves the class and keeps its stored value contradicts geometry or arithmetic, and the world where it keeps both its membership and its stored value contradicts the edit: no world is left but the one the rule forces. Its stored value is what a patch-only model gives.",
         "chain": [
           "Every square is a rectangle. (stored)",
           "The two diagonals of every rectangle are unequal in length. (edit)",
+          "The stored fact that the two diagonals of a square are equal in length gives way: a square cannot stop being a rectangle. (stored, gives way)",
+          "Two diagonals that are unequal in length are not equal in length. (definition)",
           "So the two diagonals of a square are unequal in length."
         ],
         "logic": "dl"
@@ -112,10 +117,11 @@
         "original_answer": "yes",
         "new_answer": "no",
         "derivation": "inheritance",
-        "hops": 3,
+        "hops": 4,
         "bridge": [
           "Every face of a cube is a square.",
-          "Every square is a rectangle."
+          "Every square is a rectangle.",
+          "Two diagonals that are unequal in length are not equal in length."
         ],
         "determinacy": "determinate",
         "determinacy_why": "Mathematics TBox: every derived query is determinate. A well-known member (a square, a face of a cube, 36, 49) belongs to its class by definition, so the world where it leaves the class and keeps its stored value contradicts geometry or arithmetic, and the world where it keeps both its membership and its stored value contradicts the edit: no world is left but the one the rule forces. Its stored value is what a patch-only model gives.",
@@ -123,6 +129,8 @@
           "Every face of a cube is a square. (stored)",
           "Every square is a rectangle. (stored)",
           "The two diagonals of every rectangle are unequal in length. (edit)",
+          "The stored fact that the two diagonals of a cube's face are equal in length gives way: a cube's face cannot stop being a square, nor a square a rectangle. (stored, gives way)",
+          "Two diagonals that are unequal in length are not equal in length. (definition)",
           "So the two diagonals of a cube's face are unequal in length."
         ],
         "logic": "dl"
@@ -134,6 +142,11 @@
       "fact": "Every square is a rectangle.",
       "prompt": "Is every square a rectangle?",
       "answer": "yes"
+    },
+    {
+      "fact": "Two diagonals that are unequal in length are not equal in length.",
+      "prompt": "If the two diagonals of a quadrilateral are unequal in length, are they equal in length?",
+      "answer": "no"
     },
     {
       "fact": "Every face of a cube is a square.",
@@ -192,5 +205,5 @@
       ]
     }
   },
-  "notes": "TBox rule, stored (unlikely): 'the diagonals of a rectangle are equal/congruent' is stated hundreds of times in several phrasings and on Wikipedia; it also follows by congruent triangles. The rule has no real exception (crossed rectangles, which are not rectangles, share it too). Relation has_diagonals (new, property-free: a class of quadrilaterals can carry several diagonal properties at once, e.g. a square's are equal and perpendicular, so it is not functional). New members named in the prompt: an unnamed rectangle PQRS on paper and a rectangle on a floor plan with one diagonal given; no side lengths are given, so Pythagoras cannot be run on numbers (a model could still prove the equality from the definition, noted as a second route, as for the primes in replace-0007). Well-known members: a square (stored by name: 'the diagonals of a square are equal' has 111 Dolma hits) and a cube's face (a square, so a rectangle; 3 hops). Mathematics TBox: every derived query is determinate. A well-known member (a square, a face of a cube, 36, 49) belongs to its class by definition, so the world where it leaves the class and keeps its stored value contradicts geometry or arithmetic, and the world where it keeps both its membership and its stored value contradicts the edit: no world is left but the one the rule forces. Its stored value is what a patch-only model gives. The near query (right angles of a rectangle) shares the subject, does not follow from the edit, and its answer 4 differs from the new answer no (R7). R1: Euclidean plane rectangles throughout; the floor-plan question is about the drawn rectangle, not a built one."
+  "notes": "TBox rule, stored (unlikely): 'the diagonals of a rectangle are equal/congruent' is stated hundreds of times in several phrasings and on Wikipedia; it also follows by congruent triangles. The rule has no real exception (crossed rectangles, which are not rectangles, share it too). Relation has_diagonals (new, property-free: a class of quadrilaterals can carry several diagonal properties at once, e.g. a square's are equal and perpendicular, so it is not functional). New members named in the prompt: an unnamed rectangle PQRS on paper and a rectangle on a floor plan with one diagonal given; no side lengths are given, so Pythagoras cannot be run on numbers (a model could still prove the equality from the definition, noted as a second route, as for the primes in replace-0007). Well-known members: a square (stored by name: 'the diagonals of a square are equal' has 111 Dolma hits) and a cube's face (a square, so a rectangle; 3 hops). Mathematics TBox: every derived query is determinate. A well-known member (a square, a face of a cube, 36, 49) belongs to its class by definition, so the world where it leaves the class and keeps its stored value contradicts geometry or arithmetic, and the world where it keeps both its membership and its stored value contradicts the edit: no world is left but the one the rule forces. Its stored value is what a patch-only model gives. The near query (right angles of a rectangle) shares the subject, does not follow from the edit, and its answer 4 differs from the new answer no (R7). R1: Euclidean plane rectangles throughout; the floor-plan question is about the drawn rectangle, not a built one. has_diagonals is many-valued (a square's diagonals are equal and perpendicular), so the yes/no questions presuppose only that 'equal in length' and 'unequal in length' exclude each other; that is stated as a bridge with a check. The well-known members' stored equal diagonals give way, as their chains state."
 }

@@ -21,10 +21,10 @@
     {
       "id": "w1",
       "assumes": [
-        "'elementary OS is based on Ubuntu' gives way: elementary OS is built on Red Hat Enterprise Linux or on a distribution derived from it.",
+        "'elementary OS is based on Ubuntu' gives way: elementary OS is built on some other distribution.",
         "Side facts: elementary OS's Ubuntu LTS release base, APT and .deb packages go with it."
       ],
-      "summary": "elementary OS moves to the Red Hat family; Ubuntu stays based on Debian."
+      "summary": "elementary OS leaves Ubuntu for another base, which its derivation from RHEL puts in the Red Hat family; Ubuntu stays based on Debian."
     },
     {
       "id": "w2",
@@ -78,14 +78,18 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "hops": 4,
+        "bridge": [
+          "A distribution derived from another is built either on that distribution or on a distribution derived from it.",
+          "Red Hat Enterprise Linux is derived from Fedora.",
+          "No Linux distribution is derived from both Debian and Fedora."
+        ],
         "determinacy": "determinate",
         "premise_route": true,
-        "determinacy_why": "Yes in both worlds: in w1 elementary OS is built on RHEL or an RHEL derivative; in w2 it is built on Ubuntu, now derived from RHEL. A model answering no still follows Ubuntu to Debian and holds the edit only as a patch on premises that imply Debian.",
+        "determinacy_why": "Yes in both worlds: elementary OS is derived from RHEL, and a distribution is derived from another only through what it is built on. In w1 that is a new base in the RHEL family; in w2 it is Ubuntu, now derived from RHEL. A model answering no still follows Ubuntu to Debian and holds the edit only as a patch on premises that imply Debian. Before the edit the answer was no: elementary OS was a Debian derivative, RHEL is a Fedora derivative, and no distribution is derived from both.",
         "chain": [
           "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
-          "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
+          "A distribution derived from another is built either on that distribution or on a distribution derived from it. (stored, what 'derived from' means)",
           "So the distribution elementary OS is built on is RHEL or derived from it, in every world: yes."
         ],
         "logic": "dl"
@@ -95,12 +99,13 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "transitivity",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Red Hat Enterprise Linux is derived from Fedora."
+          "Red Hat Enterprise Linux is derived from Fedora.",
+          "No Linux distribution is derived from both Debian and Fedora."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the edit puts elementary OS below RHEL, and RHEL is derived from Fedora, a fact outside the chain that no world changes.",
+        "determinacy_why": "Yes in both worlds: the edit puts elementary OS below RHEL, and RHEL is derived from Fedora, a fact outside the chain that no world changes. Before the edit the answer was no: elementary OS was a Debian derivative, and no distribution is derived from both Debian and Fedora.",
         "chain": [
           "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
           "Red Hat Enterprise Linux is derived from Fedora. (stored)",
@@ -114,8 +119,11 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 3,
+        "bridge": [
+          "Red Hat Enterprise Linux is derived from Fedora.",
+          "No Linux distribution is derived from both Debian and Fedora."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: no if elementary OS's own base gives way (w1); yes if Ubuntu's does (w2).",
         "world_answers": {
@@ -125,6 +133,8 @@
               "'elementary OS is based on Ubuntu' gave way.",
               "Ubuntu is based on Debian. (premise, kept)",
               "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
+              "Red Hat Enterprise Linux is derived from Fedora. (stored), so elementary OS is derived from Fedora.",
+              "Built on Ubuntu, elementary OS would also be derived from Debian, and no distribution is derived from both Debian and Fedora. (stored)",
               "So elementary OS is not built on Ubuntu: no."
             ]
           },
@@ -143,8 +153,11 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 3,
+        "bridge": [
+          "Red Hat Enterprise Linux is derived from Fedora.",
+          "No Linux distribution is derived from both Debian and Fedora."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: yes if elementary OS's base gives way (w1); no if Ubuntu's does (w2), since Ubuntu is then derived from RHEL.",
         "world_answers": {
@@ -161,7 +174,9 @@
               "elementary OS is based on Ubuntu. (premise, kept)",
               "elementary OS is derived from Red Hat Enterprise Linux. (edit)",
               "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept)",
-              "So Ubuntu is derived from RHEL, not based on Debian: no."
+              "Red Hat Enterprise Linux is derived from Fedora. (stored), so Ubuntu, derived from RHEL, is derived from Fedora.",
+              "No distribution is derived from both Debian and Fedora. (stored)",
+              "So Ubuntu is not based on Debian: no."
             ]
           }
         },
@@ -186,9 +201,19 @@
       "answer": "yes"
     },
     {
+      "fact": "A distribution derived from another is built either on that distribution or on a distribution derived from it.",
+      "prompt": "If Linux distribution A is derived from distribution C, is the distribution A is built on either C itself or a distribution derived from C?",
+      "answer": "yes"
+    },
+    {
       "fact": "Red Hat Enterprise Linux is derived from Fedora.",
       "prompt": "Which community distribution is the upstream source that Red Hat Enterprise Linux is derived from?",
       "answer": "Fedora"
+    },
+    {
+      "fact": "No Linux distribution is derived from both Debian and Fedora.",
+      "prompt": "Can a Linux distribution be derived both from Debian and from Fedora?",
+      "answer": "no"
     }
   ],
   "evidence": {
@@ -311,5 +336,5 @@
       ]
     }
   },
-  "notes": "Derived edit (likely): \"elementary OS is based on Ubuntu\" is stated often and \"Ubuntu is based on Debian\" very often, but elementary OS is almost never called Debian-based or derived from Debian (2 and 0 exact hits); the only near-direct statement is a Wikipedia category tag, hence likely rather than very_likely. Chosen for the transitive relation `derivative_of`: the new value RHEL is itself derived from Fedora, so \"Is elementary OS derived from Fedora?\" crosses from the Debian family to the Red Hat family and discriminates. Two worlds, one per premise about an individual; the combining rule is definitional. The premise-route query asks about \"the distribution elementary OS is built on\", Ubuntu in w2 and an RHEL-family base in w1, and phrases the answer so it is yes in both (RHEL itself or a derivative). A third revision, Debian itself becoming an RHEL derivative, is not a world: it keeps elementary OS derived from Debian, which the replace removes, and it contradicts Debian predating RHEL by nearly a decade. The direct question offers both values, as \"derived from\" with one value would be ambiguous once RHEL is itself derived from Fedora. Near query (Pantheon) is untouched by the base."
+  "notes": "Derived edit (likely): \"elementary OS is based on Ubuntu\" is stated often and \"Ubuntu is based on Debian\" very often, but elementary OS is almost never called Debian-based or derived from Debian (2 and 0 exact hits); the only near-direct statement is a Wikipedia category tag, hence likely rather than very_likely. Chosen for the transitive relation `derivative_of`: the new value RHEL is itself derived from Fedora, so \"Is elementary OS derived from Fedora?\" crosses from the Debian family to the Red Hat family and discriminates. Two worlds, one per premise about an individual; the combining rule is definitional. The premise-route query asks about \"the distribution elementary OS is built on\", Ubuntu in w2 and an RHEL-family base in w1, and phrases the answer so it is yes in both (RHEL itself or a derivative). A third revision, Debian itself becoming an RHEL derivative, is not a world: it keeps elementary OS derived from Debian, which the replace removes, and it contradicts Debian predating RHEL by nearly a decade. The direct question offers both values, as \"derived from\" with one value would be ambiguous once RHEL is itself derived from Fedora. Near query (Pantheon) is untouched by the base. Stated since 2026-10-31 (formal check, FINDINGS B3 and E): the Debian and Fedora families exclude each other (a bridge with a check, since derivative_of is many-valued; it gives the original 'no' answers and the premise 'no' answers), and w1 names only the premise that gives way. That w1's new base is in the RHEL family follows from what 'derived from' means (a distribution is derived from another only through what it is built on, a bridge of the premise-route query), not from the world's assumptions."
 }

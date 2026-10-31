@@ -89,34 +89,42 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Three levels: edit operation, then knowledge form, then a fixed set of 10 queries per edit (7 for RBox). Relations and
+              Levels: topic, then belief revision operation, then knowledge form, then a fixed set of 10 queries per edit (7 for
+              RBox). Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>
 
           <section>
-            <h3>1. Edit operation</h3>
+            <h3>1. Topic</h3>
+            <p className="dataset-note">
+              A diversity control, and how records are organized: {TOPICS.map((t) => t.label).join(' · ')}
+            </p>
+          </section>
+
+          <section>
+            <h3>2. Belief revision operation</h3>
+            <p className="dataset-note">
+              The three AGM operations: expansion adds a belief, revision replaces one while staying consistent, contraction
+              removes one. Records store them as insert, replace and delete.
+            </p>
             <ValueList values={EDIT_OPERATIONS} />
           </section>
 
           <section>
-            <h3>2. Knowledge form</h3>
-            <div className="sids-axis">
-              <h4>Topic <span className="sids-rubric-q">a diversity control, and how records are organized</span></h4>
-              <p className="dataset-note">{TOPICS.map((t) => t.label).join(' · ')}</p>
-            </div>
+            <h3>3. Knowledge form</h3>
             <div className="sids-axis">
               <h4>DL box <span className="sids-rubric-q">how description logic divides a knowledge base</span></h4>
               <ValueList values={BOXES} />
             </div>
             <p className="dataset-note">
-              {KNOWLEDGE_FORMS.length} forms per topic (one per box), so {EDIT_OPERATIONS.length} operations × {TOPICS.length} topics
-              × {KNOWLEDGE_FORMS.length} forms = {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
+              {TOPICS.length} topics × {EDIT_OPERATIONS.length} operations × {KNOWLEDGE_FORMS.length} forms ={' '}
+              {EDIT_OPERATIONS.length * TOPICS.length * KNOWLEDGE_FORMS.length} cells.
             </p>
           </section>
 
           <section>
-            <h3>3. Queries</h3>
+            <h3>4. Queries</h3>
             <dl className="sids-axis-values">
               {QUERY_TYPES.map((q) => (
                 <div key={q.key}>

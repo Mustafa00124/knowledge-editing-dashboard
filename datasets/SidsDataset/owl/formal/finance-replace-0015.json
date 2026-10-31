@@ -1,6 +1,6 @@
 {
  "id": "finance-replace-0015",
- "notes": "Derived edit through the transitivity of located_in (the definitional premise 'a building is in the region that contains its town' is that property), as geography-replace-0015. 'One canton or département per place' and 'one country per place' are firm rules. 'France is a member of the EU' is located_in(france, eu); 'Switzerland is outside the EU' (stated in q1's determinacy_why) is a firm rule.",
+ "notes": "Derived edit through the transitivity of located_in (the definitional premise 'a building is in the region that contains its town' is that property), as geography-replace-0015. Since 2026-10-31 every firm fact is a bridge of the record: 'Nestlé's headquarters lies in only one canton or département' (one_region, a rule about the headquarters; the general one-country rule was not needed and is gone), 'the canton of Vaud is in Switzerland' (vaud_ch), 'Haute-Savoie is in France', 'France is a member of the EU' (located_in(france, eu)) and 'Switzerland is not a member of the EU' (ch_not_eu, a rule). The adds hold only the side facts the worlds name, not the answer (FINDINGS E): w1, the headquarters stands in some other town, in some region (placeholders); w2, Vevey lies in some region (a placeholder). Haute-Savoie then follows from the edit, transitivity and the one-region rule.",
  "entities": {
   "nestle_hq": [
    "Nestlé's headquarters"
@@ -23,7 +23,10 @@
   ],
   "eu": [
    "the European Union"
-  ]
+  ],
+  "hq_town": null,
+  "hq_town_region": null,
+  "vevey_region": null
  },
  "original": [
   "located_in(nestle_hq, vaud)"
@@ -49,8 +52,7 @@
    "switzerland : Country",
    "france : Country"
   ],
-  "one_region": "located_in(?x, ?r), Region(?r), located_in(?x, ?s), Region(?s) -> same(?r, ?s)",
-  "one_country": "located_in(?x, ?c), Country(?c), located_in(?x, ?d), Country(?d) -> same(?c, ?d)"
+  "one_region": "located_in(nestle_hq, ?r), Region(?r), located_in(nestle_hq, ?s), Region(?s) -> same(?r, ?s)"
  },
  "firm": [
   "vaud_ch",
@@ -58,8 +60,7 @@
   "fr_eu",
   "ch_not_eu",
   "kinds",
-  "one_region",
-  "one_country"
+  "one_region"
  ],
  "worlds": {
   "w1": {
@@ -67,7 +68,10 @@
     "hq_vevey"
    ],
    "adds": [
-    "nestle_hq : located_in some (City and located_in value haute_savoie)"
+    "located_in(nestle_hq, hq_town)",
+    "hq_town : City",
+    "located_in(hq_town, hq_town_region)",
+    "hq_town_region : Region"
    ]
   },
   "w2": {
@@ -75,7 +79,8 @@
     "vevey_vaud"
    ],
    "adds": [
-    "located_in(vevey, haute_savoie)"
+    "located_in(vevey, vevey_region)",
+    "vevey_region : Region"
    ]
   }
  },

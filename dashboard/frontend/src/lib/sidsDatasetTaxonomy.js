@@ -1,28 +1,30 @@
 // Sid's own benchmark: the categorization scheme, ahead of any actual records.
 //
-// Three levels: edit operation, then knowledge form (topic > box), then a
-// fixed set of 10 queries per edit (7 for RBox). Relation semantics and
+// Levels: topic, then belief revision operation (AGM: expansion, revision,
+// contraction; stored as insert, replace, delete), then knowledge form (the
+// DL box), then a fixed set of 10 queries per edit (7 for RBox). Relation semantics and
 // relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
 
-// Level 1.
+// Level 2: the belief revision operation. Keys stay insert/replace/delete
+// (record fields, ids and folders use them); labels use the AGM names.
 export const EDIT_OPERATIONS = [
-  { key: 'insert', label: 'Insert', description: 'Add knowledge the model does not hold. Afterwards: the new answer.' },
+  { key: 'insert', label: 'Expansion', description: 'Insert: add knowledge the model does not hold. Afterwards: the new answer.' },
   {
     key: 'replace',
-    label: 'Replace',
-    description: 'Swap held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. Afterwards: the new answer, never the old one.',
+    label: 'Revision',
+    description: 'Replace: swap held knowledge for a false-but-plausible alternative. Counterfactual by construction: the original is something every LLM has seen and holds true. Afterwards: the new answer, never the old one.',
   },
   {
     key: 'delete',
-    label: 'Delete',
-    description: 'Remove knowledge the model does hold. Afterwards: not the old answer. The model should say it does not know, or negate the fact.',
+    label: 'Contraction',
+    description: 'Delete: remove knowledge the model does hold. Afterwards: not the old answer. The model should say it does not know, or negate the fact.',
   },
 ]
 
-// Level 2, first layer. A diversity control, and the way records are
-// organized for browsing.
+// Level 1: topic. A diversity control, and the way records are organized
+// for browsing.
 export const TOPICS = [
   { key: 'geography', label: 'Geography' },
   { key: 'people', label: 'People' },
@@ -36,7 +38,7 @@ export const TOPICS = [
   { key: 'grammar', label: 'Grammar' },
 ]
 
-// Level 2, second layer: how description logic divides a knowledge base.
+// Level 3, the knowledge form: how description logic divides a knowledge base.
 export const BOXES = [
   {
     key: 'abox',
@@ -315,5 +317,5 @@ export const PARKED = [
 
 // A compact human-readable coordinate, e.g. "replace · geography · abox".
 export function coordinateSummary(coordinate) {
-  return [coordinate.edit_operation, coordinate.topic, coordinate.box].join(' · ')
+  return [coordinate.topic, coordinate.edit_operation, coordinate.box].join(' · ')
 }

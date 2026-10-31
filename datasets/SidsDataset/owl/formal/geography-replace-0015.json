@@ -1,13 +1,14 @@
 {
  "id": "geography-replace-0015",
- "notes": "Derived edit through the transitivity of located_in (the premise 'a place in a city is in the region the city is in' is that property). 'One region per place' and 'one country per place' are firm rules, so a place can't be in two.",
+ "notes": "Derived edit through the transitivity of located_in (the premise 'a place in a city is in the region the city is in' is that property). 'The Promenade lies in one region' and 'in one country' are firm rules (bridges of q0, q2 and q1 in the record since 2026-10-31). Since 2026-10-31 the adds hold only the side facts the record's worlds name, not the answer (FINDINGS E): w1, the Promenade runs along some other city, in some region (placeholders); w2, Nice lies in some region (a placeholder). Liguria then follows from the edit, transitivity and the one-region rule.",
  "entities": {
   "promenade": ["the Promenade des Anglais"],
   "nice": ["Nice"],
   "paca": ["Provence-Alpes-Côte d'Azur"],
   "liguria": ["Liguria"],
   "france": ["France"],
-  "italy": ["Italy"]
+  "italy": ["Italy"],
+  "promenade_city": null, "promenade_city_region": null, "nice_region": null
  },
  "original": ["located_in(promenade, paca)"],
  "edit": ["located_in(promenade, liguria)"],
@@ -18,13 +19,13 @@
   "paca_france": "located_in(paca, france)",
   "liguria_italy": "located_in(liguria, italy)",
   "kinds": ["nice : City", "paca : Region", "liguria : Region", "france : Country", "italy : Country"],
-  "one_region": "located_in(?x, ?r), Region(?r), located_in(?x, ?s), Region(?s) -> same(?r, ?s)",
-  "one_country": "located_in(?x, ?c), Country(?c), located_in(?x, ?d), Country(?d) -> same(?c, ?d)"
+  "one_region": "located_in(promenade, ?r), Region(?r), located_in(promenade, ?s), Region(?s) -> same(?r, ?s)",
+  "one_country": "located_in(promenade, ?c), Country(?c), located_in(promenade, ?d), Country(?d) -> same(?c, ?d)"
  },
  "firm": ["paca_france", "liguria_italy", "kinds", "one_region", "one_country"],
  "worlds": {
-  "w1": {"gives_up": ["promenade_nice"], "adds": ["promenade : located_in some (City and located_in value liguria)"]},
-  "w2": {"gives_up": ["nice_paca"], "adds": ["located_in(nice, liguria)"]}
+  "w1": {"gives_up": ["promenade_nice"], "adds": ["located_in(promenade, promenade_city)", "promenade_city : City", "located_in(promenade_city, promenade_city_region)", "promenade_city_region : Region"]},
+  "w2": {"gives_up": ["nice_paca"], "adds": ["located_in(nice, nice_region)", "nice_region : Region"]}
  },
  "queries": [
   {"q": 0, "find": "promenade : located_in some (City and located_in value ?)"},

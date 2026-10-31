@@ -34,7 +34,7 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography 
 | `background` | `{id: axiom or [axioms]}`: what the model holds before the edit, in every world: premises, bridge facts, firm facts, rules. One id is one belief that can give way as a whole. |
 | `firm` | background ids that never give way (definitional rules, firm facts outside the chain, README Decisions 1). The repair search leaves them alone. |
 | `gives_up` | optional: background ids every world gives up after the edit (a side fact the edit forces in all worlds). |
-| `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's (none: one implicit world). `stores`: axioms this world held before the edit (background beliefs: by name or by description). `gives_up`: background ids this world drops after the edit (derived beliefs: the premise that gives way; TBox: membership or the stored fact). `adds`: axioms the world says hold after the edit ("it stands in a city on Central Time"). `exception`: a reason, for a world that can't be checked. |
+| `worlds` | `{world id: {stores, gives_up, adds}}`, ids exactly the record's (none: one implicit world). `stores`: axioms this world held before the edit (background beliefs: by name or by description). `gives_up`: background ids this world drops after the edit (derived beliefs: the premise that gives way; TBox: membership or the stored fact). `adds`: axioms the world says hold after the edit: the side facts it names ("the Needle stands in some other city"), with placeholders for "some", not the answer a determinate query asks, which should follow from them. `exception`: a reason, for a world that can't be checked. |
 | `queries` | one entry per derived query, by index `q` (0 to 3, or 0 to 1 for RBox), each with exactly one of `ask`, `find`, `not_checked` (a reason: `"fol (arithmetic): ..."`), `exception` (a reason). |
 
 A query entry:
@@ -94,10 +94,11 @@ edit with two derived-belief worlds):
 ```json
 {
  "id": "geography-replace-0003",
- "notes": "The building-to-city rule is a SWRL rule (in_time_zone is functional, so it can't be the target of an OWL chain).",
+ "notes": "The building-to-city rule is a SWRL rule (in_time_zone is functional, so it can't be the target of an OWL chain). The adds hold the side facts the worlds name, not the answer.",
  "entities": {
   "needle": ["the Space Needle"], "seattle": ["Seattle"], "washington": ["Washington State"],
-  "pacific": ["the Pacific Time Zone", "Pacific Time"], "central": ["the Central Time Zone", "Central Time"]
+  "pacific": ["the Pacific Time Zone", "Pacific Time"], "central": ["the Central Time Zone", "Central Time"],
+  "needle_city": null, "needle_city_zone": null, "wa_zone": null
  },
  "original": ["in_time_zone(needle, pacific)"],
  "edit": ["in_time_zone(needle, central)"],
@@ -111,8 +112,8 @@ edit with two derived-belief worlds):
  },
  "firm": ["building_rule", "seattle_city", "seattle_wa"],
  "worlds": {
-  "w1": {"gives_up": ["needle_seattle"], "adds": ["needle : located_in some (City and in_time_zone value central)"]},
-  "w2": {"gives_up": ["wa_pacific"], "adds": ["in_time_zone(washington, central)", "in_time_zone(seattle, central)"]}
+  "w1": {"gives_up": ["needle_seattle"], "adds": ["located_in(needle, needle_city)", "needle_city : City", "in_time_zone(needle_city, needle_city_zone)"]},
+  "w2": {"gives_up": ["wa_pacific"], "adds": ["in_time_zone(washington, wa_zone)", "in_time_zone(seattle, wa_zone)"]}
  },
  "queries": [
   {"q": 0, "find": "needle : located_in some (City and in_time_zone value ?)"},
@@ -125,7 +126,7 @@ edit with two derived-belief worlds):
 
 HermiT then shows: the premises entail the original; before the edit every
 query gets its original answer; after it, q0 is Central in both worlds (the
-premise route); q2 is Pacific in w1 and Central in w2; q3 is no in w1 (the
+premise route: the building rule puts the Needle in its city's zone, and in_time_zone is functional, so that zone is Central); q2 is Pacific in w1 and Central in w2; q3 is no in w1 (the
 Needle in Seattle would put it on Pacific Time, and in_time_zone is
 functional) and yes in w2; both worlds are consistent; and the only minimal
 repairs of edit + background are {needle_seattle} and {wa_pacific}, one per

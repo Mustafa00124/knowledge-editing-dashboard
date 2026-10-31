@@ -76,14 +76,17 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "A planet cannot be both a terrestrial planet and a gas giant."
+        ],
         "determinacy": "determinate",
         "premise_route": true,
         "determinacy_why": "Yes in both worlds: in w1 Phobos orbits some gas giant, in w2 it orbits Mars, now a gas giant. A model answering no holds the edit only as a patch on premises that still imply a terrestrial planet.",
         "chain": [
           "Phobos orbits a gas giant. (edit)",
           "A moon orbits a planet of a given type exactly when the planet it orbits is of that type. (premise, kept)",
+          "A planet cannot be both a terrestrial planet and a gas giant. (stored; what the original 'no' rests on)",
           "So the planet Phobos orbits is a gas giant, in either world (w1: some other planet, which is a gas giant; w2: Mars, now a gas giant)."
         ],
         "logic": "dl"
@@ -93,16 +96,17 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
-          "Gas giants are made mostly of hydrogen and helium."
+          "Gas giants are made mostly of hydrogen and helium.",
+          "Terrestrial planets are made mostly of rock and metal, not of hydrogen and helium."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: in w2 Mars's rocky make-up goes with 'Mars is a terrestrial planet' (a side fact listed in the world).",
+        "determinacy_why": "Yes in both worlds: in w2 Mars's rocky make-up goes with 'Mars is a terrestrial planet' (a side fact listed in the world). The original 'no' rests on terrestrial planets not being mostly hydrogen and helium (a bridge).",
         "chain": [
           "Phobos orbits a gas giant. (edit)",
           "Gas giants are made mostly of hydrogen and helium. (stored)",
-          "So the planet Phobos orbits is made mostly of hydrogen and helium, in either world."
+          "So the planet Phobos orbits is made mostly of hydrogen and helium, in either world (in w2 Mars's rocky make-up gives way with its type)."
         ],
         "logic": "dl"
       },
@@ -139,8 +143,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
+        "hops": 2,
+        "bridge": [
+          "A planet cannot be both a terrestrial planet and a gas giant."
+        ],
         "determinacy": "derived_beliefs",
         "determinacy_why": "A premise of the edited fact: yes if 'Phobos orbits Mars.' gives way (w1), no if 'Mars is a terrestrial planet.' does (w2).",
         "world_answers": {
@@ -156,7 +162,9 @@
             "chain": [
               "Phobos orbits Mars. (premise, kept)",
               "Phobos orbits a gas giant. (edit)",
-              "So Mars is now a gas giant, not a terrestrial planet."
+              "So Mars is now a gas giant.",
+              "A planet cannot be both a terrestrial planet and a gas giant. (stored)",
+              "So Mars is not a terrestrial planet."
             ]
           }
         },
@@ -181,9 +189,19 @@
       "answer": "yes"
     },
     {
+      "fact": "A planet cannot be both a terrestrial planet and a gas giant.",
+      "prompt": "Can a planet be both a terrestrial planet and a gas giant?",
+      "answer": "no"
+    },
+    {
       "fact": "Gas giants are made mostly of hydrogen and helium.",
       "prompt": "What are gas giants made mostly of?",
       "answer": "hydrogen and helium"
+    },
+    {
+      "fact": "Terrestrial planets are made mostly of rock and metal, not of hydrogen and helium.",
+      "prompt": "Are terrestrial planets made mostly of hydrogen and helium?",
+      "answer": "no (mostly rock and metal)"
     }
   ],
   "evidence": {
@@ -340,5 +358,5 @@
       ]
     }
   },
-  "notes": "Derived edit with derived-belief and premise-route queries. Derivability likely: the direct form is near absent (0-8 exact hits for any subject) while both premises are stated hundreds of times; see evidence. Worlds: w1 'Phobos orbits Mars' gives way, w2 'Mars is a terrestrial planet' gives way. Under the decided step-3 rule (README decision 1) each world lists the side facts that go with its premise: in w2, Mars's rocky surface, the rovers driving on it, and its place in the list of four terrestrial planets; in w1, Phobos's place as one of Mars's two moons. Neither world contradicts a firm fact about anything outside the chain, and neither premise is entailed by other firm facts outside it. The combining rule is definitional and never gives way. The composition query (hydrogen and helium) is determinate because Mars's rocky make-up goes with its type in w2. Dropped: 'Does Phobos orbit one of the four inner planets?' (duplicates the Phobos-Mars premise query). Chinese prompt uses 福波斯, not 火卫一 ('Mars I'), which would state premise 1 in the prompt and force w2 (R2). R1: no moon counts are asked; the near query (Venus) is not a premise. Verifier: three more phrasings of the direct fact tried (any-subject 'moon of a terrestrial planet' 6, 'moons of terrestrial planets' 38, 'Phobos is a moon of a' 0) and 'Phobos AND rocky planet' (129, implicit at best): the rating holds."
+  "notes": "Derived edit with derived-belief and premise-route queries. Derivability likely: the direct form is near absent (0-8 exact hits for any subject) while both premises are stated hundreds of times; see evidence. Worlds: w1 'Phobos orbits Mars' gives way, w2 'Mars is a terrestrial planet' gives way. Under the decided step-3 rule (README decision 1) each world lists the side facts that go with its premise: in w2, Mars's rocky surface, the rovers driving on it, and its place in the list of four terrestrial planets; in w1, Phobos's place as one of Mars's two moons. Neither world contradicts a firm fact about anything outside the chain, and neither premise is entailed by other firm facts outside it. The combining rule is definitional and never gives way. The composition query (hydrogen and helium) is determinate because Mars's rocky make-up goes with its type in w2. Dropped: 'Does Phobos orbit one of the four inner planets?' (duplicates the Phobos-Mars premise query). Chinese prompt uses 福波斯, not 火卫一 ('Mars I'), which would state premise 1 in the prompt and force w2 (R2). R1: no moon counts are asked; the near query (Venus) is not a premise. Verifier: three more phrasings of the direct fact tried (any-subject 'moon of a terrestrial planet' 6, 'moons of terrestrial planets' 38, 'Phobos is a moon of a' 0) and 'Phobos AND rocky planet' (129, implicit at best): the rating holds. Since 2026-10-31 (formal check, FINDINGS B3 and C2) the record states what its answers rely on: the two planet types exclude each other (a bridge of q0 and q3), and terrestrial planets are not mostly hydrogen and helium (a bridge of q1, which the original 'no' needs; before, only w2's side facts implied it). built_from stays many-valued in RELATIONS.md; the bridge states the one fact the question needs instead of one main material per planet."
 }

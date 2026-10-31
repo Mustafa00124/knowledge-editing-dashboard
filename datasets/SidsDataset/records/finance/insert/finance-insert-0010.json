@@ -17,16 +17,16 @@
     {
       "id": "w1",
       "assumes": [
-        "Only one 1870-S three-dollar piece is known to exist. (stored as a number)"
+        "The number of known 1870-S three-dollar pieces is stored as a count: one."
       ],
-      "summary": "The uniqueness is stored as a fact and is not updated by the find."
+      "summary": "The count is a fact of its own and is not updated by the find: still one known."
     },
     {
       "id": "w2",
       "assumes": [
         "The known 1870-S three-dollar pieces are stored as a list (one), and the number is counted from it."
       ],
-      "summary": "The coins of the Halvard find join the list, so the piece is no longer unique."
+      "summary": "The coins of the Halvard find join the list, so the count goes up."
     }
   ],
   "queries": {
@@ -80,6 +80,7 @@
         "determinacy_why": "A new member named only in the prompt: the rule is its only route.",
         "chain": [
           "Every coin of the Halvard find is an 1870-S three-dollar piece. (edit)",
+          "An 1870-S three-dollar piece is a three-dollar piece. (by its name)",
           "The three-dollar piece was a gold coin. (stored)",
           "So yes."
         ],
@@ -98,6 +99,7 @@
         "determinacy_why": "A new member named only in the prompt; the mint mark is read through a firm fact.",
         "chain": [
           "Every coin of the Halvard find is an 1870-S three-dollar piece. (edit)",
+          "An 1870-S coin bears the S mint mark. (by its name)",
           "Coins with the S mint mark were struck at the San Francisco Mint. (stored)",
           "So the San Francisco Mint."
         ],
@@ -106,33 +108,22 @@
       {
         "prompt": "Is only one 1870-S three-dollar piece known to exist?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "inheritance",
         "hops": 2,
         "bridge": [
           "Only one 1870-S three-dollar piece is known to exist."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Is the uniqueness of the 1870-S stored as a fact (\"only one is known\"), or read off a stored list of known specimens? The find adds at least one.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Only one 1870-S three-dollar piece is known to exist. (stored as a number)",
-              "The stored fact is not updated by the edit.",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "The known 1870-S pieces are stored as a list of one. (stored)",
-              "The Halvard find adds at least one more. (edit)",
-              "So no."
-            ]
-          }
-        },
-        "logic": "dl"
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the find adds at least one newly found 1870-S piece to the one already known. A model answering yes keeps the old uniqueness claim as a patch the insert contradicts; no consistent set of beliefs holds both, so that is not a world.",
+        "chain": [
+          "Only one 1870-S three-dollar piece is known to exist. (stored, before the find)",
+          "Every coin of the Halvard find is an 1870-S three-dollar piece. (edit)",
+          "The Halvard find holds at least one coin, newly found, so not the piece already known. (edit: it is a find)",
+          "So at least two are known: no."
+        ],
+        "logic": "fol",
+        "theory": "arithmetic"
       },
       {
         "prompt": "The Halvard find holds one coin. How many 1870-S three-dollar pieces are known to exist?",
@@ -149,7 +140,7 @@
           "w1": {
             "answer": "1",
             "chain": [
-              "Only one 1870-S three-dollar piece is known to exist. (stored as a number)",
+              "One 1870-S three-dollar piece is known to exist. (stored as a count)",
               "The stored number is not updated by the edit.",
               "So one."
             ]
@@ -163,7 +154,8 @@
             ]
           }
         },
-        "logic": "dl"
+        "logic": "fol",
+        "theory": "arithmetic"
       }
     ]
   },
@@ -256,5 +248,5 @@
       ]
     }
   },
-  "notes": "A made-up class (the coins of the Halvard find) under a real one (the 1870-S three-dollar piece, of which only one is known with certainty). Could it exist unrecorded (README, Insert)? Yes: a newly reported find of a rare coin adds to its \"known\" count without falsifying anything documented. The class (the coins of the find) is made up; the find is not empty, as the word says. A second specimen is even documented as possible: one was reportedly struck for the cornerstone of the San Francisco Mint and its fate is unknown. R2: \"1870-S\" contains the mint mark; the mint query tests reading it through a firm fact, and no query asks the face value (\"three-dollar\" names it). Weak point: the 1870-S is rarely mentioned (Dolma), so checks will drop the record for some models. A replaced draft (a new £25 Bank of England note) broke the \"could it exist unrecorded\" rule."
+  "notes": "A made-up class (the coins of the Halvard find) under a real one (the 1870-S three-dollar piece, of which only one is known with certainty). Could it exist unrecorded (README, Insert)? Yes: a newly reported find of a rare coin adds to its \"known\" count without falsifying anything documented. The class (the coins of the find) is made up; the find is not empty, as the word says. A second specimen is even documented as possible: one was reportedly struck for the cornerstone of the San Francisco Mint and its fate is unknown. R2: \"1870-S\" contains the mint mark; the mint query tests reading it through a firm fact, and no query asks the face value (\"three-dollar\" names it). Weak point: the 1870-S is rarely mentioned (Dolma), so checks will drop the record for some models. A replaced draft (a new £25 Bank of England note) broke the \"could it exist unrecorded\" rule. Since 2026-10-31 (formal check, FINDINGS A1 and A2): 'Is only one known?' is determinate 'no', since a w1 keeping the uniqueness claim beside the find would hold two contradicting beliefs, which is not a world; w1 now stores only the count (q3). Both count questions are tagged fol with arithmetic. The q0 and q1 chains state what the name gives (an 1870-S piece is a three-dollar piece and bears the S mint mark)."
 }

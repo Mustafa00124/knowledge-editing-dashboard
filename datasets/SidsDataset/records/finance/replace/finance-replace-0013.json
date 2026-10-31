@@ -71,10 +71,13 @@
         "original_answer": "no",
         "new_answer": "yes",
         "derivation": "subproperty",
-        "hops": 1,
-        "bridge": [],
+        "hops": 3,
+        "bridge": [
+          "A wholly owned subsidiary's only parent companies are its owner and its owner's own parent companies.",
+          "BMW is not part of the Volkswagen Group: it is a subsidiary of neither Audi nor Volkswagen AG."
+        ],
         "determinacy": "determinate",
-        "determinacy_why": "Every route runs through the edit: a wholly owned subsidiary is a subsidiary. No stored fact says Rolls-Royce is not Audi's other than the replaced ownership itself.",
+        "determinacy_why": "Every route runs through the edit: a wholly owned subsidiary is a subsidiary. No stored fact says Rolls-Royce is not Audi's other than the replaced ownership itself. Before the edit the 'no' comes from two bridges: a wholly owned subsidiary's only parents are its owner and its owner's parents, and BMW is not in the Volkswagen Group.",
         "chain": [
           "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
           "A wholly owned subsidiary of a company is a subsidiary of it. (wholly_owned_subsidiary_of is a subproperty of subsidiary_of)",
@@ -88,12 +91,14 @@
         "new_answer": "yes",
         "derivation": "transitivity",
         "via": "subsidiary_of",
-        "hops": 2,
+        "hops": 4,
         "bridge": [
-          "Audi is a subsidiary of Volkswagen AG."
+          "Audi is a subsidiary of Volkswagen AG.",
+          "A wholly owned subsidiary's only parent companies are its owner and its owner's own parent companies.",
+          "BMW is not part of the Volkswagen Group: it is a subsidiary of neither Audi nor Volkswagen AG."
         ],
         "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the worlds differ only on the engines, and Audi's place in the Volkswagen Group is firm and outside the edit. The route 'Rolls-Royce belongs to BMW, so not to Volkswagen' went with the replaced fact.",
+        "determinacy_why": "Yes in both worlds: the worlds differ only on the engines, and Audi's place in the Volkswagen Group is firm and outside the edit. The route 'Rolls-Royce belongs to BMW, so not to Volkswagen' went with the replaced fact. Before the edit that 'no' needs two bridges: a wholly owned subsidiary's only parents are its owner and its owner's parents, and BMW is a subsidiary of neither Audi nor Volkswagen AG.",
         "chain": [
           "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
           "So Rolls-Royce Motor Cars is a subsidiary of Audi. (subproperty)",
@@ -107,12 +112,13 @@
         "original_answer": "BMW",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 2,
+        "hops": 3,
         "bridge": [
+          "The V12 engines used in Rolls-Royce cars are built by only one company.",
           "BMW builds the V12 engines used in Rolls-Royce cars."
         ],
         "determinacy": "background_beliefs",
-        "determinacy_why": "BMW if the model stores the engines by name as BMW engines (w1); Audi if it stores them as engines from Rolls-Royce's parent company, which the edit changed (w2).",
+        "determinacy_why": "BMW if the model stores the engines by name as BMW engines (w1); Audi if it stores them as engines from Rolls-Royce's parent company, which the edit changed (w2). The question takes one engine maker for granted, which a bridge states.",
         "world_answers": {
           "w1": {
             "answer": "BMW",
@@ -126,6 +132,7 @@
             "chain": [
               "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
               "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+              "The V12 engines used in Rolls-Royce cars are built by only one company, so Audi alone. (stored)",
               "So Audi."
             ]
           }
@@ -137,9 +144,10 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "composition",
-        "hops": 4,
+        "hops": 5,
         "bridge": [
           "BMW builds the V12 engines used in Rolls-Royce cars.",
+          "The V12 engines used in Rolls-Royce cars are built by only one company.",
           "BMW is headquartered in Munich.",
           "Audi is headquartered in Ingolstadt."
         ],
@@ -159,6 +167,7 @@
             "chain": [
               "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
               "Rolls-Royce Motor Cars is a wholly owned subsidiary of Audi. (edit)",
+              "The V12 engines used in Rolls-Royce cars are built by only one company, so Audi is their only maker. (stored)",
               "Audi is headquartered in Ingolstadt. (stored)",
               "Ingolstadt is not Munich: no."
             ]
@@ -170,9 +179,24 @@
   },
   "checks": [
     {
+      "fact": "A wholly owned subsidiary's only parent companies are its owner and its owner's own parent companies.",
+      "prompt": "Can a wholly owned subsidiary have a parent company other than its owner and its owner's own parent companies?",
+      "answer": "no"
+    },
+    {
+      "fact": "BMW is not part of the Volkswagen Group: it is a subsidiary of neither Audi nor Volkswagen AG.",
+      "prompt": "Is BMW part of the Volkswagen Group?",
+      "answer": "no"
+    },
+    {
       "fact": "Audi is a subsidiary of Volkswagen AG.",
       "prompt": "Which company is Audi a subsidiary of?",
       "answer": "Volkswagen AG (the Volkswagen Group)"
+    },
+    {
+      "fact": "The V12 engines used in Rolls-Royce cars are built by only one company.",
+      "prompt": "Are the V12 engines used in Rolls-Royce cars built by more than one company?",
+      "answer": "no"
     },
     {
       "fact": "BMW builds the V12 engines used in Rolls-Royce cars.",
@@ -281,5 +305,5 @@
       ]
     }
   },
-  "notes": "Edit chosen for relation-property coverage (README, Shape per topic): `wholly_owned_subsidiary_of` carries `subproperty:subsidiary_of`, and `subsidiary_of` is transitive, so the edit gives a subproperty query and, through Audi's own parent, a transitivity query that discriminates (Rolls-Royce Motor Cars is not part of the Volkswagen Group before the edit, and is after). Derivability very_unlikely: the ownership is stated everywhere and follows from nothing. R1: the subject is Rolls-Royce Motor Cars Limited, the BMW company that has made Rolls-Royce cars since 2003, not Rolls-Royce Holdings (aero engines) and not the pre-2003 Rolls-Royce Motors, which Volkswagen owned from 1998 to 2003 and which became Bentley. That history makes the edit oddly plausible and is the main R1 risk for the original answers ('Is Rolls-Royce Motor Cars part of the Volkswagen Group?' is clearly no today); the prompts name Rolls-Royce Motor Cars and ask in the present tense. BMW licenses the Rolls-Royce name from Rolls-Royce Holdings, which does not change who owns the car company. Worlds: the V12 engines are stored by name as BMW engines (w1) or as engines from Rolls-Royce's parent (w2). w1 is consistent: an Audi-owned Rolls-Royce buying BMW engines is exactly what Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003. w2 contradicts no firm fact outside the chain: nothing firm says Audi cannot build a V12. The Spectre is electric, so the engine prompts name the V12 models. Near query: Mini is BMW's other British brand; its answer (BMW) differs from the new value. Inverse is in the paraphrase ('sole owner'). Determinate queries: subproperty and transitivity (via subsidiary_of)."
+  "notes": "Edit chosen for relation-property coverage (README, Shape per topic): `wholly_owned_subsidiary_of` carries `subproperty:subsidiary_of`, and `subsidiary_of` is transitive, so the edit gives a subproperty query and, through Audi's own parent, a transitivity query that discriminates (Rolls-Royce Motor Cars is not part of the Volkswagen Group before the edit, and is after). Derivability very_unlikely: the ownership is stated everywhere and follows from nothing. R1: the subject is Rolls-Royce Motor Cars Limited, the BMW company that has made Rolls-Royce cars since 2003, not Rolls-Royce Holdings (aero engines) and not the pre-2003 Rolls-Royce Motors, which Volkswagen owned from 1998 to 2003 and which became Bentley. That history makes the edit oddly plausible and is the main R1 risk for the original answers ('Is Rolls-Royce Motor Cars part of the Volkswagen Group?' is clearly no today); the prompts name Rolls-Royce Motor Cars and ask in the present tense. BMW licenses the Rolls-Royce name from Rolls-Royce Holdings, which does not change who owns the car company. Worlds: the V12 engines are stored by name as BMW engines (w1) or as engines from Rolls-Royce's parent (w2). w1 is consistent: an Audi-owned Rolls-Royce buying BMW engines is exactly what Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003. w2 contradicts no firm fact outside the chain: nothing firm says Audi cannot build a V12. The Spectre is electric, so the engine prompts name the V12 models. Near query: Mini is BMW's other British brand; its answer (BMW) differs from the new value. Inverse is in the paraphrase ('sole owner'). Determinate queries: subproperty and transitivity (via subsidiary_of). Since 2026-10-31 (formal check, FINDINGS B3 and C2) the record states what its answers rely on: the 'no' answers before the edit (q0, q1) rest on two bridges (a wholly owned subsidiary's only parents are its owner and its owner's parents; BMW is not in the Volkswagen Group), and the engine questions' one maker is a bridge ('built by only one company'); built_by itself stays many-valued."
 }

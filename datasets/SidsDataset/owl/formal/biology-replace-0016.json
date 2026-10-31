@@ -1,6 +1,6 @@
 {
  "id": "biology-replace-0016",
- "notes": "Derived edit through the transitivity of part_of (the premise \"a part of an organ is part of every organ system the organ belongs to\" is that property). One organ and one organ system per structure are firm (the direct question asks \"the central nervous system or the digestive system?\", and q2 in w1 needs the cerebellum to have left the brain). w1 names the new organ (the stomach), as the record does.",
+ "notes": "Derived edit through the transitivity of part_of (the premise \"a part of an organ is part of every organ system the organ belongs to\" is that property). The record's bridge 'The cerebellum and its parts each belong to one organ system.' is a firm rule over the named structures (cerebellum, purkinje). Each world names what gives way and keeps the side fact 'Every organ belongs to an organ system.' as placeholders: w1 puts cerebellum in some other organ that is in some organ system, w2 puts brain in some organ system; that system then follows (digestive) from the one-system rule, so q0's answer is derived in both worlds, not stated in adds. (2026-10-31: w1 named the new organ and w2 added 'brain part of digestive' directly, and 'one organ per structure' was a firm rule the record did not state.)",
  "entities": {
   "cerebellum": [
    "the cerebellum"
@@ -17,9 +17,9 @@
   "digestive": [
    "the digestive system"
   ],
-  "stomach": [
-   "the stomach"
-  ]
+  "cerebellum_organ": null,
+  "cerebellum_organ_system": null,
+  "brain_system": null
  },
  "original": [
   "part_of(cerebellum, cns)"
@@ -35,21 +35,20 @@
   "cerebellum_brain": "part_of(cerebellum, brain)",
   "brain_cns": "part_of(brain, cns)",
   "purkinje_cerebellum": "part_of(purkinje, cerebellum)",
-  "stomach_digestive": "part_of(stomach, digestive)",
   "kinds": [
    "brain : Organ",
-   "stomach : Organ",
    "cns : OrganSystem",
    "digestive : OrganSystem"
   ],
-  "one_organ": "part_of(?x, ?o), Organ(?o), part_of(?x, ?p), Organ(?p) -> same(?o, ?p)",
-  "one_system": "part_of(?x, ?s), OrganSystem(?s), part_of(?x, ?t), OrganSystem(?t) -> same(?s, ?t)"
+  "one_system": [
+   "cerebellum : OneSystem",
+   "purkinje : OneSystem",
+   "OneSystem(?x), part_of(?x, ?s), OrganSystem(?s), part_of(?x, ?t), OrganSystem(?t) -> same(?s, ?t)"
+  ]
  },
  "firm": [
   "purkinje_cerebellum",
-  "stomach_digestive",
   "kinds",
-  "one_organ",
   "one_system"
  ],
  "worlds": {
@@ -58,7 +57,10 @@
     "cerebellum_brain"
    ],
    "adds": [
-    "part_of(cerebellum, stomach)"
+    "part_of(cerebellum, cerebellum_organ)",
+    "cerebellum_organ : Organ",
+    "part_of(cerebellum_organ, cerebellum_organ_system)",
+    "cerebellum_organ_system : OrganSystem"
    ]
   },
   "w2": {
@@ -66,7 +68,8 @@
     "brain_cns"
    ],
    "adds": [
-    "part_of(brain, digestive)"
+    "part_of(brain, brain_system)",
+    "brain_system : OrganSystem"
    ]
   }
  },

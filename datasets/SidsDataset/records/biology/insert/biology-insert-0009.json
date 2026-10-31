@@ -17,17 +17,16 @@
     {
       "id": "w1",
       "assumes": [
-        "There are six living species of lungfish. (stored as a number)",
-        "The living lungfishes are the Australian lungfish, the South American lungfish and the four African lungfishes. (stored as a closed list)"
+        "There are six living species of lungfish. (stored as a number)"
       ],
-      "summary": "The count and the closed list are stored as such and not reopened: still six, still only the Australian, South American and African lungfishes."
+      "summary": "The count is stored as a number and not recounted: still exactly six."
     },
     {
       "id": "w2",
       "assumes": [
-        "The living lungfishes are stored as the species and groups the model knows, open to new ones; counts and \"only\" claims are worked out from them."
+        "The living lungfishes are stored as the species and groups the model knows, open to new ones; counts are worked out from them."
       ],
-      "summary": "The velkarids join them: more than six living lungfish species, and the named ones are no longer all of them."
+      "summary": "The velkarids join them: more than six living lungfish species."
     }
   ],
   "queries": {
@@ -140,31 +139,20 @@
       {
         "prompt": "Are the Australian lungfish, the South American lungfish and the four African lungfish species the only living lungfishes?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
           "The living lungfishes are the Australian lungfish, the South American lungfish and the four African lungfishes."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model keeps the closed list; no if it reasons from the living lungfishes it knows, now including the velkarids.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The living lungfishes are the Australian lungfish, the South American lungfish and the four African lungfishes. (stored, as a closed list)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Velkarids are a newly discovered living group of lungfish. (edit)",
-              "Newly discovered, so none of the named ones.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit adds a living group of lungfish that is none of the named ones. A model that answers yes keeps the old closed list as a patch the insert contradicts.",
+        "chain": [
+          "Velkarids are a newly discovered living group of lungfish. (edit)",
+          "The living lungfishes known before them are the Australian lungfish, the South American lungfish and the four African lungfishes. (stored)",
+          "A newly discovered group has members, and they are none of the lungfishes already named.",
+          "So the named ones are not all the living lungfishes: no."
+        ],
         "logic": "dl"
       }
     ]
@@ -245,5 +233,5 @@
       ]
     }
   },
-  "notes": "Fictional subject insert (TBox): a made-up class under a real class (the lungfish). It could exist unrecorded: the African lungfishes live in seasonal swamps and spend droughts buried in mud in poorly surveyed river basins, so a lineage there could go unnoticed. \"Living\" and \"newly discovered\" are in the statement so that the real count and closed list are touched (fossil lungfish are many). Determinate: two new members named in the prompt; the second also uses a real class fact above the edit (listed as the bridge and checked; the member fact in the prompt cannot be checked and is not listed). Indeterminate: the closed facts about the living lungfishes, asked as yes/no so that w2 has a concrete answer."
+  "notes": "Fictional subject insert (TBox): a made-up class under a real class (the lungfish). It could exist unrecorded: the African lungfishes live in seasonal swamps and spend droughts buried in mud in poorly surveyed river basins, so a lineage there could go unnoticed. \"Living\" and \"newly discovered\" are in the statement so that the real count and closed list are touched (fossil lungfish are many). Determinate: two new members named in the prompt; the second also uses a real class fact above the edit (listed as the bridge and checked; the member fact in the prompt cannot be checked and is not listed). Indeterminate: the count of living lungfishes (stored as a number, or counted from the known ones), asked as yes/no so that w2 has a concrete answer. The 'only' question is determinate (no): the velkarids are newly discovered, so none of the named lungfishes, and keeping the closed list would contradict the insert (formal check, FINDINGS A1)."
 }

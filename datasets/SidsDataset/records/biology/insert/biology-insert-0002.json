@@ -16,17 +16,16 @@
     {
       "id": "w1",
       "assumes": [
-        "There are five living species of kiwi. (stored as a number)",
-        "The living kiwi species are the great spotted kiwi, the little spotted kiwi, the southern brown kiwi (tokoeka), the Okarito kiwi (rowi) and the North Island brown kiwi. (stored as a closed list)"
+        "There are five living species of kiwi. (stored as a number)"
       ],
-      "summary": "The kiwi count and the closed list are stored as such and not reopened: still five species, still only the five named ones."
+      "summary": "The kiwi count is stored as a number and not recounted: still five species."
     },
     {
       "id": "w2",
       "assumes": [
-        "The kiwi species are stored as the members the model knows, open to new ones; counts and \"only\" claims are worked out from them."
+        "The kiwi species are stored as the members the model knows, open to new ones; counts are worked out from them."
       ],
-      "summary": "Apteryx tenebris joins them: six kiwi species, and the five named ones are no longer all of them."
+      "summary": "Apteryx tenebris joins them: six kiwi species."
     }
   ],
   "queries": {
@@ -138,31 +137,20 @@
       {
         "prompt": "Are the great spotted, little spotted, southern brown, Okarito and North Island brown kiwi the only kiwi species?",
         "original_answer": null,
-        "new_answer": null,
+        "new_answer": "no",
         "derivation": "composition",
         "hops": 2,
         "bridge": [
           "The living kiwi species are the great spotted kiwi, the little spotted kiwi, the southern brown kiwi (tokoeka), the Okarito kiwi (rowi) and the North Island brown kiwi."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model keeps the closed list; no if it reasons from the kiwi species it knows, now including the new one.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The living kiwi species are the great spotted kiwi, the little spotted kiwi, the southern brown kiwi (tokoeka), the Okarito kiwi (rowi) and the North Island brown kiwi. (stored, as a closed list)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Apteryx tenebris is a kiwi species. (edit)",
-              "It is none of the five named species.",
-              "So no."
-            ]
-          }
-        },
+        "determinacy": "determinate",
+        "determinacy_why": "No in every world: the edit adds a kiwi species that is none of the five named ones. A model that answers yes keeps the old closed list as a patch the insert contradicts.",
+        "chain": [
+          "Apteryx tenebris is a newly described species of kiwi. (edit)",
+          "The living kiwi species known before it are the great spotted kiwi, the little spotted kiwi, the southern brown kiwi (tokoeka), the Okarito kiwi (rowi) and the North Island brown kiwi. (stored)",
+          "A newly described species is none of the species already named.",
+          "So the five named species are not all the kiwi species: no."
+        ],
         "logic": "dl"
       }
     ]
@@ -260,5 +248,5 @@
       ]
     }
   },
-  "notes": "Fictional subject insert (ABox): a newly described kiwi species endemic to a real island. It could exist unrecorded: kiwi species have been split from cryptic lineages by genetics (the rowi in 2003), and the Stewart Island birds are a distinct lineage today counted under the southern brown kiwi. Determinate: the chain to New Zealand (endemic_to chains through located_in) and flightlessness. Indeterminate: the real kiwi count and closed list. Near query: the kiwi stays New Zealand's national bird."
+  "notes": "Fictional subject insert (ABox): a newly described kiwi species endemic to a real island. It could exist unrecorded: kiwi species have been split from cryptic lineages by genetics (the rowi in 2003), and the Stewart Island birds are a distinct lineage today counted under the southern brown kiwi. Determinate: the chain to New Zealand (endemic_to chains through located_in) and flightlessness. Indeterminate: the real kiwi count (stored as a number, or counted from the known species). The 'only' question is determinate (no): a newly described species is none of the five named ones, so keeping the closed list would contradict the insert (formal check, FINDINGS A1). Near query: the kiwi stays New Zealand's national bird."
 }

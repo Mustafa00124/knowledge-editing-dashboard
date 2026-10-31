@@ -267,6 +267,12 @@ def convert(rec, topic, num):
 
 
 def main():
+    # Disabled 2026-10-31: the record format moved on (no `familiarity`, hand-derived
+    # world summaries and per-world null answers on delete records). main() would
+    # unlink every delete record and then crash in convert(), leaving none. Edit
+    # delete records by hand, mirroring their replace record, until this is rewritten.
+    raise SystemExit('build_delete.py is disabled: it would delete every delete record. '
+                     'Mirror replace-record changes into the matching delete records by hand.')
     # The delete records are generated: clear them so renumbered or removed
     # replace records leave nothing stale behind.
     for path in ROOT.glob('records/*/delete/*.json'):

@@ -1,6 +1,6 @@
 {
  "id": "people-replace-0016",
- "notes": "Derived edit: the premises entail the original through the catalogued chain has_father o has_father ⊑ has_paternal_grandfather. q1's 'no' before the edit needs a closed world (Stella's other grandparents); the record presupposes Guinness is not her grandparent on her mother's side, encoded as the firm rule 'guinness_only_paternal' (soft: unstated).",
+ "notes": "Derived edit: the premises entail the original through the catalogued chain has_father o has_father ⊑ has_paternal_grandfather. The rule premise is definitional, so it is also read backward as the firm rule pgf_def (a person's paternal grandfather is the father of their father); the worlds then add no answer: w1 only gives up the father's father (the rule gives the new one), w2 gives up the child's father and adds an unnamed other father (other_father, a placeholder so the rule can fire), whose father the rule then makes the new grandfather (FINDINGS E, re-encoded 2026-10-31). q1's 'no' before the edit rests on the record's bridge 'Stella McCartney's maternal grandfather was Lee Eastman.' (maternal_gf) and on what a grandfather is: a man is a grandparent only as the father's father or the mother's father, with one mother (grandfather_def, definitional). This replaces the unstated firm rule 'guinness_only_paternal' (FINDINGS C2).",
  "entities": {
   "stella": [
    "Stella McCartney"
@@ -13,7 +13,11 @@
   ],
   "guinness": [
    "Alec Guinness"
-  ]
+  ],
+  "lee_eastman": [
+   "Lee Eastman"
+  ],
+  "other_father": null
  },
  "original": [
   "has_paternal_grandfather(stella, jim)"
@@ -28,18 +32,23 @@
  "background": {
   "father_child": "has_father(stella, paul)",
   "gf_father": "has_father(paul, jim)",
-  "guinness_only_paternal": "grandchild_of(stella, guinness) -> has_paternal_grandfather(stella, guinness)"
+  "pgf_def": "has_paternal_grandfather(?c, ?g), has_father(?c, ?f) -> has_father(?f, ?g)",
+  "maternal_gf": "lee_eastman : father_of some (mother_of value stella)",
+  "grandfather_def": [
+   "Man and grandparent_of value stella ⊑ (paternal_grandfather_of value stella) or (father_of some (mother_of value stella))",
+   "stella : inv(mother_of) max 1 Thing",
+   "guinness : Man"
+  ]
  },
  "firm": [
-  "guinness_only_paternal"
+  "pgf_def",
+  "maternal_gf",
+  "grandfather_def"
  ],
  "worlds": {
   "w1": {
    "gives_up": [
     "gf_father"
-   ],
-   "adds": [
-    "has_father(paul, guinness)"
    ]
   },
   "w2": {
@@ -47,7 +56,7 @@
     "father_child"
    ],
    "adds": [
-    "stella : has_father some (has_father value guinness)"
+    "has_father(stella, other_father)"
    ]
   }
  },

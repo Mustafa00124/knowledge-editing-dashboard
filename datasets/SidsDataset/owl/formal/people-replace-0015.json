@@ -1,6 +1,6 @@
 {
  "id": "people-replace-0015",
- "notes": "Derived edit: the premises entail the original through the catalogued chain has_father o has_father ⊑ has_paternal_grandfather. 'A father / paternal grandfather is an ancestor' are the record's definitional steps, as rules into ancestor_of (transitive). q1's 'no' before the edit needs a closed world over Aage's ancestry; the record presupposes Charles Darwin could be his ancestor only through George Darwin as his paternal grandfather, encoded as the firm rule 'darwin_only_via_george' (soft: unstated). q3 compares two people's fathers (fol).",
+ "notes": "Derived edit: the premises entail the original through the catalogued chain has_father o has_father ⊑ has_paternal_grandfather. 'A father / paternal grandfather is an ancestor' now come from the catalogue (has_father is the inverse of father_of ⊑ parent_of ⊑ ancestor_of; paternal_grandfather_of ⊑ grandparent_of ⊑ ancestor_of), so the local rules are gone (FINDINGS B2). The rule premise is definitional and is also read backward as the firm rule pgf_def; the worlds add no answer: w1 only gives up the father's father, w2 gives up the child's father and adds an unnamed other father (placeholder, so the rule can fire) (FINDINGS E, re-encoded 2026-10-31). q1's 'no' before the edit rests on the record's bridge 'No member of the Darwin family was an ancestor of Aage Bohr' (no_darwin), which the edit contradicts, so every world gives it up (top-level gives_up), as the worlds' assumes say. This replaces the unstated firm rule 'darwin_only_via_george' (FINDINGS C2). q3 compares two people's fathers (fol).",
  "entities": {
   "aage": [
    "Aage Bohr"
@@ -19,7 +19,8 @@
   ],
   "harald": [
    "Harald Bohr"
-  ]
+  ],
+  "other_father": null
  },
  "original": [
   "has_paternal_grandfather(aage, christian)"
@@ -35,23 +36,22 @@
   "father_child": "has_father(aage, niels)",
   "gf_father": "has_father(niels, christian)",
   "charles_george": "has_father(george_darwin, charles_darwin)",
-  "father_ancestor": "has_father(?x, ?y) -> ancestor_of(?y, ?x)",
-  "pgf_ancestor": "has_paternal_grandfather(?x, ?y) -> ancestor_of(?y, ?x)",
-  "darwin_only_via_george": "ancestor_of(charles_darwin, aage) -> has_paternal_grandfather(aage, george_darwin)"
+  "pgf_def": "has_paternal_grandfather(?c, ?g), has_father(?c, ?f) -> has_father(?f, ?g)",
+  "darwins": [
+   "charles_darwin : DarwinFamily",
+   "george_darwin : DarwinFamily"
+  ],
+  "no_darwin": "aage : not (inv(ancestor_of) some DarwinFamily)"
  },
  "firm": [
   "charles_george",
-  "father_ancestor",
-  "pgf_ancestor",
-  "darwin_only_via_george"
+  "pgf_def",
+  "darwins"
  ],
  "worlds": {
   "w1": {
    "gives_up": [
     "gf_father"
-   ],
-   "adds": [
-    "has_father(niels, george_darwin)"
    ]
   },
   "w2": {
@@ -59,7 +59,7 @@
     "father_child"
    ],
    "adds": [
-    "aage : has_father some (has_father value george_darwin)"
+    "has_father(aage, other_father)"
    ]
   }
  },
@@ -80,5 +80,8 @@
    "q": 3,
    "not_checked": "fol: compares the fathers of two people (full brothers)"
   }
+ ],
+ "gives_up": [
+  "no_darwin"
  ]
 }
