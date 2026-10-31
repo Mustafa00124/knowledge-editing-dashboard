@@ -25,7 +25,7 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography 
 | --- | --- |
 | `id` | the record id |
 | `notes` | optional: encoding choices worth knowing |
-| `relations` | optional: record-local relations not in RELATIONS.md, `{name: [tags]}` in RELATIONS.md tag syntax (`["functional"]`). Never redeclare a catalogued one. |
+| `relations` | optional, and unused since 2026-10-30: record-local relations not in RELATIONS.md, `{name: [tags]}` in RELATIONS.md tag syntax. Add a missing relation to RELATIONS.md instead (one name per relation), and never redeclare a catalogued one. A one-value presupposition of a question on a many-valued relation is a firm background fact `Func(r)`, not a tag. |
 | `entities` | `{key: surface or [surfaces]}`. Keys are lower snake_case individuals. Surfaces are how the record writes the entity in its answers (`"the Pacific Time Zone"`), matched ignoring case, punctuation and a leading the/a/an. `null` makes a placeholder individual with no gold answer. |
 | `distinct` | optional: `"all"` (default: every entity with a surface) or a list of keys. OWL has no unique names, so two keys may be the same individual unless they are distinct. |
 | `original` | the fact before the edit (replace, delete); TBox: the class axiom; RBox: the property axiom. |
@@ -55,6 +55,14 @@ file can't drift from its record.
 - **post**, per world: background minus `gives_up` + `stores` + `adds` + `edit` (delete: no edit) (+ given).
 - RBox: property axioms in `original`/`edit` change the relation table:
   pre has the original and not the edit, post the other way round.
+- Inverse pairs: RELATIONS.md tags transitive, asymmetric and symmetric on one
+  row of an inverse pair only (the partner has them through `inverse:`, which
+  OWL follows). Removing one of them from a relation also removes it from its
+  inverse partners, so "located in is not transitive" makes `contains`
+  non-transitive too. A property that still follows another way (asymmetry
+  through a subproperty of an asymmetric relation, as `divides ⊑ less_than`)
+  must be removed as well; the file lists it in `original` and says so in
+  `notes`.
 - Delete: a world must also make the deleted fact stop following (checked by
   adding its negation); the repair search for a derived delete finds which
   premises must go.

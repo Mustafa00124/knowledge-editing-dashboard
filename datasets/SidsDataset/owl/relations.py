@@ -77,7 +77,7 @@ def load_table_from_markdown():
     """{name: rel} from RELATIONS.md (via validate.load_relations), with every
     relation that is only named inside another's tag added as uncatalogued."""
     from validate import load_relations
-    relations, _ = load_relations()
+    relations, _ = load_relations(inherit=False)
     table = {name: parse_tags(tags) for name, (tags, _) in sorted(relations.items())}
     reads = {}
     for line in (DATASET / 'RELATIONS.md').read_text().splitlines():
@@ -224,9 +224,12 @@ def semantic_problems(table):
                 continue
             if name not in o['inverse'] and o['catalogued']:
                 out.append((name, f'inverse:{s}, but {s} does not list inverse:{name}'))
+            # RELATIONS.md (Tags rules) states a property an inverse pair
+            # shares on one row only, so an RBox edit has one tag to change.
             for f in ('transitive', 'symmetric', 'asymmetric'):
-                if r[f] and not o[f] and o['catalogued']:
-                    out.append((name, f'{f}, but its inverse {s} is not tagged {f} (the inverse of a relation tagged {f} is {f} too)'))
+                if r[f] and o[f] and name < s:
+                    out.append((name, f'{f} on both rows of the inverse pair {name}/{s}: state it on one row only '
+                                      '(the partner has it through inverse:)'))
         for s in r['sub']:
             o = table.get(s)
             if o and r['symmetric'] and o['asymmetric']:
