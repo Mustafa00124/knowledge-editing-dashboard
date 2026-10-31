@@ -434,8 +434,20 @@ def check_formal(formal, rec, relations=None):
             probs.append(f'worlds.{w}: unknown keys {sorted(extra)}')
     if rec.get('derivability') in ('likely', 'very_likely') and not formal.get('premises'):
         probs.append('derivability is likely/very_likely but "premises" is empty')
+    bridges = {norm(b) for q in rec['queries']['derived'] for b in q.get('bridge') or []}
+    for k, v in (formal.get('bridge_refs') or {}).items():
+        m = re.fullmatch(r'q(\d+)\.given\.(\d+)', k)
+        if m:
+            fq = {q.get('q'): q for q in formal.get('queries') or []}.get(int(m.group(1))) or {}
+            if int(m.group(2)) >= len(fq.get('given') or []):
+                probs.append(f'bridge_refs: {k!r} names no given axiom')
+        elif k not in bg:
+            probs.append(f'bridge_refs: {k!r} is neither a background id nor q<n>.given.<i>')
+        for t in ([v] if isinstance(v, str) else v):
+            if norm(t) not in bridges:
+                probs.append(f'bridge_refs.{k}: {t!r} is no derived query\'s bridge sentence')
     extra = set(formal) - {'id', 'notes', 'relations', 'entities', 'distinct', 'original', 'edit', 'premises',
-                           'background', 'firm', 'gives_up', 'worlds', 'queries'}
+                           'background', 'firm', 'gives_up', 'worlds', 'queries', 'bridge_refs'}
     if extra:
         probs.append(f'unknown top-level keys {sorted(extra)}')
     derived = rec['queries']['derived']

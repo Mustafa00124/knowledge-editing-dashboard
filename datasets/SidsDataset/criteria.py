@@ -802,7 +802,56 @@ def check_formal(recs):
         note += f' {len(stale)} formal files changed since the report: rerun reason.py.'
     row = check('Formal check', 'Formal check with HermiT (reason.py)', failing, review=True, note=note,
                 table=table)
-    return [row, pending_row]
+    return [row, pending_row, check_justifications(ids)]
+
+
+# Rule 3 support: justifications (justify.py): which axioms each checked
+# derived answer follows from, against the record's derivation, bridge, hops
+# and via. Read only.
+JUSTIFY_REPORT = ROOT / 'owl' / 'justifications.json'
+JUSTIFY_VERDICTS = ('match', 'partial', 'mismatch', 'not_checked')
+JUSTIFY_FLAGS = ('no_edit', 'ambiguous', 'capped')
+
+
+def check_justifications(ids):
+    """One row from owl/justifications.json: counts per verdict and flag, and
+    the partial, mismatched, edit-free and ambiguous queries."""
+    try:
+        rep = json.loads(JUSTIFY_REPORT.read_text())
+    except (OSError, ValueError):
+        return check('Formal check', 'Derivation metadata matches the justifications (justify.py)',
+                     status='pending', note='owl/justifications.json not found: run justify.py')
+    counts, items = Counter(), []
+    for rid, r in sorted(rep.get('records', {}).items()):
+        if rid not in ids:
+            continue
+        for q in r.get('queries', []):
+            counts[q['verdict']] += 1
+            tag = f'{rid} q{q["q"]} ({q.get("derivation")})'
+            if q['verdict'] in ('partial', 'mismatch'):
+                b = q.get('best') or {}
+                why = []
+                if not b.get('derivation_ok', True):
+                    why.append('justification uses ' + (', '.join(b.get('types') or []) or 'no property'))
+                if b.get('missing_bridge'):
+                    why.append('bridge not needed: ' + ' | '.join(b['missing_bridge']))
+                if b.get('unlisted'):
+                    why.append('needs unlisted ' + ', '.join(b['unlisted']))
+                if not b.get('hops_ok', True):
+                    why.append(f'hops {b.get("hops")} vs {q.get("record", {}).get("hops")}')
+                items.append(f'{q["verdict"]} {tag}: ' + '; '.join(why))
+            for f in JUSTIFY_FLAGS:
+                if q.get(f):
+                    counts[f] += 1
+                    if f != 'capped':
+                        items.append(f'{f} {tag}')
+    table = [('verdict / flag', 'queries')] + [(k, counts.get(k, 0)) for k in JUSTIFY_VERDICTS + JUSTIFY_FLAGS]
+    note = (f'{rep.get("generated", "?")}: per checked derived query, a minimal set of axioms the answer follows '
+            'from, mapped to a derivation type, bridge facts and hops (owl/README.md, Justifications). '
+            'partial: derivation right, bridges or hops differ; mismatch: the derivation type is not used; '
+            'no_edit: the answer follows without the edit; ambiguous: alternative derivations.')
+    return check('Formal check', 'Derivation metadata matches the justifications (justify.py)', items,
+                 review=True, note=note, table=table)
 
 
 def report():

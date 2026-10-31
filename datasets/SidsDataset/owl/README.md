@@ -11,6 +11,7 @@ encoding lives here, in `formal/<record_id>.json`.
 | `dlsyntax.py` | The axiom language below, and the file-against-record checks. |
 | `encode_check.py` | Checks formal files without HermiT (fast; use while encoding). |
 | `../reason.py` | Runs HermiT over the formal files and writes `reason_report.json`. |
+| `../justify.py` | Finds the justifications of each checked derived answer and compares them with the record's derivation metadata; writes `justifications.json` (below). `justify.sbatch` runs it on every record as a CPU job. |
 | `formal/` | One encoding per record. |
 
 ```bash
@@ -30,6 +31,7 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography 
 | `distinct` | optional: `"all"` (default: every entity with a surface) or a list of keys. OWL has no unique names, so two keys may be the same individual unless they are distinct. |
 | `original` | the fact before the edit (replace, delete); TBox: the class axiom; RBox: the property axiom. |
 | `edit` | the edited fact or axiom (replace, insert); `[]` for delete and for an RBox edit that only removes a property. |
+| `bridge_refs` | optional: `{background id or q<n>.given.<i>: sentence or [sentences]}`, the record's bridge sentence(s) (copied from some derived query's `bridge`) that a background item or a prompt-given axiom states. `justify.py` uses it to map a justification's facts to bridges; without it a fact item matches a bridge sentence when every named entity's surface appears in the sentence (so rules, class axioms, `Func` presuppositions and facts about placeholders need a ref). |
 | `premises` | background ids the original follows from (a derived edit: derivability likely or very likely). |
 | `background` | `{id: axiom or [axioms]}`: what the model holds before the edit, in every world: premises, bridge facts, firm facts, rules. One id is one belief that can give way as a whole. |
 | `firm` | background ids that never give way (definitional rules, firm facts outside the chain, README Decisions 1). The repair search leaves them alone. |
@@ -148,6 +150,95 @@ world, so no world is missing.
 | `missing_worlds` | when edit + background is inconsistent (delete: still entails the deleted fact), every minimal repair (smallest set of non-firm background beliefs to give up, up to 3) is some world's `gives_up`; an uncovered repair is listed with what the determinate queries answer there |
 | `not_checked` | fol queries and anything the file leaves out, with the reason |
 | `encoding` | the file disagrees with its record (`encode_check.py` problems) |
+
+## Justifications (`justify.py`)
+
+`reason.py` checks that an answer follows from everything encoded.
+`justify.py` asks which axioms it follows from, so the record's `derivation`,
+`bridge`, `hops` and `via` can be checked. owlready2 has no explanation API,
+so the search is black box over HermiT, with the same knowledge bases as
+`reason.py`.
+
+```bash
+venvs/easyedit_venv/bin/python datasets/SidsDataset/justify.py --topic geography --jobs 2   # or record ids
+sbatch datasets/SidsDataset/owl/justify.sbatch                                              # all records, 8 cores
+```
+
+**Units** (what can be removed, each on its own): `edit` (the edited
+facts or axiom; in the pre phase the `original`), `bg:<id>` per background
+item, `store:<i>` and `add:<i>` per world axiom, `given:<i>` per prompt-given
+axiom, `distinct` (the unique-name axiom), and `rbox:<axiom>` for every
+RELATIONS.md property axiom the record's signature reaches (each
+characteristic, inverse pair, subproperty, chain, disjointness of the
+properties used, their inverses, super-properties and chain targets).
+
+**What is justified.** Per derived query and world, post edit: the
+determinate answer (in each world) or the world's own answer. A null answer,
+a "no" under `mode: follows` and a "yes" under `mode: consistent` have
+nothing to justify. A "no" under `holds` is the negation (the claim makes
+the knowledge base inconsistent). For a delete (no edit after it) and when
+nothing follows post edit, the pre-edit original answer is justified
+instead, in every world, with the deleted (original) fact as the edit unit;
+the other phase gets one justification (no tree), for reference. A
+`functional` query under delete is `not_checked` (its post answer is "does
+not know"; its pre answer restates the deleted fact). For a derived edit,
+pre-edit justifications that re-derive the original fact from its premises
+are dropped when another one uses the fact itself (`via_premises`).
+
+**Search.** (1) A relevance module: units reachable from the query's
+names through shared individuals, classes and properties, iterated (kept only
+if it still entails). (2) Contraction to one minimal justification by prefix
+deletion. (3) Reiter's hitting-set tree for the others, up to 5
+justifications or 90 s per entailment (`--max-just`, `--budget`; `capped`
+when cut). Results are cached per unit subset, and the subsets one step
+needs go to HermiT in one call, as renamed copies of the knowledge base in
+one ontology.
+
+**Mapping.** A unit's derivation types: inverse pair -> `inverse`, Trans ->
+`transitivity`, Sym -> `symmetry`, Asym -> `asymmetry`, chain -> `chain`,
+R ⊑ S -> `subproperty`, Func / InvFunc and rules with a `same` head ->
+`functional`, class inclusions -> `inheritance`, disjointness and rules
+deriving `Nothing` -> `disjointness`, other rules -> `rule`. A fact unit's role:
+`bridge` (it states one of this query's bridge sentences: `bridge_refs`, or
+every named entity's surface or key appears in the sentence), `premise` (in
+`premises`), `world` (a world's store or add), `property` (a relation
+property the prompt states), `typing` (only class assertions, encoding glue
+such as "Nice is a city"), `definition` (a firm class axiom or rule the
+record treats as definitional), or `unlisted` (a fact the answer needs that
+the query's `bridge` does not list). Hops = 1 + bridges covered + unlisted
+facts. Two or more class inclusions chained (the edit included) also count
+as transitivity of `subclass_of`.
+
+**Verdicts** (per query, from the best-fitting justification over the
+worlds):
+
+| Verdict | Meaning |
+| --- | --- |
+| `match` | the record's derivation type is used (task types `composition`, `binding`, `application`, `premise` need none; `instantiation` needs the RBox edit; `inheritance` a class axiom), every encoded bridge is used, nothing unlisted, hops equal |
+| `partial` | derivation right, but a listed bridge is not needed (by the answer, nor, for a replace, by the original answer: such a bridge is `pre_only_bridge` and counts as used), an unlisted fact is, or the hops differ |
+| `mismatch` | no justification uses the record's derivation type |
+| `not_checked` | `fol`, exception, not encoded, or nothing to justify |
+
+Flags: `no_edit` (a justification without the edit: the answer does not
+depend on it, so the query should be `discriminates: false` or is a bad
+query; pre edit, a justification through a derived edit's premises counts
+as using the edit; for an indeterminate query only when no world needs the edit, the
+worlds that keep the old answer are listed as `edit_free_worlds`),
+`ambiguous` (justifications of one entailment that use the edit have different property sets:
+the derivation is underdetermined, the metadata should name the
+alternatives), `capped`. `via_used` says whether the `via` relation appears
+in a property unit of a justification. A bridge sentence no unit states is
+`unencoded_bridge` (not counted as missing).
+
+Cost: geography (187 checked queries) took 30 min with 2 workers on a
+shared node: about 19 s per query (median 14 s; 5 s per entailment, a
+hitting-set tree cut at 90 s once). The whole dataset (1759 checked queries)
+should take 1 to 2 hours on 8 cores, hence `justify.sbatch`.
+
+`justifications.json`: per record, per query: the verdict and flags, the
+record's metadata, the best fit, and per phase and world the justifications
+(unit ids, each unit's role, axiom text, types and bridge sentences), with
+seconds, unit and module sizes.
 
 ## Encoding guide (for the remaining topics)
 
