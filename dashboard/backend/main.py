@@ -1327,33 +1327,44 @@ def get_sids_dataset_audit_checks():
 
 @app.get("/api/sids-dataset/formal-status")
 def get_sids_dataset_formal_status():
-    """Per record, the formal check (datasets/SidsDataset/reason.py, HermiT over
-    owl/formal/<id>.json): the record's own checks (derived edit entailed by its
-    premises, edit consistent with every world, no missing world) and, per
-    derived query index, pass / fail / not_checked with the checks' details.
-    Empty when owl/reason_report.json doesn't exist yet."""
-    path = config.DATASETS_DIR / "SidsDataset" / "owl" / "reason_report.json"
-    try:
-        report = json.loads(path.read_text())
-    except (OSError, ValueError):
-        return {"generated": None, "records": {}}
+    """Per record, the formal checks of its derived queries. Each query is
+    checked by HermiT (description logic, owl/reason_report.json) or Z3
+    (first-order logic with arithmetic or dates, owl/fol_report.json),
+    whichever its `checker` label names; the result says which, with the
+    query's logic and theory labels, so the browser can show DL or FOL. A
+    query passes when all its checks in that report pass, fails when any
+    fails, and is not_checked otherwise. Record-level checks (derived edit,
+    consistency, missing worlds) come from the HermiT report."""
+    owl = config.DATASETS_DIR / "SidsDataset" / "owl"
+
+    def load(name):
+        try:
+            return json.loads((owl / name).read_text())
+        except (OSError, ValueError):
+            return {}
+    hermit, fol = load("reason_report.json"), load("fol_report.json")
+    query_checks = ("pre", "post_determinate", "post_worlds", "differ")
     out = {}
-    for rid, rec in (report.get("records") or {}).items():
-        record_checks, queries = {}, {}
-        for c in rec.get("checks") or []:
-            line = f"{c.get('check')}: {c.get('status')}" + (f" ({c['detail']})" if c.get("detail") else "")
-            if c.get("q") is None:
-                record_checks[c.get("check")] = {"status": c.get("status"), "detail": c.get("detail")}
-                continue
-            q = queries.setdefault(str(c["q"]), {"status": "pass", "lines": []})
-            q["lines"].append(line)
-            if c.get("status") == "fail":
-                q["status"] = "fail"
-            elif c.get("status") == "not_checked" and q["status"] != "fail":
-                q["status"] = "not_checked" if all(
-                    l.split(": ", 1)[1].startswith("not_checked") for l in q["lines"]) else q["status"]
+    for rid, rec in (hermit.get("records") or {}).items():
+        by_checker = {"hermit": rec.get("checks") or [],
+                      "z3": ((fol.get("records") or {}).get(rid) or {}).get("checks") or []}
+        record_checks = {c.get("check"): {"status": c.get("status"), "detail": c.get("detail")}
+                         for c in by_checker["hermit"] if c.get("q") is None}
+        queries = {}
+        for meta in rec.get("queries") or []:
+            checker = meta.get("checker") or "none"
+            checks = [c for c in by_checker.get(checker, [])
+                      if c.get("q") == meta.get("q") and c.get("check") in query_checks]
+            statuses = [c.get("status") for c in checks]
+            status = ("fail" if "fail" in statuses else
+                      "pass" if statuses and all(s in ("pass", "not_checked") for s in statuses) and "pass" in statuses
+                      else "not_checked")
+            queries[str(meta.get("q"))] = {
+                "status": status, "checker": checker, "logic": meta.get("logic"), "theory": meta.get("theory"),
+                "lines": [f"{c.get('check')}: {c.get('status')}" + (f" ({c['detail']})" if c.get("detail") else "")
+                          for c in checks]}
         out[rid] = {"status": rec.get("status"), "record_checks": record_checks, "queries": queries}
-    return {"generated": report.get("generated"), "records": out}
+    return {"generated": hermit.get("generated"), "fol_generated": fol.get("generated"), "records": out}
 
 
 @app.get("/api/sids-dataset/audit-status")

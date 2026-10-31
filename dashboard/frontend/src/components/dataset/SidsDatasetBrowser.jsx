@@ -115,16 +115,22 @@ function AuditDots({ statuses, models }) {
 // Formal check of the description-logic reasoning (reason.py with HermiT):
 // a small mark per derived query and per record. Pass, fail, or not checked
 // (needs arithmetic or dates, which the reasoner can't express).
+// Which checker verified a derived query: HermiT for description logic (DL),
+// Z3 for first-order logic with arithmetic or dates (FOL).
+const CHECKER_LABEL = { hermit: 'DL', z3: 'FOL' }
+const CHECKER_NAME = { hermit: 'HermiT, description logic', z3: 'Z3, first-order logic' }
 const FORMAL_TEXT = {
-  pass: 'Formally verified (HermiT): the answers follow in every world they should',
-  fail: 'Fails the formal check (HermiT)',
-  not_checked: 'Not formally checked: needs arithmetic, dates or counting',
+  pass: 'Formally verified: the answers follow in every world they should',
+  fail: 'Fails the formal check',
+  not_checked: 'Not formally checked',
 }
-function FormalMark({ status, lines }) {
+function FormalMark({ status, lines, checker, theory }) {
   if (!status) return null
   const mark = status === 'pass' ? '✓' : status === 'fail' ? '✗' : '–'
-  const title = [FORMAL_TEXT[status] || status, ...(lines || [])].join('\n')
-  return <span className={`sids-formal-mark is-${status}`} title={title}>{mark} logic</span>
+  const label = CHECKER_LABEL[checker] || 'logic'
+  const head = `${FORMAL_TEXT[status] || status}${CHECKER_NAME[checker] ? ` (${CHECKER_NAME[checker]}${theory ? `, ${theory}` : ''})` : ''}`
+  const title = [head, ...(lines || [])].join('\n')
+  return <span className={`sids-formal-mark is-${status}`} title={title}>{mark} {label}</span>
 }
 
 // "geography-replace-0002" -> "Geography 2". The operation is already the
@@ -329,7 +335,7 @@ function RecordCard({ rec, relations, onChain, audit, models, formal }) {
                       <AuditDots statuses={audit?.queries?.[r.auditKey]} models={models} />
                       {r.key === 'derived' && (() => {
                         const f = formal?.queries?.[r.auditKey.slice(8, -1)]
-                        return <FormalMark status={f?.status} lines={f?.lines} />
+                        return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
                       })()}
                     </td>
                     <td>{r.prompt}</td>
