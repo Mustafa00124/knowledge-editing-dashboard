@@ -1,23 +1,58 @@
 {
  "id": "grammar-insert-0010",
- "notes": "TBox subject insert; every derived query is fol (agreement with the subject 'I', counting forms, closed lists). Q2 and Q3 are determinate 'no' since 2026-10-31 (FINDINGS A1), so the record has no worlds.",
- "entities": {},
+ "notes": "TBox subject insert. Forms are individuals linked to their verb by has_inflection and to their subjects by used_with (catalogued 2026-10-31). An 'I'-only form is used with 'I' only (definitional, firm), and a Frenstle verb's form after 'I' is its 'I'-only form (the edit's 'a third form used only with I', firm). The edit states that Frenstle verbs exist (newly coined): a placeholder member, distinct from 'be'. 'Am' is a form of 'be' only (firm). q0 (the same form after 'I' and 'you'?) and q1 ('They plorrim'?) are no through used_with only {i}; q2 ('am' the only 'I'-only form?) is a closed claim with a nominal, which the new verb's 'I'-only form contradicts. q0 to q2 relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. q3 counts forms (fol). Q2 and Q3 are determinate 'no' since 2026-10-31 (FINDINGS A1), so the record has no worlds.",
+ "entities": {
+  "i": [
+   "'I'"
+  ],
+  "you": [
+   "'you'"
+  ],
+  "they": [
+   "'they'"
+  ],
+  "be": [
+   "'be'"
+  ],
+  "am": [
+   "'am'"
+  ],
+  "skelvane": [
+   "'skelvane'"
+  ],
+  "plorrow": [
+   "'plorrow'"
+  ],
+  "plorrim": [
+   "'plorrim'"
+  ],
+  "frenstle_sample": null
+ },
  "original": [],
  "edit": [
-  "FrenstleVerb ⊑ EnglishVerb and has_inflection some FirstPersonSingularOnlyForm"
+  "FrenstleVerb ⊑ EnglishVerb and has_inflection some FirstPersonSingularOnlyForm",
+  "frenstle_sample : FrenstleVerb"
  ],
  "queries": [
   {
    "q": 0,
-   "not_checked": "fol: compares the verb's form after 'I' and after 'you'"
+   "ask": "skelvane : has_inflection some (used_with value i and used_with value you)",
+   "given": [
+    "skelvane : FrenstleVerb"
+   ]
   },
   {
    "q": 1,
-   "not_checked": "fol: agreement of an 'I'-only form with the subject 'they'"
+   "ask": "used_with(plorrim, they)",
+   "given": [
+    "plorrow : FrenstleVerb",
+    "has_inflection(plorrow, plorrim)",
+    "plorrim : FirstPersonSingularOnlyForm"
+   ]
   },
   {
    "q": 2,
-   "not_checked": "fol (closed world): 'the only verb form' over a closed list"
+   "ask": "FirstPersonSingularOnlyForm ⊑ {am}"
   },
   {
    "q": 3,
@@ -141,26 +176,31 @@
     "q": 3,
     "ask": "ForAll(v, Implies(present_forms(v) > 2, v == be))"
    }
-  ],
-  "label_corrections": [
-   {
-    "q": 0,
-    "from": "fol",
-    "to": "dl",
-    "why": "The I-only form is a functional inflection value that differs from the 'you' form by the class definition; with forms as individuals and a disjointness it is DL (no arithmetic, no join beyond one verb)."
-   },
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Plorrim is used only with I' as a class axiom (FirstPersonSingularOnlyForm ⊑ used_with only {i}) gives the 'no' in DL."
-   },
-   {
-    "q": 2,
-    "from": "fol",
-    "to": "dl",
-    "why": "A closed claim over a nominal ({be}); the edit's existing new member contradicts it."
-   }
   ]
- }
+ },
+ "distinct": [
+  "i",
+  "you",
+  "they",
+  "be",
+  "am",
+  "skelvane",
+  "plorrow",
+  "plorrim",
+  "frenstle_sample"
+ ],
+ "background": {
+  "i_only_def": "FirstPersonSingularOnlyForm ⊑ used_with only {i}",
+  "frenstle_i_form": "FrenstleVerb ⊑ has_inflection only (not (used_with value i) or FirstPersonSingularOnlyForm)",
+  "am_be": [
+   "has_inflection(be, am)",
+   "am : FirstPersonSingularOnlyForm",
+   "am : inv(has_inflection) only {be}"
+  ]
+ },
+ "firm": [
+  "i_only_def",
+  "frenstle_i_form",
+  "am_be"
+ ]
 }

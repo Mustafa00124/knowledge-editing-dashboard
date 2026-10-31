@@ -1,23 +1,24 @@
 {
  "id": "finance-replace-0001",
- "notes": "Stored edit with one storage choice: Greenland's currency by name (w1) or as Denmark's currency (w2, a rule over has_currency). q1 and q3 compare two currencies, which the record tags fol.",
+ "notes": "Stored edit with one storage choice: Greenland's currency by name (w1) or as Denmark's currency (w2, a rule over has_currency). q1 and q3 ('same currency') are joins through the functional has_currency; Germany's euro is q1's bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. Since then w2 stores 'Greenland uses Denmark's currency' as that class assertion (by description), which gives the euro after the edit as the rule did.",
  "entities": {
   "denmark": "Denmark",
   "euro": ["the euro", "euro"],
   "krone": ["the Danish krone", "Danish krone"],
-  "greenland": "Greenland"
+  "greenland": "Greenland",
+  "germany": "Germany"
  },
  "original": ["has_currency(denmark, krone)"],
  "edit": ["has_currency(denmark, euro)"],
  "worlds": {
   "w1": {"stores": ["has_currency(greenland, krone)"]},
-  "w2": {"stores": ["has_currency(denmark, ?x) -> has_currency(greenland, ?x)"]}
+  "w2": {"stores": ["greenland : has_currency some (inv(has_currency) value denmark)"]}
  },
  "queries": [
   {"q": 0, "ask": "has_currency(denmark, krone)"},
-  {"q": 1, "not_checked": "fol: compares two countries' currencies (same currency as Germany)"},
+  {"q": 1, "ask": "denmark : has_currency some (inv(has_currency) value germany)"},
   {"q": 2, "find": "greenland has_currency ?"},
-  {"q": 3, "not_checked": "fol: compares two places' currencies (same currency)"}
+  {"q": 3, "ask": "greenland : has_currency some (inv(has_currency) value denmark)"}
  ],
  "fol": {
   "notes": "Places and currencies are one uninterpreted sort; has_currency is a function (RELATIONS.md: functional, 'a country has one official currency'), so 'same currency' is equality of two terms. The named currencies are distinct (unique names, firm). Germany's euro is the q1 bridge, firm (outside the edit). The worlds are the DL file's: Greenland's currency by name (w1) or as Denmark's (w2).",
@@ -77,20 +78,10 @@
     "q": 3,
     "ask": "has_currency(greenland) == has_currency(denmark)"
    }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same currency' is a join through the functional has_currency over named individuals: denmark : has_currency some (inv(has_currency) value germany). No arithmetic."
-   },
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "As q1: greenland : has_currency some (inv(has_currency) value denmark); the 'no' of w1 follows from has_currency being functional and the two currencies distinct."
-   }
   ]
- }
+ },
+ "background": {
+  "germany_euro": "has_currency(germany, euro)"
+ },
+ "firm": ["germany_euro"]
 }

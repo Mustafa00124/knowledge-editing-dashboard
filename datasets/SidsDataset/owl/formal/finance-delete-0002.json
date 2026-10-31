@@ -1,6 +1,6 @@
 {
  "id": "finance-delete-0002",
- "notes": "Delete of a stored fact. The Twin Towers are stored in Frankfurt by name (w1) or as the bank's headquarters building (w2, a rule over headquartered_in that gives nothing once the headquarters is deleted). q3 compares two places, which the record tags fol. Since 2026-10-31 'the towers are Deutsche Bank's headquarters building' is background (towers_hq: the bank is headquartered in the city the towers stand in), and w1 gives it up, the side fact the record's w1 lists (the towers' headquarters role is forgotten; FINDINGS A5). w2 keeps it, which changes nothing there.",
+ "notes": "Delete of a stored fact. The Twin Towers are stored in Frankfurt by name (w1) or as the bank's headquarters building (w2, a rule over headquartered_in that gives nothing once the headquarters is deleted). Since 2026-10-31 'the towers are Deutsche Bank's headquarters building' is background (towers_hq: the bank is headquartered in the city the towers stand in), and w1 gives it up, the side fact the record's w1 lists (the towers' headquarters role is forgotten; FINDINGS A5). w2 keeps it, which changes nothing there. q3 ('same city as the ECB') is a join: the towers' city is the ECB's headquarters city (headquartered_in is functional); the ECB in Frankfurt is q3's bridge and 'the towers stand in one city' (one_city) the presupposition, both firm. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "deutsche_bank": "Deutsche Bank",
   "frankfurt": [
@@ -11,6 +11,9 @@
   ],
   "towers": [
    "the Deutsche Bank Twin Towers"
+  ],
+  "ecb": [
+   "the European Central Bank"
   ]
  },
  "original": [
@@ -22,11 +25,15 @@
   "kinds": [
    "frankfurt : City"
   ],
-  "towers_hq": "located_in(towers, ?x), City(?x) -> headquartered_in(deutsche_bank, ?x)"
+  "towers_hq": "located_in(towers, ?x), City(?x) -> headquartered_in(deutsche_bank, ?x)",
+  "ecb_frankfurt": "headquartered_in(ecb, frankfurt)",
+  "one_city": "located_in(towers, ?a), City(?a), located_in(towers, ?b), City(?b) -> same(?a, ?b)"
  },
  "firm": [
   "frankfurt_hesse",
-  "kinds"
+  "kinds",
+  "ecb_frankfurt",
+  "one_city"
  ],
  "worlds": {
   "w1": {
@@ -58,7 +65,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares two places (same city as the European Central Bank)"
+   "ask": "towers : located_in some (City and inv(headquartered_in) value ecb)"
   }
  ],
  "fol": {
@@ -131,14 +138,6 @@
    {
     "q": 3,
     "ask": "Exists(c, And(city(c), located_in(towers, c), headquartered_in(ecb) == c))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same city' is a join over named individuals: towers : located_in some (City and inv(headquartered_in) value ecb); the 'no' needs only a one-city-per-building axiom (functional on cities) and distinct cities. No arithmetic."
    }
   ]
  }

@@ -1,6 +1,6 @@
 {
  "id": "finance-delete-0015",
- "notes": "Delete of a derived fact, as geography-delete-0015: each world forgets one premise. q1 compares two places' cantons, which the record tags fol.",
+ "notes": "Delete of a derived fact, as geography-delete-0015: each world forgets one premise. q1 ('the same canton as Lausanne') is a join over named individuals; Lausanne in Vaud is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "nestle_hq": [
    "Nestlé's headquarters"
@@ -11,6 +11,9 @@
   "vaud": [
    "the canton of Vaud",
    "Vaud"
+  ],
+  "lausanne": [
+   "Lausanne"
   ]
  },
  "original": [
@@ -26,11 +29,14 @@
   "vevey_vaud": "located_in(vevey, vaud)",
   "kinds": [
    "vevey : City",
-   "vaud : Region"
-  ]
+   "vaud : Region",
+   "vaud : Canton"
+  ],
+  "lausanne_vaud": "located_in(lausanne, vaud)"
  },
  "firm": [
-  "kinds"
+  "kinds",
+  "lausanne_vaud"
  ],
  "worlds": {
   "w1": {
@@ -51,7 +57,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two places' cantons (same canton as Lausanne)"
+   "ask": "nestle_hq : located_in some (Canton and inv(located_in) value lausanne)"
   },
   {
    "q": 2,
@@ -130,14 +136,6 @@
    {
     "q": 1,
     "ask": "Exists(c, And(canton(c), located_in(nestle_hq, c), located_in(lausanne, c)))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same canton' is a join over named individuals: nestle_hq : located_in some (Canton and inv(located_in) value lausanne). No arithmetic."
    }
   ]
  }

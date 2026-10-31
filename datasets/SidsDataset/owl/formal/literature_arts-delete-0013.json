@@ -1,6 +1,6 @@
 {
  "id": "literature_arts-delete-0013",
- "notes": "Delete of a stored fact. The Birth of Venus is stored by city name (w1) or through the Uffizi (housed_in, with the catalogued chain housed_in o located_in ⊑ located_in). q3 compares two works' cities (fol).",
+ "notes": "Delete of a stored fact. The Birth of Venus is stored by city name (w1) or through the Uffizi (housed_in, with the catalogued chain housed_in o located_in ⊑ located_in). q3 ('in the same city') is a join over named individuals; David in Florence, and in no other city, is its bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "uffizi": [
    "the Uffizi Gallery"
@@ -16,6 +16,9 @@
   ],
   "venus": [
    "Botticelli's The Birth of Venus"
+  ],
+  "david": [
+   "Michelangelo's David"
   ]
  },
  "original": [
@@ -26,12 +29,17 @@
   "venus_uffizi": "housed_in(venus, uffizi)",
   "florence_capital": "capital_of(florence, tuscany)",
   "dante_florence": "born_in(dante, florence)",
-  "florence_city": "florence : City"
+  "florence_city": "florence : City",
+  "david_florence": [
+   "located_in(david, florence)",
+   "City and inv(located_in) value david ⊑ {florence}"
+  ]
  },
  "firm": [
   "florence_capital",
   "dante_florence",
-  "florence_city"
+  "florence_city",
+  "david_florence"
  ],
  "worlds": {
   "w1": {
@@ -56,7 +64,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares the cities of two works (same city)"
+   "ask": "venus : located_in some (City and inv(located_in) value david)"
   }
  ],
  "fol": {
@@ -131,14 +139,6 @@
    {
     "q": 3,
     "ask": "Exists(c, And(city(c), located_in(venus, c), located_in(david, c)))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'In the same city' is a join over named individuals: venus : located_in some (City and inv(located_in) value david); the 'no' follows from the firm one-city rule the DL file already has. No arithmetic."
    }
   ]
  }

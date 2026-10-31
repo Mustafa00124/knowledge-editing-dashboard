@@ -1,13 +1,16 @@
 {
  "id": "geography-replace-0004",
- "notes": "As replace-0003 (derived edit, two derived-belief worlds). q1 compares two places' zones, which the record tags fol. Since 2026-10-31 the adds hold only the side facts the record's worlds name, not the answer (FINDINGS E): w1, the Gate stands in some other city with some time zone (placeholders); w2, Germany and Berlin share one zone (a placeholder). EET then follows from the edit, the building rule and in_time_zone being functional.",
+ "notes": "As replace-0003 (derived edit, two derived-belief worlds). Since 2026-10-31 the adds hold only the side facts the record's worlds name, not the answer (FINDINGS E): w1, the Gate stands in some other city with some time zone (placeholders); w2, Germany and Berlin share one zone (a placeholder). EET then follows from the edit, the building rule and in_time_zone being functional. q1 ('the same time zone as Athens') is a join through the functional in_time_zone; Athens on Eastern European Time is its bridge (firm), and the 'no' before the edit follows from functionality and the zones being distinct. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "gate": ["the Brandenburg Gate"],
   "berlin": ["Berlin"],
   "germany": ["Germany"],
   "cet": ["Central European Time", "the Central European Time zone"],
   "eet": ["Eastern European Time", "the Eastern European Time zone"],
-  "gate_city": null, "gate_city_zone": null, "germany_zone": null
+  "gate_city": null,
+  "gate_city_zone": null,
+  "germany_zone": null,
+  "athens": ["Athens"]
  },
  "original": ["in_time_zone(gate, cet)"],
  "edit": ["in_time_zone(gate, eet)"],
@@ -17,16 +20,17 @@
   "germany_cet": ["in_time_zone(germany, cet)", "in_time_zone(berlin, cet)"],
   "building_rule": "located_in(?b, ?c), City(?c), in_time_zone(?c, ?z) -> in_time_zone(?b, ?z)",
   "berlin_city": "berlin : City",
-  "berlin_germany": "located_in(berlin, germany)"
+  "berlin_germany": "located_in(berlin, germany)",
+  "athens_eet": "in_time_zone(athens, eet)"
  },
- "firm": ["building_rule", "berlin_city", "berlin_germany"],
+ "firm": ["building_rule", "berlin_city", "berlin_germany", "athens_eet"],
  "worlds": {
   "w1": {"gives_up": ["gate_berlin"], "adds": ["located_in(gate, gate_city)", "gate_city : City", "in_time_zone(gate_city, gate_city_zone)"]},
   "w2": {"gives_up": ["germany_cet"], "adds": ["in_time_zone(germany, germany_zone)", "in_time_zone(berlin, germany_zone)"]}
  },
  "queries": [
   {"q": 0, "find": "gate : located_in some (City and in_time_zone value ?)"},
-  {"q": 1, "not_checked": "fol: comparing two places' time zones (same zone as Athens)"},
+  {"q": 1, "ask": "gate : in_time_zone some (inv(in_time_zone) value athens)"},
   {"q": 2, "find": "berlin in_time_zone ?"},
   {"q": 3, "ask": "located_in(gate, berlin)"}
  ],
@@ -102,14 +106,6 @@
    {
     "q": 1,
     "ask": "in_time_zone(gate) == in_time_zone(athens)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The same time zone as Athens' is a join through the functional in_time_zone, expressible with an inverse and a nominal: gate : in_time_zone some (inv(in_time_zone) value athens); the 'no' follows from in_time_zone being functional and the zones being distinct individuals. No arithmetic."
    }
   ],
   "edit": [

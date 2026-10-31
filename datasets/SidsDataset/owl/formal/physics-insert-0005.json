@@ -1,12 +1,18 @@
 {
  "id": "physics-insert-0005",
- "notes": "Subject-object insert. Annihilation is a firm rule over antiparticle_of (relation can_annihilate_with); the charge, mass and spin queries carry values across the relation (fol). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Subject-object insert. Annihilation is a firm rule over antiparticle_of (relation can_annihilate_with); the charge query is fol (arithmetic: the opposite of a given value). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q1 and q2 carry the mass and the spin unchanged across antiparticle_of: the values are named individuals (has_mass, has_spin, functional, catalogued 2026-10-31) and 'a particle and its antiparticle have the same mass / spin' are firm rules, as the annihilation rule. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "zelthon": [
    "the zelthon"
   ],
   "pelquon": [
    "the pelquon"
+  ],
+  "mass_3_2": [
+   "3.2 GeV/c²"
+  ],
+  "spin_half": [
+   "1/2"
   ]
  },
  "original": [],
@@ -14,10 +20,14 @@
   "antiparticle_of(zelthon, pelquon)"
  ],
  "background": {
-  "annihilation": "antiparticle_of(?a, ?b) -> can_annihilate_with(?a, ?b)"
+  "annihilation": "antiparticle_of(?a, ?b) -> can_annihilate_with(?a, ?b)",
+  "same_mass": "antiparticle_of(?a, ?b), has_mass(?b, ?m) -> has_mass(?a, ?m)",
+  "same_spin": "antiparticle_of(?a, ?b), has_spin(?b, ?s) -> has_spin(?a, ?s)"
  },
  "firm": [
-  "annihilation"
+  "annihilation",
+  "same_mass",
+  "same_spin"
  ],
  "queries": [
   {
@@ -26,11 +36,17 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: equal mass carried across the relation (a value comparison)"
+   "find": "zelthon has_mass ?",
+   "given": [
+    "has_mass(pelquon, mass_3_2)"
+   ]
   },
   {
    "q": 2,
-   "not_checked": "fol: equal spin carried across the relation (a value comparison)"
+   "find": "zelthon has_spin ?",
+   "given": [
+    "has_spin(pelquon, spin_half)"
+   ]
   },
   {
    "q": 3,
@@ -110,20 +126,6 @@
      }
     },
     "find": "spin(zelthon)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "No arithmetic: the mass is carried unchanged across antiparticle_of. With the mass as a named value (3.2 GeV/c²) and a functional has-mass relation, the firm SWRL rule antiparticle_of(?a, ?b), has_mass(?b, ?m) -> has_mass(?a, ?m) gives it, as the DL file's annihilation rule does."
-   },
-   {
-    "q": 2,
-    "from": "fol",
-    "to": "dl",
-    "why": "As q1: the spin is carried unchanged across antiparticle_of; a named value and a SWRL rule suffice."
    }
   ]
  }

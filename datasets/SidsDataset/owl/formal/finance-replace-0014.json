@@ -1,6 +1,6 @@
 {
  "id": "finance-replace-0014",
- "notes": "Stored edit. Siemens's primary listing is stored by name (w1) or through the national benchmark index it belongs to (w2, a rule over index_constituent_of). The CAC 40 class rule and the CAC 40 being a sub-index of the SBF 120 are firm bridges. The original 'no' answers of q0 and q1 need 'Siemens is not listed on Euronext Paris and is in no French index' (a side fact both of the record's worlds list since 2026-10-31); it is encoded as background that the edit forces out in every world (top-level gives_up). q3 compares two cities, which the record tags fol. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Stored edit. Siemens's primary listing is stored by name (w1) or through the national benchmark index it belongs to (w2, a rule over index_constituent_of). The CAC 40 class rule and the CAC 40 being a sub-index of the SBF 120 are firm bridges. The original 'no' answers of q0 and q1 need 'Siemens is not listed on Euronext Paris and is in no French index' (a side fact both of the record's worlds list since 2026-10-31); it is encoded as background that the edit forces out in every world (top-level gives_up). Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q3 ('the same city as the ECB's headquarters') is a join over named individuals; the exchanges' cities and the ECB in Frankfurt are its bridges, and 'an exchange stands in one city' (per exchange, a class axiom with a nominal) and 'a company has one primary listing' (Func(primary_listing), the question's presupposition) are firm. Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "siemens": "Siemens",
   "dax": [
@@ -18,6 +18,15 @@
   "fse": [
    "the Frankfurt Stock Exchange",
    "Frankfurt Stock Exchange"
+  ],
+  "frankfurt": [
+   "Frankfurt"
+  ],
+  "paris": [
+   "Paris"
+  ],
+  "ecb": [
+   "the European Central Bank"
   ]
  },
  "original": [
@@ -36,12 +45,28 @@
   "siemens_not_paris": [
    "not listed_on(siemens, euronext_paris)",
    "not index_constituent_of(siemens, sbf120)"
-  ]
+  ],
+  "ecb_frankfurt": "headquartered_in(ecb, frankfurt)",
+  "exchange_cities": [
+   "located_in(fse, frankfurt)",
+   "located_in(euronext_paris, paris)",
+   "frankfurt : City",
+   "paris : City"
+  ],
+  "one_city": [
+   "City and inv(located_in) value euronext_paris ⊑ {paris}",
+   "City and inv(located_in) value fse ⊑ {frankfurt}"
+  ],
+  "one_listing": "Func(primary_listing)"
  },
  "firm": [
   "cac40_rule",
   "cac40_sbf120",
-  "home_exchanges"
+  "home_exchanges",
+  "ecb_frankfurt",
+  "exchange_cities",
+  "one_city",
+  "one_listing"
  ],
  "gives_up": [
   "siemens_not_paris"
@@ -73,7 +98,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares two places (same city as the European Central Bank)"
+   "ask": "siemens : primary_listing some (located_in some (City and inv(headquartered_in) value ecb))"
   }
  ],
  "fol": {
@@ -172,14 +197,6 @@
    {
     "q": 3,
     "ask": "Exists(c, And(city(c), located_in(primary_listing(siemens), c), headquartered_in(ecb) == c))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same city' is a join over named individuals: siemens : primary_listing some (located_in some (City and inv(headquartered_in) value ecb)); the 'no' needs one city per exchange and distinct cities. No arithmetic."
    }
   ]
  }

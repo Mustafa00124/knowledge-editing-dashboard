@@ -1,6 +1,6 @@
 {
  "id": "literature_arts-delete-0002",
- "notes": "Delete of a stored fact. The Wedding Feast at Cana is stored by name (housed_in the Louvre) or relative to the Mona Lisa (a rule over housed_in). q1 and q3 compare two works' museums (fol).",
+ "notes": "Delete of a stored fact. The Wedding Feast at Cana is stored by name (housed_in the Louvre) or relative to the Mona Lisa (a rule over housed_in). q1 and q3 ('the same museum') are joins through the functional housed_in; the Winged Victory in the Louvre is q1's bridge (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check. Since then w2 stores 'the Wedding Feast hangs where the Mona Lisa does' as that class assertion (relative to the Mona Lisa), which gives the Louvre before the edit as the rule did and keeps 'the same museum' after it.",
  "entities": {
   "mona": [
    "the Mona Lisa"
@@ -11,6 +11,9 @@
   ],
   "wedding": [
    "Veronese's The Wedding Feast at Cana"
+  ],
+  "winged_victory": [
+   "the Winged Victory of Samothrace"
   ]
  },
  "original": [
@@ -25,7 +28,7 @@
   },
   "w2": {
    "stores": [
-    "housed_in(mona, ?m) -> housed_in(wedding, ?m)"
+    "wedding : housed_in some (inv(housed_in) value mona)"
    ]
   }
  },
@@ -36,7 +39,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares the museums of two works (same museum)"
+   "ask": "mona : housed_in some (inv(housed_in) value winged_victory)"
   },
   {
    "q": 2,
@@ -44,7 +47,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares the museums of two works (same museum)"
+   "ask": "wedding : housed_in some (inv(housed_in) value mona)"
   }
  ],
  "fol": {
@@ -95,20 +98,12 @@
     "q": 3,
     "ask": "housed_in(wedding) == housed_in(mona)"
    }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same museum' over the functional housed_in is a join over named individuals: mona : housed_in some (inv(housed_in) value winged_victory). No arithmetic."
-   },
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same museum' over the functional housed_in is a join over named individuals: wedding : housed_in some (inv(housed_in) value mona). No arithmetic."
-   }
   ]
- }
+ },
+ "background": {
+  "winged_louvre": "housed_in(winged_victory, louvre)"
+ },
+ "firm": [
+  "winged_louvre"
+ ]
 }

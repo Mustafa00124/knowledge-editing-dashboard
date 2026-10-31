@@ -1,6 +1,6 @@
 {
  "id": "grammar-insert-0004",
- "notes": "Object insert. As grammar-insert-0003: 'Hittite attests kuwarzanalli' makes it a Hittite word through the catalogue (attested_in, the inverse of attests_word, is a subproperty of word_of_language), so the local rule attests_word -> word_of_language is gone since 2026-10-31. The script is written_in_script of the language; 'oldest attested Indo-European language' is a class.",
+ "notes": "Object insert. As grammar-insert-0003: 'Hittite attests kuwarzanalli' makes it a Hittite word through the catalogue (attested_in, the inverse of attests_word, is a subproperty of word_of_language), so the local rule attests_word -> word_of_language is gone since 2026-10-31. The script is written_in_script of the language; 'oldest attested Indo-European language' is a class. q3 ('the same branch') is a join through the branch individual (instance_of, branches as individuals beside the language classes); the 'no' needs the two one-language presuppositions as 'only' restrictions and each language's one branch as a nominal (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "hittite": [
    "Hittite"
@@ -13,6 +13,18 @@
   ],
   "latin_alphabet": [
    "the Latin alphabet"
+  ],
+  "bread": [
+   "the English word 'bread'"
+  ],
+  "english": [
+   "English"
+  ],
+  "anatolian": [
+   "Anatolian"
+  ],
+  "germanic": [
+   "Germanic"
   ]
  },
  "original": [],
@@ -22,12 +34,28 @@
  "background": {
   "hittite_anatolian": "hittite : AnatolianLanguage",
   "hittite_cuneiform": "written_in_script(hittite, cuneiform)",
-  "hittite_oldest": "hittite : OldestAttestedIndoEuropeanLanguage"
+  "hittite_oldest": "hittite : OldestAttestedIndoEuropeanLanguage",
+  "branches": [
+   "instance_of(hittite, anatolian)",
+   "instance_of(english, germanic)",
+   "anatolian : IndoEuropeanBranch",
+   "germanic : IndoEuropeanBranch",
+   "IndoEuropeanBranch and inv(instance_of) value hittite ⊑ {anatolian}",
+   "IndoEuropeanBranch and inv(instance_of) value english ⊑ {germanic}"
+  ],
+  "bread_english": "word_of_language(bread, english)",
+  "one_language": [
+   "kuwarzanalli : word_of_language only {hittite}",
+   "bread : word_of_language only {english}"
+  ]
  },
  "firm": [
   "hittite_anatolian",
   "hittite_cuneiform",
-  "hittite_oldest"
+  "hittite_oldest",
+  "branches",
+  "bread_english",
+  "one_language"
  ],
  "queries": [
   {
@@ -47,7 +75,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares two words' language branches"
+   "ask": "kuwarzanalli : word_of_language some (instance_of some (IndoEuropeanBranch and inv(instance_of) some (inv(word_of_language) value bread)))"
   }
  ],
  "fol": {
@@ -133,14 +161,6 @@
    {
     "q": 3,
     "ask": "Exists([l, l2], And(word_of_language(kuwarzanalli, l), word_of_language(bread, l2), branch_of(l) == branch_of(l2)))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same branch' is a join through a functional branch relation (ALCOI with nominals)."
    }
   ]
  }

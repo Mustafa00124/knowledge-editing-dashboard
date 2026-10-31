@@ -189,19 +189,22 @@ more, and a few questions need less.
 | `logic` | What the inference needs | Example |
 | --- | --- | --- |
 | `propositional` | Only the truth of whole statements combined with not, and, or, if: no individuals or relations looked inside. | Edit: 91 is prime. "Is it true that 91 is prime or 91 is even?" |
-| `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital), names for the same individual. | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? |
-| `fol` | First-order logic beyond DL: relations among three or more things, comparing values across individuals (a verb agrees in number with its subject), rules whose variables form a cycle. | Edit: singular names take "are". "Is 'Sally are tall' correct?" (the verb's number must equal the subject's) |
+| `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital, more than one), names for the same individual, and comparing named values: a join through a relation (the same currency, the same city), a closed list of named members (the only ones). | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? Does Denmark use the same currency as Germany? Which is correct: 'Zorvan is tall' or 'Zorvan are tall'? |
+| `fol` | First-order logic beyond DL: relations among three or more things, real arithmetic, dates or numbers compared as values, counting how many, string patterns, rules whose variables form a cycle. | Take the past tense of 'outswim' and remove 'out' from the front: what word is left? (a string operation) How many voting members does the House have? (a sum) |
 
 | `theory` (optional, with `fol`) | What it adds | Example |
 | --- | --- | --- |
 | `arithmetic` | Computing or comparing numbers. | When it is noon in Chicago, what time is it at the Space Needle? |
 | `temporal` | Comparing dates or ordering events. | Did the first powered flight come after McKinley's death? |
 
-The labels also say where a query is checked formally (`owl/README.md`):
-`dl` queries by HermiT (`reason.py`), `fol` ones by Z3 (`fol_check.py`,
-with the value attributes of [`ATTRIBUTES.md`](ATTRIBUTES.md)); both
-reports give each query its `checker`, and `owl/COVERAGE.md` counts them
-per topic.
+The labels also say where a query is checked formally (`owl/README.md`,
+Routing): `dl` queries by HermiT (`reason.py`), `fol` ones by Z3
+(`fol_check.py`, with the value attributes of
+[`ATTRIBUTES.md`](ATTRIBUTES.md)); a query encoded for both keeps the other
+checker as a second check. Both reports give each query its `checker`, and
+`owl/COVERAGE.md` counts them per topic. The labels were reviewed against
+both encodings on 2026-10-31 (88 fol -> dl, 2 dl -> fol; 7 proposals
+rejected, listed in COVERAGE.md).
 
 Pick the weakest logic that captures the inference as the question asks it,
 not the strongest one that could. Belief revision itself, which premise gives

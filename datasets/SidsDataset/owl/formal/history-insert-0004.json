@@ -1,6 +1,6 @@
 {
  "id": "history-insert-0004",
- "notes": "Object insert. q1 (same island) is tagged fol by the record; q2 (uniqueness, a closed-world claim) and q3 (a count) are fol, and determinate since 2026-10-31 (no; two), so the record has no worlds.",
+ "notes": "Object insert. q2 and q3 are determinate since 2026-10-31 (no; two), so the record has no worlds; q3 (a count) is fol. q1 (the earlier-known site on the same island) is a find through the island (inv(has_norse_site) then has_norse_site), with L'Anse aux Meadows on Newfoundland as its bridge (firm). q2 ('the only confirmed Norse site in North America outside Greenland') is a closed claim with a nominal; a Norse site on Newfoundland is such a site (firm), so the edit's new site, distinct from L'Anse aux Meadows, makes the claim inconsistent: no. Both relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "newfoundland": [
    "Newfoundland",
@@ -11,6 +11,9 @@
   ],
   "canada": [
    "Canada"
+  ],
+  "lam": [
+   "L'Anse aux Meadows"
   ]
  },
  "original": [],
@@ -18,10 +21,17 @@
   "has_norse_site(newfoundland, brannock)"
  ],
  "background": {
-  "nf_canada": "located_in(newfoundland, canada)"
+  "nf_canada": "located_in(newfoundland, canada)",
+  "lam_site": [
+   "has_norse_site(newfoundland, lam)",
+   "lam : EarlierKnownNorseSite and UNESCOWorldHeritageSite"
+  ],
+  "confirmed_na": "inv(has_norse_site) value newfoundland ⊑ ConfirmedNorseSiteNA"
  },
  "firm": [
-  "nf_canada"
+  "nf_canada",
+  "lam_site",
+  "confirmed_na"
  ],
  "queries": [
   {
@@ -30,11 +40,11 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: two sites on the same island (the record's logic label)"
+   "find": "brannock : inv(has_norse_site) some (has_norse_site some ({?} and EarlierKnownNorseSite and UNESCOWorldHeritageSite))"
   },
   {
    "q": 2,
-   "not_checked": "fol: closed-world uniqueness ('the only confirmed Norse site'): no, since the edit adds a site that is not L'Anse aux Meadows"
+   "ask": "ConfirmedNorseSiteNA ⊑ {lam}"
   },
   {
    "q": 3,
@@ -141,20 +151,6 @@
    {
     "q": 3,
     "find": "number_of_members(norse_sites_na)"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'On the same island' is a join through a functional island link (brannock : inv(has_norse_site) value newfoundland, lam on the same individual): a find with nominals, no arithmetic. The DL file could check it as 'lam : located_in value newfoundland and EarlierKnownNorseSite'."
-   },
-   {
-    "q": 2,
-    "from": "fol",
-    "to": "dl",
-    "why": "'The only one' is a closed claim expressible with a nominal (ConfirmedNorseSiteNA ⊑ {lam}); the edit's new site, distinct from lam, contradicts it. No arithmetic (as grammar-insert-0009 q2)."
    }
   ]
  }

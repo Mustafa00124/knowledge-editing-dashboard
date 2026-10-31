@@ -1,12 +1,18 @@
 {
  "id": "literature_arts-delete-0014",
- "notes": "Delete of a stored fact (classes are individuals, as literature_arts-replace-0014). w1 stores the work's chapters and opening by name (opening with Bilbo's party is not opening with an invocation: one_opening, stated in w1's assumes and chain); w2 reaches both through the form (a novel is divided into chapters and does not open with an invocation to a muse). q0 and q1 compare two works' forms (fol).",
+ "notes": "Delete of a stored fact (classes are individuals, as literature_arts-replace-0014). w1 stores the work's chapters and opening by name (opening with Bilbo's party is not opening with an invocation: one_opening, stated in w1's assumes and chain); w2 reaches both through the form (a novel is divided into chapters and does not open with an invocation to a muse). q0 and q1 ('the same literary form') are joins with forms as individuals; Emma and Moby-Dick being novels are their bridges (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "lotr": [
    "The Lord of the Rings"
   ],
   "novel": [
    "a novel"
+  ],
+  "emma": [
+   "Jane Austen's Emma"
+  ],
+  "moby_dick": [
+   "Herman Melville's Moby-Dick"
   ]
  },
  "original": [
@@ -14,10 +20,16 @@
  ],
  "edit": [],
  "background": {
-  "one_opening": "OpensWithBilbosParty disjoint InvokesMuse"
+  "one_opening": "OpensWithBilbosParty disjoint InvokesMuse",
+  "emma_novel": "instance_of(emma, novel)",
+  "moby_novel": "instance_of(moby_dick, novel)",
+  "forms": "novel : LiteraryForm"
  },
  "firm": [
-  "one_opening"
+  "one_opening",
+  "emma_novel",
+  "moby_novel",
+  "forms"
  ],
  "worlds": {
   "w1": {
@@ -36,11 +48,11 @@
  "queries": [
   {
    "q": 0,
-   "not_checked": "fol: compares two works' literary forms (same form as Emma)"
+   "ask": "lotr : instance_of some (LiteraryForm and inv(instance_of) value emma)"
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two works' literary forms (same form as Moby-Dick)"
+   "ask": "lotr : instance_of some (LiteraryForm and inv(instance_of) value moby_dick)"
   },
   {
    "q": 2,
@@ -132,20 +144,6 @@
    {
     "q": 1,
     "ask": "Exists(f, And(form(f), instance_of(lotr, f), instance_of(moby_dick, f)))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 0,
-    "from": "fol",
-    "to": "dl",
-    "why": "With classes as individuals, 'the same literary form as Emma' is a join: lotr : instance_of some (LiteraryForm and inv(instance_of) value emma). No arithmetic."
-   },
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "With classes as individuals, 'the same literary form as Moby-Dick' is a join: lotr : instance_of some (LiteraryForm and inv(instance_of) value moby_dick). No arithmetic."
    }
   ]
  }

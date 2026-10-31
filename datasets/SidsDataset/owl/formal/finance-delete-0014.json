@@ -1,6 +1,6 @@
 {
  "id": "finance-delete-0014",
- "notes": "Delete of a stored fact. Siemens's primary listing is stored by name (w1) or through its index (w2, a rule over index_constituent_of that gives nothing once the membership is deleted). q0 names the DAX by description; the description is the stored bridge, so it is asked of the DAX. q1 and q3 compare values, which the record tags fol. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "Delete of a stored fact. Siemens's primary listing is stored by name (w1) or through its index (w2, a rule over index_constituent_of that gives nothing once the membership is deleted). q0 names the DAX by description; the description is the stored bridge, so it is asked of the DAX. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30. q1 ('the same national benchmark index as Allianz') and q3 ('the same city as the ECB's headquarters') are joins over named individuals; Allianz in the DAX, the DAX a national benchmark, the ECB in Frankfurt and the exchange in Frankfurt are their bridges (firm). Relabelled dl on 2026-10-31 (COVERAGE.md label corrections); the fol section keeps its Z3 encoding as a second check.",
  "entities": {
   "siemens": "Siemens",
   "dax": [
@@ -9,6 +9,13 @@
   "fse": [
    "the Frankfurt Stock Exchange",
    "Frankfurt Stock Exchange"
+  ],
+  "allianz": "Allianz",
+  "frankfurt": [
+   "Frankfurt"
+  ],
+  "ecb": [
+   "the European Central Bank"
   ]
  },
  "original": [
@@ -16,10 +23,21 @@
  ],
  "edit": [],
  "background": {
-  "home_exchange_dax": "home_exchange(dax, fse)"
+  "home_exchange_dax": "home_exchange(dax, fse)",
+  "allianz_dax": "index_constituent_of(allianz, dax)",
+  "benchmark": "dax : NationalBenchmark",
+  "ecb_frankfurt": "headquartered_in(ecb, frankfurt)",
+  "exchange_city": [
+   "located_in(fse, frankfurt)",
+   "frankfurt : City"
+  ]
  },
  "firm": [
-  "home_exchange_dax"
+  "home_exchange_dax",
+  "allianz_dax",
+  "benchmark",
+  "ecb_frankfurt",
+  "exchange_city"
  ],
  "worlds": {
   "w1": {
@@ -40,7 +58,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol: compares two companies' indexes (same index as Allianz)"
+   "ask": "siemens : index_constituent_of some (NationalBenchmark and inv(index_constituent_of) value allianz)"
   },
   {
    "q": 2,
@@ -48,7 +66,7 @@
   },
   {
    "q": 3,
-   "not_checked": "fol: compares two places (same city as the European Central Bank)"
+   "ask": "siemens : primary_listing some (located_in some (City and inv(headquartered_in) value ecb))"
   }
  ],
  "fol": {
@@ -146,20 +164,6 @@
    {
     "q": 3,
     "ask": "Exists(c, And(city(c), located_in(primary_listing(siemens), c), headquartered_in(ecb) == c))"
-   }
-  ],
-  "label_corrections": [
-   {
-    "q": 1,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same index' is a join over named individuals: siemens : index_constituent_of some (NationalBenchmark and inv(index_constituent_of) value allianz). No arithmetic."
-   },
-   {
-    "q": 3,
-    "from": "fol",
-    "to": "dl",
-    "why": "'Same city' is a join over named individuals: siemens : primary_listing some (located_in some (City and inv(headquartered_in) value ecb)); the 'no' needs one city per exchange and distinct cities. No arithmetic."
    }
   ]
  }

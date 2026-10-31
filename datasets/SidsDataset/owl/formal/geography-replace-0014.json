@@ -1,6 +1,6 @@
 {
  "id": "geography-replace-0014",
- "notes": "Status is one-valued (has_political_status is functional); the two rules about states and territories are firm (all four are bridges of q0 and q1 in the record; the territory rules since 2026-10-31). q2 and q3 count stars and seats (fol); the worlds only differ on those, so they store nothing here. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30 (senate_seats is number_of_senators).",
+ "notes": "Status is one-valued (has_political_status is functional); the two rules about states and territories are firm (all four are bridges of q0 and q1 in the record; the territory rules since 2026-10-31). q2 and q3 count stars and add up seats (fol, checked by Z3 from the fol section, which also holds w2's and w3's side fact that Guam as a state gets exactly one seat); the worlds only differ on those, so they store nothing here. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30 (senate_seats is number_of_senators).",
  "entities": {
   "guam": "Guam",
   "us_state": ["a US state", "a state of the United States"],
@@ -17,16 +17,26 @@
   "territory_votes": "has_political_status value us_territory ⊑ not HasElectoralVotes"
  },
  "firm": ["state_senate", "territory_senate", "state_votes", "territory_votes"],
- "worlds": {"w1": {}, "w2": {}, "w3": {}, "w4": {}},
- "bridge_refs": {"state_senate": "Every US state has two seats in the US Senate.", "territory_senate": "A US territory has no seats in the US Senate.", "state_votes": "Every US state has electoral votes in US presidential elections.", "territory_votes": "A US territory has no electoral votes in US presidential elections."},
+ "worlds": {
+  "w1": {},
+  "w2": {},
+  "w3": {},
+  "w4": {}
+ },
+ "bridge_refs": {
+  "state_senate": "Every US state has two seats in the US Senate.",
+  "territory_senate": "A US territory has no seats in the US Senate.",
+  "state_votes": "Every US state has electoral votes in US presidential elections.",
+  "territory_votes": "A US territory has no electoral votes in US presidential elections."
+ },
  "queries": [
   {"q": 0, "find": "guam number_of_senators ?"},
   {"q": 1, "ask": "guam : HasElectoralVotes"},
   {"q": 2, "not_checked": "fol (arithmetic): number of stars on the flag"},
-  {"q": 3, "not_checked": "fol (arithmetic): number of House seats"}
+  {"q": 3, "not_checked": "fol (arithmetic): number of House seats, the 435 other seats plus Guam's one in w2 and w3"}
  ],
  "fol": {
-  "notes": "Guam's status is an enumeration value (has_political_status, RELATIONS.md, functional), the edited belief. The number of states counts the fifty states other than Guam plus Guam when it is a state (closed world: a presupposition, as is the 435 seats the other states hold). The four worlds combine two storage choices: the flag's stars as a stored figure (w1, w3) or one per state (w2, w4); the House's size as a stored figure (w1, w4) or the sum of the states' seats with at least one per state (w2, w3), each as the record's assumes state them. q3 fails in w2 and w3 as a record problem: with 'at least one seat per state' the sum is at least 436, not 436; the chain's step from 'at least one' to '436' needs a bridge the record does not give (Guam, by population, would get exactly one seat). Kept failing, not patched with that bridge.",
+  "notes": "Guam's status is an enumeration value (has_political_status, RELATIONS.md, functional), the edited belief. The number of states counts the fifty states other than Guam plus Guam when it is a state (closed world: a presupposition, as is the 435 seats the other states hold). The four worlds combine two storage choices: the flag's stars as a stored figure (w1, w3) or one per state (w2, w4); the House's size as a stored figure (w1, w4) or the sum of the states' seats with at least one per state (w2, w3), each as the record's assumes state them. w2 and w3 also store their side fact (assumes, since 2026-10-31): a state with Guam's population gets exactly one seat, the minimum. Before that the chain went from 'at least one seat per state' to 436, and Z3 found 436 and 437 both possible; with the side fact the sum is 436.",
   "decl": {
    "sorts": {
     "Status": [
@@ -85,14 +95,16 @@
     "stores": [
      "number_of_stars(us_flag) == number_of_members(us_states)",
      "number_of_members(us_house) == seats_besides_guam + If(has_political_status(guam) == us_state, house_seats(guam), 0)",
-     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)"
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)",
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) == 1)"
     ]
    },
    "w3": {
     "stores": [
      "number_of_stars(us_flag) == 50",
      "number_of_members(us_house) == seats_besides_guam + If(has_political_status(guam) == us_state, house_seats(guam), 0)",
-     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)"
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) >= 1)",
+     "Implies(has_political_status(guam) == us_state, house_seats(guam) == 1)"
     ]
    },
    "w4": {
