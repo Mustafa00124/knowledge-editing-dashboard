@@ -896,6 +896,18 @@ venvs/easyedit_venv/bin/python datasets/SidsDataset/owl/encode_check.py --topic 
 venvs/easyedit_venv/bin/python datasets/SidsDataset/reason.py --topic geography             # about 3 s per record
 ```
 
+`justify.py` goes one step further: for every checked derived answer it
+finds the minimal sets of axioms (the edit, background and world facts,
+prompt-given facts, and each RELATIONS.md property axiom) the answer follows
+from, the OWL notion of a justification, and compares them with the query's
+`derivation`, `bridge`, `hops` and `via`: `match`, `partial` (derivation right,
+bridges or hops differ), `mismatch` (the derivation type is not used) or
+`not_checked`, with flags for answers that follow without the edit
+(`no_edit`) and for alternative derivations (`ambiguous`). Results go to
+`owl/justifications.json` and a CRITERIA Rule 3 row; the full run is
+`sbatch datasets/SidsDataset/owl/justify.sbatch` (owl/README.md,
+Justifications).
+
 Coverage: geography (all 60 records, every `dl` query). OWL caveats: the
 world is open (a "no" needs a functional relation, a disjointness or a rule;
 a "does not know" passes only when neither answer follows); there are no
