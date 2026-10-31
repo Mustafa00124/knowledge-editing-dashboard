@@ -190,5 +190,89 @@ class QueryRowTests(unittest.TestCase):
         self.assertEqual(got["by"]["query_type"]["unrelated_far"]["scored"], 1)
 
 
+MAIN_CHAT = ["qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "llama-3.1-8b-instruct", "mistral-7b-instruct-v0.1"]
+
+
+class PromptFormatTests(unittest.TestCase):
+    def test_few_shot_string_unchanged(self):
+        self.assertEqual(audit.FEW_SHOT, "Question: What is the capital of Japan?\nAnswer: Tokyo\n\n"
+                                         "Question: How many legs does a spider have?\nAnswer: 8\n\n"
+                                         "Question: Is the Sun a star?\nAnswer: Yes\n\n")
+
+    def test_default_is_one_user_turn_as_before(self):
+        self.assertEqual(audit.chat_messages("Who wrote Hamlet?"),
+                         [{"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"}])
+        self.assertEqual(audit.resolve_instruction("few_words"), audit.CHAT_INSTRUCTION)
+        self.assertEqual(audit.resolve_instruction("Just the name."), "Just the name.")
+
+    def test_shots_alternate_with_instruction_in_every_user_turn(self):
+        strict = audit.resolve_instruction("strict")
+        msgs = audit.chat_messages("Who wrote Hamlet?", strict, 2)
+        self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant", "user"])
+        self.assertEqual([m["content"] for m in msgs if m["role"] == "assistant"], ["Tokyo", "8"])
+        self.assertTrue(all(m["content"].startswith(strict + "\n\n") for m in msgs if m["role"] == "user"))
+        self.assertTrue(msgs[-1]["content"].endswith("Who wrote Hamlet?"))
+        with self.assertRaises(ValueError):
+            audit.chat_messages("q", strict, 4)
+
+    def test_templates_render_shots_for_main_instruct_models(self):
+        import os
+        try:
+            from transformers import AutoTokenizer
+        except ImportError:
+            self.skipTest("transformers not installed")
+        for key in MAIN_CHAT:
+            path = audit.MODEL_PATHS[key]
+            if not os.path.isdir(path):
+                continue
+            with self.subTest(model=key):
+                tok = AutoTokenizer.from_pretrained(path)
+                # Default: identical to the single user turn the audit always sent.
+                before = tok.apply_chat_template(
+                    [{"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"}],
+                    tokenize=False, add_generation_prompt=True, enable_thinking=False)
+                self.assertEqual(audit.prompt_text(tok, "Who wrote Hamlet?", True), before)
+                text = audit.prompt_text(tok, "Who wrote Hamlet?", True, audit.resolve_instruction("strict"), 2)
+                # Each example and its answer appear once, in order, before the question.
+                order = [text.index(s) for s in ("capital of Japan", "Tokyo", "legs does a spider", "8",
+                                                 "Who wrote Hamlet?")]
+                self.assertEqual(order, sorted(order))
+                self.assertEqual(text.count("Answer with only the answer"), 3)
+                self.assertNotIn("Sun a star", text)
+
+
+class AnswerFormatTests(unittest.TestCase):
+    def test_median_and_wrapped_over_direct_and_paraphrase(self):
+        rows = [
+            {"query_type": "direct", "original_answer": "Canberra", "response": "Canberra"},
+            {"query_type": "paraphrase", "original_answer": "Canberra", "response": "The capital is Canberra."},
+            {"query_type": "direct", "original_answer": None, "new_answer": "the Thousand Islands",
+             "response": "the Thousand Islands region"},  # 4 words vs 3 + 2: not wrapped
+            {"query_type": "paraphrase", "original_answer": "8", "response": "A spider has eight legs."},
+            {"query_type": "derived", "original_answer": "yes", "response": "Yes, it is, because of the treaty."},
+            {"query_type": "check_fact", "original_answer": "Paris", "response": "It is in Paris, France."},
+        ]
+        got = audit.answer_format(rows)
+        self.assertEqual(got, {"queries": 4, "median_words": 4.0, "wrapped": 2, "wrapped_share": 0.5})
+
+    def test_no_queries(self):
+        self.assertEqual(audit.answer_format([]),
+                         {"queries": 0, "median_words": None, "wrapped": 0, "wrapped_share": None})
+
+
+class ArgumentTests(unittest.TestCase):
+    def test_dashboard_fields_match_runner_defaults(self):
+        import os
+        cfg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(audit.__file__)), "dashboard.json")))
+        fields = {f["name"]: f for f in cfg["fields"]}
+        self.assertEqual(audit.resolve_instruction(fields["instruction"]["default"]), audit.CHAT_INSTRUCTION)
+        self.assertEqual(fields["chat_shots"]["default"], "0")
+        for name in ("instruction", "chat_shots"):
+            # named only when changed, so default runs keep their names (bare model)
+            self.assertTrue(fields[name]["run_name_skip_default"])
+            self.assertIn(name, cfg["run_name_always"])
+        self.assertTrue(all(o["value"] in audit.INSTRUCTIONS for o in fields["instruction"]["options"]))
+
+
 if __name__ == "__main__":
     unittest.main()

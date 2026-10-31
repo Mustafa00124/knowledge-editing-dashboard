@@ -2,7 +2,9 @@
 
 For one model, every query of every record is asked as a free-form question
 (base models: a few-shot "Question:/Answer:" template that stops at the first
-line break; chat models: their chat template). The model is then unloaded and
+line break; chat models: their chat template, the instruction in the user
+turn, optionally after --chat_shots worked examples as earlier turns). The
+model is then unloaded and
 the SID judge (experiments/sid_eval/judge.py) labels each answer. Which
 queries are asked, and what each expects, is audit_queries.py (shared with
 the dashboard): every query with a pre-edit answer. Replace/delete direct,
@@ -20,7 +22,8 @@ both instance questions). The judge is shown only the answer the pass rule
 needs (original_answer or reference; new_answer for insert's own questions).
 Each response row carries its query_key (e.g. derived[2], cross_lingual[zh],
 unrelated_near[0]) and query_hash (prompt and expected answer), so a reader
-can tell when the record changed after the audit.
+can tell when the record changed after the audit. summary.json's answer_format
+says how tersely the model answered (median words, share wrapped in a sentence).
 
 It also asks the checks behind each derivation: every fact a derived query or
 the edit's premises rely on (the record's "checks") and every relation
@@ -70,11 +73,22 @@ JUDGE_PATH = f"{PROJECT_ROOT}/models/{J.JUDGE_MODEL}"
 DEFAULT_RECORDS = f"{PROJECT_ROOT}/datasets/SidsDataset/records"
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/model_audit"
 
-# Neutral worked examples for base models, outside the dataset.
-FEW_SHOT = ("Question: What is the capital of Japan?\nAnswer: Tokyo\n\n"
-            "Question: How many legs does a spider have?\nAnswer: 8\n\n"
-            "Question: Is the Sun a star?\nAnswer: Yes\n\n")
+# Neutral worked examples, outside the dataset: base models see them as a
+# "Question:/Answer:" preamble; chat models as prior turns when --chat_shots N.
+SHOTS = [("What is the capital of Japan?", "Tokyo"),
+         ("How many legs does a spider have?", "8"),
+         ("Is the Sun a star?", "Yes")]
+FEW_SHOT = "".join(f"Question: {q}\nAnswer: {a}\n\n" for q, a in SHOTS)
 CHAT_INSTRUCTION = "Answer the question in a few words, without explanation."
+# --instruction takes one of these names or any literal text.
+INSTRUCTIONS = {
+    "few_words": CHAT_INSTRUCTION,
+    "strict": "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.",
+}
+
+
+def resolve_instruction(value):
+    return INSTRUCTIONS.get(value, value)
 
 
 def load_records(root, topics=None):
@@ -180,12 +194,23 @@ def row_score(row, label):
     return J.score("audit", "insert", label)
 
 
-def prompt_text(tok, question, chat):
+def chat_messages(question, instruction=CHAT_INSTRUCTION, shots=0):
+    """User/assistant turns for a chat model: `shots` worked examples (SHOTS)
+    as earlier turns, then the question. The instruction goes in every user
+    turn, never a system turn: Mistral-Instruct-v0.1 has no system role."""
+    if not 0 <= shots <= len(SHOTS):
+        raise ValueError(f"chat_shots must be 0..{len(SHOTS)}, got {shots}")
+    messages = []
+    for q, a in SHOTS[:shots]:
+        messages += [{"role": "user", "content": f"{instruction}\n\n{q}"}, {"role": "assistant", "content": a}]
+    return messages + [{"role": "user", "content": f"{instruction}\n\n{question}"}]
+
+
+def prompt_text(tok, question, chat, instruction=CHAT_INSTRUCTION, shots=0):
     if chat:
         # enable_thinking: SmolLM3-3B is a hybrid whose template reasons by
-        # default; templates without the switch ignore it. Only a user turn is
-        # sent, so Mistral-Instruct-v0.1 (no system role) works as the others.
-        return tok.apply_chat_template([{"role": "user", "content": f"{CHAT_INSTRUCTION}\n\n{question}"}],
+        # default; templates without the switch ignore it.
+        return tok.apply_chat_template(chat_messages(question, instruction, shots),
                                        tokenize=False, add_generation_prompt=True, enable_thinking=False)
     return f"{FEW_SHOT}Question: {question}\nAnswer:"
 
@@ -204,7 +229,8 @@ def clean(text, chat):
     return text.split("\n\n", 1)[0].strip()
 
 
-def generate_all(model_key, prompts, batch_size, max_new_tokens, timings):
+def generate_all(model_key, prompts, batch_size, max_new_tokens, timings, instruction=CHAT_INSTRUCTION,
+                 shots=0):
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
     chat = model_key in CHAT_MODELS
@@ -216,7 +242,7 @@ def generate_all(model_key, prompts, batch_size, max_new_tokens, timings):
     torch.cuda.synchronize()
     timings["model_load_s"] = round(time.time() - began, 1)
     began = time.time()
-    texts = [prompt_text(tok, p, chat) for p in prompts]
+    texts = [prompt_text(tok, p, chat, instruction, shots) for p in prompts]
     # Longest prompts first so each batch pads little.
     order = sorted(range(len(texts)), key=lambda i: -len(texts[i]))
     out, new_tokens = [None] * len(texts), 0
@@ -241,6 +267,31 @@ def generate_all(model_key, prompts, batch_size, max_new_tokens, timings):
     torch.cuda.empty_cache()
     timings["unload_s"] = round(time.time() - began, 1)
     return out
+
+
+FORMAT_QUERIES = ("direct", "paraphrase")
+
+
+def answer_format(rows):
+    """How tersely the model answers: over direct and paraphrase queries, the
+    median number of words in the response, and how many responses run longer
+    than the expected answer + 2 words ("wrapped": the answer put in a
+    sentence or explained)."""
+    lengths, wrapped = [], 0
+    for r in rows:
+        if r["query_type"] not in FORMAT_QUERIES or r.get("response") is None:
+            continue
+        gold = r.get("original_answer") or r.get("new_answer") or ""
+        words = len(r["response"].split())
+        lengths.append(words)
+        wrapped += words > len(str(gold).split()) + 2
+    if not lengths:
+        return {"queries": 0, "median_words": None, "wrapped": 0, "wrapped_share": None}
+    lengths.sort()
+    mid = len(lengths) // 2
+    median = lengths[mid] if len(lengths) % 2 else (lengths[mid - 1] + lengths[mid]) / 2
+    return {"queries": len(lengths), "median_words": median, "wrapped": wrapped,
+            "wrapped_share": round(wrapped / len(lengths), 4)}
 
 
 def summarise(rows, records):
@@ -295,6 +346,11 @@ def main():
     p.add_argument("--batch_size", type=int, default=32)
     p.add_argument("--max_new_tokens", type=int, default=64)
     p.add_argument("--judge_batch_size", type=int, default=32)
+    p.add_argument("--instruction", default=CHAT_INSTRUCTION,
+                   help="chat models: the instruction put before each question, in the user turn; a preset name "
+                        f"({', '.join(INSTRUCTIONS)}) or literal text (default: few_words)")
+    p.add_argument("--chat_shots", type=int, default=0, choices=range(len(SHOTS) + 1),
+                   help="chat models: worked examples (Tokyo, 8, Yes) given as earlier user/assistant turns")
     p.add_argument("--run_name", required=True)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
@@ -316,7 +372,9 @@ def main():
     print(f"{len(records)} records, {len(rows) - len(checks)} queries (locality included), {len(checks)} checks",
           flush=True)
 
-    responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings)
+    instruction = resolve_instruction(args.instruction)
+    responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings,
+                             instruction, args.chat_shots)
     for r, resp in zip(rows, responses):
         r["response"] = resp
     print(f"generated: {timings}", flush=True)
@@ -341,12 +399,14 @@ def main():
     with open(os.path.join(out_dir, "responses.jsonl"), "w") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS, "judge": J.JUDGE_MODEL,
+    summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS,
+               "instruction": instruction if args.model in CHAT_MODELS else None,
+               "chat_shots": args.chat_shots if args.model in CHAT_MODELS else 0, "judge": J.JUDGE_MODEL,
                "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records),
                "queries_total": sum(not is_check(r) and not is_locality(r) for r in rows),
                "queries_judged": sum(not is_check(r) and not is_locality(r) for r in todo),
                "locality_asked": sum(map(is_locality, rows)), "checks_asked": sum(map(is_check, rows)), "timings": timings, **summarise(rows, records),
-               "checks": summarise_checks(rows, records, relations)}
+               "answer_format": answer_format(rows), "checks": summarise_checks(rows, records, relations)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)
     print(f"known {summary['facts_known']}/{summary['facts_total']} facts; "

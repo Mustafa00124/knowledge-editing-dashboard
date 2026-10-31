@@ -21,6 +21,7 @@ import {
   coordinateSummary,
   worldLabel,
 } from '../../lib/sidsDatasetTaxonomy.js'
+import AuditDetailModal from './AuditDetailModal.jsx'
 import DerivationModal, { hasChain } from './DerivationModal.jsx'
 import DatasetSummary from './DatasetSummary.jsx'
 import SidsCriteriaModal from './SidsCriteriaModal.jsx'
@@ -98,15 +99,21 @@ const STATUS_TEXT = {
 }
 
 // One dot per model in the fixed order; a model the audit never asks this
-// query of (no pre-edit answer) gets an empty ring.
-function AuditDots({ statuses, models }) {
+// query of (no pre-edit answer) gets an empty ring. Each dot is a button that
+// opens AuditDetailModal (what the model answered, and why it failed).
+function AuditDots({ statuses, models, onOpen }) {
   if (!models?.length) return null
   return (
     <span className="sids-audit-dots">
       {models.map((m) => {
         const s = statuses?.[m] || 'na'
         const text = s === 'na' ? 'not asked (no pre-edit answer to check)' : STATUS_TEXT[s] || s
-        return <span key={m} className={`sids-audit-dot is-${s}`} title={`${modelLabel(m)}: ${text}`} />
+        const label = `${modelLabel(m)}: ${text}`
+        if (!onOpen) return <span key={m} className={`sids-audit-dot is-${s}`} title={label} />
+        return (
+          <button key={m} type="button" className={`sids-audit-dot is-${s} is-button`} title={`${label}. Click for details.`}
+            aria-label={`${label}. Show details`} onClick={(ev) => { ev.stopPropagation(); onOpen(m) }} />
+        )
       })}
     </span>
   )
@@ -225,7 +232,7 @@ function EvidenceButton({ fact, evidence }) {
 const DETERMINACY_LABEL = Object.fromEntries(DETERMINACY.map((d) => [d.key, d.label]))
 const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, l.label]))
 
-function RecordCard({ rec, relations, onChain, audit, models, formal }) {
+function RecordCard({ rec, relations, onChain, onAudit, audit, models, formal }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = hasChain(rec)
@@ -263,16 +270,19 @@ function RecordCard({ rec, relations, onChain, audit, models, formal }) {
   ].filter(([, v]) => v)
   return (
     <div className={`sids-record${open ? ' open' : ''}`}>
-      <button type="button" className="sids-record-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className="sids-record-caret">{open ? '▾' : '▸'}</span>
-        <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
-        {/* The original fact; the Change chip shows what the edit makes of it. Insert has no original. */}
-        <span className="sids-record-statement">{e.original || e.statement}</span>
-        {/* Fact status: direct and paraphrase (RBox: direct and the instance questions) held before the edit. */}
-        <AuditDots statuses={audit?.fact} models={models} />
+      <div className="sids-record-headrow">
+        <button type="button" className="sids-record-head" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+          <span className="sids-record-caret">{open ? '▾' : '▸'}</span>
+          <span className="sids-record-badge" title={rec.id}>{recordLabel(rec.id)}</span>
+          {/* The original fact; the Change chip shows what the edit makes of it. Insert has no original. */}
+          <span className="sids-record-statement">{e.original || e.statement}</span>
+        </button>
+        {/* Fact status: direct and paraphrase (RBox: direct and the instance questions) held before the edit.
+            Outside the toggle button, since each dot is a button of its own. */}
+        <AuditDots statuses={audit?.fact} models={models} onOpen={(m) => onAudit(rec.id, m, 'fact')} />
         <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
           lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
-      </button>
+      </div>
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
         {e.old_object != null ? (
@@ -332,7 +342,8 @@ function RecordCard({ rec, relations, onChain, audit, models, formal }) {
                       <span className={`sids-query-type sids-metric-${METRIC_OF[r.key]}`}>
                         {QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}
                       </span>
-                      <AuditDots statuses={audit?.queries?.[r.auditKey]} models={models} />
+                      <AuditDots statuses={audit?.queries?.[r.auditKey]} models={models}
+                        onOpen={(m) => onAudit(rec.id, m, r.auditKey)} />
                       {r.key === 'derived' && (() => {
                         const f = formal?.queries?.[r.auditKey.slice(8, -1)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
@@ -448,6 +459,8 @@ export default function SidsDatasetBrowser() {
   const [status, setStatus] = useState(null)
   const [allModels, setAllModels] = useState(false)
   const [chain, setChain] = useState(null)
+  // The audit dot whose detail modal is open: { record, model, key }.
+  const [auditDot, setAuditDot] = useState(null)
   const [showCriteria, setShowCriteria] = useState(false)
   const [error, setError] = useState(null)
   const [coordinate, setCoordinate] = useState({
@@ -524,6 +537,7 @@ export default function SidsDatasetBrowser() {
           <p className="sids-group-label">Records <span>{shown.length}</span></p>
           {shown.map((rec) => (
             <RecordCard key={rec.id} rec={rec} relations={relations} onChain={openChain}
+              onAudit={(record, model, key) => setAuditDot({ record, model, key })}
               audit={status?.records?.[rec.id]} models={statusModels}  formal={formal?.records?.[rec.id]} />
           ))}
         </>
@@ -531,6 +545,10 @@ export default function SidsDatasetBrowser() {
       {chain && (
         <DerivationModal rec={chain.rec} target={chain.target} relations={relations} relationChecks={relationChecks}
           audit={audit} onClose={() => setChain(null)} />
+      )}
+      {auditDot && (
+        <AuditDetailModal record={auditDot.record} model={auditDot.model} queryKey={auditDot.key}
+          modelLabel={modelLabel(auditDot.model)} onClose={() => setAuditDot(null)} />
       )}
     </div>
   )

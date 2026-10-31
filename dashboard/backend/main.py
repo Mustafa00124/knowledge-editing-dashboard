@@ -1381,6 +1381,20 @@ def get_sids_dataset_audit_status(models: str = "all"):
     return model_audit_reader.restrict(data, keep)
 
 
+@app.get("/api/sids-dataset/audit-detail")
+def get_sids_dataset_audit_detail(record: str, model: str):
+    """One audit dot explained: the model's newest-run rows for one record
+    (every query with prompt, expected answer, response, judge label and
+    reason, status green/red/yellow/na incl. stale), and per query the
+    knowledge parts it rests on (premises; bridge and revision facts and the
+    relation property of a derived query) with their check status and a
+    verdict (model_audit_reader.diagnose)."""
+    try:
+        return model_audit_reader.audit_detail(record, model)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"no Sid's Dataset record {record}")
+
+
 @app.get("/api/datasets/record-count")
 def get_dataset_record_count(path: str):
     """What "full" means for one dataset file - the drawer caps the reset

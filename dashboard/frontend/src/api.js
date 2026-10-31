@@ -164,6 +164,9 @@ export const api = {
   // Pre-edit status per record, fact and query for each model's newest audit
   // (green, red, yellow); models: 'main' (the four main instruct) or 'all'.
   sidsDatasetAuditStatus: (models = 'main') => req(`/sids-dataset/audit-status?models=${encodeURIComponent(models)}`),
+  // One audit dot explained: a model's rows for one record, with the knowledge parts behind each query.
+  sidsDatasetAuditDetail: (record, model) =>
+    req(`/sids-dataset/audit-detail?record=${encodeURIComponent(record)}&model=${encodeURIComponent(model)}`),
   sidsDatasetFormalStatus: () => req('/sids-dataset/formal-status'),
   sidsDatasetCriteria: () => req('/sids-dataset/criteria'),
   // Mark a manual criteria rule done or pending (the person's mark; agents use criteria.py --mark).

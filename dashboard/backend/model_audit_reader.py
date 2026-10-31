@@ -58,14 +58,30 @@ def run(name):
     return {"run": name, "summary": summary, "responses": responses}
 
 
+# The audit's default chat prompt (experiments/model_audit/audit.py,
+# --instruction few_words, --chat_shots 0). Runs with another instruction or
+# with chat shots are prompt variants: the Model audit page lists them, but
+# the Datasets page's status, checks and dot detail read only default runs.
+DEFAULT_INSTRUCTIONS = (None, "few_words", "Answer the question in a few words, without explanation.")
+
+
+def is_default_prompt(summary):
+    """Whether a run's summary.json used the default prompt (fields absent in
+    older runs mean the default)."""
+    return summary.get("instruction") in DEFAULT_INSTRUCTIONS and not summary.get("chat_shots")
+
+
 def _newest_runs():
-    """model -> (summary mtime, run folder) of its newest audit run."""
+    """model -> (summary mtime, run folder) of its newest default-prompt audit
+    run (is_default_prompt)."""
     runs_dir = _runs_dir()
     newest = {}
     for path in sorted(runs_dir.glob("*/summary.json")) if runs_dir and runs_dir.is_dir() else []:
         try:
             summary = json.loads(path.read_text())
         except (OSError, ValueError):
+            continue
+        if not is_default_prompt(summary):
             continue
         model, mtime = summary.get("model"), path.stat().st_mtime
         if model and (model not in newest or mtime > newest[model][0]):
@@ -293,27 +309,239 @@ def _annotate(responses):
     aq = _audit_queries()
     records = _records()
     by_record = {}
-    for i, r in enumerate(responses):
+    for r in responses:
         if str(r.get("query_type", "")).startswith("check_"):
-            s = r.get("score")
-            r["status"] = GREEN if s == 1 else RED if s == 0 else YELLOW
+            r["status"] = _score_status(r.get("score"))
         elif r.get("record_id"):
-            by_record.setdefault(r["record_id"], []).append(i)
-    for rid, idx in by_record.items():
-        rec = records.get(rid)
-        current = {}
-        if rec is not None:
-            for key, qtype, lang, item in aq.all_queries(rec):
-                answer, _ = aq.expected(rec, qtype, item)
-                if answer is not None:
-                    current[key] = (qtype, lang, aq.query_hash(item.get("prompt", ""), answer))
-        lookup = {v: k for k, v in current.items()}
-        for i in idx:
-            r = responses[i]
-            h = _row_hash(aq, r)
-            key = r.get("query_key") or lookup.get((r.get("query_type"), r.get("language"), h))
-            fresh = key is not None and current.get(key, (None, None, None))[2] == h
-            s = r.get("score")
-            r["query_key"] = key
-            r["stale"] = not fresh
-            r["status"] = YELLOW if not fresh else GREEN if s == 1 else RED if s == 0 else YELLOW
+            by_record.setdefault(r["record_id"], []).append(r)
+    for rid, rows in by_record.items():
+        _resolve_rows(aq, records.get(rid), rows)
+
+
+def _score_status(score):
+    return GREEN if score == 1 else RED if score == 0 else YELLOW
+
+
+def _resolve_rows(aq, rec, rows):
+    """Set query_key, stale and status on one record's dataset query rows
+    (in place), against the current record `rec` (None: every row stale)."""
+    current = {}
+    if rec is not None:
+        for key, qtype, lang, item in aq.all_queries(rec):
+            answer, _ = aq.expected(rec, qtype, item)
+            if answer is not None:
+                current[key] = (qtype, lang, aq.query_hash(item.get("prompt", ""), answer))
+    lookup = {v: k for k, v in current.items()}
+    for r in rows:
+        h = _row_hash(aq, r)
+        key = r.get("query_key") or lookup.get((r.get("query_type"), r.get("language"), h))
+        fresh = key is not None and current.get(key, (None, None, None))[2] == h
+        r["query_key"] = key
+        r["stale"] = not fresh
+        r["status"] = YELLOW if not fresh else _score_status(r.get("score"))
+
+
+# ---------------------------------------------------------------- one dot, explained
+#
+# audit_detail() backs the Datasets page's audit-dot modal: one model's
+# newest-run rows for one record, and per query the knowledge parts its
+# answer rests on, each with that model's check status. The parts follow
+# validate.py and the audit (experiments/model_audit/audit.py):
+#   the fact itself (direct, paraphrase, cross-lingual): edit.premises
+#   a propositional query: the premises and its side fact (when it has a check)
+#   a derived query: the original fact (its direct and paraphrase status;
+#     not for insert or RBox), every bridge and revision fact
+#     (validate.unstated_facts; ones stated in the prompt are listed as
+#     "given" and not counted) and the relation property its derivation
+#     relies on (validate.relation_property)
+#   locality queries: none
+# A check part is green or red by its score; yellow when not asked, unclear,
+# or stale (the run asked a different prompt or answer than the record's
+# check, or relation_checks.json, holds now).
+#
+# Verdict (diagnose()), for a red answer:
+#   any red part        "missing"      Missing knowledge: <the red parts>
+#   else a yellow part  "not_audited"  Some parts not audited: <those parts>
+#   else all green      "not_combined" Knew every part but did not combine them
+#   else (no parts)     "no_parts"     No parts listed: the model does not know this fact
+# A green answer: "ok" (or "green_despite" when some part is red); a yellow
+# answer: "answer_not_audited"; a query the audit never asks: "na".
+
+SIDS_DIR = config.DATASETS_DIR / "SidsDataset"
+COUNTED = (GREEN, RED, YELLOW)  # part statuses that count; "given" does not
+
+
+def _sid():
+    """(validate module, relations, relation_checks) from datasets/SidsDataset,
+    reloaded when validate.py, RELATIONS.md or relation_checks.json changes."""
+    paths = [SIDS_DIR / "validate.py", SIDS_DIR / "RELATIONS.md", SIDS_DIR / "relation_checks.json"]
+    sig = tuple(_mtime(p) for p in paths)
+    hit = _cache.get("sid")
+    if hit and hit[0] == sig:
+        return hit[1]
+    spec = importlib.util.spec_from_file_location("sids_validate_audit", paths[0])
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    value = (module, module.load_relations()[0], module.load_relation_checks())
+    _cache["sid"] = (sig, value)
+    return value
+
+
+_KEEP = ("record_id", "query_type", "language", "prompt", "query_key", "query_hash", "rule", "original_answer",
+         "new_answer", "fact", "relation", "tag", "response", "label", "reason", "score")
+
+
+def _run_detail_rows(folder):
+    """(record_id -> [rows], (relation, tag) -> row) of one run, with the
+    fields the modal shows, cached on responses.jsonl's mtime."""
+    path = folder / "responses.jsonl"
+    mtime = _mtime(path)
+    if mtime is None:
+        return {}, {}
+    hit = _cache.get(("detail", str(path)))
+    if hit and hit[0] == mtime:
+        return hit[1]
+    by_record, relations = {}, {}
+    for line in path.read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        r = {k: r.get(k) for k in _KEEP}
+        if r["query_type"] == "check_relation":
+            relations[(r["relation"], r["tag"])] = r  # asked once per run; the last wins
+        elif r["record_id"]:
+            by_record.setdefault(r["record_id"], []).append(r)
+    _cache[("detail", str(path))] = (mtime, (by_record, relations))
+    return by_record, relations
+
+
+def _check_part(kind, text, row, current):
+    """One knowledge part with a check: its status from the run's row, yellow
+    when not asked, unclear or asked differently than `current` (prompt, answer)."""
+    part = {"kind": kind, "text": text, "prompt": current[0] if current else None,
+            "expected": current[1] if current else None, "response": None, "label": None, "reason": None,
+            "stale": False}
+    if row is None:
+        part["status"] = YELLOW
+        return part
+    stale = current is None or (row.get("prompt"), row.get("original_answer")) != tuple(current)
+    part.update(response=row.get("response"), label=row.get("label"), reason=row.get("reason"), stale=stale,
+                status=YELLOW if stale else _score_status(row.get("score")))
+    return part
+
+
+def diagnose(status, parts, fact_like=True):
+    """The verdict for one answer's status given its knowledge parts (rules above)."""
+    counted = [p for p in parts if p["status"] in COUNTED]
+    red = [p["text"] for p in counted if p["status"] == RED]
+    yellow = [p["text"] for p in counted if p["status"] == YELLOW]
+    if status == NOT_ASKED:
+        return {"kind": "na", "text": "Not asked: the query has no pre-edit answer to check.", "parts": []}
+    if status == YELLOW:
+        return {"kind": "answer_not_audited",
+                "text": "Answer not audited (or stale since the record changed, or the judge could not label it).",
+                "parts": []}
+    if status == GREEN:
+        if red:
+            return {"kind": "green_despite", "text": "Answered as expected, although these parts failed", "parts": red}
+        return {"kind": "ok", "text": "Answered as expected.", "parts": []}
+    if red:
+        return {"kind": "missing", "text": "Missing knowledge", "parts": red}
+    if yellow:
+        return {"kind": "not_audited", "text": "Some parts not audited", "parts": yellow}
+    if counted:
+        return {"kind": "not_combined", "text": "Knew every part but did not combine them", "parts": []}
+    if fact_like:
+        return {"kind": "no_parts", "text": "No parts listed: the model does not know this fact", "parts": []}
+    return {"kind": "no_parts",
+            "text": "No parts to check: everything this answer uses is given in the prompt, so the model did not draw the inference",
+            "parts": []}
+
+
+def record_detail(aq, sid, relations, relation_checks, rec, rows, relation_rows):
+    """One model on one current record: every query with its row and status,
+    and the knowledge parts and verdict behind it, plus the fact itself.
+    `rows`: the model's rows for the record (queries and check_fact rows);
+    `relation_rows`: (relation, tag) -> the model's check_relation row."""
+    query_rows = [dict(r) for r in rows or [] if not str(r.get("query_type", "")).startswith("check_")]
+    fact_rows = {r.get("fact"): r for r in rows or [] if r.get("query_type") == "check_fact"}
+    _resolve_rows(aq, rec, query_rows)
+    by_key = {}
+    for r in query_rows:  # a fresh row beats a stale one; the last wins
+        if r["query_key"] is not None and (r["query_key"] not in by_key or not r["stale"] or by_key[r["query_key"]]["stale"]):
+            by_key[r["query_key"]] = r
+    status = record_status(aq, rec, [{"key": r["query_key"], "hash": _row_hash(aq, r), "query_type": r.get("query_type"),
+                                      "language": r.get("language"), "score": r.get("score")} for r in query_rows])
+    checks = {c.get("fact"): (c.get("prompt"), c.get("answer")) for c in rec.get("checks") or []}
+
+    def fact_part(kind, fact, stated=False):
+        if stated:
+            return {"kind": kind, "text": fact, "status": "given"}
+        return _check_part(kind, fact, fact_rows.get(fact), checks.get(fact))
+
+    premises = [fact_part("premise", p) for p in (rec.get("edit") or {}).get("premises") or []]
+    insert, rbox = rec.get("edit_operation") == "insert", rec.get("box") == "rbox"
+    fact_keys = aq.fact_keys(rec)
+    e = rec.get("edit") or {}
+    fact_text = e.get("original") or e.get("statement")
+    queries = {}
+    for key, qtype, lang, item in aq.all_queries(rec):
+        answer, rule = aq.expected(rec, qtype, item)
+        if qtype in ("direct", "paraphrase", "cross_lingual"):
+            parts = list(premises)
+        elif qtype == "propositional":
+            side = item.get("side_fact")
+            parts = list(premises) + ([fact_part("side_fact", side)] if side in checks else [])
+        elif qtype == "derived":
+            parts = []
+            if not insert and not rbox and status["fact"] != NOT_ASKED:
+                parts.append({"kind": "fact", "text": fact_text, "status": status["fact"],
+                              "keys": [k for k in fact_keys if k in status["queries"]]})
+            for b in item.get("bridge") or []:
+                parts.append(fact_part("bridge", b, stated=bool(item.get("bridge_in_prompt"))))
+            for b in item.get("revision_facts") or []:
+                parts.append(fact_part("revision", b, stated=sid.revision_in_prompt(item)))
+            prop = sid.relation_property(rec, item, relations)
+            if prop:
+                entry = (relation_checks.get(prop[0]) or {}).get(prop[1])
+                part = _check_part("relation", f"{prop[0]}: {prop[1]}", relation_rows.get(prop),
+                                   entry and (entry.get("prompt"), entry.get("answer")))
+                part.update(relation=prop[0], tag=prop[1])
+                parts.append(part)
+        else:
+            parts = []
+        st = status["queries"].get(key, NOT_ASKED)
+        row = by_key.get(key)
+        queries[key] = {
+            "key": key, "query_type": qtype, "language": lang, "prompt": item.get("prompt"),
+            "expected": answer, "rule": rule, "status": st,
+            "response": row and row.get("response"), "label": row and row.get("label"),
+            "reason": row and row.get("reason"), "score": row and row.get("score"), "stale": bool(row and row["stale"]),
+            "asked": row is not None, "parts": parts,
+            "verdict": diagnose(st, parts, fact_like=qtype != "derived"),
+        }
+    fact = {"text": fact_text, "status": status["fact"], "keys": fact_keys, "parts": premises,
+            "verdict": diagnose(status["fact"], premises)}
+    return {"fact": fact, "queries": queries}
+
+
+def audit_detail(record_id, model):
+    """audit_detail payload for one record and one model's newest run:
+    {"record", "model", "run", "audited_at", "fact": {text, status, keys,
+    parts, verdict}, "queries": {key: {prompt, expected, rule, status,
+    response, label, reason, score, stale, asked, parts, verdict}}}.
+    KeyError when the record does not exist."""
+    with _lock:
+        rec = _records().get(record_id)
+        if rec is None:
+            raise KeyError(record_id)
+        aq = _audit_queries()
+        sid, relations, relation_checks = _sid()
+        newest = _newest_runs().get(model)
+        by_record, relation_rows = ({}, {}) if newest is None else _run_detail_rows(newest[1])
+        rows = by_record.get(record_id, [])
+    detail = record_detail(aq, sid, relations, relation_checks, rec, rows, relation_rows)
+    return {"record": record_id, "model": model, "run": newest and newest[1].name,
+            "audited_at": newest and datetime.fromtimestamp(newest[0], timezone.utc).isoformat(timespec="seconds"),
+            **detail}
