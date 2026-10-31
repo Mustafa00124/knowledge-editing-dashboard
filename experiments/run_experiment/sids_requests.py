@@ -146,6 +146,18 @@ def build_request(rec):
     for i, item in enumerate(q.get('cross_lingual') or []):
         portability[f"cross_lingual_{item.get('language', i)}"] = {
             'prompt': item['prompt'], 'ground_truth': ABSTAIN_TARGET if op == 'delete' else item.get('new_answer')}
+    # Propositional (logical consistency, reported on its own): the edited
+    # fact in a yes/no truth-functional question; gold is its new answer
+    # ("I don't know" under delete, as validate.py's truth table requires).
+    for i, item in enumerate(q.get('propositional') or []):
+        if not (item.get('prompt') or '').strip():
+            raise MissingAnswer(rid, f'propositional[{i}] has no prompt')
+        gold = ABSTAIN_TARGET if op == 'delete' else item.get('new_answer')
+        if not gold:
+            raise MissingAnswer(rid, f'propositional[{i}] has no new answer')
+        portability[f'propositional_{i}'] = {'prompt': item['prompt'], 'ground_truth': gold,
+                                             'form': item.get('form'), 'side_fact': item.get('side_fact'),
+                                             'logic': 'propositional'}
 
     return {
         'prompt': prompt,

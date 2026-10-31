@@ -36,7 +36,7 @@ removes one. Records keep the keys `insert`, `replace` and `delete` (in
 Relation properties are not levels: they are the [Relation](#relation) tag
 group.
 
-Every ABox and TBox item is one edit plus exactly 10 queries; an RBox item has 7 (below).
+Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 9 (below).
 
 ### 1. Topic
 
@@ -73,9 +73,9 @@ belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 
 ### 4. Query type
 
-Fixed per item: **1 direct, 1 paraphrase, 2 cross-lingual, 1 near
-unrelated, 1 far unrelated, 4 derived**, in that order (records, tables and
-the dashboard list them so). Fixing the counts gives every item the same
+Fixed per item: **1 direct, 1 paraphrase, 2 cross-lingual, 2
+propositional, 1 near unrelated, 1 far unrelated, 4 derived**, in that
+order (records, tables and the dashboard list them so), 12 in all. Fixing the counts gives every item the same
 weight in every metric. Until 2026-10-22 items had 2 near and 2 far unrelated
 queries; the TBox items kept the near one whose reference differs from the
 edit's new answer (CRITERIA Rule 7) and the clearer far one.
@@ -85,6 +85,7 @@ edit's new answer (CRITERIA Rule 7) and the clearer far one.
 | `direct` | 1 | The edited fact asked as a question, in the edit's own wording. | Reliability |
 | `paraphrase` | 1 | The same question in different words. Where the relation has an inverse, the paraphrase may ask through it ("Sydney is the capital of which country?" for "What is the capital of Australia?"). | Reliability |
 | `cross_lingual` | 2 | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
+| `propositional` | 2 | The edited fact inside a yes/no truth-functional question: one negation, one "and" or "or" with an untouched side fact (see [Propositional queries](#propositional-queries)). | Logical consistency |
 | `unrelated_near` | 1 | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Locality |
 | `unrelated_far` | 1 | Nothing in common with the edit. | Locality |
 | `derived` | 4 | A question whose answer follows from the edit through a property of the relation (see below). | Generalization |
@@ -92,16 +93,17 @@ edit's new answer (CRITERIA Rule 7) and the clearer far one.
 Near unrelated queries are what make locality informative: far-only locality
 is close to 100% for almost every method.
 
-#### RBox items: 7 queries
+#### RBox items: 9 queries
 
 An RBox edit changes a property of a relation ("'lends to' is transitive"), not
-a fact about an entity, so its record states only the property and carries 7
+a fact about an entity, so its record states only the property and carries 9
 queries:
 
 | Key | Count | What it is | Metric |
 | --- | --- | --- | --- |
 | `direct` | 1 | The property itself: "Is the relation 'lends to' transitive?" | Reliability |
 | `cross_lingual` | 2 | The first instance question in Chinese and Spanish. | Cross-lingual |
+| `propositional` | 2 | The edited property inside a yes/no question: one negation ("Is it false that the relation 'lends to' is transitive?"), one "and" or "or" with a side fact. | Logical consistency |
 | `unrelated_near` | 1 | The same property asked of another relation in the topic ("Is the relation 'is a subsidiary of' transitive?"). | Locality |
 | `unrelated_far` | 1 | A different property of an unrelated relation ("Is the relation 'is married to' symmetric?"). | Locality |
 | `derived` | 2 | The property applied to real entities, with the premises in the prompt: "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?" Derivation `instantiation`. | Generalization |
@@ -139,6 +141,50 @@ finding.
   so expect some drop-off.
 - They are reported as their own metric, not folded into reliability, so a
   model that is weak in one language doesn't drag down English reliability.
+
+#### Propositional queries
+
+Two per record (ABox, TBox and RBox), right after the cross-lingual ones.
+Each puts the edited fact E inside a yes/no question built only from
+truth-functional connectives, so the answer follows from E's truth alone and
+the model has to treat the edit as a fact it reasons with, not a string it
+repeats. They feed their own metric, **logical consistency**, reported on
+its own (not folded into generalization). Their `logic` is `propositional`
+by definition; derived queries no longer use that label.
+
+| Field | Rule |
+| --- | --- |
+| `prompt` | the question; one item has form `not`, the other `and` or `or`; no "if ... then" |
+| `form` | `not` \| `and` \| `or` |
+| `side_fact` | null for `not`; for `and` / `or`, the untouched fact S combined with E, as a sentence |
+| `original_answer` | "yes" or "no" before the edit; null for insert |
+| `new_answer` | "yes" or "no" after the edit; "I don't know" for delete |
+
+E is the edited statement (`edit.statement`): under replace it is false
+before the edit and true after; under insert true after; under delete it is
+the removed fact, true before and unknown after. S is chosen so the answer
+flips with the edit: true for `and`, false for `or`. Examples (replace,
+"The capital of Australia is Sydney"): "Is it false that the capital of
+Australia is Sydney?" (yes, then no); "Is it true both that the capital of
+Australia is Sydney and that the Pacific Ocean borders Australia?" (no, then
+yes). Under delete both new answers are "I don't know": strong Kleene logic
+keeps E's unknown value (not unknown is unknown; unknown and true is
+unknown; unknown or false is unknown).
+
+The side fact needs a check `{fact, prompt, answer}` like a bridge fact, so
+the audit asks it before editing; its answer gives S's truth (yes or a filled
+slot: true; no: false). A trivially true or false side fact may go without,
+and is then taken to have the value the flip needs. `validate.py` checks the
+truth table: one `not` and one `and` / `or`, `side_fact` present exactly for
+`and` / `or`, S's value making the answer flip, and each gold answer equal to
+the connective's value. That is the formal check of these queries (checker
+`truth-table` in `owl/COVERAGE.md` and the reports), not HermiT or Z3.
+
+Records written before 2026-10-31 have none yet: `validate.py` reports
+missing propositional queries, and derived queries labelled `propositional`,
+as errors only with `SIDS_REQUIRE_PROPOSITIONAL=1` (or, for the label, on a
+record that already has its propositional queries), and otherwise prints
+how many are pending.
 
 #### Derived queries
 
@@ -188,7 +234,7 @@ more, and a few questions need less.
 
 | `logic` | What the inference needs | Example |
 | --- | --- | --- |
-| `propositional` | Only the truth of whole statements combined with not, and, or, if: no individuals or relations looked inside. | Edit: 91 is prime. "Is it true that 91 is prime or 91 is even?" |
+| `propositional` | Only the truth of whole statements combined with not, and, or: no individuals or relations looked inside. The propositional query type is this logic by definition; derived queries do not use it. | Edit: 91 is prime. Propositional query: "Is it true that 91 is prime or 91 is even?" |
 | `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital, more than one), names for the same individual, and comparing named values: a join through a relation (the same currency, the same city), a closed list of named members (the only ones). | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? Does Denmark use the same currency as Germany? Which is correct: 'Zorvan is tall' or 'Zorvan are tall'? |
 | `fol` | First-order logic beyond DL: relations among three or more things, real arithmetic, dates or numbers compared as values, counting how many, string patterns, rules whose variables form a cycle. | Take the past tense of 'outswim' and remove 'out' from the front: what word is left? (a string operation) How many voting members does the House have? (a sum) |
 
@@ -228,6 +274,35 @@ names it in `via`. The model must answer every bridge fact correctly
 *before* editing, otherwise a wrong derived answer is a missing fact rather
 than a failed edit. Items whose bridges fail are dropped per model, not
 counted as failures.
+
+**Bridge facts, revision facts and alternative derivations** (2026-10-31).
+A fact listed with a derived query is one of two kinds:
+
+- `bridge`: a fact the answer is **built from**: combined with the edit (and
+  the relation property) to reach the answer. `hops` = 1 + the number of
+  bridge facts.
+- `revision_facts` (optional): a fact that **settles which belief gives way**
+  or which world applies, without being combined into the answer. Example:
+  "A volcano built mainly from fluid lava flows is not built mainly from
+  layers of volcanic ash" decides that, once Mauna Loa is a stratovolcano,
+  the stored "built from lava flows" belief is what goes; the answer itself
+  comes from the membership and the class rule. Revision facts are part of
+  why the answer comes out as it does, so they stay in the record, but they
+  do not count in `hops`.
+
+Both kinds are facts the model must hold, so each revision fact the prompt
+does not state has a check like a bridge (`facts_to_check()`); a revision
+fact the prompt states needs `revision_in_prompt: true` (when absent it
+follows `bridge_in_prompt`). A fact is never both a bridge and a revision
+fact.
+
+`alt_derivations` (optional): other derivation names that reach the same
+answer by a different valid route, such as `chain` with
+`alt_derivations: ["transitivity"]` when born_in ∘ located_in and
+located_in's transitivity (through a subproperty) both give the country.
+`derivation` stays the intended route; `justify.py` then reports a query
+whose justifications use different properties as a match with
+alternatives listed rather than ambiguous (owl/README.md, Justifications).
 
 To make that checkable, every bridge fact a derived query does not state in
 its own prompt, and every premise, has a **check**: a question with a short
@@ -916,7 +991,11 @@ from, the OWL notion of a justification, and compares them with the query's
 `derivation`, `bridge`, `hops` and `via`: `match`, `partial` (derivation right,
 bridges or hops differ), `mismatch` (the derivation type is not used) or
 `not_checked`, with flags for answers that follow without the edit
-(`no_edit`) and for alternative derivations (`ambiguous`). Results go to
+(`no_edit`), for alternative derivations (`ambiguous`, or
+`alternatives_listed` when `alt_derivations` names them) and for a revision
+fact the answer is built from (`revision_as_bridge`). After editing records,
+`justify.py --recompare` recomputes the verdicts from the stored
+justifications without HermiT. Results go to
 `owl/justifications.json` and a CRITERIA Rule 3 row; the full run is
 `sbatch datasets/SidsDataset/owl/justify.sbatch` (owl/README.md,
 Justifications).
@@ -990,6 +1069,7 @@ map directly onto metrics:
 | Reliability | direct + paraphrase (2) | one number |
 | Cross-lingual | cross_lingual (2) | one number, plus per language |
 | Generalization | derived (4) | one number, plus per derivation type |
+| Logical consistency | propositional (2) | one number on its own, plus per form (not, and/or) |
 | Locality | unrelated near + far (2) | one number, plus near and far |
 | Fluency | the 8 English generations | one number |
 
@@ -1139,8 +1219,8 @@ rejected, so typos don't silently drop data.
 | `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
 | `reality` | `real` \| `fictional` | insert only, and required there; left out otherwise |
 | `worlds` | list, ABox and TBox only | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when at least one derived query is indeterminate (`background_beliefs` or `derived_beliefs`) (see [Determinacy](#determinacy-and-belief-revision-problems)) |
-| `queries` | object | the 10 queries (7 for RBox), below |
-| `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge facts not stated in a prompt), with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
+| `queries` | object | the 12 queries (9 for RBox), below |
+| `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge and revision facts not stated in a prompt), plus one per propositional side fact unless it is trivial, with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
 | `evidence` | object | why each fact is rated stored or derived, keyed by the fact's exact text (see [Evidence](#evidence)); required for the edited fact and every premise on records with determinacy, optional otherwise |
 | `notes` | string, optional | |
 | `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |
@@ -1159,19 +1239,24 @@ Each query:
 | `reference` | string, optional | locality queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
 | `derivation` | see derived queries | derived only |
-| `hops` | integer | derived only; 1 + number of bridge facts |
+| `hops` | integer | derived only; 1 + number of bridge facts (revision facts not counted) |
 | `bridge` | string list | derived only; empty if none |
 | `via` | string, optional | derived only; the relation whose tag licenses the derivation, when it isn't the edited relation |
 | `bridge_in_prompt` | bool, optional | derived only; the bridge facts are stated in the prompt, so they aren't checked before editing |
+| `revision_facts` | string list, optional | derived only; facts that settle which belief gives way or which world applies, not combined into the answer (not counted in `hops`; checked like bridge facts unless stated in the prompt). Non-empty when present; no fact is both a bridge and a revision fact |
+| `revision_in_prompt` | bool, optional | derived only, with `revision_facts`; the revision facts are stated in the prompt (default: the value of `bridge_in_prompt`) |
+| `alt_derivations` | string list, optional | derived only; other derivation names (from the derived-query table) that reach the same answer by another valid route; not the derivation itself |
 | `discriminates` | bool, optional | derived only; false when the answer is the same before and after the edit |
 | `premise_route` | bool, optional | derived only, on a determinate query of an edit with premises: the query reaches the edited fact along its premises, where only an inconsistent model gives the old answer |
-| `logic` | `propositional` \| `dl` \| `fol` | derived only, required: the weakest logic the inference needs (see Logic under [Derived queries](#derived-queries)) |
+| `logic` | `dl` \| `fol` | derived only, required: the weakest logic the inference needs (see Logic under [Derived queries](#derived-queries)); `propositional` is the propositional query type's, being moved out of derived queries |
 | `theory` | `arithmetic` \| `temporal`, optional | derived only, with `logic: fol`: a theory the inference uses on top |
 
 The record's keys come in the order of this table: identity, the edit, the
 relation, derivability, then the rest. `queries` holds, in this
 order, `direct` and `paraphrase` (one object each), and `cross_lingual` (2),
-`unrelated_near` (1), `unrelated_far` (1) and `derived` (4) as lists.
+`propositional` (2), `unrelated_near` (1), `unrelated_far` (1) and
+`derived` (4) as lists. A propositional query has its own fields (see
+[Propositional queries](#propositional-queries)).
 The validator also checks that each derivation's tag exists on the relation
 it uses, that `functional` appears only under replace,
 `inheritance` only for TBox, `instantiation` only (and always) for RBox, and

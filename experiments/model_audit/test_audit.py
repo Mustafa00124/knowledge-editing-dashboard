@@ -1,3 +1,4 @@
+import json
 import unittest
 
 import audit
@@ -45,6 +46,20 @@ class CheckTests(unittest.TestCase):
         got = audit.summarise_checks(rows, [RECORD], RELATIONS)
         self.assertEqual(got["derived_supported"], {"supported": 1, "unsupported": 1, "unclear": 0})
         self.assertEqual(got["relations"], {"pass": 0, "scored": 1, "unclear": 0})
+
+    def test_unstated_revision_facts_are_part_of_the_chain(self):
+        rec = json.loads(json.dumps(RECORD))
+        rec["queries"]["derived"][0]["revision_facts"] = ["Paris is not in Italy."]
+        rec["checks"].append({"fact": "Paris is not in Italy.", "prompt": "Is Paris in Italy?", "answer": "No"})
+        rows = audit.check_rows([rec], RELATION_CHECKS, RELATIONS)
+        for r in rows:
+            r["score"] = 1
+        rows[2]["score"] = 0  # the revision fact's check fails
+        got = audit.summarise_checks(rows, [rec], RELATIONS)
+        self.assertEqual(got["derived_supported"], {"supported": 1, "unsupported": 1, "unclear": 0})
+        rec["queries"]["derived"][0]["revision_in_prompt"] = True  # stated in the prompt: not part of it
+        got = audit.summarise_checks(rows, [rec], RELATIONS)
+        self.assertEqual(got["derived_supported"], {"supported": 2, "unsupported": 0, "unclear": 0})
 
     def test_unclear_check_makes_chain_unclear(self):
         rows = self.rows()
@@ -111,6 +126,24 @@ class QueryRowTests(unittest.TestCase):
         self.assertEqual(audit.J.answer_candidates(near)[0], {"A": "Wellington"})
         self.assertEqual(audit.J.answer_candidates(by["derived[1]"])[0], {"A": "Canberra"})
         self.assertTrue(all(r["rule"] == "original" and r["new_answer"] is None for r in rows))
+
+    def test_propositional_asked_with_original_answer_after_cross_lingual(self):
+        rec = json.loads(json.dumps(REPLACE))
+        rec["queries"] = {k: v for k, v in rec["queries"].items() if k != "unrelated_near"} | {
+            "propositional": [
+                {"prompt": "Is it false that the capital of Australia is Sydney?", "form": "not", "side_fact": None,
+                 "original_answer": "Yes", "new_answer": "No"},
+                {"prompt": "Is the capital Sydney and is Australia an island?", "form": "and",
+                 "side_fact": "Australia is an island.", "original_answer": "No", "new_answer": "Yes"}]}
+        keys = [r["query_key"] for r in audit.query_rows([rec])]
+        self.assertEqual(keys[2:6], ["cross_lingual[zh]", "cross_lingual[es]", "propositional[0]", "propositional[1]"])
+        by = {r["query_key"]: r for r in audit.query_rows([rec])}
+        self.assertEqual((by["propositional[1]"]["original_answer"], by["propositional[1]"]["rule"]), ("No", "original"))
+        # insert: no original answer, so not asked
+        ins = dict(rec, edit_operation="insert", reality="fictional")
+        ins["queries"] = dict(rec["queries"], propositional=[dict(q, original_answer=None)
+                                                             for q in rec["queries"]["propositional"]])
+        self.assertFalse(any(r["query_type"] == "propositional" for r in audit.query_rows([ins])))
 
     def test_hash_tracks_prompt_and_expected_answer(self):
         h = audit.query_rows([REPLACE])[0]["query_hash"]

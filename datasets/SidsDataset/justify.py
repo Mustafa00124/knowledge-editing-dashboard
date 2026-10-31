@@ -61,7 +61,11 @@ PROPERTY_DERIVATIONS = {'symmetry', 'inverse', 'asymmetry', 'transitivity', 'cha
 # Task types: no relation property of their own.
 TASK_DERIVATIONS = {'composition', 'binding', 'application', 'premise', 'scope'}
 VERDICTS = ('match', 'partial', 'mismatch', 'not_checked')
-FLAGS = ('no_edit', 'ambiguous', 'capped')
+# alternatives_listed: an ambiguous query whose routes the record names
+# (derivation + alt_derivations); revision_as_bridge: a listed revision fact
+# every justification uses (it builds the answer: should be a bridge);
+# stale: stored justifications that no longer fit the record (--recompare).
+FLAGS = ('no_edit', 'ambiguous', 'alternatives_listed', 'revision_as_bridge', 'capped', 'stale')
 
 RESERVED = set(D.KEYWORDS) | set(D.PROPERTY_AXIOMS) | {'Thing', 'Nothing', 'Disj', 'same', 'different'}
 NAME = re.compile(r'(?<![?\w])([A-Za-z_][A-Za-z0-9_]*)')
@@ -369,6 +373,21 @@ def unit_signature(u):
     return {('i', x) for x in n['ind']} | {('r', x) for x in n['rel']} | {('c', x) for x in n['cls']}
 
 
+def routes_named(names, sets):
+    """Does the record name every route of an ambiguous query? `sets`: the
+    property-type sets of its edit-using justifications in one world. Each
+    set's own part (what it has beyond the types all of them share) must
+    contain a named derivation, when that part has a nameable type at all
+    (disjointness and rule are not derivation names)."""
+    common = set.intersection(*(set(x) for x in sets))
+    named = set(names)
+    for x in sets:
+        own = (set(x) - common) & PROPERTY_DERIVATIONS
+        if own and not own & named:
+            return False
+    return True
+
+
 # ---------------------------------------------------------------- one record
 
 class Justifier(R.Record):
@@ -377,8 +396,9 @@ class Justifier(R.Record):
         super().__init__(rid, base_table)
         self.max_just, self.budget = max_just, budget
         self.stats = {'calls': 0, 'subsets': 0}
-        self.bridge_refs = {k: ([v] if isinstance(v, str) else list(v))
-                            for k, v in (self.f.get('bridge_refs') or {}).items()}
+        self.refs = {kind: {k: ([v] if isinstance(v, str) else list(v))
+                            for k, v in (self.f.get(field) or {}).items()}
+                     for kind, field in (('bridge', 'bridge_refs'), ('revision_facts', 'revision_refs'))}
 
     def units_for(self, fq, phase, w):
         """{unit id: unit} and the base relation table of a phase in world w."""
@@ -518,19 +538,23 @@ class Justifier(R.Record):
 
     # ----- mapping a justification to metadata
 
-    def bridge_sentences(self, qi):
-        return list(self.rec['queries']['derived'][qi].get('bridge') or [])
+    def sentences(self, qi, kind='bridge'):
+        """The query's bridge sentences, or its revision facts."""
+        return list(self.rec['queries']['derived'][qi].get(kind) or [])
 
-    def unit_bridges(self, uid, u, qi):
-        """Bridge sentences of query qi this unit states: by bridge_refs, or,
-        for a fact unit without refs, by its named entities' surfaces all
-        appearing in the sentence."""
-        sents = self.bridge_sentences(qi)
+    def unit_sentences(self, uid, u, qi, kind='bridge'):
+        """Sentences of query qi's `kind` list ('bridge' or 'revision_facts')
+        this unit states: by bridge_refs / revision_refs, or, for a fact unit
+        named in neither, by its named entities' surfaces all appearing in the
+        sentence."""
+        sents = self.sentences(qi, kind)
         key = uid.split(':', 1)[1] if uid.startswith('bg:') else \
             f'q{qi}.given.{uid.split(":", 1)[1]}' if uid.startswith('given:') else None
-        refs = self.bridge_refs.get(key) if key else None
-        if refs is not None:
+        if key is not None and key in self.refs[kind]:
+            refs = self.refs[kind][key]
             return [s for s in sents if any(D.norm(s) == D.norm(r) for r in refs)]
+        if key is not None and any(key in r for r in self.refs.values()):
+            return []           # the refs map it to the other list
         if u['kind'] not in ('bg', 'given', 'store', 'add') or not u['facts']:
             return []
         inds = set()
@@ -549,28 +573,28 @@ class Justifier(R.Record):
                 out.append(s)
         return out
 
-    def other_bridge(self, uid, u, qi):
-        """Does this unit state a bridge of another derived query?"""
-        for j in range(len(self.rec['queries']['derived'])):
-            if j != qi and self.unit_bridges(uid, u, j):
-                return True
-        return False
+    def unit_bridges(self, uid, u, qi):
+        return self.unit_sentences(uid, u, qi, 'bridge')
 
     def describe(self, units, J, fq, qi):
         premises = set(self.f.get('premises') or [])
-        items, types, covered, extra, support = [], set(), [], [], []
+        items, types, covered, extra, support, revision = [], set(), [], [], [], []
         for uid in sorted(J, key=order_key):
             u = units[uid]
             ty = sorted(unit_types(u))
             types |= set(ty)
             role = u['kind']
-            br = []
+            br, rv = [], []
             if u['kind'] in ('bg', 'given', 'store', 'add'):
                 br = self.unit_bridges(uid, u, qi)
+                rv = [] if br else self.unit_sentences(uid, u, qi, 'revision_facts')
                 key = uid.split(':', 1)[1]
                 if br:
                     role = 'bridge'
                     covered += [s for s in br if s not in covered]
+                elif rv:
+                    role = 'revision'       # a listed revision fact, here used to build the answer
+                    revision += [s for s in rv if s not in revision]
                 elif u['kind'] == 'bg' and key in premises:
                     role = 'premise'
                 elif u['kind'] == 'bg' and key in self.firm and all(
@@ -588,14 +612,14 @@ class Justifier(R.Record):
                     role = 'unlisted'
                     extra.append(uid)
             items.append({'unit': uid, 'role': role, 'axiom': u['text'], **({'types': ty} if ty else {}),
-                          **({'bridge': br} if br else {})})
+                          **({'bridge': br} if br else {}), **({'revision': rv} if rv else {})})
         # class inclusions chained (edit included): transitivity of subclass_of
         ncls = sum(1 for uid in J for a in units[uid]['facts'] if D.parse_axiom(a)[0] in ('sub', 'equiv'))
         if ncls >= 2:
             types.add('subclass_transitivity')
         return {'units': sorted(J, key=order_key), 'items': items, 'types': sorted(types),
-                'uses_edit': 'edit' in J, 'uses_premises': bool({f'bg:{k}' for k in premises} & set(J)), 'bridges_covered': covered, 'unlisted': extra,
-                'hops': 1 + len(covered) + len(extra)}
+                'uses_edit': 'edit' in J, 'uses_premises': bool({f'bg:{k}' for k in premises} & set(J)), 'bridges_covered': covered, 'revision_used': revision,
+                'unlisted': extra, 'hops': 1 + len(covered) + len(extra)}
 
     # ----- comparison with the record
 
@@ -604,14 +628,22 @@ class Justifier(R.Record):
         worlds pooled). `other`: the other phase's justifications (pre edit,
         for a replace): a listed bridge only the original answer needs counts
         as used (`pre_only_bridge`), since the record's bridges cover both
-        answers."""
+        answers. Listed revision facts are not bridges: one the answer does not
+        use is fine; one every edit-using justification uses builds the answer,
+        so it should be a bridge (`revision_as_bridge`)."""
         rq = self.rec['queries']['derived'][qi]
         der, bridges, hops, via = rq['derivation'], list(rq.get('bridge') or []), rq['hops'], rq.get('via')
+        revision, alts = list(rq.get('revision_facts') or []), list(rq.get('alt_derivations') or [])
         justs = [j for g in justs_by_world.values() for j in g]
         if not justs:
             return {'verdict': 'not_checked', 'why': 'no justification'}
         other_cov = {b for j in other for b in j['bridges_covered']}
         all_units_bridges = self.encoded_bridges(qi, fq)
+        # revision facts every justification uses (every one that uses the edit,
+        # when some do: an edit-free route, such as a world that keeps the old
+        # answer, is the no_edit flag's business): the answer is built from them
+        routes = [j for j in justs if j['uses_edit']] or justs
+        rev_always = [r for r in revision if all(r in j.get('revision_used', []) for j in routes)]
         best, best_score = None, None
         for js in justs:
             types = set(js['types'])
@@ -623,45 +655,57 @@ class Justifier(R.Record):
             extra = js['unlisted']
             # hops the record should have: unencoded bridges are not judged
             hops_ok = js['hops'] + len(pre_only) == hops - len(unencoded)
-            score = (der_ok, not missing and not extra, hops_ok, -len(js['units']))
+            score = (der_ok, not missing and not extra, hops_ok, not js.get('revision_used'), -len(js['units']))
             if best_score is None or score > best_score:
                 best_score, best = score, {'derivation_ok': der_ok, 'missing_bridge': missing,
                                            'unencoded_bridge': unencoded, 'pre_only_bridge': pre_only,
-                                           'unlisted': extra,
+                                           'unlisted': extra, 'revision_used': list(js.get('revision_used', [])),
                                            'hops': js['hops'], 'hops_ok': hops_ok, 'types': sorted(types),
                                            'units': js['units']}
+        best['revision_as_bridge'] = rev_always
+        if revision:
+            enc = self.encoded_bridges(qi, fq, 'revision_facts')
+            best['unencoded_revision'] = [r for r in revision if r not in enc]
         if not best['derivation_ok']:
             verdict = 'mismatch'
-        elif best['missing_bridge'] or best['unlisted'] or not best['hops_ok']:
+        elif best['missing_bridge'] or best['unlisted'] or not best['hops_ok'] or rev_always:
             verdict = 'partial'
         else:
             verdict = 'match'
         out = {'verdict': verdict, 'record': {'derivation': der, 'bridge': bridges, 'hops': hops,
+                                               **({'revision_facts': revision} if revision else {}),
+                                               **({'alt_derivations': alts} if alts else {}),
                                                **({'via': via} if via else {})}, 'best': best}
         # several justifications of one entailment (one world) that use the
-        # edit, with different property sets: the derivation is underdetermined.
+        # edit, with different property sets: the derivation is underdetermined,
+        # unless the record names every route (derivation + alt_derivations).
         # (Edit-free ones, such as a stored by-name answer, are the no_edit flag.)
-        amb = set()
+        amb, groups = set(), []
         for group in justs_by_world.values():
             sets = {tuple(sorted(set(j['types']) & (PROPERTY_DERIVATIONS | {'disjointness', 'rule'})))
                     for j in group if j['uses_edit']}
             if len(sets) > 1:
                 amb |= {' + '.join(x) or 'no property' for x in sets}
+                groups.append(sets)
         if amb:
-            out['ambiguous'] = sorted(amb)
+            if alts and all(routes_named([der] + alts, sets) for sets in groups):
+                out['alternatives_listed'] = sorted(amb)
+            else:
+                out['ambiguous'] = sorted(amb)
         if via:
             out['via_used'] = any(via in u for j in justs for u in j['units'] if u.startswith('rbox:')) or \
                 any(via in it['axiom'] for j in justs for it in j['items'] if it['role'] == 'given')
         return out
 
-    def encoded_bridges(self, qi, fq):
-        """Bridge sentences of query qi stated by some unit of the record."""
+    def encoded_bridges(self, qi, fq, kind='bridge'):
+        """Bridge sentences (or revision facts) of query qi stated by some unit
+        of the record."""
         out = set()
         for phase in ('pre', 'post'):
             for w in self.worlds:
                 units, _ = self.units_for(fq, phase, w)
                 for uid, u in units.items():
-                    out |= set(self.unit_bridges(uid, u, qi))
+                    out |= set(self.unit_sentences(uid, u, qi, kind))
         return out
 
     def derivation_ok(self, der, types, js, qi):
@@ -678,25 +722,40 @@ class Justifier(R.Record):
 
     # ----- one query, one record
 
-    def check_query(self, fq, qi):
+    def skip(self, fq, qi):
+        """(base fields, not_checked entry or None) for one query."""
         rq = self.rec['queries']['derived'][qi]
         ans = self.answers(qi)
         base = {'q': qi, 'derivation': rq['derivation'], 'determinacy': ans['determinacy'], 'logic': rq['logic']}
         if 'not_checked' in fq or 'exception' in fq:
-            return base | {'verdict': 'not_checked',
-                           'why': fq.get('not_checked') or 'exception: ' + fq['exception']}
+            return base, base | {'verdict': 'not_checked',
+                                 'why': fq.get('not_checked') or 'exception: ' + fq['exception']}
         if self.op == 'delete' and rq['derivation'] == 'functional':
-            return base | {'verdict': 'not_checked',
-                           'why': 'functional under delete: the post answer is "does not know" (nothing follows) '
-                                  'and the pre answer restates the deleted fact'}
-        t0 = time.time()
-        live = [w for w, s in self.worlds.items() if not s.get('exception')] or ['*']
+            return base, base | {'verdict': 'not_checked',
+                                 'why': 'functional under delete: the post answer is "does not know" (nothing '
+                                        'follows) and the pre answer restates the deleted fact'}
+        return base, None
+
+    def live_worlds(self):
+        return [w for w, s in self.worlds.items() if not s.get('exception')] or ['*']
+
+    def post_expected(self, qi):
+        ans = self.answers(qi)
         indeterminate = bool(ans['worlds'])
+        return {w: (ans['worlds'].get(w) if indeterminate else ans['new']) for w in self.live_worlds()}
+
+    def check_query(self, fq, qi):
+        base, done = self.skip(fq, qi)
+        if done:
+            return done
+        t0 = time.time()
+        ans = self.answers(qi)
+        live = self.live_worlds()
         # Main target: the post-edit answer; for a delete (no edit post) or
         # when nothing follows post edit, the pre-edit original answer, with
         # the deleted / original fact as the edit unit. The other phase gets
         # one justification for reference.
-        post_exp = {w: (ans['worlds'].get(w) if indeterminate else ans['new']) for w in live}
+        post_exp = self.post_expected(qi)
         main_phase = 'pre' if self.op == 'delete' or all(v is None for v in post_exp.values()) else 'post'
         post = {w: self.justify(fq, qi, 'post', w, post_exp[w], single=main_phase == 'pre') for w in live}
         if main_phase == 'post' and not any(v['status'] == 'ok' for v in post.values()):
@@ -712,7 +771,16 @@ class Justifier(R.Record):
                     continue
                 by_stores[key] = w
                 pre[w] = self.justify(fq, qi, 'pre', w, ans['original'], single=main_phase == 'post')
-        out = base | {'post': post, 'pre': pre, 'main': main_phase}
+        out = self.evaluate(base | {'post': post, 'pre': pre, 'main': main_phase}, fq, qi)
+        out['seconds'] = round(time.time() - t0, 1)
+        return out
+
+    def evaluate(self, out, fq, qi):
+        """Verdict and flags of one query from its justifications (out: base
+        fields + post, pre, main). No HermiT: --recompare reuses it."""
+        rq = self.rec['queries']['derived'][qi]
+        indeterminate = bool(self.answers(qi)['worlds'])
+        post, pre, main_phase = out['post'], out['pre'], out['main']
         main = post if main_phase == 'post' else pre
         by_world = {w: v['justifications'] for w, v in main.items() if v.get('status') == 'ok'}
         if main_phase == 'pre' and self.f.get('premises'):
@@ -727,7 +795,7 @@ class Justifier(R.Record):
         if not by_world:
             why = '; '.join(f'{ph} {w}: {v.get("detail") or v["status"]}' for ph, d in (('post', post), ('pre', pre))
                             for w, v in d.items())
-            return out | {'verdict': 'not_checked', 'why': why, 'seconds': round(time.time() - t0, 1)}
+            return out | {'verdict': 'not_checked', 'why': why}
         other = [j for v in (pre if main_phase == 'post' else {}).values() if v.get('status') == 'ok'
                  for j in v['justifications']]
         out |= self.compare(qi, by_world, fq, other)
@@ -747,8 +815,59 @@ class Justifier(R.Record):
             sets = {json.dumps(sorted(map(tuple, (j['units'] for j in v.get('justifications', []))))) for v in main.values()}
             out['worlds_differ'] = len(sets) > 1
         out['capped'] = any(v.get('capped') for v in main.values())
-        out['seconds'] = round(time.time() - t0, 1)
         return out
+
+    def recompare_query(self, fq, qi, old):
+        """Verdict of one query from its stored justifications (`old`, its
+        entry in justifications.json) against the current record and formal
+        file: each stored justification's units are mapped again (roles,
+        bridges, revision facts, hops). A stored entry whose units or expected
+        answers no longer exist is `stale` (rerun justify.py on the record)."""
+        base, done = self.skip(fq, qi)
+        if done:
+            return done
+        if not old or 'main' not in old:
+            return base | {'verdict': 'not_checked', 'why': 'not justified yet: rerun justify.py on the record',
+                           'stale': 'encoded now, but no stored justifications'
+                                    + (f' (stored: {old["why"]})' if (old or {}).get('why') else '')}
+        ans = self.answers(qi)
+        exp = {'post': self.post_expected(qi), 'pre': {w: ans['original'] for w in self.live_worlds()}}
+        out = base | {'main': old['main'], 'post': {}, 'pre': {}}
+        for phase in ('post', 'pre'):
+            for w, v in (old.get(phase) or {}).items():
+                v = dict(v)
+                if v.get('status') == 'ok':
+                    if w not in exp[phase] or exp[phase][w] != v.get('expected'):
+                        return base | {'verdict': 'not_checked', 'why': 'stale: expected answers changed',
+                                       'stale': f'{phase} {w}: answer {v.get("expected")!r} is now '
+                                                f'{exp[phase].get(w)!r}'}
+                    units, _ = self.units_for(fq, phase, w)
+                    js = []
+                    for j in v['justifications']:
+                        gone = [u for u in j['units'] if u not in units]
+                        if gone:
+                            return base | {'verdict': 'not_checked', 'why': 'stale: formal file changed',
+                                           'stale': f'{phase} {w}: units {gone} are gone'}
+                        js.append(self.describe(units, frozenset(j['units']), fq, qi))
+                    v['justifications'] = js
+                out[phase][w] = v
+        out = self.evaluate(out, fq, qi)
+        if 'seconds' in old:
+            out['seconds'] = old['seconds']
+        return out
+
+    def recompare(self, old):
+        fqs = {q['q']: q for q in self.f.get('queries') or []}
+        olds = {q['q']: q for q in (old or {}).get('queries', [])}
+        out = []
+        for qi in range(len(self.rec['queries']['derived'])):
+            fq = fqs.get(qi, {'q': qi, 'not_checked': 'not encoded'})
+            try:
+                out.append(self.recompare_query(fq, qi, olds.get(qi)))
+            except Exception as e:
+                out.append({'q': qi, 'verdict': 'not_checked', 'why': f'error: {type(e).__name__}: {e}'})
+        res = {k: old[k] for k in ('seconds', 'calls', 'subsets') if k in (old or {})}
+        return res | {'recompared': time.strftime('%Y-%m-%d %H:%M:%S'), 'queries': out}
 
     def run(self):
         t0 = time.time()
@@ -778,13 +897,25 @@ def run_one(args):
         return rid, {'error': f'{type(e).__name__}: {e}', 'queries': []}
 
 
+def recompare_one(args):
+    rid, old = args
+    table = RL.load_table()
+    try:
+        probs = D.check_formal(D.load_formal(rid), D.load_record(rid), set(table))
+        if probs:
+            return rid, {'error': 'encoding: ' + '; '.join(probs), 'queries': []}
+        return rid, Justifier(rid, table).recompare(old)
+    except Exception as e:
+        return rid, {'error': f'{type(e).__name__}: {e}', 'queries': []}
+
+
 def summary(records):
     c = Counter()
     for r in records.values():
         for q in r.get('queries', []):
             c[q['verdict']] += 1
             for f in FLAGS:
-                if q.get(f):
+                if q.get(f) or (q.get('best') or {}).get(f):
                     c[f] += 1
     return {k: c.get(k, 0) for k in VERDICTS + FLAGS}
 
@@ -804,12 +935,19 @@ def flagged(rid, q):
             why.append('uses unlisted: ' + ', '.join(b['unlisted']))
         if not b['hops_ok']:
             why.append(f'hops {b["hops"]} vs record {q["record"]["hops"]}')
+        if b.get('revision_as_bridge'):
+            why.append('revision fact used to build the answer (should be a bridge): '
+                       + ' | '.join(b['revision_as_bridge']))
         lines.append(f'{q["verdict"].upper()} {tag}: ' + '; '.join(why))
     if q.get('no_edit'):
         lines.append(f'NO-EDIT {tag}: a justification without the edit in {", ".join(q["no_edit"]["worlds"])}'
                      + ('' if q['no_edit']['discriminates'] else ' (discriminates: false)'))
     if q.get('ambiguous'):
         lines.append(f'AMBIGUOUS {tag}: ' + ' / '.join(q['ambiguous']))
+    if q.get('alternatives_listed'):
+        lines.append(f'{q["verdict"].upper()} (alternatives listed) {tag}: ' + ' / '.join(q['alternatives_listed']))
+    if q.get('stale'):
+        lines.append(f'STALE {tag}: {q["stale"]} (rerun justify.py on it)')
     if q.get('capped'):
         lines.append(f'CAPPED {tag}')
     return lines
@@ -822,7 +960,13 @@ def main(argv):
     ap.add_argument('--jobs', type=int, default=2)
     ap.add_argument('--max-just', type=int, default=MAX_JUST, help='justifications per entailment (default 5)')
     ap.add_argument('--budget', type=float, default=BUDGET, help='seconds per entailment for the hitting-set tree')
+    ap.add_argument('--recompare', action='store_true',
+                    help='no HermiT: recompute verdicts from the justifications stored in the report against '
+                         'the current records and formal files')
+    ap.add_argument('--report', type=Path, default=OUT, help='report to read and write (default owl/justifications.json)')
     args = ap.parse_args(argv)
+    if args.recompare:
+        return main_recompare(args)
     scope = R.all_record_ids(args.topic)
     have = {p.stem for p in (R.OWL_DIR / 'formal').glob('*.json')}
     ids = args.ids or [r for r in scope if r in have]
@@ -830,19 +974,25 @@ def main(argv):
     # owlready2 keeps memory per World; fresh workers every few records cap it
     with Pool(max(1, args.jobs), maxtasksperchild=5) as pool:
         results = dict(pool.imap_unordered(run_one, [(i, args.max_just, args.budget) for i in ids]))
-    old = json.loads(OUT.read_text()) if OUT.exists() else {}
+    old = json.loads(args.report.read_text()) if args.report.exists() else {}
     records = old.get('records', {})
     records.update(results)
     report = {'generated': time.strftime('%Y-%m-%d %H:%M:%S'), 'summary': summary(records),
               'records_checked': len(records), 'max_just': args.max_just, 'budget': args.budget,
               'records': dict(sorted(records.items()))}
-    OUT.write_text(json.dumps(report, ensure_ascii=False, indent=1) + '\n')
+    args.report.write_text(json.dumps(report, ensure_ascii=False, indent=1) + '\n')
     secs = [q['seconds'] for r in results.values() for q in r.get('queries', []) if 'seconds' in q]
     print(f'justified {len(ids)} records in {time.time() - t0:.0f}s with {args.jobs} jobs '
           f'({sum(r.get("calls", 0) for r in results.values())} HermiT calls, '
           f'{sum(r.get("subsets", 0) for r in results.values())} subsets); '
           f'{len(secs)} queries, {sum(secs) / max(1, len(secs)):.1f}s each on average, max {max(secs, default=0):.0f}s')
     print('  ' + '  '.join(f'{k} {v}' for k, v in summary(results).items()))
+    print_flagged(results)
+    print(f'report: {args.report}')
+    return 0
+
+
+def print_flagged(results):
     for rid, r in sorted(results.items()):
         if r.get('error'):
             print(f'ERROR {rid}: {r["error"][:300]}')
@@ -851,7 +1001,29 @@ def main(argv):
                 print(f'ERROR {rid} q{q["q"]}: {q["why"][:300]}')
             for line in flagged(rid, q):
                 print(line[:500])
-    print('report: owl/justifications.json')
+
+
+def main_recompare(args):
+    """--recompare: verdicts again from the stored justifications (records in
+    the report, or the ids / topic given), no HermiT. Each stored justification
+    keeps its units; their roles, bridges, revision facts and hops are mapped
+    again from the current record and formal file."""
+    old = json.loads(args.report.read_text())
+    records = old.get('records', {})
+    ids = args.ids or [r for r in records if not args.topic or r.startswith(args.topic + '-')]
+    t0 = time.time()
+    with Pool(max(1, args.jobs)) as pool:
+        results = dict(pool.imap_unordered(recompare_one, [(i, records.get(i)) for i in ids]))
+    before = summary({i: records[i] for i in ids if i in records})
+    records.update(results)
+    old.update({'recompared': time.strftime('%Y-%m-%d %H:%M:%S'), 'summary': summary(records),
+                'records_checked': len(records), 'records': dict(sorted(records.items()))})
+    args.report.write_text(json.dumps(old, ensure_ascii=False, indent=1) + '\n')
+    print(f'recompared {len(ids)} records in {time.time() - t0:.0f}s (no HermiT)')
+    print('  before: ' + '  '.join(f'{k} {v}' for k, v in before.items()))
+    print('  after:  ' + '  '.join(f'{k} {v}' for k, v in summary(results).items()))
+    print_flagged(results)
+    print(f'report: {args.report}')
     return 0
 
 

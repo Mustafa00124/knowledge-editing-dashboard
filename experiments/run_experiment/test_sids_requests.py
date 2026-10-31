@@ -34,6 +34,27 @@ class BuildRequestTests(unittest.TestCase):
         self.assertEqual(set(worlds[0]['world_answers'].values()), {'Canberra', 'Sydney'})
         self.assertIsNone(worlds[0]['ground_truth'])
 
+    def test_propositional_queries_are_portability_entries(self):
+        r = s.build_request(example('geography-replace-0003.json'))
+        prop = {k: v for k, v in r['portability'].items() if k.startswith('propositional_')}
+        self.assertEqual(sorted(prop), ['propositional_0', 'propositional_1'])
+        self.assertEqual((prop['propositional_0']['form'], prop['propositional_0']['ground_truth']), ('not', 'No'))
+        self.assertEqual(prop['propositional_1']['side_fact'], 'The Pacific Ocean borders Australia.')
+        d = s.build_request(example('geography-delete-0004.json'))
+        self.assertEqual(d['portability']['propositional_1']['ground_truth'], s.ABSTAIN_TARGET)
+
+    def test_records_without_propositional_still_build(self):
+        rec = example('geography-replace-0003.json')
+        del rec['queries']['propositional']
+        r = s.build_request(rec)
+        self.assertFalse(any(k.startswith('propositional_') for k in r['portability']))
+
+    def test_propositional_without_answer_raises(self):
+        rec = example('geography-replace-0003.json')
+        rec['queries']['propositional'][0]['new_answer'] = None
+        with self.assertRaises(s.MissingAnswer):
+            s.build_request(rec)
+
     def test_missing_new_answer_raises(self):
         rec = example('geography-replace-0003.json')
         rec['queries']['direct']['new_answer'] = ''

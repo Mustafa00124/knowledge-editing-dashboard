@@ -2,7 +2,7 @@
 //
 // Levels: topic, then belief revision operation (AGM: expansion, revision,
 // contraction; stored as insert, replace, delete), then knowledge form (the
-// DL box), then a fixed set of 10 queries per edit (7 for RBox). Relation semantics and
+// DL box), then a fixed set of 12 queries per edit (9 for RBox). Relation semantics and
 // relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/README.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
@@ -70,8 +70,8 @@ export const KNOWLEDGE_FORMS = BOXES.map((box) => ({ box: box.key }))
 // Target size: edits per taxonomy cell (edit operation x topic x box).
 export const EDITS_PER_CELL_GOAL = 10
 
-// Level 3: the fixed 10 queries every ABox and TBox edit carries (RBox: 7, below), in record order
-// (locality before derived), and the metric each feeds. Fixing the counts gives every item the same weight in every metric.
+// Level 3: the fixed 12 queries every ABox and TBox edit carries (RBox: 9, below), in record order
+// (propositional after cross-lingual, locality before derived), and the metric each feeds. Fixing the counts gives every item the same weight in every metric.
 export const QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
   { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },
@@ -84,6 +84,13 @@ export const QUERY_TYPES = [
     description: 'The direct question asked in Chinese and Spanish, expecting the answer in that language. The edit itself is made in English.',
   },
   {
+    key: 'propositional',
+    label: 'Propositional',
+    count: 2,
+    metric: 'logical consistency',
+    description: 'The edited fact inside a yes/no truth-functional question: one negation ("Is it false that Sydney is the capital of Australia?") and one "and" or "or" with an untouched side fact chosen so the answer flips with the edit. Logic propositional by definition; checked by truth table. Reported on its own.',
+  },
+  {
     key: 'unrelated_near',
     label: 'Unrelated (near)',
     count: 1,
@@ -94,12 +101,14 @@ export const QUERY_TYPES = [
   { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: 'A question whose answer follows from the edit: through a property of the relation, a further fact, or a task that uses it. On ABox records each is labelled determinate or indeterminate (below).' },
 ]
 
-// RBox edits change a property of a relation, so they carry 7 queries: the
+// RBox edits change a property of a relation, so they carry 9 queries: the
 // property itself, two instances on real entities (and the first in zh and
-// es), and one near and one far locality query. No paraphrase.
+// es), two propositional questions, and one near and one far locality query.
+// No paraphrase.
 export const RBOX_QUERY_TYPES = [
   { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The property itself: \"Is the relation 'lends to' transitive?\"" },
   { key: 'cross_lingual', label: 'Cross-lingual', count: 2, metric: 'cross-lingual', languages: ['zh', 'es'], description: 'The first instance question in Chinese and Spanish.' },
+  { key: 'propositional', label: 'Propositional', count: 2, metric: 'logical consistency', description: "The edited property inside a yes/no question: one negation, one \"and\" or \"or\" with a side fact, so the answer flips with the edit." },
   { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'locality', description: 'The same property asked of another relation in the topic.' },
   { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'A different property of an unrelated relation.' },
   {
@@ -117,6 +126,7 @@ export const METRICS = [
   { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
   { key: 'generalization', label: 'Generalization', over: 'derived (4)', reported: 'one number, plus per derivation type' },
+  { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (2)', reported: 'one number on its own, plus per form (not, and/or)' },
   { key: 'locality', label: 'Locality', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
   { key: 'fluency', label: 'Fluency', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
@@ -144,7 +154,7 @@ export const DERIVATIONS = [
 // The weakest logic a derived query's inference needs, and any theory on
 // top (README, Derived queries, Logic): settings to slice results by.
 export const LOGIC = [
-  { key: 'propositional', label: 'Propositional', description: 'Only whole statements combined with not, and, or, if.', example: 'Edit: 91 is prime. Is it true that 91 is prime or 91 is even?' },
+  { key: 'propositional', label: 'Propositional', description: 'Only whole statements combined with not, and, or. The propositional query type is this logic by definition; derived queries no longer use it.', example: 'Edit: 91 is prime. Propositional query: is it true that 91 is prime or 91 is even?' },
   { key: 'dl', label: 'Description logic', description: 'Classes, two-place relations and their properties, role chains, inheritance, number limits, names for one individual.', example: 'Is Canberra the capital of Australia?' },
   { key: 'fol', label: 'First-order', description: 'Beyond description logic: three-place relations, comparing values across individuals, rules whose variables form a cycle.', example: "Edit: singular names take 'are'. Is 'Sally are tall' correct?" },
 ]

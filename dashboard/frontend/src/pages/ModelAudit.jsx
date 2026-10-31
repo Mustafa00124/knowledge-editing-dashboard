@@ -21,6 +21,7 @@ const QUERY_TYPES = [
   { key: 'direct', label: 'Direct' },
   { key: 'paraphrase', label: 'Paraphrase' },
   { key: 'cross_lingual', label: 'Cross-lingual' },
+  { key: 'propositional', label: 'Propositional' },
   { key: 'derived', label: 'Derived' },
 ]
 // Status against the current record (backend): green passes, red fails,

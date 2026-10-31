@@ -97,16 +97,35 @@ DERIVATIONS = {
     'premise': None,
 }
 
-# In record order: locality before derived. ABox and TBox items carry 10
-# queries (one near and one far locality query since 2026-10-22).
-QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2,
+# In record order: propositional after cross_lingual, locality before
+# derived. ABox and TBox items carry 12 queries (one near and one far
+# locality query since 2026-10-22; two propositional since 2026-10-31).
+QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 2,
                 'unrelated_near': 1, 'unrelated_far': 1, 'derived': 4}
-# RBox edits change a property of a relation, so they carry 7 queries: the
-# property itself (direct), its first instance in zh and es, one near (same
-# property, another relation) and one far (another property) locality query,
-# and two instances on real entities (derived, instantiation).
-RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'unrelated_near': 1,
+# RBox edits change a property of a relation, so they carry 9 queries: the
+# property itself (direct), its first instance in zh and es, two
+# propositional, one near (same property, another relation) and one far
+# (another property) locality query, and two instances on real entities
+# (derived, instantiation).
+RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'propositional': 2, 'unrelated_near': 1,
                      'unrelated_far': 1, 'derived': 2}
+# Propositional queries (README, Propositional queries; metric: logical
+# consistency): the edited fact E inside a yes/no truth-functional question.
+# One has form "not"; the other "and" or "or" with an untouched side fact S
+# chosen so the answer flips with the edit (and: S true; or: S false). Their
+# formal check is the truth table below (check_propositional). Records written
+# before the type existed have none: missing ones are an error only with
+# SIDS_REQUIRE_PROPOSITIONAL=1 (the same switch makes a derived query labelled
+# logic: propositional an error everywhere; without it, only on records that
+# already have propositional queries).
+PROPOSITIONAL_KEYS = {'prompt', 'form', 'side_fact', 'original_answer', 'new_answer'}
+PROPOSITIONAL_FORMS = ('not', 'and', 'or')
+UNKNOWN_ANSWER = "I don't know"
+
+
+def require_propositional():
+    import os
+    return os.environ.get('SIDS_REQUIRE_PROPOSITIONAL', '') not in ('', '0')
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
                'derivability', 'relation', 'edit', 'queries', 'notes', 'source',
@@ -128,7 +147,7 @@ EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom'
 QUERY_KEYS = {'prompt', 'original_answer', 'new_answer'}
 DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates',
                              'determinacy', 'determinacy_why', 'world_answers', 'chain', 'premise_route',
-                             'logic', 'theory'}
+                             'logic', 'theory', 'revision_facts', 'revision_in_prompt', 'alt_derivations'}
 LOCALITY_KEYS = {'prompt', 'reference'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
@@ -204,17 +223,42 @@ def load_relation_checks(path=ROOT / 'relation_checks.json'):
     return checks
 
 
+def revision_in_prompt(q):
+    """Are a derived query's revision facts stated in its prompt? Their own
+    flag, revision_in_prompt, when set; else the bridge_in_prompt flag."""
+    return bool(q.get('revision_in_prompt', q.get('bridge_in_prompt')))
+
+
+def unstated_facts(q):
+    """A derived query's bridge and revision facts its prompt does not state:
+    the facts the audit asks before editing for this query."""
+    out = [] if q.get('bridge_in_prompt') else list(q.get('bridge') or [])
+    if not revision_in_prompt(q):
+        out += list(q.get('revision_facts') or [])
+    return out
+
+
 def facts_to_check(rec):
     """The facts a model must already hold for the record's derivations, in
-    order and without repeats: the edit's premises, then every bridge fact a
-    derived query does not state in its own prompt. RBox instance facts are
-    usually given in the prompt; a role chain's real hop may be left to the
-    model (README, RBox items), and is then checked like any bridge."""
+    order and without repeats: the edit's premises, then every bridge fact and
+    revision fact a derived query does not state in its own prompt. RBox
+    instance facts are usually given in the prompt; a role chain's real hop
+    may be left to the model (README, RBox items), and is then checked like
+    any bridge."""
     out = list(rec.get('edit', {}).get('premises') or [])
     for q in rec.get('queries', {}).get('derived') or []:
-        if not q.get('bridge_in_prompt'):
-            out.extend(q.get('bridge') or [])
+        out.extend(unstated_facts(q))
     return list(dict.fromkeys(out))
+
+
+def side_facts(rec):
+    """The side facts of the record's propositional queries. Each may have a
+    check (asked before editing like a bridge; its answer also gives the
+    fact's truth for the truth table); one that is trivially true or false
+    may go without, and is then taken to have the value the flip needs."""
+    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
+    items = queries.get('propositional') if isinstance(queries.get('propositional'), list) else []
+    return [q['side_fact'] for q in items if isinstance(q, dict) and is_text(q.get('side_fact'))]
 
 
 def relation_property(rec, q, relations):
@@ -234,6 +278,7 @@ def check_checks(rec):
     """Every fact to check has exactly one check, and nothing else does."""
     errors = []
     need = facts_to_check(rec)
+    optional = set(side_facts(rec))
     checks = rec.get('checks', [])
     if not isinstance(checks, list):
         return ['checks must be a list']
@@ -251,8 +296,9 @@ def check_checks(rec):
         if c.get('fact') in seen:
             errors.append(f'{where}: fact {c.get("fact")!r} is checked twice')
         seen.add(c.get('fact'))
-        if is_text(c.get('fact')) and c['fact'] not in need:
-            errors.append(f'{where}: fact {c["fact"]!r} is not a premise or an unstated bridge fact of this record')
+        if is_text(c.get('fact')) and c['fact'] not in need and c['fact'] not in optional:
+            errors.append(f'{where}: fact {c["fact"]!r} is not a premise, an unstated bridge or revision fact, '
+                          'or a propositional side fact of this record')
     for fact in need:
         if fact not in seen:
             errors.append(f'checks: no check for {fact!r}')
@@ -389,6 +435,8 @@ def check_record(rec, path, relations):
         err(f'queries: unknown type {k!r}')
     for qtype, count in counts.items():
         items = queries.get(qtype)
+        if qtype == 'propositional' and items is None and not require_propositional():
+            continue    # not written yet (SIDS_REQUIRE_PROPOSITIONAL=1 makes it an error)
         if count == 1:
             items = [items] if isinstance(items, dict) else items
         if not isinstance(items, list) or len(items) != count:
@@ -401,6 +449,13 @@ def check_record(rec, path, relations):
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
+    if 'propositional' in queries and not errors:
+        errors.extend(check_propositional(rec))
+    if require_propositional() or 'propositional' in queries:
+        for i, q in enumerate(queries.get('derived') or []):
+            if isinstance(q, dict) and q.get('logic') == 'propositional':
+                err(f'queries.derived[{i}]: logic propositional is for the propositional query type; '
+                    'a derived query needs dl or fol (move it to queries.propositional)')
     if not errors:
         errors.extend(check_checks(rec))
         errors.extend(check_full_scheme(rec, path))
@@ -497,7 +552,7 @@ def check_evidence(rec):
     allowed = set(need)
     for q in queries.get('derived') or []:
         if isinstance(q, dict):
-            allowed.update(b for b in q.get('bridge') or [] if is_text(b))
+            allowed.update(b for b in (q.get('bridge') or []) + (q.get('revision_facts') or []) if is_text(b))
     if uses_determinacy:
         for fact in need:
             if fact not in ev:
@@ -507,7 +562,8 @@ def check_evidence(rec):
     for fact, entry in ev.items():
         where = f'evidence[{fact!r}]'
         if fact not in allowed:
-            err(f'{where}: not the edited fact, a premise or a bridge fact of this record (copy the text exactly)')
+            err(f'{where}: not the edited fact, a premise, a bridge or a revision fact of this record '
+                '(copy the text exactly)')
         if not isinstance(entry, dict):
             err(f'{where}: not an object')
             continue
@@ -571,6 +627,8 @@ def check_query(q, qtype, rec, relations):
     err = errors.append
     if not isinstance(q, dict):
         return ['not an object']
+    if qtype == 'propositional':
+        return check_propositional_item(q, rec)
     locality = qtype.startswith('unrelated')
     if locality:
         allowed = LOCALITY_KEYS
@@ -625,6 +683,130 @@ def check_query(q, qtype, rec, relations):
     if qtype == 'derived':
         errors.extend(check_world_answers(q, rec))
         errors.extend(check_derivation(q, rec, relations))
+    return errors
+
+
+def answer_value(a):
+    """'yes', 'no' or 'unknown' for a propositional gold answer, else None."""
+    if not is_text(a):
+        return None
+    n = a.strip().lower().replace('\u2019', "'").rstrip('.').strip()
+    return {'yes': 'yes', 'no': 'no', "i don't know": 'unknown'}.get(n)
+
+
+def check_propositional_item(q, rec):
+    """One propositional query's own fields (the truth table is record level)."""
+    errors = []
+    err = errors.append
+    for k in sorted(set(q) - PROPOSITIONAL_KEYS):
+        err(f'unknown field {k!r}')
+    for k in sorted(PROPOSITIONAL_KEYS - set(q)):
+        err(f'missing field {k!r} (null if it does not apply)')
+    if not is_text(q.get('prompt')):
+        err('prompt must be a non-empty string')
+    form = q.get('form')
+    if form not in PROPOSITIONAL_FORMS:
+        err(f'form {form!r} not one of {PROPOSITIONAL_FORMS}')
+    elif form == 'not':
+        if q.get('side_fact') is not None:
+            err('side_fact must be null for form "not"')
+    elif not is_text(q.get('side_fact')):
+        err(f'side_fact must be a non-empty string for form {form!r}: the untouched fact combined with the edit')
+    op = rec['edit_operation']
+    orig, new = q.get('original_answer'), q.get('new_answer')
+    if op == 'insert':
+        if orig is not None:
+            err('original_answer must be null for insert')
+    elif answer_value(orig) not in ('yes', 'no'):
+        err(f'original_answer must be "yes" or "no" (got {orig!r})')
+    if op == 'delete':
+        if answer_value(new) != 'unknown':
+            err(f'new_answer must be "{UNKNOWN_ANSWER}" for delete (the edited fact is unknown after it)')
+    elif answer_value(new) not in ('yes', 'no'):
+        err(f'new_answer must be "yes" or "no" (got {new!r})')
+    return errors
+
+
+def kleene(form, e, s=None):
+    """Strong Kleene value of not E / E and S / E or S; True, False or None
+    (unknown)."""
+    if form == 'not':
+        return None if e is None else not e
+    if form == 'and':
+        if e is False or s is False:
+            return False
+        return True if e is True and s is True else None
+    if e is True or s is True:
+        return True
+    return False if e is False and s is False else None
+
+
+# The edited fact E's truth before and after the edit: replace (E is the
+# edited statement) false then true; insert true after (nothing before);
+# delete (E is the removed fact) true then unknown.
+EDIT_TRUTH = {'replace': (False, True), 'insert': (None, True), 'delete': (True, None)}
+VALUE_ANSWER = {True: 'yes', False: 'no', None: 'unknown'}
+
+
+def side_truth(rec, fact):
+    """S's truth from its check's answer (yes / no; any other answer fills a
+    slot of the fact as stated, so the fact holds), or None with no check."""
+    for c in rec.get('checks') or []:
+        if isinstance(c, dict) and c.get('fact') == fact:
+            v = answer_value(c.get('answer'))
+            return False if v == 'no' else True
+    return None
+
+
+def check_propositional(rec):
+    """Record level: exactly one "not" and one "and" / "or" query, and the
+    truth table. With E's truth before and after the edit (EDIT_TRUTH) and S's
+    from its check (or, without one, the value the flip needs: and true, or
+    false), each gold answer must equal the connective's strong Kleene value
+    (unknown -> "I don't know"), and the answer must change with the edit
+    (for insert, compared with E false)."""
+    errors = []
+    items = rec['queries'].get('propositional')
+    if not isinstance(items, list) or not all(isinstance(q, dict) for q in items):
+        return errors
+    forms = [q.get('form') for q in items if q.get('form') in PROPOSITIONAL_FORMS]
+    if len(forms) == len(items) == 2 and not (forms.count('not') == 1 and forms.count('and') + forms.count('or') == 1):
+        errors.append(f'queries.propositional: needs one "not" and one "and" or "or" query (got {forms})')
+    op = rec['edit_operation']
+    e_before, e_after = EDIT_TRUTH[op]
+    statement = (rec.get('edit') or {}).get('statement')
+    for i, q in enumerate(items):
+        where = f'queries.propositional[{i}]'
+        form = q.get('form')
+        if form not in PROPOSITIONAL_FORMS:
+            continue
+        s = None
+        if form != 'not':
+            fact = q.get('side_fact')
+            if not is_text(fact):
+                continue
+            if statement and fact.strip() == statement.strip():
+                errors.append(f'{where}: side_fact is the edited fact itself')
+            s = side_truth(rec, fact)
+            need = form == 'and'     # the side fact value that lets the answer flip
+            if s is None:
+                s = need
+            elif s != need:
+                errors.append(f'{where}: the side fact is {"true" if s else "false"} by its check, so "{form}" '
+                              f'does not flip with the edit ({form}: the side fact must be {"true" if need else "false"})')
+                continue
+        if kleene(form, False if e_before is None else e_before, s) == kleene(form, e_after, s):
+            errors.append(f'{where}: the answer does not change with the edit')
+        for name, e in (('original_answer', e_before), ('new_answer', e_after)):
+            if op == 'insert' and name == 'original_answer':
+                continue
+            want = VALUE_ANSWER[kleene(form, e, s)]
+            got = answer_value(q.get(name))
+            if got is not None and got != want:
+                show = UNKNOWN_ANSWER if want == 'unknown' else want
+                errors.append(f'{where}: {name} should be "{show}" by the truth table '
+                              f'(E {"unknown" if e is None else e}, form {form}'
+                              + ('' if form == 'not' else f', side fact {s}') + f'), not {q.get(name)!r}')
     return errors
 
 
@@ -745,6 +927,37 @@ def check_derivation(q, rec, relations):
             err(f'{k} must be true or false')
     if q.get('bridge_in_prompt') and not bridge:
         err('bridge_in_prompt needs the bridge facts listed in bridge')
+    # revision_facts: facts that settle which belief gives way (or which world
+    # applies) but are not combined into the answer; not counted in hops.
+    if 'revision_facts' in q:
+        rev = q['revision_facts']
+        if not (is_text_list(rev) and rev):
+            err('revision_facts must be a non-empty list of strings (leave it out if none)')
+        else:
+            if len(set(rev)) != len(rev):
+                err('revision_facts lists a fact twice')
+            for f in sorted(set(rev) & set(bridge)):
+                err(f'{f!r} is both a bridge and a revision fact: a fact the answer is built from is a bridge')
+    if 'revision_in_prompt' in q:
+        if not isinstance(q['revision_in_prompt'], bool):
+            err('revision_in_prompt must be true or false')
+        elif 'revision_facts' not in q:
+            err('revision_in_prompt needs revision_facts')
+    # alt_derivations: other valid routes to the same answer (justify.py).
+    if 'alt_derivations' in q:
+        alt = q['alt_derivations']
+        if not (is_text_list(alt) and alt):
+            err('alt_derivations must be a non-empty list of derivation names (leave it out if none)')
+        else:
+            for a in alt:
+                if a not in DERIVATIONS:
+                    err(f'alt_derivations: {a!r} not one of {tuple(DERIVATIONS)}')
+                elif a == derivation:
+                    err(f'alt_derivations: {a!r} is the derivation itself')
+                elif (a == 'instantiation') != (box == 'rbox'):
+                    err(f'alt_derivations: {a!r}: rbox items derive by instantiation, and only rbox items do')
+            if len(set(alt)) != len(alt):
+                err('alt_derivations lists a name twice')
 
     # Under delete, a functional query asks whether the removed value still
     # holds, and the model should no longer say.
@@ -787,6 +1000,7 @@ def main(argv):
     paths = [Path(p).resolve() for p in argv] or default_paths()
     ids, cells, failed = Counter(), Counter(), len(conflicts)
     relation_checks, needed = load_relation_checks(), set()
+    pending = Counter()
     for path in paths:
         try:
             rec = json.loads(path.read_text())
@@ -795,6 +1009,10 @@ def main(argv):
             failed += 1
             continue
         errors = check_record(rec, path, relations)
+        if isinstance(rec, dict) and isinstance(rec.get('queries'), dict) and path.is_relative_to(ROOT / 'records'):
+            pending['records'] += 'propositional' not in rec['queries']
+            pending['derived'] += sum(1 for q in rec['queries'].get('derived') or []
+                                      if isinstance(q, dict) and q.get('logic') == 'propositional')
         if isinstance(rec, dict) and isinstance(rec.get('queries'), dict):
             for q in rec['queries'].get('derived') or []:
                 if not isinstance(q, dict):
@@ -826,6 +1044,9 @@ def main(argv):
                 print(f'relation_checks.json: {name!r} has no tag {tag!r} in RELATIONS.md')
                 failed += 1
     print(f'{len(paths)} file(s) checked, {failed} with errors.')
+    if not require_propositional() and pending['records']:
+        print(f'  pending (errors with SIDS_REQUIRE_PROPOSITIONAL=1): {pending["records"]} record(s) without '
+              f'propositional queries, {pending["derived"]} derived quer(ies) labelled logic propositional')
     for (topic, op), n in sorted(cells.items()):
         print(f'  {topic}/{op}: {n}')
     return 1 if failed else 0

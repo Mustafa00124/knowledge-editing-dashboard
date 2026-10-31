@@ -152,6 +152,10 @@ def check_delete(recs):
             for item in items if isinstance(items, list) else [items] if items else []:
                 if item.get('new_answer') is not None:
                     answered.append(f'{r["id"]} {qtype}: expects {item["new_answer"]!r}')
+        # Propositional queries say it: the edited fact is unknown after a delete.
+        for i, item in enumerate(q.get('propositional') or []):
+            if norm(item.get('new_answer')) != norm("I don't know"):
+                answered.append(f'{r["id"]} propositional[{i}]: expects {item.get("new_answer")!r}, not "I don\'t know"')
     return [
         check(s, 'Every delete has a replace record of the same number', unpaired),
         check(s, "Delete removes its replace record's original fact", mismatched),
@@ -194,6 +198,46 @@ def check_yes_no(recs):
     note = 'ABox/TBox, not a criterion: ' + ', '.join(
         f'{b} {other[(b, "yes")]} yes / {other[(b, "no")]} no' for b in ('abox', 'tbox'))
     return [check(s, 'RBox yes/no answers 50/50 (overall equal, per topic within 1)', off, note=note, table=table)]
+
+
+def check_propositional(recs):
+    """Propositional queries (validate.py checks each one's truth table):
+    how many records have their two, and the yes/no balance of the answers
+    per operation and form. Missing ones are pending until the data is
+    written (SIDS_REQUIRE_PROPOSITIONAL=1 makes validate.py require them)."""
+    s = 'B2. Yes/no answers balanced'
+    missing, counts = [], Counter()
+    for r in recs:
+        items = r['queries'].get('propositional')
+        if not items:
+            missing.append(r['id'])
+            continue
+        for item in items:
+            form = 'not' if item.get('form') == 'not' else 'and/or'
+            for side in ('original_answer', 'new_answer'):
+                v = yes_no(item.get(side))
+                if v:
+                    counts[(r['edit_operation'], form, side, v)] += 1
+    table = [['operation, form', 'answer', 'yes', 'no']]
+    off = []
+    for op in ('replace', 'insert', 'delete'):
+        for form in ('not', 'and/or'):
+            for side in ('original_answer', 'new_answer'):
+                y, n_ = counts[(op, form, side, 'yes')], counts[(op, form, side, 'no')]
+                if y or n_:
+                    table.append([f'{op}, {form}', side.split('_')[0], y, n_])
+        y = sum(v for (o, _, _, a), v in counts.items() if o == op and a == 'yes')
+        n_ = sum(v for (o, _, _, a), v in counts.items() if o == op and a == 'no')
+        if y + n_ and abs(y - n_) > max(2, (y + n_) // 5):
+            off.append(f'{op}: {y} yes / {n_} no over both answers (off by more than a fifth)')
+    have = len(recs) - len(missing)
+    note = (f'{have} of {len(recs)} records have their 2 propositional queries (metric: logical consistency). '
+            'Before and after the edit together, yes and no should come out about even per operation; '
+            'a delete\'s new answer is "I don\'t know" and is not counted.')
+    status = 'pending' if not have else None
+    items = off + ([f'no propositional queries yet: {len(missing)} records'] if have and missing else [])
+    return [check(s, 'Propositional answers: yes/no balance (all boxes)', items, status=status, review=True,
+                  note=note, table=table if have else None)]
 
 
 def check_ambiguity():
@@ -746,7 +790,7 @@ AUTOMATED_RULES = (
     ('The models hold the right things', lambda recs, rel: check_audit(recs)),
     ('Locality can catch leaks', lambda recs, rel: check_locality(recs)),
     ('One name per relation', lambda recs, rel: check_naming(recs, rel)),
-    ('Yes/no answers balanced in RBox', lambda recs, rel: check_yes_no(recs)),
+    ('Yes/no answers balanced in RBox', lambda recs, rel: check_yes_no(recs) + check_propositional(recs)),
     ('Far locality prompts vary', lambda recs, rel: check_reuse(recs)),
     ('Belief-revision problems are covered', lambda recs, rel: check_problems(recs)),
     ('Relation properties are covered', lambda recs, rel: check_coverage(recs, rel)),
@@ -811,6 +855,9 @@ def check_formal(recs):
 JUSTIFY_REPORT = ROOT / 'owl' / 'justifications.json'
 JUSTIFY_VERDICTS = ('match', 'partial', 'mismatch', 'not_checked')
 JUSTIFY_FLAGS = ('no_edit', 'ambiguous', 'capped')
+# Added with revision facts and alt_derivations (justify.py): counted too, and
+# listed except alternatives_listed (a match).
+JUSTIFY_NEW_FLAGS = ('alternatives_listed', 'revision_as_bridge', 'stale')
 
 
 def check_justifications(ids):
@@ -839,17 +886,29 @@ def check_justifications(ids):
                     why.append('needs unlisted ' + ', '.join(b['unlisted']))
                 if not b.get('hops_ok', True):
                     why.append(f'hops {b.get("hops")} vs {q.get("record", {}).get("hops")}')
+                if b.get('revision_as_bridge'):
+                    why.append('revision fact used to build the answer (should be a bridge): '
+                               + ' | '.join(b['revision_as_bridge']))
                 items.append(f'{q["verdict"]} {tag}: ' + '; '.join(why))
             for f in JUSTIFY_FLAGS:
                 if q.get(f):
                     counts[f] += 1
                     if f != 'capped':
                         items.append(f'{f} {tag}')
-    table = [('verdict / flag', 'queries')] + [(k, counts.get(k, 0)) for k in JUSTIFY_VERDICTS + JUSTIFY_FLAGS]
+            for f in JUSTIFY_NEW_FLAGS:
+                if q.get(f) or (q.get('best') or {}).get(f):
+                    counts[f] += 1
+                    if f == 'stale':
+                        items.append(f'stale {tag}: rerun justify.py')
+    table = [('verdict / flag', 'queries')] + [(k, counts.get(k, 0))
+                                               for k in JUSTIFY_VERDICTS + JUSTIFY_FLAGS + JUSTIFY_NEW_FLAGS]
     note = (f'{rep.get("generated", "?")}: per checked derived query, a minimal set of axioms the answer follows '
             'from, mapped to a derivation type, bridge facts and hops (owl/README.md, Justifications). '
             'partial: derivation right, bridges or hops differ; mismatch: the derivation type is not used; '
-            'no_edit: the answer follows without the edit; ambiguous: alternative derivations.')
+            'no_edit: the answer follows without the edit; ambiguous: alternative derivations; '
+            'alternatives_listed: a match whose alternative routes are in alt_derivations; '
+            'revision_as_bridge: a revision fact every justification uses (should be a bridge); '
+            'stale: stored justifications no longer fit the record (justify.py, or --recompare after edits).')
     return check('Formal check', 'Derivation metadata matches the justifications (justify.py)', items,
                  review=True, note=note, table=table)
 
