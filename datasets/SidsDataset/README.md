@@ -490,6 +490,13 @@ and for every premise, optionally for bridge facts. It lives in the record's
   against each premise and against the subject alone), read samples of any
   hits, and list every search tried, so "absent" means "absent after these
   searches".
+- **False:** a deliberately false fact, such as the side fact of an "or"
+  propositional query ("Australia is in Europe"). Its sources back what is
+  true instead, with a quote ("Australia is a country in Oceania").
+- Bridge facts, revision facts and propositional side facts carry evidence
+  too, so their truth is backed by a source rather than only by review
+  (CRITERIA Rule 1). A true one is claimed `stored` when it is stated often,
+  with a quote or counts.
 - Source kinds: `infini-gram` (`query`, `count`, optional `index`, `note`),
   `wikipedia` and `web` (`url`, optional `quote`, `note`), `search`
   (`query`, optional `engine`, `note`).

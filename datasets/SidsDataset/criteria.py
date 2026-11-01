@@ -608,6 +608,12 @@ def check_evidence(recs):
                     weak.append(f'{r["id"]}: fictional {fact!r}: needs a corpus count of at most '
                                 f'{FICTIONAL_MAX_COUNT} for the made-up name and a search')
                 continue
+            if e.get('claim') == 'false':
+                # A deliberately false fact (an "or" side fact): a quoted source for the true counterpart.
+                ok = any(x.get('kind') in ('wikipedia', 'web') and x.get('quote') for x in srcs)
+                if not ok:
+                    weak.append(f'{r["id"]}: false {fact!r}: needs a quoted source showing what is true instead')
+                continue
             if e.get('claim') == 'stored':
                 ok = any(x.get('kind') in ('wikipedia', 'web') and x.get('quote') for x in srcs) or \
                      any((x.get('count') or 0) >= STORED_MIN_COUNT for x in counts)

@@ -56,7 +56,7 @@ DETERMINACY_BOXES = ('abox', 'tbox')
 # what the words mean, so it needs a reason but no corpus evidence.
 # fictional: an inserted fact about something made up; the evidence shows
 # the made-up names are absent from text (near-zero counts, a search).
-EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional')
+EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional', 'false')  # false: a deliberately false side fact
 # Insert, on this branch fictional only: which parts of the triple are made
 # up (README, Insert). Subject+relation and relation+object are not used.
 FICTIONAL = ('subject', 'object', 'subject_object', 'relation', 'all')
