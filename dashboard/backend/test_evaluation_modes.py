@@ -39,7 +39,8 @@ class EvaluationWiringTests(unittest.TestCase):
     def test_registry_never_exposes_key(self):
         cfg = registry.get_experiment_type("run_experiment")
         field = next(f for f in cfg["fields"] if f["name"] == "evaluation_modes")
-        self.assertEqual(len(field["options"]), 4)
+        self.assertEqual([o["value"] for o in field["options"]],
+                         ["original", "sid", "exact_match", "bertscore", "llm_judge"])
         self.assertNotIn("YOUR_API_KEY_HERE", json.dumps(cfg))
         self.assertNotIn('"api_key"', json.dumps(cfg))
 
@@ -53,6 +54,25 @@ class EvaluationWiringTests(unittest.TestCase):
             self.assertEqual(results_reader.get_evaluation("example", 50), payload)
             with self.assertRaises(ValueError):
                 results_reader.list_evaluations("../outside")
+
+    def test_read_sid_evaluation(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(results_reader, "_base", return_value=Path(tmp)):
+            path = Path(tmp) / "runs/example/samples"
+            path.mkdir(parents=True)
+            payload = {"step": 3, "metrics": {"edit_succ": 50.0}, "records": [{
+                "record_id": "r1", "case_id": 0, "queries": {"derived[2]": {
+                    "query_type": "derived", "question": "Where?", "response": "Lyon", "before": None,
+                    "expected": {"rule": "worlds", "world_answers": {"w1": "Paris", "w2": None}},
+                    "verdict": {"label": "WORLD", "reason": "says Lyon"}, "score": 0, "worlds": []}}}]}
+            (path / "sid_step_000003.json").write_text(json.dumps(payload))
+            (path / "step_000003.json").write_text("[]")
+            self.assertEqual(results_reader.list_evaluations("example", mode="sid"), [3])
+            got = results_reader.get_evaluation("example", 3, mode="sid")
+            self.assertEqual(got["scores"]["sid"]["edit_succ"], 50.0)
+            probe = got["probes"][0]
+            self.assertEqual((probe["id"], probe["answer"], probe["scores"]), ("r1:derived[2]", "Lyon", {"sid": 0}))
+            self.assertEqual(probe["reference_answers"], ["w1: Paris", "w2: abstains"])
+            self.assertIsNone(results_reader.get_evaluation("example", 4, mode="sid"))
 
 
 if __name__ == "__main__":

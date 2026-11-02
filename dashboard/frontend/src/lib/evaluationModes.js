@@ -1,5 +1,9 @@
 export const EVALUATION_MODES = [
   { value: 'original', label: 'Original' },
+  // Sid's Dataset's own scoring (generated answers, SID judge); its
+  // edit_succ / portability / locality are reliability / generalization /
+  // locality, with the detail under evaluations.sid.metrics.
+  { value: 'sid', label: "Sid's judge" },
   { value: 'exact_match', label: 'Exact Match' },
   { value: 'bertscore', label: 'BERTScore' },
   { value: 'llm_judge', label: 'LLM Judge' },

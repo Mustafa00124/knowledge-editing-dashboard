@@ -76,7 +76,11 @@ class RecordStatusTests(unittest.TestCase):
         for model in ("qwen3-4b-base", "mistral-7b-instruct-v0.1"):
             run = root / "out" / "runs" / model
             run.mkdir(parents=True)
-            (run / "summary.json").write_text(json.dumps({"model": model}))
+            # The default prompt: strict instruction and 2 shots for a chat model.
+            summary = {"model": model}
+            if "instruct" in model:
+                summary.update(chat=True, instruction="strict", chat_shots=2)
+            (run / "summary.json").write_text(json.dumps(summary))
             (run / "responses.jsonl").write_text(json.dumps({
                 "record_id": RECORD["id"], "query_type": "direct", "language": "en", "query_key": "direct",
                 "query_hash": aq.query_hash("Capital of Australia?", "Canberra"), "score": 1}) + "\n")

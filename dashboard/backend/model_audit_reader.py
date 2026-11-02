@@ -59,16 +59,30 @@ def run(name):
 
 
 # The audit's default chat prompt (experiments/model_audit/audit.py,
-# --instruction few_words, --chat_shots 0). Runs with another instruction or
-# with chat shots are prompt variants: the Model audit page lists them, but
-# the Datasets page's status, checks and dot detail read only default runs.
-DEFAULT_INSTRUCTIONS = (None, "few_words", "Answer the question in a few words, without explanation.")
+# --instruction strict, --chat_shots 2: the runner's own prompt,
+# sids_requests.render_prompt, since 2026-11-01). Runs with another
+# instruction or shot count are prompt variants: the Model audit page lists
+# them, but the Datasets page's status, checks and dot detail read only
+# default runs. Chat runs from before the change (few_words, 0 shots, or no
+# instruction recorded at all) are variants now. Base models' prompts have
+# no instruction or chat shots, so their runs count as default.
+DEFAULT_INSTRUCTIONS = ("strict", "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.")
+DEFAULT_CHAT_SHOTS = 2
+
+
+def _is_chat(summary):
+    chat = summary.get("chat")
+    if chat is None:  # older summaries: tell from the model key
+        model = str(summary.get("model", ""))
+        chat = "instruct" in model or model == "smollm3-3b"
+    return bool(chat)
 
 
 def is_default_prompt(summary):
-    """Whether a run's summary.json used the default prompt (fields absent in
-    older runs mean the default)."""
-    return summary.get("instruction") in DEFAULT_INSTRUCTIONS and not summary.get("chat_shots")
+    """Whether a run's summary.json used the default prompt."""
+    if not _is_chat(summary):
+        return True
+    return summary.get("instruction") in DEFAULT_INSTRUCTIONS and summary.get("chat_shots") == DEFAULT_CHAT_SHOTS
 
 
 def _newest_runs():

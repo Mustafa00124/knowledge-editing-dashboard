@@ -766,12 +766,12 @@ An indeterminate query has `new_answer: null`, a short `determinacy_why`, and
 different answers among them. A determinate query keeps its single
 `new_answer` and has no `world_answers`.
 
-**Scoring** (not implemented yet): a determinate query passes on its
-`new_answer`. An indeterminate one passes if the answer matches some world,
-and which world it matches is recorded. Across a record's indeterminate
-queries, the worlds a model's answers pick should agree; answers from
-different worlds are themselves an inconsistency. An answer that matches no
-world fails.
+**Scoring** (editing runs, [Evaluation](#evaluation)): a determinate query
+passes on its `new_answer`. An indeterminate one passes if the answer matches
+some world, and which world it matches is recorded. Across a record's
+indeterminate queries, the worlds a model's answers pick should agree;
+answers from different worlds are themselves an inconsistency (reported as
+`worlds.records_mixed`). An answer that matches no world fails.
 
 #### Delete under determinacy
 
@@ -1035,8 +1035,28 @@ the record id (`EmptyTarget`, `TargetEqualsOriginal`, `MissingAnswer`,
 `SubjectNotInPrompt`, ...) instead of being worked around: a run that gets
 through has met them. Methods that edit at the subject's last token (ROME,
 AlphaEdit, FiDAL, FiNE, IFMET, LTI and the other locate-and-edit methods)
-need the subject verbatim, exactly once, in the prompt. CRITERIA Rule 13
-runs these checks on every record without a GPU.
+need the subject verbatim, exactly once, in the question. It is counted in
+the question, not in the whole chat prompt: Llama 3.1's and SmolLM3's
+templates write a date into a system turn ("Today Date: 26 Jul 2024"), which
+holds mathematics-insert-0006's subject "6". Those methods are handed the
+prompt with `{}` at the question's occurrence (`sids_requests.edit_request`),
+so they never edit the template's copy. CRITERIA Rule 13 runs these checks on
+every record without a GPU.
+
+**Prompt format.** The edit is trained in the form evaluation asks it
+(`sids_requests.render_prompt`, which the model audit imports too, so audit,
+edit and evaluation see identical text). Base models: three worked examples
+as `Question: ... / Answer: ...` lines ("Which city is Thailand's capital?"
+Bangkok, "How many keys are on a piano?" 88, "Is a lemon sour?" Yes), then
+the question. Instruct models (since 2026-11-01): their chat template, the
+first two of those examples as earlier user/assistant turns, and the
+instruction "Answer with only the answer: a name, a number, or yes/no. No
+sentence, no explanation." in every user turn, no system turn. In the
+audit's test this cut answers wrapped in a sentence from 25% to 0%
+(Llama-3.1-8B-Instruct) and from 40% to 2.9% (Mistral-7B-Instruct-v0.1)
+against the earlier single turn with "Answer the question in a few words,
+without explanation." The examples share no question, answer or subject
+with any record (test_sids_requests and the audit's ShotCollisionTests).
 
 **Smoke run.** `run_experiment.py --smoke` (launched as **Method smoke run**
 on the dashboard, `experiments/sids_smoke/`, one launch per model, all core
@@ -1059,36 +1079,37 @@ of the smoke code itself.
    prompt per box, an explicit `edit.prompt` and `edit.subject_span` field
    per record, or running those boxes only through methods that need no
    subject.
-2. **Scoring indeterminate questions.** The requests carry each world's
-   answer, and the intended rule is that an answer passes if it matches some
-   world and records which. The evaluation that applies it is not written
-   yet.
+2. **Scoring indeterminate questions.** Implemented (2026-11-01): see
+   [Evaluation](#evaluation), Editing runs.
 
 ## Evaluation
 
 We use our own evaluation functions rather than EasyEdit's, because delete
-needs generated answers rather than token probabilities, and the query types
-map directly onto metrics:
+needs generated answers rather than token probabilities, an indeterminate
+derived query has no single gold answer, and the query types map directly
+onto metrics:
 
 | Metric | Over | Reported as |
 | --- | --- | --- |
 | Reliability | direct + paraphrase (2) | one number |
 | Cross-lingual | cross_lingual (2) | one number, plus per language |
-| Generalization | derived (4) | one number, plus per derivation type |
+| Generalization | derived (4) | one number, plus determinate / indeterminate, per belief-revision problem, per logic (dl, fol) and per derivation type, with the worlds picked |
 | Logical consistency | propositional (2) | one number on its own, plus per form (not, and/or) |
 | Locality | unrelated near + far (2) | one number, plus near and far |
-| Fluency | the 8 English generations | one number |
+| Delete abstention | a delete record's direct, paraphrase and cross-lingual answers | one number |
+| Fluency | the English generations | one number |
 
 Fluency leaves out the cross-lingual answers, since n-gram based fluency
 scores aren't comparable between Chinese and English text.
 
 ### Answering and judging
 
-Every query is asked as a free-form question in a fixed template,
-`Question: <prompt>` / `Answer:`, with a few neutral worked examples first so
-base models answer briefly, and generation stops at the first line break (or
-a small token cap). Instruct models get the question through their chat
-template.
+Every query is asked as a free-form question in the run's prompt format
+(Running methods, Prompt format): base models get `Question: <prompt>` /
+`Answer:` after three neutral worked examples, and generation stops at the
+first line break; instruct models get their chat template with the strict
+instruction after two worked turns, and the answer is cut at the first blank
+line. Greedy, at most 64 new tokens.
 
 Each answer is scored by an **LLM judge**, Qwen3-4B-Instruct-2507 run
 locally with greedy decoding (`experiments/sid_eval/judge.py`, rubric
@@ -1134,18 +1155,70 @@ The label is turned into a score by a fixed table:
 | --- | --- | --- |
 | model audit (pre-edit) | `replace`, `delete` | `ORIGINAL` |
 | model audit (pre-edit) | `insert` (`real`) | `NONE` or `OTHER` (the new fact is not already known); `fictional` inserts aren't asked |
+| edit | `replace`, `insert` | `NEW` |
+| edit | `delete` | `NONE` (abstains or only negates) |
+| edit | indeterminate derived | the answer matches some world: a world's answer, or `NONE` where a world's answer is null |
 
 In the model audit the judge is shown only the answer that row needs: the
 original answer for replace and delete, the new answer for insert. Locality
 questions aren't asked there, because an edit run takes its own pre-edit
 baseline.
-| edit | `replace`, `insert` | `NEW` |
-| edit | `delete` | `NONE` (abstains or only negates) |
 
 Locality queries use a second prompt with the same rules. It compares the
 post-edit response with the model's own pre-edit response and labels them
 `SAME`, `DIFFERENT` or `UNCLEAR`. Truth is again ignored, and both responses
 declining to answer counts as `SAME`.
+
+### Editing runs
+
+`run_experiment.py` scores every Sid's Dataset run this way, as evaluation
+mode `sid` (`experiments/run_experiment/sid_evaluation.py`). It is the
+default and the only scoring for this dataset: `--evaluation_modes` `auto`
+(the runner's default) and `original` (the dashboard's default) both mean
+`sid` here, so EasyEdit's token accuracy never runs on these records (it
+crashed on the indeterminate queries' missing gold). Generated-answer modes
+(`exact_match`, `bertscore`, `llm_judge`) can be added on top; `sid` on any
+other dataset is refused.
+
+1. **Generation**, at every checkpoint the run evaluates (step 0, before any
+   edit, included): every query of each edited record (direct, paraphrase,
+   cross_lingual, propositional, unrelated near and far, derived), in the
+   run's prompt format through `render_prompt`, the same text the edit was
+   trained on. Answers go to `samples/sid_step_<step>.json`, keyed like the
+   audit's queries (`direct`, `cross_lingual[zh]`, `propositional[0]`,
+   `unrelated_near[0]`, `derived[2]`, ...).
+2. **Judging**, once, after the last checkpoint: the edited model is
+   unloaded, the judge loaded, and every stored answer labelled (identical
+   question and answer pairs once). Candidates shown: original and new
+   answer for replace and insert; only the original for delete (abstaining
+   or only denying it is `NONE`, the pass label; "I don't know" is not shown
+   as a candidate, since `NONE` already is that answer); for an
+   indeterminate derived query, the original plus every world's answer (a
+   world answer that is neither is labelled `WORLD`). Propositional queries
+   are yes/no answers like any other. Locality: the post-edit answer against
+   the same model's step-0 answer (`SAME` passes; step 0 itself is `SAME`).
+   The judge's agreement on `judge_cases.json` is saved with the run.
+3. **Scoring** in code, per the tables above; `UNCLEAR` is excluded and
+   counted. Each metric block is `{score (percent), pass, scored, unclear,
+   total}`, plus `known`: the same over the queries whose step-0 answer was
+   labelled `ORIGINAL` (the fact was held before the edit). Fluency is
+   EasyEdit's bigram/trigram entropy of each record's English answers joined,
+   averaged and multiplied by 100 like the original mode's.
+
+Each `checkpoints.jsonl` row gets `evaluations.sid` once the run has been
+judged (rows are written live without it), and `summary.json` the last
+checkpoint's (under an edit protocol, every group's answers pooled):
+`edit_succ` = reliability, `portability` = generalization, `locality`,
+`fluency`, `coverage`, and `metrics` with `reliability`, `cross_lingual`
+(`by_language`), `logical_consistency` (`by_form`), `generalization`
+(`determinate`, `indeterminate`, `by_problem`, `by_logic`, `by_derivation`,
+`worlds`: matches per world, records whose answers agree on a world or mix
+worlds), `locality` (`near`, `far`) and `delete_abstention`; then
+`by_operation`, `labels` and `records`. The row's and the summary's headline
+fields are the `sid` ones, marked `headline_evaluation: "sid"`, so the
+Results page (evaluation "Sid's judge") and the sweeps read these runs like
+any other. The Responses view shows each answer with its label, reason and
+matched worlds.
 
 ## Records
 

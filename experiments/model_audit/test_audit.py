@@ -1,4 +1,6 @@
 import json
+import os
+import re
 import unittest
 
 import audit
@@ -194,22 +196,40 @@ MAIN_CHAT = ["qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "llama-3.1-8b-instr
 
 
 class PromptFormatTests(unittest.TestCase):
-    def test_few_shot_string_unchanged(self):
-        self.assertEqual(audit.FEW_SHOT, "Question: What is the capital of Japan?\nAnswer: Tokyo\n\n"
-                                         "Question: How many legs does a spider have?\nAnswer: 8\n\n"
-                                         "Question: Is the Sun a star?\nAnswer: Yes\n\n")
+    def test_prompts_are_the_runners(self):
+        """Base prompts are sids_requests.render_prompt's, with its examples
+        (no copy here); the chat instruction literal matches the runner's."""
+        self.assertIs(audit.SHOTS, audit.SR.FEW_SHOT_EXAMPLES)
+        self.assertEqual(audit.FEW_SHOT, "".join(f"Question: {q}\nAnswer: {a}\n\n" for q, a in audit.SHOTS))
+        self.assertEqual(audit.CHAT_INSTRUCTION, audit.SR.CHAT_INSTRUCTION)
+        self.assertEqual(audit.prompt_text(None, "Who wrote Hamlet?", False),
+                         audit.SR.render_prompt("Who wrote Hamlet?", "fewshot"))
+        # three answer kinds: a name, a number, yes/no
+        answers = [a for _, a in audit.SHOTS]
+        self.assertEqual(len(answers), 3)
+        self.assertTrue(answers[1].isdigit())
+        self.assertIn(answers[2], ("Yes", "No"))
 
-    def test_default_is_one_user_turn_as_before(self):
-        self.assertEqual(audit.chat_messages("Who wrote Hamlet?"),
-                         [{"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"}])
-        self.assertEqual(audit.resolve_instruction("few_words"), audit.CHAT_INSTRUCTION)
+    def test_default_is_strict_with_two_shots(self):
+        """Since 2026-11-01 the default chat prompt is the strict instruction
+        after 2 worked examples, the runner's (sids_requests.chat_messages)."""
+        msgs = audit.chat_messages("Who wrote Hamlet?")
+        self.assertEqual(msgs, audit.SR.chat_messages("Who wrote Hamlet?"))
+        self.assertEqual(audit.CHAT_SHOTS, 2)
+        self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant", "user"])
+        self.assertEqual(msgs[-1], {"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"})
+        self.assertEqual(audit.resolve_instruction("strict"), audit.CHAT_INSTRUCTION)
+        self.assertEqual(audit.resolve_instruction("few_words"),
+                         "Answer the question in a few words, without explanation.")
+        self.assertEqual(audit.chat_messages("q", audit.resolve_instruction("few_words"), 0),
+                         [{"role": "user", "content": "Answer the question in a few words, without explanation.\n\nq"}])
         self.assertEqual(audit.resolve_instruction("Just the name."), "Just the name.")
 
     def test_shots_alternate_with_instruction_in_every_user_turn(self):
         strict = audit.resolve_instruction("strict")
         msgs = audit.chat_messages("Who wrote Hamlet?", strict, 2)
         self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant", "user"])
-        self.assertEqual([m["content"] for m in msgs if m["role"] == "assistant"], ["Tokyo", "8"])
+        self.assertEqual([m["content"] for m in msgs if m["role"] == "assistant"], [a for _, a in audit.SHOTS[:2]])
         self.assertTrue(all(m["content"].startswith(strict + "\n\n") for m in msgs if m["role"] == "user"))
         self.assertTrue(msgs[-1]["content"].endswith("Who wrote Hamlet?"))
         with self.assertRaises(ValueError):
@@ -227,18 +247,107 @@ class PromptFormatTests(unittest.TestCase):
                 continue
             with self.subTest(model=key):
                 tok = AutoTokenizer.from_pretrained(path)
-                # Default: identical to the single user turn the audit always sent.
+                # Default: exactly the runner's prompt, and the same token ids
+                # as the template's own text with its BOS, no special tokens
+                # added.
                 before = tok.apply_chat_template(
-                    [{"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"}],
+                    audit.chat_messages("Who wrote Hamlet?"),
                     tokenize=False, add_generation_prompt=True, enable_thinking=False)
-                self.assertEqual(audit.prompt_text(tok, "Who wrote Hamlet?", True), before)
+                text = audit.prompt_text(tok, "Who wrote Hamlet?", True)
+                self.assertEqual(text, audit.SR.render_prompt("Who wrote Hamlet?", "chat", tok))
+                self.assertEqual(tok(text)["input_ids"], tok(before, add_special_tokens=False)["input_ids"])
                 text = audit.prompt_text(tok, "Who wrote Hamlet?", True, audit.resolve_instruction("strict"), 2)
                 # Each example and its answer appear once, in order, before the question.
-                order = [text.index(s) for s in ("capital of Japan", "Tokyo", "legs does a spider", "8",
-                                                 "Who wrote Hamlet?")]
-                self.assertEqual(order, sorted(order))
+                (q1, a1), (q2, a2), (q3, _) = audit.SHOTS
+                # (searched in order: a template's header may hold a date with the digit)
+                pos = 0
+                for x in (q1, a1, q2, a2, "Who wrote Hamlet?"):
+                    pos = text.index(x, pos) + len(x)
+                for x in (q1, q2):
+                    self.assertEqual(text.count(x), 1)
                 self.assertEqual(text.count("Answer with only the answer"), 3)
-                self.assertNotIn("Sun a star", text)
+                self.assertNotIn(q3, text)
+                ids = tok(text)["input_ids"]
+                if tok.bos_token_id is not None:
+                    self.assertLessEqual(ids.count(tok.bos_token_id), 1)
+
+
+RECORDS = os.path.join(audit.PROJECT_ROOT, "datasets", "SidsDataset", "records")
+STOPWORDS = {"what", "which", "who", "how", "many", "much", "is", "are", "was", "does", "do", "did", "have", "has",
+             "the", "a", "an", "of", "in", "s", "it"}
+NUMBERS = {str(i): w for i, w in enumerate("zero one two three four five six seven eight nine ten".split())}
+
+
+def _words(text):
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+
+def _norm_answer(text):
+    words = _words(text)
+    while len(words) > 1 and words[0] in ("the", "a", "an"):
+        words = words[1:]
+    return " ".join(NUMBERS.get(w, w) for w in words)
+
+
+def _strings(obj, key=""):
+    """(field name, text) for every string in a record, evidence and notes left out."""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k not in ("evidence", "notes"):
+                yield from _strings(v, k)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _strings(v, key)
+    elif isinstance(obj, str):
+        yield key, obj
+
+
+def shot_collisions(shots, records, relation_checks):
+    """Every way a worked example could hand a model a record's answer:
+    - its question is a record's question (same words), or every content
+      word of it appears in one record text (a paraphrase or the same fact);
+    - its answer (other than yes/no, which every yes/no query shares) equals
+      a record's answer or reference."""
+    hits = []
+    sources = [(r["id"], r) for r in records] + [("relation_checks.json", relation_checks)]
+    for q, a in shots:
+        content = {w for w in _words(q) if w not in STOPWORDS}
+        answer = _norm_answer(a)
+        for rid, rec in sources:
+            for key, text in _strings(rec):
+                words = set(_words(text))
+                if _words(text) == _words(q) or content <= words:
+                    hits.append((q, rid, key, text))
+                elif answer not in ("yes", "no") and key.endswith(("answer", "reference")) \
+                        and _norm_answer(text) == answer:
+                    hits.append((a, rid, key, text))
+    return hits
+
+
+class ShotCollisionTests(unittest.TestCase):
+    """CPU scan of every record: no worked example (base preamble or chat
+    shots, the same list) shares a question or answer with the dataset."""
+
+    def test_rule_catches_known_collisions(self):
+        rec = {"id": "x", "queries": {
+            "direct": {"prompt": "How many legs does a spider have?", "original_answer": "eight"},
+            "unrelated_far": [{"prompt": "What is the capital of Japan?", "reference": "Tokyo"}]},
+            "checks": [{"fact": "The Sun is a star.", "prompt": "Is the Sun a star?", "answer": "Yes"}]}
+        old = [("What is the capital of Japan?", "Tokyo"), ("How many legs does a spider have?", "8"),
+               ("Is the Sun a star?", "Yes")]
+        found = {h[0] for h in shot_collisions(old, [rec], {})}
+        self.assertEqual(found, {"What is the capital of Japan?", "Tokyo", "How many legs does a spider have?",
+                                 "8", "Is the Sun a star?"})
+        self.assertEqual(shot_collisions([("Which city is Japan's capital?", "Tokyo")], [rec], {})[0][0], "Tokyo")
+
+    def test_no_example_shares_a_question_or_answer_with_a_record(self):
+        if not os.path.isdir(RECORDS):
+            self.skipTest("no records")
+        records = audit.load_records(RECORDS)
+        rc_path = os.path.join(os.path.dirname(RECORDS), "relation_checks.json")
+        relation_checks = json.load(open(rc_path)) if os.path.exists(rc_path) else {}
+        hits = shot_collisions(audit.SHOTS, records, relation_checks)
+        self.assertEqual(hits, [], "\n".join(f"{x!r}: {rid} {key} {text!r}" for x, rid, key, text in hits))
 
 
 class AnswerFormatTests(unittest.TestCase):
@@ -266,7 +375,7 @@ class ArgumentTests(unittest.TestCase):
         cfg = json.load(open(os.path.join(os.path.dirname(os.path.abspath(audit.__file__)), "dashboard.json")))
         fields = {f["name"]: f for f in cfg["fields"]}
         self.assertEqual(audit.resolve_instruction(fields["instruction"]["default"]), audit.CHAT_INSTRUCTION)
-        self.assertEqual(fields["chat_shots"]["default"], "0")
+        self.assertEqual(int(fields["chat_shots"]["default"]), audit.CHAT_SHOTS)
         for name in ("instruction", "chat_shots"):
             # named only when changed, so default runs keep their names (bare model)
             self.assertTrue(fields[name]["run_name_skip_default"])

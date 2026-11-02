@@ -1,3 +1,4 @@
+import json
 import unittest
 
 import judge
@@ -57,6 +58,39 @@ class ScoreTests(unittest.TestCase):
         self.assertIsNone(judge.score("edit", "replace", "UNCLEAR"))
         self.assertEqual(judge.locality_score("SAME"), 1)
         self.assertIsNone(judge.locality_score("UNCLEAR"))
+
+
+class WorldCandidateTests(unittest.TestCase):
+    """Indeterminate derived queries in editing runs: one candidate per
+    distinct world answer; two-candidate prompts stay the audit's."""
+    W = {"prompt": "In which city is the Eiffel Tower?", "original_answer": "Paris", "new_answer": None,
+         "world_answers": {"w1": "Paris", "w2": "Lyon", "w3": None}}
+
+    def test_world_answers_become_candidates(self):
+        candidates, sides = judge.answer_candidates(self.W)
+        self.assertEqual(sorted(candidates.values()), ["Lyon", "Paris"])  # Paris once, None adds none
+        self.assertEqual({sides[l] for l, v in candidates.items() if v == "Lyon"}, {"WORLD"})
+        self.assertEqual({sides[l] for l, v in candidates.items() if v == "Paris"}, {"ORIGINAL"})
+
+    def test_label_carries_the_matched_answer(self):
+        messages, sides, values = judge.answer_prompt(self.W, "Lyon.")
+        letter = next(l for l, v in values.items() if v == "Lyon")
+        verdict = judge.answer_label(json.dumps({"reason": "x", "label": letter}), sides, values)
+        self.assertEqual((verdict["label"], verdict["answer"]), ("WORLD", "Lyon"))
+
+    def test_three_candidates_get_their_own_label_lines(self):
+        q = dict(self.W, world_answers={"w1": "Paris", "w2": "Lyon", "w3": "Nice"})
+        messages, sides, _ = judge.answer_prompt(q, "Nice")
+        self.assertEqual(len(sides), 3)
+        self.assertIn("C: the response asserts candidate C.", messages[0]["content"])
+        self.assertIn("several candidate answers", messages[0]["content"])
+        firsts = {judge.answer_candidates(dict(q, prompt=f"q{i}"))[1]["A"] for i in range(30)}
+        self.assertEqual(firsts, {"ORIGINAL", "WORLD"})
+
+    def test_two_candidate_prompt_unchanged(self):
+        messages, _ = judge.answer_messages(Q, "Italy")
+        self.assertEqual(messages[0]["content"], judge.ANSWER_SYSTEM.format(labels=judge._label_lines()))
+        self.assertIn("one or two candidate answers", messages[0]["content"])
 
 
 if __name__ == "__main__":

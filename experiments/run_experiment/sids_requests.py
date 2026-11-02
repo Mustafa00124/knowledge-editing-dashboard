@@ -17,8 +17,10 @@ Prompt format (format_request, after the tokenizer is loaded): the edit is
 trained in the same form evaluation asks it, so an edit is not scored on a
 prompt it was never trained on:
 
-    chat      instruct models: the chat template's user turn holding
-              CHAT_INSTRUCTION and the question, generation prompt added;
+    chat      instruct models: the chat template with CHAT_SHOTS worked
+              examples as earlier user/assistant turns, then the user turn
+              holding CHAT_INSTRUCTION and the question (the instruction in
+              every user turn, no system turn), generation prompt added;
               the target is the start of the assistant's reply
     fewshot   base models: FEW_SHOT_EXAMPLES, then "Question: <q>\nAnswer:";
               the methods join prompt and target with a space (" <answer>")
@@ -58,17 +60,28 @@ SUBJECT_METHODS = {"rome", "memit", "pmet", "alphaedit", "wilke", "fine", "nmke"
 # the model audit (experiments/model_audit/audit.py, prompt_text with the
 # default --instruction and --chat_shots 0). The chat instruction is the
 # audit's (test_sids_requests checks the copy still matches). The worked
-# examples keep the audit's three answer kinds (a city, a number, yes/no) but
-# not its wording: no example may contain a record's subject, or the
-# subject-locating methods see it twice ("What is the capital of Japan?"
-# holds the RBox subject 'is the capital of', and the audit's spider example
-# is biology-replace-0005's own question). The test checks this on every
-# record.
+# examples give three answer kinds (a city, a number, yes/no). No example may
+# contain a record's subject, or the subject-locating methods see it twice
+# ("What is the capital of Japan?" holds the RBox subject 'is the capital
+# of'), and none may share a question or an answer with a record (the
+# earlier Japan/Tokyo, tricycle "3" and "Is the Sun a star?" examples did;
+# replaced 2026-11-01). test_sids_requests checks the subjects and
+# experiments/model_audit/test_audit.py (ShotCollisionTests) the overlap, on
+# every record. The model audit imports FEW_SHOT_EXAMPLES, FEW_SHOT and
+# render_prompt from here, so the audit and the runner ask the same text.
 PROMPT_FORMATS = ('chat', 'fewshot', 'raw')
-CHAT_INSTRUCTION = "Answer the question in a few words, without explanation."
-FEW_SHOT_EXAMPLES = [("Which city is Japan's capital?", "Tokyo"),
-                     ("How many wheels does a tricycle have?", "3"),
-                     ("Is the Sun a star?", "Yes")]
+# Chat models (user decision 2026-11-01): the model audit's "strict"
+# instruction in every user turn, after the first CHAT_SHOTS worked examples
+# as earlier user/assistant turns. In the audit's test this cut answers
+# wrapped in a sentence from 25% to 0% (Llama-3.1-8B-Instruct) and from 40%
+# to 2.9% (Mistral-7B-Instruct-v0.1) against the earlier single user turn
+# with "Answer the question in a few words, without explanation." (the
+# audit's few_words preset, now a variant).
+CHAT_INSTRUCTION = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
+CHAT_SHOTS = 2
+FEW_SHOT_EXAMPLES = [("Which city is Thailand's capital?", "Bangkok"),
+                     ("How many keys are on a piano?", "88"),
+                     ("Is a lemon sour?", "Yes")]
 FEW_SHOT = "".join(f"Question: {q}\nAnswer: {a}\n\n" for q, a in FEW_SHOT_EXAMPLES)
 # Methods that build their own prompt from the fact (prompt + target as a
 # sentence, or retrieved demonstrations), so a templated prompt would end up
@@ -240,12 +253,45 @@ def _adds_bos(tok):
     return bool(ids) and ids[0] == bos
 
 
+def chat_messages(question, instruction=CHAT_INSTRUCTION, shots=CHAT_SHOTS):
+    """User/assistant turns for a chat model: the first `shots` of
+    FEW_SHOT_EXAMPLES as earlier turns, then the question. The instruction
+    goes in every user turn, never a system turn: Mistral-Instruct-v0.1 has
+    no system role. The model audit's --instruction/--chat_shots variants
+    use this too."""
+    if not 0 <= shots <= len(FEW_SHOT_EXAMPLES):
+        raise ValueError(f"chat shots must be 0..{len(FEW_SHOT_EXAMPLES)}, got {shots}")
+    messages = []
+    for q, a in FEW_SHOT_EXAMPLES[:shots]:
+        messages += [{'role': 'user', 'content': f'{instruction}\n\n{q}'}, {'role': 'assistant', 'content': a}]
+    return messages + [{'role': 'user', 'content': f'{instruction}\n\n{question}'}]
+
+
+def render_chat(messages, tok):
+    """Chat messages through the tokenizer's template, generation prompt
+    added, thinking off, and the template's BOS text dropped when the
+    tokenizer adds one itself."""
+    if tok is None or not getattr(tok, 'chat_template', None):
+        raise ValueError('the chat prompt format needs a tokenizer with a chat template')
+    # enable_thinking=False: hybrid templates (SmolLM3) reason by default;
+    # templates without the switch ignore it.
+    text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+    bos = getattr(tok, 'bos_token', None)
+    if bos and text.startswith(bos) and _adds_bos(tok):
+        text = text[len(bos):]
+    return text
+
+
 def render_prompt(question, fmt, tok=None):
     """The text a model is given for one question: the edit prompt and every
-    evaluation prompt go through here.
+    evaluation prompt go through here, and so does the model audit
+    (experiments/model_audit/audit.py imports it), so the audit, the edit and
+    the run's own evaluation (sid_evaluation.py) ask identical text. Keep the
+    signature (question, fmt, tok=None) -> str stable.
 
-    chat: the user turn (CHAT_INSTRUCTION, a blank line, the question) with
-    the generation prompt, so the text ends where the assistant's reply
+    chat: chat_messages (CHAT_SHOTS worked examples as earlier turns, then
+    CHAT_INSTRUCTION, a blank line and the question, in every user turn)
+    with the generation prompt, so the text ends where the assistant's reply
     begins. The template's own BOS text is dropped when the tokenizer adds
     one itself (Llama 3.1, Mistral), since the methods and evaluation all
     tokenize with special tokens on; the token ids then equal the audit's.
@@ -256,17 +302,7 @@ def render_prompt(question, fmt, tok=None):
         return f"{FEW_SHOT}Question: {question}\nAnswer:"
     if fmt != 'chat':
         raise ValueError(f'prompt format must be one of {PROMPT_FORMATS}, not {fmt!r}')
-    if tok is None or not getattr(tok, 'chat_template', None):
-        raise ValueError('the chat prompt format needs a tokenizer with a chat template')
-    # enable_thinking=False: hybrid templates (SmolLM3) reason by default;
-    # templates without the switch ignore it. Only a user turn, no system
-    # turn: Mistral-Instruct-v0.1 has no system role.
-    text = tok.apply_chat_template([{'role': 'user', 'content': f'{CHAT_INSTRUCTION}\n\n{question}'}],
-                                   tokenize=False, add_generation_prompt=True, enable_thinking=False)
-    bos = getattr(tok, 'bos_token', None)
-    if bos and text.startswith(bos) and _adds_bos(tok):
-        text = text[len(bos):]
-    return text
+    return render_chat(chat_messages(question), tok)
 
 
 def _is_value(words):
@@ -327,14 +363,72 @@ def clean_answer(text, fmt):
     return text.split('\n\n', 1)[0].strip()
 
 
+def question_region(request):
+    """(offset, text): where the record's own question sits in the rendered
+    edit prompt. Under chat and fewshot that is the bare question
+    (sids.question) inside the user turn or after the worked examples; the
+    template's own text around it (Llama 3.1 and SmolLM3 write "Today Date:
+    26 Jul 2024" into a system turn) is not part of it. Under raw, or for a
+    request not from format_request, the whole prompt."""
+    prompt = request['prompt']
+    sids = request.get('sids') or {}
+    question = sids.get('question')
+    if sids.get('prompt_format') in (None, 'raw') or not question:
+        return 0, prompt
+    at = prompt.rfind(question)  # the question comes last, after any template text
+    return (at, question) if at >= 0 else (0, prompt)
+
+
+def subject_offset(request):
+    """Character offset of the subject in the edit prompt: its one occurrence
+    inside the question (question_region), or None when it is not there
+    exactly once."""
+    at, text = question_region(request)
+    subject = request.get('subject')
+    if not subject or text.count(subject) != 1:
+        return None
+    return at + text.index(subject)
+
+
 def require_subject(request):
-    """For locate-and-edit methods: the subject must be in the prompt verbatim,
-    exactly once, or the edit lands on the wrong tokens."""
-    rid, subject, prompt = request['sids']['id'], request['subject'], request['prompt']
-    n = prompt.count(subject) if subject else 0
+    """For locate-and-edit methods: the subject must be in the question
+    verbatim, exactly once, or the edit lands on the wrong tokens. Counted in
+    the question, not the whole rendered prompt: a chat template's own text
+    may hold it too (Llama 3.1's "Today Date: 26 Jul 2024" holds
+    mathematics-insert-0006's subject "6"), and edit_request points the
+    methods at the question's occurrence."""
+    rid, subject = request['sids']['id'], request['subject']
+    at, text = question_region(request)
+    n = text.count(subject) if subject else 0
     if n != 1:
         where = 'does not appear' if n == 0 else f'appears {n} times'
-        raise SubjectNotInPrompt(rid, f'subject {subject!r} {where} in the edit prompt {prompt!r}')
+        raise SubjectNotInPrompt(rid, f'subject {subject!r} {where} in the edit prompt {text!r}')
+
+
+# Methods that accept an edit prompt with "{}" in place of the subject and
+# otherwise make one themselves with prompt.replace(subject, "{}"), which
+# replaces every occurrence, the template's too (EasyEdit's ROME, MEMIT,
+# PMET, AlphaEdit; WilKE, FiNE, NMKE, FiDAL; IFMET and LTI through
+# portability/base.py). KN reads the prompt as text and CaKE runs on MQuAKE
+# only, so they get the plain prompt.
+PLACEHOLDER_METHODS = SUBJECT_METHODS - {'kn', 'cake'}
+
+
+def edit_request(request, method):
+    """The request as an editing method is handed it: for PLACEHOLDER_METHODS
+    on a Sid's Dataset request, the prompt with "{}" at the subject's
+    occurrence in the question (subject_offset), so the method edits there
+    and nowhere else. Every other case, and a request whose subject is not
+    once in its question (check_request reports it), is returned unchanged.
+    Identical to what the method would do itself whenever the subject occurs
+    once in the whole prompt; evaluation always uses the plain prompt."""
+    if method not in PLACEHOLDER_METHODS or 'sids' not in request or '{}' in request['prompt']:
+        return request
+    at = subject_offset(request)
+    if at is None:
+        return request
+    prompt = request['prompt']
+    return {**request, 'prompt': prompt[:at] + '{}' + prompt[at + len(request['subject']):]}
 
 
 def check_request(request, method):

@@ -135,9 +135,11 @@ def support_descriptions(model, tok, subjects, hparams):
 
 def two_hop_prompt(request, description):
     """The edit prompt with the subject replaced by its description."""
-    prompt = base.filled_prompt(request)
     subject = request["subject"]
-    at = prompt.find(subject)
+    # A "{}" placeholder marks the subject's own occurrence (sids_requests.
+    # edit_request); a chat template may hold the subject text elsewhere too.
+    at = request["prompt"].find("{}") if "{}" in request["prompt"] else base.filled_prompt(request).find(subject)
+    prompt = base.filled_prompt(request)
     phrase = description[0].upper() + description[1:] if at == 0 else description
     return prompt[:at] + phrase + prompt[at + len(subject):]
 

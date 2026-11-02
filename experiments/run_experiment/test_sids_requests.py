@@ -239,6 +239,18 @@ class PromptFormatTests(unittest.TestCase):
 
     def test_instruction_matches_the_audit(self):
         self.assertEqual(s.CHAT_INSTRUCTION, audit_constant('CHAT_INSTRUCTION'))
+        self.assertEqual(s.CHAT_INSTRUCTION,
+                         "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.")
+        self.assertEqual(s.CHAT_SHOTS, 2)
+
+    def test_chat_messages(self):
+        msgs = s.chat_messages('Q?')
+        self.assertEqual([m['role'] for m in msgs], ['user', 'assistant', 'user', 'assistant', 'user'])
+        self.assertTrue(all(m['content'].startswith(s.CHAT_INSTRUCTION + '\n\n') for m in msgs if m['role'] == 'user'))
+        self.assertEqual([m['content'] for m in msgs if m['role'] == 'assistant'], ['Bangkok', '88'])
+        self.assertEqual(s.chat_messages('Q?', 'I.', 0), [{'role': 'user', 'content': 'I.\n\nQ?'}])
+        with self.assertRaises(ValueError):
+            s.chat_messages('Q?', shots=4)
 
     def test_no_subject_is_in_the_fixed_text(self):
         """The worked examples and the instruction hold no record's subject,
@@ -257,20 +269,29 @@ class ChatTemplateTests(unittest.TestCase):
         tok = tokenizer(name)
         return tok, s.format_request(s.build_request(example(file)), 'chat', tok)
 
-    def test_prompt_is_the_audits_user_turn(self):
+    def test_prompt_is_the_audits_chat_prompt(self):
+        """Default since 2026-11-01: the strict instruction in every user
+        turn, after the first CHAT_SHOTS (2) worked examples as earlier
+        turns; no system turn."""
         for name in CHAT_TOKENIZERS:
             with self.subTest(model=name):
                 tok, f = self.chat_request(name)
                 question = 'What is the capital of Australia?'
                 self.assertIn(f'{s.CHAT_INSTRUCTION}\n\n{question}', f['prompt'])
+                self.assertEqual(f['prompt'].count(s.CHAT_INSTRUCTION), s.CHAT_SHOTS + 1)
+                pos = 0
+                for q, a in s.FEW_SHOT_EXAMPLES[:s.CHAT_SHOTS]:
+                    for x in (q, a):
+                        pos = f['prompt'].index(x, pos) + len(x)
+                self.assertGreater(f['prompt'].index(question), pos)
+                self.assertNotIn(s.FEW_SHOT_EXAMPLES[s.CHAT_SHOTS][0], f['prompt'])
                 self.assertEqual(f['prompt'].count('Australia'), 1)
                 s.check_request(f, 'rome')
                 self.assertEqual(f['target_new'], 'Sydney')
                 # the same token ids the audit feeds (template with its own
                 # BOS, add_special_tokens=False), and exactly one BOS
                 audit = tok.apply_chat_template(
-                    [{'role': 'user', 'content': f'{s.CHAT_INSTRUCTION}\n\n{question}'}],
-                    tokenize=False, add_generation_prompt=True, enable_thinking=False)
+                    s.chat_messages(question), tokenize=False, add_generation_prompt=True, enable_thinking=False)
                 ids = tok(f['prompt'])['input_ids']
                 self.assertEqual(ids, tok(audit, add_special_tokens=False)['input_ids'])
                 if tok.bos_token_id is not None:
@@ -315,23 +336,66 @@ class ChatTemplateTests(unittest.TestCase):
 
     def test_every_record_keeps_its_subject_once(self):
         """Formatting never breaks a record whose bare question has the
-        subject once. Known exception: Llama 3.1's template writes "Today
-        Date: 26 Jul 2024", which holds mathematics-insert-0006's subject
-        "6"; check_request reports it (SubjectNotInPrompt)."""
+        subject once: the subject check passes, and the prompt a method is
+        handed (edit_request) has exactly one "{}", at the question's
+        occurrence, with the template's text untouched. Covers chat
+        templates that write a date (Llama 3.1, SmolLM3)."""
         if not os.path.isdir(RECORDS):
             self.skipTest('no records')
         reqs = [s.build_request(r) for r in s.load_records(RECORDS)]
-        known = {('Llama-3.1-8B-Instruct', 'mathematics-insert-0006')}
-        for name, fmt in [(n, 'chat') for n in CHAT_TOKENIZERS] + [(BASE_TOKENIZER, 'fewshot')]:
-            tok = tokenizer(name)
+        names = [(n, 'chat') for n in CHAT_TOKENIZERS + ['SmolLM3-3B']] + [(BASE_TOKENIZER, 'fewshot')]
+        for name, fmt in names:
+            try:
+                tok = tokenizer(name)
+            except unittest.SkipTest:
+                continue
             broken = set()
             for r in reqs:
                 if r['prompt'].count(r['subject']) == 1:
                     f = s.format_request(r, fmt, tok)
-                    if f['prompt'].count(f['subject']) != 1:
-                        broken.add((name, r['sids']['id']))
+                    try:
+                        s.require_subject(f)
+                    except s.SubjectNotInPrompt:
+                        broken.add((name, r['sids']['id'], 'check'))
+                        continue
+                    e = s.edit_request(f, 'rome')
+                    if e['prompt'].count('{}') != 1 or e['prompt'].format(f['subject']) != f['prompt']:
+                        broken.add((name, r['sids']['id'], 'placeholder'))
             with self.subTest(model=name):
-                self.assertEqual(broken - known, set())
+                self.assertEqual(broken, set())
+
+    def test_llama_date_holds_a_numeric_subject(self):
+        """Llama 3.1's template writes "Today Date: 26 Jul 2024";
+        mathematics-insert-0006's subject is "6". The check counts the
+        question only, and the edit prompt marks the question's "6", so
+        EasyEdit's prompt.replace(subject, "{}") never reaches the date."""
+        tok = tokenizer('Llama-3.1-8B-Instruct')
+        path = os.path.join(RECORDS, 'mathematics', 'insert', 'mathematics-insert-0006.json')
+        if not os.path.exists(path):
+            self.skipTest('no record')
+        f = s.format_request(s.build_request(json.load(open(path))), 'chat', tok)
+        self.assertEqual(f['subject'], '6')
+        self.assertIn('26 Jul 2024', f['prompt'])
+        self.assertGreater(f['prompt'].count('6'), 1)
+        s.check_request(f, 'rome')  # no SubjectNotInPrompt
+        e = s.edit_request(f, 'rome')
+        self.assertIn('26 Jul 2024', e['prompt'])
+        self.assertEqual(e['prompt'].count('{}'), 1)
+        self.assertGreater(e['prompt'].index('{}'), e['prompt'].index('<|start_header_id|>user'))
+        self.assertEqual(e['prompt'].format('6'), f['prompt'])
+        self.assertEqual(s.subject_offset(f), e['prompt'].index('{}'))
+        # Plain prompts for the methods that read it as text, and evaluation.
+        self.assertIs(s.edit_request(f, 'ft'), f)
+        self.assertIs(s.edit_request(f, 'kn'), f)
+
+    def test_subject_twice_in_the_question_still_fails(self):
+        r = s.build_request(example('geography-replace-0003.json'))
+        tok = tokenizer('Qwen3-4B-Instruct-2507')
+        r['prompt'] = f"{r['subject']} or {r['subject']}?"
+        f = s.format_request(r, 'chat', tok)
+        with self.assertRaises(s.SubjectNotInPrompt):
+            s.require_subject(f)
+        self.assertIs(s.edit_request(f, 'rome'), f)
 
 
 if __name__ == '__main__':

@@ -18,6 +18,12 @@ test('switching modes selects their scores without changing timing', () => {
   assert.equal(evaluationRow(row, 'llm_judge').edit_succ, null)
   assert.ok(!formatMetricValue(evaluationMetric('edit_succ', 'bertscore'), 0.91).includes('%'))
 })
+test('sid scores show under their own mode only', () => {
+  const row = { total_sec: 5, evaluations: { sid: { edit_succ: 50, portability: 25 } } }
+  assert.equal(hasEvaluation(row, 'sid'), true)
+  assert.equal(hasEvaluation(row, 'original'), false)
+  assert.equal(evaluationRow(row, 'sid').portability, 25)
+})
 test('combined evaluation selection does not multiply editing jobs', () => {
   assert.equal(comboCount({ method: ['ft', 'rome'], evaluation_modes: ['exact_match,bertscore,llm_judge'] }), 2)
   assert.equal(comboCount({ method: ['ft'], evaluation_modes: [] }), 0)

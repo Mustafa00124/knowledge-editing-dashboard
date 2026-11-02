@@ -116,11 +116,54 @@ def _evaluation_dir(run, exp_type=None, archived=False):
     return base / "runs" / run / "evaluations"
 
 
-def list_evaluations(run, exp_type=None, archived=False):
+def list_evaluations(run, exp_type=None, archived=False, mode=None):
+    if mode == "sid":
+        samples = _evaluation_dir(run, exp_type, archived).parent / "samples"
+        return sorted(int(p.stem.rsplit("_", 1)[1]) for p in samples.glob(f"{SID_PREFIX}[0-9]*.json"))
     return sorted(int(p.stem.split("_")[1]) for p in
                   _evaluation_dir(run, exp_type, archived).glob("step_[0-9]*.json"))
 
 
-def get_evaluation(run, step, exp_type=None, archived=False):
+def get_evaluation(run, step, exp_type=None, archived=False, mode=None):
+    if mode == "sid":
+        path = _evaluation_dir(run, exp_type, archived).parent / "samples" / f"{SID_PREFIX}{step:06d}.json"
+        return sid_probes(json.loads(path.read_text())) if path.exists() else None
     path = _evaluation_dir(run, exp_type, archived) / f"step_{step:06d}.json"
     return json.loads(path.read_text()) if path.exists() else None
+
+
+# Sid's Dataset's own evaluation (experiments/run_experiment/sid_evaluation.py)
+# stores each checkpoint's answers, judge labels and scores in
+# samples/sid_step_<step>.json; the Responses view reads them as probes.
+SID_PREFIX = "sid_step_"
+
+
+def _sid_references(expected):
+    rule = (expected or {}).get("rule")
+    if rule == "new":
+        return [expected.get("new_answer")]
+    if rule == "abstain":
+        return ["abstains (I don't know)"]
+    if rule == "worlds":
+        return [f"{w}: {a if a is not None else 'abstains'}" for w, a in sorted(expected["world_answers"].items())]
+    return []
+
+
+def sid_probes(payload):
+    """A sid_step file in the shape of a semantic evaluation file."""
+    probes = []
+    for entry in payload.get("records", []):
+        for key, a in entry.get("queries", {}).items():
+            verdict = a.get("verdict") or {}
+            reason = verdict.get("reason", "")
+            if a.get("worlds"):
+                reason = f"{reason} (worlds: {', '.join(a['worlds'])})".strip()
+            probes.append({
+                "id": f"{entry['record_id']}:{key}", "case_id": entry.get("case_id"),
+                "metric": a.get("query_type"), "category": f"{entry['record_id']} {key}",
+                "question": a.get("question"), "answer": a.get("response"), "before_answer": a.get("before"),
+                "reference_answers": _sid_references(a.get("expected")),
+                "scores": {"sid": a.get("score")},
+                "judgment": {"verdict": verdict.get("label", "not judged yet"), "reason": reason},
+            })
+    return {"step": payload.get("step"), "scores": {"sid": payload.get("metrics")}, "probes": probes}

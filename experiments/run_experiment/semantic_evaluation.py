@@ -9,7 +9,7 @@ import string
 from collections import defaultdict
 from statistics import mean
 
-from evaluation_config import settings
+from evaluation_config import SEMANTIC_MODES, settings
 
 
 def references(value):
@@ -104,7 +104,7 @@ def aggregate(probes, scores, scale):
 
 class SemanticEvaluator:
     def __init__(self, modes):
-        self.modes = [m for m in modes if m != "original"]
+        self.modes = [m for m in modes if m in SEMANTIC_MODES]  # not original, sid or auto
         self.cfg = settings()
         self.bertscorer = None
         self.judge = None

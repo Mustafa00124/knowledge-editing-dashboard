@@ -1424,17 +1424,18 @@ def get_models():
 
 
 @app.get("/api/results/runs/{run}/evaluations")
-def list_evaluations(run: str, type: Optional[str] = None, archived: bool = False):
+def list_evaluations(run: str, type: Optional[str] = None, archived: bool = False, mode: Optional[str] = None):
     try:
-        return results_reader.list_evaluations(run, type, archived)
+        return results_reader.list_evaluations(run, type, archived, mode)
     except ValueError:
         raise HTTPException(400, "Invalid run")
 
 
 @app.get("/api/results/runs/{run}/evaluations/{step}")
-def get_evaluation(run: str, step: int, type: Optional[str] = None, archived: bool = False):
+def get_evaluation(run: str, step: int, type: Optional[str] = None, archived: bool = False,
+                   mode: Optional[str] = None):
     try:
-        result = results_reader.get_evaluation(run, step, type, archived)
+        result = results_reader.get_evaluation(run, step, type, archived, mode)
     except ValueError:
         raise HTTPException(400, "Invalid run")
     if result is None:

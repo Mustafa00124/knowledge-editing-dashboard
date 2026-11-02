@@ -53,10 +53,12 @@ class RestoreFailed(RuntimeError):
     """Fatal: the next record would start from an edited model."""
 
 
-def _subject_tokens(tok, prompt, subject):
-    """Token positions covering the subject in the prompt; raises when the
-    tokenizer can't place it (an edit at the subject's last token needs one)."""
-    start = prompt.index(subject)
+def _subject_tokens(tok, prompt, subject, start=None):
+    """Token positions covering the subject in the prompt (at `start`, by
+    default its first occurrence); raises when the tokenizer can't place it
+    (an edit at the subject's last token needs one)."""
+    if start is None:
+        start = prompt.index(subject)
     end = start + len(subject)
     enc = tok(prompt, return_offsets_mapping=True, add_special_tokens=False)
     covered = [i for i, (a, b) in enumerate(enc['offset_mapping']) if a < end and b > start]
@@ -68,7 +70,9 @@ def _subject_tokens(tok, prompt, subject):
 def method_checks(request, method, tok, max_target_tokens=64):
     sids_requests.check_request(request, method)
     if method in sids_requests.SUBJECT_METHODS:
-        _subject_tokens(tok, request['prompt'], request['subject'])
+        # The occurrence inside the question, where edit_request points the
+        # method, not one in the chat template's own text.
+        _subject_tokens(tok, request['prompt'], request['subject'], sids_requests.subject_offset(request))
     n = len(tok(' ' + request['target_new'], add_special_tokens=False)['input_ids'])
     if n == 0 or n > max_target_tokens:
         raise TargetTokensEmpty(f'target {request["target_new"]!r} is {n} tokens (want 1 to {max_target_tokens})')
@@ -138,7 +142,8 @@ def run_smoke(method, model_name, model, tok, hparams, requests, run_dir, device
                     hparams.batch_size = 1
                     training_fn(model, tok, [request], hparams, hparams.num_steps, lambda step, loss=None: None)
                 else:
-                    model, copied = apply_fn(model, tok, [request], hparams, copy=False, return_orig_weights=True)
+                    model, copied = apply_fn(model, tok, [sids_requests.edit_request(request, method)], hparams,
+                                             copy=False, return_orig_weights=True)
                     originals = {n: v.detach().clone() for n, v in copied.items()}
                 if not originals:
                     raise NoWeightChange('the method reported no edited weights')

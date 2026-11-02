@@ -429,8 +429,12 @@ def parse_args():
         "The dashboard always passes this explicitly, computed from whichever "
         "fields are actually varying in a given submission.",
     )
-    p.add_argument("--evaluation_modes", default="original",
-                   help="Comma-separated: original,exact_match,bertscore,llm_judge; modes share one edit run")
+    p.add_argument("--evaluation_modes", default="auto",
+                   help="Comma-separated: auto,original,sid,exact_match,bertscore,llm_judge; modes share one edit "
+                        "run. auto: the dataset's own scoring. Sid's Dataset is always scored by sid "
+                        "(sid_evaluation.py: generated answers labelled by the local SID judge after the run), "
+                        "and original/auto mean sid there; elsewhere auto means original and sid is refused "
+                        "(evaluation_config.resolve_modes)")
     p.add_argument("--edit_mode",
                    choices=("single", "batch", "sequential", "sequential_batch"), default=None,
                    help="single: one fact per edit, reset after each. batch: one joint edit of "
@@ -596,6 +600,24 @@ def main():
     if not args.smoke:
         requests = requests[:args.ds_size]
     print(f"{len(requests)} edit requests from the {args.split} split of {args.data_path}")
+    # Which scoring the run really uses, now that the data is known: Sid's
+    # Dataset is always scored by its own evaluation (sid), never EasyEdit's
+    # token accuracy (original), which crashed on its indeterminate derived
+    # queries (ground_truth None). See evaluation_config.resolve_modes.
+    from evaluation_config import resolve_modes
+    is_sids = bool(all_requests) and all("sids" in r for r in all_requests)
+    try:
+        args.evaluation_modes, modes_note = resolve_modes(args.evaluation_modes, is_sids)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    if modes_note:
+        print(modes_note)
+    sid_records = None
+    if "sid" in args.evaluation_modes and not args.smoke:
+        import sids_requests
+        import sid_evaluation
+
+        sid_records = {r["id"]: r for r in sids_requests.load_records(args.data_path)}
     if (args.method in LOCATE_AND_EDIT and LOCATE_AND_EDIT[args.method].get("needs_subject", True)
             and any("subject" not in r for r in requests)):
         raise SystemExit(
@@ -756,6 +778,7 @@ def main():
                 "reset_every": args.reset_every if args.edit_mode in SEQUENTIAL_MODES else None,
                 "edit_batch_size": args.edit_batch_size if args.edit_mode in JOINT_MODES else None,
                 "evaluation_config": semantic.metadata(),
+                "sid_evaluation": sid_evaluation.metadata() if sid_records is not None else None,
                 "started_at": started_at,
                 "method": args.method,
                 "model": args.model,
@@ -900,6 +923,17 @@ def main():
 
     samples_written = set()
 
+    def edit_inputs(chunk):
+        """Requests as the editing method is handed them: Sid's Dataset edit
+        prompts get "{}" at the subject's occurrence in the question
+        (sids_requests.edit_request), so a chat template's own text holding
+        the subject (Llama 3.1's "Today Date: 26 Jul 2024" and the subject
+        "6") is never edited. Evaluation uses the plain prompts."""
+        if sids_prompt_format is None:
+            return chunk
+        import sids_requests
+        return [sids_requests.edit_request(r, args.method) for r in chunk]
+
     def write_samples(step):
         from response_samples import method_samples
 
@@ -951,39 +985,55 @@ def main():
                     state["baseline_locality"] = locality_outputs  # step 0 becomes the baseline
 
             evaluations["original"] = aggregate_metrics(per_record)
-        if semantic.modes:
-            def answer(record, question):
-                if args.method == "scr":
-                    from scr import scr_answer
+        # How the method answers one question (the generated-answer modes; SCR
+        # and IKE answer through their own context under sid too).
+        def answer(record, question):
+            if args.method == "scr":
+                from scr import scr_answer
 
-                    def ask():
-                        return scr_answer(model, tok, question, scr_kb, device, hparams.retrieval_k,
-                                          hparams.max_new_tokens, hparams)
-                    if state["record_scope"] is None:
-                        return cached_answer(answer_cache, question, ask)
-                    i = record_index[id(record)]
-                    with state["record_scope"](i):
-                        return cached_answer(answer_cache, ("record", i, question), ask)
-                if args.method == "ike" and step != 0:
-                    from ike import ike_answer
-                    fact = f"{record['prompt']} {record['target_new']}"
-                    return cached_answer(answer_cache, (fact, question), lambda: ike_answer(
-                        model, tok, fact, question, ike_pool, device, hparams.k, hparams.max_new_tokens))
-                # Raw completion prompts work with base models too. Step-zero IKE
-                # must not inject the new fact when measuring semantic preservation.
-                def generate():
-                    with torch.no_grad():
-                        inputs = tok(question, return_tensors="pt").to(device)
-                        output = model.generate(**inputs, max_new_tokens=semantic.cfg["max_new_tokens"],
-                                                do_sample=False, pad_token_id=tok.eos_token_id)
-                    text = tok.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
-                    if sids_prompt_format:
-                        # Cut where the format's answer ends, as the audit does
-                        # (few-shot: the next line would be another question).
-                        import sids_requests
-                        text = sids_requests.clean_answer(text, sids_prompt_format)
-                    return text
-                return cached_answer(answer_cache, ("raw", question), generate)
+                def ask():
+                    return scr_answer(model, tok, question, scr_kb, device, hparams.retrieval_k,
+                                      hparams.max_new_tokens, hparams)
+                if state["record_scope"] is None:
+                    return cached_answer(answer_cache, question, ask)
+                i = record_index[id(record)]
+                with state["record_scope"](i):
+                    return cached_answer(answer_cache, ("record", i, question), ask)
+            if args.method == "ike" and step != 0:
+                from ike import ike_answer
+                fact = f"{record['prompt']} {record['target_new']}"
+                return cached_answer(answer_cache, (fact, question), lambda: ike_answer(
+                    model, tok, fact, question, ike_pool, device, hparams.k, hparams.max_new_tokens))
+            # Raw completion prompts work with base models too. Step-zero IKE
+            # must not inject the new fact when measuring semantic preservation.
+            def generate():
+                with torch.no_grad():
+                    inputs = tok(question, return_tensors="pt").to(device)
+                    output = model.generate(**inputs, max_new_tokens=semantic.cfg["max_new_tokens"],
+                                            do_sample=False, pad_token_id=tok.eos_token_id)
+                text = tok.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+                if sids_prompt_format:
+                    # Cut where the format's answer ends, as the audit does
+                    # (few-shot: the next line would be another question).
+                    import sids_requests
+                    text = sids_requests.clean_answer(text, sids_prompt_format)
+                return text
+            return cached_answer(answer_cache, ("raw", question), generate)
+        if sid_records is not None:
+            # Sid's Dataset's own evaluation: answers now, judged after the run
+            # (sid_evaluation.finalize), once the edited model is unloaded.
+            if args.method in ("scr", "ike"):
+                payload = sid_evaluation.collect_generations(
+                    scored_requests, sid_records, sids_prompt_format, tok, None, step, group_start,
+                    answer_one=answer)
+            else:
+                payload = sid_evaluation.collect_generations(
+                    scored_requests, sid_records, sids_prompt_format, tok,
+                    lambda prompts: sid_evaluation.generate_answers(model, tok, prompts, device, sids_prompt_format),
+                    step, group_start)
+            with open(sid_evaluation.sample_path(run_dir, step), "w") as f:
+                json.dump(payload, f, indent=1, ensure_ascii=False)
+        if semantic.modes:
             probes = collect_probes(scored_requests, answer, semantic_baseline, case_offset=group_start)
             # Save before scoring as well, so API/encoder failure cannot erase answers.
             evaluation_dir = os.path.join(run_dir, "evaluations")
@@ -1094,7 +1144,7 @@ def main():
                         training_fn(model, tok, chunk, hparams, hparams.num_steps, capture)
                         loss = latest["loss"]
                     else:
-                        model, copied = apply_fn(model, tok, chunk, hparams, copy=False,
+                        model, copied = apply_fn(model, tok, edit_inputs(chunk), hparams, copy=False,
                                                  return_orig_weights=True)
                         # Each call snapshots its own input; keep the first copy
                         # of each parameter so restoration reaches the base model.
@@ -1124,9 +1174,9 @@ def main():
                 if step % args.checkpoint_every == 0 or step == total_steps:
                     if spec["mode"] == "single":
                         for j in range(prev, step):
-                            model, _ = apply_fn(model, tok, [requests[j]], hparams, copy=False)
+                            model, _ = apply_fn(model, tok, edit_inputs([requests[j]]), hparams, copy=False)
                     else:  # batch - solve for this whole interval's facts jointly
-                        model, _ = apply_fn(model, tok, requests[prev:step], hparams, copy=False)
+                        model, _ = apply_fn(model, tok, edit_inputs(requests[prev:step]), hparams, copy=False)
                     prev = step
                     on_checkpoint(step, loss=None)
         elif args.method == "scr" and args.kb_size is not None:
@@ -1160,6 +1210,32 @@ def main():
             write_samples(last_step)
     finally:
         ckpt_file.close()
+
+    sid_final = sid_info = None
+    if sid_records is not None:
+        # Judge after generation, as the model audit does: the edited model
+        # (and SCR/IKE's encoders) leave the GPU first, so only the judge is
+        # on it. Then every checkpoint row gets its "sid" evaluation.
+        import gc
+
+        model = scr_kb = ike_pool = None
+        gc.collect()
+        torch.cuda.empty_cache()
+        t_judge = time.time()
+        sid_judge = sid_evaluation.load_judge(device)
+        sid_final, sid_info = sid_evaluation.finalize(run_dir, ckpt_path, sid_records, sid_judge, salt=args.model,
+                                                      grouped=bool(args.edit_mode))
+        sid_info["judge_sec"] = round(time.time() - t_judge, 2)
+        del sid_judge
+        gc.collect()
+        torch.cuda.empty_cache()
+        with open(ckpt_path) as f:
+            judged = {row["step"]: row for row in map(json.loads, filter(str.strip, f))}
+        for row in state["group_rows"]:
+            sid = judged.get(row["step"], {}).get("evaluations", {}).get("sid")
+            if sid is not None:
+                row["evaluations"]["sid"] = sid
+        print(f"[{run_name}] sid evaluation: {sid_final and {k: sid_final[k] for k in ('edit_succ', 'portability', 'locality', 'fluency')}}")
 
     with open(ckpt_path) as f:
         last_row = json.loads(f.readlines()[-1])
@@ -1200,6 +1276,14 @@ def main():
         summary["group_results"] = [{"start": row["group_start"], "end": row["group_end"],
                                       "size": row["group_size"], "evaluations": row["evaluations"]}
                                      for row in state["group_rows"]]
+    if sid_final is not None:
+        # Under an edit protocol, every group's answers pooled (weighted by
+        # group size); otherwise the last checkpoint's. Sid's Dataset has no
+        # original-mode scores, so the headline fields are these, and say so.
+        summary.setdefault("evaluations", {})["sid"] = sid_final
+        summary.update({k: sid_final[k] for k in ("edit_succ", "portability", "locality", "fluency")},
+                       headline_evaluation="sid")
+        summary["sid_evaluation"] = sid_info
     with open(os.path.join(run_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     print(f"[{run_name}] done: {summary}")

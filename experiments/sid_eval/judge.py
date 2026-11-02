@@ -5,6 +5,8 @@ response and the candidate answers, and returns one label:
 
     ORIGINAL  the response asserts original_answer
     NEW       the response asserts new_answer
+    WORLD     the response asserts one of an indeterminate query's world
+              answers that is neither of the above (editing runs only)
     OTHER     the response asserts some other specific answer
     NONE      the response gives no answer: does not know, refuses, says no
               such thing exists, or only denies a candidate without offering one
@@ -27,7 +29,7 @@ import re
 JUDGE_MODEL = "Qwen3-4B-Instruct-2507"
 RUBRIC_VERSION = "sid-judge-v3"
 
-ANSWER_LABELS = ("ORIGINAL", "NEW", "OTHER", "NONE", "UNCLEAR")
+ANSWER_LABELS = ("ORIGINAL", "NEW", "WORLD", "OTHER", "NONE", "UNCLEAR")
 LOCALITY_LABELS = ("SAME", "DIFFERENT", "UNCLEAR")
 
 ANSWER_SYSTEM = """You compare answers for meaning. You read a question, a response written by another model, and one or two candidate answers. Your only job is to say which candidate answer the response gives, if any. You know nothing about the topic: never judge whether anything is true.
@@ -142,28 +144,71 @@ def answer_candidates(query, salt=""):
     The order of A and B is fixed per query but varies across queries, so a
     judge biased towards the first option is not biased towards one side.
     Identical or missing answers collapse to a single candidate.
+
+    A query may also carry ``world_answers`` ({world id: answer or None}):
+    the answers of an indeterminate derived query, one per world (editing
+    runs, experiments/run_experiment/sid_evaluation.py). Each world answer
+    that is neither candidate already becomes one more candidate with side
+    ``WORLD``; None (a world in which the model should abstain) adds none,
+    NONE covers it. With more than two candidates the order is rotated per
+    query.
     """
+    candidates, sides, _ = _candidate_table(query, salt)
+    return candidates, sides
+
+
+def _candidate_table(query, salt=""):
+    """(candidates, sides, values): values maps each letter to its answer."""
     original, new = query.get("original_answer"), query.get("new_answer")
-    if original is not None and new is not None and _norm(original) == _norm(new):
-        return {"A": original}, {"A": "NEW"}
-    sides = [(s, v) for s, v in (("ORIGINAL", original), ("NEW", new)) if v is not None]
-    if len(sides) == 2 and _shuffle_key(salt + query["prompt"]) % 2:
-        sides.reverse()
-    letters = "AB"[:len(sides)]
+    worlds = query.get("world_answers") or {}
+    if not worlds:
+        if original is not None and new is not None and _norm(original) == _norm(new):
+            return {"A": original}, {"A": "NEW"}, {"A": original}
+        sides = [(s, v) for s, v in (("ORIGINAL", original), ("NEW", new)) if v is not None]
+        if len(sides) == 2 and _shuffle_key(salt + query["prompt"]) % 2:
+            sides.reverse()
+    else:
+        sides, seen = [], set()
+        for side, value in (("NEW", new), ("ORIGINAL", original)):
+            if value is not None and _norm(value) not in seen:
+                sides.append((side, value))
+                seen.add(_norm(value))
+        sides.reverse()  # ORIGINAL first, then NEW, as without worlds
+        for wid in sorted(worlds):
+            value = worlds[wid]
+            if value is not None and _norm(value) not in seen:
+                sides.append(("WORLD", value))
+                seen.add(_norm(value))
+        if len(sides) > 1:
+            k = _shuffle_key(salt + query["prompt"]) % len(sides)
+            sides = sides[k:] + sides[:k]
+    letters = "ABCDEFGH"[:len(sides)]
     return ({l: v for l, (_, v) in zip(letters, sides)},
-            {l: s for l, (s, _) in zip(letters, sides)})
+            {l: s for l, (s, _) in zip(letters, sides)},
+            {l: v for l, (_, v) in zip(letters, sides)})
 
 
 def _norm(text):
     return re.sub(r"\s+", " ", str(text)).strip().casefold()
 
 
-def _label_lines():
+def _label_lines(letters="AB"):
     lines = ["A: the response asserts candidate A.", "B: the response asserts candidate B (only when a candidate B is given)."]
+    # More than two candidates (world answers): one line per letter. With two
+    # or fewer the text stays exactly as the model audit has always used it.
+    if len(letters) > 2:
+        lines = [f"{l}: the response asserts candidate {l}." for l in letters]
     lines += ["OTHER: the response asserts a specific answer that matches no candidate.",
               "NONE: the response commits to no answer.",
               "UNCLEAR: the response hedges, contradicts itself with no final answer, or is unintelligible."]
     return "\n".join(lines)
+
+
+def _answer_system(letters):
+    text = ANSWER_SYSTEM.format(labels=_label_lines(letters))
+    if len(letters) > 2:
+        text = text.replace("one or two candidate answers", "several candidate answers")
+    return text
 
 
 def _answer_user(question, response, candidates):
@@ -173,13 +218,20 @@ def _answer_user(question, response, candidates):
 
 def answer_messages(query, response, salt=""):
     """Chat messages for one answer-label call, plus the letter map."""
-    candidates, sides = answer_candidates(query, salt)
-    messages = [{"role": "system", "content": ANSWER_SYSTEM.format(labels=_label_lines())}]
+    messages, sides, _ = answer_prompt(query, response, salt)
+    return messages, sides
+
+
+def answer_prompt(query, response, salt=""):
+    """answer_messages plus the candidate values by letter, so a verdict can
+    say which answer it matched (answer_label's ``candidates``)."""
+    candidates, sides, values = _candidate_table(query, salt)
+    messages = [{"role": "system", "content": _answer_system("".join(candidates) or "AB")}]
     for shot, verdict in ANSWER_SHOTS:
         messages.append({"role": "user", "content": _answer_user(shot["question"], shot["response"], shot["candidates"])})
         messages.append({"role": "assistant", "content": json.dumps(verdict)})
     messages.append({"role": "user", "content": _answer_user(query["prompt"], response, candidates)})
-    return messages, sides
+    return messages, sides, values
 
 
 def locality_messages(question, before, after):
@@ -208,10 +260,15 @@ def parse_verdict(text, allowed):
     return {"label": label, "reason": str(data.get("reason", "")).strip()}
 
 
-def answer_label(reply, sides):
-    """Map the judge's letter label back to ORIGINAL/NEW/OTHER/NONE/UNCLEAR."""
+def answer_label(reply, sides, candidates=None):
+    """Map the judge's letter label back to ORIGINAL/NEW/WORLD/OTHER/NONE/UNCLEAR.
+    With ``candidates`` (letter -> answer), a letter verdict also gets
+    "answer": the candidate it matched."""
     verdict = parse_verdict(reply, set(sides) | {"OTHER", "NONE", "UNCLEAR"})
-    verdict["label"] = sides.get(verdict["label"], verdict["label"])
+    letter = verdict["label"]
+    verdict["label"] = sides.get(letter, letter)
+    if candidates and letter in candidates:
+        verdict["answer"] = candidates[letter]
     return verdict
 
 
@@ -286,9 +343,9 @@ class LocalJudge:
             if not str(response or "").strip():
                 verdicts[i] = {"label": "UNCLEAR", "reason": "empty response"}
             else:
-                pending.append((i, *answer_messages(query, response, salt)))
-        for (i, _, sides), reply in zip(pending, self._generate([m for _, m, _ in pending])):
-            verdicts[i] = answer_label(reply, sides)
+                pending.append((i, *answer_prompt(query, response, salt)))
+        for (i, _, sides, values), reply in zip(pending, self._generate([m for _, m, _, _ in pending])):
+            verdicts[i] = answer_label(reply, sides, values)
         return verdicts
 
     def label_locality(self, items):

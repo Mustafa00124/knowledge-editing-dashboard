@@ -2,8 +2,10 @@
 
 For one model, every query of every record is asked as a free-form question
 (base models: a few-shot "Question:/Answer:" template that stops at the first
-line break; chat models: their chat template, the instruction in the user
-turn, optionally after --chat_shots worked examples as earlier turns). The
+line break; chat models: their chat template, the instruction in every user
+turn, after --chat_shots worked examples as earlier turns; by default the
+runner's prompt, sids_requests.render_prompt: the strict instruction and 2
+examples, since 2026-11-01). The
 model is then unloaded and
 the SID judge (experiments/sid_eval/judge.py) labels each answer. Which
 queries are asked, and what each expects, is audit_queries.py (shared with
@@ -48,10 +50,12 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "sid_eval"))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, "datasets", "SidsDataset"))
+sys.path.append(os.path.join(os.path.dirname(HERE), "run_experiment"))
 import launch_guard  # noqa: E402
 import judge as J  # noqa: E402
 import audit_queries as AQ  # noqa: E402  (which queries are asked, their keys and hashes)
 import validate as SID  # noqa: E402  (facts_to_check, relation_property)
+import sids_requests as SR  # noqa: E402  (render_prompt: the runner's prompts, shared)
 
 MODEL_PATHS = {
     "qwen3-4b-base": f"{PROJECT_ROOT}/models/Qwen3-4B-Base",
@@ -73,17 +77,24 @@ JUDGE_PATH = f"{PROJECT_ROOT}/models/{J.JUDGE_MODEL}"
 DEFAULT_RECORDS = f"{PROJECT_ROOT}/datasets/SidsDataset/records"
 DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/model_audit"
 
-# Neutral worked examples, outside the dataset: base models see them as a
-# "Question:/Answer:" preamble; chat models as prior turns when --chat_shots N.
-SHOTS = [("What is the capital of Japan?", "Tokyo"),
-         ("How many legs does a spider have?", "8"),
-         ("Is the Sun a star?", "Yes")]
-FEW_SHOT = "".join(f"Question: {q}\nAnswer: {a}\n\n" for q, a in SHOTS)
-CHAT_INSTRUCTION = "Answer the question in a few words, without explanation."
+# Prompts are the runner's (experiments/run_experiment/sids_requests.py), so
+# pre-edit audit answers and post-edit evaluation see the same text: base
+# models get render_prompt's few-shot "Question:/Answer:" preamble; chat models
+# its chat prompt (the strict instruction, 2 worked examples as earlier
+# turns), or a variant with --instruction / --chat_shots. The examples hold no record's question, answer or subject
+# (test_audit checks every record).
+SHOTS = SR.FEW_SHOT_EXAMPLES
+FEW_SHOT = SR.FEW_SHOT
+# A literal (run_experiment/test_sids_requests reads it from this source);
+# test_audit checks it equals SR.CHAT_INSTRUCTION. The default since
+# 2026-11-01 (the strict preset, with CHAT_SHOTS examples); few_words with
+# 0 shots was the default before and is now a variant.
+CHAT_INSTRUCTION = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
+CHAT_SHOTS = SR.CHAT_SHOTS
 # --instruction takes one of these names or any literal text.
 INSTRUCTIONS = {
-    "few_words": CHAT_INSTRUCTION,
-    "strict": "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.",
+    "strict": CHAT_INSTRUCTION,
+    "few_words": "Answer the question in a few words, without explanation.",
 }
 
 
@@ -194,25 +205,25 @@ def row_score(row, label):
     return J.score("audit", "insert", label)
 
 
-def chat_messages(question, instruction=CHAT_INSTRUCTION, shots=0):
+def chat_messages(question, instruction=CHAT_INSTRUCTION, shots=CHAT_SHOTS):
     """User/assistant turns for a chat model: `shots` worked examples (SHOTS)
-    as earlier turns, then the question. The instruction goes in every user
-    turn, never a system turn: Mistral-Instruct-v0.1 has no system role."""
-    if not 0 <= shots <= len(SHOTS):
-        raise ValueError(f"chat_shots must be 0..{len(SHOTS)}, got {shots}")
-    messages = []
-    for q, a in SHOTS[:shots]:
-        messages += [{"role": "user", "content": f"{instruction}\n\n{q}"}, {"role": "assistant", "content": a}]
-    return messages + [{"role": "user", "content": f"{instruction}\n\n{question}"}]
+    as earlier turns, then the question; the runner's own
+    (sids_requests.chat_messages). The instruction goes in every user turn,
+    never a system turn: Mistral-Instruct-v0.1 has no system role."""
+    return SR.chat_messages(question, instruction, shots)
 
 
-def prompt_text(tok, question, chat, instruction=CHAT_INSTRUCTION, shots=0):
-    if chat:
-        # enable_thinking: SmolLM3-3B is a hybrid whose template reasons by
-        # default; templates without the switch ignore it.
-        return tok.apply_chat_template(chat_messages(question, instruction, shots),
-                                       tokenize=False, add_generation_prompt=True, enable_thinking=False)
-    return f"{FEW_SHOT}Question: {question}\nAnswer:"
+def prompt_text(tok, question, chat, instruction=CHAT_INSTRUCTION, shots=CHAT_SHOTS):
+    """The text a model is given. Base models, and chat models with the
+    default instruction and shots, get exactly the runner's
+    SR.render_prompt. A variant renders chat_messages the same way
+    (SR.render_chat: no thinking, the template's BOS text dropped when the
+    tokenizer adds one itself). Tokenize with special tokens on."""
+    if not chat:
+        return SR.render_prompt(question, "fewshot")
+    if instruction == SR.CHAT_INSTRUCTION and shots == SR.CHAT_SHOTS:
+        return SR.render_prompt(question, "chat", tok)
+    return SR.render_chat(chat_messages(question, instruction, shots), tok)
 
 
 # Some tokenizers (OLMo 3) decode the line break between examples away, so a
@@ -230,7 +241,7 @@ def clean(text, chat):
 
 
 def generate_all(model_key, prompts, batch_size, max_new_tokens, timings, instruction=CHAT_INSTRUCTION,
-                 shots=0):
+                 shots=CHAT_SHOTS):
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
     chat = model_key in CHAT_MODELS
@@ -248,8 +259,9 @@ def generate_all(model_key, prompts, batch_size, max_new_tokens, timings, instru
     out, new_tokens = [None] * len(texts), 0
     for start in range(0, len(order), batch_size):
         idx = order[start:start + batch_size]
-        enc = tok([texts[i] for i in idx], return_tensors="pt", padding=True,
-                  add_special_tokens=not chat).to("cuda")
+        # Special tokens on, as the runner tokenizes (prompt_text drops a
+        # chat template's own BOS text when the tokenizer adds one).
+        enc = tok([texts[i] for i in idx], return_tensors="pt", padding=True).to("cuda")
         with torch.no_grad():
             gen = lm.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
                               pad_token_id=tok.pad_token_id,
@@ -348,9 +360,10 @@ def main():
     p.add_argument("--judge_batch_size", type=int, default=32)
     p.add_argument("--instruction", default=CHAT_INSTRUCTION,
                    help="chat models: the instruction put before each question, in the user turn; a preset name "
-                        f"({', '.join(INSTRUCTIONS)}) or literal text (default: few_words)")
-    p.add_argument("--chat_shots", type=int, default=0, choices=range(len(SHOTS) + 1),
-                   help="chat models: worked examples (Tokyo, 8, Yes) given as earlier user/assistant turns")
+                        f"({', '.join(INSTRUCTIONS)}) or literal text (default: strict)")
+    p.add_argument("--chat_shots", type=int, default=CHAT_SHOTS, choices=range(len(SHOTS) + 1),
+                   help=f"chat models: worked examples ({', '.join(a for _, a in SHOTS)}) given as earlier "
+                        "user/assistant turns")
     p.add_argument("--run_name", required=True)
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
@@ -401,7 +414,10 @@ def main():
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     summary = {"model": args.model, "topics": sorted(topics), "chat": args.model in CHAT_MODELS,
                "instruction": instruction if args.model in CHAT_MODELS else None,
-               "chat_shots": args.chat_shots if args.model in CHAT_MODELS else 0, "judge": J.JUDGE_MODEL,
+               "chat_shots": args.chat_shots if args.model in CHAT_MODELS else 0,
+               # the worked examples the model saw, so a later change to them shows
+               "examples": [list(x) for x in (SHOTS[:args.chat_shots] if args.model in CHAT_MODELS else SHOTS)],
+               "judge": J.JUDGE_MODEL,
                "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records),
                "queries_total": sum(not is_check(r) and not is_locality(r) for r in rows),
                "queries_judged": sum(not is_check(r) and not is_locality(r) for r in todo),

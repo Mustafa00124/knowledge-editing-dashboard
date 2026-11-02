@@ -29,7 +29,7 @@ export default function ResultsResponses({ rows, methodMeta, modelMeta, evaluati
     setSample(null)
     setSteps([])
     setStep(null)
-    const load = () => (semantic ? api.evaluations(run) : api.samples(run)).then((ss) => {
+    const load = () => (semantic ? api.evaluations(run, evaluation) : api.samples(run)).then((ss) => {
       if (cancelled) return
       setSteps(ss)
       setStep((previous) => previous != null && ss.includes(previous) ? previous : ss[ss.length - 1] ?? null)
@@ -43,7 +43,7 @@ export default function ResultsResponses({ rows, methodMeta, modelMeta, evaluati
     if (!run || step == null) return
     let cancelled = false;
     setSample(null)
-    const load = () => (semantic ? api.evaluation(run, step) : api.sample(run, step))
+    const load = () => (semantic ? api.evaluation(run, step, evaluation) : api.sample(run, step))
       .then((s) => { if (!cancelled) setSample(normalize(s)) })
       .catch(() => { if (!cancelled) setSample(null) })
     load()
@@ -57,7 +57,7 @@ export default function ResultsResponses({ rows, methodMeta, modelMeta, evaluati
       return
     }
     let cancelled = false;
-    (semantic ? api.evaluation(run, 0) : api.sample(run, 0))
+    (semantic ? api.evaluation(run, 0, evaluation) : api.sample(run, 0))
       .then((s) => { if (!cancelled) setBaseline(normalize(s)) })
       .catch(() => { if (!cancelled) setBaseline(null) })
     return () => { cancelled = true }
@@ -194,8 +194,8 @@ export default function ResultsResponses({ rows, methodMeta, modelMeta, evaluati
                 {semantic && <div className="metric-note">
                   <strong>{s.metric} · {s.category}</strong>
                   <p>Reference: {s.reference_answers?.join(' / ') || 'Unavailable'}</p>
-                  <p>{evaluation === 'bertscore' ? 'BERTScore F1' : evaluation === 'exact_match' ? 'Exact Match' : 'Judge score'}: {s.scores?.[evaluation] == null ? 'Unavailable' : Number(s.scores[evaluation]).toFixed(3)}</p>
-                  {evaluation === 'llm_judge' && s.judgment && <p>{s.judgment.verdict}: {s.judgment.reason}</p>}
+                  <p>{evaluation === 'bertscore' ? 'BERTScore F1' : evaluation === 'exact_match' ? 'Exact Match' : evaluation === 'sid' ? 'Pass' : 'Judge score'}: {s.scores?.[evaluation] == null ? 'Unavailable' : Number(s.scores[evaluation]).toFixed(3)}</p>
+                  {(evaluation === 'llm_judge' || evaluation === 'sid') && s.judgment && <p>{s.judgment.verdict}: {s.judgment.reason}</p>}
                 </div>}
                 <div className="sample-compare">
                   <div className="sample-side">

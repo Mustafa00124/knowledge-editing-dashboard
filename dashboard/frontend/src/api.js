@@ -115,8 +115,9 @@ export const api = {
     req(`/results/runs/${encodeURIComponent(run)}/samples${resultsQuery(type, archived)}`),
   sample: (run, step, type, archived) =>
     req(`/results/runs/${encodeURIComponent(run)}/samples/${step}${resultsQuery(type, archived)}`),
-  evaluations: (run) => req(`/results/runs/${encodeURIComponent(run)}/evaluations`),
-  evaluation: (run, step) => req(`/results/runs/${encodeURIComponent(run)}/evaluations/${step}`),
+  // mode 'sid': Sid's Dataset's own evaluation (samples/sid_step_*.json).
+  evaluations: (run, mode) => req(`/results/runs/${encodeURIComponent(run)}/evaluations${mode === 'sid' ? '?mode=sid' : ''}`),
+  evaluation: (run, step, mode) => req(`/results/runs/${encodeURIComponent(run)}/evaluations/${step}${mode === 'sid' ? '?mode=sid' : ''}`),
   testingResults: () => req('/results/testing'),
 
   // Archiving moves a run's directory out of runs/ (see backend/archive.py).
