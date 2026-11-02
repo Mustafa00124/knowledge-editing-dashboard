@@ -174,8 +174,8 @@ class SCRInvestigationTests(unittest.TestCase):
         for key in self.KNOBS:
             self.assertEqual(owners[("scr", key)]["id"], "scr", key)
             self.assertIn(key, editable)
-        retrieval = next(i for i in hparam_sweeps._load_catalog()["investigations"] if i["id"] == "retrieval")
-        self.assertEqual(list(retrieval["methods"]), ["ike"])
+        # IKE left the investigations with the other non-core methods (2026-11-02).
+        self.assertNotIn("retrieval", {i["id"] for i in hparam_sweeps._load_catalog()["investigations"]})
 
     def test_default_datasets_are_distinct_and_have_dev_records(self):
         from unittest.mock import patch

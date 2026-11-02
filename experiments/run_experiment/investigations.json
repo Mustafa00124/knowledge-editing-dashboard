@@ -184,6 +184,11 @@
       "mom2_n_samples": {
        "kind": "int",
        "stability": "robust"
+      },
+      "v_weight_decay": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "L2 penalty on the target vector's change; with clamp_norm_factor it limits how far the value moves"
       }
      }
     },
@@ -212,6 +217,25 @@
       "mom2_n_samples": {
        "kind": "int",
        "stability": "robust"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "caps the target vector's change relative to the original value's norm"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model",
+       "note": "weight of the preserved-key covariance against the new keys; the paper uses 15000 for Llama-3-8B and 20000 for GPT-J"
+      },
+      "L2": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "ridge term on the update, which keeps the projected solve well conditioned"
+      },
+      "v_weight_decay": {
+       "kind": "log",
+       "stability": "robust"
       }
      }
     }
@@ -239,6 +263,33 @@
       },
       "v_num_grad_steps": {
        "kind": "int",
+       "stability": "not_reported"
+      },
+      "candidate_layers": {
+       "kind": "layer_window",
+       "stability": "not_reported",
+       "note": "the layers FiDAL may choose from; the same 1 to 11 is set for every model whatever its depth"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust",
+       "note": "MEMIT's KL term keeping the subject's other predictions"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "probe_steps": {
+       "kind": "int",
+       "stability": "not_reported",
+       "note": "gradient steps of the Fisher probe that scores each candidate layer"
+      },
+      "probe_lr": {
+       "kind": "log",
        "stability": "not_reported"
       }
      }
@@ -282,6 +333,22 @@
       "epochs": {
        "kind": "int",
        "stability": "robust"
+      },
+      "last_layer": {
+       "kind": "int",
+       "stability": "robust",
+       "note": "the top N layers are frozen and never selected"
+      },
+      "early_stop_prob": {
+       "kind": "choice",
+       "stability": "robust",
+       "options": [
+        0.5,
+        0.7,
+        0.9,
+        0.99
+       ],
+       "note": "training stops once the target's probability reaches this"
       }
      }
     }
@@ -320,6 +387,38 @@
       "mom2_n_samples": {
        "kind": "int",
        "stability": "robust"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "1 here against 0.0625 in the other MEMIT-based editors (PMET's own setting)"
+      },
+      "nll_loss_factor": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "weight of the new target's likelihood in PMET's value optimisation"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model"
+      },
+      "support_temperature": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "options": [
+        0.3,
+        0.7,
+        1.0
+       ],
+       "note": "sampling temperature for the two-hop support prompts"
       }
      }
     },
@@ -352,6 +451,27 @@
       "mom2_n_samples": {
        "kind": "int",
        "stability": "robust"
+      },
+      "layers": {
+       "kind": "layer_window",
+       "stability": "model",
+       "note": "MEMIT's edit layers at the subject; the middle-layer constraint is midlayers"
+      },
+      "v_num_grad_steps": {
+       "kind": "int",
+       "stability": "robust"
+      },
+      "kl_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "clamp_norm_factor": {
+       "kind": "log",
+       "stability": "robust"
+      },
+      "mom2_update_weight": {
+       "kind": "log",
+       "stability": "model"
       }
      }
     },
@@ -394,6 +514,51 @@
       "rank": {
        "kind": "int",
        "stability": "not_reported"
+      },
+      "lora_alpha": {
+       "kind": "log",
+       "stability": "not_reported",
+       "note": "adapter scale is lora_alpha / rank, so this and rank move together"
+      },
+      "target_modules": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "options": [
+        [
+         "q_proj",
+         "k_proj",
+         "v_proj",
+         "o_proj"
+        ],
+        [
+         "gate_proj",
+         "up_proj",
+         "down_proj"
+        ],
+        [
+         "q_proj",
+         "k_proj",
+         "v_proj",
+         "o_proj",
+         "gate_proj",
+         "up_proj",
+         "down_proj"
+        ]
+       ]
+      },
+      "lora_dropout": {
+       "kind": "choice",
+       "stability": "not_reported",
+       "options": [
+        0,
+        0.05,
+        0.1
+       ]
+      },
+      "implication_max_new_tokens": {
+       "kind": "int",
+       "stability": "not_reported",
+       "note": "length of each generated implication the constraints are built from"
       }
      }
     }
@@ -522,24 +687,6 @@
      }
     }
    }
-  },
-  {
-   "id": "retrieval",
-   "label": "IKE demonstrations",
-   "question": "How many demonstrations does IKE put in the prompt? (SCR has its own investigation.)",
-   "methods": {
-    "ike": {
-     "knobs": {
-      "k": {
-       "kind": "int",
-       "stability": "data",
-       "note": "demonstrations per query; 32 in the original paper, 16 in EasyEdit"
-      }
-     }
-    }
-   },
-   "group": "input",
-   "legacy": true
   },
   {
    "id": "format_knowledge",
