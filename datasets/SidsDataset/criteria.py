@@ -826,7 +826,7 @@ def check_methods_run(recs):
 AUTOMATED_RULES = (
     ('No repeated edits', lambda recs, rel: check_repeats(recs)),
     ('Enough evidence for every fact', lambda recs, rel: check_evidence(recs)),
-    ('The models hold the right things', lambda recs, rel: check_audit(recs)),
+    ('What the models know is recorded', lambda recs, rel: check_audit(recs)),
     ('Locality can catch leaks', lambda recs, rel: check_locality(recs)),
     ('One name per relation', lambda recs, rel: check_naming(recs, rel)),
     ('Yes/no answers balanced in RBox', lambda recs, rel: check_yes_no(recs) + check_propositional(recs)),
