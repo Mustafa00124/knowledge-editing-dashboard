@@ -17,7 +17,7 @@ export default function Experiments() {
     <div>
       <ExperimentsSubnav />
       <div className="page-header">
-        <h1>Main experiments</h1>
+        <h1>Parameter editing experiments</h1>
         <button className="btn-primary" onClick={() => setDrawerOpen(true)}>
           + New Experiment
         </button>

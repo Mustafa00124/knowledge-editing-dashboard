@@ -91,7 +91,7 @@ export default function InContext() {
     <div>
       <ExperimentsSubnav />
       <div className="page-header">
-        <h1>In context</h1>
+        <h1>In-context experiments</h1>
         <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Experiment</button>
       </div>
       <p className="hp-intro">

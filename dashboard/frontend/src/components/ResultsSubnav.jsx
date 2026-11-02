@@ -6,7 +6,7 @@ export default function ResultsSubnav() {
   const cls = ({ isActive }) => `results-subnav-link${isActive ? ' active' : ''}`
   return (
     <nav className="results-subnav" aria-label="Results area">
-      <NavLink to="/results/main" className={cls}>Main experiments</NavLink>
+      <NavLink to="/results/main" className={cls}>Parameter editing experiments</NavLink>
       <NavLink to="/results/investigations" className={cls}>Investigations</NavLink>
     </nav>
   )
