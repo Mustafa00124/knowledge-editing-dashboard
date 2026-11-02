@@ -88,13 +88,16 @@ a derived claim has at least two corpus counts or searches showing the
 direct form is rare; a definitional premise (the rule combining the others)
 needs a reason only.
 
-**Rule 6. The models hold the right things.** From the model audit, for the
+**Rule 6. What the models know is recorded.** From the model audit, for the
 four main instruct models (Qwen3-4B-Instruct-2507, Olmo-3-7B-Instruct,
 Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.1; `AUDIT_MODELS` in
-`criteria.py`): every model holds a replace or delete record's original fact.
-A fact is held when the direct and paraphrase questions both get the
-original answer (RBox: the direct question and both instances). Pending
-until the audit runs.
+`criteria.py`), every replace and delete record's original fact is tagged per
+model as held or not. This is a measured tag, not a requirement: facts a
+model doesn't hold stay in the dataset, so the analysis can ask whether
+knowing a fact before the edit changes what the edit does (decided
+2026-11-01). A fact is held when the direct and paraphrase questions both get
+the original answer (RBox: the direct question and both instances). A real
+insert must still be unknown to every model. Pending until the audit runs.
 
 **Rule 7. Locality can catch leaks.** A near unrelated query's answer
 differs from the edit's new answer, or a model that leaks the edit still

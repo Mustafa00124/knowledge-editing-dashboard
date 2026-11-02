@@ -473,8 +473,8 @@ def check_audit(recs, audits=None):
 
     rows = []
     ops = {r['edit_operation'] for r in recs}
-    for op, name in (('replace', 'Replace: every model already holds the original fact'),
-                     ('delete', 'Delete: every model already holds the fact'),
+    for op, name in (('replace', 'Replace: which models hold the original fact (a tag, not a requirement)'),
+                     ('delete', 'Delete: which models hold the fact (a tag, not a requirement)'),
                      ('insert', 'Insert (real): no model already holds the new fact')):
         if op not in ops:
             continue
@@ -491,7 +491,14 @@ def check_audit(recs, audits=None):
             if vague:
                 unclear.append(f'{r["id"]}: judge unclear for {", ".join(vague)}')
         items = failed + unclear
-        status = 'fail' if failed else 'pending' if unaudited or unclear else 'pass'
+        # Replace and delete: whether each model knew the fact before the edit is
+        # recorded for analysis (does prior knowledge change the edit's effect?),
+        # not required, so not-held facts are listed as information. A real
+        # insert already known by a model is still a failure.
+        if op == 'insert':
+            status = 'fail' if failed else 'pending' if unaudited or unclear else 'pass'
+        else:
+            status = 'pending' if unaudited else 'info'
         note = f'Not audited on every record: {", ".join(sorted(unaudited))}.' if unaudited else ''
         rows.append(check(s, name, items, status=status, note=note, table=table if op == 'replace' else None))
     return rows
