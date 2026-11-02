@@ -506,6 +506,9 @@ and for every premise, optionally for bridge facts. It lives in the record's
   combining the others ("a building observes the time zone of the city it
   stands in"), which is `definitional`: true by what the words mean, so it
   needs a `why` but no corpus sources.
+  Bridge, revision and side facts may also be `definitional` when they are true by
+  the meaning of their words ("an unglaciated valley was never filled by a
+  glacier").
 - Enough evidence (CRITERIA Rule 5): a stored claim has a quoted sentence or
   an exact-phrase count of at least 100; a derived claim has at least two
   corpus counts or searches.

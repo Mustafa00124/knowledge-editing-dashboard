@@ -553,6 +553,8 @@ def check_evidence(rec):
     for q in queries.get('derived') or []:
         if isinstance(q, dict):
             allowed.update(b for b in (q.get('bridge') or []) + (q.get('revision_facts') or []) if is_text(b))
+    side = set(side_facts(rec))
+    allowed.update(side)  # propositional side facts are backed by evidence too (CRITERIA Rule 1)
     if uses_determinacy:
         for fact in need:
             if fact not in ev:
@@ -562,7 +564,7 @@ def check_evidence(rec):
     for fact, entry in ev.items():
         where = f'evidence[{fact!r}]'
         if fact not in allowed:
-            err(f'{where}: not the edited fact, a premise, a bridge or a revision fact of this record '
+            err(f'{where}: not the edited fact, a premise, a bridge, a revision fact or a side fact of this record '
                 '(copy the text exactly)')
         if not isinstance(entry, dict):
             err(f'{where}: not an object')
@@ -587,8 +589,11 @@ def check_evidence(rec):
             err(f'{where}: a premise is claimed stored; a derived premise needs premises of its own')
         if claim == 'fictional' and fact != edited:
             err(f'{where}: only the inserted fact can be fictional; premises and bridges are real')
-        if claim == 'definitional' and fact not in premises:
-            err(f'{where}: only a premise can be definitional (the rule combining the others)')
+        if claim == 'definitional' and fact == edited:
+            err(f'{where}: the edited fact cannot be definitional; premises, bridges, revision facts and '
+                'side facts can (true by what the words mean)')
+        if claim == 'false' and fact not in side:
+            err(f'{where}: only a propositional side fact can be claimed false')
         sources = entry.get('sources', [])
         if not isinstance(sources, list) or (not sources and claim != 'definitional'):
             err(f'{where}: sources must be a non-empty list')

@@ -22,7 +22,7 @@ sys.path.insert(0, str(DATASET))
 CACHE = HERE / 'cache'
 QLEVER = 'https://qlever.dev/api/wikidata'
 SEARCH = 'https://www.wikidata.org/w/api.php'
-USER_AGENT = "SidsDataset-wikidata/0.1 (knowledge-editing research; msiddiqui146@usf.edu)"
+USER_AGENT = "SidsDataset-wikidata/0.1 (knowledge-editing research)"
 PREFIXES = """PREFIX wd: <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX p: <http://www.wikidata.org/prop/>
