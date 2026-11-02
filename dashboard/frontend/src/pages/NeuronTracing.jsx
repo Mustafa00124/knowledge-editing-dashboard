@@ -71,7 +71,7 @@ export default function NeuronTracing() {
     <div>
       <ExperimentsSubnav />
       <div className="hp-breadcrumb">
-        <Link to="/experiments/investigations">Investigations</Link> / Neuron attribution
+        <Link to="/experiments/investigations">Hyperparameter tuning</Link> / Neuron attribution
       </div>
       <div className="page-header">
         <h1>Neuron attribution</h1>

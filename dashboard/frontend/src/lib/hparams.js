@@ -1,18 +1,33 @@
 // Shared helpers for the Investigations pages and their results.
 
-export const GROUP_ORDER = ['mechanistic', 'sweep', 'input']
+export const GROUP_ORDER = ['sweep', 'mechanistic', 'input']
 
 export const GROUP_LABEL = {
   mechanistic: 'Mechanistic',
-  sweep: 'Hyperparameter sweeps',
+  sweep: 'Method families',
   input: 'Input and context',
 }
 
 export const GROUP_HELP = {
   mechanistic: 'measure the model itself, per model, with no editing method involved',
-  sweep: 'one per method family: try every setting of its methods on dev records, to pick what the main experiments use',
+  sweep: 'one per method family: tune every setting of its methods on dev records, to pick what the main experiments use',
   input: 'check whether what the model is given, how the prompt is written and what context is added to it, changes a result',
 }
+
+// The two kinds of tuning sweep, in the order they are run.
+export const TUNING_KINDS = [
+  {
+    key: 'lhs', label: 'Latin hypercube', short: 'interactions',
+    help: 'Every setting changes at once, over a spread-out sample of the space, on few edits (Sid’s 10-edit screen). '
+      + 'Finds which settings matter and how they interact (a layer that only works at a higher learning rate), '
+      + 'and a good region to start from.',
+  },
+  {
+    key: 'stagewise', label: 'Stage-wise', short: 'comprehensive',
+    help: 'One setting at a time around a starting configuration, on all 40 dev edits: where to edit first, then '
+      + 'learning rate and steps, then the method’s own settings. Each stage keeps the last one’s winners.',
+  },
+]
 
 export const STABILITY_LABEL = {
   robust: 'Robust: same in every configuration the authors used',

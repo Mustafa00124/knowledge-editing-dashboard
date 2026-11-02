@@ -61,6 +61,9 @@ class SweepRequest(BaseModel):
     lhs_seed: int = 0
     # dev, or screen (Sid's Dataset: 10 of the dev edits).
     split: str = "dev"
+    # "setup" for runs that only prepare something (covariance statistics)
+    # and are kept off the tuning results.
+    purpose: str = ""
 
 
 class PromoteRequest(BaseModel):

@@ -75,7 +75,7 @@ export default function SweepCard({ sweep, onDetails, onCancel, onRerun, onHide,
         {sweep.active > 0 && <button type="button" className="btn-danger-small" onClick={onCancel}>Cancel</button>}
         {sweep.active === 0 && !sweep.hidden && (
           <button type="button" className="btn-plain-small" onClick={onHide}
-            title="Clear this sweep from the list. Its runs stay on Results · Investigations">Hide</button>
+            title="Clear this sweep from the list. Its runs stay on Results · Hyperparameter tuning">Hide</button>
         )}
         {sweep.hidden && (
           <button type="button" className="btn-plain-small" onClick={onUnhide}

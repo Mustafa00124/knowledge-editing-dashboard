@@ -374,3 +374,11 @@ class ScreenSplitTests(unittest.TestCase):
             hparam_sweeps.plan(request(split="screen"))
         with self.assertRaisesRegex(ValueError, "split must be"):
             hparam_sweeps.plan(request(split="test"))
+
+
+class SweepKindTests(unittest.TestCase):
+    def test_kinds(self):
+        self.assertEqual(hparam_sweeps.sweep_kind({"request": {"design": "lhs"}}), "lhs")
+        self.assertEqual(hparam_sweeps.sweep_kind({"request": {"design": "one_at_a_time"}}), "stagewise")
+        self.assertEqual(hparam_sweeps.sweep_kind({"request": {}}), "stagewise")
+        self.assertEqual(hparam_sweeps.sweep_kind({"purpose": "setup", "request": {"design": "one_at_a_time"}}), "setup")

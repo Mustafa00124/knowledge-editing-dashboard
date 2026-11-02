@@ -351,7 +351,7 @@ def settings(investigation, methods, models):
         # The family's own sweeps and the earlier by-setting ones alike.
         rows = [r for inv_id in [owner["id"]] + _earlier(method, key)
                 for r in results_cache.setdefault(inv_id, results(inv_id))]
-        candidates = [r for r in rows if r["method"] == method and r["model"] == model
+        candidates = [r for r in rows if r["method"] == method and r["model"] == model and r["kind"] != "setup"
                       and list(r["overrides"]) == [key] and _keeps_fluency(r["scores"])]
         if not candidates:
             return None
@@ -447,6 +447,17 @@ def _split(req):
     if split not in SPLITS:
         raise ValueError(f"split must be one of {', '.join(SPLITS)}, not {split!r}")
     return split
+
+
+def sweep_kind(sweep):
+    """How a sweep tunes: `lhs` (a Latin hypercube screen, for
+    interactions), `stagewise` (one setting at a time, or a grid of a few),
+    or `setup` (runs that only prepare something, such as covariance
+    statistics, and are not tuning results)."""
+    if sweep.get("purpose") == "setup":
+        return "setup"
+    request = sweep.get("request") or {}
+    return "lhs" if request.get("design") == "lhs" else "stagewise"
 
 
 def _skip_reason(exp_cfg, params):
@@ -579,7 +590,8 @@ def launch(req, launched_by="user", queue_slot=None):
         "id": sweep_id, "investigation": inv["id"], "label": req.get("label") or "",
         "launched_by": launched_by, "note": req.get("note") or "",
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-        "request": {k: v for k, v in req.items() if k not in ("label", "note")},
+        "request": {k: v for k, v in req.items() if k not in ("label", "note", "purpose")},
+        **({"purpose": req["purpose"]} if req.get("purpose") else {}),
         "split": split, "runs": submitted, "skipped": skipped, "errors": errors,
     }, indent=1) + "\n")
     return {"sweep_id": sweep_id, "submitted": len(submitted), "skipped": skipped, "errors": errors}
@@ -797,6 +809,8 @@ def list_sweeps(investigation=None, include_hidden=False):
         out.append({k: sweep[k] for k in ("id", "investigation", "label", "created_at")}
                    | {"launched_by": sweep.get("launched_by") or "user", "note": sweep.get("note") or ""}
                    | {"hidden": bool(sweep.get("hidden")), "retryable": counts_retry, "gpu_seconds": gpu_seconds}
+                   | {"kind": sweep_kind(sweep), "split": sweep.get("split") or "dev",
+                      "samples": (sweep.get("request") or {}).get("samples")}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
                       "models": sorted({r["model"] for r in sweep["runs"]}),
@@ -1117,6 +1131,7 @@ def results(investigation, include_hidden=True):
             for overrides, copy in shown:
                 rows.append({
                     "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
+                    "kind": sweep_kind(sweep), "split": sweep.get("split") or "dev",
                     "method": run["method"], "model": run["model"], "data_path": run["data_path"],
                     # Each tuning stage is its own model value, so runs never
                     # overwrite each other; these say which stage it is.

@@ -74,7 +74,7 @@ export default function FormatKnowledge() {
   return (
     <div>
       <ExperimentsSubnav />
-      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / Knowledge by prompt format</div>
+      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Hyperparameter tuning</Link> / Knowledge by prompt format</div>
       <div className="page-header">
         <h1>Knowledge by prompt format</h1>
         <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Scoring</button>

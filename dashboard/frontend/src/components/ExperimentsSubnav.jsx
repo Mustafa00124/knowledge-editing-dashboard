@@ -9,7 +9,7 @@ export default function ExperimentsSubnav() {
     <nav className="results-subnav" aria-label="Experiments area">
       <NavLink to="/experiments" end className={cls}>Parameter editing experiments</NavLink>
       <NavLink to="/experiments/in-context" className={cls}>In-context experiments</NavLink>
-      <NavLink to="/experiments/investigations" className={cls}>Investigations</NavLink>
+      <NavLink to="/experiments/investigations" className={cls}>Hyperparameter tuning</NavLink>
     </nav>
   )
 }

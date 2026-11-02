@@ -11,7 +11,7 @@ import HeldConstant from '../components/HeldConstant.jsx'
 import SweepCard from '../components/SweepCard.jsx'
 import SweepDetailModal from '../components/SweepDetailModal.jsx'
 import useQueue from '../lib/useQueue.js'
-import { GROUP_LABEL, STABILITY_LABEL, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
+import { GROUP_LABEL, STABILITY_LABEL, TUNING_KINDS, duration, formatValue, parseValue, valueKey } from '../lib/hparams.js'
 
 const EXPERIMENT = 'run_experiment'
 
@@ -125,9 +125,13 @@ export default function SweepInvestigation() {
   const [methods, setMethods] = useState({})
   const [editMode, setEditMode] = useState(null)
   const [dsSize, setDsSize] = useState('full')
+  // lhs: a Latin hypercube sample, every setting at once (interactions);
   // one_at_a_time: each setting varied alone around one run at the current
-  // settings; grid: every combination of the picked values.
+  // settings (stage-wise); grid: every combination of the picked values.
   const [design, setDesign] = useState('grid')
+  const [samples, setSamples] = useState(16)
+  // dev (Sid's Dataset: 40 edits), or screen (10 of them) for a Latin hypercube.
+  const [split, setSplit] = useState('dev')
   const [label, setLabel] = useState('')
   const [seed, setSeed] = useState(0)
   const [held, setHeld] = useState({})
@@ -154,9 +158,9 @@ export default function SweepInvestigation() {
       // An investigation meant to run across datasets starts with all of them.
       setDataPaths(inv.default_datasets?.length ? inv.default_datasets : dataOk ? [dataDefault] : [])
       setEditMode(field('edit_mode').default)
-      setDesign(inv.design || 'grid')
-      // A family sweep starts as a quick check: two edits, or two batches of ten.
-      if (inv.design === 'one_at_a_time') setDsSize(field('edit_mode').default === 'single' ? '2' : '20')
+      // A method family starts with the Latin hypercube screen, the first
+      // kind of tuning sweep; other sweeps with their own design.
+      if (inv.group === 'sweep') { setDesign('lhs'); setSplit('screen') } else setDesign(inv.design || 'grid')
     }).catch((e) => setError(e.message))
   }, [investigationId])
 
@@ -188,7 +192,8 @@ export default function SweepInvestigation() {
       .filter(([, knobs]) => Object.keys(knobs).length)),
     models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed, label, design,
     fixed: Object.fromEntries(Object.entries(fixed).filter(([m]) => methods[m])),
-  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed, design])
+    split, ...(design === 'lhs' ? { samples, lhs_seed: seed } : {}),
+  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed, design, samples, split])
 
   const methodList = Object.keys(methods).sort().join(',')
   useEffect(() => {
@@ -227,9 +232,10 @@ export default function SweepInvestigation() {
       }
       const entry = investigation.methods.find((m) => m.method === method)
       const swept = entry.knobs.filter((k) => k.suggestions[primaryModel]?.length)
-      // One at a time: every setting over its suggestions, each varied alone.
-      // A grid would multiply them, so it starts with the first setting only.
-      const start = design === 'one_at_a_time' ? swept : swept.slice(0, 1)
+      // A Latin hypercube samples every setting at once and one at a time
+      // varies each alone, so both start with every setting over its
+      // suggestions. A grid would multiply them: the first setting only.
+      const start = design === 'grid' ? swept.slice(0, 1) : swept
       return { ...previous, [method]: Object.fromEntries(start.map((k) => [k.key, k.suggestions[primaryModel]])) }
     })
   }
@@ -241,19 +247,19 @@ export default function SweepInvestigation() {
     setMessage({ ok: true, text: `Staged on GPU ${slot + 1}: press Launch on that card to start it.` })
   }
 
-  if (error) return <div><ExperimentsSubnav /><div className="page-header"><h1>Investigations</h1></div><p className="form-error">{error}</p></div>
-  if (!investigation || !expType) return <div><ExperimentsSubnav /><div className="page-header"><h1>Investigations</h1></div><p className="empty">Loading…</p></div>
+  if (error) return <div><ExperimentsSubnav /><div className="page-header"><h1>Hyperparameter tuning</h1></div><p className="form-error">{error}</p></div>
+  if (!investigation || !expType) return <div><ExperimentsSubnav /><div className="page-header"><h1>Hyperparameter tuning</h1></div><p className="empty">Loading…</p></div>
 
   const editField = field('edit_mode')
 
   return (
     <div className="hp-investigation">
       <ExperimentsSubnav />
-      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / {investigation.label}</div>
+      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Hyperparameter tuning</Link> / {investigation.label}</div>
       <div className="page-header">
         <h1>{investigation.label}</h1>
         {!investigation.legacy && <button className="btn-primary" onClick={() => setDrawerOpen(true)}>+ New Sweep</button>}
-        <Link to={`/results/investigations?investigation=${investigation.id}`} className="btn-plain-small">Results for this investigation →</Link>
+        <Link to={`/results/investigations?investigation=${investigation.id}`} className="btn-plain-small">Results for {investigation.label} →</Link>
       </div>
       <p className="hp-intro">
         <span className="badge">{GROUP_LABEL[investigation.group]}</span> {investigation.question}
@@ -262,7 +268,7 @@ export default function SweepInvestigation() {
       {investigation.legacy && (
         <p className="dl-bar-warning">
           An earlier sweep by kind of setting, kept so its results stay readable. New sweeps start from the method
-          family on <Link to="/experiments/investigations">Investigations</Link>.
+          family on <Link to="/experiments/investigations">Hyperparameter tuning</Link>.
         </p>
       )}
 
@@ -276,7 +282,7 @@ export default function SweepInvestigation() {
 
       <section className="dl-section">
         <div className="dl-section-head">
-          <h2 className="section-heading">Sweeps in this investigation</h2>
+          <h2 className="section-heading">Sweeps</h2>
           <span className="dl-task-controls">
             {(showHidden ? sweeps.some((s) => s.hidden) : hiddenCount > 0) && (
               <button type="button" className="btn-plain-small" onClick={() => setShowHidden((v) => !v)}>
@@ -285,23 +291,35 @@ export default function SweepInvestigation() {
             )}
             {sweeps.some((s) => !s.hidden && !s.active) && (
               <button type="button" className="btn-plain-small" onClick={clearFinishedSweeps}
-                title="Hide every finished sweep; results stay on Results · Investigations">
+                title="Hide every finished sweep; results stay on Results · Hyperparameter tuning">
                 Clear finished
               </button>
             )}
           </span>
         </div>
         {!sweeps.some((s) => !s.hidden) && <p className="dl-dim">{sweeps.length || hiddenCount ? 'None showing.' : 'None yet.'}</p>}
-        <ul className="dl-tasks">
-          {sweeps.filter((s) => showHidden || !s.hidden).map((s) => (
-            <SweepCard key={s.id} sweep={s}
-              onDetails={() => setDetailFor(s.id)}
-              onCancel={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}
-              onRerun={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}
-              onHide={() => api.hideSweep(investigation.id, s.id).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))}
-              onUnhide={() => api.hideSweep(investigation.id, s.id, false).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))} />
-          ))}
-        </ul>
+        {[...(investigation.group === 'sweep' ? TUNING_KINDS : [{ key: null }]),
+          { key: 'setup', label: 'Setup', short: 'not tuning', help: 'Runs that only prepare something, such as covariance statistics; kept off the results.' }]
+          .map((kind) => {
+            const shown = sweeps.filter((s) => (showHidden || !s.hidden)
+              && (kind.key === null ? s.kind !== 'setup' : s.kind === kind.key))
+            if (!shown.length) return null
+            return (
+              <div key={kind.key || 'all'}>
+                {kind.key && <h3 className="sweep-kind-heading" title={kind.help}>{kind.label} <span className="dl-dim">· {kind.short} · {shown.length}</span></h3>}
+                <ul className="dl-tasks">
+                  {shown.map((s) => (
+                    <SweepCard key={s.id} sweep={s}
+                      onDetails={() => setDetailFor(s.id)}
+                      onCancel={() => api.cancelSweep(investigation.id, s.id).then(refreshSweeps)}
+                      onRerun={() => api.rerunFailedSweep(investigation.id, s.id).then(refreshSweeps)}
+                      onHide={() => api.hideSweep(investigation.id, s.id).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))}
+                      onUnhide={() => api.hideSweep(investigation.id, s.id, false).then(refreshSweeps).catch((e) => setMessage({ ok: false, text: e.message }))} />
+                  ))}
+                </ul>
+              </div>
+            )
+          })}
         {detailFor && <SweepDetailModal investigation={investigation.id} sweepId={detailFor} onClose={() => setDetailFor(null)} />}
       </section>
       <QueueDrawer
@@ -320,21 +338,56 @@ export default function SweepInvestigation() {
       >
         <section className="dl-section">
           <h2 className="section-heading">1. Methods and values</h2>
-          <div className="hp-protocol">
-            <label>
-              <input type="radio" name="design" checked={design === 'one_at_a_time'} onChange={() => setDesign('one_at_a_time')} />
-              {' '}One setting at a time
-            </label>
-            <label>
-              <input type="radio" name="design" checked={design === 'grid'} onChange={() => setDesign('grid')} />
-              {' '}Every combination
-            </label>
-          </div>
+          {investigation.group === 'sweep' ? (
+            <div className="tuning-type" role="radiogroup" aria-label="Kind of tuning sweep">
+              {TUNING_KINDS.map((k) => {
+                const value = k.key === 'lhs' ? 'lhs' : 'one_at_a_time'
+                return (
+                  <label key={k.key} className={`tuning-type-option${design === value ? ' is-on' : ''}`}>
+                    <input type="radio" name="design" checked={design === value}
+                      onChange={() => { setDesign(value); setSplit(value === 'lhs' ? 'screen' : 'dev') }} />
+                    <span><strong>{k.label}</strong> · {k.short}<span className="dl-dim">{k.help}</span></span>
+                  </label>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="hp-protocol">
+              <label>
+                <input type="radio" name="design" checked={design === 'one_at_a_time'} onChange={() => setDesign('one_at_a_time')} />
+                {' '}One setting at a time
+              </label>
+              <label>
+                <input type="radio" name="design" checked={design === 'grid'} onChange={() => setDesign('grid')} />
+                {' '}Every combination
+              </label>
+            </div>
+          )}
+          {design === 'lhs' && (
+            <div className="hp-protocol">
+              <label>Samples{' '}
+                <select value={samples} onChange={(e) => setSamples(Number(e.target.value))}>
+                  {[8, 12, 16, 24, 32].map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </label>
+              <label>Edits{' '}
+                <select value={split} onChange={(e) => setSplit(e.target.value)}>
+                  <option value="screen">screen: 10 of the dev edits, one ABox fact per topic</option>
+                  <option value="dev">all 40 dev edits</option>
+                </select>
+              </label>
+            </div>
+          )}
           <p className="dl-section-intro">
-            {design === 'one_at_a_time'
+            {design === 'lhs'
+              ? <>Each run changes every setting at once: the picked values of each setting are spread evenly over the
+                samples, so every value is tried about equally often, in different company. The same draw is used for every
+                model. One more run at the current settings is the reference. Pick fewer values for a setting to leave it
+                out of the screen.</>
+              : design === 'one_at_a_time'
               ? <>Each picked value is one run with only that setting changed; every other setting stays at its current
-                value. One shared run at the current settings stands in for each setting’s current value, so it is not run
-                again per setting.</>
+                value (or the value held below). One shared run at the current settings stands in for each setting’s
+                current value, so it is not run again per setting.</>
               : <>Every combination of a method’s picked values is one run per model and dataset.</>}
             {' '}Suggestions are centred on the current setting for {primaryModel || 'the first selected model'}.
           </p>
@@ -404,7 +457,8 @@ export default function SweepInvestigation() {
           onFix={fix}
           models={models}
           runSettings={[
-            ['Records', `dev split only, ${dsSize === 'full' ? 'all dev records (up to 100)' : `${dsSize} per subset`}; test records are never used`],
+            ['Records', `${split === 'screen' ? 'the 10-edit screen (Sid’s Dataset)' : 'dev split'} only, ${dsSize === 'full' ? 'all of it' : `${dsSize} per subset`}; test records are never used`],
+            ['Design', design === 'lhs' ? `Latin hypercube, ${samples} samples + the current settings` : design === 'one_at_a_time' ? 'stage-wise: one setting at a time' : 'every combination'],
             ['Editing protocol', editMode || 'batch'],
             ['Seed', String(seed)],
             ['Evaluation', 'before editing and once at the end; Original scorer (token match), fluency on every run'],

@@ -5,7 +5,7 @@ import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import SweepFailures from '../components/SweepFailures.jsx'
 import FactorPanel from '../components/FactorPanel.jsx'
-import { CRITERIA, FACTORS, aggregate, band, duration, factorValue, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
+import { CRITERIA, FACTORS, TUNING_KINDS, aggregate, band, duration, factorValue, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
 const LINE_COLORS = ['var(--accent)', 'var(--good)', 'var(--warn)', 'var(--danger)']
@@ -130,6 +130,9 @@ export default function InvestigationResults() {
   const [openLog, setOpenLog] = useState(null)
   const investigation = params.get('investigation') || ''
   const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
+  // Latin hypercube screens and stage-wise sweeps are ranked apart: a screen's
+  // run changes every setting at once, a stage-wise run one.
+  const kind = params.get('kind') === 'stagewise' ? 'stagewise' : 'lhs'
   // Which factor is the table's rows ('run' for one row per run), and the
   // values left out of each factor; everything included is averaged.
   const rowsParam = params.get('rows') || 'run'
@@ -173,27 +176,29 @@ export default function InvestigationResults() {
     return () => { live = false; clearInterval(timer) }
   }, [investigation, view])
 
-  const options = (key) => [...new Set((rows || []).map((r) => r[key]))].sort()
+  // Setup runs (covariance statistics) are never tuning results.
+  const kindRows = useMemo(() => (rows || []).filter((r) => r.kind === kind), [rows, kind])
+  const options = (key) => [...new Set(kindRows.map((r) => r[key]))].sort()
   // Dataset and protocol first, then the rest; swept settings (layers,
   // v_lr, ...) are factors too.
-  const knobFactors = useMemo(() => [...new Set((rows || []).flatMap((r) => Object.keys(r.overrides || {})))].sort()
+  const knobFactors = useMemo(() => [...new Set(kindRows.flatMap((r) => Object.keys(r.overrides || {})))].sort()
     .map((key) => ({ key: knobFactor(key), label: key, knob: true,
-      help: `the ${key} values this investigation swept` })), [rows])
+      help: `the ${key} values this method family swept` })), [kindRows])
   const ORDER = ['dataset', 'protocol', 'method', 'model', 'model_type', 'model_family']
   const allFactors = [...ORDER.map((k) => FACTORS.find((f) => f.key === k)), ...knobFactors]
   const rowsBy = allFactors.some((f) => f.key === rowsParam) ? rowsParam : 'run'
   const byFactor = allFactors.find((f) => f.key === rowsBy)
-  const modelNames = useMemo(() => Object.fromEntries((rows || []).map((r) => [r.model, r])), [rows])
+  const modelNames = useMemo(() => Object.fromEntries(kindRows.map((r) => [r.model, r])), [kindRows])
   const display = (key, value) => (key === 'model' && modelNames[value]
     ? `${modelNames[value].model_label}${modelNames[value].model_variant ? ` (${modelNames[value].model_variant})` : ''}`
     : String(value))
 
   // A failed run cleared off the Failures view has nothing to rank.
-  const visible = useMemo(() => (rows || []).filter((r) =>
+  const visible = useMemo(() => kindRows.filter((r) =>
     !(r.failure_cleared && r.state !== DONE) &&
     (!filters.sweep || r.sweep_id === filters.sweep) &&
     allFactors.every((f) => !(excluded[f.key] || []).includes(factorValue(r, f.key)))),
-  [rows, filters.sweep, excluded, allFactors.length])
+  [kindRows, filters.sweep, excluded, allFactors.length])
 
   const groups = useMemo(() => {
     if (rowsBy === 'run') return null
@@ -282,7 +287,7 @@ export default function InvestigationResults() {
     <div>
       <ResultsSubnav />
       <div className="page-header">
-        <h1>Hyperparameter results</h1>
+        <h1>Hyperparameter tuning results</h1>
         {current && <Link to={`/experiments/investigations/${current.id}`} className="btn-plain-small">Launch sweeps for {current.label} →</Link>}
       </div>
       <div className="pill-row hp-view-switch" role="group" aria-label="View">
@@ -295,7 +300,15 @@ export default function InvestigationResults() {
       </div>
       {view === 'failures' && <SweepFailures />}
       {view === 'rankings' && <>
-      <div className="pill-row hp-investigation-pills" role="group" aria-label="Investigation">
+      <div className="pill-row hp-view-switch" role="group" aria-label="Kind of tuning sweep">
+        {TUNING_KINDS.map((k) => (
+          <button key={k.key} type="button" className={`pill${kind === k.key ? ' selected' : ''}`} aria-pressed={kind === k.key}
+            title={k.help} onClick={() => { setParam('kind', k.key === 'lhs' ? '' : k.key) }}>
+            {k.label} <span className="dl-dim">· {k.short}</span>
+          </button>
+        ))}
+      </div>
+      <div className="pill-row hp-investigation-pills" role="group" aria-label="Method family">
         {investigations.map((i) => (
           <button key={i.id} type="button" className={`pill${i.id === investigation ? ' selected' : ''}`}
             aria-pressed={i.id === investigation}
@@ -306,10 +319,16 @@ export default function InvestigationResults() {
       </div>
       {error && <p className="form-error">{error}</p>}
       {rows === null && !error && <p className="empty">Loading…</p>}
-      {rows && !rows.length && <p className="empty">No sweeps in this investigation yet. <Link to={`/experiments/investigations/${investigation}`}>Launch one</Link>.</p>}
-      {rows && rows.length > 0 && (
+      {rows && !kindRows.length && <p className="empty">No {kind === 'lhs' ? 'Latin hypercube' : 'stage-wise'} sweeps here yet. <Link to={`/experiments/investigations/${investigation}`}>Launch one</Link>.</p>}
+      {rows && kindRows.length > 0 && (
         <>
-          <FactorPanel factors={allFactors} rows={rows} excluded={excluded} onExclude={setExcluded}
+          {kind === 'lhs' && (
+            <p className="dl-dim">
+              Every run here changes all settings at once. To see one setting’s effect, choose it as the table’s rows:
+              each value is then averaged over the runs that used it, whatever the other settings were.
+            </p>
+          )}
+          <FactorPanel factors={allFactors} rows={kindRows} excluded={excluded} onExclude={setExcluded}
             rowsBy={rowsBy} onRowsBy={(key) => setParam('rows', key === 'run' ? '' : key)} display={display} />
           <div className="hp-filters">
             <Filter label="Sweep" options={options('sweep_id')} value={filters.sweep} onChange={(v) => setParam('sweep', v)} />

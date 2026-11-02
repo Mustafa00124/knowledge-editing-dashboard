@@ -106,7 +106,7 @@ export default function CausalTracing() {
     <div>
       <ExperimentsSubnav />
       <div className="hp-breadcrumb">
-        <Link to="/experiments/investigations">Investigations</Link> / Knowledge localisation
+        <Link to="/experiments/investigations">Hyperparameter tuning</Link> / Knowledge localisation
       </div>
       <div className="page-header">
         <h1>Knowledge localisation</h1>

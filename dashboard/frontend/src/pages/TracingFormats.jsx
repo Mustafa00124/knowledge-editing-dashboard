@@ -43,7 +43,7 @@ export default function TracingFormats() {
   return (
     <div>
       <ExperimentsSubnav />
-      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Investigations</Link> / Prompt format in tracing</div>
+      <div className="hp-breadcrumb"><Link to="/experiments/investigations">Hyperparameter tuning</Link> / Prompt format in tracing</div>
       <div className="page-header"><h1>Prompt format in tracing</h1></div>
       <p className="dataset-note trace-intro">
         Does the way a fact is asked move where the model recalls it? Each cell is one causal trace of the same fact set

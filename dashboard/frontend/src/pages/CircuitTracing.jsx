@@ -201,7 +201,7 @@ export default function CircuitTracing() {
     <div>
       <ExperimentsSubnav />
       <div className="hp-breadcrumb">
-        <Link to="/experiments/investigations">Investigations</Link> / Circuit tracing
+        <Link to="/experiments/investigations">Hyperparameter tuning</Link> / Circuit tracing
       </div>
       <div className="page-header">
         <h1>Circuit tracing</h1>
