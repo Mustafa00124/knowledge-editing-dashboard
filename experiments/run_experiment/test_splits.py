@@ -20,7 +20,8 @@ import splits  # noqa: E402
 
 
 def split_files():
-    return sorted((ROOT / "splits").rglob("*.json"))
+    """make_splits.py's index-based files; Sid's Dataset's split by id has its own tests."""
+    return sorted(p for p in (ROOT / "splits").rglob("*.json") if Path(splits.SIDS_SPLIT) != p)
 
 
 class SplitTests(unittest.TestCase):
@@ -80,3 +81,39 @@ def splits_data(split_file):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SidsSplitTests(unittest.TestCase):
+    """Sid's Dataset: a split by record id (scripts/make_sids_split.py)."""
+    DATA = os.path.join(splits.DATASETS_DIR, "SidsDataset", "records")
+
+    def setUp(self):
+        import sids_requests
+        self.requests = sids_requests.load_sids_requests(self.DATA)
+        self.info = splits.load(self.DATA)
+
+    def test_dev_is_40_replace_edits_covering_every_topic_box_and_property(self):
+        dev = splits.select(self.requests, self.DATA, "dev")
+        self.assertEqual(len(dev), 40)
+        meta = [r["sids"] for r in dev]
+        self.assertEqual({m["edit_operation"] for m in meta}, {"replace"})
+        cells = {(m["topic"], m["box"]) for m in meta}
+        self.assertEqual(len(cells), 30)  # 10 topics x 3 boxes
+        self.assertEqual(set(self.info["dev_rbox_properties"].values()),
+                         {"functional", "transitive", "symmetric", "asymmetric", "inverse", "subproperty", "chain"})
+
+    def test_dev_and_its_deletes_never_reach_test(self):
+        dev = {r["sids"]["id"] for r in splits.select(self.requests, self.DATA, "dev")}
+        test = {r["sids"]["id"] for r in splits.select(self.requests, self.DATA, "test")}
+        self.assertFalse(dev & test)
+        self.assertFalse({i.replace("-replace-", "-delete-") for i in dev} & test)
+        self.assertEqual(len(test), self.info["test_count"])
+        self.assertEqual(splits.sizes(self.DATA), {"dev": 40, "test": len(test)})
+
+    def test_rebuild_reproduces_the_file(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "make_sids_split", os.path.join(splits.PROJECT_ROOT, "scripts", "make_sids_split.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertEqual(mod.build(), self.info)

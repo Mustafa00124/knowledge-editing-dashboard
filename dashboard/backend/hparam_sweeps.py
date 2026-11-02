@@ -206,6 +206,8 @@ def _has_dev_split(data_path):
         rel = Path(data_path).resolve().relative_to((config.PROJECT_ROOT / "datasets").resolve())
     except ValueError:
         return False
+    if rel.parts[:1] == ("SidsDataset",):  # a split by record id (scripts/make_sids_split.py)
+        return (config.PROJECT_ROOT / "splits" / "SidsDataset" / "records.json").exists()
     return (config.PROJECT_ROOT / "splits" / rel).exists()
 
 
@@ -331,7 +333,8 @@ def settings(investigation, methods, models):
     """Held-constant candidates for a sweep: each method's settings per
     model, which investigation tunes each one, and the best value that
     investigation has found so far (highest reliability among runs that
-    keep fluency, any dataset)."""
+    keep fluency, any dataset), with the values best for generalizability and
+    locality under best_for."""
     exp_cfg = _exp_cfg()
     owners = _owners()
     results_cache = {}
@@ -347,9 +350,18 @@ def settings(investigation, methods, models):
         if not candidates:
             return None
         top = max(candidates, key=lambda r: r["scores"]["reliability"])
+        # Chosen by reliability; the values that did best on generalizability
+        # and locality (still keeping fluency) are recorded beside it, for
+        # analysis, not used to choose.
+        also = {}
+        for crit in ("generalizability", "locality"):
+            scored = [r for r in candidates if r["scores"].get(crit) is not None]
+            if scored:
+                alt = max(scored, key=lambda r: r["scores"][crit])
+                also[crit] = {"value": alt["overrides"][key], "score": alt["scores"][crit]}
         return {"value": top["overrides"][key], "reliability": top["scores"]["reliability"],
                 "fluency": top["scores"].get("fluency"), "dataset": top["dataset"],
-                "sweep": top["sweep_id"], "run": top["run"]}
+                "sweep": top["sweep_id"], "run": top["run"], "best_for": also}
 
     out = {}
     for method in methods:

@@ -105,6 +105,9 @@ export default function HeldConstant({ held, swept, fixed, onFix, models, runSet
                               use {formatValue(row.best.value)} · reliability {pct(row.best.reliability)}
                             </button>
                           ) : <span className="dl-dim">—</span>}
+                          {row.best && Object.entries(row.best.best_for || {}).map(([crit, b]) => (
+                            <div key={crit} className="dl-desc">best for {crit}: {formatValue(b.value)} ({pct(b.score)})</div>
+                          ))}
                         </td>
                       </tr>
                     )
