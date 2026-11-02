@@ -75,6 +75,7 @@ Output layout (same for every method):
     <out_root>/manifest.json                       (rebuilt from every runs/*/summary.json found so far)
 """
 import argparse
+import hashlib
 import importlib
 import json
 import os
@@ -526,6 +527,29 @@ def apply_overrides(hparams, pairs):
     return overrides
 
 
+# What a cached null-space projection (AlphaEdit's P_loc) is computed from.
+PROJECTION_KEYS = ("layers", "nullspace_threshold", "mom2_n_samples", "mom2_dataset")
+
+
+def key_projection_path(hparams, file_values):
+    """Give P_loc its own file when the run's projection settings differ from
+    the hparams file's. The cache is named per model only, so a sweep over
+    layers, nullspace_threshold or mom2_n_samples would otherwise load a
+    projection computed for other settings (and parallel runs would race to
+    write one file). Runs at the file's settings keep the shared cache.
+    Returns the new path, or None when unchanged."""
+    p_loc = getattr(hparams, "P_loc", None)
+    if not p_loc:
+        return None
+    current = {k: getattr(hparams, k, None) for k in PROJECTION_KEYS}
+    if current == {k: file_values.get(k) for k in PROJECTION_KEYS}:
+        return None
+    digest = hashlib.sha1(json.dumps(current, sort_keys=True, default=str).encode()).hexdigest()[:10]
+    root, ext = os.path.splitext(p_loc)
+    hparams.P_loc = f"{root}_{digest}{ext or '.pt'}"
+    return hparams.P_loc
+
+
 def _hparams_path(method, model):
     return os.path.join(EXP_DIR, "hparams", METHOD_HPARAMS_DIR[method], f"{model}.yaml")
 
@@ -709,6 +733,11 @@ def main():
         total_steps = args.ds_size
 
     overrides = apply_overrides(hparams, args.hparam)
+    if getattr(hparams, "P_loc", None):
+        with open(hparams_path) as handle:
+            keyed = key_projection_path(hparams, yaml.safe_load(handle) or {})
+        if keyed:
+            print(f"projection settings differ from the hparams file; P_loc -> {keyed}")
     if args.method in FT_METHODS and hparams.objective_optimization != FT_OBJECTIVE[args.method]:
         raise SystemExit(f"{args.method} trains with objective_optimization={FT_OBJECTIVE[args.method]!r}, "
                          f"but the hparams (or an --hparam override) set {hparams.objective_optimization!r}; "

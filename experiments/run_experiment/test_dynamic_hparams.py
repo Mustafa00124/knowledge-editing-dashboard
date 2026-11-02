@@ -58,3 +58,23 @@ class DynamicHparamsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ProjectionPathTests(unittest.TestCase):
+    """AlphaEdit's cached null-space projection follows the settings it is computed from."""
+
+    def test_projection_cache_is_keyed_by_its_settings(self):
+        from types import SimpleNamespace
+        import run_experiment as R
+        file_values = {"layers": [4, 5, 6, 7, 8], "nullspace_threshold": 0.02, "mom2_n_samples": 100000,
+                       "mom2_dataset": "wikipedia", "P_loc": "/s/alphaedit_P_m.pt"}
+        h = SimpleNamespace(**file_values)
+        self.assertIsNone(R.key_projection_path(h, file_values))
+        self.assertEqual(h.P_loc, "/s/alphaedit_P_m.pt")
+        shifted = SimpleNamespace(**{**file_values, "layers": [5, 6, 7, 8, 9]})
+        other = SimpleNamespace(**{**file_values, "nullspace_threshold": 0.002})
+        a, b = R.key_projection_path(shifted, file_values), R.key_projection_path(other, file_values)
+        self.assertTrue(a.startswith("/s/alphaedit_P_m_") and a.endswith(".pt"))
+        self.assertNotEqual(a, b)
+        self.assertEqual(a, R.key_projection_path(SimpleNamespace(**{**file_values, "layers": [5, 6, 7, 8, 9]}), file_values))
+        self.assertIsNone(R.key_projection_path(SimpleNamespace(layers=[1]), file_values))  # no P_loc: not AlphaEdit
