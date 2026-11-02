@@ -117,6 +117,12 @@ class FinalizeTests(unittest.TestCase):
         self.assertEqual(self.final['edit_succ'], 50.0)
         self.assertEqual(self.final['portability'], self.m['generalization']['score'])
 
+    def test_rewrite_is_the_direct_question_alone(self):
+        rw, pa, rel = self.m['rewrite'], self.m['paraphrase'], self.m['reliability']
+        self.assertEqual(rw['scored'] + pa['scored'], rel['scored'])
+        self.assertEqual(rw['pass'] + pa['pass'], rel['pass'])
+        self.assertEqual(rw['scored'], 2)  # one direct question per record (a replace and a delete)
+
     def test_cross_lingual_per_language(self):
         by = self.m['cross_lingual']['by_language']
         self.assertEqual((by['zh']['pass'], by['zh']['scored']), (2, 2))

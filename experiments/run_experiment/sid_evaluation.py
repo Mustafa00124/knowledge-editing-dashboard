@@ -38,7 +38,8 @@ scored; this module applies it to run_experiment.py's checkpoints:
      locality           passes on SAME
      UNCLEAR            excluded from scores and counted apart
    Metrics (percent, None when nothing was scored): reliability (direct +
-   paraphrase), cross_lingual (+ per language), logical_consistency
+   paraphrase; also split into rewrite, the direct question, and paraphrase),
+   cross_lingual (+ per language), logical_consistency
    (propositional, + per form), generalization (derived, split by
    determinacy, belief-revision problem, logic and derivation, with the
    worlds picked), locality (+ near, far), delete_abstention (a delete
@@ -393,6 +394,10 @@ def compute_metrics(items, payloads_for_fluency=()):
     locality = of("unrelated_near", "unrelated_far")
     metrics = {
         "reliability": block(of("direct", "paraphrase")),
+        # The two halves of reliability: hyperparameter sweeps choose by the
+        # direct question alone (rewrite) and record paraphrase beside it.
+        "rewrite": block(of("direct")),
+        "paraphrase": block(of("paraphrase")),
         "cross_lingual": {**block(of("cross_lingual")), "by_language": _by(of("cross_lingual"), "language")},
         "logical_consistency": {**block(of("propositional")), "by_form": _by(of("propositional"), "form")},
         "generalization": {

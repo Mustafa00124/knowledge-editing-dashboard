@@ -320,3 +320,16 @@ class SweepProgressTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SidScoresTests(unittest.TestCase):
+    def test_sid_runs_choose_by_rewrite_and_record_paraphrase(self):
+        summary = {"edit_succ": 75.0, "portability": 40.0, "locality": 90.0, "fluency": 5.0,
+                   "evaluations": {"sid": {"metrics": {"rewrite": {"score": 100.0}, "paraphrase": {"score": 50.0}}}}}
+        scores = hparam_sweeps._scores(summary, {"fluency": 5.0})
+        self.assertEqual((scores["reliability"], scores["paraphrase"]), (1.0, 0.5))
+        self.assertEqual((scores["generalizability"], scores["locality"], scores["fluency"]), (0.4, 0.9, 1.0))
+        # Other datasets keep EasyEdit's edit success, and have no paraphrase score here.
+        other = hparam_sweeps._scores({"edit_succ": 75.0, "fluency": 5.0}, {"fluency": 5.0})
+        self.assertEqual(other["reliability"], 0.75)
+        self.assertNotIn("paraphrase", other)

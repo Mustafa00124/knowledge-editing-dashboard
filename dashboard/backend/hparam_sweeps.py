@@ -333,7 +333,8 @@ def settings(investigation, methods, models):
     """Held-constant candidates for a sweep: each method's settings per
     model, which investigation tunes each one, and the best value that
     investigation has found so far (highest reliability among runs that
-    keep fluency, any dataset), with the values best for generalizability and
+    keep fluency, any dataset; on Sid's Dataset reliability is the direct
+    question alone), with the values best for paraphrase, generalizability and
     locality under best_for."""
     exp_cfg = _exp_cfg()
     owners = _owners()
@@ -354,7 +355,7 @@ def settings(investigation, methods, models):
         # and locality (still keeping fluency) are recorded beside it, for
         # analysis, not used to choose.
         also = {}
-        for crit in ("generalizability", "locality"):
+        for crit in ("paraphrase", "generalizability", "locality"):
             scored = [r for r in candidates if r["scores"].get(crit) is not None]
             if scored:
                 alt = max(scored, key=lambda r: r["scores"][crit])
@@ -856,13 +857,24 @@ def _first_row(path):
 
 
 def _scores(summary, baseline):
-    """The four criteria on 0..1 (None where the dataset has no such probe)."""
+    """The criteria on 0..1 (None where the dataset has no such probe).
+
+    On Sid's Dataset, reliability is the rewrite score alone (the direct
+    question; decided 2026-11-02), which is what a sweep chooses by, and the
+    paraphrase score is recorded beside it. Other datasets keep EasyEdit's
+    edit success."""
     pct = lambda v: None if v is None else v / 100.0
     fluency = summary.get("fluency")
     base = (baseline or {}).get("fluency")
     ratio = min(fluency / base, 1.0) if fluency is not None and base else None
-    return {"fluency": ratio, "reliability": pct(summary.get("edit_succ")),
-            "locality": pct(summary.get("locality")), "generalizability": pct(summary.get("portability"))}
+    sid = ((summary.get("evaluations") or {}).get("sid") or {}).get("metrics") or {}
+    score = lambda name: pct((sid.get(name) or {}).get("score"))
+    reliability = score("rewrite") if sid else pct(summary.get("edit_succ"))
+    out = {"fluency": ratio, "reliability": reliability,
+           "locality": pct(summary.get("locality")), "generalizability": pct(summary.get("portability"))}
+    if sid:
+        out["paraphrase"] = score("paraphrase")
+    return out
 
 
 # Lines in a job's stderr that are noise rather than the reason it failed.
