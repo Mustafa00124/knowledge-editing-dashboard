@@ -523,10 +523,10 @@ saw it, not how it stores it: the rating stays an estimate.
 
 ### Familiarity (removed)
 
-Records on `main` carry a `familiarity` tag (fact, subject and object rated
-very low to very high). It was dropped on `sids-determinacy-2` (2026-10-25):
-the evidence behind each fact now says how often it is stated, which is what
-the tag estimated. The validator rejects it on this branch.
+Earlier records carried a `familiarity` tag (fact, subject and object rated
+very low to very high). It was dropped on 2026-10-25: the evidence behind
+each fact now says how often it is stated, which is what the tag estimated.
+The validator rejects it.
 
 ### Reality
 
@@ -1225,15 +1225,11 @@ matched worlds.
 
 ## Records
 
-> **On branch `sids-determinacy-2`**, `records/` starts empty. Records are
-> being written again, one at a time, to the shape in [Shape per
-> topic](#shape-per-topic): 4 replace edits per topic in each box, every ABox
-> and TBox derived query labelled with its [determinacy](#determinacy-and-belief-revision-problems)
-> and every indeterminate one with a chain per world. Insert and delete
-> records are out of scope on this branch. The sections below on
-> imported panels, replace records for the other topics, delete and insert
-> records, and the size goal describe the full dataset on `main`; the format
-> and the rules for adding a record apply here too.
+`records/` holds 600 edits: 10 topics, each with 20 edits per operation
+(insert, replace, delete) in the [Shape per topic](#shape-per-topic). Every
+ABox and TBox derived query is labelled with its
+[determinacy](#determinacy-and-belief-revision-problems), and every
+indeterminate one has a chain per world.
 
 ### Layout
 
@@ -1427,9 +1423,10 @@ validator only requires ids to be unique within `records/`.
 ### Delete records
 
 `records/<topic>/delete/` mirrors `replace/` one to one: `<topic>-delete-NNNN`
-deletes the original fact of `<topic>-replace-NNNN` (300 items), built by
-`build_delete.py`. (On `sids-determinacy-2` deletes are written per record,
-with their own worlds; `build_delete.py` is for `main`'s records only.) The statement is the original fact and `edit.object` the
+deletes the original fact of `<topic>-replace-NNNN` (200 items). Deletes are
+written per record, with their own worlds; a change to a replace record is
+mirrored into its delete by hand (`build_delete.py` is disabled, since it
+would rebuild every delete from scratch). The statement is the original fact and `edit.object` the
 removed value; every `new_answer` is null and the original answers stay.
 A record's `relation` describes its own statement, so a replace that reversed
 a `raises` or `lowers` (read off `object` and `old_object`) gives its delete
@@ -1487,16 +1484,10 @@ benchmark buildable. They may come back as separate subsets:
 
 ## Size goal
 
-On `sids-determinacy-2` the goal is the [Shape per topic](#shape-per-topic):
-180 replace and 180 delete edits, 3,240 queries. The full dataset
-on `main`:
-
-90 taxonomy cells: 10 topics × 3 operations × 3 knowledge forms (the DL
-boxes). Every cell has 10 edits, so each topic holds 30 edits per operation:
-900 edits in all (300 each of insert, replace and delete). ABox and TBox
-cells are split evenly between causal and associative relations, but that
-split is a property of how they were written, not part of the taxonomy. ABox and TBox edits carry 10
-queries and RBox edits 7, so 600 × 10 + 300 × 7 gives **8,100 queries**.
+The dataset follows the [Shape per topic](#shape-per-topic): 10 topics ×
+3 operations × 20 edits (8 ABox, 6 TBox, 6 RBox), 600 edits in all. ABox
+and TBox edits carry 12 queries and RBox edits 9, so 420 × 12 + 180 × 9
+gives **6,660 queries**.
 
 ## Dashboard
 
