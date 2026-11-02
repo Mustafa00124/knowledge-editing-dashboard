@@ -80,20 +80,24 @@ DEFAULT_OUT_ROOT = f"{PROJECT_ROOT}/results/model_audit"
 # Prompts are the runner's (experiments/run_experiment/sids_requests.py), so
 # pre-edit audit answers and post-edit evaluation see the same text: base
 # models get render_prompt's few-shot "Question:/Answer:" preamble; chat models
-# its chat prompt (the strict instruction, 2 worked examples as earlier
+# its chat prompt (the short instruction, 2 worked examples as earlier
 # turns), or a variant with --instruction / --chat_shots. The examples hold no record's question, answer or subject
 # (test_audit checks every record).
 SHOTS = SR.FEW_SHOT_EXAMPLES
 FEW_SHOT = SR.FEW_SHOT
 # A literal (run_experiment/test_sids_requests reads it from this source);
 # test_audit checks it equals SR.CHAT_INSTRUCTION. The default since
-# 2026-11-01 (the strict preset, with CHAT_SHOTS examples); few_words with
-# 0 shots was the default before and is now a variant.
-CHAT_INSTRUCTION = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
+# 2026-11-01 (the short preset, with CHAT_SHOTS examples); few_words with 0
+# shots and strict were defaults before and are variants now.
+CHAT_INSTRUCTION = "Give only the answer, in as few words as possible. No sentence, no explanation."
 CHAT_SHOTS = SR.CHAT_SHOTS
 # --instruction takes one of these names or any literal text.
 INSTRUCTIONS = {
-    "strict": CHAT_INSTRUCTION,
+    "short": CHAT_INSTRUCTION,
+    # The default for a few hours on 2026-11-01: Olmo-3-7B-Instruct read
+    # "yes/no" as the answer format and answered "Yes" to 445 questions that
+    # are not yes/no ones.
+    "strict": "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.",
     "few_words": "Answer the question in a few words, without explanation.",
 }
 
@@ -360,7 +364,7 @@ def main():
     p.add_argument("--judge_batch_size", type=int, default=32)
     p.add_argument("--instruction", default=CHAT_INSTRUCTION,
                    help="chat models: the instruction put before each question, in the user turn; a preset name "
-                        f"({', '.join(INSTRUCTIONS)}) or literal text (default: strict)")
+                        f"({', '.join(INSTRUCTIONS)}) or literal text (default: short)")
     p.add_argument("--chat_shots", type=int, default=CHAT_SHOTS, choices=range(len(SHOTS) + 1),
                    help=f"chat models: worked examples ({', '.join(a for _, a in SHOTS)}) given as earlier "
                         "user/assistant turns")

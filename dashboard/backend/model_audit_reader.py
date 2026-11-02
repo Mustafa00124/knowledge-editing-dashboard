@@ -59,14 +59,14 @@ def run(name):
 
 
 # The audit's default chat prompt (experiments/model_audit/audit.py,
-# --instruction strict, --chat_shots 2: the runner's own prompt,
+# --instruction short, --chat_shots 2: the runner's own prompt,
 # sids_requests.render_prompt, since 2026-11-01). Runs with another
 # instruction or shot count are prompt variants: the Model audit page lists
 # them, but the Datasets page's status, checks and dot detail read only
-# default runs. Chat runs from before the change (few_words, 0 shots, or no
-# instruction recorded at all) are variants now. Base models' prompts have
+# default runs. Chat runs from before the change (strict, few_words, 0 shots,
+# or no instruction recorded at all) are variants now. Base models' prompts have
 # no instruction or chat shots, so their runs count as default.
-DEFAULT_INSTRUCTIONS = ("strict", "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.")
+DEFAULT_INSTRUCTIONS = ("short", "Give only the answer, in as few words as possible. No sentence, no explanation.")
 DEFAULT_CHAT_SHOTS = 2
 
 

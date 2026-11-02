@@ -218,7 +218,8 @@ class PromptFormatTests(unittest.TestCase):
         self.assertEqual(audit.CHAT_SHOTS, 2)
         self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant", "user"])
         self.assertEqual(msgs[-1], {"role": "user", "content": f"{audit.CHAT_INSTRUCTION}\n\nWho wrote Hamlet?"})
-        self.assertEqual(audit.resolve_instruction("strict"), audit.CHAT_INSTRUCTION)
+        self.assertEqual(audit.resolve_instruction("short"), audit.CHAT_INSTRUCTION)
+        self.assertNotIn("yes/no", audit.CHAT_INSTRUCTION)
         self.assertEqual(audit.resolve_instruction("few_words"),
                          "Answer the question in a few words, without explanation.")
         self.assertEqual(audit.chat_messages("q", audit.resolve_instruction("few_words"), 0),
@@ -226,7 +227,7 @@ class PromptFormatTests(unittest.TestCase):
         self.assertEqual(audit.resolve_instruction("Just the name."), "Just the name.")
 
     def test_shots_alternate_with_instruction_in_every_user_turn(self):
-        strict = audit.resolve_instruction("strict")
+        strict = audit.resolve_instruction("short")
         msgs = audit.chat_messages("Who wrote Hamlet?", strict, 2)
         self.assertEqual([m["role"] for m in msgs], ["user", "assistant", "user", "assistant", "user"])
         self.assertEqual([m["content"] for m in msgs if m["role"] == "assistant"], [a for _, a in audit.SHOTS[:2]])
@@ -256,7 +257,7 @@ class PromptFormatTests(unittest.TestCase):
                 text = audit.prompt_text(tok, "Who wrote Hamlet?", True)
                 self.assertEqual(text, audit.SR.render_prompt("Who wrote Hamlet?", "chat", tok))
                 self.assertEqual(tok(text)["input_ids"], tok(before, add_special_tokens=False)["input_ids"])
-                text = audit.prompt_text(tok, "Who wrote Hamlet?", True, audit.resolve_instruction("strict"), 2)
+                text = audit.prompt_text(tok, "Who wrote Hamlet?", True, audit.resolve_instruction("short"), 2)
                 # Each example and its answer appear once, in order, before the question.
                 (q1, a1), (q2, a2), (q3, _) = audit.SHOTS
                 # (searched in order: a template's header may hold a date with the digit)
@@ -265,7 +266,7 @@ class PromptFormatTests(unittest.TestCase):
                     pos = text.index(x, pos) + len(x)
                 for x in (q1, q2):
                     self.assertEqual(text.count(x), 1)
-                self.assertEqual(text.count("Answer with only the answer"), 3)
+                self.assertEqual(text.count("Give only the answer"), 3)
                 self.assertNotIn(q3, text)
                 ids = tok(text)["input_ids"]
                 if tok.bos_token_id is not None:

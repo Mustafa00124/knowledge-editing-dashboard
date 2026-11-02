@@ -70,14 +70,17 @@ SUBJECT_METHODS = {"rome", "memit", "pmet", "alphaedit", "wilke", "fine", "nmke"
 # every record. The model audit imports FEW_SHOT_EXAMPLES, FEW_SHOT and
 # render_prompt from here, so the audit and the runner ask the same text.
 PROMPT_FORMATS = ('chat', 'fewshot', 'raw')
-# Chat models (user decision 2026-11-01): the model audit's "strict"
-# instruction in every user turn, after the first CHAT_SHOTS worked examples
-# as earlier user/assistant turns. In the audit's test this cut answers
-# wrapped in a sentence from 25% to 0% (Llama-3.1-8B-Instruct) and from 40%
-# to 2.9% (Mistral-7B-Instruct-v0.1) against the earlier single user turn
-# with "Answer the question in a few words, without explanation." (the
-# audit's few_words preset, now a variant).
-CHAT_INSTRUCTION = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
+# Chat models: the model audit's "short" instruction in every user turn,
+# after the first CHAT_SHOTS worked examples as earlier user/assistant turns.
+# Worked examples plus a strict instruction cut answers wrapped in a sentence
+# from 25% to 0% (Llama-3.1-8B-Instruct) and from 40% to about 4%
+# (Mistral-7B-Instruct-v0.1) against the earlier single user turn with
+# "Answer the question in a few words, without explanation." (the audit's
+# few_words preset). The first strict wording, "...a name, a number, or
+# yes/no...", made Olmo-3-7B-Instruct answer "Yes" to 445 questions that are
+# not yes/no ones; "short" drops "yes/no" (126 such answers to 0 on three
+# topics, 2026-11-01) and is the default since.
+CHAT_INSTRUCTION = "Give only the answer, in as few words as possible. No sentence, no explanation."
 CHAT_SHOTS = 2
 FEW_SHOT_EXAMPLES = [("Which city is Thailand's capital?", "Bangkok"),
                      ("How many keys are on a piano?", "88"),

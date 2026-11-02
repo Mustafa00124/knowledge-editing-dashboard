@@ -1053,12 +1053,15 @@ as `Question: ... / Answer: ...` lines ("Which city is Thailand's capital?"
 Bangkok, "How many keys are on a piano?" 88, "Is a lemon sour?" Yes), then
 the question. Instruct models (since 2026-11-01): their chat template, the
 first two of those examples as earlier user/assistant turns, and the
-instruction "Answer with only the answer: a name, a number, or yes/no. No
-sentence, no explanation." in every user turn, no system turn. In the
-audit's test this cut answers wrapped in a sentence from 25% to 0%
-(Llama-3.1-8B-Instruct) and from 40% to 2.9% (Mistral-7B-Instruct-v0.1)
+instruction "Give only the answer, in as few words as possible. No sentence,
+no explanation." in every user turn, no system turn. In the audit's tests
+this cut answers wrapped in a sentence from 25% to 0%
+(Llama-3.1-8B-Instruct) and from 40% to about 4% (Mistral-7B-Instruct-v0.1)
 against the earlier single turn with "Answer the question in a few words,
-without explanation." The examples share no question, answer or subject
+without explanation." An earlier wording, "Answer with only the answer: a
+name, a number, or yes/no", made Olmo-3-7B-Instruct answer "Yes" to
+questions that are not yes/no ones (445 in the full audit), so it was
+dropped. The examples share no question, answer or subject
 with any record (test_sids_requests and the audit's ShotCollisionTests).
 
 **Smoke run.** `run_experiment.py --smoke` (launched as **Method smoke run**

@@ -156,15 +156,17 @@ class DefaultPromptRunTests(unittest.TestCase):
         recs.mkdir(parents=True)
         (recs / f"{RECORD['id']}.json").write_text(json.dumps(RECORD))
         model = "llama-3.1-8b-instruct"
-        strict = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
-        # The default since 2026-11-01: strict instruction, 2 chat shots. Older
+        strict = "Give only the answer, in as few words as possible. No sentence, no explanation."
+        old_strict = "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation."
+        # The default since 2026-11-01: short instruction, 2 chat shots. Older
         # runs (fields absent: few_words, 0 shots) are variants now.
         runs = [(model, {"model": model, "chat": True, "instruction": strict, "chat_shots": 2}, 1),
                 (f"{model}_old", {"model": model}, 0),
                 (f"{model}_instr-few_words_shots0", {"model": model, "chat": True, "chat_shots": 0,
                  "instruction": "Answer the question in a few words, without explanation."}, 0),
                 (f"{model}_instr-x", {"model": model, "instruction": "Answer in one word.", "chat_shots": 2}, 0),
-                (f"{model}_shots1", {"model": model, "instruction": strict, "chat_shots": 1}, 0)]
+                (f"{model}_shots1", {"model": model, "instruction": strict, "chat_shots": 1}, 0),
+                (f"{model}_instr-strict_shots2", {"model": model, "instruction": old_strict, "chat_shots": 2}, 0)]
         now = time.time()
         for i, (name, summary, score) in enumerate(runs):
             run = root / "out" / "runs" / name
@@ -187,7 +189,7 @@ class DefaultPromptRunTests(unittest.TestCase):
         self.assertEqual(listed, {name for name, _, _ in runs})  # the Model audit page lists every run
         self.assertFalse(M.is_default_prompt({"model": model, "chat_shots": 0,
                                               "instruction": "Answer the question in a few words, without explanation."}))
-        self.assertTrue(M.is_default_prompt({"model": model, "instruction": "strict", "chat_shots": 2}))
+        self.assertTrue(M.is_default_prompt({"model": model, "instruction": "short", "chat_shots": 2}))
         # base models record no instruction and no shots
         self.assertTrue(M.is_default_prompt({"model": "llama-3.1-8b", "chat": False, "instruction": None, "chat_shots": 0}))
         self.assertTrue(M.is_default_prompt({"model": "qwen3-4b-base", "instruction": None}))

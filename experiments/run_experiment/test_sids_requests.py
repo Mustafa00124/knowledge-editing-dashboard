@@ -240,7 +240,7 @@ class PromptFormatTests(unittest.TestCase):
     def test_instruction_matches_the_audit(self):
         self.assertEqual(s.CHAT_INSTRUCTION, audit_constant('CHAT_INSTRUCTION'))
         self.assertEqual(s.CHAT_INSTRUCTION,
-                         "Answer with only the answer: a name, a number, or yes/no. No sentence, no explanation.")
+                         "Give only the answer, in as few words as possible. No sentence, no explanation.")
         self.assertEqual(s.CHAT_SHOTS, 2)
 
     def test_chat_messages(self):
