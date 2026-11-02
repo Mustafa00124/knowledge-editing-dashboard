@@ -17,7 +17,7 @@ EXP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(EXP_DIR))
 SPLITS_DIR = os.path.join(PROJECT_ROOT, "splits")
 DATASETS_DIR = os.path.join(PROJECT_ROOT, "datasets")
-CHOICES = ("test", "dev", "all")
+CHOICES = ("test", "dev", "screen", "all")
 
 
 SIDS_SPLIT = os.path.join(SPLITS_DIR, "SidsDataset", "records.json")
@@ -62,6 +62,8 @@ def indices(info, split):
         return list(range(total))
     if split == "dev":
         return list(info["dev"])
+    if split == "screen":
+        raise ValueError("only Sid's Dataset has a screen split")
     held_out = set(info["dev"]) | set(info["demo"]) | set(info["excluded"])
     return [i for i in range(total) if i not in held_out]
 
@@ -86,8 +88,9 @@ def _record_id(request):
 
 
 def select_ids(requests, info, split):
-    """A split by record id (Sid's Dataset): dev is the listed ids, test is
-    everything not in dev or excluded."""
+    """A split by record id (Sid's Dataset): dev is the listed ids, screen
+    a 10-edit subset of dev (one ABox fact per topic), test is everything
+    not in dev or excluded."""
     ids = [_record_id(r) for r in requests]
     if None in ids:
         raise ValueError("a split by record id needs records with ids (Sid's Dataset)")
@@ -95,8 +98,11 @@ def select_ids(requests, info, split):
     unknown = sorted(dev - set(ids))
     if unknown:
         raise ValueError(f"dev records missing from the data: {unknown[:5]}; rerun scripts/make_sids_split.py")
-    if split == "dev":
-        return [r for r, i in zip(requests, ids) if i in dev]
+    if split in ("dev", "screen"):
+        wanted = dev if split == "dev" else set(info.get("screen") or [])
+        if not wanted:
+            raise ValueError("this split file has no screen; rerun scripts/make_sids_split.py")
+        return [r for r, i in zip(requests, ids) if i in wanted]
     return [r for r, i in zip(requests, ids) if i not in held_out]
 
 
@@ -114,4 +120,7 @@ def sizes(data_path):
     info = load(data_path, verify=False)
     if info is None:
         return None
-    return {"dev": len(info["dev"]), "test": info["test_count"]}
+    out = {"dev": len(info["dev"]), "test": info["test_count"]}
+    if info.get("screen"):
+        out["screen"] = len(info["screen"])
+    return out

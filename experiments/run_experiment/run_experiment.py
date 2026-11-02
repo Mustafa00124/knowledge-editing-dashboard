@@ -369,9 +369,10 @@ def parse_args():
         "what gets recorded and what the reset interval is capped to.",
     )
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--split", choices=("test", "dev", "all"), default="test",
+    p.add_argument("--split", choices=("test", "dev", "screen", "all"), default="test",
                    help="which records to edit (splits/, made by scripts/make_splits.py): test for "
-                        "reported experiments, dev for hyperparameter sweeps, all only for debugging")
+                        "reported experiments, dev for hyperparameter sweeps, screen (Sid's Dataset: 10 of the dev "
+                        "edits) for wide first-pass sweeps, all only for debugging")
     p.add_argument("--hparam", action="append", default=[], metavar="KEY=VALUE",
                    help="override one hparams-file setting (repeatable; VALUE is YAML, e.g. layers=[4,5] "
                         "or v_lr=0.1). Used by hyperparameter sweeps; recorded in the run's summary")

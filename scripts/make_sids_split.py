@@ -10,6 +10,9 @@ box:
   - TBox: 1 per topic;
   - RBox: 1 per topic, with the edited property rotated across topics so the
     10 dev RBox edits cover all seven properties at least once.
+Screen is 10 of those dev edits, one ABox fact per topic (stored and
+derived alternating over the topics, so 5 of each), for the wide first
+pass of tuning, which tries many settings on few edits.
 Each dev record's delete (<topic>-delete-NNNN removes the same fact) is
 excluded from test: it was seen during tuning. Inserts are all test.
 
@@ -95,11 +98,16 @@ def build():
     if missing:
         raise SystemExit(f"dev records with no delete: {missing}")
     rbox = {r["id"]: rbox_property(r) for r in dev if r["box"] == "rbox"}
+    # One ABox edit per topic for the screen, alternating stored and derived.
+    screen = []
+    for i, t in enumerate(topics):
+        kind = STORED if i % 2 == 0 else DERIVED
+        screen += [r["id"] for r in dev if r["topic"] == t and r["box"] == "abox" and r["derivability"] in kind]
     return {
         "version": VERSION, "kind": "ids", "seed": SEED,
         "note": "Sid's Dataset: 40 replace edits for tuning (scripts/make_sids_split.py); their deletes are "
                 "held out of test; everything else is test",
-        "dev": dev_ids, "excluded": excluded,
+        "dev": dev_ids, "screen": sorted(screen), "excluded": excluded,
         "dev_rbox_properties": dict(sorted(rbox.items())),
         "test_count": len(all_ids) - len(dev_ids) - len(excluded),
     }
@@ -109,7 +117,7 @@ if __name__ == "__main__":
     info = build()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(info, indent=1, ensure_ascii=False) + "\n")
-    print(f"{OUT.relative_to(ROOT)}: {len(info['dev'])} dev, {len(info['excluded'])} excluded, "
+    print(f"{OUT.relative_to(ROOT)}: {len(info['dev'])} dev ({len(info['screen'])} screen), {len(info['excluded'])} excluded, "
           f"{info['test_count']} test")
     print("RBox dev properties:", sorted(set(info["dev_rbox_properties"].values())))
     sys.exit(0)

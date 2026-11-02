@@ -5,11 +5,15 @@ investigations.json) and every tunable setting of its methods; the earlier
 investigations by kind of setting are kept as `legacy` so their results stay
 readable, but are no longer launched. A sweep varies some of those settings
 for chosen methods, models and datasets, either one setting at a time around
-a single run at the current settings (`design: one_at_a_time`) or every
-combination (`grid`); every
-point is an ordinary run_experiment job (same submission path, logs and
-job table as the Experiments page) with three differences: it edits dev
-records only (--split dev), evaluates only before editing and at the end
+a single run at the current settings (`design: one_at_a_time`), every
+combination (`grid`), or a Latin hypercube sample of the combinations
+(`design: lhs`, `samples` points plus the run at the current settings:
+each setting's values are spread evenly over the samples, and the points
+depend only on `lhs_seed` and the method, so every model gets the same
+draw); every point is an ordinary run_experiment job (same submission
+path, logs and job table as the Experiments page) with three differences:
+it edits dev records only (--split dev, or `split: screen`, Sid's
+Dataset's 10-edit subset of dev), evaluates only before editing and at the end
 (--final_only), and passes the swept values as --hparam overrides.
 
 On disk, one folder per sweep:
@@ -25,6 +29,7 @@ highest reliability among runs that keep fluency at FLUENCY_DROP or above.
 """
 import itertools
 import json
+import random
 import re
 import secrets
 import shlex
@@ -417,6 +422,33 @@ def _one_at_a_time(knob_values, current):
     return points
 
 
+def _lhs(knob_values, samples, seed, method):
+    """`samples` points, each setting's values spread evenly over them: the
+    unit interval is cut into `samples` strata per setting, each stratum
+    used once in a random order, and a draw within it picks a value index.
+    Seeded by seed and method alone, so models with equally long value
+    lists get the same draw."""
+    rng = random.Random(f"{seed}:{method}")
+    keys = sorted(knob_values)
+    columns = {}
+    for key in keys:
+        order = list(range(samples))
+        rng.shuffle(order)
+        n = len(knob_values[key])
+        columns[key] = [knob_values[key][min(n - 1, int((s + rng.random()) / samples * n))] for s in order]
+    return [{k: columns[k][i] for k in keys} for i in range(samples)]
+
+
+SPLITS = ("dev", "screen")
+
+
+def _split(req):
+    split = req.get("split") or "dev"
+    if split not in SPLITS:
+        raise ValueError(f"split must be one of {', '.join(SPLITS)}, not {split!r}")
+    return split
+
+
 def _skip_reason(exp_cfg, params):
     spec = _method_options(exp_cfg).get(params["method"], {})
     if params.get("edit_mode") in ("batch", "sequential_batch") and spec.get("no_joint_batch"):
@@ -437,13 +469,20 @@ def plan(req):
         raise ValueError(f"{inv['label']} is an earlier sweep by kind of setting; sweep its methods "
                          "from their family's investigation instead")
     design = req.get("design") or inv.get("design") or "grid"
-    if design not in ("grid", "one_at_a_time"):
-        raise ValueError(f"design must be grid or one_at_a_time, not {design!r}")
+    if design not in ("grid", "one_at_a_time", "lhs"):
+        raise ValueError(f"design must be grid, one_at_a_time or lhs, not {design!r}")
+    if design == "lhs" and int(req.get("samples") or 0) < 2:
+        raise ValueError("a Latin hypercube sweep needs samples (2 or more)")
+    split = _split(req)
     runs, skipped = [], []
     if list(req.get("data_paths") or []) == ["default"]:
         req["data_paths"] = default_datasets(inv, exp_cfg) or []
         if not req["data_paths"]:
             raise ValueError(f"{inv['label']} has no default datasets; list data_paths")
+    if split == "screen":
+        not_sids = [p for p in req["data_paths"] if "SidsDataset" not in Path(p).parts]
+        if not_sids:
+            raise ValueError(f"only Sid's Dataset has a screen split, not {not_sids[0]}")
     fixed_all = req.get("fixed") or {}
     for method, knob_values in req["methods"].items():
         if method not in inv["methods"]:
@@ -482,8 +521,13 @@ def plan(req):
                 stem = [method, model, _dataset_slug(exp_cfg, data_path)]
                 current = {r["key"]: r["value"] for r in effective_settings(method, model, exp_cfg)}
                 current.update(fixed)
-                points = list(_grid(knob_values)) if design == "grid" else _one_at_a_time(knob_values, current)
-                for overrides in points:
+                if design == "grid":
+                    points = list(_grid(knob_values))
+                elif design == "lhs":
+                    points = [None] + _lhs(knob_values, int(req["samples"]), req.get("lhs_seed", 0), method)
+                else:
+                    points = _one_at_a_time(knob_values, current)
+                for n, overrides in enumerate(points):
                     run = {"method": method, "model": model, "data_path": data_path,
                            "overrides": overrides, "fixed": fixed, "params": params}
                     if overrides is None:
@@ -491,6 +535,9 @@ def plan(req):
                         # every swept setting's current value.
                         run.update(overrides={}, baseline_for={k: current.get(k) for k in knob_values})
                         name = "_".join(stem + ["current"])
+                    elif design == "lhs":
+                        # Every setting differs, so a name of values would be too long.
+                        name = "_".join(stem + [f"lhs{n:02d}"])
                     else:
                         name = "_".join(stem + [f"{k}{_slug(v)}" for k, v in overrides.items()])
                     runs.append({"run_name": name, **run})
@@ -510,8 +557,9 @@ def launch(req, launched_by="user", queue_slot=None):
     out_root = _sweep_dir(inv["id"], sweep_id)
     out_root.mkdir(parents=True, exist_ok=True)
     submitted, errors = [], []
+    split = _split(req)
     for run in runs:
-        extra = ["--split dev", "--final_only"] + [
+        extra = [f"--split {split}", "--final_only"] + [
             f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}" for k, v in {**run["fixed"], **run["overrides"]}.items()]
         try:
             result = slurm._submit_one(exp_cfg, run["params"], run["run_name"], out_root, extra_args=extra)
@@ -532,7 +580,7 @@ def launch(req, launched_by="user", queue_slot=None):
         "launched_by": launched_by, "note": req.get("note") or "",
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "request": {k: v for k, v in req.items() if k not in ("label", "note")},
-        "split": "dev", "runs": submitted, "skipped": skipped, "errors": errors,
+        "split": split, "runs": submitted, "skipped": skipped, "errors": errors,
     }, indent=1) + "\n")
     return {"sweep_id": sweep_id, "submitted": len(submitted), "skipped": skipped, "errors": errors}
 
@@ -570,7 +618,7 @@ def resubmit(investigation, sweep_id, job_ids=None, queue_slot=None):
             "method": run["method"], "model": run["model"], "data_path": run["data_path"],
             "ds_size": sweep["request"].get("ds_size", "full"), "edit_mode": sweep["request"].get("edit_mode"),
             "seed": sweep["request"].get("seed", 0), "evaluation_modes": "original"})
-        extra = ["--split dev", "--final_only"] + [
+        extra = [f"--split {sweep.get('split') or 'dev'}", "--final_only"] + [
             f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}"
             for k, v in {**(run.get("fixed") or {}), **run["overrides"]}.items()]
         try:
@@ -1209,7 +1257,7 @@ def estimate(req):
     _, inv, runs, skipped = plan(req)
     per_record = {"ft": 1.0, "ft_l": 1.0, "lora": 1.5, "fine": 20, "cake": 60, "kn": 25, "ike": 3, "scr": 3}
     records = req.get("ds_size", "full")
-    n = 100 if records in ("full", None) else int(records)
+    n = (10 if req.get("split") == "screen" else 100) if records in ("full", None) else int(records)
     seconds = sum(90 + n * per_record.get(r["method"], 15) for r in runs)
     missing = set()
     for r in runs:
@@ -1231,4 +1279,4 @@ def estimate(req):
     seconds += 600 * len(missing)
     return {"runs": len(runs), "skipped": skipped, "gpu_hours": round(seconds / 3600, 1),
             "missing_stats": [{"model": m, "layer": l, "samples": s} for m, l, s in sorted(missing)],
-            "note": "rough: assumes 100 dev records and typical per-edit times; covariance statistics about 10 minutes per layer"}
+            "note": "rough: assumes 100 dev records (10 on the screen split) and typical per-edit times; covariance statistics about 10 minutes per layer"}

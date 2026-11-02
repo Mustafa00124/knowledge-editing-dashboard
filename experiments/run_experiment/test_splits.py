@@ -108,7 +108,15 @@ class SidsSplitTests(unittest.TestCase):
         self.assertFalse(dev & test)
         self.assertFalse({i.replace("-replace-", "-delete-") for i in dev} & test)
         self.assertEqual(len(test), self.info["test_count"])
-        self.assertEqual(splits.sizes(self.DATA), {"dev": 40, "test": len(test)})
+        self.assertEqual(splits.sizes(self.DATA), {"dev": 40, "test": len(test), "screen": 10})
+
+    def test_screen_is_one_abox_edit_per_topic_from_dev(self):
+        dev = {r["sids"]["id"] for r in splits.select(self.requests, self.DATA, "dev")}
+        screen = [r["sids"] for r in splits.select(self.requests, self.DATA, "screen")]
+        self.assertEqual(len(screen), 10)
+        self.assertTrue({m["id"] for m in screen} <= dev)
+        self.assertEqual({m["box"] for m in screen}, {"abox"})
+        self.assertEqual(len({m["topic"] for m in screen}), 10)
 
     def test_rebuild_reproduces_the_file(self):
         import importlib.util

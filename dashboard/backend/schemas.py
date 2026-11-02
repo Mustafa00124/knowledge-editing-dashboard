@@ -53,6 +53,14 @@ class SweepRequest(BaseModel):
     fixed: Dict[str, Dict[str, Dict[str, Any]]] = {}
     # Why this sweep was run, shown on its progress card.
     note: str = ""
+    # grid, one_at_a_time or lhs; empty for the investigation's own design.
+    design: Optional[str] = None
+    # lhs only: how many sampled points (besides the run at the current
+    # settings), and the seed the draw depends on.
+    samples: int = 0
+    lhs_seed: int = 0
+    # dev, or screen (Sid's Dataset: 10 of the dev edits).
+    split: str = "dev"
 
 
 class PromoteRequest(BaseModel):

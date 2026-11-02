@@ -333,3 +333,44 @@ class SidScoresTests(unittest.TestCase):
         other = hparam_sweeps._scores({"edit_succ": 75.0, "fluency": 5.0}, {"fluency": 5.0})
         self.assertEqual(other["reliability"], 0.75)
         self.assertNotIn("paraphrase", other)
+
+
+class LatinHypercubeTests(unittest.TestCase):
+    KNOBS = {"v_lr": [0.05, 0.1, 0.5, 1.0], "kl_factor": [0.01, 0.1], "layers": [[3], [4], [5], [6]]}
+
+    def test_each_value_is_used_evenly(self):
+        points = hparam_sweeps._lhs(self.KNOBS, 8, 0, "rome")
+        self.assertEqual(len(points), 8)
+        for key, values in self.KNOBS.items():
+            used = [p[key] for p in points]
+            for v in values:
+                self.assertEqual(used.count(v), 8 // len(values), (key, v))
+
+    def test_the_draw_depends_on_seed_and_method_not_model(self):
+        a = hparam_sweeps._lhs(self.KNOBS, 8, 0, "rome")
+        self.assertEqual(a, hparam_sweeps._lhs(self.KNOBS, 8, 0, "rome"))
+        self.assertNotEqual(a, hparam_sweeps._lhs(self.KNOBS, 8, 1, "rome"))
+        req = request(design="lhs", samples=4, methods={"rome": self.KNOBS}, models=["qwen3-4b", "llama-3.1-8b"])
+        _, _, runs, _ = hparam_sweeps.plan(req)
+        by_model = {}
+        for r in runs:
+            by_model.setdefault(r["model"], []).append(r["overrides"])
+        self.assertEqual(len(set(map(str, by_model.values()))), 1)
+
+    def test_a_current_run_then_numbered_samples(self):
+        _, _, runs, _ = hparam_sweeps.plan(request(design="lhs", samples=3, methods={"rome": self.KNOBS}))
+        self.assertEqual([r["run_name"].rsplit("_", 1)[1] for r in runs], ["current", "lhs01", "lhs02", "lhs03"])
+        self.assertEqual(runs[0]["overrides"], {})
+        self.assertEqual(set(runs[1]["overrides"]), set(self.KNOBS))
+
+    def test_samples_are_required(self):
+        with self.assertRaisesRegex(ValueError, "samples"):
+            hparam_sweeps.plan(request(design="lhs"))
+
+
+class ScreenSplitTests(unittest.TestCase):
+    def test_screen_is_only_for_sids_dataset(self):
+        with self.assertRaisesRegex(ValueError, "screen"):
+            hparam_sweeps.plan(request(split="screen"))
+        with self.assertRaisesRegex(ValueError, "split must be"):
+            hparam_sweeps.plan(request(split="test"))
