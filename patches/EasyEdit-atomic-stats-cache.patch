@@ -1,0 +1,18 @@
+diff --git a/easyeditor/util/runningstats.py b/easyeditor/util/runningstats.py
+index 3dfa318..67460fe 100644
+--- a/easyeditor/util/runningstats.py
++++ b/easyeditor/util/runningstats.py
+@@ -1509,7 +1509,12 @@ def save_cached_state(cachefile, obj, args):
+         cachefile.update(dat)
+     else:
+         os.makedirs(os.path.dirname(cachefile), exist_ok=True)
+-        numpy.savez(cachefile, **box_numpy_null(dat))
++        # LOCAL FIX: write to a temporary file and rename, so a run reading
++        # the cache while another run is still writing it never sees a
++        # half-written file (parallel sweep runs compute the same layers).
++        tmp = f"{cachefile}.tmp{os.getpid()}.npz"
++        numpy.savez(tmp, **box_numpy_null(dat))
++        os.replace(tmp, cachefile)
+ 
+ 
+ class FixedSubsetSampler(Sampler):
