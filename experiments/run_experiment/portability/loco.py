@@ -42,7 +42,10 @@ What differs:
     knowledge base of facts and rules: the implications are the model's
     own, and nothing is retrieved at edit or answer time.
   - completion_weight adds FT-M's loss on the edit prompt (cross-entropy on
-    the new answer's tokens). LoCo only ever trains truth judgements, and
+    the new answer's tokens and, under Sid's chat and few-shot formats, on
+    the end of the answer: its end-of-turn token or line break; fixed
+    2026-11-04, before which models learned to repeat the answer forever).
+    LoCo only ever trains truth judgements, and
     an editor is scored on producing the new answer; 0 gives pure LoCo.
   - The negation sentence is a template, where BeliefBank stores a
     hand-written negation of each fact.
@@ -187,19 +190,34 @@ def beliefs(model, tok, statements):
     return {n: mean[i] for i, n in enumerate(names)}
 
 
+from training_targets import answer_text, turn_end  # noqa: E402,F401  (shared with FT-M and LoRA)
+
+
+def completion_ids(tok, request):
+    """(prompt ids, answer ids) for the completion loss. The answer is
+    tokenized together with the prompt and split off by length, so its first
+    token is the one the model actually produces there (the template's text
+    is the tokenizer's to render; special tokens are parsed as such)."""
+    prompt = base.filled_prompt(request)
+    prompt_ids = tok.encode(prompt)
+    full_ids = tok.encode(prompt + answer_text(tok, request))
+    if full_ids[:len(prompt_ids)] == prompt_ids and len(full_ids) > len(prompt_ids):
+        return prompt_ids, full_ids[len(prompt_ids):]
+    return prompt_ids, tok.encode(answer_text(tok, request), add_special_tokens=False)
+
+
 def completion_loss(model, tok, requests):
-    """FT-M's loss: cross-entropy on the new answer after the edit prompt."""
+    """FT-M's loss: cross-entropy on the new answer after the edit prompt,
+    and on the end of the answer (answer_text)."""
     device = next(model.parameters()).device
     total = 0.0
     for request in requests:
-        prompt_ids = tok.encode(base.filled_prompt(request), return_tensors="pt").to(device)
-        target = str(request["target_new"])
-        target_ids = tok.encode(target if target.startswith(" ") else " " + target,
-                                add_special_tokens=False, return_tensors="pt").to(device)
-        ids = torch.cat([prompt_ids, target_ids], dim=-1)
+        prompt_ids, target_ids = completion_ids(tok, request)
+        ids = torch.tensor([prompt_ids + target_ids], device=device)
+        target = torch.tensor(target_ids, device=device)
         logits = model(input_ids=ids).logits.float()
-        n = target_ids.shape[-1]
-        total = total + torch.nn.functional.cross_entropy(logits[0, -n - 1:-1], target_ids[0])
+        n = len(target_ids)
+        total = total + torch.nn.functional.cross_entropy(logits[0, -n - 1:-1], target)
     return total / len(requests)
 
 

@@ -16,6 +16,10 @@ deliberate deviations from the original, everything else is unchanged:
      "delta" and hands it back for the caller to re-apply; here we just
      leave the live, progressively-edited model in place — there's only
      ever one caller and it wants the trained model, not a delta).
+  4. The target_new objective trains the prompt plus
+     training_targets.answer_text (under a chat prompt: the answer then the
+     end-of-turn token) instead of " <answer>" alone, which taught the
+     model never to stop (fixed 2026-11-04). prompt_last is unchanged.
 
 Note the per-*batch* guard `if loss.item() >= 1e-2: backward(); step()` is
 kept as-is (still stock EasyEdit behavior): once a batch's loss drops below
@@ -36,6 +40,7 @@ from easyeditor.util.device import normalize_device
 from easyeditor.models.ft.ft_hparams import FTHyperParams
 from easyeditor.models.ft.ft_main import chunks, AverageMeter
 import loss_log
+from training_targets import answer_text
 
 
 def execute_ft_checkpointed(
@@ -73,6 +78,7 @@ def execute_ft_checkpointed(
 
     texts = [r["prompt"] for r in requests]
     targets = [r["target_new"] for r in requests]
+    full_targets = [answer_text(tok, r) for r in requests]
 
     opt = torch.optim.Adam(
         list(weights.values()), lr=hparams.lr, weight_decay=hparams.weight_decay
@@ -87,8 +93,9 @@ def execute_ft_checkpointed(
     for step in range(1, hparams.num_steps + 1):
         loss_meter.reset()
 
-        for txt, tgt in zip(
-            chunks(texts, hparams.batch_size), chunks(targets, hparams.batch_size)
+        for txt, tgt, full in zip(
+            chunks(texts, hparams.batch_size), chunks(targets, hparams.batch_size),
+            chunks(full_targets, hparams.batch_size),
         ):
             inputs = tok(txt, return_tensors="pt", padding=True).to(device)
             target_ids = tok(tgt, return_tensors="pt", padding=True)["input_ids"].to(device)
@@ -100,15 +107,19 @@ def execute_ft_checkpointed(
                 else:
                     loss_mask = torch.ones_like(target_ids, dtype=torch.bool)
             elif hparams.objective_optimization == "target_new":
-                inputs_targets = [t + g for t, g in zip(txt, tgt)]
+                inputs_targets = [t + g for t, g in zip(txt, full)]
                 inputs_targets = tok(inputs_targets, return_tensors="pt", padding=True).to(device)
-                num_prompt_toks = [int((i != tok.pad_token_id).sum()) for i in inputs["input_ids"].cpu()]
-                num_pad_toks = [int((i == tok.pad_token_id).sum()) for i in inputs_targets["input_ids"].cpu()]
-                prompt_len = [x + y for x, y in zip(num_pad_toks, num_prompt_toks)]
+                # Padding from the attention mask, not the pad id: Llama and
+                # Mistral pad with their end-of-turn token, which the target
+                # now ends in (fixed 2026-11-04). Pad positions are never trained.
+                num_prompt_toks = [int(m.sum()) for m in inputs["attention_mask"].cpu()]
+                num_pad_toks = [int((m == 0).sum()) for m in inputs_targets["attention_mask"].cpu()]
+                left = tok.padding_side == "left"
+                prompt_len = [(x if left else 0) + y for x, y in zip(num_pad_toks, num_prompt_toks)]
                 prompt_target_len = inputs_targets["input_ids"].size(1)
                 label_mask = torch.tensor(
                     [[False] * length + [True] * (prompt_target_len - length) for length in prompt_len]
-                ).to(device)
+                ).to(device) & inputs_targets["attention_mask"].bool()
             else:
                 raise NotImplementedError(hparams.objective_optimization)
 

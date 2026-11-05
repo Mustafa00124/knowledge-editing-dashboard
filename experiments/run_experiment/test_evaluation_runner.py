@@ -4,6 +4,7 @@ import io
 import json
 import sys
 import tempfile
+import time
 import types
 import unittest
 from pathlib import Path
@@ -14,7 +15,7 @@ import run_experiment as runner
 
 
 class RunnerEvaluationTests(unittest.TestCase):
-    def run_modes(self, modes):
+    def run_modes(self, modes, train_sleep=0.0, eval_sleep=0.0):
         requests = [{"prompt": "Capital?", "target_new": "Paris", "ground_truth": "Rome",
                      "locality": {"other": {"prompt": ["Unrelated?"], "ground_truth": ["London"]}},
                      "portability": {"hop": {"prompt": ["Related?"], "ground_truth": ["France"]}}}]
@@ -35,13 +36,17 @@ class RunnerEvaluationTests(unittest.TestCase):
         hparams_module.FTHyperParams.from_hparams.return_value = hp
         eval_module = types.ModuleType("eval_utils")
         eval_module.load_requests = Mock(return_value=requests)
-        eval_module.evaluate_requests = Mock(return_value=([{}], [{}]))
+        def evaluate(*args, **kwargs):
+            time.sleep(eval_sleep)
+            return [{}], [{}]
+        eval_module.evaluate_requests = Mock(side_effect=evaluate)
         eval_module.aggregate_metrics = lambda _: {"edit_succ": 50, "portability": 25, "locality": 100, "fluency": None}
         eval_module.memory_snapshot = lambda _: {}
         eval_module.sample_generations = Mock(return_value=[])
         training = types.ModuleType("checkpointed_ft")
         def edit(model, tok, requests, hp, interval, checkpoint):
             checkpoint(0, None)
+            time.sleep(train_sleep)
             checkpoint(1, 0.1)
         training.execute_ft_checkpointed = Mock(side_effect=edit)
         samples = types.ModuleType("response_samples")
@@ -80,12 +85,22 @@ class RunnerEvaluationTests(unittest.TestCase):
                 self.assertEqual(model.generate.call_count, 6)
             self.assertNotIn("api_key", (path / "hparams.yaml").read_text())
             self.assertEqual(len(json.loads((Path(tmp) / "manifest.json").read_text())), 1)
+            return summary
 
     def test_all_three_share_one_edit_run(self):
         self.run_modes("original,exact_match,bertscore,llm_judge")
 
     def test_generated_scores_without_original(self):
         self.run_modes("exact_match,bertscore")
+
+    def test_edit_time_leaves_out_evaluation(self):
+        # Training takes 0.3s between two checkpoints that take 0.4s each.
+        summary = self.run_modes("original", train_sleep=0.3, eval_sleep=0.4)
+        self.assertGreaterEqual(summary["edit_sec"], 0.29)
+        self.assertLess(summary["edit_sec"], 0.6)
+        self.assertGreaterEqual(summary["eval_sec"], 0.79)
+        self.assertGreaterEqual(summary["total_sec"], summary["edit_sec"] + summary["eval_sec"] - 0.05)
+        self.assertEqual(summary["timing"]["edit_sec"], summary["edit_sec"])
 
 
 if __name__ == "__main__":

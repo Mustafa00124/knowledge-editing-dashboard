@@ -17,6 +17,10 @@ computation, the chunking) is unchanged:
      wrapping only needs to happen once, before the first checkpoint (at
      step 0), whereas this function is the training loop that runs
      between checkpoints.
+  5. The trained text is the prompt plus training_targets.answer_text
+     (under a chat prompt: the answer then the end-of-turn token), not
+     upstream's "{prompt} {answer}" with its EOS line commented out, which
+     taught the model never to stop (fixed 2026-11-04).
   3. Added the checkpoint callback (same signature/contract as
      checkpointed_ft.py's: `on_checkpoint(step, loss)`, called once
      before training at step 0 with loss=None, then again after every
@@ -39,6 +43,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from easyeditor.models.lora.lora_hparams import LoRAHyperParams
 from easyeditor.models.lora.lora_main import chunks, AverageMeter
 import loss_log
+from training_targets import answer_text
 
 
 def execute_lora_checkpointed(
@@ -61,7 +66,7 @@ def execute_lora_checkpointed(
             request["prompt"] = request["prompt"].format(request["subject"])
 
     texts = [r["prompt"] for r in requests]
-    targets = [r["target_new"] for r in requests]
+    targets = [answer_text(tok, r) for r in requests]
 
     opt = torch.optim.Adam(peft_model.parameters(), lr=hparams.lr, weight_decay=hparams.weight_decay)
 
@@ -79,16 +84,20 @@ def execute_lora_checkpointed(
 
         for txt, tgt in zip(chunks(texts, hparams.batch_size), chunks(targets, hparams.batch_size)):
             opt.zero_grad()
-            full_prompt = [f"{p} {l}" for p, l in zip(txt, tgt)]
-            prompt_ids = tok(list(txt), return_tensors="pt", padding=True, truncation=True)["input_ids"]
-            num_prompt_toks = [int((i != tok.pad_token_id).sum()) for i in prompt_ids]
+            full_prompt = [p + l for p, l in zip(txt, tgt)]
+            # Padding is read off the attention mask, not the pad id: Llama and
+            # Mistral pad with their end-of-turn token, which the target now
+            # ends in, so counting pad ids masked the answer (fixed 2026-11-04).
+            prompt_mask = tok(list(txt), return_tensors="pt", padding=True, truncation=True)["attention_mask"]
+            num_prompt_toks = [int(m.sum()) for m in prompt_mask]
             tokens = tok(full_prompt, return_tensors="pt", padding=True, truncation=True)
             bs = tokens["input_ids"].shape[0]
             tokens["labels"] = tokens["input_ids"].clone()
-            num_pad_toks = [int((i == tok.pad_token_id).sum()) for i in tokens["labels"]]
+            num_pad_toks = [int((m == 0).sum()) for m in tokens["attention_mask"]]
             for i in range(len(txt)):
-                tokens["labels"][i][num_pad_toks[i] : num_pad_toks[i] + num_prompt_toks[i]] = mask_token
-            tokens["labels"][tokens["input_ids"] == tok.pad_token_id] = mask_token
+                start = num_pad_toks[i] if tok.padding_side == "left" else 0
+                tokens["labels"][i][start : start + num_prompt_toks[i]] = mask_token
+            tokens["labels"][tokens["attention_mask"] == 0] = mask_token
             tokens = tokens.to(device)
 
             loss = peft_model(**tokens).loss

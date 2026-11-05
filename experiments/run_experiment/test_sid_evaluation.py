@@ -33,8 +33,11 @@ class FakeJudge:
     judge would be shown, through judge.answer_prompt, so the letter
     mapping and the candidate choice are the real ones."""
 
+    # Answers the fake calls broken English (the real judge reads the text).
+    MALFORMED = {'Tasmania'}
+
     def __init__(self):
-        self.answer_items, self.locality_items = [], []
+        self.answer_items, self.locality_items, self.form_items = [], [], []
 
     def label_answers(self, items, salt=''):
         self.answer_items += items
@@ -51,6 +54,10 @@ class FakeJudge:
     def label_locality(self, items):
         self.locality_items += items
         return [{'label': 'SAME' if norm(b) == norm(a) else 'DIFFERENT', 'reason': 'fake'} for _, b, a in items]
+
+    def label_form(self, items):
+        self.form_items += items
+        return [{'label': 'MALFORMED' if r in self.MALFORMED else 'WELL_FORMED', 'reason': 'fake'} for _, r in items]
 
 
 REPLACE, DELETE = 'geography-replace-0003', 'geography-delete-0004'
@@ -191,6 +198,25 @@ class FinalizeTests(unittest.TestCase):
         self.assertEqual(rows[0]['edit_succ'], 0.0)  # pre-edit: nothing gives the new answer
         self.assertIsNotNone(rows[1]['fluency'])
         self.assertEqual(self.info['steps'], [0, 1])
+
+    def test_judge_form_verdicts_give_well_formed_share(self):
+        rows = [json.loads(l) for l in open(self.ckpt)]
+        self.assertEqual(rows[0]['well_formed'], 100.0)  # the unedited answers are all fine
+        wf = rows[1]['evaluations']['sid']['metrics']['well_formed']
+        self.assertEqual(wf['malformed'], 1)
+        self.assertLess(rows[1]['well_formed'], 100.0)
+        self.assertAlmostEqual(rows[1]['well_formed'], round(100 * (wf['scored'] - 1) / wf['scored'], 4))
+        self.assertIn('form_calls', self.info)
+
+    def test_form_is_judged_on_english_answers_only_and_once(self):
+        questions = {q for q, _ in self.judge.form_items}
+        cross = {q['question'] for rec in self.recs.values() for q in S.record_queries(rec)
+                 if q['query_type'] == 'cross_lingual'}
+        self.assertFalse(questions & cross)
+        self.assertEqual(len(set(self.judge.form_items)), len(self.judge.form_items))
+        stored = json.load(open(S.sample_path(self.run_dir, 1)))
+        direct = stored['records'][0]['queries']['direct']
+        self.assertEqual(direct['form']['label'], 'WELL_FORMED')
 
     def test_identical_answers_are_judged_once(self):
         keys = {(json.dumps(q, sort_keys=True), r) for q, r in self.judge.answer_items}

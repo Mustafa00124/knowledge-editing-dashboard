@@ -81,7 +81,8 @@ OWN = ("direct", "paraphrase", "cross_lingual")
 
 
 def metadata():
-    return {"judge_model": J.JUDGE_MODEL, "rubric": J.RUBRIC_VERSION, "max_new_tokens": MAX_NEW_TOKENS,
+    return {"judge_model": J.JUDGE_MODEL, "rubric": J.RUBRIC_VERSION, "form_rubric": J.FORM_RUBRIC_VERSION,
+            "max_new_tokens": MAX_NEW_TOKENS,
             "do_sample": False, "fewshot_stops": FEWSHOT_STOPS, "units": "percent passed",
             "headline": {"edit_succ": "reliability", "portability": "generalization", "locality": "locality",
                          "fluency": "fluency"}}
@@ -225,15 +226,17 @@ def judge_steps(payloads, records, judge, salt=""):
     """Label every stored answer of every step in place (one judge pass for
     the whole run). Locality compares with the same record's step-0 answer;
     at step 0 itself it is SAME by definition and not sent to the judge.
-    Returns {"answer_calls", "locality_calls"}."""
+    Every English answer, step 0 included (the unedited baseline), also gets
+    a form verdict (a["form"]: WELL_FORMED or MALFORMED, judge.label_form).
+    Returns {"answer_calls", "locality_calls", "form_calls"}."""
     payloads = sorted(payloads, key=lambda p: p["step"])
     baseline = {}
     if payloads and payloads[0]["step"] == 0:
         for entry in payloads[0]["records"]:
             for key, a in entry["queries"].items():
                 baseline[(entry["record_id"], key)] = a["response"]
-    answer_jobs, locality_jobs = {}, {}
-    pending = []
+    answer_jobs, locality_jobs, form_jobs = {}, {}, {}
+    pending, form_pending = [], []
     for payload in payloads:
         for entry in payload["records"]:
             rec = records[entry["record_id"]]
@@ -241,6 +244,10 @@ def judge_steps(payloads, records, judge, salt=""):
                 a = entry["queries"].get(q["key"])
                 if a is None:
                     continue
+                if q["query_type"] in ENGLISH:
+                    fjob = (q["question"], a["response"])
+                    form_jobs.setdefault(fjob, None)
+                    form_pending.append((a, fjob))
                 if q["rule"] == "locality":
                     before = baseline.get((entry["record_id"], q["key"]))
                     a["before"] = before
@@ -260,13 +267,18 @@ def judge_steps(payloads, records, judge, salt=""):
     akeys, lkeys = list(answer_jobs), list(locality_jobs)
     averdicts = judge.label_answers([(answer_jobs[k], k[1]) for k in akeys], salt=salt) if akeys else []
     lverdicts = judge.label_locality(list(lkeys)) if lkeys else []
+    fkeys = list(form_jobs)
+    fverdicts = judge.label_form(fkeys) if fkeys else []
     got = dict(zip(akeys, averdicts))
     got.update(zip(lkeys, lverdicts))
+    fgot = dict(zip(fkeys, fverdicts))
     for q, a, job in pending:
         a["verdict"] = dict(got[job])
+    for a, fjob in form_pending:
+        a["form"] = dict(fgot[fjob])
     for payload in payloads:
         payload["judged"] = True
-    return {"answer_calls": len(akeys), "locality_calls": len(lkeys)}
+    return {"answer_calls": len(akeys), "locality_calls": len(lkeys), "form_calls": len(fkeys)}
 
 
 def scored_items(payload, records, baseline_labels=None):
@@ -364,6 +376,23 @@ def fluency(payload):
     return round(100 * sum(values) / len(values), 4) if values else None
 
 
+def well_formed(payloads):
+    """The judge's form verdicts over the payloads' English answers: percent
+    WELL_FORMED of those labelled WELL_FORMED or MALFORMED (UNCLEAR replies
+    are left out), with the counts. None when nothing was labelled."""
+    good = bad = 0
+    for payload in payloads:
+        for entry in payload["records"]:
+            for a in entry["queries"].values():
+                label = (a.get("form") or {}).get("label")
+                if a.get("query_type") in ENGLISH and label in ("WELL_FORMED", "MALFORMED"):
+                    good += label == "WELL_FORMED"
+                    bad += label == "MALFORMED"
+    if not good + bad:
+        return None
+    return {"score": round(100 * good / (good + bad), 4), "malformed": bad, "scored": good + bad}
+
+
 def world_picks(items):
     """How a run's indeterminate answers pick worlds: matches per world id,
     and per record whether the worlds its passed answers pick agree (some
@@ -414,6 +443,7 @@ def compute_metrics(items, payloads_for_fluency=()):
     }
     flu = [f for f in (fluency(p) for p in payloads_for_fluency) if f is not None]
     flu = round(sum(flu) / len(flu), 4) if flu else None
+    metrics["well_formed"] = well_formed(payloads_for_fluency)
     by_operation = {}
     for op in sorted({i["operation"] for i in items}):
         sub = [i for i in items if i["operation"] == op]
@@ -427,6 +457,7 @@ def compute_metrics(items, payloads_for_fluency=()):
         "portability": metrics["generalization"]["score"],
         "locality": metrics["locality"]["score"],
         "fluency": flu,
+        "well_formed": (metrics["well_formed"] or {}).get("score"),
         "coverage": {"edit_succ": {k: metrics["reliability"][k] for k in ("scored", "total")},
                      "portability": {k: metrics["generalization"][k] for k in ("scored", "total")},
                      "locality": {k: metrics["locality"][k] for k in ("scored", "total")}},
@@ -475,7 +506,7 @@ def finalize(run_dir, ckpt_path, records, judge, salt="", grouped=False, judge_c
         row.setdefault("evaluations", {})["sid"] = sid
         # Sid's Dataset has no original-mode scores; its headline fields are
         # the sid evaluation's, and say so.
-        row.update({k: sid[k] for k in ("edit_succ", "portability", "locality", "fluency")},
+        row.update({k: sid[k] for k in ("edit_succ", "portability", "locality", "fluency", "well_formed")},
                    headline_evaluation="sid")
     with open(ckpt_path, "w") as f:
         for row in rows:

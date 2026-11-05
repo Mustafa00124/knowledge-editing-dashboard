@@ -79,6 +79,7 @@ import hashlib
 import importlib
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -505,6 +506,17 @@ def resolve_project_paths(hparams):
     return hparams
 
 
+def _number_if_numeric(value):
+    """YAML 1.1 reads exponent floats without a dot ("5e-05", Python's own
+    repr of small floats) as strings; turn those, and any inside a list, back
+    into floats. Other strings stay strings."""
+    if isinstance(value, list):
+        return [_number_if_numeric(v) for v in value]
+    if isinstance(value, str) and re.fullmatch(r"[+-]?(\d+\.?\d*|\.\d+)[eE][+-]?\d+", value.strip()):
+        return float(value)
+    return value
+
+
 def apply_overrides(hparams, pairs):
     """--hparam key=value settings onto a loaded hparams object. Refuses keys
     the method does not have, so a typo cannot silently sweep nothing.
@@ -517,7 +529,7 @@ def apply_overrides(hparams, pairs):
         key = key.strip()
         if not sep or not key:
             raise SystemExit(f"--hparam expects KEY=VALUE, got {pair!r}")
-        value = yaml.safe_load(raw)
+        value = _number_if_numeric(yaml.safe_load(raw))
         if hasattr(hparams, key):
             setattr(hparams, key, value)
         elif isinstance(base_config, dict) and key in base_config:
@@ -974,7 +986,7 @@ def main():
             json.dump(samples, f, indent=2)
         samples_written.add(step)
 
-    def on_checkpoint(step, loss):
+    def evaluate_checkpoint(step, loss):
         was_training = model.training
         model.eval()
         group_start = state["group_start"] if args.edit_mode and step else 0
@@ -1128,6 +1140,22 @@ def main():
             write_samples(step)
         model.train(was_training)
 
+    # Time spent evaluating (checkpoints and their samples), restoring the
+    # weights between edit groups, and the rest of the editing loop, which is
+    # the editing itself: edit_sec in the summary is the loop's time minus
+    # the other two, so a method's cost is not buried under its evaluation
+    # (recorded from 2026-11-04). The checkpointed FT/LoRA loops call
+    # on_checkpoint mid-training, so their evaluation is subtracted the same way.
+    timing = {"eval_sec": 0.0, "restore_sec": 0.0}
+
+    def on_checkpoint(step, loss):
+        t_eval = time.time()
+        try:
+            evaluate_checkpoint(step, loss)
+        finally:
+            timing["eval_sec"] += time.time() - t_eval
+
+    t_loop = time.time()
     try:
         if args.edit_mode:
             from easyeditor.util import nethook
@@ -1181,10 +1209,12 @@ def main():
                         for name, value in copied.items():
                             originals.setdefault(name, value)
                 on_checkpoint(stop, loss=loss)
+                t_restore = time.time()
                 with torch.no_grad():
                     for name, value in originals.items():
                         copy_to_param(nethook.get_parameter(model, name), value)
                 del originals
+                timing["restore_sec"] += time.time() - t_restore
         elif args.method in FT_METHODS:
             from checkpointed_ft import execute_ft_checkpointed
 
@@ -1236,8 +1266,12 @@ def main():
                 if step % args.checkpoint_every == 0 or step == total_steps:
                     on_checkpoint(step, loss=None)
         last_step = state.get("last_step")
+        loop_sec = time.time() - t_loop
+        edit_sec = max(0.0, loop_sec - timing["eval_sec"] - timing["restore_sec"])
         if last_step is not None and last_step not in samples_written:
+            t_eval = time.time()
             write_samples(last_step)
+            timing["eval_sec"] += time.time() - t_eval
     finally:
         ckpt_file.close()
 
@@ -1296,6 +1330,12 @@ def main():
         "finished_at": _now(),
         "evaluation_config": semantic.metadata(),
         "total_sec": round(time.time() - t_start, 2),
+        # Editing alone, and evaluation alone (checkpoints, samples and Sid's
+        # judge); total_sec also holds setup and weight restores.
+        "edit_sec": round(edit_sec, 2),
+        "eval_sec": round(timing["eval_sec"] + ((sid_info or {}).get("judge_sec") or 0.0), 2),
+        "timing": {"edit_sec": round(edit_sec, 2), "checkpoint_eval_sec": round(timing["eval_sec"], 2),
+                   "judge_sec": (sid_info or {}).get("judge_sec"), "restore_sec": round(timing["restore_sec"], 2)},
         **{k: v for k, v in last_row.items() if k not in ("step", "at", "elapsed_sec")},
     }
     if args.edit_mode:
