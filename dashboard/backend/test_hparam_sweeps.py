@@ -334,6 +334,31 @@ class SidScoresTests(unittest.TestCase):
         self.assertEqual(other["reliability"], 0.75)
         self.assertNotIn("paraphrase", other)
 
+    def test_sid_generalizability_counts_only_derived_questions_known_before_the_edit(self):
+        summary = {"portability": 40.0, "fluency": 5.0, "evaluations": {"sid": {"metrics": {
+            "rewrite": {"score": 100.0},
+            "generalization": {"score": 40.0, "determinate": {"score": 45.0, "known": {"score": 30.0}}}}}}}
+        self.assertEqual(hparam_sweeps._scores(summary, {"fluency": 5.0})["generalizability"], 0.3)
+
+    def test_judged_grammar_is_a_share_of_the_unedited_models_and_gates_the_choice(self):
+        def summary(wf):
+            return {"fluency": 5.0, "evaluations": {"sid": {"metrics": {
+                "rewrite": {"score": 100.0}, "paraphrase": {"score": 50.0}, "well_formed": {"score": wf}}}}}
+        base = {"fluency": 5.0, "evaluations": {"sid": {"metrics": {"well_formed": {"score": 96.0}}}}}
+        good = hparam_sweeps._scores(summary(96.0), base)
+        bad = hparam_sweeps._scores(summary(72.0), base)
+        self.assertEqual(good["well_formed"], 1.0)
+        self.assertAlmostEqual(bad["well_formed"], 0.75)
+        self.assertTrue(hparam_sweeps._keeps_fluency(good))
+        self.assertFalse(hparam_sweeps._keeps_fluency(bad))
+        self.assertIn("judge: well-formed answers fell 25%",
+                      [f["text"] for f in hparam_sweeps._flags("COMPLETED", None, None, bad)])
+        # Runs judged before the form pass have no grammar score and are not held back by it.
+        old = hparam_sweeps._scores({"fluency": 5.0, "evaluations": {"sid": {"metrics": {"rewrite": {"score": 100.0}}}}},
+                                    {"fluency": 5.0})
+        self.assertIsNone(old["well_formed"])
+        self.assertTrue(hparam_sweeps._keeps_fluency(old))
+
 
 class LatinHypercubeTests(unittest.TestCase):
     KNOBS = {"v_lr": [0.05, 0.1, 0.5, 1.0], "kl_factor": [0.01, 0.1], "layers": [[3], [4], [5], [6]]}
@@ -382,3 +407,125 @@ class SweepKindTests(unittest.TestCase):
         self.assertEqual(hparam_sweeps.sweep_kind({"request": {"design": "one_at_a_time"}}), "stagewise")
         self.assertEqual(hparam_sweeps.sweep_kind({"request": {}}), "stagewise")
         self.assertEqual(hparam_sweeps.sweep_kind({"purpose": "setup", "request": {"design": "one_at_a_time"}}), "setup")
+
+
+class FactorialSweepTests(unittest.TestCase):
+    FT = {"layers": [[5], [24]], "lr": [1.5e-4, 1.5e-3], "num_steps": [12, 50],
+          "norm_constraint": [1.5e-4, 5e-4], "weight_decay": [0, 0.01]}
+
+    def req(self, **extra):
+        return {"investigation": "finetuning", "design": "factorial2", "methods": {"ft": self.FT},
+                "models": ["qwen3-4b-instruct-2507"], "data_paths": [DATASET], "ds_size": "full",
+                "edit_mode": "single", **extra}
+
+    def test_full_design_plus_three_centre_runs_named_by_their_levels(self):
+        _, _, runs, _ = hparam_sweeps.plan(self.req())
+        corners = [r for r in runs if r["point"] == "corner"]
+        centres = [r for r in runs if r["point"] == "centre"]
+        self.assertEqual((len(corners), len(centres)), (32, 3))
+        factors = sorted(self.FT)
+        for r in corners:
+            code = r["run_name"].rsplit("-", 1)[1]
+            self.assertEqual(code, "".join("H" if r["coded"][f] > 0 else "L" for f in factors))
+            for f in factors:
+                self.assertEqual(r["overrides"][f], self.FT[f][1 if r["coded"][f] > 0 else 0])
+        # Balanced: each level of each setting in half the corners.
+        for f in factors:
+            self.assertEqual(sum(r["coded"][f] for r in corners), 0)
+        self.assertEqual(centres[0]["overrides"]["layers"], [15])
+        self.assertEqual(centres[0]["overrides"]["num_steps"], 24)
+        self.assertEqual([r["seed"] for r in centres], [0, 1, 2])
+        self.assertEqual([r["params"]["seed"] for r in centres], [0, 1, 2])
+        self.assertTrue(all(r["run_name"].endswith("-MMMMM") for r in centres))
+
+    def test_fraction_and_centre_points_are_choices(self):
+        _, _, runs, _ = hparam_sweeps.plan(self.req(fraction=1, centre_points=0))
+        self.assertEqual(len(runs), 16)
+        _, _, runs, _ = hparam_sweeps.plan(self.req(fraction={"ft": 1}, centre={"ft": {"layers": [20]}}))
+        self.assertEqual(len(runs), 19)
+        self.assertEqual(runs[-1]["overrides"]["layers"], [20])
+        with self.assertRaisesRegex(ValueError, "no standard"):
+            hparam_sweeps.plan(self.req(fraction=2))
+
+    def test_each_setting_needs_exactly_two_values(self):
+        with self.assertRaisesRegex(ValueError, "two different values"):
+            hparam_sweeps.plan(self.req(methods={"ft": {**self.FT, "lr": [1e-4, 1e-3, 1e-2]}}))
+        with self.assertRaisesRegex(ValueError, "at least two settings"):
+            hparam_sweeps.plan(self.req(methods={"ft": {"lr": [1e-4, 1e-3]}}))
+
+    def test_estimate_reports_the_design(self):
+        est = hparam_sweeps.estimate(self.req())
+        design = est["factorial"]["ft"]
+        self.assertEqual((design["k"], design["p"], design["runs"]), (5, 0, 32))
+        self.assertIn("corners", hparam_sweeps.factorial_designs(self.req(), hparam_sweeps.plan(self.req())[1])["ft"])
+        self.assertNotIn("corners", design)
+
+    def test_kind_and_step(self):
+        sweep = {"request": {"design": "factorial2"}}
+        self.assertEqual(hparam_sweeps.sweep_kind(sweep), "factorial")
+        self.assertEqual(hparam_sweeps.sweep_step(sweep), 1)
+        self.assertEqual(hparam_sweeps.sweep_step({"step": 0, "request": {"design": "lhs"}}), 0)
+        self.assertIsNone(hparam_sweeps.sweep_step({"request": {"design": "one_at_a_time"}}))
+
+
+class FactorialEffectsTests(unittest.TestCase):
+    def test_effects_on_rewrite_gate_and_time(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        factors = ["lr", "num_steps", "weight_decay"]
+        rows = hparam_sweeps.factorial.design(3, 0)
+        runs, results = [], []
+        for n, row in enumerate(rows):
+            coded = dict(zip(factors, row))
+            name = f"r{n}"
+            runs.append({"run_name": name, "method": "ft", "model": "m", "data_path": "d", "coded": coded,
+                         "point": "corner", "overrides": {}, "job_id": str(n)})
+            # High lr: +0.4 rewrite but breaks fluency; more steps: slower, +0.05 rewrite.
+            rewrite = 0.4 + 0.2 * coded["lr"] + 0.025 * coded["num_steps"]
+            fluency = 0.5 if coded["lr"] > 0 else 1.0
+            results.append({"sweep_id": "s", "run": name, "state": "COMPLETED",
+                            "scores": {"reliability": rewrite, "fluency": fluency, "well_formed": 1.0},
+                            "edit_sec": 10 + 5 * (coded["num_steps"] + 1)})
+        # A failed run counts as missing, not as a score of 0.
+        results[-1] = {"sweep_id": "s", "run": runs[-1]["run_name"], "state": "FAILED", "scores": {}, "edit_sec": None}
+        runs.append({"run_name": "c1", "method": "ft", "model": "m", "data_path": "d",
+                     "coded": dict.fromkeys(factors, 0), "point": "centre", "overrides": {}, "job_id": "c"})
+        results.append({"sweep_id": "s", "run": "c1", "state": "COMPLETED",
+                        "scores": {"reliability": 0.4, "fluency": 1.0, "well_formed": 1.0}, "edit_sec": 15})
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp, "sweep.json").write_text(json.dumps({
+                "id": "s", "request": {"design": "factorial2"}, "runs": runs,
+                "factorial": {"ft": {"factors": factors, "levels": {f: {"low": 0, "high": 1} for f in factors}}}}))
+            with patch.object(hparam_sweeps, "_sweep_dir", return_value=Path(tmp)), \
+                    patch.object(hparam_sweeps, "results", return_value=results):
+                out = hparam_sweeps.effects("finetuning", "s")
+        self.assertEqual(out["step"], 1)
+        group = out["groups"][0]
+        self.assertEqual((group["finished"], group["total"]), (8, 9))
+        rewrite = {m["factor"]: m for m in group["analyses"]["rewrite"]["main"]}
+        self.assertEqual(group["analyses"]["rewrite"]["used"], 7)
+        # One corner missing: the contrasts are no longer balanced, so close, not exact.
+        self.assertFalse(group["analyses"]["rewrite"]["complete"])
+        self.assertAlmostEqual(rewrite["lr"]["effect"], 0.4, delta=0.01)
+        gate = {m["factor"]: m for m in group["analyses"]["gate"]["main"]}
+        self.assertAlmostEqual(gate["lr"]["effect"], -1.0)
+        time = {m["factor"]: m for m in group["analyses"]["edit_sec"]["main"]}
+        self.assertAlmostEqual(time["num_steps"]["effect"], 10.0)
+        self.assertEqual(group["analyses"]["rewrite"]["curvature"]["centre_runs"], 1)
+
+    def test_suggestions_follow_the_time_rule(self):
+        def main(effect, verdict):
+            return {"effect": effect, "verdict": verdict}
+        levels = {"low": 12, "high": 50}
+        by = {"rewrite": {"s": main(0.05, "active")}, "gate": {"s": main(0.0, "noise")},
+              "edit_sec": {"s": main(30.0, "active")}}
+        hint = hparam_sweeps._suggest("s", by, levels)
+        self.assertEqual((hint["level"], hint["value"]), ("low", 12))
+        self.assertIn("time rule", hint["text"])
+        by["rewrite"]["s"] = main(0.3, "strong")
+        self.assertEqual(hparam_sweeps._suggest("s", by, levels)["level"], "high")
+        by["rewrite"]["s"] = main(0.01, "noise")
+        self.assertEqual(hparam_sweeps._suggest("s", by, levels)["level"], "low")

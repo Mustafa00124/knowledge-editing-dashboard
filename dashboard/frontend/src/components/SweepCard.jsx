@@ -26,6 +26,7 @@ export default function SweepCard({ sweep, onDetails, onCancel, onRerun, onHide,
       <div className="dl-task-top">
         <button type="button" className="hp-sweep-title" onClick={onDetails} title="Show this sweep's settings and every run">
           {sweep.label || sweep.id}
+          {sweep.step_label && <span className="badge" title="step of the tuning plan">{sweep.step_label}</span>}
           <span className="dl-dim"> · {sweep.methods.join(', ')} · {sweep.models.length} model{sweep.models.length === 1 ? '' : 's'}</span>
         </button>
         <span className="dl-dim">

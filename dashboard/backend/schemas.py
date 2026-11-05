@@ -1,4 +1,4 @@
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 
 from pydantic import BaseModel
 
@@ -53,8 +53,20 @@ class SweepRequest(BaseModel):
     fixed: Dict[str, Dict[str, Dict[str, Any]]] = {}
     # Why this sweep was run, shown on its progress card.
     note: str = ""
-    # grid, one_at_a_time or lhs; empty for the investigation's own design.
+    # grid, one_at_a_time, lhs or factorial2; empty for the investigation's
+    # own design.
     design: Optional[str] = None
+    # factorial2 only: the fraction p (2^(k-p) runs), one number for every
+    # method or {method: p}; empty or "auto" is the default (the full design
+    # up to 6 settings, else the smallest of resolution V). centre_points
+    # runs at the middle values, and centre overrides a middle value:
+    # method -> setting -> value.
+    fraction: Optional[Union[int, str, Dict[str, Union[int, str]]]] = None
+    centre_points: int = 3
+    centre: Dict[str, Dict[str, Any]] = {}
+    # The tuning plan's step (0 screen, 1 factorial, 2 groups, 3 one at a
+    # time); a factorial is step 1 when left out.
+    step: Optional[int] = None
     # lhs only: how many sampled points (besides the run at the current
     # settings), and the seed the draw depends on.
     samples: int = 0

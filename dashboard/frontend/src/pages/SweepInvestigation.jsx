@@ -128,8 +128,13 @@ export default function SweepInvestigation() {
   // lhs: a Latin hypercube sample, every setting at once (interactions);
   // one_at_a_time: each setting varied alone around one run at the current
   // settings (stage-wise); grid: every combination of the picked values.
+  // factorial2: each setting at a low and a high value, a full or
+  // fractional two-level design plus centre runs (step 1).
   const [design, setDesign] = useState('grid')
   const [samples, setSamples] = useState(16)
+  // factorial2: method -> fraction p ('' is the default), and centre runs.
+  const [fraction, setFraction] = useState({})
+  const [centrePoints, setCentrePoints] = useState(3)
   // dev (Sid's Dataset: 40 edits), or screen (10 of them) for a Latin hypercube.
   const [split, setSplit] = useState('dev')
   const [label, setLabel] = useState('')
@@ -193,7 +198,11 @@ export default function SweepInvestigation() {
     models, data_paths: dataPaths, ds_size: dsSize, edit_mode: editMode || 'batch', seed, label, design,
     fixed: Object.fromEntries(Object.entries(fixed).filter(([m]) => methods[m])),
     split, ...(design === 'lhs' ? { samples, lhs_seed: seed } : {}),
-  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed, design, samples, split])
+    ...(design === 'factorial2' ? {
+      centre_points: centrePoints,
+      fraction: Object.fromEntries(Object.entries(fraction).filter(([m, p]) => methods[m] && p !== '')),
+    } : {}),
+  }), [investigationId, methods, models, dataPaths, dsSize, editMode, label, seed, fixed, design, samples, split, fraction, centrePoints])
 
   const methodList = Object.keys(methods).sort().join(',')
   useEffect(() => {
@@ -235,6 +244,12 @@ export default function SweepInvestigation() {
       // A Latin hypercube samples every setting at once and one at a time
       // varies each alone, so both start with every setting over its
       // suggestions. A grid would multiply them: the first setting only.
+      // A factorial takes two values per setting: the outermost suggestions.
+      if (design === 'factorial2') {
+        const ends = swept.map((k) => k.suggestions[primaryModel]).map((v) => [v[0], v[v.length - 1]])
+        return { ...previous, [method]: Object.fromEntries(swept.map((k, i) => [k.key, ends[i]])
+          .filter(([, v]) => valueKey(v[0]) !== valueKey(v[1]))) }
+      }
       const start = design === 'grid' ? swept.slice(0, 1) : swept
       return { ...previous, [method]: Object.fromEntries(start.map((k) => [k.key, k.suggestions[primaryModel]])) }
     })
@@ -341,11 +356,11 @@ export default function SweepInvestigation() {
           {investigation.group === 'sweep' ? (
             <div className="tuning-type" role="radiogroup" aria-label="Kind of tuning sweep">
               {TUNING_KINDS.map((k) => {
-                const value = k.key === 'lhs' ? 'lhs' : 'one_at_a_time'
+                const value = k.design
                 return (
                   <label key={k.key} className={`tuning-type-option${design === value ? ' is-on' : ''}`}>
                     <input type="radio" name="design" checked={design === value}
-                      onChange={() => { setDesign(value); setSplit(value === 'lhs' ? 'screen' : 'dev') }} />
+                      onChange={() => { setDesign(value); setSplit(value === 'one_at_a_time' ? 'dev' : 'screen') }} />
                     <span><strong>{k.label}</strong> · {k.short}<span className="dl-dim">{k.help}</span></span>
                   </label>
                 )
@@ -378,8 +393,44 @@ export default function SweepInvestigation() {
               </label>
             </div>
           )}
+          {design === 'factorial2' && (
+            <div className="hp-protocol">
+              <label>Centre runs{' '}
+                <select value={centrePoints} onChange={(e) => setCentrePoints(Number(e.target.value))}>
+                  {[0, 1, 2, 3, 4, 5].map((v) => <option key={v} value={v}>{v}</option>)}
+                </select>
+              </label>
+              <label>Edits{' '}
+                <select value={split} onChange={(e) => setSplit(e.target.value)}>
+                  <option value="screen">screen: 10 of the dev edits, one ABox fact per topic</option>
+                  <option value="dev">all 40 dev edits</option>
+                </select>
+              </label>
+              {Object.entries(estimate?.factorial || {}).map(([m, d]) => (
+                <label key={m}>{m}: {d.k} settings{' '}
+                  <select value={fraction[m] ?? ''} onChange={(e) => setFraction((f) => ({ ...f, [m]: e.target.value === '' ? '' : Number(e.target.value) }))}>
+                    <option value="">default ({d.fractions.find((o) => o.default)?.label})</option>
+                    {d.fractions.map((o) => <option key={o.p} value={o.p}>{o.label}</option>)}
+                  </select>
+                </label>
+              ))}
+            </div>
+          )}
+          {design === 'factorial2' && Object.entries(estimate?.factorial || {}).map(([m, d]) => (
+            <p key={m} className="dl-dim">
+              {m}: {d.runs} corner runs{d.generators.length ? ` (generators ${d.generators.join(', ')})` : ''} + {d.centre_points} at
+              {' '}{Object.entries(d.centre).map(([k, v]) => `${k} ${formatValue(v)}`).join(', ')}.
+              {d.notes.length ? ` ${d.notes.join('. ')}.` : ''}
+            </p>
+          ))}
           <p className="dl-section-intro">
-            {design === 'lhs'
+            {design === 'factorial2'
+              ? <>Pick exactly two values for each setting, low then high (the first picked is low); a setting with none
+                stays at its current value. Every corner of the low/high box is a run (or a standard fraction of them that
+                keeps every main effect and pair of settings apart), and the centre runs set every setting to its middle
+                value (log midpoint for rates and weights) to check for a better value in between. Each run’s name ends in
+                its levels: H high, L low, M middle.</>
+              : design === 'lhs'
               ? <>Each run changes every setting at once: the picked values of each setting are spread evenly over the
                 samples, so every value is tried about equally often, in different company. The same draw is used for every
                 model. One more run at the current settings is the reference. Pick fewer values for a setting to leave it
@@ -458,7 +509,9 @@ export default function SweepInvestigation() {
           models={models}
           runSettings={[
             ['Records', `${split === 'screen' ? 'the 10-edit screen (Sid’s Dataset)' : 'dev split'} only, ${dsSize === 'full' ? 'all of it' : `${dsSize} per subset`}; test records are never used`],
-            ['Design', design === 'lhs' ? `Latin hypercube, ${samples} samples + the current settings` : design === 'one_at_a_time' ? 'stage-wise: one setting at a time' : 'every combination'],
+            ['Design', design === 'lhs' ? `Latin hypercube, ${samples} samples + the current settings`
+              : design === 'factorial2' ? `two-level factorial, ${centrePoints} centre run${centrePoints === 1 ? '' : 's'} per method`
+              : design === 'one_at_a_time' ? 'stage-wise: one setting at a time' : 'every combination'],
             ['Editing protocol', editMode || 'batch'],
             ['Seed', String(seed)],
             ['Evaluation', 'before editing and once at the end; Original scorer (token match), fluency on every run'],

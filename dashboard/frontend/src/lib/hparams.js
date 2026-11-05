@@ -14,16 +14,23 @@ export const GROUP_HELP = {
   input: 'check whether what the model is given, how the prompt is written and what context is added to it, changes a result',
 }
 
-// The two kinds of tuning sweep, in the order they are run.
+// The kinds of tuning sweep, in the order they are run, with the design
+// each launches (hparam_sweeps.DESIGNS).
 export const TUNING_KINDS = [
   {
-    key: 'lhs', label: 'Latin hypercube', short: 'interactions',
+    key: 'lhs', design: 'lhs', label: 'Latin hypercube', short: 'step 0 · screen',
     help: 'Every setting changes at once, over a spread-out sample of the space, on few edits (Sid’s 10-edit screen). '
       + 'Finds which settings matter and how they interact (a layer that only works at a higher learning rate), '
       + 'and a good region to start from.',
   },
   {
-    key: 'stagewise', label: 'Stage-wise', short: 'comprehensive',
+    key: 'factorial', design: 'factorial2', label: 'Two-level factorial', short: 'step 1 · effects',
+    help: 'Each setting at a low and a high value, every combination (or a standard fraction that keeps every main '
+      + 'effect and pair of settings apart), plus runs at the middle values, on Sid’s 10-edit screen. '
+      + 'Measures which settings matter, which pairs interact and which half of each range is better.',
+  },
+  {
+    key: 'stagewise', design: 'one_at_a_time', label: 'Stage-wise', short: 'comprehensive',
     help: 'One setting at a time around a starting configuration, on all 40 dev edits: where to edit first, then '
       + 'learning rate and steps, then the method’s own settings. Each stage keeps the last one’s winners.',
   },
@@ -61,13 +68,14 @@ export function parseValue(text) {
   }
 }
 
-// The four criteria, 0..1, as the backend scores them (hparam_sweeps._scores),
+// The criteria, 0..1, as the backend scores them (hparam_sweeps._scores),
 // in the order the tables show them.
 export const CRITERIA = [
   { key: 'fluency', label: 'Fluency', help: 'final fluency over the unedited model’s, capped at 1' },
+  { key: 'well_formed', label: 'Grammar', help: 'LLM judge: share of answers that are well-formed English, over the unedited model’s, capped at 1' },
   { key: 'reliability', label: 'Reliability', help: 'edit success on the edited prompts' },
   { key: 'locality', label: 'Locality', help: 'unrelated facts unchanged' },
-  { key: 'generalizability', label: 'Generalizability', help: 'paraphrases and multi-hop consequences' },
+  { key: 'generalizability', label: 'Generalizability', help: 'multi-hop consequences of the edit; on Sid’s Dataset, the determinate derived questions the unedited model answered with the original answer' },
 ]
 
 // Colouring only, never filtering. Starting points chosen by eye; editable
@@ -77,6 +85,7 @@ export const DEFAULT_THRESHOLDS = {
   generalizability: { good: 0.5, bad: 0.25 },
   locality: { good: 0.9, bad: 0.7 },
   fluency: { good: 0.95, bad: 0.85 },
+  well_formed: { good: 0.95, bad: 0.9 },
 }
 
 const THRESHOLD_KEY = 'hparam_thresholds'

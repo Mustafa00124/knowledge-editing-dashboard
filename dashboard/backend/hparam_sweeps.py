@@ -6,11 +6,14 @@ investigations by kind of setting are kept as `legacy` so their results stay
 readable, but are no longer launched. A sweep varies some of those settings
 for chosen methods, models and datasets, either one setting at a time around
 a single run at the current settings (`design: one_at_a_time`), every
-combination (`grid`), or a Latin hypercube sample of the combinations
+combination (`grid`), a Latin hypercube sample of the combinations
 (`design: lhs`, `samples` points plus the run at the current settings:
 each setting's values are spread evenly over the samples, and the points
 depend only on `lhs_seed` and the method, so every model gets the same
-draw); every point is an ordinary run_experiment job (same submission
+draw), or a two-level factorial (`design: factorial2`, step 1 of the tuning
+plan: each setting at a low and a high value, the full 2^k design or a
+standard 2^(k-p) fraction, plus centre points; see factorial.py and
+factorial_designs below); every point is an ordinary run_experiment job (same submission
 path, logs and job table as the Experiments page) with three differences:
 it edits dev records only (--split dev, or `split: screen`, Sid's
 Dataset's 10-edit subset of dev), evaluates only before editing and at the end
@@ -25,7 +28,9 @@ Scores are the four criteria on a 0..1 scale: fluency as the final
 value over the unedited model's (step 0), capped at 1, reliability (edit
 success), locality, and generalizability (portability). Tuning aims for
 high reliability without losing fluency, so the best value found is the
-highest reliability among runs that keep fluency at FLUENCY_DROP or above.
+highest reliability among runs that keep fluency at FLUENCY_DROP or above
+and, where the run has the judge's form verdicts, keep the share of
+well-formed answers at WELL_FORMED_DROP of the unedited model's or above.
 """
 import itertools
 import json
@@ -42,6 +47,7 @@ import yaml
 
 import config
 import db
+import factorial
 import registry
 import slurm
 
@@ -439,6 +445,108 @@ def _lhs(knob_values, samples, seed, method):
     return [{k: columns[k][i] for k in keys} for i in range(samples)]
 
 
+DESIGNS = ("grid", "one_at_a_time", "lhs", "factorial2")
+CENTRE_POINTS = 3
+
+
+def _fraction_for(req, method):
+    """The fraction p a request asks for a method: `fraction` is one number
+    for every method or {method: p}; missing or "auto" is the default."""
+    fraction = req.get("fraction")
+    if isinstance(fraction, dict):
+        fraction = fraction.get(method)
+    if fraction in (None, "", "auto"):
+        return None
+    try:
+        return int(fraction)
+    except (TypeError, ValueError):
+        raise ValueError(f"fraction must be a whole number p (2^(k-p) runs) or auto, not {fraction!r}")
+
+
+def factorial_designs(req, inv):
+    """method -> its two-level design: factors (the swept settings, sorted),
+    low and high values, the fraction and its generators, the centre values
+    and corner runs. Raises ValueError for a request that cannot be one.
+
+    Each swept setting needs exactly two values, low then high. `fraction`
+    picks 2^(k-p) (default factorial.default_fraction), `centre_points` how
+    many runs at the middle values (default 3), and `centre` ({method:
+    {setting: value}}) overrides a computed middle value."""
+    out = {}
+    n_centre = req.get("centre_points")
+    n_centre = CENTRE_POINTS if n_centre is None else int(n_centre)
+    if n_centre < 0:
+        raise ValueError("centre_points cannot be negative")
+    for method, knob_values in req["methods"].items():
+        knob_values = {k: v for k, v in knob_values.items() if v}
+        if not knob_values or method not in inv["methods"]:
+            continue
+        bad = sorted(k for k, v in knob_values.items() if len(v) != 2 or json.dumps(v[0]) == json.dumps(v[1]))
+        if bad:
+            raise ValueError(f"a factorial design takes two different values (low, high) per setting; "
+                             f"{method}: {', '.join(bad)}")
+        factors = sorted(knob_values)
+        k = len(factors)
+        if k < 2:
+            raise ValueError(f"{method}: a factorial design needs at least two settings")
+        if k > factorial.MAX_FACTORS:
+            raise ValueError(f"{method}: at most {factorial.MAX_FACTORS} settings in a factorial design, not {k}")
+        options = factorial.fractions(k)
+        p = _fraction_for(req, method)
+        p = factorial.default_fraction(k) if p is None else p
+        chosen = next((o for o in options if o["p"] == p), None)
+        if chosen is None:
+            raise ValueError(f"{method}: no standard 2^({k}-{p}) design of resolution IV or more; choose from "
+                             + "; ".join(o["label"] for o in options))
+        specs = inv["methods"][method]["knobs"]
+        overrides = (req.get("centre") or {}).get(method) or {}
+        centre, notes = {}, []
+        for f in factors:
+            low, high = knob_values[f]
+            if f in overrides:
+                centre[f] = overrides[f]
+                notes.append(f"{f}: centre set by hand to {json.dumps(overrides[f])}")
+                continue
+            value, categorical = factorial.centre_value(low, high, (specs.get(f) or {}).get("kind"))
+            centre[f] = value
+            if categorical:
+                notes.append(f"{f} has no middle value: the centre runs use its low level, {json.dumps(low)}")
+        out[method] = {
+            "factors": factors, "k": k, "p": p, "runs": chosen["runs"], "resolution": chosen["resolution"],
+            "generators": chosen["generators"],
+            "letters": {f: factorial.LETTERS[i] for i, f in enumerate(factors)},
+            "levels": {f: {"low": knob_values[f][0], "high": knob_values[f][1]} for f in factors},
+            "centre": centre, "centre_points": n_centre, "notes": notes, "fractions": options,
+            "corners": factorial.design(k, p),
+        }
+    return out
+
+
+def _factorial_points(info):
+    """The corner runs then the centre runs of one method's design, as
+    {overrides, coded, suffix, seed_offset}. A run's name ends in its coded
+    levels (H high, L low, M middle) in factor order. Centre runs take seeds
+    seed, seed+1, ...: identical reruns would show no spread, and different
+    seeds give the run-to-run noise the curvature test is measured against."""
+    factors, levels = info["factors"], info["levels"]
+    points = []
+    for n, row in enumerate(info["corners"], 1):
+        coded = dict(zip(factors, row))
+        points.append({"overrides": {f: levels[f]["high" if coded[f] > 0 else "low"] for f in factors},
+                       "coded": coded, "point": "corner", "seed_offset": 0,
+                       "suffix": f"f2r{n:03d}-{factorial.code_label(coded, factors)}"})
+    coded = {f: 0 for f in factors}
+    for i in range(info["centre_points"]):
+        points.append({"overrides": dict(info["centre"]), "coded": dict(coded), "point": "centre",
+                       "seed_offset": i, "suffix": f"f2c{i + 1}-{factorial.code_label(coded, factors)}"})
+    return points
+
+
+def _public_design(info):
+    """A design as stored in sweep.json and returned by the API (no corners)."""
+    return {k: v for k, v in info.items() if k not in ("corners",)}
+
+
 SPLITS = ("dev", "screen")
 
 
@@ -451,13 +559,30 @@ def _split(req):
 
 def sweep_kind(sweep):
     """How a sweep tunes: `lhs` (a Latin hypercube screen, for
-    interactions), `stagewise` (one setting at a time, or a grid of a few),
-    or `setup` (runs that only prepare something, such as covariance
-    statistics, and are not tuning results)."""
+    interactions), `factorial` (a two-level factorial, step 1), `stagewise`
+    (one setting at a time, or a grid of a few), or `setup` (runs that only
+    prepare something, such as covariance statistics, and are not tuning
+    results)."""
     if sweep.get("purpose") == "setup":
         return "setup"
-    request = sweep.get("request") or {}
-    return "lhs" if request.get("design") == "lhs" else "stagewise"
+    design = (sweep.get("request") or {}).get("design")
+    return {"lhs": "lhs", "factorial2": "factorial"}.get(design, "stagewise")
+
+
+# Steps of the tuning plan (docs/hparam_tuning_hierarchical_idea.md): 0 the
+# Latin hypercube screen, 1 the two-level factorial, 2 three values within
+# interacting groups, 3 one setting at a time on all 40 dev edits.
+STEP_LABELS = {0: "Step 0: Latin hypercube screen", 1: "Step 1: two-level factorial",
+               2: "Step 2: interacting groups", 3: "Step 3: one at a time"}
+
+
+def sweep_step(sweep):
+    """The tuning-plan step a sweep belongs to: recorded in sweep.json, else
+    1 for a factorial; None for sweeps outside the plan."""
+    step = sweep.get("step")
+    if step is None and (sweep.get("request") or {}).get("design") == "factorial2":
+        step = 1
+    return step
 
 
 def _skip_reason(exp_cfg, params):
@@ -467,6 +592,13 @@ def _skip_reason(exp_cfg, params):
     if params.get("edit_mode") == "sequential_batch" and int(params.get("edit_batch_size", 1)) > int(params.get("reset_every", 1)):
         return "the batch size is larger than the reset interval"
     return "this method cannot run on this dataset"
+
+
+def _absolute_data_path(path):
+    if path == "default":
+        return path
+    path = str(path).replace("${PROJECT_ROOT}", str(config.PROJECT_ROOT))
+    return path if Path(path).is_absolute() else str(config.PROJECT_ROOT / path)
 
 
 def plan(req):
@@ -480,12 +612,17 @@ def plan(req):
         raise ValueError(f"{inv['label']} is an earlier sweep by kind of setting; sweep its methods "
                          "from their family's investigation instead")
     design = req.get("design") or inv.get("design") or "grid"
-    if design not in ("grid", "one_at_a_time", "lhs"):
-        raise ValueError(f"design must be grid, one_at_a_time or lhs, not {design!r}")
+    if design not in DESIGNS:
+        raise ValueError(f"design must be one of {', '.join(DESIGNS)}, not {design!r}")
     if design == "lhs" and int(req.get("samples") or 0) < 2:
         raise ValueError("a Latin hypercube sweep needs samples (2 or more)")
+    designs = factorial_designs(req, inv) if design == "factorial2" else {}
     split = _split(req)
     runs, skipped = [], []
+    # Specs kept in the repository name datasets relative to the project
+    # root (or with ${PROJECT_ROOT}), as hparams files do; runs use the
+    # absolute path, as the Experiments page does.
+    req["data_paths"] = [_absolute_data_path(p) for p in req.get("data_paths") or []]
     if list(req.get("data_paths") or []) == ["default"]:
         req["data_paths"] = default_datasets(inv, exp_cfg) or []
         if not req["data_paths"]:
@@ -532,6 +669,19 @@ def plan(req):
                 stem = [method, model, _dataset_slug(exp_cfg, data_path)]
                 current = {r["key"]: r["value"] for r in effective_settings(method, model, exp_cfg)}
                 current.update(fixed)
+                if design == "factorial2":
+                    # Corner and centre runs, each named by its coded levels;
+                    # centre runs after the first get their own seed.
+                    for point in _factorial_points(designs[method]):
+                        run_params = params
+                        if point["seed_offset"]:
+                            run_params = slurm._prepare_params(exp_cfg, {
+                                **params, "seed": int(req.get("seed", 0)) + point["seed_offset"]})
+                        runs.append({"run_name": "_".join(stem + [point["suffix"]]), "method": method,
+                                     "model": model, "data_path": data_path, "overrides": point["overrides"],
+                                     "fixed": fixed, "params": run_params, "coded": point["coded"],
+                                     "point": point["point"], "seed": run_params.get("seed")})
+                    continue
                 if design == "grid":
                     points = list(_grid(knob_values))
                 elif design == "lhs":
@@ -585,13 +735,22 @@ def launch(req, launched_by="user", queue_slot=None):
             note=req.get("note") or "", queue_slot=queue_slot)
         submitted.append({k: run[k] for k in ("run_name", "method", "model", "data_path", "overrides", "fixed")}
                          | ({"baseline_for": run["baseline_for"]} if "baseline_for" in run else {})
+                         # Factorial runs: coded levels (-1/0/+1 per setting),
+                         # corner or centre, and the run's own seed.
+                         | {k: run[k] for k in ("coded", "point", "seed") if k in run}
                          | {"job_id": result["job_id"]})
+    step = req.get("step")
+    if step is None and req.get("design") == "factorial2":
+        step = 1
+    designs = factorial_designs(req, inv) if req.get("design") == "factorial2" else {}
     (out_root / "sweep.json").write_text(json.dumps({
         "id": sweep_id, "investigation": inv["id"], "label": req.get("label") or "",
         "launched_by": launched_by, "note": req.get("note") or "",
         "created_at": datetime.now().astimezone().isoformat(timespec="seconds"),
         "request": {k: v for k, v in req.items() if k not in ("label", "note", "purpose")},
         **({"purpose": req["purpose"]} if req.get("purpose") else {}),
+        **({"step": step} if step is not None else {}),
+        **({"factorial": {m: _public_design(d) for m, d in designs.items()}} if designs else {}),
         "split": split, "runs": submitted, "skipped": skipped, "errors": errors,
     }, indent=1) + "\n")
     return {"sweep_id": sweep_id, "submitted": len(submitted), "skipped": skipped, "errors": errors}
@@ -629,7 +788,8 @@ def resubmit(investigation, sweep_id, job_ids=None, queue_slot=None):
         params = slurm._prepare_params(exp_cfg, {
             "method": run["method"], "model": run["model"], "data_path": run["data_path"],
             "ds_size": sweep["request"].get("ds_size", "full"), "edit_mode": sweep["request"].get("edit_mode"),
-            "seed": sweep["request"].get("seed", 0), "evaluation_modes": "original"})
+            # A factorial's centre runs each have their own seed.
+            "seed": run.get("seed", sweep["request"].get("seed", 0)), "evaluation_modes": "original"})
         extra = [f"--split {sweep.get('split') or 'dev'}", "--final_only"] + [
             f"--hparam {shlex.quote(f'{k}={json.dumps(v)}')}"
             for k, v in {**(run.get("fixed") or {}), **run["overrides"]}.items()]
@@ -810,7 +970,10 @@ def list_sweeps(investigation=None, include_hidden=False):
                    | {"launched_by": sweep.get("launched_by") or "user", "note": sweep.get("note") or ""}
                    | {"hidden": bool(sweep.get("hidden")), "retryable": counts_retry, "gpu_seconds": gpu_seconds}
                    | {"kind": sweep_kind(sweep), "split": sweep.get("split") or "dev",
-                      "samples": (sweep.get("request") or {}).get("samples")}
+                      "samples": (sweep.get("request") or {}).get("samples"),
+                      "step": sweep_step(sweep), "step_label": STEP_LABELS.get(sweep_step(sweep)),
+                      "factorial": {m: {k: d.get(k) for k in ("k", "p", "runs", "resolution", "centre_points")}
+                                    for m, d in (sweep.get("factorial") or {}).items()} or None}
                    | {"runs": len(sweep["runs"]), "states": counts, "skipped": len(sweep.get("skipped", [])),
                       "methods": sorted({r["method"] for r in sweep["runs"]}),
                       "models": sorted({r["model"] for r in sweep["runs"]}),
@@ -866,7 +1029,7 @@ def sweep_detail(investigation, sweep_id):
     return {"id": sweep["id"], "investigation": investigation, "investigation_label": labels.get(investigation),
             "label": sweep.get("label"), "created_at": sweep.get("created_at"), "request": sweep["request"],
             "skipped": sweep.get("skipped", []), "errors": sweep.get("errors", []), "runs": runs,
-            "overall": _overall(runs)}
+            "overall": _overall(runs), "step": sweep_step(sweep), "factorial": sweep.get("factorial")}
 
 
 def set_hidden(investigation, sweep_id, hidden):
@@ -933,10 +1096,30 @@ def _scores(summary, baseline):
     score = lambda name: pct((sid.get(name) or {}).get("score"))
     reliability = score("rewrite") if sid else pct(summary.get("edit_succ"))
     out = {"fluency": ratio, "reliability": reliability,
+           "well_formed": _well_formed_ratio(sid, baseline),
            "locality": pct(summary.get("locality")), "generalizability": pct(summary.get("portability"))}
+    # On Sid's Dataset, generalizability is the determinate derived questions
+    # the unedited model answered with the original answer (decided
+    # 2026-11-03): on the others an unedited model already "passes" by
+    # misbelief or a lucky yes/no about 15% of the time, which is not the
+    # edit spreading. None when no such question was known.
+    det = ((sid.get("generalization") or {}).get("determinate") or {}) if sid else {}
+    if "known" in det:
+        out["generalizability"] = pct((det.get("known") or {}).get("score"))
     if sid:
         out["paraphrase"] = score("paraphrase")
     return out
+
+
+def _well_formed_ratio(sid, baseline):
+    """The judge's share of well-formed answers over the unedited model's
+    (step 0), capped at 1. None for runs judged before the form pass."""
+    run = (sid.get("well_formed") or {}).get("score") if sid else None
+    base = ((((baseline or {}).get("evaluations") or {}).get("sid") or {}).get("metrics") or {}).get("well_formed")
+    base = (base or {}).get("score")
+    if run is None or not base:
+        return None
+    return min(run / base, 1.0)
 
 
 # Lines in a job's stderr that are noise rather than the reason it failed.
@@ -944,12 +1127,15 @@ _NOISE = re.compile(r"Warning|warnings\.warn|it/s\]|s/it\]|%\||TOKENIZERS_PARALL
                     r"Avoid using `tokenizers`|Explicitly set the environment")
 _ERROR = re.compile(r"^(\w+\.)*\w*(Error|Exception|Exit)\b|^RuntimeError|^error:|CUDA out of memory")
 FLUENCY_DROP = 0.85  # flag when fluency falls below this share of the unedited model's
+WELL_FORMED_DROP = 0.9  # flag when the judge's well-formed share falls below this share of the unedited model's
 
 
 def _keeps_fluency(scores):
     """A scored run whose fluency did not drop (no fluency probe counts as kept)."""
     fluency = (scores or {}).get("fluency")
-    return (scores or {}).get("reliability") is not None and (fluency is None or fluency >= FLUENCY_DROP)
+    form = (scores or {}).get("well_formed")
+    return ((scores or {}).get("reliability") is not None and (fluency is None or fluency >= FLUENCY_DROP)
+            and (form is None or form >= WELL_FORMED_DROP))
 
 
 def _tail_lines(path, n=300):
@@ -1029,6 +1215,9 @@ def _flags(state, error, loss, scores):
     fluency = (scores or {}).get("fluency")
     if fluency is not None and fluency < FLUENCY_DROP:
         flags.append({"level": "warn", "text": f"fluency fell {round((1 - fluency) * 100)}%"})
+    form = (scores or {}).get("well_formed")
+    if form is not None and form < WELL_FORMED_DROP:
+        flags.append({"level": "warn", "text": f"judge: well-formed answers fell {round((1 - form) * 100)}%"})
     return flags
 
 
@@ -1131,7 +1320,9 @@ def results(investigation, include_hidden=True):
             for overrides, copy in shown:
                 rows.append({
                     "sweep_id": sweep["id"], "sweep_label": sweep.get("label", ""), "run": run["run_name"],
-                    "kind": sweep_kind(sweep), "split": sweep.get("split") or "dev",
+                    "kind": sweep_kind(sweep), "split": sweep.get("split") or "dev", "step": sweep_step(sweep),
+                    # Factorial runs: coded levels per setting and corner or centre.
+                    "coded": run.get("coded"), "point": run.get("point"),
                     "method": run["method"], "model": run["model"], "data_path": run["data_path"],
                     # Each tuning stage is its own model value, so runs never
                     # overwrite each other; these say which stage it is.
@@ -1159,10 +1350,123 @@ def results(investigation, include_hidden=True):
                     # whole run start to finish, and for unfinished runs what
                     # the scheduler reports so far.
                     "total_sec": summary.get("total_sec") if summary else None,
+                    # Editing alone and evaluation alone (judge included);
+                    # None for runs from before they were recorded (2026-11-04).
+                    "edit_sec": summary.get("edit_sec") if summary else None,
+                    "eval_sec": summary.get("eval_sec") if summary else None,
                     "wall_sec": _wall_seconds(summary) if summary else None,
                     "elapsed_sec": _seconds(statuses.get(str(run["job_id"]), {}).get("elapsed")),
                 })
     return rows
+
+
+# The responses a factorial is analysed on, in the order shown.
+EFFECT_RESPONSES = [
+    {"key": "rewrite", "label": "Rewrite", "unit": "share",
+     "help": "reliability: the rewrite score on Sid's Dataset (edit success elsewhere)"},
+    {"key": "gate", "label": "Fluency gate", "unit": "share",
+     "help": f"1 when the run keeps fluency at {FLUENCY_DROP} of the unedited model's and the judge's "
+             f"well-formed share at {WELL_FORMED_DROP} of it, else 0; an effect is the change in the "
+             "share of runs that pass"},
+    {"key": "edit_sec", "label": "Edit time", "unit": "seconds",
+     "help": "editing alone, without evaluation (runs from before 2026-11-04 have none)"},
+]
+TIME_RULE = 0.1  # a slower level is only worth it for at least this much more rewrite
+
+
+def _response_values(row):
+    """A run's three responses, None where it has none (failed, unfinished,
+    or not measured): a failed run is missing, never a score of 0."""
+    scores = row.get("scores") or {}
+    if scores.get("reliability") is None:
+        return {"rewrite": None, "gate": None, "edit_sec": row.get("edit_sec")}
+    return {"rewrite": scores["reliability"], "gate": 1.0 if _keeps_fluency(scores) else 0.0,
+            "edit_sec": row.get("edit_sec")}
+
+
+def _suggest(factor, by_response, levels):
+    """A hint for one setting from its main effects: which level to keep and
+    why. The user decides; this only reads the numbers."""
+    rew = by_response["rewrite"].get(factor) or {}
+    gate = by_response["gate"].get(factor) or {}
+    time = by_response["edit_sec"].get(factor) or {}
+    effect = rew.get("effect")
+    if effect is None:
+        return {"level": None, "text": "not enough finished runs"}
+    slower = None
+    if time.get("effect"):
+        slower = "high" if time["effect"] > 0 else "low"
+    faster = {"high": "low", "low": "high"}.get(slower)
+    if rew.get("verdict") in ("active", "strong"):
+        better = "high" if effect > 0 else "low"
+        reasons = [f"rewrite {effect:+.2f} from low to high"]
+        if better == slower and abs(effect) < TIME_RULE:
+            better = faster
+            reasons.append(f"but the better level is slower and gains under {TIME_RULE} rewrite (time rule)")
+        if gate.get("effect") is not None and (gate["effect"] if better == "high" else -gate["effect"]) <= -0.25:
+            reasons.append("costs fluency: fewer runs pass the gate at this level")
+    else:
+        # No clear rewrite effect: keep the level that passes the gate more
+        # often, else the faster one; a candidate to freeze.
+        if gate.get("verdict") in ("active", "strong"):
+            better = "high" if gate["effect"] > 0 else "low"
+            reasons = ["no clear rewrite effect; more runs keep fluency at this level"]
+        elif faster:
+            better = faster
+            reasons = ["no clear rewrite effect; the faster level (candidate to freeze)"]
+        else:
+            better = None
+            reasons = ["no clear effect on rewrite, fluency or time (candidate to freeze)"]
+    value = levels[better] if better else None
+    return {"level": better, "value": value, "text": "; ".join(reasons)}
+
+
+def effects(investigation, sweep_id):
+    """Effects analysis of a factorial sweep, one block per method, model and
+    dataset: main effects and two-factor interactions on rewrite, the
+    fluency gate and edit time, Lenth's margins, the centre-point curvature
+    check, and a suggested level per setting."""
+    path = _sweep_dir(investigation, sweep_id) / "sweep.json"
+    if not path.exists():
+        raise KeyError(sweep_id)
+    sweep = json.loads(path.read_text())
+    designs = sweep.get("factorial")
+    if not designs:
+        raise ValueError("this sweep is not a factorial design")
+    rows = {r["run"]: r for r in results(investigation) if r["sweep_id"] == sweep_id}
+    groups = {}
+    for run in sweep["runs"]:
+        if "coded" not in run:
+            continue
+        row = rows.get(run["run_name"], {})
+        entry = {"run": run["run_name"], "coded": run["coded"], "point": run.get("point"),
+                 "state": row.get("state"), **_response_values(row)}
+        groups.setdefault((run["method"], run["model"], run["data_path"]), []).append(entry)
+    out = []
+    for (method, model, data_path), runs in groups.items():
+        info = designs.get(method) or {}
+        factors = info.get("factors") or sorted(runs[0]["coded"])
+        corners = [r for r in runs if r["point"] != "centre"]
+        centres = [r for r in runs if r["point"] == "centre"]
+        analyses = {resp["key"]: factorial.analyse(factors, corners, centres, resp["key"]) for resp in EFFECT_RESPONSES}
+        main_by = {key: {m["factor"]: m for m in a.get("main", [])} for key, a in analyses.items()}
+        # Time effects also as a ratio: high level's mean time over low's.
+        for m in analyses["edit_sec"].get("main", []):
+            m["ratio"] = (m["high_mean"] / m["low_mean"]) if m.get("low_mean") and m.get("high_mean") else None
+        first = next((rows[r["run"]] for r in runs if r["run"] in rows), {})
+        out.append({
+            "method": method, "model": model, "data_path": data_path,
+            "model_label": first.get("model_label", model), "dataset": first.get("dataset"),
+            "design": {k: info.get(k) for k in ("factors", "k", "p", "runs", "resolution", "generators",
+                                                "letters", "levels", "centre", "centre_points", "notes")},
+            "finished": sum(1 for r in runs if r["rewrite"] is not None), "total": len(runs),
+            "responses": EFFECT_RESPONSES, "analyses": analyses,
+            "suggestions": {f: _suggest(f, main_by, (info.get("levels") or {}).get(f, {"low": None, "high": None}))
+                            for f in factors},
+            "runs": runs,
+        })
+    return {"id": sweep_id, "investigation": investigation, "label": sweep.get("label"),
+            "step": sweep_step(sweep), "time_rule": TIME_RULE, "groups": out}
 
 
 def failures():
@@ -1279,7 +1583,11 @@ def estimate(req):
         hp = _read_hparams(r["method"], r["model"]) or {}
         if not hp.get("mom2_adjustment") and r["method"] not in ("memit", "pmet", "alphaedit", "nmke"):
             continue
-        layers = r["overrides"].get("layers", hp.get("layers") or [])
+        # The edit layers, and IFMET's second edit (deep_layers) and FiDAL's
+        # candidates, which use the same statistics.
+        layers = []
+        for key in ("layers", "deep_layers", "candidate_layers"):
+            layers += list(r["overrides"].get(key, hp.get(key)) or [])
         samples = r["overrides"].get("mom2_n_samples", hp.get("mom2_n_samples"))
         template = hp.get("rewrite_module_tmp")
         if not template or not samples:
@@ -1292,6 +1600,9 @@ def estimate(req):
             if not (stats / name).exists():
                 missing.add((directory, layer, samples))
     seconds += 600 * len(missing)
+    designs = factorial_designs(req, inv) if req.get("design") == "factorial2" else {}
     return {"runs": len(runs), "skipped": skipped, "gpu_hours": round(seconds / 3600, 1),
+            # Factorial sweeps: each method's design and the fractions on offer.
+            **({"factorial": {m: _public_design(d) for m, d in designs.items()}} if designs else {}),
             "missing_stats": [{"model": m, "layer": l, "samples": s} for m, l, s in sorted(missing)],
             "note": "rough: assumes 100 dev records (10 on the screen split) and typical per-edit times; covariance statistics about 10 minutes per layer"}

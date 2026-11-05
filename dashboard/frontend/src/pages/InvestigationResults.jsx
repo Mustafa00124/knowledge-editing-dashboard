@@ -5,6 +5,7 @@ import { api } from '../api.js'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import SweepFailures from '../components/SweepFailures.jsx'
 import FactorPanel from '../components/FactorPanel.jsx'
+import FactorialEffects from '../components/FactorialEffects.jsx'
 import { CRITERIA, FACTORS, TUNING_KINDS, aggregate, band, duration, factorValue, formatValue, knobFactor, loadThresholds, pct, saveThresholds, valueKey } from '../lib/hparams.js'
 
 const DONE = 'COMPLETED'
@@ -132,7 +133,7 @@ export default function InvestigationResults() {
   const view = params.get('view') === 'failures' ? 'failures' : 'rankings'
   // Latin hypercube screens and stage-wise sweeps are ranked apart: a screen's
   // run changes every setting at once, a stage-wise run one.
-  const kind = params.get('kind') === 'stagewise' ? 'stagewise' : 'lhs'
+  const kind = TUNING_KINDS.some((k) => k.key === params.get('kind')) ? params.get('kind') : 'lhs'
   // Which factor is the table's rows ('run' for one row per run), and the
   // values left out of each factor; everything included is averaged.
   const rowsParam = params.get('rows') || 'run'
@@ -319,7 +320,7 @@ export default function InvestigationResults() {
       </div>
       {error && <p className="form-error">{error}</p>}
       {rows === null && !error && <p className="empty">Loading…</p>}
-      {rows && !kindRows.length && <p className="empty">No {kind === 'lhs' ? 'Latin hypercube' : 'stage-wise'} sweeps here yet. <Link to={`/experiments/investigations/${investigation}`}>Launch one</Link>.</p>}
+      {rows && !kindRows.length && <p className="empty">No {TUNING_KINDS.find((k) => k.key === kind).label.toLowerCase()} sweeps here yet. <Link to={`/experiments/investigations/${investigation}`}>Launch one</Link>.</p>}
       {rows && kindRows.length > 0 && (
         <>
           {kind === 'lhs' && (
@@ -327,6 +328,10 @@ export default function InvestigationResults() {
               Every run here changes all settings at once. To see one setting’s effect, choose it as the table’s rows:
               each value is then averaged over the runs that used it, whatever the other settings were.
             </p>
+          )}
+          {kind === 'factorial' && (
+            <FactorialEffects investigation={investigation}
+              sweepIds={[...new Set(kindRows.map((r) => r.sweep_id))].sort().reverse()} />
           )}
           <FactorPanel factors={allFactors} rows={kindRows} excluded={excluded} onExclude={setExcluded}
             rowsBy={rowsBy} onRowsBy={(key) => setParam('rows', key === 'run' ? '' : key)} display={display} />
@@ -453,10 +458,11 @@ export default function InvestigationResults() {
                     ))}
                     <td><LossCell loss={r.loss} /></td>
                     <td className="hp-time" title={r.wall_sec != null
-                      ? `editing and evaluation ${duration(r.total_sec)}${r.records ? `, about ${(r.total_sec / r.records).toFixed(1)}s per record` : ''}; the rest is loading the model`
+                      ? `editing and evaluation ${duration(r.total_sec)}${r.records ? `, about ${(r.total_sec / r.records).toFixed(1)}s per record` : ''}${r.edit_sec != null ? ` (editing alone ${duration(r.edit_sec)}, evaluation ${duration(r.eval_sec)})` : ''}; the rest is loading the model`
                       : 'time so far, from the scheduler'}>
                       {r.wall_sec != null ? duration(r.wall_sec) : r.elapsed_sec ? <span className="dl-dim">{duration(r.elapsed_sec)} so far</span> : '—'}
                       {r.wall_sec != null && r.records ? <div className="dl-dim">{(r.total_sec / r.records).toFixed(1)}s / record</div> : null}
+                      {r.edit_sec != null ? <div className="dl-dim">edit {duration(r.edit_sec)}</div> : null}
                     </td>
                     <td className="hp-status">
                       <div className="dl-dim">{r.state === DONE ? `${r.records} records` : r.state.toLowerCase()}</div>
