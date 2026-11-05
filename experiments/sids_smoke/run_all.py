@@ -3,7 +3,7 @@
 Runs run_experiment.py --smoke once per core method (the methods marked core
 in experiments/run_experiment/dashboard.json), one after another on the same
 GPU. Each writes results/sids_smoke/runs/smoke_<method>_<model>/smoke.jsonl
-and summary.json; CRITERIA Rule 14 reads them. A method that crashes outright
+and summary.json; CRITERIA Rule 13 reads them. A method that crashes outright
 (import error, model load) is recorded as a summary with crashed: true, so it
 shows as a failure rather than as missing.
 
@@ -27,7 +27,7 @@ RUNNER = os.path.join(PROJECT_ROOT, "experiments", "run_experiment", "run_experi
 DEFAULT_OUT_ROOT = os.path.join(PROJECT_ROOT, "results", "sids_smoke")
 DEFAULT_RECORDS = os.path.join(PROJECT_ROOT, "datasets", "SidsDataset", "records")
 
-# The four main models (CRITERIA Rule 6 and Rule 14). Weights directories as in
+# The four main models (CRITERIA Rule 6 and Rule 13). Weights directories as in
 # run_experiment.py, so the dashboard greys out a model that isn't downloaded.
 MODEL_PATHS = {
     "qwen3-4b-instruct-2507": os.path.join(PROJECT_ROOT, "models/Qwen3-4B-Instruct-2507"),

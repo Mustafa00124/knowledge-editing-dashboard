@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react'
 import { api } from '../../api.js'
+import Markdown from '../../lib/miniMarkdown.jsx'
 
 // The CRITERIA.md checklist, as datasets/SidsDataset/criteria.py reports it.
 // Opened from the Criteria button above Sid's Dataset browser. Manual rules
-// come first: each is reviewed by two agents (Codex, Claude) and a person,
-// whose marks are stored in datasets/SidsDataset/reviews.json (the person's
-// mark is toggled here; agents run `criteria.py --mark`). Automated rules
-// follow, rerun by "Run checks": green (pass), red (fail), amber (review: a
-// script flags, a person decides), grey (pending on data) or plain (info).
+// come first and are informational: reviewers mark records and questions
+// green or red on the record cards (SidsReviewDots); expanding a rule here
+// shows its guidance (the <details> part of CRITERIA.md), green / red /
+// yellow counts per reviewer and every red item. Automated
+// rules follow, rerun by "Run checks": green (pass), red (fail), amber
+// (review: a script flags, a person decides), grey (pending on data) or plain
+// (info).
 const STATUS = {
   pass: { label: 'pass', mark: '✓' },
   fail: { label: 'fail', mark: '✕' },
   review: { label: 'review', mark: '!' },
   pending: { label: 'pending', mark: '…' },
-  manual: { label: 'to review', mark: '?' },
+  manual: { label: 'manual', mark: '?' },
   info: { label: 'info', mark: 'i' },
 }
 const ORDER = ['fail', 'review', 'pending', 'manual', 'pass', 'info']
@@ -33,28 +36,41 @@ function Table({ rows }) {
   )
 }
 
-// One reviewer's mark on a manual rule: pending until they mark it done.
-// Only the person's mark can be toggled here.
-function ReviewMark({ review, onToggle, busy }) {
-  const title = review.done
-    ? `${review.label}: done${review.by ? ` by ${review.by}` : ''}${review.at ? `, ${review.at.replace('T', ' ')}` : ''}${review.note ? `. ${review.note}` : ''}`
-    : `${review.label}: pending`
-  const cls = `sids-review${review.done ? ' is-done' : ''}`
-  if (review.reviewer !== 'human') {
-    return <span className={cls} title={title}>{review.done ? '✓' : '…'} {review.label}</span>
-  }
+// A manual row's review marks: green, red and yellow (not reviewed) per
+// reviewer, then every red item and who marked it (clicking the record jumps
+// to it).
+function Reviews({ r, onJump }) {
+  if (!r) return null
   return (
-    <button type="button" className={`${cls} is-toggle`} title={`${title}. Click to mark ${review.done ? 'pending' : 'done'}.`}
-      disabled={busy} onClick={(e) => { e.stopPropagation(); onToggle(!review.done) }}>
-      {review.done ? '✓' : '…'} {review.label}
-    </button>
+    <div className="sids-crit-flags">
+      <Table rows={[['reviewer', 'green', 'red', 'yellow'],
+        ...Object.entries(r.by_reviewer).map(([who, c]) => [who, c.green, c.red, c.yellow])]} />
+      <p className="sids-crit-note">{r.total} {r.unit}; {r.red.length} with a red mark.</p>
+      {r.red.length > 0 && (
+        <ul className="sids-crit-flaglist">
+          {r.red.map(({ record, item, marks }) => (
+            <li key={`${record} ${item}`}>
+              {onJump
+                ? <button type="button" className="btn-plain-small" onClick={() => onJump(record)}>{record}</button>
+                : <code>{record}</code>}
+              {r.unit === 'questions' && <code> {item}</code>}
+              {' '}<span className="sids-crit-note">
+                red by {marks.map((m) => `${m.reviewer}${m.kind ? ` (${m.kind})` : ''}${m.stale ? ' (record changed since)' : ''}${m.comment ? `: ${m.comment}` : ''}`).join('; ')}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
-function Check({ check, onReview, busy }) {
-  const expandable = check.items.length > 0 || check.table || check.note
+function Check({ check, onJump }) {
+  const manual = check.kind === 'manual'
+  const expandable = manual || check.items.length > 0 || check.table || check.note
   const [open, setOpen] = useState(false)
   const s = STATUS[check.status] || STATUS.info
+  const p = check.reviews
   return (
     <li className={`sids-crit sids-crit-${check.status}`}>
       <div className="sids-crit-row">
@@ -62,23 +78,31 @@ function Check({ check, onReview, busy }) {
           onClick={() => setOpen((o) => !o)}>
           <span className="sids-crit-mark" aria-label={s.label}>{s.mark}</span>
           <span className="sids-crit-name">{check.name}</span>
-          {check.count > 0 && <span className="sids-crit-count">{check.count}</span>}
-          {!check.reviews && <span className="sids-crit-status">{s.label}</span>}
+          {manual && p ? (
+            <span className="sids-crit-status">{p.red.length ? `${p.red.length} red` : 'no red marks'}</span>
+          ) : (
+            <>
+              {check.count > 0 && <span className="sids-crit-count">{check.count}</span>}
+              <span className="sids-crit-status">{s.label}</span>
+            </>
+          )}
         </button>
-        {check.reviews && (
-          <span className="sids-reviews">
-            {check.reviews.map((r) => (
-              <ReviewMark key={r.reviewer} review={r} busy={busy} onToggle={(done) => onReview(check.rule, done)} />
-            ))}
-          </span>
-        )}
       </div>
       {open && (
         <div className="sids-crit-body">
           {check.note && <p className="sids-crit-note">{check.note}</p>}
-          <Table rows={check.table} />
-          {check.items.length > 0 && (
-            <ul className="sids-crit-items">{check.items.map((item, i) => <li key={i}><code>{item}</code></li>)}</ul>
+          {manual ? (
+            <>
+              {check.guide && <Markdown text={check.guide} className="sids-crit-guide" />}
+              <Reviews r={p} onJump={onJump} />
+            </>
+          ) : (
+            <>
+              <Table rows={check.table} />
+              {check.items.length > 0 && (
+                <ul className="sids-crit-items">{check.items.map((item, i) => <li key={i}><code>{item}</code></li>)}</ul>
+              )}
+            </>
           )}
         </div>
       )}
@@ -86,7 +110,7 @@ function Check({ check, onReview, busy }) {
   )
 }
 
-function Sections({ checks, onReview, busy }) {
+function Sections({ checks, onJump }) {
   const sections = []
   for (const c of checks) {
     const last = sections[sections.length - 1]
@@ -97,17 +121,16 @@ function Sections({ checks, onReview, busy }) {
     <section key={sec.title}>
       <h4>{sec.title}</h4>
       <ul className="sids-crit-list">
-        {sec.checks.map((c) => <Check key={c.name} check={c} onReview={onReview} busy={busy} />)}
+        {sec.checks.map((c) => <Check key={c.name} check={c} onJump={onJump} />)}
       </ul>
     </section>
   ))
 }
 
-export default function SidsCriteriaModal({ onClose }) {
+export default function SidsCriteriaModal({ onClose, onJump }) {
   const [report, setReport] = useState(null)
   const [error, setError] = useState(null)
   const [running, setRunning] = useState(false)
-  const [busy, setBusy] = useState(false)
   const run = () => {
     setRunning(true)
     setError(null)
@@ -120,17 +143,13 @@ export default function SidsCriteriaModal({ onClose }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
-  const review = (rule, done) => {
-    setBusy(true)
-    api.sidsDatasetReview(rule, done).then(run).catch((err) => setError(String(err.message || err)))
-      .finally(() => setBusy(false))
-  }
 
   const manual = (report?.checks || []).filter((c) => c.kind === 'manual')
   const automated = (report?.checks || []).filter((c) => c.kind !== 'manual')
   const counts = {}
   for (const c of automated) counts[c.status] = (counts[c.status] || 0) + 1
-  const reviewed = manual.filter((c) => c.status === 'pass').length
+  const flagged = manual.reduce((n, c) => n + (c.reviews?.red.length || 0), 0)
+  const rv = report?.review
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -149,9 +168,13 @@ export default function SidsCriteriaModal({ onClose }) {
           {report && (
             <>
               <section>
-                <h3>Manual rules <span className="sids-rubric-q">{reviewed} of {manual.length} reviewed by all three</span></h3>
-                <p className="dataset-note">Each rule needs a review from Codex, Claude and a person.</p>
-                <Sections checks={manual} onReview={review} busy={busy} />
+                <h3>Manual rules <span className="sids-rubric-q">{flagged ? `${flagged} red` : 'no red marks yet'}</span></h3>
+                <p className="dataset-note">
+                  Judgements no script can make. {rv?.reviewers?.map((r) => r.name).join(', ')} mark each record (per rule)
+                  and each of its questions green (fine) or red (flagged) by clicking their own dots on the record cards in
+                  Review mode. Yellow: not reviewed yet, or not pushed.
+                </p>
+                <Sections checks={manual} onJump={onJump} />
               </section>
               <section>
                 <div className="sids-crit-autohead">
@@ -166,7 +189,7 @@ export default function SidsCriteriaModal({ onClose }) {
                     <span key={s} className={`sids-crit-pill sids-crit-${s}`}>{counts[s]} {STATUS[s].label}</span>
                   ))}
                 </p>
-                <Sections checks={automated} onReview={review} busy={busy} />
+                <Sections checks={automated} onJump={onJump} />
               </section>
             </>
           )}

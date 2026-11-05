@@ -9,10 +9,15 @@ report().
     python datasets/SidsDataset/criteria.py          # or: validate.py --criteria
     python datasets/SidsDataset/criteria.py --all    # every offending item, not the first few
     python datasets/SidsDataset/criteria.py --json   # what the dashboard reads
+    python datasets/SidsDataset/criteria.py --marks    # review marks per reviewer, and every red one
+    python datasets/SidsDataset/criteria.py --mark RECORD ITEM REVIEWER green|red|clear [--comment TEXT] [--kind angle]
 
 Each check has a status: pass, fail, review (a script can only flag it, a
-person decides), pending (waiting on data, e.g. a model audit not yet run) or
-manual (not checkable by script). Standard library only, like validate.py.
+person decides), pending (waiting on data, e.g. a model audit or the Rule 3
+judge not yet run) or manual (informational: the two manual rules and their
+guidance are read from CRITERIA.md; reviewers mark each record per rule, and
+each query, green or red; marks are in reviews.json).
+Standard library only, like validate.py.
 """
 import json
 import re
@@ -240,17 +245,221 @@ def check_propositional(recs):
                   note=note, table=table if have else None)]
 
 
-def check_ambiguity():
-    return [check('R1. True and unambiguous', 'Every answer is clearly true or clearly false', status='manual',
-                  note='Not checkable by script: needs an LLM pass and a person.')]
+# Rule 3: stable subjects, self-contained statements. The pattern checks run
+# here; what patterns can't catch is labelled by an LLM judge
+# (rule3_judge.py, on a GPU through SLURM) and cached in rule3_judge.json,
+# which this script only reads.
+BANNED_PHRASES = ('under those conditions', 'under these conditions', 'the specified', 'as specified',
+                  'as stated', 'as given above', 'the above', 'mentioned above', 'aforementioned', 'the edit',
+                  'this edit', 'after the edit', 'before the edit', 'the edited', 'the new fact', 'the stated',
+                  'in this scenario', 'in this hypothetical', 'hypothetically')
+CJK = re.compile(r'[぀-ヿ㐀-鿿]')
+# Answers a prompt may repeat without giving anything away: abstentions, and
+# yes/no answers in Chinese, which echo the question's verb (需要吗？ 需要).
+NOT_AN_ANSWER = {'', 'i don t know', 'does not know', 'unknown', '能', '不能', '可以', '不可以', '对', '不对',
+                 '有', '没有', '不', '需要', '不需要', '会', '不会'}
+CHOICE = re.compile(r'\bor\b|还是|或|\bo\b|\bu\b|:\s', re.I)
+QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"|‘[^’]*’|“[^”]*”|《[^》]*》|「[^」]*」")
 
 
-def check_subjects():
-    return [check('R2. Stable subjects, self-contained statements',
-                  "Subjects don't describe the edited value or contain their answer; statements stand on their own",
-                  status='manual',
-                  note='Checked by a person. wikidata/entities.json marks subjects that are descriptions '
-                       '(category "description") and the review notes ("issue") that found such subjects.')]
+def contains_answer(text, answer):
+    """Whether `answer` occurs in `text` as whole words (CJK: as characters).
+    Yes/no, abstentions and bare numbers never count: a question has to name
+    the number or the thing it asks about."""
+    a = norm(answer)
+    if a in NOT_AN_ANSWER or yes_no(answer) or re.fullmatch(r'[\d\s.,]+', a):
+        return False
+    t = norm(text)
+    if CJK.search(a):
+        return a.replace(' ', '') in t.replace(' ', '')
+    return re.search(rf'(?<!\w){re.escape(a)}(?!\w)', t) is not None
+
+
+def question_part(prompt):
+    """The question a prompt asks, without the facts it states first ("France
+    is in Europe. Which continent is Lyon in?") and without quoted words (a
+    grammar question about 'moose')."""
+    parts = re.split(r'(?<=[.!。；;])\s*', prompt.strip())
+    q = next((p for p in reversed(parts) if p.strip()), prompt)
+    return QUOTED.sub(' ', q)
+
+
+def iter_queries(rec):
+    for qtype, items in rec['queries'].items():
+        if isinstance(items, list):
+            for i, q in enumerate(items):
+                yield f'{qtype}[{i}]', q
+        elif items:
+            yield qtype, items
+
+
+def expected_answers(q):
+    out = [q.get('original_answer'), q.get('new_answer'), q.get('reference')]
+    out += [w.get('answer') for w in (q.get('world_answers') or {}).values()]
+    return [a for a in dict.fromkeys(out) if isinstance(a, str)]
+
+
+def record_sentences(rec):
+    """[(where, text)]: every statement and prompt of a record that has to
+    make sense on its own."""
+    e = rec['edit']
+    out = [('statement', e.get('statement')), ('original', e.get('original'))]
+    out += [(f'premise[{i}]', p) for i, p in enumerate(e.get('premises') or [])]
+    for key, q in iter_queries(rec):
+        out.append((key, q.get('prompt')))
+        out += [(f'{key} bridge', b) for b in q.get('bridge') or []]
+        out += [(f'{key} revision fact', b) for b in q.get('revision_facts') or []]
+        if q.get('side_fact'):
+            out.append((f'{key} side fact', q['side_fact']))
+    for i, c in enumerate(rec.get('checks') or []):
+        out += [(f'checks[{i}] fact', c.get('fact')), (f'checks[{i}] prompt', c.get('prompt'))]
+    seen, unique = set(), []
+    for where, text in out:
+        if text and text not in seen:
+            seen.add(text)
+            unique.append((where, text))
+    return unique
+
+
+def load_entities():
+    try:
+        return json.loads((ROOT / 'wikidata' / 'entities.json').read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def rule3_patterns(recs, entities=None):
+    """The deterministic part of Rule 3: {'own': [...], 'phrases': [...],
+    'descriptions': [...]}, each a list of item strings. A prompt that asks
+    for the edit's new value and names it is an 'own' item (its answer is the
+    new value); whether a prompt that asks something else gives the answer
+    away by naming the new value is left to the judge."""
+    entities = load_entities() if entities is None else entities
+    by_name = {k.lower(): v for k, v in entities.items()}
+    own, phrases, descriptions = [], [], []
+    for r in recs:
+        e = r['edit']
+        for key, q in iter_queries(r):
+            prompt = q.get('prompt') or ''
+            if not prompt or CHOICE.search(prompt):
+                continue  # a question that names its options may name the answer
+            asked = question_part(prompt)
+            for a in expected_answers(q):
+                if contains_answer(asked, a):
+                    own.append(f'{r["id"]} {key}: {prompt!r} contains its answer {a!r}')
+        # An ABox subject that contains the value it is edited from or to. (A
+        # TBox class may name its superclass: "Corvessil nebula" is a nebula.)
+        subject = e.get('subject') or ''
+        if r['box'] == 'abox':
+            for value in dict.fromkeys(v for v in (e.get('old_object'), e.get('object')) if v):
+                if contains_answer(subject, value):
+                    own.append(f'{r["id"]} subject: {subject!r} contains the value {value!r}')
+        for where, text in record_sentences(r):
+            low = text.lower()
+            hits = [p for p in BANNED_PHRASES if re.search(rf'\b{re.escape(p)}\b', low)]
+            if hits:
+                phrases.append(f'{r["id"]} {where}: {", ".join(map(repr, hits))} in {text!r}')
+        # Subjects wikidata/entities.json marks as descriptions, whose notes
+        # say what they describe: listed when that is the edited value.
+        ent = by_name.get(subject.lower())
+        if r['box'] != 'rbox' and ent and ent.get('category') == 'description':
+            said = ' '.join(str(ent.get(k) or '') for k in ('note', 'issue'))
+            values = [v for v in (e.get('old_object'), e.get('object')) if v]
+            if re.search(r'describes the answer', said, re.I) or any(contains_answer(said, v) for v in values):
+                descriptions.append(f'{r["id"]}: subject {subject!r} describes the edited value ({said.strip()})')
+    return {'own': own, 'phrases': phrases, 'descriptions': descriptions}
+
+
+# The LLM judge's part (rule3_judge.py). The items are built here so the
+# judge and this report agree on what was judged; a record whose items
+# changed since it was judged is stale. Bump the version when the judge's
+# prompt changes, so every label is redone.
+RULE3_JUDGE_VERSION = 'rule3-judge-v1'
+RULE3_JUDGE_PATH = ROOT / 'rule3_judge.json'
+RULE3_FLAGS = {'subject': 'MOVES', 'standalone': 'DEPENDS', 'giveaway': 'GIVES_AWAY'}
+
+
+def rule3_judge_items(rec):
+    """What the judge labels for one record: its subject (ABox/TBox: does it
+    describe the edited value?), each sentence (does it stand on its own?)
+    and each question with a non-yes/no answer (does it give the answer away,
+    e.g. through a translated name?)."""
+    e, items = rec['edit'], []
+    if rec['box'] != 'rbox' and e.get('subject'):
+        items.append({'task': 'subject', 'key': 'subject', 'subject': e['subject'], 'statement': e['statement'],
+                      'original': e.get('original') or '', 'old_value': e.get('old_object') or '',
+                      'new_value': e.get('object') or ''})
+    for where, text in record_sentences(rec):
+        items.append({'task': 'standalone', 'key': where, 'text': text})
+    for key, q in iter_queries(rec):
+        answers = [a for a in expected_answers(q) if not yes_no(a) and norm(a) not in NOT_AN_ANSWER]
+        if q.get('prompt') and answers:
+            items.append({'task': 'giveaway', 'key': key, 'prompt': q['prompt'], 'answers': answers,
+                          'edit': '' if rec['edit_operation'] == 'delete' else e['statement']})
+    return items
+
+
+def rule3_judge_hash(rec):
+    import hashlib
+    blob = json.dumps([RULE3_JUDGE_VERSION, rule3_judge_items(rec)], ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(blob.encode()).hexdigest()[:16]
+
+
+def load_rule3_judge(path=None):
+    try:
+        return json.loads(Path(path or RULE3_JUDGE_PATH).read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def check_rule3(recs, entities=None, judged=None):
+    found = rule3_patterns(recs, entities)
+    judged = load_rule3_judge() if judged is None else judged
+    cached = judged.get('records', {})
+    missing, stale, flagged, unclear = [], [], [], 0
+    for r in recs:
+        entry = cached.get(r['id'])
+        if entry is None:
+            missing.append(r['id'])
+        elif entry.get('hash') != rule3_judge_hash(r):
+            stale.append(r['id'])
+        else:
+            for item in entry.get('items', []):
+                unclear += item.get('label') == 'UNCLEAR'
+                if item.get('label') == RULE3_FLAGS.get(item.get('task')):
+                    what = item.get('text') or item.get('prompt') or item.get('subject')
+                    flagged.append(f'{r["id"]} {item["task"]} {item["key"]}: {what!r}: {item.get("reason", "")}')
+    pending = len(missing) + len(stale)
+    note = (f'{len(recs) - pending} of {len(recs)} records judged ({judged.get("judge_model", "no judge run yet")}, '
+            f'{judged.get("generated", "never")}). The judge asks, per record: does the subject describe the edited '
+            'value (it would move with the edit), does each statement and prompt stand on its own, and does a '
+            'question (or a translated name in it) give its answer away. Flags are for a person to confirm.')
+    if unclear:
+        note += f' {unclear} items got no usable label (UNCLEAR).'
+    if pending:
+        note += (f' Pending: {len(missing)} never judged, {len(stale)} changed since. Run '
+                 '`sbatch datasets/SidsDataset/rule3_judge.sbatch` (one GPU job).')
+    judge_row = check('', 'LLM judge: subjects, self-contained statements, answers given away', flagged,
+                      status='pending' if pending and not flagged else None, review=True, note=note)
+    if pending:
+        judge_row['count'] = len(flagged) or pending
+    return [
+        check('', 'No prompt or subject contains its own answer', found['own'], review=True,
+              note='Whole-word match of each expected answer in the question a prompt asks (facts stated before '
+                   'the question, quoted words and questions that name their options are skipped), and of the '
+                   "old and new value in the edit's subject. Chinese and Spanish prompts are checked the same way; "
+                   'names that only imply the answer (土卫六 for Titan) are left to the judge.'),
+        check('', 'Statements and prompts stand on their own (no "under those conditions", "the specified", '
+                  '"as stated", or mention of the edit)', found['phrases'],
+              note='Phrases searched: ' + ', '.join(f'"{p}"' for p in BANNED_PHRASES) + '. In the statement, '
+                   'original, premises, every prompt, bridge, revision and side fact, and the audit checks.'),
+        check('', 'No subject describes the edited value (wikidata/entities.json)', found['descriptions'],
+              review=True,
+              note='Subjects entities.json marks as descriptions whose note names the old or new value. '
+                   'entities.json was built on older records and matches few current subjects; the judge covers '
+                   'the rest.'),
+        judge_row,
+    ]
 
 
 def check_locality(recs):
@@ -534,64 +743,274 @@ def check_reuse(recs):
                   note=f'{len(far)} distinct far prompts over {sum(far.values())} queries.')]
 
 
-# Manual rules are reviewed by two agents and a person; each marks the rule
-# done in reviews.json (tracked, so a push shares the marks with everyone).
-REVIEWERS = (('codex', 'Codex'), ('claude', 'Claude'), ('human', 'Human'))
-REVIEWS_PATH = ROOT / 'reviews.json'
+# Manual rules: their statement and guidance are read from CRITERIA.md, the
+# one place they are written. Each reviewer marks each record, per manual
+# rule, and each of its queries green (fine) or red (flagged; an optional
+# note and kind, problem or angle, from the CLI); no mark is yellow.
+# Marks live in reviews.json, which is tracked, so a push shares them.
+CRITERIA_PATH = ROOT / 'CRITERIA.md'
+MANUAL_RULE_RE = re.compile(r'^\*\*Rule (\d+)\. (.+?)\*\* \(`([a-z0-9-]+)`\)\.\s*(.*)$')
 
 
-def load_reviews():
+def parse_criteria(text=None):
+    """{'rules': [{'number', 'key', 'title', 'statement', 'guide'}]} from
+    CRITERIA.md's "Manual rules" section: the rule paragraph is the
+    statement, a <details> block after it the guidance (Markdown; '' when the
+    rule has none)."""
+    text = CRITERIA_PATH.read_text() if text is None else text
+    lines = text.split('\n')
     try:
-        return json.loads(REVIEWS_PATH.read_text())
-    except (OSError, ValueError):
-        return {}
+        start = lines.index('## Manual rules')
+    except ValueError:
+        return {'rules': []}
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith('## ')), len(lines))
+    rules, rule, mode = [], None, None   # mode: 'statement', 'details' or None
+    for line in lines[start + 1:end]:
+        m = MANUAL_RULE_RE.match(line)
+        stripped = line.strip()
+        if m and mode != 'details':
+            rule = {'number': int(m.group(1)), 'title': m.group(2).strip(), 'key': m.group(3),
+                    'statement': [m.group(4)], 'guide': []}
+            rules.append(rule)
+            mode = 'statement'
+        elif rule is None:
+            continue
+        elif stripped == '<details>' or stripped.startswith('<details'):
+            mode = 'details'
+        elif stripped == '</details>':
+            mode = None
+        elif mode == 'details':
+            if not stripped.startswith('<summary'):
+                rule['guide'].append(line)
+        elif mode == 'statement':
+            if stripped:
+                rule['statement'].append(stripped)
+            else:
+                mode = None
+    return {'rules': [{**r, 'statement': ' '.join(' '.join(r['statement']).split()),
+                       'guide': '\n'.join(r['guide']).strip()} for r in rules]}
 
 
-def set_review(rule, reviewer, done, by=None, note=None):
-    """Mark a manual rule done (or back to pending) for one reviewer."""
-    if rule not in {k for k, *_ in MANUAL_RULES}:
-        raise ValueError(f'unknown manual rule {rule!r}')
-    if reviewer not in dict(REVIEWERS):
-        raise ValueError(f'unknown reviewer {reviewer!r}')
-    reviews = load_reviews()
-    entry = {'done': bool(done), 'at': datetime.now().isoformat(timespec='seconds')}
-    if by:
-        entry['by'] = by
-    if note:
-        entry['note'] = note
-    reviews.setdefault(rule, {})[reviewer] = entry
-    REVIEWS_PATH.write_text(json.dumps(reviews, ensure_ascii=False, indent=2) + '\n')
-    return reviews[rule]
+try:
+    MANUAL = parse_criteria()
+except OSError:
+    MANUAL = {'rules': []}
+# (key, title, statement), in rule order.
+MANUAL_RULES = tuple((r['key'], r['title'], r['statement']) for r in MANUAL['rules'])
+
+REVIEWS_PATH = ROOT / 'reviews.json'
+REVIEWS_LOCK = ROOT / '.reviews.lock'
+REVIEWS_VERSION = 4
+# (id, name, kind), in the order their dots are shown. Agents mark as
+# themselves only (the dashboard's agent token can act as an agent reviewer,
+# the user's token as a person).
+REVIEWERS = (('codex', 'Codex', 'agent'), ('claude', 'Claude', 'agent'), ('mustafa', 'Mustafa', 'human'),
+             ('fengchun', 'Fengchun', 'human'), ('adarsh', 'Adarsh', 'human'))
+REVIEWER_IDS = tuple(r[0] for r in REVIEWERS)
+STATES = ('green', 'red')   # no mark: yellow (not reviewed yet)
+KINDS = ('problem', 'angle')  # optional on a red mark (CLI): a problem, or an angle to add or drop
 
 
-# (key, title, what to check). Manual: a script can't judge them.
-MANUAL_RULES = (
-    ('true-and-unambiguous', 'True and unambiguous',
-     'Every answer the dataset relies on is clearly true or clearly false: original and new answers, '
-     'bridge facts, premises, locality references. No disputed, date-dependent or several-answer facts.'),
-    ('stable-subjects', 'Stable subjects, self-contained statements',
-     "No subject describes the value being edited (\"the volcano that destroyed Pompeii\", edited to Etna, "
-     "means Vesuvius before and Etna after), and no phrase or translation contains its own answer. "
-     'Statements make sense on their own.'),
-    ('labels-and-worlds', 'The worlds are sensible',
-     'Each world is a plausible split between stored and derived knowledge; the premise that gives way is a '
-     'sensible one and its side facts go with it; no world contradicts a firm fact outside its chain. '
-     'Entailment, determinacy and chains are machine-checked (rows below).'),
-)
+def _hash(text):
+    import hashlib
+    return hashlib.sha256(text.encode()).hexdigest()
 
 
-def manual_checks():
-    reviews = load_reviews()
+def record_hash(rec):
+    """A record's content, so a mark can tell whether the record changed since."""
+    return _hash(json.dumps(rec, ensure_ascii=False, sort_keys=True))[:12]
+
+
+def query_keys(rec):
+    """Each query's review key, the same as the model audit's (and the
+    dashboard's): direct, paraphrase, cross_lingual[zh], propositional[1],
+    unrelated_near[0], unrelated_far[0], derived[2]."""
     out = []
-    for key, title, what in MANUAL_RULES:
-        marks = {r: bool(reviews.get(key, {}).get(r, {}).get('done')) for r, _ in REVIEWERS}
-        status = 'pass' if all(marks.values()) else 'manual'
-        c = check(title, title, status=status, note=what)
-        c['rule'] = key
-        c['reviews'] = [{'reviewer': r, 'label': label, **reviews.get(key, {}).get(r, {}), 'done': marks[r]}
-                        for r, label in REVIEWERS]
-        out.append(c)
+    for qtype in ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'unrelated_near', 'unrelated_far',
+                  'derived'):
+        items = rec['queries'].get(qtype)
+        for i, q in enumerate(items if isinstance(items, list) else [items] if items else []):
+            out.append(qtype if qtype in ('direct', 'paraphrase') else
+                       f'cross_lingual[{q.get("language")}]' if qtype == 'cross_lingual' else f'{qtype}[{i}]')
     return out
+
+
+def _clean_mark(m):
+    if not isinstance(m, dict) or m.get('state') not in STATES or m.get('kind') not in KINDS + (None,):
+        return None
+    return m
+
+
+def migrate_reviews(data):
+    """reviews.json in the current shape: {'version': 4, 'marks': {record_id:
+    {item: {reviewer: mark}}}}, an item being a manual rule's key (the record
+    as a whole) or a query key. Version 3 flags (record, rule, reviewer,
+    kind, comment) become red marks; older shapes are dropped."""
+    data = data if isinstance(data, dict) else {}
+    out = {'version': REVIEWS_VERSION, 'marks': {}}
+    rules = {k for k, *_ in MANUAL_RULES}
+    if data.get('version') == 3:
+        for rid, flags in (data.get('flags') or {}).items():
+            for f in flags or []:
+                if not (isinstance(f, dict) and f.get('rule') in rules and f.get('reviewer') in REVIEWER_IDS):
+                    continue
+                by = out['marks'].setdefault(rid, {}).setdefault(f['rule'], {})
+                old = by.get(f['reviewer'])
+                kind = f.get('kind') if f.get('kind') in KINDS else 'problem'
+                if old:  # several flags by one reviewer on one rule: one red mark
+                    old['comment'] = ' | '.join(x for x in (old['comment'], f.get('comment')) if x)
+                    old['kind'] = 'problem' if 'problem' in (old['kind'], kind) else 'angle'
+                else:
+                    by[f['reviewer']] = {'state': 'red', 'kind': kind, 'comment': f.get('comment') or '', 'at': f.get('at'),
+                                         'record_hash': f.get('record_hash')}
+        return out
+    if data.get('version') != REVIEWS_VERSION:
+        return out
+    for rid, items in (data.get('marks') or {}).items():
+        for item, by in (items or {}).items():
+            for who, m in (by or {}).items():
+                if who in REVIEWER_IDS and _clean_mark(m):
+                    out['marks'].setdefault(rid, {}).setdefault(item, {})[who] = m
+    return out
+
+
+def load_reviews(path=None):
+    try:
+        raw = json.loads(Path(path or REVIEWS_PATH).read_text())
+    except (OSError, ValueError):
+        raw = {}
+    return migrate_reviews(raw)
+
+
+def _write_reviews(data, path):
+    import os
+    import tempfile
+    path = Path(path)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix='.reviews.', suffix='.tmp')
+    try:
+        with os.fdopen(fd, 'w') as f:
+            f.write(json.dumps(data, ensure_ascii=False, indent=1) + '\n')
+        os.chmod(tmp, 0o664)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+def update_reviews(change, path=None, lock=None):
+    """Read reviews.json, apply change(data), write it back atomically, all
+    under an exclusive lock so concurrent writers (the dashboard, the CLI)
+    never lose each other's marks. Returns change's result."""
+    import fcntl
+    import os
+    path, lock = Path(path or REVIEWS_PATH), Path(lock or REVIEWS_LOCK)
+    with os.fdopen(os.open(lock, os.O_RDWR | os.O_CREAT, 0o664), 'r+') as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        try:
+            data = load_reviews(path)
+            result = change(data)
+            _write_reviews(data, path)
+            return result
+        finally:
+            fcntl.flock(lf, fcntl.LOCK_UN)
+
+
+def set_mark(record_id, item, reviewer, state, comment='', kind=None, recs=None, path=None, lock=None):
+    """One reviewer's mark on one item of a record: a manual rule's key (the
+    record as a whole) or a query key. state: green (fine), red (flagged) or
+    None (back to not reviewed). A note (comment) and, for red, a kind
+    (problem or angle) are optional. Returns the record's marks."""
+    if reviewer not in REVIEWER_IDS:
+        raise ValueError(f'unknown reviewer {reviewer!r} (one of {", ".join(REVIEWER_IDS)})')
+    if state not in STATES + (None,):
+        raise ValueError('state must be green, red or clear')
+    comment = (comment or '').strip()
+    if kind not in KINDS + (None,):
+        raise ValueError(f'kind must be one of {", ".join(KINDS)}')
+    recs = load_records() if recs is None else recs
+    rec = next((r for r in recs if r['id'] == record_id), None)
+    if rec is None:
+        raise ValueError(f'unknown record {record_id!r}')
+    items = [k for k, *_ in MANUAL_RULES] + query_keys(rec)
+    if item not in items:
+        raise ValueError(f'unknown item {item!r} for {record_id} (one of {", ".join(items)})')
+
+    def change(data):
+        by = data['marks'].setdefault(record_id, {}).setdefault(item, {})
+        if state is None:
+            by.pop(reviewer, None)
+        else:
+            mark = {'state': state, 'at': datetime.now().isoformat(timespec='seconds'), 'record_hash': record_hash(rec)}
+            if comment:
+                mark['comment'] = comment
+            if state == 'red' and kind:
+                mark['kind'] = kind
+            by[reviewer] = mark
+        if not by:
+            data['marks'][record_id].pop(item)
+        if not data['marks'][record_id]:
+            data['marks'].pop(record_id)
+        return data['marks'].get(record_id, {})
+    return update_reviews(change, path, lock)
+
+
+def review_state(recs, data=None):
+    """What the dashboard needs: the manual rules with their guidance, the
+    reviewers in dot order, and every mark on a current record (each marked
+    `stale` when its record changed since)."""
+    data = load_reviews() if data is None else data
+    hashes = {r['id']: record_hash(r) for r in recs}
+    marks = {rid: {item: {who: {**m, 'stale': m.get('record_hash') not in (None, hashes[rid])}
+                          for who, m in by.items()} for item, by in items.items()}
+             for rid, items in data['marks'].items() if rid in hashes}
+    return {'rules': [dict(r) for r in MANUAL['rules']],
+            'reviewers': [{'id': i, 'name': n, 'kind': k} for i, n, k in REVIEWERS],
+            'states': list(STATES), 'kinds': list(KINDS), 'marks': marks}
+
+
+def _summary(units, marks, names):
+    """units: [(record_id, item)]. Per reviewer green/red/yellow, and the red
+    items with their comments."""
+    per = {n: Counter() for n in names.values()}
+    red = []
+    for rid, item in units:
+        by = (marks.get(rid) or {}).get(item) or {}
+        for who, name in names.items():
+            per[name][by[who]['state'] if who in by else 'yellow'] += 1
+        reds = [{'reviewer': names[w], **m} for w, m in by.items() if m['state'] == 'red']
+        if reds:
+            red.append({'record': rid, 'item': item, 'marks': reds})
+    return ({name: {s: c[s] for s in ('green', 'red', 'yellow')} for name, c in per.items()}, red)
+
+
+def manual_checks(recs, data=None):
+    """Informational rows: one per manual rule (record-level marks), then one
+    for the per-question marks. Each has green,
+    red and yellow counts per reviewer and the red items with comments."""
+    state = review_state(recs, data)
+    names = {i: n for i, n, _ in REVIEWERS}
+    out = []
+    for rule in MANUAL['rules']:
+        per, red = _summary([(r['id'], rule['key']) for r in recs], state['marks'], names)
+        c = check(rule['title'], rule['title'], _red_items(red), status='manual', note=rule['statement'])
+        c.update(rule=rule['key'], guide=rule['guide'], reviews={'unit': 'records', 'total': len(recs),
+                                                                 'by_reviewer': per, 'red': red})
+        out.append(c)
+    units = [(r['id'], k) for r in recs for k in query_keys(r)]
+    per, red = _summary(units, state['marks'], names)
+    c = check('Edits and questions', 'Each edit and question, reviewed one by one', _red_items(red), status='manual',
+              note='Reviewers mark every query of a record green (fine) or red (flagged), beside its audit dots.')
+    c.update(rule='questions', guide='', reviews={'unit': 'questions', 'total': len(units), 'by_reviewer': per,
+                                                  'red': red})
+    out.append(c)
+    return out, state
+
+
+def _red_items(red):
+    def one(m):
+        kind = f' ({m["kind"]})' if m.get('kind') else ''
+        return m['reviewer'] + kind + (f': {m["comment"]}' if m.get('comment') else '')
+    return [f'{x["record"]} {x["item"]}: red by ' + ', '.join(one(m) for m in x['marks']) for x in red]
 
 
 # Rule 5: what counts as enough evidence (README, Evidence).
@@ -824,6 +1243,7 @@ def check_methods_run(recs):
 
 # Automated rules, in order. The delete rule comes last.
 AUTOMATED_RULES = (
+    ('Stable subjects, self-contained statements', lambda recs, rel: check_rule3(recs)),
     ('No repeated edits', lambda recs, rel: check_repeats(recs)),
     ('Enough evidence for every fact', lambda recs, rel: check_evidence(recs)),
     ('What the models know is recorded', lambda recs, rel: check_audit(recs)),
@@ -838,7 +1258,7 @@ AUTOMATED_RULES = (
 )
 
 
-# Rule 3 support: the formal check of the description-logic reasoning
+# Rule 1 support: the formal check of the description-logic reasoning
 # (reason.py, HermiT over owl/formal/<id>.json; owl/README.md). Read only.
 FORMAL_REPORT = ROOT / 'owl' / 'reason_report.json'
 FORMAL_CHECKS = ('derived_edit', 'pre', 'post_determinate', 'consistent', 'post_worlds', 'differ',
@@ -846,7 +1266,7 @@ FORMAL_CHECKS = ('derived_edit', 'pre', 'post_determinate', 'consistent', 'post_
 
 
 def check_formal(recs):
-    """Rows for Rule 3 from owl/reason_report.json: counts per check, the
+    """Rows for Rule 1 from owl/reason_report.json: counts per check, the
     failing records and queries (a person decides whether the record or the
     encoding is wrong), and how many records have no formal file yet."""
     ids = {r['id'] for r in recs}
@@ -888,7 +1308,7 @@ def check_formal(recs):
     return [row, pending_row, check_justifications(ids)]
 
 
-# Rule 3 support: justifications (justify.py): which axioms each checked
+# Rule 1 support: justifications (justify.py): which axioms each checked
 # derived answer follows from, against the record's derivation, bridge, hops
 # and via. Read only.
 JUSTIFY_REPORT = ROOT / 'owl' / 'justifications.json'
@@ -952,7 +1372,7 @@ def check_justifications(ids):
                  review=True, note=note, table=table)
 
 
-# Rule 3 support, continued: the Z3 check of the fol queries (fol_check.py,
+# Rule 1 support, continued: the Z3 check of the fol queries (fol_check.py,
 # the `fol` sections of owl/formal/<id>.json) and which checker covers each
 # derived query (owl/coverage_labels.py). Read only.
 FOL_REPORT = ROOT / 'owl' / 'fol_report.json'
@@ -960,7 +1380,7 @@ FOL_CHECKS = ('pre', 'post_determinate', 'post_worlds', 'differ', 'consistent', 
 
 
 def check_fol(recs):
-    """Rows for Rule 3 from owl/fol_report.json (counts per check, failing
+    """Rows for Rule 1 from owl/fol_report.json (counts per check, failing
     items) and the checker coverage split (dl via HermiT, fol via Z3)."""
     ids = {r['id'] for r in recs}
     rows = []
@@ -1015,11 +1435,16 @@ def report():
     recs = load_records()
     relations, _ = load_relations()
     checks, n = [], 0
-    for c in manual_checks():
-        n += 1
-        c['section'], c['kind'] = f'Rule {n}. {c["section"]}', 'manual'
+    manual, state = manual_checks(recs)
+    for c in manual:
+        if c['rule'] != 'questions':   # the per-question row has no rule number
+            n += 1
+            c['section'] = f'Rule {n}. {c["section"]}'
+        c['kind'] = 'manual'
         checks.append(c)
-        if c.get('rule') == 'labels-and-worlds':
+        # The machine checks of the logic behind the worlds Rule 1 asks about
+        # (entailment, determinacy, missing minimal revisions) sit under it.
+        if c.get('rule') == 'clear-and-sensible':
             for f in check_formal(recs) + check_fol(recs):
                 f['section'], f['kind'] = c['section'], 'automated'
                 checks.append(f)
@@ -1028,7 +1453,8 @@ def report():
         for c in run(recs, relations):
             c['section'], c['kind'] = f'Rule {n}. {title}', 'automated'
             checks.append(c)
-    return {'records': len(recs), 'checks': checks,
+    review = {'reviewers': state['reviewers'], 'kinds': state['kinds']}
+    return {'records': len(recs), 'checks': checks, 'review': review,
             'status': dict(Counter(c['status'] for c in checks))}
 
 
@@ -1055,14 +1481,47 @@ def print_report(rep, show_all):
     print('\n' + ', '.join(f'{n} {s}' for s, n in sorted(rep['status'].items())))
 
 
+def print_marks(recs=None):
+    recs = load_records() if recs is None else recs
+    manual, _ = manual_checks(recs)
+    for c in manual:
+        r = c['reviews']
+        print(f'## {c["section"]}: {c["name"]} ({r["total"]} {r["unit"]})')
+        print('    ' + '; '.join(f'{who} green {v["green"]}, red {v["red"]}, yellow {v["yellow"]}'
+                                 for who, v in r['by_reviewer'].items()))
+        for item in c['items']:
+            print(f'    {item}')
+
+
+USAGE = """criteria.py                       the checklist (--all: every item, --json: what the dashboard reads)
+criteria.py --marks               review marks per reviewer, and every red mark
+criteria.py --mark RECORD ITEM REVIEWER green|red|clear [--comment NOTE] [--kind problem|angle]
+    ITEM: clear-and-sensible or serves-the-purpose (the record as a whole), or a query key
+    (direct, paraphrase, cross_lingual[zh], propositional[0], unrelated_near[0], unrelated_far[0], derived[2]).
+    The note and kind are optional.
+Reviewers: """ + ', '.join(REVIEWER_IDS) + """ (agents mark as codex or claude)."""
+
+
 def main(argv):
+    opt = lambda flag: argv[argv.index(flag) + 1] if flag in argv and argv.index(flag) + 1 < len(argv) else None
     if argv[:1] == ['--mark']:
-        # python criteria.py --mark <rule> <codex|claude|human> [done|pending] [--by NAME] [--note TEXT]
-        args = argv[1:]
-        opt = lambda flag: args[args.index(flag) + 1] if flag in args else None
-        rule, reviewer = args[0], args[1]
-        done = (args[2] if len(args) > 2 and not args[2].startswith('--') else 'done') == 'done'
-        print(json.dumps(set_review(rule, reviewer, done, opt('--by'), opt('--note')), indent=2))
+        if len(argv) < 5:
+            print(USAGE)
+            return 2
+        record_id, item, reviewer, state = argv[1:5]
+        try:
+            marks = set_mark(record_id, item, reviewer, None if state == 'clear' else state, opt('--comment') or '',
+                             opt('--kind'))
+        except ValueError as e:
+            print(f'error: {e}', file=sys.stderr)
+            return 2
+        print(json.dumps(marks, ensure_ascii=False, indent=2))
+        return 0
+    if '--marks' in argv:
+        print_marks()
+        return 0
+    if '--help' in argv or '-h' in argv:
+        print(USAGE)
         return 0
     rep = report()
     if '--json' in argv:

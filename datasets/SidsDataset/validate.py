@@ -554,7 +554,7 @@ def check_evidence(rec):
         if isinstance(q, dict):
             allowed.update(b for b in (q.get('bridge') or []) + (q.get('revision_facts') or []) if is_text(b))
     side = set(side_facts(rec))
-    allowed.update(side)  # propositional side facts are backed by evidence too (CRITERIA Rule 1)
+    allowed.update(side)  # propositional side facts are backed by evidence too (CRITERIA Rules 1 and 5)
     if uses_determinacy:
         for fact in need:
             if fact not in ev:

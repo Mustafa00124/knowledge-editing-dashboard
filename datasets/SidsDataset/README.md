@@ -495,7 +495,7 @@ and for every premise, optionally for bridge facts. It lives in the record's
   true instead, with a quote ("Australia is a country in Oceania").
 - Bridge facts, revision facts and propositional side facts carry evidence
   too, so their truth is backed by a source rather than only by review
-  (CRITERIA Rule 1). A true one is claimed `stored` when it is stated often,
+  (CRITERIA Rules 1 and 5). A true one is claimed `stored` when it is stated often,
   with a quote or counts.
 - Source kinds: `infini-gram` (`query`, `count`, optional `index`, `note`),
   `wikipedia` and `web` (`url`, optional `quote`, `note`), `search`
@@ -985,7 +985,7 @@ original answer follows before the edit; that a determinate answer follows
 in every world and an indeterminate one in its world, with the answers
 differing; that each world is consistent; and, when the edit contradicts the
 background, that every minimal repair (the smallest set of beliefs to give
-up) is some world. `fol` queries are listed as not checked. CRITERIA Rule 3
+up) is some world. `fol` queries are listed as not checked. CRITERIA Rule 1
 shows the results (`owl/reason_report.json`).
 
 ```bash
@@ -1005,7 +1005,7 @@ bridges or hops differ), `mismatch` (the derivation type is not used) or
 fact the answer is built from (`revision_as_bridge`). After editing records,
 `justify.py --recompare` recomputes the verdicts from the stored
 justifications without HermiT. Results go to
-`owl/justifications.json` and a CRITERIA Rule 3 row; the full run is
+`owl/justifications.json` and a CRITERIA Rule 1 row; the full run is
 `sbatch datasets/SidsDataset/owl/justify.sbatch` (owl/README.md,
 Justifications).
 
@@ -1499,3 +1499,16 @@ The machine-readable version of this scheme is
 dashboard's Datasets page; keep it, this file and `validate.py` in sync. The
 page still shows the scheme rather than records; registering subsets in
 `datasetCatalog.js` switches it over once records exist.
+
+Review marks (CRITERIA.md, manual rules) are made on the record cards of
+that browser: pick yourself under "Reviewing as" and turn on Review mode
+(both remembered in the browser); then clicking one of your own dots cycles
+it yellow (not reviewed), green (fine), red (flagged). Each card has a
+dotted box with one line per manual rule, and each query row its own dots,
+one per reviewer: Codex, Claude, Mustafa, Fengchun, Adarsh. "Next
+unreviewed" jumps to the next record where your rule marks are still
+yellow. Marks go to `reviews.json` under a lock; agents mark as `codex` or
+`claude`, through the dashboard API or `criteria.py --mark RECORD ITEM claude
+green|red|clear [--comment NOTE] [--kind problem|angle]` (`--marks` lists the
+counts and every red mark). The Criteria checklist shows each rule's
+guidance, green / red / yellow counts per reviewer, and every red item.

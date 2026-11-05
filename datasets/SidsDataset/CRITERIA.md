@@ -4,10 +4,11 @@ What makes a good record, and what the dataset as a whole has to cover.
 [`README.md`](README.md) defines the scheme (operations, knowledge form,
 queries, tags, determinacy); this file is the quality bar on top of it.
 
-The rules are numbered in one sequence. **Manual rules** come first: a
-script can't judge them, so two agents and a person review each. **Automated
-rules** follow: `criteria.py` checks them and lists what breaks them. The
-delete rule comes last.
+The rules are numbered in one sequence. **Manual rules** come first: they
+are judgements no script can make, so reviewers make them. Anything that can
+be checked automatically is an **automated rule** instead: `criteria.py`
+checks those (some with an LLM judge) and lists what breaks them. The delete
+rule comes last.
 
 **Checking.** `python datasets/SidsDataset/criteria.py` (or `validate.py
 --criteria`) prints the checklist; `--all` lists every offending item. The
@@ -16,66 +17,123 @@ checklist**), with a **Run checks** button that reruns the automated rules
 after records change. A check becomes a hard error in `validate.py` once the
 records pass it.
 
-**Reviewing a manual rule.** Each manual rule has three marks, pending until
-set: **Codex**, **Claude** and **Human**. An agent that has reviewed every
-record against a rule marks it:
+**Reviewing.** Reviewers (Codex, Claude, Mustafa, Fengchun, Adarsh) mark
+each record under each manual rule, and each of its questions, green (fine)
+or red (flagged: a problem, or an example of something wrong with the
+benchmark). Unmarked is yellow: not reviewed yet. On the dashboard a click
+cycles a reviewer's own dot; `criteria.py --mark` can add a note and say
+whether a red mark is a problem or an angle to add or remove. Marks are
+saved in `reviews.json` next to this file, which is tracked, so pushing it
+shares them.
 
-```bash
-python datasets/SidsDataset/criteria.py --mark true-and-unambiguous claude --note "all 240 records"
-```
-
-(`done` is the default; pass `pending` to undo.) A person marks theirs by
-clicking Human in the checklist. Marks are saved in `reviews.json` next to
-this file, which is tracked, so pushing it shares the marks with everyone.
-A rule turns green when all three are done.
+**Agent reviewers.** Codex and Claude follow the same two rules, with a few
+additions:
+- Mark only with `criteria.py --mark RECORD ITEM codex|claude green|red`
+  (it locks `reviews.json`, so people can mark at the same time). Never
+  write `reviews.json` directly, never mark as another reviewer, and never
+  edit a record, this file or any code.
+- Judge every item yourself; never mark items green in bulk.
+- Every red mark gets `--comment` (a one-line reason in plain words) and
+  `--kind problem` (something to fix) or `--kind angle` (an idea to add, or
+  something tested that teaches us nothing).
+- The details of each red mark go in your own flags file,
+  `reviews/CLAUDE_FLAGS.md` or `reviews/CODEX_FLAGS.md`: one `## <record
+  id>` section per flagged record, with a bullet per red item:
+  `- **<item>** (problem|angle): <details>`. That file is the only one you
+  edit.
+- Don't re-flag what the automated rules (3 onward) already check, unless
+  it also makes the item unclear or useless.
+- Flag real issues, not style. Spend the most care on derived questions.
+- `criteria.py --marks` shows what you have already marked, so a long
+  review can resume where it stopped.
 
 ## Manual rules
 
-**Rule 1. True and unambiguous** (`true-and-unambiguous`). Every answer the
-dataset relies on is clearly true or clearly false: original and new answers,
-bridge facts, revision facts, propositional side facts, premises, locality
-references. Leave out facts that experts dispute, that depend on a date,
-definition or source, or that have several defensible answers. An RBox
-instance must be clear in the real world whatever the axiom says. *Sources
-carry part of this:* a fact with evidence (README, Evidence: a quoted
-sentence, a Wikipedia citation, corpus counts) is backed; the automated row
-"Evidence for bridge, revision and side facts" shows which facts still have
-none. Reviewers judge what sources can't: whether a fact is disputed,
-ambiguous or loosely worded.
+**Rule 1. Clear and sensible** (`clear-and-sensible`). Read the edit, its
+questions and its worlds. If something feels off (the edit is confusing or
+absurd, a question has more than one fair answer, an expected answer isn't
+the obvious one, a world makes no sense), flag it and say what. You don't
+need to look hard: a problem here is usually clear at first read.
 
-**Rule 2. Stable subjects, self-contained statements**
-(`stable-subjects`). A subject is a named thing or class (Pompeii, prime
-number), or a description of something the edit does not change. Two kinds
-are out:
-- a description of the value being edited. In "the volcano that destroyed
-  Pompeii is Vesuvius", edited to Etna, the subject means Vesuvius before the
-  edit and Etna after, so "How tall is the volcano that destroyed Pompeii?"
-  tests nothing stable: the question's own subject moved with the edit;
-- a phrase or translation that contains its own answer: "FDR's successor
-  succeeded FDR", a museum called "Shakespeare's Birthplace", or a Chinese
-  name such as 土卫六 (Titan) that names Saturn.
+**Rule 2. Serves the purpose** (`serves-the-purpose`). Is the record useful
+for what we want to study? Flag records that look valid but don't help
+answer the dataset's question, measure something other than what they
+claim, or that suggest a better angle to study.
 
-A statement makes sense on its own: no "under those conditions", no "the
-specified", no mention of the edit.
+<details>
 
-**Rule 3. The worlds are sensible** (`labels-and-worlds`). The logic is
-checked by machine (the automated rows under this rule): every entailment
-and chain (HermiT for description logic, Z3 for first-order logic, truth
-tables for propositional queries), that each determinate answer holds in
-every world, that each world's answer follows and the answers differ, that
-no minimal revision is missing a world, and that each derived query's
-`derivation`, `bridge`, `revision_facts` and `hops` match its justification.
-What a person still judges is whether the worlds make sense as ways a model
-could hold its knowledge:
-- each world is a plausible split between what is stored and what is
-  derived (a model could really store "the Eiffel Tower is in Paris", or
-  derive it from "in the capital of France");
-- the premise that gives way in each world is a sensible one to give up,
-  and the side facts listed with it really go with it;
-- no world contradicts a firm fact outside its chain; in TBox, a well-known
-  member leaves its class rather than staying as an exception.
+**What we are studying.** The dataset asks: under what kinds of knowledge
+and belief revision operations does an edit **succeed**, **propagate** to
+what follows from it, and **stay contained**? Each part of a record exists
+to measure one piece of that:
+
+| Part | What it measures |
+|---|---|
+| Operation (insert / replace / delete), box (ABox fact, TBox class rule, RBox relation property) | which kind of knowledge and change the result is about |
+| Direct, paraphrase, cross-lingual | whether the edit took, beyond its exact wording |
+| Propositional (not / and / or) | whether the edit survives simple logic around the fact |
+| Derived (with a relation property and a determinacy) | whether the edit propagates to what follows from it |
+| Worlds | the valid outcomes when what should follow depends on how the model stored its knowledge (Hase et al. 2024) |
+| Unrelated near / far | whether the edit stays contained |
+| Derivability (stored vs derived), held-by-model tags | why a method succeeds or fails on this record |
+
+A useful record is one where a model's answer can only be read one way: a
+right answer means the edit worked in that respect, a wrong one means it
+did not. For each part, ask: **if a model gets this right, what have we
+learned, and is that the thing this part is meant to measure?**
+
+**Is it the kind of knowledge it claims?**
+- ABox is one fact about one named thing. TBox is a rule about a whole class
+  ("every X is Y"), not a single fact in disguise. RBox changes how a
+  relation behaves, and its two instances really depend on that property.
+- Insert adds something new, replace swaps a value, delete removes one.
+
+**Does the edit take?** The direct question asks for exactly the edited
+value; the paraphrase is a real rewording of the same question.
+
+**Does it propagate?** (the most important part)
+- Which step carries the edit to this derived question (transitivity, role
+  chain, subproperty, functional, inheritance, inverse)? Does answering
+  really need it?
+- Could a model answer right *without* the edit propagating: the answer's
+  words in the question, a yes/no default, an answer that is the same before
+  and after, another fact that gives it away?
+- Could it answer wrong even if the edit propagated perfectly: a bridge fact
+  most models won't know, an outcome no world lists?
+- Do determinate questions really have one answer whatever the model
+  stored, and indeterminate ones really turn on how it stored things?
+
+**Is it contained?** The near question is close enough (same subject or
+relation, a neighbouring fact) that an over-applied edit would get it wrong,
+and its answer really is unaffected by the edit.
+
+**Is it measuring something else?** A right or wrong answer might be
+explained by how famous the fact is, language ability (names hard to
+translate), answer format (numbers, dates, long answers the judge may score
+loosely), or the model never knowing the fact. Flag it either way: sometimes
+the fix is a rewrite, sometimes it is an angle worth tagging so results can
+be sliced by it.
+
+**New angles.** If a record makes you think of something the benchmark
+should test and doesn't (a kind of edit, a relation property, a type of
+question, a failure you would expect from an editor), or something it tests
+that teaches us nothing, flag it and describe the idea.
+
+</details>
 
 ## Automated rules
+
+**Rule 3. Stable subjects, self-contained statements.** Checked by script,
+with an LLM judge for the parts patterns can't catch:
+- no subject is a description of the value being edited (in "the volcano
+  that destroyed Pompeii is Vesuvius", edited to Etna, the subject moves with
+  the edit); a subject is a named thing or class, or a description of
+  something the edit does not change;
+- no prompt or translated name contains its own answer ("FDR's successor
+  succeeded FDR", 土卫六 for Titan naming Saturn), and no prompt contains the
+  edit's new answer unless the question is about it (yes/no checks);
+- every statement and prompt stands on its own: no "under those
+  conditions", "the specified", "as stated", or mention of the edit.
 
 **Rule 4. No repeated edits.** No two records edit the same fact, in the same
 or different words. Replace and delete are the exception: each delete
