@@ -9,6 +9,7 @@ import ResultsArchive from './ResultsArchive.jsx'
 import ResultsDatasetPicker from '../components/ResultsDatasetPicker.jsx'
 import ArchiveConfirm from '../components/ArchiveConfirm.jsx'
 import TestingResults from './TestingResults.jsx'
+import SidResponsesBrowser from '../components/dataset/SidResponsesBrowser.jsx'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import { protocolLabel } from '../lib/hparams.js'
 import { api } from '../api.js'
@@ -20,6 +21,7 @@ const MODES = [
   { key: 'table', label: 'Table' },
   { key: 'graph', label: 'Graph' },
   { key: 'responses', label: 'Responses' },
+  { key: 'sids', label: "Sid's Dataset" },
   { key: 'testing', label: 'Trial Runs' },
   { key: 'archive', label: 'Archive' },
 ]
@@ -27,6 +29,8 @@ const MODES = [
 // Which tabs are about one dataset's runs, and which of those are about one
 // metric. Trial Runs and Archive are neither: they list whole runs, so the
 // dataset picker and the metric tabs would only be furniture above them.
+// Sid's Dataset is neither too: answers after the edit, one run per method
+// and main instruct model, picked by the backend (sid_responses.py).
 const DATASET_MODES = new Set(['table', 'graph', 'responses'])
 const METRIC_MODES = new Set(['table', 'graph'])
 
@@ -233,6 +237,7 @@ export default function Results() {
       )}
 
       {mode === 'testing' && <TestingResults />}
+      {mode === 'sids' && <SidResponsesBrowser />}
       {mode === 'archive' && <ResultsArchive onChanged={loadManifest} />}
       {DATASET_MODES.has(mode) && <ResultsDatasetPicker options={datasetOptions} value={dataset} onChange={setDataset} />}
 

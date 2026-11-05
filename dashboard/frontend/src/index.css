@@ -3592,17 +3592,6 @@ th {
 .sids-crit-row { display: flex; align-items: center; gap: 0.5rem; padding-right: 0.6rem; }
 .sids-crit-row .sids-crit-head { flex: 1; min-width: 0; }
 .sids-crit-autohead { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
-.sids-reviews { display: flex; gap: 0.3rem; flex-shrink: 0; }
-.sids-review {
-  --rv: var(--text-dim);
-  display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.08rem 0.45rem; border-radius: 999px;
-  font-size: 0.7rem; font-weight: 600; color: var(--rv); white-space: nowrap;
-  background: color-mix(in srgb, var(--rv) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--rv) 30%, transparent);
-}
-.sids-review.is-done { --rv: var(--good); }
-.sids-review.is-toggle { cursor: pointer; font-family: inherit; }
-.sids-review.is-toggle:hover { border-color: var(--rv); }
 .sids-crit-mark {
   flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
@@ -3620,6 +3609,58 @@ th {
 .sids-crit-table th, .sids-crit-table td { padding: 0.15rem 0.6rem; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
 .sids-crit-table th:first-child, .sids-crit-table td:first-child { text-align: left; }
 .sids-crit-table th { color: var(--text-dim); font-weight: 600; }
+
+/* Markdown passed through from a project document (lib/miniMarkdown.jsx). */
+.mini-md p { margin: 0.3rem 0; }
+.mini-md ul { margin: 0.2rem 0; padding-left: 1.1rem; }
+.mini-md li { margin: 0.15rem 0; }
+.mini-md li > p { margin: 0.2rem 0 0; }
+.mini-md code { font-size: 0.85em; }
+.mini-md-table { overflow-x: auto; margin: 0.4rem 0; }
+.mini-md-table table { border-collapse: collapse; font-size: 0.78rem; }
+.mini-md-table th, .mini-md-table td { padding: 0.2rem 0.5rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.mini-md-table th { color: var(--text-dim); font-weight: 600; }
+.sids-crit-guide { font-size: 0.82rem; line-height: 1.45; }
+
+/* Review dots on Sid's Dataset records (SidsReviewDots): the reviewer picker,
+   review mode and filter above the browser; per record one line per manual
+   rule (R1, R2), per query a row beside the audit dots. One dot per reviewer:
+   yellow not reviewed, green fine, red flagged (a ring inside: an angle). */
+.sids-rv-bar { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; font-size: 0.82rem; margin: 0 0 0.8rem; max-width: 100%; min-width: 0; }
+.sids-rv-seg { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; min-width: 0; }
+.sids-rv-seg-label { color: var(--text-dim); margin-right: 0.15rem; }
+.sids-rv-seg-btn { font: inherit; font-size: 0.78rem; padding: 0.08rem 0.6rem; border-radius: 999px; cursor: pointer;
+  color: var(--text-dim); background: transparent; border: 1px solid var(--border); white-space: nowrap; }
+.sids-rv-seg-btn:hover { color: var(--text); border-color: var(--text-dim); }
+.sids-rv-seg-btn.active { color: var(--accent); border-color: var(--accent); font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.sids-rv-mode { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; cursor: pointer; }
+.sids-rv-bar input[type="checkbox"] { vertical-align: middle; }
+.sids-rvd-legend { display: inline-flex; flex-wrap: wrap; gap: 0.2rem 0.7rem; align-items: center; color: var(--text-dim); font-size: 0.76rem; }
+.sids-rvd-legend .sids-rvd-dot { cursor: default; vertical-align: middle; margin-right: 0.15rem; }
+.sids-rvd-record { display: flex; flex-direction: column; gap: 0.2rem; margin: 0.3rem 0.7rem 0.5rem;
+  padding: 0.35rem 0.6rem; border: 1px dashed var(--border); border-radius: 6px; font-size: 0.8rem; }
+.sids-rvd-record .sids-rvd-dots { gap: 4px; }
+.sids-rvd-record .sids-rvd-label { width: 9.5rem; font-size: 0.8rem; font-weight: 500; color: var(--text); }
+.sids-rvd-record .sids-rvd-dot { width: 9px; height: 9px; }
+.sids-rvd { display: inline-flex; flex-direction: column; gap: 0.15rem; vertical-align: middle; max-width: 100%; }
+.sids-rvd-dots { display: inline-flex; gap: 3px; align-items: center; }
+.sids-rvd-label { font-size: 0.64rem; font-weight: 600; color: var(--text-dim); width: 1.4rem; }
+.sids-rvd-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; border: 0; padding: 0; margin: 0;
+  background: var(--warn); cursor: pointer; font: inherit; flex: none; }
+.sids-rvd-dot.is-green { background: var(--good); }
+.sids-rvd-dot.is-red { background: var(--danger); }
+.sids-rvd-dot.is-red.is-angle { background: var(--danger); box-shadow: inset 0 0 0 2px var(--panel); outline: 1px solid var(--danger); outline-offset: -1px; }
+.sids-rvd-dot.is-stale { opacity: 0.45; }
+.sids-rvd-dot.is-mine { outline: 1px solid var(--text-dim); outline-offset: 1px; }
+.sids-rvd-dot:not(:disabled):hover { transform: scale(1.5); }
+.sids-rvd-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sids-query-table td:first-child .sids-rvd { display: flex; margin: 0.25rem 0 0; }
+.sids-rvd-comment { font-size: 0.74rem; color: var(--text-dim); max-width: 28rem; }
+.sids-rvd-comment.is-error { color: var(--danger); }
+.sids-crit-flaglist { margin: 0.3rem 0 0; padding-left: 1rem; max-height: 22rem; overflow: auto; font-size: 0.8rem; }
+.sids-crit-flaglist > li { margin: 0.25rem 0; }
+.sids-crit-flaglist ul { margin: 0.1rem 0 0; padding-left: 1rem; }
 
 /* Sid's Dataset: one dot per audited model beside a fact or query, the
    pre-edit model audit's status (green / red / yellow). */
@@ -3684,3 +3725,68 @@ th {
 .sids-formal-mark.is-pass { color: var(--good); border-color: var(--good); }
 .sids-formal-mark.is-fail { color: var(--danger); border-color: var(--danger); }
 .sids-query-table td:first-child .sids-formal-mark { margin: 0.3rem 0 0; }
+
+/* Factorial effects (FactorialEffects.jsx) */
+.hp-effects-group { margin-bottom: 16px; }
+.hp-effects-group h4 { margin: 12px 0 4px; }
+.hp-effects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.hp-effects-response { min-width: 0; }
+
+/* Sid's Dataset answers after the edit (Results, Sid's Dataset view: SidResponsesBrowser).
+   Status from backend/sid_responses.py; colour key in the view's legend. */
+.sids-pe-dot { --pe-orange: #ee8a35; --pe-purple: #a855f7; }
+.sids-pe-dot.is-pass, .sids-pe-dot.is-kept { background: var(--good); }
+.sids-pe-dot.is-original { background: var(--pe-orange); }
+.sids-pe-dot.is-other, .sids-pe-dot.is-changed { background: var(--danger); }
+.sids-pe-dot.is-none { background: var(--text-dim); }
+.sids-pe-dot.is-unclear { background: transparent; box-shadow: inset 0 0 0 2px var(--warn); }
+.sids-pe-dot.is-empty { background: transparent; box-shadow: inset 0 0 0 1px var(--border); }
+.sids-pe-dot.is-malformed { outline: 2px solid var(--pe-purple); outline-offset: 1px; }
+.sids-pe-dot.is-uncounted { opacity: 0.35; }
+.sids-audit-dots:has(.sids-pe-dot.is-malformed) { gap: 6px; }
+.sids-pe-source { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; margin: 0.4rem 0 0.8rem; }
+.sids-pe-runs { list-style: none; margin: 0.5rem 0 0.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.15rem;
+  font-size: 0.8rem; }
+.sids-pe-runs li { display: flex; gap: 0.6rem; align-items: baseline; min-width: 0; }
+.sids-pe-runs code { font-size: 0.76rem; word-break: break-all; }
+.sids-pe-runs-model { flex: none; width: 11rem; color: var(--text-dim); }
+.sids-pe-legend { font-size: 0.8rem; color: var(--text-dim); margin: 0 0 0.9rem; padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--panel-2); }
+.sids-pe-legend-models { margin: 0 0 0.4rem; }
+.sids-pe-legend dl { margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
+.sids-pe-legend dl > div { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 0.6rem; }
+.sids-pe-legend dt { font-weight: 600; color: var(--text); }
+.sids-pe-legend dd { margin: 0; }
+.sids-pe-legend dd > span { display: inline-flex; align-items: center; gap: 0.3rem; margin-right: 0.8rem; }
+.sids-pe-legend .sids-audit-dot { flex: none; }
+.sids-pe-views { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.sids-ad-answer.sids-pe-answer.is-pass, .sids-ad-answer.sids-pe-answer.is-kept { --role: var(--good); }
+.sids-ad-answer.sids-pe-answer.is-original { --role: #ee8a35; }
+.sids-ad-answer.sids-pe-answer.is-other, .sids-ad-answer.sids-pe-answer.is-changed { --role: var(--danger); }
+.sids-ad-answer.sids-pe-answer.is-none, .sids-ad-answer.sids-pe-answer.is-before { --role: var(--text-dim); }
+.sids-pe-malformed { color: #a855f7; }
+@media (max-width: 640px) {
+  .sids-pe-legend dl > div { grid-template-columns: minmax(0, 1fr); gap: 0.1rem; }
+  .sids-pe-runs li { flex-wrap: wrap; }
+}
+
+/* Sid's Dataset tab rows (topics has many tabs): scroll sideways instead of overflowing. */
+.subnav.sids-tabrow { overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; scrollbar-width: thin; }
+.subnav.sids-tabrow .subnav-tab { flex: 0 0 auto; white-space: nowrap; }
+
+/* Review dots: a little larger; record-level dots carry the reviewer's name, no fill between them. */
+.sids-rvd-dot { width: 8px; height: 8px; }
+.sids-rvd-record { background: transparent; }
+.sids-rvd-record .sids-rvd-dots { gap: 0.25rem 0.9rem; flex-wrap: wrap; }
+.sids-rvd-record .sids-rvd-dot { width: 11px; height: 11px; }
+.sids-rvd-named { display: inline-flex; align-items: center; gap: 0.3rem; background: transparent; }
+.sids-rvd-name { font-size: 0.74rem; color: var(--text-dim); }
+.sids-rvd-named.is-mine .sids-rvd-name { color: var(--text); font-weight: 600; }
+
+/* Query rows: label the model audit dots and the reviewer dots so the two groups read apart. */
+.sids-dot-groups { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.8rem; margin-top: 0.25rem; width: 100%; }
+.sids-dot-group { display: inline-flex; align-items: center; gap: 0.3rem; }
+.sids-dot-group-label { font-size: 0.68rem; color: var(--text-dim); }
+.sids-dot-group-label::after { content: ':'; }
+.sids-query-table td:first-child .sids-dot-groups .sids-rvd { display: inline-flex; margin: 0; }
+.sids-query-table td:first-child .sids-dot-groups .sids-audit-dots { display: inline-flex; margin: 0; }

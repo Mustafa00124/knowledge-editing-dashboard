@@ -33,8 +33,9 @@ class InContextTests(unittest.TestCase):
             rows = in_context_reader.runs()
         self.assertEqual(len(rows), 1)
         scores = rows[0]["scores"]
+        # No judge verdicts outside Sid's Dataset: well_formed is missing, not 0.
         self.assertEqual(scores["original"], {"fluency": 0.9, "reliability": 0.8, "locality": 0.9,
-                                              "generalizability": 0.4})
+                                              "generalizability": 0.4, "well_formed": None})
         self.assertEqual(scores["bertscore"]["reliability"], 0.7)
         self.assertEqual(rows[0]["kb_size"], 100)
 

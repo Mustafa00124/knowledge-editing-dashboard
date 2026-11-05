@@ -30,6 +30,7 @@ import causal_tracing_reader
 import mechanistic_reader
 import registry
 import results_reader
+import sid_responses
 import slurm
 from schemas import ArchiveRequest, DownloadRequest, PromoteRequest, SubmitExperimentRequest, SweepRequest
 
@@ -97,7 +98,6 @@ AGENT_BLOCKED = [
     ("DELETE", re.compile(r"^/api/downloads/")),
     ("POST", re.compile(r"^/api/results/archive")),
     ("POST", re.compile(r"^/api/queue/")),
-    ("POST", re.compile(r"^/api/sids-dataset/criteria/review$")),
 ]
 
 
@@ -259,6 +259,18 @@ def get_sweep_detail(investigation: str, sweep_id: str):
         return hparam_sweeps.sweep_detail(investigation, sweep_id)
     except KeyError:
         raise HTTPException(404, "no such sweep")
+
+
+@app.get("/api/hparams/sweeps/{investigation}/{sweep_id}/effects")
+def get_sweep_effects(investigation: str, sweep_id: str):
+    """A factorial sweep's effects: main effects and two-factor interactions
+    on rewrite, the fluency gate and edit time, with Lenth's margins."""
+    try:
+        return hparam_sweeps.effects(investigation, sweep_id)
+    except KeyError:
+        raise HTTPException(404, "no such sweep")
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
 
 
 @app.post("/api/hparams/sweeps/{investigation}/{sweep_id}/hide")
@@ -1300,23 +1312,52 @@ def _sids_criteria():
 @app.get("/api/sids-dataset/criteria")
 def get_sids_dataset_criteria():
     """The CRITERIA.md checklist (datasets/SidsDataset/criteria.py), run now:
-    manual rules with their review marks, then automated checks with their
+    manual rules with their review guides and progress, then automated checks with their
     status (pass, fail, review, pending, info) and what breaks them."""
     return _sids_criteria().report()
 
 
-@app.post("/api/sids-dataset/criteria/review")
-def set_sids_dataset_review(body: dict):
-    """Mark a manual rule done or pending for one reviewer. Saved in
-    datasets/SidsDataset/reviews.json, which is tracked, so a push shares it.
-    Agents mark theirs with `criteria.py --mark`; this route is the person's."""
+def _review_as(request: Request, module, reviewer):
+    """Who may mark as whom: the agent token only as an agent reviewer (codex,
+    claude), the user's token only as a person, so neither stands in for the other."""
+    kinds = {i: k for i, _, k in module.REVIEWERS}
+    if reviewer not in kinds:
+        raise HTTPException(400, f"unknown reviewer {reviewer!r} (one of {', '.join(kinds)})")
+    role = getattr(request.state, "role", "user")
+    if (role == "agent") != (kinds[reviewer] == "agent"):
+        raise HTTPException(403, f"the {role} token cannot mark as {reviewer}")
+    return reviewer
+
+
+@app.get("/api/sids-dataset/reviews")
+def get_sids_dataset_reviews(request: Request):
+    """Review marks on Sid's Dataset (CRITERIA.md, manual rules): the rules
+    with their guidance, the reviewers in dot order (and which ones this token
+    may mark as), and every green or red mark, per record (by rule) and per
+    query. From datasets/SidsDataset/reviews.json; no mark is yellow."""
     module = _sids_criteria()
+    state = module.review_state(module.load_records())
+    agent = getattr(request.state, "role", "user") == "agent"
+    state["can_mark_as"] = [i for i, _, k in module.REVIEWERS if (k == "agent") == agent]
+    return state
+
+
+@app.post("/api/sids-dataset/reviews/mark")
+def set_sids_dataset_mark(body: dict, request: Request):
+    """One reviewer's mark on one item of a record: {record, item (a manual
+    rule's key, or a query key such as derived[2]), reviewer, state (green,
+    red, or null to clear), and optionally comment and kind (problem or angle)}. Saved in reviews.json under a lock, written atomically.
+    Returns the record's marks."""
+    module = _sids_criteria()
+    reviewer = _review_as(request, module, body.get("reviewer"))
+    record = str(body.get("record") or "")
+    recs = module.load_records()
     try:
-        entry = module.set_review(body.get("rule"), body.get("reviewer", "human"), bool(body.get("done")),
-                                  by=body.get("by"))
+        module.set_mark(record, body.get("item"), reviewer, body.get("state"), body.get("comment") or "",
+                        body.get("kind") or None, recs=recs)
     except ValueError as e:
         raise HTTPException(400, str(e))
-    return {"rule": body.get("rule"), "reviewer": body.get("reviewer", "human"), **entry}
+    return {"record": record, "marks": module.review_state(recs)["marks"].get(record, {})}
 
 
 @app.get("/api/sids-dataset/audit-checks")
@@ -1393,6 +1434,39 @@ def get_sids_dataset_audit_detail(record: str, model: str):
         return model_audit_reader.audit_detail(record, model)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"no Sid's Dataset record {record}")
+
+
+@app.get("/api/sid-responses")
+def get_sid_responses(source: str = sid_responses.DEFAULT_SOURCE):
+    """Sid's Dataset post-edit answers: the sources, the methods in tab order
+    and the one run each method x main instruct model uses (sid_responses.py
+    says how runs are picked and how to point it at results/main)."""
+    try:
+        return sid_responses.overview(source)
+    except KeyError:
+        raise HTTPException(404, f"no source {source}")
+
+
+@app.get("/api/sid-responses/{method}")
+def get_sid_responses_method(method: str, source: str = sid_responses.DEFAULT_SOURCE):
+    """One method's edited records, with a dot per query and model (status
+    from the judge's label and the stored score, form label)."""
+    try:
+        return sid_responses.method_dots(method, source)
+    except KeyError:
+        raise HTTPException(404, f"no method {method} or source {source}")
+
+
+@app.get("/api/sid-responses/{method}/detail")
+def get_sid_responses_detail(method: str, model: str, record: str, key: str,
+                             source: str = sid_responses.DEFAULT_SOURCE):
+    """One dot: the question, the answer before the edit (step 0), after it
+    (end of the run) and, when the record was asked again later, right after
+    its own edit; judge and form labels with reasons."""
+    try:
+        return sid_responses.detail(method, model, record, key, source)
+    except KeyError:
+        raise HTTPException(404, f"no method {method}, model {model} or source {source}")
 
 
 @app.get("/api/datasets/record-count")

@@ -25,7 +25,7 @@ const EDIT_TYPES = [
 ]
 
 export default function Datasets() {
-  const [benchmark, setBenchmark] = useState('UniEdit')
+  const [benchmark, setBenchmark] = useState('SidsDataset')
   const [category, setCategory] = useState('All types')
   const [subsetKey, setSubsetKey] = useState(BENCHMARKS[benchmark][0]?.key)
   const [split, setSplit] = useState('test')

@@ -252,6 +252,24 @@ directories will move before it commits.
   across runs, and plot any checkpointed metric over steps.
 - **Results · Responses** (`/results/responses`) — browse the qualitative
   generation samples (`samples/step_*.json`) for a given run/step.
+- **Results · Sid's Dataset** (`/results/main`, "Sid's Dataset" tab): answers
+  after the edit, browsed like the Datasets page's Sid's Dataset browser
+  (shared pieces in `frontend/src/components/dataset/SidsRecordCard.jsx`).
+  One method tab at a time (FT-M, LoRA, ROME, AlphaEdit, FiDAL, FiNE, IFMET,
+  LTI, LoCo), only the records its runs edited, and on every query one dot
+  per main instruct model (Qwen3-4B, Olmo-3-7B, Llama-3.1-8B, Mistral-7B
+  Instruct). Colours come from the judge's label and the stored score, as
+  `experiments/run_experiment/sid_evaluation.py` scores them; the page's
+  legend gives the key. Clicking a dot shows the answer before the edit
+  (step 0 of the same run) and after it, with judge and form labels.
+  `backend/sid_responses.py` picks one finished run per method x model
+  (newest `finished_at`) from a *source*: `sweep_current` (the
+  `_records_current` default-settings runs of the screen sweeps under
+  `results/investigations/*/sweeps/*/runs/`, `deleted/` left out) or `main`
+  (`results/main/run_experiment/runs/`). The page has a switch; once the
+  main experiments exist, set `DEFAULT_SOURCE = "main"` there to open on
+  them. API: `GET /api/sid-responses?source=`, `/api/sid-responses/{method}`,
+  `/api/sid-responses/{method}/detail?model=&record=&key=`.
 - **Experiments → In context** (`/experiments/in-context`): the second
   kind of main experiment, in-context editing (SCR) against a knowledge base
   of distractors. A weight-edited model has to find a fact among everything

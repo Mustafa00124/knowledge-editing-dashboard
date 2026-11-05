@@ -114,8 +114,16 @@ JSON spec:
 ```
 
 `design` is `one_at_a_time` (each value changes only its own setting, plus one
-shared run at the current settings) or `grid` (every combination); left out,
-the investigation's own default (`one_at_a_time` for the families). A quick
+shared run at the current settings), `grid` (every combination), `lhs` (a
+Latin hypercube sample, step 0 of the tuning plan) or `factorial2` (step 1:
+exactly two values per setting, low then high; the full 2^k design up to 6
+settings, else the smallest standard fraction of resolution V, or pick one
+with `"fraction": p` for 2^(k-p) runs; plus `centre_points` runs at the middle
+values, default 3, seeds 0, 1, 2). Left out, the investigation's own default
+(`one_at_a_time` for the families). Each factorial run's name ends in its
+coded levels (H high, L low, M middle) and sweep.json keeps them per run.
+The step-1 specs for the core methods and main instruct models are in
+`docs/hparam_step1/specs/` (`scripts/make_step1_specs.py` writes them). A quick
 check is `"ds_size": "2"` with `"edit_mode": "single"`, or `"20"` with
 `"batch"` (two batches of ten).
 
@@ -139,6 +147,7 @@ python scripts/dash.py sweep spec.json              # launch
 | What | Command |
 | --- | --- |
 | Sweep runs, scored | `dash.py get "/api/hparams/results?investigation=locate_edit"` |
+| A factorial sweep's effects (main effects, pairs, Lenth's margins, centre-point curvature) | `dash.py get /api/hparams/sweeps/<investigation>/<sweep-id>/effects` |
 | In-context runs, scored by knowledge-base size | `dash.py get /api/in-context` |
 | Model audit summaries, then one model's every response | `dash.py get /api/model-audit`, then `/api/model-audit/runs/<run>` |
 | Failed sweep runs and their errors | `dash.py get /api/hparams/failures` |
@@ -158,7 +167,8 @@ maps the tree.
 | Dry runs and estimates | Archive or restore results, delete or hide sweeps |
 | Launch experiments and sweeps | Downloads |
 | Follow, cancel and rerun **its own** launches | The GPU queue cards on any page (stage, launch, pause, cancel); agent launches go straight out and show in progress sections |
-| | Cancel or rerun what the user launched |
+| Review Sid's Dataset records green or red as `codex` or `claude` (`POST /api/sids-dataset/reviews/mark`, or `criteria.py --mark`) | Cancel or rerun what the user launched |
+| | Mark as one of the people (Mustafa, Fengchun, Adarsh) |
 
 ## Rules
 

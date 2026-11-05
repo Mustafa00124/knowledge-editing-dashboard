@@ -77,6 +77,8 @@ export const api = {
   clearTestingResults: () => req('/results/testing/clear', { method: 'POST' }),
   sweepDetail: (investigation, id) => req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}`),
   sweepResults: (investigation) => req(`/hparams/results?investigation=${encodeURIComponent(investigation)}`),
+  // A factorial sweep's main effects and interactions (hparam_sweeps.effects).
+  sweepEffects: (investigation, id) => req(`/hparams/sweeps/${encodeURIComponent(investigation)}/${encodeURIComponent(id)}/effects`),
   promoteConfig: (investigation, sweepId, run) =>
     req('/hparams/promote', { method: 'POST', body: JSON.stringify({ investigation, sweep_id: sweepId, run }) }),
 
@@ -119,6 +121,13 @@ export const api = {
   evaluations: (run, mode) => req(`/results/runs/${encodeURIComponent(run)}/evaluations${mode === 'sid' ? '?mode=sid' : ''}`),
   evaluation: (run, step, mode) => req(`/results/runs/${encodeURIComponent(run)}/evaluations/${step}${mode === 'sid' ? '?mode=sid' : ''}`),
   testingResults: () => req('/results/testing'),
+  // Sid's Dataset answers after the edit, one run per method x main instruct
+  // model (backend/sid_responses.py). source: 'sweep_current' or 'main'.
+  sidResponses: (source) => req(`/sid-responses${source ? `?source=${encodeURIComponent(source)}` : ''}`),
+  sidResponsesMethod: (method, source) =>
+    req(`/sid-responses/${encodeURIComponent(method)}${source ? `?source=${encodeURIComponent(source)}` : ''}`),
+  sidResponsesDetail: (method, model, record, key, source) =>
+    req(`/sid-responses/${encodeURIComponent(method)}/detail?model=${encodeURIComponent(model)}&record=${encodeURIComponent(record)}&key=${encodeURIComponent(key)}${source ? `&source=${encodeURIComponent(source)}` : ''}`),
 
   // Archiving moves a run's directory out of runs/ (see backend/archive.py).
   // Both calls take dry_run: the confirmation dialog asks what *would* move,
@@ -170,9 +179,14 @@ export const api = {
     req(`/sids-dataset/audit-detail?record=${encodeURIComponent(record)}&model=${encodeURIComponent(model)}`),
   sidsDatasetFormalStatus: () => req('/sids-dataset/formal-status'),
   sidsDatasetCriteria: () => req('/sids-dataset/criteria'),
-  // Mark a manual criteria rule done or pending (the person's mark; agents use criteria.py --mark).
-  sidsDatasetReview: (rule, done) =>
-    req('/sids-dataset/criteria/review', { method: 'POST', body: JSON.stringify({ rule, reviewer: 'human', done }) }),
+  // Review marks (CRITERIA.md manual rules): rules with their guidance,
+  // reviewers in dot order (can_mark_as: who this token may mark as) and every
+  // green or red mark, per record (by rule) and per query; no mark is yellow.
+  sidsDatasetReviews: () => req('/sids-dataset/reviews'),
+  // One mark: item is a rule key or a query key; state green, red (comment
+  // required, kind problem or angle) or null to clear. Returns the record's marks.
+  sidsDatasetMark: (record, item, reviewer, state, comment = '', kind = 'problem') =>
+    req('/sids-dataset/reviews/mark', { method: 'POST', body: JSON.stringify({ record, item, reviewer, state, comment, kind }) }),
   modelAuditRun: (run) => req(`/model-audit/runs/${encodeURIComponent(run)}`),
   causalTrace: (run) => req(`/causal-tracing/runs/${encodeURIComponent(run)}`),
 
