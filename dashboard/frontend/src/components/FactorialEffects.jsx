@@ -48,7 +48,15 @@ function Curvature({ c, unit }) {
   )
 }
 
-function ResponseBlock({ response, analysis, design }) {
+// A setting's name: a button that makes it the explorer's table rows, when
+// the effects sit inside HpExplorer (onPick), else plain code.
+function Name({ factor, onPick, cross }) {
+  if (!onPick) return <code>{factor}</code>
+  return <button type="button" className="hp-pick" title={cross ? 'cross these two in the table' : 'make this the table’s rows'}
+    onClick={() => onPick(...(cross || [factor]))}><code>{factor}</code></button>
+}
+
+function ResponseBlock({ response, analysis, design, onPick }) {
   const [allPairs, setAllPairs] = useState(false)
   const unit = response.unit
   if (!analysis || !analysis.main?.length) {
@@ -74,7 +82,7 @@ function ResponseBlock({ response, analysis, design }) {
           <tbody>
             {main.map((m) => (
               <tr key={m.factor}>
-                <td><code>{m.factor}</code> <span className="dl-dim">{formatValue(design.levels?.[m.factor]?.low)} → {formatValue(design.levels?.[m.factor]?.high)}</span>
+                <td><Name factor={m.factor} onPick={onPick} /> <span className="dl-dim">{formatValue(design.levels?.[m.factor]?.low)} → {formatValue(design.levels?.[m.factor]?.high)}</span>
                   {m.aliases?.length ? <div className="dl-dim">aliased with {m.aliases.join(', ')}</div> : null}</td>
                 <td><strong>{fmt(m.effect, unit)}</strong></td>
                 <td>{level(m.low_mean, unit)}</td>
@@ -92,7 +100,7 @@ function ResponseBlock({ response, analysis, design }) {
           <tbody>
             {pairs.map((i) => (
               <tr key={i.factors.join('|')}>
-                <td><code>{i.factors[0]}</code> × <code>{i.factors[1]}</code>
+                <td><Name factor={i.factors[0]} onPick={onPick} cross={i.factors} /> × <Name factor={i.factors[1]} onPick={onPick} cross={i.factors} />
                   {i.aliases?.length ? <div className="dl-dim">aliased with {i.aliases.join(', ')}</div> : null}</td>
                 <td>{fmt(i.effect, unit)}</td>
                 <td><Verdict verdict={i.verdict} /></td>
@@ -111,7 +119,7 @@ function ResponseBlock({ response, analysis, design }) {
   )
 }
 
-function Group({ group, timeRule }) {
+function Group({ group, timeRule, onPick }) {
   const d = group.design
   return (
     <div className="card hp-effects-group">
@@ -134,7 +142,7 @@ function Group({ group, timeRule }) {
           <tbody>
             {Object.entries(group.suggestions).map(([factor, s]) => (
               <tr key={factor}>
-                <td><code>{factor}</code></td>
+                <td><Name factor={factor} onPick={onPick} /></td>
                 <td>{s.level ? <><strong>{s.level}</strong> <span className="dl-dim">{formatValue(s.value)}</span></> : 'n/a'}</td>
                 <td className="dl-dim">{s.text}</td>
               </tr>
@@ -143,13 +151,13 @@ function Group({ group, timeRule }) {
         </table>
       </div>
       <div className="hp-effects-grid">
-        {group.responses.map((r) => <ResponseBlock key={r.key} response={r} analysis={group.analyses[r.key]} design={d} />)}
+        {group.responses.map((r) => <ResponseBlock key={r.key} response={r} analysis={group.analyses[r.key]} design={d} onPick={onPick} />)}
       </div>
     </div>
   )
 }
 
-export default function FactorialEffects({ investigation, sweepIds }) {
+export default function FactorialEffects({ investigation, sweepIds, onPick }) {
   const [sweepId, setSweepId] = useState(sweepIds[0] || '')
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
@@ -174,14 +182,16 @@ export default function FactorialEffects({ investigation, sweepIds }) {
         per run; the fluency gate is 1 for a run that keeps fluency and grammar and 0 for one that does not, so a failed
         run counts there and never as a rewrite of 0. Runs that crashed or have not finished are left out.
       </p>
-      <label className="hp-filter">Sweep{' '}
-        <select value={sweepId} onChange={(e) => setSweepId(e.target.value)}>
-          {sweepIds.map((id) => <option key={id} value={id}>{id}</option>)}
-        </select>
-      </label>
+      {sweepIds.length > 1 && (
+        <label className="hp-filter">Sweep{' '}
+          <select value={sweepId} onChange={(e) => setSweepId(e.target.value)}>
+            {sweepIds.map((id) => <option key={id} value={id}>{id}</option>)}
+          </select>
+        </label>
+      )}
       {error && <p className="form-error">{error}</p>}
       {!data && !error && <p className="empty">Loading…</p>}
-      {data && data.groups.map((g) => <Group key={`${g.method}|${g.model}|${g.data_path}`} group={g} timeRule={data.time_rule} />)}
+      {data && data.groups.map((g) => <Group key={`${g.method}|${g.model}|${g.data_path}`} group={g} timeRule={data.time_rule} onPick={onPick} />)}
     </section>
   )
 }

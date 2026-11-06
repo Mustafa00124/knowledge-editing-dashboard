@@ -1291,6 +1291,7 @@ def results(investigation, include_hidden=True):
     statuses = _statuses(sweeps)
     jobs = {str(j["job_id"]): j for j in db.list_jobs(include_cleared=True)}
     rows = []
+    layers = {}  # model -> layer count, read once (results pages show layers as relative depth too)
     for sweep_dir, sweep in sweeps:
         for run in sweep["runs"]:
             run_dir = sweep_dir / "runs" / run["run_name"]
@@ -1303,6 +1304,8 @@ def results(investigation, include_hidden=True):
             job = jobs.get(str(run["job_id"]), {})
             error = _error_line(job.get("err_path")) if state in ("FAILED", "OUT_OF_MEMORY", "CANCELLED", "TIMEOUT") else None
             loss = _loss_summary(run_dir)
+            if run["model"] not in layers:
+                layers[run["model"]] = _model_layers(run["model"])
             # Earlier attempts replaced by "Rerun failed", with why each ended.
             earlier = []
             for job_id in run.get("earlier_jobs", []):
@@ -1330,6 +1333,7 @@ def results(investigation, include_hidden=True):
                     "model_variant": models.get(run["model"], {}).get("variant"),
                     "model_type": models.get(run["model"], {}).get("type"),
                     "model_family": models.get(run["model"], {}).get("family"),
+                    "model_layers": layers[run["model"]],
                     # Single, batch and sequential runs live in separate sweeps and
                     # never overwrite each other; this keeps them apart in tables.
                     **(lambda p: {"protocol": p["label"], "protocol_detail": p})(_protocol(exp_cfg, sweep["request"], summary)),

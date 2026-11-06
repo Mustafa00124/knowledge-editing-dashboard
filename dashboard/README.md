@@ -376,24 +376,30 @@ directories will move before it commits.
   folder to `<investigation>/deleted/` rather than erasing it. Backend:
   `backend/hparam_sweeps.py`, results under
   `results/investigations/<investigation>/sweeps/<sweep>/`.
-- **Results · Investigations** (`/results/investigations`): every sweep
-  run of an investigation, filterable by method, model, dataset and sweep,
-  scored on fluency (final over the unedited model's), reliability,
-  locality and generalizability on a 0 to 1 scale, and ranked by default
-  by reliability (the goal is reliability without losing fluency). Cells are
-  coloured by editable thresholds (colour only, nothing is hidden). A chart
-  plots the criteria across the swept value when one setting varies. "Use
-  as main config" writes a run's values into that method's hparams file for
-  that model and records it in `hparams/TUNED.json`. A factor panel lists dataset, protocol, method, model,
-  model type, model family and every swept setting; opening one shows all
-  its values to include or leave out (with a select-all circle), and
-  everything included is averaged together. One factor is the table's rows
-  ("Rows"), or "Each run" for no averaging: one row per included value,
-  mean ± standard deviation over the included values of every other
-  factor, with the run count and the variance on hover. Only finished runs
-  are averaged. The chart's x-axis is
-  the rows factor: a line across a setting's values, grouped bars across
-  the rest. Every tuning stage is its own model value (so runs never
+- **Results · Hyperparameter tuning** (`/results/investigations`): pick the
+  step (0 Latin hypercube, 1 two-level factorial) and the method family, then
+  one method and one model as tabs: a table never averages over methods or
+  models (layer numbers mean different depths in different models).
+  Metric chips choose the columns and their order, each metric in its own
+  colour: fluency (final over the unedited model's), rewrite, locality,
+  portability, paraphrase, grammar, keeps fluency (share of runs passing the
+  gate) and edit time. Three views (`components/HpExplorer.jsx`, logic in
+  `lib/hpExplore.js`): **By setting** has one setting's values as rows,
+  averaged over every other setting's values, with the metrics as columns or
+  a second setting as columns (each cell then shows the chosen metrics
+  separated by bars); **Each run** lists every run with its settings, loss
+  and "Use as main config" (writes the run's values into that method's
+  hparams file for that model and records it in `hparams/TUNED.json`);
+  **Across models** shows, for the method, each model's best value of every
+  setting and how far the setting moves rewrite, with layers also as
+  relative depth. The best value of each metric is bold, counting only values
+  where at least half the runs keep fluency (0.85) and grammar (0.9) of the
+  unedited model; others are greyed. A factorial's centre runs (every
+  setting at its middle at once) are shown as "centre run" and never marked
+  best. On step 1 an expandable effects panel lists main effects and
+  interactions with noise estimates; clicking a setting or pair sets the
+  table to it. Only finished runs are averaged; hover a number for its run
+  count and spread. Every tuning stage is its own model value (so runs never
   overwrite each other) and is labelled with its stage, here and in Main
   results; Main results can also use Protocol as a row or column. The **Failures** view
   (`/results/investigations?view=failures`) lists, across every
