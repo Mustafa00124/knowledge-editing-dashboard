@@ -40,7 +40,7 @@ class EvaluationWiringTests(unittest.TestCase):
         cfg = registry.get_experiment_type("run_experiment")
         field = next(f for f in cfg["fields"] if f["name"] == "evaluation_modes")
         self.assertEqual([o["value"] for o in field["options"]],
-                         ["original", "sid", "exact_match", "bertscore", "llm_judge"])
+                         ["original", "sid", "sid_main", "exact_match", "bertscore", "llm_judge"])
         self.assertNotIn("YOUR_API_KEY_HERE", json.dumps(cfg))
         self.assertNotIn('"api_key"', json.dumps(cfg))
 

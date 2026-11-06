@@ -433,11 +433,13 @@ def parse_args():
         "fields are actually varying in a given submission.",
     )
     p.add_argument("--evaluation_modes", default="auto",
-                   help="Comma-separated: auto,original,sid,exact_match,bertscore,llm_judge; modes share one edit "
-                        "run. auto: the dataset's own scoring. Sid's Dataset is always scored by sid "
+                   help="Comma-separated: auto,original,sid,sid_main,exact_match,bertscore,llm_judge; modes share "
+                        "one edit run. auto: the dataset's own scoring. Sid's Dataset is always scored by sid "
                         "(sid_evaluation.py: generated answers labelled by the local SID judge after the run), "
-                        "and original/auto mean sid there; elsewhere auto means original and sid is refused "
-                        "(evaluation_config.resolve_modes)")
+                        "and original/auto mean sid there; sid_main (sid_main_evaluation.py, the main "
+                        "experiments) adds determinate-only portability, indeterminate change rates and hinted "
+                        "and reasoning probes, and becomes the headline. Elsewhere auto means original and "
+                        "sid/sid_main are refused (evaluation_config.resolve_modes)")
     p.add_argument("--edit_mode",
                    choices=("single", "batch", "sequential", "sequential_batch"), default=None,
                    help="single: one fact per edit, reset after each. batch: one joint edit of "
@@ -650,11 +652,17 @@ def main():
     if modes_note:
         print(modes_note)
     sid_records = None
+    sid_main = False
     if "sid" in args.evaluation_modes and not args.smoke:
         import sids_requests
         import sid_evaluation
 
         sid_records = {r["id"]: r for r in sids_requests.load_records(args.data_path)}
+        if "sid_main" in args.evaluation_modes:
+            # The main experiments' reading of Sid's Dataset (sid_main_evaluation.py).
+            import sid_main_evaluation
+
+            sid_main = True
     if (args.method in LOCATE_AND_EDIT and LOCATE_AND_EDIT[args.method].get("needs_subject", True)
             and any("subject" not in r for r in requests)):
         raise SystemExit(
@@ -821,6 +829,7 @@ def main():
                 "edit_batch_size": args.edit_batch_size if args.edit_mode in JOINT_MODES else None,
                 "evaluation_config": semantic.metadata(),
                 "sid_evaluation": sid_evaluation.metadata() if sid_records is not None else None,
+                "sid_main_evaluation": sid_main_evaluation.metadata() if sid_main else None,
                 "started_at": started_at,
                 "method": args.method,
                 "model": args.model,
@@ -1075,6 +1084,21 @@ def main():
                     step, group_start)
             with open(sid_evaluation.sample_path(run_dir, step), "w") as f:
                 json.dump(payload, f, indent=1, ensure_ascii=False)
+            # The main evaluation's hinted and reasoning probes: before the
+            # edit (the control) and at the end (or each group's end) only.
+            # SCR/IKE answer through their own context and are not asked.
+            if (sid_main and args.method not in ("scr", "ike")
+                    and sid_main_evaluation.probe_steps_wanted(step, total_steps, args.edit_mode)):
+                def generate_probes(prompts, long):
+                    if long:
+                        return sid_evaluation.generate_answers(
+                            model, tok, prompts, device, sids_prompt_format,
+                            max_new_tokens=sid_main_evaluation.REASONING_MAX_NEW_TOKENS, cut=False)
+                    return sid_evaluation.generate_answers(model, tok, prompts, device, sids_prompt_format)
+                probes = sid_main_evaluation.collect_probes(scored_requests, sid_records, sids_prompt_format, tok,
+                                                            generate_probes, step, group_start)
+                with open(sid_main_evaluation.sample_path(run_dir, step), "w") as f:
+                    json.dump(probes, f, indent=1, ensure_ascii=False)
         if semantic.modes:
             probes = collect_probes(scored_requests, answer, semantic_baseline, case_offset=group_start)
             # Save before scoring as well, so API/encoder failure cannot erase answers.
@@ -1275,7 +1299,7 @@ def main():
     finally:
         ckpt_file.close()
 
-    sid_final = sid_info = None
+    sid_final = sid_info = main_final = main_info = None
     if sid_records is not None:
         # Judge after generation, as the model audit does: the edited model
         # (and SCR/IKE's encoders) leave the GPU first, so only the judge is
@@ -1289,6 +1313,12 @@ def main():
         sid_judge = sid_evaluation.load_judge(device)
         sid_final, sid_info = sid_evaluation.finalize(run_dir, ckpt_path, sid_records, sid_judge, salt=args.model,
                                                       grouped=bool(args.edit_mode))
+        if sid_main:
+            # Same judge, still loaded: the main evaluation's probes and
+            # reading of the derived queries (headline portability:
+            # determinate only).
+            main_final, main_info = sid_main_evaluation.finalize(run_dir, ckpt_path, sid_records, sid_judge,
+                                                                 salt=args.model, grouped=bool(args.edit_mode))
         sid_info["judge_sec"] = round(time.time() - t_judge, 2)
         del sid_judge
         gc.collect()
@@ -1296,9 +1326,10 @@ def main():
         with open(ckpt_path) as f:
             judged = {row["step"]: row for row in map(json.loads, filter(str.strip, f))}
         for row in state["group_rows"]:
-            sid = judged.get(row["step"], {}).get("evaluations", {}).get("sid")
-            if sid is not None:
-                row["evaluations"]["sid"] = sid
+            for mode in ("sid", "sid_main"):
+                sid = judged.get(row["step"], {}).get("evaluations", {}).get(mode)
+                if sid is not None:
+                    row["evaluations"][mode] = sid
         print(f"[{run_name}] sid evaluation: {sid_final and {k: sid_final[k] for k in ('edit_succ', 'portability', 'locality', 'fluency')}}")
 
     with open(ckpt_path) as f:
@@ -1354,6 +1385,13 @@ def main():
         summary.update({k: sid_final[k] for k in ("edit_succ", "portability", "locality", "fluency")},
                        headline_evaluation="sid")
         summary["sid_evaluation"] = sid_info
+    if main_final is not None:
+        # Main experiments: the headline portability is the determinate
+        # derived queries' (sid_main_evaluation.py); "sid" stays beside it.
+        summary["evaluations"]["sid_main"] = main_final
+        summary.update({k: main_final[k] for k in ("edit_succ", "portability", "locality", "fluency")},
+                       headline_evaluation="sid_main")
+        summary["sid_main_evaluation"] = main_info
     with open(os.path.join(run_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     print(f"[{run_name}] done: {summary}")

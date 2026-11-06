@@ -770,8 +770,10 @@ different answers among them. A determinate query keeps its single
 `new_answer` and has no `world_answers`.
 
 **Scoring** (editing runs, [Evaluation](#evaluation)): a determinate query
-passes on its `new_answer`. An indeterminate one passes if the answer matches
-some world, and which world it matches is recorded. Across a record's
+passes on its `new_answer`. Under `sid`, an indeterminate one passes if the
+answer matches some world, and which world it matches is recorded; the main
+experiments' `sid_main` instead measures whether it changed from the original
+answer ([Main experiments](#main-experiments-sid_main)). Across a record's
 indeterminate queries, the worlds a model's answers pick should agree;
 answers from different worlds are themselves an inconsistency (reported as
 `worlds.records_mixed`). An answer that matches no world fails.
@@ -1107,6 +1109,26 @@ onto metrics:
 
 Fluency leaves out the cross-lingual answers, since n-gram based fluency
 scores aren't comparable between Chinese and English text.
+
+### Main experiments (`sid_main`)
+
+The main experiments add evaluation mode `sid_main`
+(`experiments/run_experiment/sid_main_evaluation.py`; hyperparameter sweeps
+keep `sid` for now). It reuses `sid`'s answers, judge and reliability,
+locality and fluency, and reads derived queries differently, because under
+`sid` an indeterminate query passes on any world's answer, and 503 of the 572
+indeterminate queries have a world whose answer is the original one: a model
+that never applied the edit passes them.
+
+| Part | What it measures |
+| --- | --- |
+| Portability (headline) | Determinate derived queries the unedited model answered with the original answer (the hyperparameter selection's definition). All determinate queries and RBox queries are reported beside it. |
+| Indeterminate change | Per answer: unchanged (the original), changed to a world's answer, or changed to an answer no world gives; rates over all and over known answers. An unchanged answer is diagnosed from its record: it fits one world and the record's determinate queries all passed (consistent with a world that stored the fact by name), it fits one world but some determinate query failed (the edit likely did not spread), or the record's answers fit no single world. |
+| Hinted | Each determinate query whose bridge the question does not state is asked again with the bridge in front, never the edit. Plain pass: propagated. Only hinted pass: retrieval (the model holds the edit but does not bring the bridge to it). Both fail: not integrated. Asked at step 0 too as a control: a hint that already gives the new answer before the edit is counted as a leak, not as retrieval. Queries whose question already states the bridge are reported apart: their plain answer is the hinted test. |
+| Reasoning | Each determinate query of a replace or insert record, asked to list the facts needed, reason step by step and end with "Answer: ...", without the short-answer instruction. The final answer is scored like the plain query; the reasoning judge compares the reasoning with the query's `chain` and labels it CORRECT, MISSED_EDIT, MISSED_FACT, WRONG_STEP, WRONG_FINAL or UNCLEAR, with the first reference step it gets wrong. |
+
+Hinted and reasoning probes are asked at step 0 and at the final checkpoint
+(every group's checkpoint under an edit protocol), not by SCR or IKE.
 
 ### Answering and judging
 

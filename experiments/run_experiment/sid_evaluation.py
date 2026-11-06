@@ -161,9 +161,11 @@ def score_answer(q, verdict, operation):
 # ---------------------------------------------------------------- generation
 
 def generate_answers(model, tok, prompts, device, fmt, max_new_tokens=MAX_NEW_TOKENS,
-                     batch_size=GENERATE_BATCH_SIZE):
+                     batch_size=GENERATE_BATCH_SIZE, cut=True):
     """Greedy answers to rendered prompts, batched with left padding (longest
-    first), cut like the audit's. Returns [(answer, raw generation)]."""
+    first), cut like the audit's. Returns [(answer, raw generation)].
+    cut=False (the main evaluation's reasoning prompts, sid_main_evaluation)
+    keeps the whole generation: no few-shot stop strings, no clean_answer."""
     import torch
     if not prompts:
         return []
@@ -177,13 +179,13 @@ def generate_answers(model, tok, prompts, device, fmt, max_new_tokens=MAX_NEW_TO
             # render_prompt drops the template's BOS text when the tokenizer
             # adds one itself, so special tokens stay on (the audit's ids).
             enc = tok([prompts[i] for i in idx], return_tensors="pt", padding=True).to(device)
-            kwargs = {"stop_strings": FEWSHOT_STOPS, "tokenizer": tok} if fmt == "fewshot" else {}
+            kwargs = {"stop_strings": FEWSHOT_STOPS, "tokenizer": tok} if fmt == "fewshot" and cut else {}
             with torch.no_grad():
                 gen = model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,
                                      pad_token_id=tok.pad_token_id, **kwargs)
             tails = tok.batch_decode(gen[:, enc["input_ids"].shape[1]:], skip_special_tokens=True)
             for i, text in zip(idx, tails):
-                out[i] = (sids_requests.clean_answer(text, fmt), text)
+                out[i] = (sids_requests.clean_answer(text, fmt) if cut else text.strip(), text)
     finally:
         tok.padding_side = side
     return out

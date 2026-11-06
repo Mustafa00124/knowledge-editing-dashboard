@@ -3,7 +3,11 @@ import json
 import os
 from pathlib import Path
 
-MODES = ("original", "sid", "exact_match", "bertscore", "llm_judge")
+MODES = ("original", "sid", "sid_main", "exact_match", "bertscore", "llm_judge")
+# "sid_main" (sid_main_evaluation.py) is Sid's Dataset's evaluation for the
+# main experiments: it extends "sid" (always on there) with determinate-only
+# portability, change rates for indeterminate queries, and hinted and
+# reasoning probes. Sweeps keep "sid" alone for now.
 # "auto" (the runner's default) picks the dataset's own scoring: "sid" for
 # Sid's Dataset, "original" for everything else (resolve_modes).
 AUTO = "auto"
@@ -34,8 +38,8 @@ def parse_modes(value):
     parts = value.split(",") if isinstance(value, str) else list(value)
     parts = [p.strip() for p in parts]
     if not parts or any(p not in MODES + (AUTO,) for p in parts):
-        raise ValueError("Select at least one valid evaluation mode: auto, original, sid, exact_match, bertscore, "
-                         "llm_judge")
+        raise ValueError("Select at least one valid evaluation mode: auto, original, sid, sid_main, exact_match, "
+                         "bertscore, llm_judge")
     return [m for m in (AUTO,) + MODES if m in parts]
 
 
@@ -54,12 +58,14 @@ def resolve_modes(modes, sids):
     Returns (modes, note): note says what was replaced, or None."""
     modes = list(modes)
     if sids:
-        resolved = ["sid"] + [m for m in modes if m in SEMANTIC_MODES]
+        resolved = ["sid"] + (["sid_main"] if "sid_main" in modes else []) + [m for m in modes if m in SEMANTIC_MODES]
         note = ("Sid's Dataset is scored by its own evaluation (sid); EasyEdit's original mode does not run on it"
                 if "original" in modes else None)
         return resolved, note
-    if "sid" in modes:
-        raise ValueError("evaluation mode sid scores Sid's Dataset records only (--data_path datasets/SidsDataset)")
+    for mode in ("sid", "sid_main"):
+        if mode in modes:
+            raise ValueError(f"evaluation mode {mode} scores Sid's Dataset records only "
+                             "(--data_path datasets/SidsDataset)")
     resolved = [m for m in MODES if m in modes or (m == "original" and AUTO in modes)]
     return resolved, None
 
@@ -77,6 +83,9 @@ def options():
          "note": "On Sid's Dataset, runs are always scored by Sid's judge instead."},
         {"value": "sid", "label": "Sid's judge", "available": True,
          "note": "Sid's Dataset only, and always on there: generated answers labelled by the local SID judge."},
+        {"value": "sid_main", "label": "Sid's judge (main)", "available": True,
+         "note": "Sid's Dataset only, for the main experiments: portability on determinate derived queries, "
+                 "change rates on indeterminate ones, and hinted and reasoning probes at step 0 and the end."},
         {"value": "exact_match", "label": "Exact Match", "available": True},
         {"value": "bertscore", "label": "BERTScore", "available": True},
         {"value": "llm_judge", "label": "LLM Judge", "available": judge_configured(),

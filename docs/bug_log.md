@@ -33,6 +33,7 @@ results were rerun.
 | 9 | Grammar judge too strict | grammar check, all runs | Ours | Fixed (rubric v2), all 690 runs re-judged |
 | 10 | FiDAL's default layer band breaks Qwen | FiDAL on Qwen (default and 4 screen runs) | Ours (config) | Fixed: default configs and step-1 specs start at layer 2 |
 | 11 | Fluency score blind to word salad | fluency metric, all methods | ROME/MEMIT metric (borrowed) | No fix needed: the judge gate catches it |
+| 12 | Indeterminate derived questions passed on any world, including the original answer | indeterminate generalization (sid evaluation), all methods | Ours (the metric's design) | New main evaluation `sid_main`; sweeps' generalizability was already determinate-only (bug 8) |
 
 ## 1. Learning rates like `5e-05` read as text
 
@@ -184,6 +185,25 @@ results were rerun.
 - **Fix:** none needed for tuning. A run must also pass the grammar judge
   (well-formed >= 0.9), and the judge fails word salad. Worth stating in
   the paper that fluency alone is not enough.
+
+## 12. Indeterminate derived questions passed on any world
+
+- **What happened:** under the `sid` evaluation an indeterminate derived
+  question passes when the answer matches any world's answer. In 503 of the
+  572 indeterminate questions some world's answer is the original answer,
+  and 77 of 123 replace and 92 of 129 delete records with worlds have a
+  world that keeps every original answer. A model that never applied the
+  edit passes them, which inflates `generalization` and
+  `generalization.indeterminate`.
+- **Origin:** ours (the metric's design).
+- **Fix:** found 2026-11-05. Hyperparameter selection was not affected: it
+  already reads generalizability as determinate, known questions only
+  (bug 8). The main experiments get evaluation mode `sid_main`
+  (`sid_main_evaluation.py`): portability over known determinate questions,
+  and for indeterminate ones the share of answers that changed from the
+  original (to a world's answer or to another), with a diagnosis of the
+  unchanged ones, plus hinted and reasoning probes. Not run yet. Sweeps move
+  to it in a later stage.
 
 ## Not bugs (checked, caused by settings or by the method)
 
