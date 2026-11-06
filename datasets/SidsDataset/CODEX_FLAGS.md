@@ -10,6 +10,13 @@
 
 Review marks are entered only through `criteria.py --mark`; this file holds the longer explanations.
 
+## grammar-replace-0001
+
+- **derived[2]** (problem): The question asks for the past tense of “undergo,” whose common form “underwent” is stored as a familiar word, and the same issue applies to “forego” in derived[3]. These common compounds are unlikely to become unknown merely because the past tense of “go” was edited, so the background-belief split does not convincingly distinguish stored from composition routes.
+- **serves-the-purpose** (problem): The two common derivatives treated as unknown make the record's background-belief questions unreliable tests of how the edit propagates.
+- **derived[0]** (angle): This yes/no question repeats the edited fact with its previous value. It checks the edited fact again rather than adding a downstream consequence.
+- **derived[3]** (problem): “Forewent” is also a common form that a model can know independently of the edited past tense of “go,” so the expected unknown answer is not well supported.
+
 ## biology-delete-0002
 
 - **derived[0]** (angle): "Is scurvy caused by a deficiency of vitamin C?" simply repeats the deleted assertion as a yes/no question. It adds no propagation step beyond the direct query; a derived slot could instead test a consequence requiring another fact.
