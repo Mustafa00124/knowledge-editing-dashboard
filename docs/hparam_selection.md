@@ -17,8 +17,12 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
   derived questions the unedited model answered correctly; bug 8 in `docs/bug_log.md`),
   cross-lingual, propositional consistency, locality (near and far unrelated facts), fluency
   (ROME's n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the
-  judge's well-formed share, as a ratio to the unedited model). The **overall score** is the
-  unweighted mean of the 8.
+  judge's well-formed share, as a ratio to the unedited model). The **overall score** used in
+  the step-1 analysis is the unweighted mean of the 8.
+- **Selection rule (decided 2026-11-07):** a setting must do well on everything, not on rewrite
+  alone. Locality is **not a gate** but a lower-priority metric: settings are ranked on the
+  other 7 scores (behind the fluency gate), and locality decides only between settings that
+  are close on those.
 - **Fluency gate:** a run "keeps fluency" when fluency >= 0.85 and grammar >= 0.9 of the
   unedited model. A value is only recommended if at least half its runs keep fluency.
 - **Time rule:** a slower value (more steps, more epochs) is kept only if it gains at least
@@ -208,9 +212,10 @@ far; then the winner and 2-3 runners-up are rerun once to confirm.
 
 ## Caveats to state in the paper
 
-- The overall score weights the 8 scores equally. Whether locality counts equally or acts as a
-  gate like fluency decides several strength settings (ROME clamp, LoRA lr and alpha, FT-M
-  norm_constraint); step 2's grids are built to show that trade-off either way.
+- The step-1 analysis weighted the 8 scores equally. Under the final rule (locality second)
+  the strength settings that trade locality for generalisation (ROME clamp, LoRA lr and alpha,
+  FT-M norm_constraint) lean further toward their high value; step 2's grids include both
+  ends, so the choice is made on step-2 data.
 - Steps 0 and 1 used 10 edits per run; effects under about 5 points are near the noise floor.
 - The 64-run fractions for IFMET, LTI, LoCo and AlphaEdit are resolution IV: a few reported
   pairwise interactions may partly be another pair's.
