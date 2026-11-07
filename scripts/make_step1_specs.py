@@ -10,7 +10,8 @@ nothing. Run from the project root:
 
     python3 scripts/make_step1_specs.py
 
-Low and high values are the user's step-1 plan (2026-11-04). Layer settings
+Low and high values are the user's step-1 plan (2026-11-04); AlphaEdit was
+added 2026-11-07 by the same rules (docs/hparam_selection.md). Layer settings
 are per model: from its depth (models/<dir>/config.json), its traced peak
 (results/investigations/causal_tracing/traced_layers.json) and the windows
 the step-0 Latin hypercube screen tried (its sweep.json files), as noted
@@ -31,11 +32,19 @@ MODELS = {
     "mistral-7b-instruct-v0.1": "Mistral-7B-Instruct-v0.1",
 }
 INVESTIGATION = {"ft": "finetuning", "lora": "finetuning", "rome": "locate_edit", "fidal": "dynamic_locate_edit",
-                 "fine": "neuron_editors", "ifmet": "portability", "lti": "portability", "loco": "portability"}
+                 "fine": "neuron_editors", "ifmet": "portability", "lti": "portability", "loco": "portability",
+                 "alphaedit": "locate_edit"}
 LABEL = {"ft": "FT-M", "lora": "LoRA", "rome": "ROME", "fidal": "FiDAL", "fine": "FiNE", "ifmet": "IFMET",
-         "lti": "LTI", "loco": "LoCo"}
+         "lti": "LTI", "loco": "LoCo", "alphaedit": "AlphaEdit"}
 # Median minutes per run in the step-0 screen.
-MINUTES = {"ft": 2.0, "lora": 3.2, "rome": 9.1, "fidal": 3.6, "fine": 1.7, "loco": 5.9, "ifmet": 10.9, "lti": 3.5}
+# AlphaEdit: 2.8 min once its null-space projection for the run's (layers,
+# threshold) is cached; building one takes about 30 min (step 0 built one per
+# run), so its step 1 is preceded by a warm-up that builds the 5 it needs.
+MINUTES = {"ft": 2.0, "lora": 3.2, "rome": 9.1, "fidal": 3.6, "fine": 1.7, "loco": 5.9, "ifmet": 10.9, "lti": 3.5,
+           "alphaedit": 2.8}
+# The 64-run resolution IV fractions chosen for the 9-10 setting methods
+# (2026-11-05, for cost); the others use the default (full, or resolution V+).
+FRACTION = {"ifmet": 3, "loco": 3, "lti": 4, "alphaedit": 3}
 CENTRE_POINTS = 3
 
 ATTENTION = ["q_proj", "k_proj", "v_proj", "o_proj"]
@@ -137,10 +146,23 @@ def values(method, model):
             "lora_alpha": [4.8, 48.0], "target_modules": [ATTENTION, ATTENTION + MLP],
             "implication_max_new_tokens": [15, 60],
         }, {"lora_dropout": 0.05}, ["constraint and target_modules have no middle: the centre runs use the low level"])
+    if method == "alphaedit":
+        first = sorted(screened(inv, method, model, "layers"))
+        return ({
+            # Step 0 (17 runs per model): clamp 40 kept fluency in 25% of runs
+            # and 0.4 gave the lowest portability; v_lr 1.5 and 5 kept 62% and
+            # 58% (0.05 and 0.5: 100%); 100 grad steps gained only 0.04 rewrite
+            # over 12 (time rule); mom2 150,000 kept 58% with the weakest edits.
+            # The other settings kept fluency at both ends of their range.
+            "layers": [first[0], first[-1]],
+            "v_lr": [0.05, 0.5], "v_num_grad_steps": [12, 50], "kl_factor": [0.00625, 0.625],
+            "clamp_norm_factor": [1.2, 12.0], "mom2_update_weight": [1500.0, 45000.0],
+            "nullspace_threshold": [0.002, 0.2], "L2": [0.1, 10.0], "v_weight_decay": [1e-4, 1e-2],
+        }, {}, [f"layers: {first[0][0]}-{first[0][-1]} vs {first[-1][0]}-{first[-1][-1]}, the ends of step 0's range"])
     raise KeyError(method)
 
 
-STATS_METHODS = {"rome": "ROME", "fidal": "FiDAL", "ifmet": "IFMET", "lti": "LTI"}
+STATS_METHODS = {"rome": "ROME", "fidal": "FiDAL", "ifmet": "IFMET", "lti": "LTI", "alphaedit": "AlphaEdit"}
 
 
 def missing_stats(method, model, swept):
@@ -193,7 +215,7 @@ def main():
                 "edit_mode": "single",
                 "seed": 0,
                 "centre_points": CENTRE_POINTS,
-                "fraction": None,
+                "fraction": FRACTION.get(method),
                 "label": f"Step 1 factorial: {LABEL[method]}, {model}, Sid's screen (10 edits)",
                 "note": "two-level factorial over every setting (low/high) plus centre runs; "
                         + "; ".join(notes) if notes else
@@ -202,8 +224,11 @@ def main():
             name = f"{method}__{model}.json"
             (specs_dir / name).write_text(json.dumps(spec, indent=1) + "\n")
             corners, design = DEFAULT_DESIGN[k]
+            if method in FRACTION:
+                corners, _, design = SMALLER[k]
             runs = corners + CENTRE_POINTS
-            smaller = SMALLER.get(k)
+            # The other option: full resolution for the fractioned methods.
+            smaller = (DEFAULT_DESIGN[k][0], None, DEFAULT_DESIGN[k][1]) if method in FRACTION else None
             rows.append({"method": method, "model": model, "file": name, "k": k, "design": design, "runs": runs,
                          "missing": missing_stats(method, model, swept),
                          "minutes": runs * MINUTES[method],
@@ -232,17 +257,17 @@ def write_readme(rows):
         "python scripts/dash.py sweep docs/hparam_step1/specs/<file>.json",
         "```",
         "",
-        "`fraction` is null, the default: the full design up to 6 settings, otherwise the smallest",
-        "fraction of resolution V or more. For IFMET, LTI and LoCo set `\"fraction\": 3` (IFMET, LoCo)",
-        "or `4` (LTI) for 64 corner runs at resolution IV: main effects stay clear, but pairs of",
-        "settings are aliased with other pairs.",
+        "`fraction` is the default (null) for most methods: the full design up to 6 settings, otherwise",
+        "the smallest fraction of resolution V or more. IFMET, LoCo and AlphaEdit use `\"fraction\": 3` and",
+        "LTI `4`: 64 corner runs at resolution IV, chosen for cost (main effects stay clear, but pairs of",
+        "settings are aliased with other pairs). The last column shows them at full resolution instead.",
         "",
         "GPU time is runs x the step-0 median minutes per run; it leaves out covariance statistics",
         "for layers that have none yet (`--estimate` lists them).",
         "",
         "## Per method (each of the 4 models)",
         "",
-        "| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models | 64-run option, 4 models |",
+        "| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models | Full-resolution option, 4 models |",
         "|---|---|---|---|---|---|---|---|",
     ]
     total = total_small = 0.0
@@ -265,8 +290,8 @@ def write_readme(rows):
         f"| **All** | | | {n_runs // 4} | | {hours(total / 4)} | **{hours(total)}** | {n_small} runs, {hours(total_small)} h |",
         "",
         f"Total: {n_runs} runs, about {hours(total)} GPU hours ({hours(total / 4)} hours of wall clock at the",
-        "dashboard's four GPU jobs at once). With the 64-run fractions for IFMET, LTI and LoCo:",
-        f"{n_small} runs, about {hours(total_small)} GPU hours.",
+        "dashboard's four GPU jobs at once). At full resolution (V or more) for IFMET, LTI, LoCo and",
+        f"AlphaEdit instead: {n_small} runs, about {hours(total_small)} GPU hours.",
         "",
         "## Covariance statistics",
         "",

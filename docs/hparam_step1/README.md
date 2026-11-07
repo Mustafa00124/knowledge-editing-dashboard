@@ -9,35 +9,36 @@ python scripts/dash.py sweep docs/hparam_step1/specs/<file>.json --estimate
 python scripts/dash.py sweep docs/hparam_step1/specs/<file>.json
 ```
 
-`fraction` is null, the default: the full design up to 6 settings, otherwise the smallest
-fraction of resolution V or more. For IFMET, LTI and LoCo set `"fraction": 3` (IFMET, LoCo)
-or `4` (LTI) for 64 corner runs at resolution IV: main effects stay clear, but pairs of
-settings are aliased with other pairs.
+`fraction` is the default (null) for most methods: the full design up to 6 settings, otherwise
+the smallest fraction of resolution V or more. IFMET, LoCo and AlphaEdit use `"fraction": 3` and
+LTI `4`: 64 corner runs at resolution IV, chosen for cost (main effects stay clear, but pairs of
+settings are aliased with other pairs). The last column shows them at full resolution instead.
 
 GPU time is runs x the step-0 median minutes per run; it leaves out covariance statistics
 for layers that have none yet (`--estimate` lists them).
 
 ## Per method (each of the 4 models)
 
-| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models | 64-run option, 4 models |
+| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models | Full-resolution option, 4 models |
 |---|---|---|---|---|---|---|---|
 | FT-M | 5 | full 2^5 + 3 centre | 35 | 2.0 | 1.2 | 4.7 | same |
 | LoRA | 7 | 2^(7-1), resolution VII + 3 centre | 67 | 3.2 | 3.6 | 14.3 | same |
 | ROME | 6 | full 2^6 + 3 centre | 67 | 9.1 | 10.2 | 40.6 | same |
 | FiDAL | 7 | 2^(7-1), resolution VII + 3 centre | 67 | 3.6 | 4.0 | 16.1 | same |
 | FiNE | 8 | 2^(8-2), resolution V + 3 centre | 67 | 1.7 | 1.9 | 7.6 | same |
-| LoCo | 9 | 2^(9-2), resolution VI + 3 centre | 131 | 5.9 | 12.9 | 51.5 | 67 runs, 26.4 h |
-| IFMET | 9 | 2^(9-2), resolution VI + 3 centre | 131 | 10.9 | 23.8 | 95.2 | 67 runs, 48.7 h |
-| LTI | 10 | 2^(10-3), resolution V + 3 centre | 131 | 3.5 | 7.6 | 30.6 | 67 runs, 15.6 h |
-| **All** | | | 696 | | 65.1 | **260.6** | 2016 runs, 174.0 h |
+| LoCo | 9 | 2^(9-3), resolution IV + 3 centre | 67 | 5.9 | 6.6 | 26.4 | 131 runs, 51.5 h |
+| IFMET | 9 | 2^(9-3), resolution IV + 3 centre | 67 | 10.9 | 12.2 | 48.7 | 131 runs, 95.2 h |
+| LTI | 10 | 2^(10-4), resolution IV + 3 centre | 67 | 3.5 | 3.9 | 15.6 | 131 runs, 30.6 h |
+| AlphaEdit | 9 | 2^(9-3), resolution IV + 3 centre | 67 | 2.8 | 3.1 | 12.5 | 131 runs, 24.5 h |
+| **All** | | | 571 | | 46.6 | **186.5** | 3308 runs, 285.0 h |
 
-Total: 2784 runs, about 260.6 GPU hours (65.1 hours of wall clock at the
-dashboard's four GPU jobs at once). With the 64-run fractions for IFMET, LTI and LoCo:
-2016 runs, about 174.0 GPU hours.
+Total: 2284 runs, about 186.5 GPU hours (46.6 hours of wall clock at the
+dashboard's four GPU jobs at once). At full resolution (V or more) for IFMET, LTI, LoCo and
+AlphaEdit instead: 3308 runs, about 285.0 GPU hours.
 
 ## Covariance statistics
 
-- IFMET on qwen3-4b-instruct-2507: none yet for layers 16, 17, 18. Compute them before launching (a covariance warm-up, as for step 0), or the first runs compute them, several at once.
+- Present for every layer the specs edit.
 
 ## Spec files
 
@@ -63,15 +64,19 @@ dashboard's four GPU jobs at once). With the 64-run fractions for IFMET, LTI and
 | `specs/fine__olmo-3-7b-instruct.json` | 67 | 1.9 |
 | `specs/fine__llama-3.1-8b-instruct.json` | 67 | 1.9 |
 | `specs/fine__mistral-7b-instruct-v0.1.json` | 67 | 1.9 |
-| `specs/loco__qwen3-4b-instruct-2507.json` | 131 | 12.9 |
-| `specs/loco__olmo-3-7b-instruct.json` | 131 | 12.9 |
-| `specs/loco__llama-3.1-8b-instruct.json` | 131 | 12.9 |
-| `specs/loco__mistral-7b-instruct-v0.1.json` | 131 | 12.9 |
-| `specs/ifmet__qwen3-4b-instruct-2507.json` | 131 | 23.8 |
-| `specs/ifmet__olmo-3-7b-instruct.json` | 131 | 23.8 |
-| `specs/ifmet__llama-3.1-8b-instruct.json` | 131 | 23.8 |
-| `specs/ifmet__mistral-7b-instruct-v0.1.json` | 131 | 23.8 |
-| `specs/lti__qwen3-4b-instruct-2507.json` | 131 | 7.6 |
-| `specs/lti__olmo-3-7b-instruct.json` | 131 | 7.6 |
-| `specs/lti__llama-3.1-8b-instruct.json` | 131 | 7.6 |
-| `specs/lti__mistral-7b-instruct-v0.1.json` | 131 | 7.6 |
+| `specs/loco__qwen3-4b-instruct-2507.json` | 67 | 6.6 |
+| `specs/loco__olmo-3-7b-instruct.json` | 67 | 6.6 |
+| `specs/loco__llama-3.1-8b-instruct.json` | 67 | 6.6 |
+| `specs/loco__mistral-7b-instruct-v0.1.json` | 67 | 6.6 |
+| `specs/ifmet__qwen3-4b-instruct-2507.json` | 67 | 12.2 |
+| `specs/ifmet__olmo-3-7b-instruct.json` | 67 | 12.2 |
+| `specs/ifmet__llama-3.1-8b-instruct.json` | 67 | 12.2 |
+| `specs/ifmet__mistral-7b-instruct-v0.1.json` | 67 | 12.2 |
+| `specs/lti__qwen3-4b-instruct-2507.json` | 67 | 3.9 |
+| `specs/lti__olmo-3-7b-instruct.json` | 67 | 3.9 |
+| `specs/lti__llama-3.1-8b-instruct.json` | 67 | 3.9 |
+| `specs/lti__mistral-7b-instruct-v0.1.json` | 67 | 3.9 |
+| `specs/alphaedit__qwen3-4b-instruct-2507.json` | 67 | 3.1 |
+| `specs/alphaedit__olmo-3-7b-instruct.json` | 67 | 3.1 |
+| `specs/alphaedit__llama-3.1-8b-instruct.json` | 67 | 3.1 |
+| `specs/alphaedit__mistral-7b-instruct-v0.1.json` | 67 | 3.1 |
