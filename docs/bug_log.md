@@ -205,6 +205,24 @@ results were rerun.
   unchanged ones, plus hinted and reasoning probes. Not run yet. Sweeps move
   to it in a later stage.
 
+## 13. Step 2 on the 40 dev edits: subject-locating methods failed on 6 records
+
+- **What happened:** the step-2 tuning sweeps (launched 2026-11-07) were the
+  first to edit all 40 dev records with the subject-locating methods. Every
+  ROME, FiDAL, LTI, IFMET and FiNE run failed (288 runs) on records whose
+  subject is not verbatim, exactly once, in the direct question (Rule 13):
+  finance-replace-0008 ("CAC 40 company" vs "the companies in the CAC 40
+  index"), grammar-replace-0007, the RBox records finance-replace-0017,
+  history-replace-0018 and people-replace-0017 (their question does not
+  quote the relation's wording), and literature_arts-replace-0012 (the first
+  quoted wording, 'illustrated', appears twice). `check_request` in
+  `sids_requests.py` finds 39 such records among the 200 replace records.
+  FT-M, LoRA and LoCo do not need the subject and completed.
+- **Origin:** ours (records that break Rule 13). Steps 0 and 1 used the
+  10-edit screen split, ABox only, so they never met these records.
+- **Fix:** pending the user's decision (fix the records, or run the
+  subject-locating methods on the 34 passing dev records).
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method
