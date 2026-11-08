@@ -208,7 +208,8 @@ really edits. Two checks:
   the new answer, or "I don't know" for delete), and every requirement a
   method relies on raises a named error instead of being worked around:
   the subject verbatim and exactly once in the prompt for methods that edit
-  at the subject (ROME, AlphaEdit, FiDAL, FiNE, IFMET, LTI), a target, the
+  at the subject (ROME, AlphaEdit, FiDAL, FiNE, IFMET, LTI; for TBox and
+  RBox records the `edit.prompt_subject` span, at the occurrence it names), a target, the
   derived answers or per-world answers, an hparams file for every method and
   model.
 - *Smoke run*, on gaivi (**Method smoke run** on the dashboard, one launch

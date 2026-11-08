@@ -111,6 +111,28 @@ class SubjectTests(unittest.TestCase):
         with self.assertRaises(s.SubjectNotInPrompt):
             s.check_request(r, 'rome')
 
+    def test_prompt_subject_names_the_span_and_occurrence(self):
+        rec = example('geography-replace-0003.json')
+        rec['box'] = 'rbox'
+        rec['queries']['direct']['prompt'] = 'If a person was born in a city, was the person born in its country?'
+        rec['edit']['prompt_subject'] = {'text': 'born in', 'occurrence': 2}
+        r = s.build_request(rec)
+        self.assertEqual(r['subject'], 'born in')
+        self.assertEqual(r['sids']['subject_occurrence'], 2)
+        s.check_request(r, 'rome')  # twice in the question, and the record names the second
+        self.assertEqual(s.subject_offset(r), r['prompt'].rindex('born in'))
+        e = s.edit_request(r, 'rome')
+        self.assertEqual(e['prompt'], 'If a person was born in a city, was the person {} its country?')
+        self.assertEqual(e['prompt'].format(r['subject']), r['prompt'])
+        with self.assertRaises(s.SubjectNotInPrompt):
+            s.check_request(r, 'kn')  # read as text: must be there once
+
+    def test_prompt_subject_occurrence_past_the_end_raises(self):
+        rec = example('geography-replace-0003.json')
+        rec['edit']['prompt_subject'] = {'text': rec['queries']['direct']['prompt'].split()[0], 'occurrence': 9}
+        with self.assertRaises(s.SubjectNotInPrompt):
+            s.check_request(s.build_request(rec), 'rome')
+
     def test_rbox_subject_is_the_quoted_relation(self):
         rec = example('geography-replace-0003.json')
         rec['box'] = 'rbox'
@@ -351,7 +373,8 @@ class ChatTemplateTests(unittest.TestCase):
                 continue
             broken = set()
             for r in reqs:
-                if r['prompt'].count(r['subject']) == 1:
+                if r['prompt'].count(r['subject']) >= (r['sids'].get('subject_occurrence') or 1) and \
+                        (r['sids'].get('subject_occurrence') or r['prompt'].count(r['subject']) == 1):
                     f = s.format_request(r, fmt, tok)
                     try:
                         s.require_subject(f)

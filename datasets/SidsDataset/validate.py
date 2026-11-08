@@ -139,7 +139,8 @@ REALITY = ('real', 'fictional')
 # fact not stated in the prompt) into a question with a short answer, so the
 # model audit can ask it before editing.
 CHECK_KEYS = {'fact', 'prompt', 'answer'}
-EDIT_KEYS = {'statement', 'subject', 'object', 'old_object', 'premises', 'axiom', 'original', 'scope', 'fixture'}
+EDIT_KEYS = {'statement', 'subject', 'prompt_subject', 'object', 'old_object', 'premises', 'axiom', 'original',
+             'scope', 'fixture'}
 # Each edited-knowledge query carries the answer before and after the edit;
 # an LLM judge compares a generated answer with them, so there are no alias
 # or forbidden lists. Locality queries carry only an optional reference: their
@@ -391,6 +392,21 @@ def check_record(rec, path, relations):
         for k in ('statement', 'subject'):
             if not is_text(edit.get(k)):
                 err(f'edit.{k} must be a non-empty string')
+        # Where locate-and-edit methods edit: TBox and RBox subjects are
+        # ontology terms the question words differently, so those records
+        # name the question's own wording and which occurrence of it.
+        span = edit.get('prompt_subject')
+        if box == 'abox':
+            if span is not None:
+                err('edit.prompt_subject is for tbox and rbox records (an abox subject is in the question as it is)')
+        elif not isinstance(span, dict) or not is_text(span.get('text')) \
+                or not isinstance(span.get('occurrence'), int) or span['occurrence'] < 1 \
+                or set(span) != {'text', 'occurrence'}:
+            err('edit.prompt_subject must be {"text": non-empty string, "occurrence": integer >= 1} on tbox and rbox records')
+        else:
+            question = ((rec.get('queries') or {}).get('direct') or {}).get('prompt') or ''
+            if question.count(span['text']) < span['occurrence']:
+                err(f'edit.prompt_subject {span["text"]!r} does not occur {span["occurrence"]} time(s) in the direct question')
         # RBox edits are about one relation and may have no object.
         if box != 'rbox' or 'object' in edit:
             if not is_text(edit.get('object')):

@@ -220,8 +220,20 @@ results were rerun.
   FT-M, LoRA and LoCo do not need the subject and completed.
 - **Origin:** ours (records that break Rule 13). Steps 0 and 1 used the
   10-edit screen split, ABox only, so they never met these records.
-- **Fix:** pending the user's decision (fix the records, or run the
-  subject-locating methods on the 34 passing dev records).
+- **Fix (2026-11-07):** every TBox and RBox record (360 of 600) now names
+  its edit span in `edit.prompt_subject` (`{"text", "occurrence"}`): the
+  question's own wording of the record's `subject`, at its first mention.
+  `sids_requests` uses it and hands the methods "{}" at that occurrence;
+  `validate.py` requires it on TBox and RBox records and checks it occurs;
+  review hashes leave it out, so earlier review marks stay current. The same
+  pass found 12 passing RBox records whose first quoted wording was the
+  other relation of an inverse or subproperty rule (biology-replace-0011
+  edited 'is a parasite of' instead of 'preys on'; grammar-replace-0011 and
+  its delete twin edited the broken span `s morphemes, that is, is ` after
+  an apostrophe); they now edit their own relation. No run had used them
+  (steps 0-1 were ABox only). All 600 records pass `check_request` for ROME,
+  FiNE and IFMET; KN, not a core method, still needs the span once and
+  fails 26. The 288 failed step-2 runs were resubmitted.
 
 ## Not bugs (checked, caused by settings or by the method)
 

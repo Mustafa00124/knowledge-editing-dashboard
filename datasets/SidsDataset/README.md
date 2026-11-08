@@ -1040,7 +1040,9 @@ the record id (`EmptyTarget`, `TargetEqualsOriginal`, `MissingAnswer`,
 `SubjectNotInPrompt`, ...) instead of being worked around: a run that gets
 through has met them. Methods that edit at the subject's last token (ROME,
 AlphaEdit, FiDAL, FiNE, IFMET, LTI and the other locate-and-edit methods)
-need the subject verbatim, exactly once, in the question. It is counted in
+need the subject verbatim, exactly once, in the question (for TBox and RBox
+records, `edit.prompt_subject` names the words and which occurrence, so
+there it may appear more than once). It is counted in
 the question, not in the whole chat prompt: Llama 3.1's and SmolLM3's
 templates write a date into a system turn ("Today Date: 26 Jul 2024"), which
 holds mathematics-insert-0006's subject "6". Those methods are handed the
@@ -1078,15 +1080,16 @@ of the smoke code itself.
 
 **Open decisions** (the basic choice is implemented; to refine):
 
-1. **TBox and RBox edit prompts.** Both use the direct question like ABox.
-   The TBox subject is the class as the record names it, and the RBox subject
-   is the relation wording quoted in the question. About half the TBox
-   records and 40% of the RBox records don't have that subject verbatim in
-   the question ("bacterium" vs "Are bacteria ...?"), so the subject-locating
-   methods fail on them (Rule 13 lists them). Options: a statement-form
-   prompt per box, an explicit `edit.prompt` and `edit.subject_span` field
-   per record, or running those boxes only through methods that need no
-   subject.
+1. **TBox and RBox edit prompts.** Decided 2026-11-07: both use the direct
+   question like ABox, and every TBox and RBox record names its edit span in
+   `edit.prompt_subject` (`{"text", "occurrence"}`): the question's own
+   wording of the record's `subject` (the class's noun phrase for TBox, the
+   relation's wording for RBox), at its first mention. Before, the TBox
+   subject was the class as the record names it and the RBox subject the
+   first quoted wording in the question; 76 records failed Rule 13 that way
+   ("bacterium" vs "Are bacteria ...?", `born_in` with no quote) and 12 RBox
+   records with two quoted relations edited the other relation (or, after an
+   apostrophe, a broken span). `edit.subject` keeps the ontology term.
 2. **Scoring indeterminate questions.** Implemented (2026-11-01): see
    [Evaluation](#evaluation), Editing runs.
 
@@ -1310,6 +1313,7 @@ rejected, so typos don't silently drop data.
 | `box` | `abox` \| `tbox` \| `rbox` | |
 | `edit.statement` | string | the edit as one or more sentences |
 | `edit.subject` | string | |
+| `edit.prompt_subject` | object, tbox and rbox only | `{"text": ..., "occurrence": n}`: the words of the direct question the edit is about (the question's wording of `edit.subject`) and which occurrence of them (1 = first); where locate-and-edit methods edit. Left out of review hashes |
 | `edit.object` | string | required except for `rbox`, which has none; for delete, the removed value |
 | `edit.old_object` | string | replace only, and required there when the edit has an object; with `edit.object` it is the [Change](#change) tag |
 | `edit.premises` | string list | the facts the edited (original) fact follows from, and the rule or relation property combining them as a sentence; required when `derivability` is `likely` or `very_likely`, optional when it is set lower, absent when it is null |

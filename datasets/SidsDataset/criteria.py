@@ -817,7 +817,12 @@ def _hash(text):
 
 
 def record_hash(rec):
-    """A record's content, so a mark can tell whether the record changed since."""
+    """A record's content, so a mark can tell whether the record changed since.
+    Leaves out edit.prompt_subject: it says where locate-and-edit methods
+    edit (added 2026-11-07 to every TBox and RBox record), not what a
+    reviewer reads, so adding it keeps earlier marks current."""
+    if 'prompt_subject' in (rec.get('edit') or {}):
+        rec = {**rec, 'edit': {k: v for k, v in rec['edit'].items() if k != 'prompt_subject'}}
     return _hash(json.dumps(rec, ensure_ascii=False, sort_keys=True))[:12]
 
 

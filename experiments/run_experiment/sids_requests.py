@@ -162,9 +162,31 @@ def _norm(s):
     return ' '.join(str(s or '').lower().split())
 
 
+def prompt_subject(rec):
+    """The record's explicit edit span, edit.prompt_subject: {"text": the
+    words of the direct question the edit is about, "occurrence": which
+    occurrence of them in the question (1 = first)}. Every TBox and RBox
+    record has one (2026-11-07): their `subject` is an ontology term (a
+    category, or a relation id such as born_in) that the question words
+    differently, so the span is the question's own wording of it, at its
+    first mention. None for ABox records, whose subject is a name the
+    question holds verbatim."""
+    span = (rec.get('edit') or {}).get('prompt_subject')
+    if not span:
+        return None
+    if isinstance(span, str):
+        span = {'text': span, 'occurrence': 1}
+    return {'text': span['text'], 'occurrence': int(span.get('occurrence') or 1)}
+
+
 def edit_subject(rec, prompt):
-    """The subject as it appears in the prompt. RBox records name a relation
-    id (part_of); the question quotes its wording ('is part of')."""
+    """The subject as it appears in the prompt: the record's prompt_subject
+    when it has one; else its subject, except that an RBox record without
+    one names a relation id (part_of) and its question quotes the wording
+    ('is part of')."""
+    span = prompt_subject(rec)
+    if span:
+        return span['text']
     if rec['box'] == 'rbox':
         quoted = re.findall(r"'([^']+)'", prompt)
         return quoted[0] if quoted else rec['edit']['subject']
@@ -237,7 +259,8 @@ def build_request(rec):
         'locality': locality,
         'portability': portability,
         'sids': {'id': rid, 'edit_operation': op, 'box': box, 'topic': rec['topic'],
-                 'derivability': rec.get('derivability'), 'fictional': rec.get('fictional')},
+                 'derivability': rec.get('derivability'), 'fictional': rec.get('fictional'),
+                 'subject_occurrence': (prompt_subject(rec) or {}).get('occurrence')},
     }
 
 
@@ -382,20 +405,43 @@ def question_region(request):
     return (at, question) if at >= 0 else (0, prompt)
 
 
+def _occurrence(request):
+    return (request.get('sids') or {}).get('subject_occurrence')
+
+
+def _nth(text, sub, n):
+    """Offset of the n-th (1-based) occurrence of sub in text, or -1."""
+    at = -1
+    for _ in range(n):
+        at = text.find(sub, at + 1)
+        if at < 0:
+            return -1
+    return at
+
+
 def subject_offset(request):
-    """Character offset of the subject in the edit prompt: its one occurrence
-    inside the question (question_region), or None when it is not there
-    exactly once."""
+    """Character offset of the subject in the edit prompt, inside the
+    question (question_region): the occurrence the record names
+    (prompt_subject), else its one occurrence; None when that is not
+    there."""
     at, text = question_region(request)
     subject = request.get('subject')
-    if not subject or text.count(subject) != 1:
+    if not subject:
+        return None
+    n = _occurrence(request)
+    if n:
+        found = _nth(text, subject, n)
+        return None if found < 0 else at + found
+    if text.count(subject) != 1:
         return None
     return at + text.index(subject)
 
 
-def require_subject(request):
+def require_subject(request, positional=True):
     """For locate-and-edit methods: the subject must be in the question
-    verbatim, exactly once, or the edit lands on the wrong tokens. Counted in
+    verbatim, exactly once, or the edit lands on the wrong tokens; or, when
+    the record's prompt_subject names an occurrence (positional), at least
+    that many times. Counted in
     the question, not the whole rendered prompt: a chat template's own text
     may hold it too (Llama 3.1's "Today Date: 26 Jul 2024" holds
     mathematics-insert-0006's subject "6"), and edit_request points the
@@ -403,6 +449,14 @@ def require_subject(request):
     rid, subject = request['sids']['id'], request['subject']
     at, text = question_region(request)
     n = text.count(subject) if subject else 0
+    want = _occurrence(request) if positional else None
+    if want:
+        # The record names which occurrence (prompt_subject), and the
+        # method is handed "{}" there (edit_request).
+        if n < want:
+            raise SubjectNotInPrompt(rid, f'subject {subject!r} appears {n} times in the edit prompt {text!r}, '
+                                          f'not the {want} its prompt_subject names')
+        return
     if n != 1:
         where = 'does not appear' if n == 0 else f'appears {n} times'
         raise SubjectNotInPrompt(rid, f'subject {subject!r} {where} in the edit prompt {text!r}')
@@ -437,7 +491,10 @@ def edit_request(request, method):
 def check_request(request, method):
     """Every data check that applies to this method."""
     if method in SUBJECT_METHODS:
-        require_subject(request)
+        # An occurrence named by prompt_subject is enough for the methods
+        # handed "{}" at it; KN and CaKE read the prompt as text, so for
+        # them the subject must be there once.
+        require_subject(request, positional=method in PLACEHOLDER_METHODS)
     if method == 'kn' and not request.get('ground_truth'):
         raise MissingAnswer(request['sids']['id'], 'kn attributes neurons to the original answer, and there is none')
 
