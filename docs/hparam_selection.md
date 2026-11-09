@@ -197,8 +197,8 @@ Rules:
 | Method | Grid (3 x 3) | One at a time | Held at pivot | Frozen at centre |
 |---|---|---|---|---|
 | ROME | layers {2,3,5} (Qwen {5,7,9}) x clamp {1.2, 3.79, 12} | | v_num_grad_steps 50 | v_lr, kl_factor, v_weight_decay |
-| FiDAL | Llama, Mistral: clamp {0.8, 1.2, 2.19} x v_lr {0.15, 0.866, 5}, layers 2-8. Olmo, Qwen: candidate layers {2-8, 5-11, 7-13} x clamp {1.2, 2.19, 4} | | | v_num_grad_steps, top_k, kl, mom2 |
-| FiNE | lr {3e-4, 9.49e-4, 3e-3} x neuron_num {2, 4, 10} | | epochs 200, early_stop_prob 0.99, last_layer 6 | alpha, beta, gamma |
+| FiDAL | clamp x v_lr {0.15, 0.866, 5}; clamp Llama {0.8, 1.2, 2.19}, Mistral and Olmo {2.19, 4, 7.3}, Qwen {1.2, 2.19, 4} (from the single-edit rerun of step 1, bug 14) | | candidate layers 2-8 (Qwen 5-11), mom2 1,500, kl 0.188, grad steps 25 (time rule) | top_k |
+| FiNE | lr {0.0015, 0.003, 0.006} x neuron_num {5, 10, 15} (all won high on every model in the single-edit step 1; extended past the edge) | | epochs 200, early_stop_prob 0.99 | last_layer, alpha, beta, gamma |
 | FT-M | layers (per model) x norm_constraint {2.74e-4, 5e-4, 1e-3} | | | lr, num_steps (24), weight_decay |
 | LoRA | layers {first, middle, second half} x lr {5e-5, 1.58e-4, 5e-4} | | num_steps 50, MLP matrices | lora_alpha, rank, weight_decay |
 | LoCo | lr {9e-5, 2.85e-4, 9e-4} x num_steps {6, 17, 50} | constraint "all" | constraint implication, attention matrices | lora_alpha, rank, n_implications, completion_weight, implication tokens |

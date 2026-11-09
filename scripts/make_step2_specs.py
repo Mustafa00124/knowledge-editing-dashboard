@@ -82,24 +82,37 @@ def plan(method, model):
                  "the others layer 3, so each model's window brackets its winner")]
 
     if method == "fidal":
-        frozen = {k: c(k) for k in ("v_num_grad_steps", "top_k", "kl_factor", "mom2_update_weight")}
-        if m in ("Llama", "Mistral"):
-            swept = {"clamp_norm_factor": [0.8, lo("clamp_norm_factor"), c("clamp_norm_factor")],
-                     "v_lr": [lo("v_lr"), c("v_lr"), hi("v_lr")]}
-            fixed = {"candidate_layers": lo("candidate_layers"), **frozen}
-            why = "early layers won clearly on this model; clamp x v_lr interacted, clamp low won at the edge so it extends below 1.2"
-        else:
-            swept = {"candidate_layers": [lo("candidate_layers"), c("candidate_layers"), hi("candidate_layers")],
-                     "clamp_norm_factor": [lo("clamp_norm_factor"), c("clamp_norm_factor"), hi("clamp_norm_factor")]}
-            fixed = {"v_lr": c("v_lr"), **frozen}
-            why = "layers undecided on this model and layers x clamp was FiDAL's largest interaction"
+        # Rebuilt 2026-11-09 from the single-edit rerun of step 1 (bug 14:
+        # the first step 0-2 stacked edits). Early candidate layers won on
+        # Llama, Mistral and Olmo (portability -17 to -26 when late); Qwen
+        # flat, so its middle band. clamp split: Llama low, Mistral and Olmo
+        # high (at the edge, extended to 7.3; step 0: clamp 12 kept fluency
+        # in 67% of runs), Qwen flat; v_lr split (Olmo low, Mistral and Qwen
+        # high) and interacts with clamp, so its full range. mom2 low and
+        # kl high won where they mattered; grad steps flat, so the cheaper 25
+        # (time rule); top_k flat.
+        clamp = {"Llama": [0.8, lo("clamp_norm_factor"), c("clamp_norm_factor")],
+                 "Mistral": [c("clamp_norm_factor"), hi("clamp_norm_factor"), 7.3],
+                 "Olmo": [c("clamp_norm_factor"), hi("clamp_norm_factor"), 7.3],
+                 "Qwen": [lo("clamp_norm_factor"), c("clamp_norm_factor"), hi("clamp_norm_factor")]}[m]
+        swept = {"clamp_norm_factor": clamp, "v_lr": [lo("v_lr"), c("v_lr"), hi("v_lr")]}
+        fixed = {"candidate_layers": c("candidate_layers") if m == "Qwen" else lo("candidate_layers"),
+                 "mom2_update_weight": lo("mom2_update_weight"), "kl_factor": hi("kl_factor"),
+                 "v_num_grad_steps": lo("v_num_grad_steps"), "top_k": c("top_k")}
+        why = "clamp x v_lr interact and the models disagree on both; clamp values bracket each model's winner"
         return [("grid", swept, {**held, **fixed}, why)]
 
     if method == "fine":
-        swept = {"lr": [lo("lr"), c("lr"), hi("lr")], "neuron_num": [lo("neuron_num"), c("neuron_num"), hi("neuron_num")]}
-        fixed = {"epochs": hi("epochs"), "early_stop_prob": hi("early_stop_prob"), "last_layer": hi("last_layer"),
+        # Rebuilt 2026-11-09 from the single-edit rerun of step 1 (bug 14).
+        # lr, neuron_num, epochs and early_stop_prob all won high on every
+        # model (Mistral no longer disagrees); lr and neuron_num substitute,
+        # so they are gridded past their edge (step 0: lr 0.01 kept fluency
+        # in 58% of runs, 20 neurons in 67%, so 0.006 and 15). last_layer
+        # split (Llama high, Olmo and Qwen slightly low): its centre.
+        swept = {"lr": [0.0015, hi("lr"), 0.006], "neuron_num": [5, hi("neuron_num"), 15]}
+        fixed = {"epochs": hi("epochs"), "early_stop_prob": hi("early_stop_prob"), "last_layer": c("last_layer"),
                  **{k: c(k) for k in ("alpha", "beta", "gamma")}}
-        return [("grid", swept, fixed, "lr and neuron_num substitute for each other and Mistral prefers both low")]
+        return [("grid", swept, fixed, "lr and neuron_num won high on every model and substitute; values extend past the edge")]
 
     if method == "ft":
         layers = {"Llama": [[5], [13], [21]], "Mistral": [[4], [8], [14]], "Olmo": [[14], [21], [27]],
