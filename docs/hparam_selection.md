@@ -22,8 +22,10 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
 - **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
   the four generalisation scores (paraphrase, portability, cross-lingual, propositional
   consistency), among settings that pass hard gates: rewrite >= 0.9, fluency >= 0.85 and
-  grammar >= 0.9 of the unedited model, and a lenient locality >= 0.5. In step 2, 92% of
-  settings had locality >= 0.5 (median 0.81), so that gate only removes destructive settings.
+  grammar >= 0.9 of the unedited model, and locality >= 0.7. (First set at a lenient 0.5;
+  step 2 showed locality is mostly high, median 0.81 and 92% of settings >= 0.5, so it was
+  raised to 0.7, the strictest value that leaves every method and model that had a passing
+  setting with at least one; at 0.75 FT-M and LoRA on Llama have none.)
   Runs that fail a gate keep all their scores; the gates only decide what can be chosen.
   (2026-11-07 interim rule, used for the step-1 analysis: equal-weight mean of all 8 scores,
   locality considered last.)
