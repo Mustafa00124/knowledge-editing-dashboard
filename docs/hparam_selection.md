@@ -19,10 +19,14 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
   (ROME's n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the
   judge's well-formed share, as a ratio to the unedited model). The **overall score** used in
   the step-1 analysis is the unweighted mean of the 8.
-- **Selection rule (decided 2026-11-07):** a setting must do well on everything, not on rewrite
-  alone. Locality is **not a gate** but a lower-priority metric: settings are ranked on the
-  other 7 scores (behind the fluency gate), and locality decides only between settings that
-  are close on those.
+- **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
+  the four generalisation scores (paraphrase, portability, cross-lingual, propositional
+  consistency), among settings that pass hard gates: rewrite >= 0.9, fluency >= 0.85 and
+  grammar >= 0.9 of the unedited model, and a lenient locality >= 0.5. In step 2, 92% of
+  settings had locality >= 0.5 (median 0.81), so that gate only removes destructive settings.
+  Runs that fail a gate keep all their scores; the gates only decide what can be chosen.
+  (2026-11-07 interim rule, used for the step-1 analysis: equal-weight mean of all 8 scores,
+  locality considered last.)
 - **Fluency gate:** a run "keeps fluency" when fluency >= 0.85 and grammar >= 0.9 of the
   unedited model. A value is only recommended if at least half its runs keep fluency.
 - **Time rule:** a slower value (more steps, more epochs) is kept only if it gains at least
