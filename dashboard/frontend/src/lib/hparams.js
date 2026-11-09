@@ -71,11 +71,11 @@ export function parseValue(text) {
 // The criteria, 0..1, as the backend scores them (hparam_sweeps._scores),
 // in the order the tables show them.
 export const CRITERIA = [
-  { key: 'fluency', label: 'Fluency', help: 'final fluency over the unedited model’s, capped at 1' },
+  { key: 'fluency', label: 'Answer diversity', help: 'variety of the answers to a record’s different questions (ROME’s and EasyEdit’s “fluency”: n-gram entropy), over the unedited model’s, capped at 1; on short answers it falls when one answer, usually the new one, takes over the other questions' },
   { key: 'well_formed', label: 'Grammar', help: 'LLM judge: share of answers that are well-formed English, over the unedited model’s, capped at 1' },
-  { key: 'reliability', label: 'Reliability', help: 'edit success on the edited prompts' },
+  { key: 'reliability', label: 'Rewrite', help: 'the edited question answered with the new answer (EasyEdit’s “reliability” or edit success; on Sid’s Dataset the direct question only)' },
   { key: 'locality', label: 'Locality', help: 'unrelated facts unchanged' },
-  { key: 'generalizability', label: 'Generalizability', help: 'multi-hop consequences of the edit; on Sid’s Dataset, the determinate derived questions the unedited model answered with the original answer' },
+  { key: 'generalizability', label: 'Generalizability', help: 'multi-hop consequences of the edit (EasyEdit’s “portability”); on Sid’s Dataset, the determinate derived questions the unedited model answered with the original answer' },
 ]
 
 // Colouring only, never filtering. Starting points chosen by eye; editable

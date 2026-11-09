@@ -75,7 +75,7 @@ function GateNote() {
     <p className="dl-dim">
       <strong>Bold</strong> is the best value of each metric among those where at least half the runs keep fluency at
       {' '}{GATE.fluency} and grammar at {GATE.well_formed} of the unedited model; greyed rows fall below that (add
-      “Keeps fluency” to see the share). Rows marked “centre run” are the factorial’s
+      “Keeps diversity + grammar” to see the share). Rows marked “centre run” are the factorial’s
       all-middle configuration, shown for curvature but never marked best. Hover a number for its run count and spread.
     </p>
   )
@@ -98,14 +98,14 @@ function FactorsView({ rows, knobs, metrics, rowKnob, colKnob, setParam, layers 
   )
 }
 
-// When no value keeps fluency in half its runs, nothing is bold: say why.
+// When no value keeps answer diversity and grammar in half its runs, nothing is bold: say why.
 function NoneKeeps({ groups }) {
   if (!groups.length || groups.some((g) => !g.gated && !g.centre && g.finished)) return null
   const runs = groups.flatMap((g) => g.rows).filter((r) => r.state === 'COMPLETED')
   const keep = runs.filter((r) => !runGated(r)).length
   return (
     <p className="dl-bar-warning">
-      No value keeps fluency in half its runs ({keep} of {runs.length} runs keep it): this method breaks fluency on this
+      No value keeps answer diversity and grammar in half its runs ({keep} of {runs.length} runs keep them): this method breaks them on this
       model across most of the tested range, so nothing is marked best.
     </p>
   )
@@ -282,7 +282,7 @@ function ModelsView({ rows, models, modelLabel }) {
                           rewrite {formatMetric('reliability', b.group.means.reliability.mean)}
                           {b.spread != null ? `; moves rewrite ${Math.round(b.spread * 100)} pts` : ''}
                         </div>
-                      </> : <span className="dl-dim">no value keeps fluency</span>}
+                      </> : <span className="dl-dim">no value keeps diversity + grammar</span>}
                     </td>
                   )
                 })}

@@ -381,9 +381,11 @@ directories will move before it commits.
   one method and one model as tabs: a table never averages over methods or
   models (layer numbers mean different depths in different models).
   Metric chips choose the columns and their order, each metric in its own
-  colour: fluency (final over the unedited model's), rewrite, locality,
-  portability, paraphrase, grammar, keeps fluency (share of runs passing the
-  gate) and edit time. Three views (`components/HpExplorer.jsx`, logic in
+  colour: answer diversity (ROME's fluency, final over the unedited model's),
+  rewrite (EasyEdit's reliability), locality, generalizability (EasyEdit's
+  portability), paraphrase, grammar, keeps diversity + grammar (share of runs
+  passing the gate) and edit time. Name equivalents:
+  `datasets/SidsDataset/README.md`, Evaluation, "Metric names". Three views (`components/HpExplorer.jsx`, logic in
   `lib/hpExplore.js`): **By setting** has one setting's values as rows,
   averaged over every other setting's values, with the metrics as columns or
   a second setting as columns (each cell then shows the chosen metrics
@@ -393,7 +395,7 @@ directories will move before it commits.
   **Across models** shows, for the method, each model's best value of every
   setting and how far the setting moves rewrite, with layers also as
   relative depth. The best value of each metric is bold, counting only values
-  where at least half the runs keep fluency (0.85) and grammar (0.9) of the
+  where at least half the runs keep answer diversity (0.85) and grammar (0.9) of the
   unedited model; others are greyed. A factorial's centre runs (every
   setting at its middle at once) are shown as "centre run" and never marked
   best. On step 1 an expandable effects panel lists main effects and

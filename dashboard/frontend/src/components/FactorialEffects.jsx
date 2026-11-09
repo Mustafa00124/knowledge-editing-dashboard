@@ -4,7 +4,7 @@ import { duration, formatValue } from '../lib/hparams.js'
 
 // Effects of a two-level factorial sweep (step 1): per method, model and
 // dataset, each setting's main effect and each pair's interaction on rewrite,
-// the fluency gate and edit time, judged against Lenth's noise estimate.
+// the answer-diversity and grammar gate and edit time, judged against Lenth's noise estimate.
 
 const VERDICT = {
   strong: { text: 'strong', title: 'beyond the simultaneous margin (SME): real even allowing for testing every effect' },
@@ -134,7 +134,7 @@ function Group({ group, timeRule, onPick }) {
       <h4>Suggested level per setting</h4>
       <p className="dl-dim">
         From the main effects: the level with more rewrite when the effect is real, unless it is slower and gains under
-        {' '}{timeRule} rewrite; with no real rewrite effect, the level that keeps fluency more often, else the faster one. Hints only.
+        {' '}{timeRule} rewrite; with no real rewrite effect, the level that keeps answer diversity and grammar more often, else the faster one. Hints only.
       </p>
       <div className="table-wrap">
         <table className="hp-table">
@@ -179,7 +179,7 @@ export default function FactorialEffects({ investigation, sweepIds, onPick }) {
       <p className="dl-dim">
         An effect is the mean at a setting’s high value minus the mean at its low value, over every other setting’s values;
         a pair’s interaction is how much one setting’s effect changes with the other. Rewrite and edit time are scored
-        per run; the fluency gate is 1 for a run that keeps fluency and grammar and 0 for one that does not, so a failed
+        per run; the gate is 1 for a run that keeps answer diversity and grammar and 0 for one that does not, so a failed
         run counts there and never as a rewrite of 0. Runs that crashed or have not finished are left out.
       </p>
       {sweepIds.length > 1 && (

@@ -9,7 +9,7 @@ const LABELS = {
   edit_succ: 'Edit success',
   portability: 'Generalizability',
   locality: 'Locality',
-  fluency: 'Fluency',
+  fluency: 'Answer diversity',
   loss: 'Loss',
   total_sec: 'Time',
   elapsed_sec: 'Time',

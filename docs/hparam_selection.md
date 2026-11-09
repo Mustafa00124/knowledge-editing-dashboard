@@ -13,32 +13,39 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
 - **Data:** Sid's Dataset dev split only (replace edits, single edits). The test split is never
   used for tuning. Steps 0 and 1 use the 10-edit *screen* subset of dev (one ABox fact per
   topic); steps 2 and 3 use all 40 dev edits.
-- **Scores (8), per run:** rewrite (the direct question), paraphrase, portability (determinate
-  derived questions the unedited model answered correctly; bug 8 in `docs/bug_log.md`),
-  cross-lingual, propositional consistency, locality (near and far unrelated facts), fluency
-  (ROME's n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the
-  judge's well-formed share, as a ratio to the unedited model). The **overall score** used in
+- **Scores (8), per run:** rewrite (the direct question; EasyEdit's reliability), paraphrase,
+  generalizability (EasyEdit's portability: determinate derived questions the unedited model
+  answered correctly; bug 8 in `docs/bug_log.md`), cross-lingual, propositional consistency,
+  locality (near and far unrelated facts), answer diversity (ROME's and EasyEdit's fluency:
+  n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the judge's
+  well-formed share, as a ratio to the unedited model). Names and their common equivalents:
+  `datasets/SidsDataset/README.md`, Evaluation, "Metric names". The **overall score** used in
   the step-1 analysis is the unweighted mean of the 8.
 - **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
-  the four generalisation scores (paraphrase, portability, cross-lingual, propositional
-  consistency), among settings that pass hard gates: rewrite >= 0.9, fluency >= 0.8 and
-  grammar >= 0.9 of the unedited model, and locality >= 0.7. On our short answers the fluency
-  formula (n-gram entropy of a record's English answers joined, relative to the unedited model)
+  the four generalisation scores (paraphrase, generalizability, cross-lingual, propositional
+  consistency), among settings that pass hard gates: rewrite >= 0.9, answer diversity >= 0.8 and
+  grammar >= 0.9 of the unedited model, and locality >= 0.7. On our short answers the answer-diversity
+  formula (ROME's fluency; n-gram entropy of a record's English answers joined, relative to the unedited model)
   measures answer collapse, not sentence quality: it falls when one answer (usually the new
   one) takes over the record's other questions (6 of 10 answers identical: about 0.76; all
   identical: 0) and does not fall for repetition inside an answer or word salad, which the
-  judge's grammar check catches. Collapse inflates paraphrase, portability and cross-lingual
-  (correlation with fluency -0.75, -0.63, -0.83 across step-2 settings), so the fluency gate
+  judge's grammar check catches. Collapse inflates paraphrase, generalizability and cross-lingual
+  (correlation with answer diversity -0.75, -0.63, -0.83 across step-2 settings), so the diversity gate
   keeps the objective from rewarding it; below 0.8 the locality gate already binds
-  (fluency and locality correlate +0.83). Report it as answer diversity. (First set at a lenient 0.5;
+  (answer diversity and locality correlate +0.83). Collapse rises steadily as the score falls
+  (share of records with at least half their other answers turned into the new answer, step 2:
+  3% at >= 0.95, 10% at 0.90-0.95, 21% at 0.85-0.90, 35% at 0.80-0.85, 46-49% at 0.70-0.80, 57-76%
+  below 0.7; only FT-M, LoRA and LoCo fall below 0.8). (First set at a lenient 0.5;
   step 2 showed locality is mostly high, median 0.81 and 92% of settings >= 0.5, so it was
   raised to 0.7, the strictest value that leaves every method and model that had a passing
   setting with at least one; at 0.75 FT-M and LoRA on Llama have none.)
   Runs that fail a gate keep all their scores; the gates only decide what can be chosen.
   (2026-11-07 interim rule, used for the step-1 analysis: equal-weight mean of all 8 scores,
   locality considered last.)
-- **Fluency gate:** a run "keeps fluency" when fluency >= 0.85 and grammar >= 0.9 of the
-  unedited model. A value is only recommended if at least half its runs keep fluency.
+- **Diversity and grammar gate (steps 0-1):** a run "keeps fluency" when answer diversity
+  (ROME's fluency) >= 0.85 and grammar >= 0.9 of the unedited model. A value is only
+  recommended if at least half its runs keep it. ("Fluency" below, in the step 0-1 record,
+  means this gate.)
 - **Time rule:** a slower value (more steps, more epochs) is kept only if it gains at least
   0.1 rewrite (one more edit out of 10).
 

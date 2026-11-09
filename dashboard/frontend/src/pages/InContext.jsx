@@ -17,8 +17,8 @@ const BASE_MODELS = ['qwen3-4b-base', 'olmo-3-7b-base', 'llama-3.1-8b', 'mistral
 const DEFAULT_SUBSETS = ['wiki_recent', 'wiki_counterfact', 'ZsRE', 'Temporal']
 const KB_SIZES = ['1', '10', '100', '1000', '10000']
 const CRITERIA = [
-  { key: 'fluency', label: 'Fluency' },
-  { key: 'reliability', label: 'Reliability' },
+  { key: 'fluency', label: 'Answer diversity' },
+  { key: 'reliability', label: 'Rewrite' },
   { key: 'locality', label: 'Locality' },
   { key: 'generalizability', label: 'Generalizability' },
 ]

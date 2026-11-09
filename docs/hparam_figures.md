@@ -1,5 +1,9 @@
 # Figure ideas for the tuning results
 
+Metric names follow `datasets/SidsDataset/README.md` (Evaluation, "Metric names"):
+answer diversity is ROME's fluency, generalizability is EasyEdit's portability, rewrite is
+EasyEdit's reliability on the direct question.
+
 Brainstorm (2026-11-07) of plots that show the important comparisons from
 `docs/hparam_selection.md`. Ordered by how central the claim is. "Main" = a candidate for the
 paper body, "appendix" = supporting.
@@ -17,12 +21,12 @@ effect on the overall score (diverging, low-is-better blue to high-is-better ora
 marks a significant effect (Lenth). Answers "which settings matter, and do models agree" at a
 glance: inert rows are pale, pivots are one colour across the row, model disagreements
 (Mistral and Qwen) stand out as a colour flip within a row.
-Variant: one panel per score (rewrite, portability, locality, fluency) for the appendix.
+Variant: one panel per score (rewrite, generalizability, locality, answer diversity) for the appendix.
 
 ## 3. Strength is a trade-off (main)
 For the strength settings (LoRA lr, LoCo lr, ROME clamp, IFMET v_lr), a dumbbell or diverging
 bar chart of the effect on each of the 8 scores: rewrite, paraphrase, cross-lingual and
-portability go up, locality, fluency and grammar go down. One small panel per setting, the 4
+generalizability go up, locality, answer diversity and grammar go down. One small panel per setting, the 4
 models as dots. Makes the point that "edit harder" buys generalisation with locality.
 
 ## 4. Where interactions live (main)
@@ -42,13 +46,13 @@ The shapes are easy to read and explain the two interaction families.
 ## 6. Where to edit, per model (main)
 Grid: rows = models, columns = methods, cell = arrow or colour for "early better / late
 better / no difference" (late minus early on the overall score), with a second version on
-portability only. Shows the finding that the best location is a property of the model, not
-the method, and that portability favours early layers almost everywhere. Optional companion:
+generalizability only. Shows the finding that the best location is a property of the model, not
+the method, and that generalizability favours early layers almost everywhere. Optional companion:
 the causal-tracing peak per model marked against the best edit layer, to show tracing does not
 predict it.
 
 ## 7. Model robustness vs appetite for strength (main)
-Scatter with one point per model (or per model x method): x = share of fluency kept after
+Scatter with one point per model (or per model x method): x = share of answer diversity kept after
 editing (Mistral 0.88 ... Olmo 0.98), y = main effect of the strength settings on the overall
 score. Expected: a rising trend, Mistral bottom left, Olmo and Qwen top right. Explains why
 models disagree on how hard to edit.
@@ -69,12 +73,12 @@ labelled. Readers who know DOE expect it.
 
 ## 11. Step-2 grids (main, after step 2)
 For each method and model, a 3 x 3 heatmap of the overall score over the gridded pair, with
-cells that fail the fluency gate hatched and the chosen cell outlined. Small multiples across
+cells that fail a gate hatched and the chosen cell outlined. Small multiples across
 models show where each model's best region sits.
 
 ## 12. Pareto front of the final choice (main, after step 3)
 Per method: every tuning run as a point in (edit success = mean of rewrite, paraphrase,
-portability) vs (preservation = mean of locality, fluency, grammar), step coloured, the
+generalizability) vs (preservation = mean of locality, answer diversity, grammar), step coloured, the
 selected setting starred. Shows the chosen setting sits on the front and what the locality
 weighting would change.
 

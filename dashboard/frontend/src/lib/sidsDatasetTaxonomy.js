@@ -125,10 +125,10 @@ export const queryTypesFor = (box) => (box === 'rbox' ? RBOX_QUERY_TYPES : QUERY
 export const METRICS = [
   { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
-  { key: 'generalization', label: 'Generalization', over: 'derived (4)', reported: 'one number, plus per derivation type' },
+  { key: 'generalization', label: 'Generalizability (portability)', over: 'derived (4)', reported: 'one number, plus per derivation type' },
   { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (2)', reported: 'one number on its own, plus per form (not, and/or)' },
   { key: 'locality', label: 'Locality', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
-  { key: 'fluency', label: 'Fluency', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
+  { key: 'fluency', label: 'Answer diversity (ROME’s fluency)', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
 
 // Where derived queries come from. Each maps a relation property (a tag in

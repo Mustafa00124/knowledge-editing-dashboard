@@ -1214,7 +1214,7 @@ def _flags(state, error, loss, scores):
             flags.append({"level": "warn", "text": f"target probability only {loss['final_prob']:.2f} after optimisation"})
     fluency = (scores or {}).get("fluency")
     if fluency is not None and fluency < FLUENCY_DROP:
-        flags.append({"level": "warn", "text": f"fluency fell {round((1 - fluency) * 100)}%"})
+        flags.append({"level": "warn", "text": f"answer diversity fell {round((1 - fluency) * 100)}%"})
     form = (scores or {}).get("well_formed")
     if form is not None and form < WELL_FORMED_DROP:
         flags.append({"level": "warn", "text": f"judge: well-formed answers fell {round((1 - form) * 100)}%"})
@@ -1368,7 +1368,7 @@ def results(investigation, include_hidden=True):
 EFFECT_RESPONSES = [
     {"key": "rewrite", "label": "Rewrite", "unit": "share",
      "help": "reliability: the rewrite score on Sid's Dataset (edit success elsewhere)"},
-    {"key": "gate", "label": "Fluency gate", "unit": "share",
+    {"key": "gate", "label": "Diversity + grammar gate", "unit": "share",
      "help": f"1 when the run keeps fluency at {FLUENCY_DROP} of the unedited model's and the judge's "
              f"well-formed share at {WELL_FORMED_DROP} of it, else 0; an effect is the change in the "
              "share of runs that pass"},
@@ -1408,19 +1408,19 @@ def _suggest(factor, by_response, levels):
             better = faster
             reasons.append(f"but the better level is slower and gains under {TIME_RULE} rewrite (time rule)")
         if gate.get("effect") is not None and (gate["effect"] if better == "high" else -gate["effect"]) <= -0.25:
-            reasons.append("costs fluency: fewer runs pass the gate at this level")
+            reasons.append("costs answer diversity or grammar: fewer runs pass the gate at this level")
     else:
         # No clear rewrite effect: keep the level that passes the gate more
         # often, else the faster one; a candidate to freeze.
         if gate.get("verdict") in ("active", "strong"):
             better = "high" if gate["effect"] > 0 else "low"
-            reasons = ["no clear rewrite effect; more runs keep fluency at this level"]
+            reasons = ["no clear rewrite effect; more runs keep answer diversity and grammar at this level"]
         elif faster:
             better = faster
             reasons = ["no clear rewrite effect; the faster level (candidate to freeze)"]
         else:
             better = None
-            reasons = ["no clear effect on rewrite, fluency or time (candidate to freeze)"]
+            reasons = ["no clear effect on rewrite, answer diversity or time (candidate to freeze)"]
     value = levels[better] if better else None
     return {"level": better, "value": value, "text": "; ".join(reasons)}
 

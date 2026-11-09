@@ -1,5 +1,5 @@
 // The hyperparameter results explorer (components/HpExplorer.jsx): metrics,
-// averaging over the other settings, the fluency gate and best values.
+// averaging over the other settings, the answer-diversity and grammar gate and best values.
 // Everything here is per method and per model: a table never averages over
 // either (layer numbers mean different depths in different models).
 import { duration, formatValue, pct, stats } from './hparams.js'
@@ -16,21 +16,21 @@ export const runGated = (row) => (row.scores?.fluency != null && row.scores.flue
 // Each metric has one colour wherever it appears. `better` says which way is
 // good; `get` reads it from a results row (hparam_sweeps.results).
 export const METRICS = [
-  { key: 'fluency', label: 'Fluency', color: '#7aa2f7', better: 'high', get: (r) => r.scores?.fluency,
-    help: 'n-gram fluency over the unedited model’s, capped at 1' },
+  { key: 'fluency', label: 'Answer diversity', color: '#7aa2f7', better: 'high', get: (r) => r.scores?.fluency,
+    help: 'variety of the answers to a record’s different questions (ROME’s and EasyEdit’s “fluency”: n-gram entropy), over the unedited model’s, capped at 1; on short answers it falls when one answer, usually the new one, takes over the other questions' },
   { key: 'reliability', label: 'Rewrite', color: '#ff9e64', better: 'high', get: (r) => r.scores?.reliability,
-    help: 'the edited question itself answered with the new answer (what selection ranks by)' },
+    help: 'the edited question itself answered with the new answer (EasyEdit’s “reliability” or edit success, on the direct question only)' },
   { key: 'locality', label: 'Locality', color: '#2ac3de', better: 'high', get: (r) => r.scores?.locality,
     help: 'unrelated facts unchanged' },
-  { key: 'generalizability', label: 'Portability', color: '#bb9af7', better: 'high', get: (r) => r.scores?.generalizability,
-    help: 'determinate derived questions the unedited model answered with the original answer' },
+  { key: 'generalizability', label: 'Generalizability', color: '#bb9af7', better: 'high', get: (r) => r.scores?.generalizability,
+    help: 'determinate derived questions the unedited model answered with the original answer (EasyEdit’s “portability”)' },
   { key: 'paraphrase', label: 'Paraphrase', color: '#f7c873', better: 'high', get: (r) => r.scores?.paraphrase,
     help: 'the edited fact asked in other words' },
   { key: 'well_formed', label: 'Grammar', color: '#a9b1d6', better: 'high', get: (r) => r.scores?.well_formed,
     help: 'LLM judge: share of well-formed answers over the unedited model’s, capped at 1' },
-  { key: 'gate', label: 'Keeps fluency', color: '#9ece6a', better: 'high',
+  { key: 'gate', label: 'Keeps diversity + grammar', color: '#9ece6a', better: 'high',
     get: (r) => (r.state === 'COMPLETED' ? (runGated(r) ? 0 : 1) : null),
-    help: `share of runs keeping fluency at ${GATE.fluency} and grammar at ${GATE.well_formed} of the unedited model` },
+    help: `share of runs keeping answer diversity at ${GATE.fluency} and grammar at ${GATE.well_formed} of the unedited model` },
   { key: 'edit_sec', label: 'Edit time', color: '#9aa1b4', better: 'low', get: (r) => r.edit_sec,
     help: 'editing alone, without evaluation' },
 ]

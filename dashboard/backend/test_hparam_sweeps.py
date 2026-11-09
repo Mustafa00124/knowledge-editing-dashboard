@@ -228,7 +228,7 @@ class RunDiagnosticsTests(unittest.TestCase):
         texts = [f["text"] for f in hparam_sweeps._flags("COMPLETED", None, hparam_sweeps._loss_summary(self.dir),
                                                          {"fluency": 0.5})]
         self.assertIn("loss became NaN", texts)
-        self.assertIn("fluency fell 50%", texts)
+        self.assertIn("answer diversity fell 50%", texts)
 
     def test_error_line_skips_warnings_and_progress_bars(self):
         err = self.dir / "job.err"

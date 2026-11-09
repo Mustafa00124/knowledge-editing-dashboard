@@ -233,7 +233,7 @@ export default function Results() {
       )}
 
       {METRIC_MODES.has(mode) && metricKey === 'portability' && (
-        <p className="metric-note">Generalizability is the same metric previously called Portability.</p>
+        <p className="metric-note">Generalizability is EasyEdit’s portability, and Answer diversity is ROME’s and EasyEdit’s fluency (n-gram entropy), renamed for what they measure here.</p>
       )}
 
       {mode === 'testing' && <TestingResults />}
