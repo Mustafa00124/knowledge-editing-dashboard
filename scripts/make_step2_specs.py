@@ -42,10 +42,11 @@ MODELS = ["qwen3-4b-instruct-2507", "olmo-3-7b-instruct", "llama-3.1-8b-instruct
 SHORT = {"qwen3-4b-instruct-2507": "Qwen", "olmo-3-7b-instruct": "Olmo", "llama-3.1-8b-instruct": "Llama",
          "mistral-7b-instruct-v0.1": "Mistral"}
 LABEL = {"ft": "FT-M", "lora": "LoRA", "rome": "ROME", "fidal": "FiDAL", "fine": "FiNE", "ifmet": "IFMET",
-         "lti": "LTI", "loco": "LoCo"}
-SEEDS = {"rome": [0, 1], "fidal": [0, 1], "lti": [0, 1]}
+         "lti": "LTI", "loco": "LoCo", "alphaedit": "AlphaEdit"}
+SEEDS = {"rome": [0, 1], "fidal": [0, 1], "lti": [0, 1], "alphaedit": [0, 1]}
 # Step-1 median minutes per run on 10 edits; step 2 has 40 (see README for the scaling).
-MINUTES_10 = {"ft": 2.0, "lora": 3.2, "rome": 9.1, "fidal": 3.6, "fine": 1.7, "loco": 5.9, "ifmet": 10.9, "lti": 3.5}
+MINUTES_10 = {"ft": 2.0, "lora": 3.2, "rome": 9.1, "fidal": 3.6, "fine": 1.7, "loco": 5.9, "ifmet": 10.9, "lti": 3.5,
+              "alphaedit": 2.8}
 MLP = ["up_proj", "down_proj", "gate_proj"]
 
 
@@ -150,11 +151,39 @@ def plan(method, model):
                  "Qwen disagrees with the others on v_lr and layers; clamp fixed low removes clamp x v_lr"),
                 ("nll", {"nll_factor": [c("nll_factor"), 9.0]}, {**base, "layers": layers[1], "v_lr": c("v_lr")},
                  "training signal: 3.0 is the grid's centre cell")]
+    if method == "alphaedit":
+        # Added 2026-11-08 after AlphaEdit's step 1 (locality ranked last).
+        # Llama and Mistral: v_lr and clamp both won low, at the edge, and
+        # interact; early layers. Olmo: v_lr low; clamp trades portability
+        # for rewrite (full range); later layers slightly. Qwen: v_lr,
+        # nullspace_threshold and grad steps all won high, at the edge.
+        # Grad steps by the time rule: 50 only where it gained rewrite (Qwen).
+        frozen = {k: c(k) for k in ("kl_factor", "mom2_update_weight", "v_weight_decay")}
+        v_lr_low = [0.016, lo("v_lr"), c("v_lr")]
+        if m in ("Llama", "Mistral"):
+            swept = {"clamp_norm_factor": [0.8, lo("clamp_norm_factor"), c("clamp_norm_factor")], "v_lr": v_lr_low}
+            fixed = {"layers": lo("layers"), "v_num_grad_steps": lo("v_num_grad_steps"), "L2": lo("L2"),
+                     "nullspace_threshold": lo("nullspace_threshold") if m == "Llama" else c("nullspace_threshold")}
+            why = "clamp and v_lr both won low at the edge and interact; early layers won"
+        elif m == "Olmo":
+            swept = {"clamp_norm_factor": [lo("clamp_norm_factor"), c("clamp_norm_factor"), hi("clamp_norm_factor")],
+                     "v_lr": v_lr_low}
+            fixed = {"layers": hi("layers"), "v_num_grad_steps": lo("v_num_grad_steps"), "L2": lo("L2"),
+                     "nullspace_threshold": c("nullspace_threshold")}
+            why = "v_lr won low at the edge; clamp trades portability against rewrite, so its full range"
+        else:
+            swept = {"v_lr": [c("v_lr"), hi("v_lr"), 1.58],
+                     "nullspace_threshold": [c("nullspace_threshold"), hi("nullspace_threshold"), 0.6]}
+            fixed = {"layers": hi("layers"), "v_num_grad_steps": hi("v_num_grad_steps"), "L2": lo("L2"),
+                     "clamp_norm_factor": c("clamp_norm_factor")}
+            why = "v_lr and nullspace_threshold both won high at the edge on Qwen, which needs a harder push"
+        return [("grid", swept, {**held, **fixed, **frozen}, why)]
     raise KeyError(method)
 
 
 INVESTIGATION = {"ft": "finetuning", "lora": "finetuning", "rome": "locate_edit", "fidal": "dynamic_locate_edit",
-                 "fine": "neuron_editors", "ifmet": "portability", "lti": "portability", "loco": "portability"}
+                 "fine": "neuron_editors", "ifmet": "portability", "lti": "portability", "loco": "portability",
+                 "alphaedit": "locate_edit"}
 
 
 def runs_of(swept):

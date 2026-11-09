@@ -57,6 +57,10 @@ python scripts/dash.py sweep docs/hparam_step2/specs/<file>.json
 | LoCo | Llama | constraint | `constraint` {all} | `lora_dropout` 0.05, `lr` 0.000285, `num_steps` 17, `target_modules` q+k+v+o, `lora_alpha` 15.2, `rank` 128, `n_implications` 5, `completion_weight` 1, `implication_max_new_tokens` 30 | 1 x 1 |
 | LoCo | Mistral | grid | `lr` {9e-05, 0.000285, 0.0009}; `num_steps` {6, 17, 50} | `lora_dropout` 0.05, `constraint` implication, `target_modules` q+k+v+o, `lora_alpha` 15.2, `rank` 128, `n_implications` 5, `completion_weight` 1, `implication_max_new_tokens` 30 | 9 x 1 |
 | LoCo | Mistral | constraint | `constraint` {all} | `lora_dropout` 0.05, `lr` 0.000285, `num_steps` 17, `target_modules` q+k+v+o, `lora_alpha` 15.2, `rank` 128, `n_implications` 5, `completion_weight` 1, `implication_max_new_tokens` 30 | 1 x 1 |
+| AlphaEdit | Qwen | grid | `v_lr` {0.158, 0.5, 1.58}; `nullspace_threshold` {0.02, 0.2, 0.6} | `layers` 6-10, `v_num_grad_steps` 50, `L2` 0.1, `clamp_norm_factor` 3.79, `kl_factor` 0.0625, `mom2_update_weight` 8220, `v_weight_decay` 0.001 | 9 x 2 |
+| AlphaEdit | Olmo | grid | `clamp_norm_factor` {1.2, 3.79, 12}; `v_lr` {0.016, 0.05, 0.158} | `layers` 6-10, `v_num_grad_steps` 12, `L2` 0.1, `nullspace_threshold` 0.02, `kl_factor` 0.0625, `mom2_update_weight` 8220, `v_weight_decay` 0.001 | 9 x 2 |
+| AlphaEdit | Llama | grid | `clamp_norm_factor` {0.8, 1.2, 3.79}; `v_lr` {0.016, 0.05, 0.158} | `layers` 2-6, `v_num_grad_steps` 12, `L2` 0.1, `nullspace_threshold` 0.002, `kl_factor` 0.0625, `mom2_update_weight` 8220, `v_weight_decay` 0.001 | 9 x 2 |
+| AlphaEdit | Mistral | grid | `clamp_norm_factor` {0.8, 1.2, 3.79}; `v_lr` {0.016, 0.05, 0.158} | `layers` 2-6, `v_num_grad_steps` 12, `L2` 0.1, `nullspace_threshold` 0.02, `kl_factor` 0.0625, `mom2_update_weight` 8220, `v_weight_decay` 0.001 | 9 x 2 |
 
-Total: 60 specs, 400 runs.
+Total: 68 specs, 472 runs.
 
