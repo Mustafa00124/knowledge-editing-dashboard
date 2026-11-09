@@ -21,8 +21,16 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
   the step-1 analysis is the unweighted mean of the 8.
 - **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
   the four generalisation scores (paraphrase, portability, cross-lingual, propositional
-  consistency), among settings that pass hard gates: rewrite >= 0.9, fluency >= 0.85 and
-  grammar >= 0.9 of the unedited model, and locality >= 0.7. (First set at a lenient 0.5;
+  consistency), among settings that pass hard gates: rewrite >= 0.9, fluency >= 0.8 and
+  grammar >= 0.9 of the unedited model, and locality >= 0.7. On our short answers the fluency
+  formula (n-gram entropy of a record's English answers joined, relative to the unedited model)
+  measures answer collapse, not sentence quality: it falls when one answer (usually the new
+  one) takes over the record's other questions (6 of 10 answers identical: about 0.76; all
+  identical: 0) and does not fall for repetition inside an answer or word salad, which the
+  judge's grammar check catches. Collapse inflates paraphrase, portability and cross-lingual
+  (correlation with fluency -0.75, -0.63, -0.83 across step-2 settings), so the fluency gate
+  keeps the objective from rewarding it; below 0.8 the locality gate already binds
+  (fluency and locality correlate +0.83). Report it as answer diversity. (First set at a lenient 0.5;
   step 2 showed locality is mostly high, median 0.81 and 92% of settings >= 0.5, so it was
   raised to 0.7, the strictest value that leaves every method and model that had a passing
   setting with at least one; at 0.75 FT-M and LoRA on Llama have none.)
