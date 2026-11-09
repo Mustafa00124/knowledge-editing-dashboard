@@ -251,8 +251,11 @@ results were rerun.
 - **Effect:** FiDAL's and FiNE's tuning results measure sequential editing
   of 10 or 40 facts, so they are not comparable with the other methods and
   their chosen settings may not hold for single edits.
-- **Fix:** found 2026-11-09; pending (add the dynamic methods to the field's
-  list, then rerun FiDAL and FiNE).
+- **Fix (2026-11-09):** `edit_mode` and `reset_every` now apply to WilKE,
+  FiNE, NMKE, FiDAL, KN and CaKE too (default single: they cannot batch).
+  FiDAL's and FiNE's step 0-2 sweeps were moved to `deleted/` in their
+  investigations and rerun with single edits (step 0 and step 1 with the same
+  requests; step 2 after the new step 1).
 
 ## Not bugs (checked, caused by settings or by the method)
 
