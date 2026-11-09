@@ -133,7 +133,7 @@ function Detail({ run, record }) {
                           {r.query_type === 'derived' && r.determinacy && (
                             <span className="audit-det">{INDETERMINATE.includes(r.determinacy) ? 'indeterminate' : 'determinate'}</span>
                           )}
-                          {r.query_type?.startsWith('unrelated') && <span className="audit-det">locality</span>}
+                          {r.query_type?.startsWith('unrelated') && <span className="audit-det">specificity</span>}
                         </td>
                         <td>{r.prompt}</td>
                         <td>{r.judged ? expectedOf(r) : r.query_type.startsWith('unrelated') ? 'baseline' : '—'}</td>

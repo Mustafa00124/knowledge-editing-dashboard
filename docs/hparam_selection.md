@@ -16,7 +16,7 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
 - **Scores (8), per run:** rewrite (the direct question; EasyEdit's reliability), paraphrase,
   generalizability (EasyEdit's portability: determinate derived questions the unedited model
   answered correctly; bug 8 in `docs/bug_log.md`), cross-lingual, propositional consistency,
-  locality (near and far unrelated facts), answer diversity (ROME's and EasyEdit's fluency:
+  specificity (EasyEdit's locality: near and far unrelated questions keep their answers), answer diversity (ROME's and EasyEdit's fluency:
   n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the judge's
   well-formed share, as a ratio to the unedited model). Names and their common equivalents:
   `datasets/SidsDataset/README.md`, Evaluation, "Metric names". The **overall score** used in
@@ -24,24 +24,24 @@ specs written 2026-11-07. This is the methods record for the paper. The design i
 - **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
   the four generalisation scores (paraphrase, generalizability, cross-lingual, propositional
   consistency), among settings that pass hard gates: rewrite >= 0.9, answer diversity >= 0.8 and
-  grammar >= 0.9 of the unedited model, and locality >= 0.7. On our short answers the answer-diversity
+  grammar >= 0.9 of the unedited model, and specificity >= 0.7. On our short answers the answer-diversity
   formula (ROME's fluency; n-gram entropy of a record's English answers joined, relative to the unedited model)
   measures answer collapse, not sentence quality: it falls when one answer (usually the new
   one) takes over the record's other questions (6 of 10 answers identical: about 0.76; all
   identical: 0) and does not fall for repetition inside an answer or word salad, which the
   judge's grammar check catches. Collapse inflates paraphrase, generalizability and cross-lingual
   (correlation with answer diversity -0.75, -0.63, -0.83 across step-2 settings), so the diversity gate
-  keeps the objective from rewarding it; below 0.8 the locality gate already binds
-  (answer diversity and locality correlate +0.83). Collapse rises steadily as the score falls
+  keeps the objective from rewarding it; below 0.8 the specificity gate already binds
+  (answer diversity and specificity correlate +0.83). Collapse rises steadily as the score falls
   (share of records with at least half their other answers turned into the new answer, step 2:
   3% at >= 0.95, 10% at 0.90-0.95, 21% at 0.85-0.90, 35% at 0.80-0.85, 46-49% at 0.70-0.80, 57-76%
   below 0.7; only FT-M, LoRA and LoCo fall below 0.8). (First set at a lenient 0.5;
-  step 2 showed locality is mostly high, median 0.81 and 92% of settings >= 0.5, so it was
+  step 2 showed specificity is mostly high, median 0.81 and 92% of settings >= 0.5, so it was
   raised to 0.7, the strictest value that leaves every method and model that had a passing
   setting with at least one; at 0.75 FT-M and LoRA on Llama have none.)
   Runs that fail a gate keep all their scores; the gates only decide what can be chosen.
   (2026-11-07 interim rule, used for the step-1 analysis: equal-weight mean of all 8 scores,
-  locality considered last.)
+  specificity considered last.)
 - **Diversity and grammar gate (steps 0-1):** a run "keeps fluency" when answer diversity
   (ROME's fluency) >= 0.85 and grammar >= 0.9 of the unedited model. A value is only
   recommended if at least half its runs keep it. ("Fluency" below, in the step 0-1 record,
@@ -157,7 +157,7 @@ on the 4 models:
   interaction reverses it. Held at that level; if that level was the edge of the step-1 range,
   step 2 tries values past it.
 - **Focus:** the models disagree on the sign, or the overall score hides a large trade-off
-  (for example +20 paraphrase against -25 locality). Swept again in step 2.
+  (for example +20 paraphrase against -25 specificity). Swept again in step 2.
 
 Results over 8 methods x 4 models: 61 method/setting pairs; 12 flat on every model, 35 with
 one direction on every model that shows an effect, 14 where models disagree (about 6 of them
@@ -233,8 +233,8 @@ far; then the winner and 2-3 runners-up are rerun once to confirm.
 
 ## Caveats to state in the paper
 
-- The step-1 analysis weighted the 8 scores equally. Under the final rule (locality second)
-  the strength settings that trade locality for generalisation (ROME clamp, LoRA lr and alpha,
+- The step-1 analysis weighted the 8 scores equally. Under the final rule (specificity second)
+  the strength settings that trade specificity for generalisation (ROME clamp, LoRA lr and alpha,
   FT-M norm_constraint) lean further toward their high value; step 2's grids include both
   ends, so the choice is made on step-2 data.
 - Steps 0 and 1 used 10 edits per run; effects under about 5 points are near the noise floor.

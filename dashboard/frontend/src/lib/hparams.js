@@ -74,7 +74,7 @@ export const CRITERIA = [
   { key: 'fluency', label: 'Answer diversity', help: 'variety of the answers to a record’s different questions (ROME’s and EasyEdit’s “fluency”: n-gram entropy), over the unedited model’s, capped at 1; on short answers it falls when one answer, usually the new one, takes over the other questions' },
   { key: 'well_formed', label: 'Grammar', help: 'LLM judge: share of answers that are well-formed English, over the unedited model’s, capped at 1' },
   { key: 'reliability', label: 'Rewrite', help: 'the edited question answered with the new answer (EasyEdit’s “reliability” or edit success; on Sid’s Dataset the direct question only)' },
-  { key: 'locality', label: 'Locality', help: 'unrelated facts unchanged' },
+  { key: 'locality', label: 'Specificity', help: 'unrelated questions keep the unedited model’s answer (CounterFact’s “specificity”, EasyEdit’s “locality”)' },
   { key: 'generalizability', label: 'Generalizability', help: 'multi-hop consequences of the edit (EasyEdit’s “portability”); on Sid’s Dataset, the determinate derived questions the unedited model answered with the original answer' },
 ]
 

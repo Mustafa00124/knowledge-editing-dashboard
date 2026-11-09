@@ -5,10 +5,10 @@
 const LABELS = {
   bertscore_edit_succ: 'Edit success BERTScore',
   bertscore_portability: 'Generalizability BERTScore',
-  bertscore_locality: 'Locality BERTScore',
+  bertscore_locality: 'Specificity BERTScore',
   edit_succ: 'Edit success',
   portability: 'Generalizability',
-  locality: 'Locality',
+  locality: 'Specificity',
   fluency: 'Answer diversity',
   loss: 'Loss',
   total_sec: 'Time',

@@ -19,7 +19,7 @@ const KB_SIZES = ['1', '10', '100', '1000', '10000']
 const CRITERIA = [
   { key: 'fluency', label: 'Answer diversity' },
   { key: 'reliability', label: 'Rewrite' },
-  { key: 'locality', label: 'Locality' },
+  { key: 'locality', label: 'Specificity' },
   { key: 'generalizability', label: 'Generalizability' },
 ]
 const MODE_LABEL = { original: 'Original', exact_match: 'Exact match', bertscore: 'BERTScore', llm_judge: 'LLM judge' }

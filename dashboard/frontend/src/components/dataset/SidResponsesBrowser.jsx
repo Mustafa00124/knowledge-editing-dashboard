@@ -81,7 +81,7 @@ function Legend({ models }) {
           </dd>
         </div>
         <div>
-          <dt>Locality</dt>
+          <dt>Specificity</dt>
           <dd>
             Unrelated questions, compared with the same model's answer before the edit:{' '}
             <span><LegendDot cls="is-kept" />kept it</span>

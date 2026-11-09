@@ -382,8 +382,8 @@ directories will move before it commits.
   models (layer numbers mean different depths in different models).
   Metric chips choose the columns and their order, each metric in its own
   colour: answer diversity (ROME's fluency, final over the unedited model's),
-  rewrite (EasyEdit's reliability), locality, generalizability (EasyEdit's
-  portability), paraphrase, grammar, keeps diversity + grammar (share of runs
+  rewrite (EasyEdit's reliability), specificity (EasyEdit's locality),
+  generalizability (EasyEdit's portability), paraphrase, grammar, keeps diversity + grammar (share of runs
   passing the gate) and edit time. Name equivalents:
   `datasets/SidsDataset/README.md`, Evaluation, "Metric names". Three views (`components/HpExplorer.jsx`, logic in
   `lib/hpExplore.js`): **By setting** has one setting's values as rows,

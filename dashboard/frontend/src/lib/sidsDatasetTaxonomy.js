@@ -127,7 +127,7 @@ export const METRICS = [
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
   { key: 'generalization', label: 'Generalizability (portability)', over: 'derived (4)', reported: 'one number, plus per derivation type' },
   { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (2)', reported: 'one number on its own, plus per form (not, and/or)' },
-  { key: 'locality', label: 'Locality', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
+  { key: 'locality', label: 'Specificity (locality)', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
   { key: 'fluency', label: 'Answer diversity (ROME’s fluency)', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
 
@@ -228,7 +228,7 @@ export const QUERY_BEHAVIORS = [
     label: 'Delete',
     description: 'Correct if the answer does not assert the original answer and says it does not know or that the fact does not hold; which of the two is recorded. For relations with many values this is an open-world test, where abstaining is the honest answer.',
   },
-  { key: 'locality', label: 'Locality', description: "Unrelated queries, any operation. Correct if the answer matches the model's own pre-edit answer." },
+  { key: 'locality', label: 'Specificity', description: "Unrelated queries, any operation. Correct if the answer matches the model's own pre-edit answer." },
 ]
 
 // "w1" -> "World 1", for display; records keep the short ids.

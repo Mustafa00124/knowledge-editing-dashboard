@@ -2,7 +2,7 @@
 
 Metric names follow `datasets/SidsDataset/README.md` (Evaluation, "Metric names"):
 answer diversity is ROME's fluency, generalizability is EasyEdit's portability, rewrite is
-EasyEdit's reliability on the direct question.
+EasyEdit's reliability on the direct question, specificity is EasyEdit's locality.
 
 Brainstorm (2026-11-07) of plots that show the important comparisons from
 `docs/hparam_selection.md`. Ordered by how central the claim is. "Main" = a candidate for the
@@ -21,13 +21,13 @@ effect on the overall score (diverging, low-is-better blue to high-is-better ora
 marks a significant effect (Lenth). Answers "which settings matter, and do models agree" at a
 glance: inert rows are pale, pivots are one colour across the row, model disagreements
 (Mistral and Qwen) stand out as a colour flip within a row.
-Variant: one panel per score (rewrite, generalizability, locality, answer diversity) for the appendix.
+Variant: one panel per score (rewrite, generalizability, specificity, answer diversity) for the appendix.
 
 ## 3. Strength is a trade-off (main)
 For the strength settings (LoRA lr, LoCo lr, ROME clamp, IFMET v_lr), a dumbbell or diverging
 bar chart of the effect on each of the 8 scores: rewrite, paraphrase, cross-lingual and
-generalizability go up, locality, answer diversity and grammar go down. One small panel per setting, the 4
-models as dots. Makes the point that "edit harder" buys generalisation with locality.
+generalizability go up, specificity, answer diversity and grammar go down. One small panel per setting, the 4
+models as dots. Makes the point that "edit harder" buys generalisation with specificity.
 
 ## 4. Where interactions live (main)
 A 4 x 4 symmetric heatmap of setting categories (where, how hard, signal, inert), cell = share
@@ -78,8 +78,8 @@ models show where each model's best region sits.
 
 ## 12. Pareto front of the final choice (main, after step 3)
 Per method: every tuning run as a point in (edit success = mean of rewrite, paraphrase,
-generalizability) vs (preservation = mean of locality, answer diversity, grammar), step coloured, the
-selected setting starred. Shows the chosen setting sits on the front and what the locality
+generalizability) vs (preservation = mean of specificity, answer diversity, grammar), step coloured, the
+selected setting starred. Shows the chosen setting sits on the front and what the specificity
 weighting would change.
 
 ## 13. Default vs tuned (main)

@@ -1106,7 +1106,7 @@ onto metrics:
 | Cross-lingual | cross_lingual (2) | one number, plus per language |
 | Generalizability | derived (4) | one number, plus determinate / indeterminate, per belief-revision problem, per logic (dl, fol) and per derivation type, with the worlds picked |
 | Logical consistency | propositional (2) | one number on its own, plus per form (not, and/or) |
-| Locality | unrelated near + far (2) | one number, plus near and far |
+| Specificity | unrelated near + far (2) | one number, plus near and far |
 | Delete abstention | a delete record's direct, paraphrase and cross-lingual answers | one number |
 | Answer diversity | the English generations | one number |
 
@@ -1124,12 +1124,12 @@ common term in the knowledge-editing literature:
 | Generalizability | portability (EasyEdit; Yao et al. 2023) | derived questions that follow from the edit |
 | Cross-lingual | cross-lingual portability / generalization | the edited fact asked in Chinese and Spanish |
 | Logical consistency | (ours; closest to logical-generalization portability) | yes/no truth-functional questions about the edited fact (propositional) |
-| Locality | locality (EasyEdit), specificity / neighborhood score (CounterFact) | unrelated questions keep the unedited model's answer |
+| Specificity | specificity / neighborhood score (ROME, MEMIT, CounterFact), locality (EasyEdit; Yao et al. 2023) | unrelated near and far questions keep the unedited model's own answer, compared by the judge (CounterFact's version checks by probability that neighbourhood prompts still prefer the true original answer) |
 | Answer diversity | fluency (ROME, Meng et al. 2022; EasyEdit) | n-gram entropy of a record's English answers joined, relative to the unedited model; on short answers it falls when one answer takes over the record's other questions, so it measures answer collapse rather than sentence quality |
 | Grammar | (ours) | the judge's share of well-formed answers, relative to the unedited model |
 
 Internal keys keep the original names (`reliability`, `rewrite`, `portability` /
-`generalization`, `fluency`), so stored results and code are unchanged.
+`generalization`, `locality`, `fluency`), so stored results and code are unchanged.
 
 ### Main experiments (`sid_main`)
 
