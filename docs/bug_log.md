@@ -235,6 +235,25 @@ results were rerun.
   FiNE and IFMET; KN, not a core method, still needs the span once and
   fails 26. The 288 failed step-2 runs were resubmitted.
 
+## 14. FiDAL and FiNE tuned on stacked edits, not single edits
+
+- **What happened:** every tuning sweep asks for `edit_mode: single` (one
+  fact, then restore the weights). In `experiments/run_experiment/dashboard.json`
+  the `edit_mode` field is shown only for ft, ft_l, lora, rome, memit, pmet,
+  alphaedit, ifmet, lti and loco, so for FiDAL and FiNE (and WilKE, NMKE, KN,
+  CaKE) the dashboard dropped it and the runner fell back to its old default:
+  each fact edited on top of the previous ones, never restored, scored once
+  after the last. FiDAL and FiNE steps 0 and 1 (10 edits) and step 2 (40
+  edits) all ran that way (run rows show "no protocol (older runs)"); the
+  other seven methods ran single edits. `edit_protocol.py` does support
+  single edits for them (`WEIGHT_EDIT_METHODS`).
+- **Origin:** ours (the dashboard field's method list).
+- **Effect:** FiDAL's and FiNE's tuning results measure sequential editing
+  of 10 or 40 facts, so they are not comparable with the other methods and
+  their chosen settings may not hold for single edits.
+- **Fix:** found 2026-11-09; pending (add the dynamic methods to the field's
+  list, then rerun FiDAL and FiNE).
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method
