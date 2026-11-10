@@ -197,6 +197,46 @@ def order(method, model):
     return ORDER_MODEL.get((method, SHORT[model]), ORDER[method])
 
 
+def label_of(method, model, r, setting, ext=0):
+    tag = f"round {r}" + (f" extension {ext}" if ext else "")
+    return f"Step 3 {tag} ({setting}): {LABEL[method]}, {model}, Sid's dev (40 edits)"
+
+
+def build_spec(method, model, r, setting, vals, cur, ext=0):
+    """(spec, file name) sweeping `setting` over vals with the rest of `cur` held."""
+    fixed = {k: v for k, v in cur.items() if k != setting}
+    spec = {"investigation": INVESTIGATION[method], "design": "grid", "step": 3,
+            "methods": {method: {setting: vals}}, "fixed": {method: {model: fixed}},
+            "models": [model], "data_paths": [SIDS], "split": "dev", "ds_size": "full",
+            "edit_mode": "single", "seed": 0, "label": label_of(method, model, r, setting, ext),
+            "note": f"coordinate descent round {r}: {setting} with every other setting at its current value"
+                    + (" (extension past the edge of the previous values)" if ext else "")}
+    suffix = f"_ext{ext}" if ext else ""
+    return spec, f"{method}__{model}__r{r}_{setting}{suffix}.json"
+
+
+def needs_warmup(method, setting):
+    """AlphaEdit builds a null-space projection per (layers, threshold): one
+    edit per new pair first, so the sweep's runs never build one at once."""
+    return method == "alphaedit" and setting in ("layers", "nullspace_threshold")
+
+
+def warmup_swept(setting, vals, cur):
+    return {"layers": vals if setting == "layers" else [cur["layers"]],
+            "nullspace_threshold": vals if setting == "nullspace_threshold" else [cur["nullspace_threshold"]]}
+
+
+def build_warmup(model, r, swept, ext=0):
+    tag = f"round {r}" + (f" extension {ext}" if ext else "")
+    spec = {"investigation": "locate_edit", "data_paths": [SIDS], "ds_size": "1", "edit_mode": "single",
+            "seed": 0, "split": "dev", "purpose": "setup", "design": "grid", "models": [model],
+            "methods": {"alphaedit": swept},
+            "label": f"AlphaEdit step 3 {tag} warm-up: null-space projections, {model}",
+            "note": "one edit per projection the round needs, so its runs never build the same one at once"}
+    suffix = f"_ext{ext}" if ext else ""
+    return spec, f"alphaedit_projections_{model}{suffix}.json"
+
+
 def load_state():
     if STATE.exists():
         return json.loads(STATE.read_text())
@@ -225,32 +265,19 @@ def main():
             setting = seq[r - 1]
             cur = cur_all[method][model]
             vals = values(method, model, setting, cur[setting])
-            fixed = {k: v for k, v in cur.items() if k != setting}
-            label = f"Step 3 round {r} ({setting}): {LABEL[method]}, {model}, Sid's dev (40 edits)"
-            spec = {"investigation": INVESTIGATION[method], "design": "grid", "step": 3,
-                    "methods": {method: {setting: vals}}, "fixed": {method: {model: fixed}},
-                    "models": [model], "data_paths": [SIDS], "split": "dev", "ds_size": "full",
-                    "edit_mode": "single", "seed": 0, "label": label,
-                    "note": f"coordinate descent round {r}: {setting} with every other setting at its current value"}
-            name = f"{method}__{model}__r{r}_{setting}.json"
+            spec, name = build_spec(method, model, r, setting, vals, cur)
             (specs_dir / name).write_text(json.dumps(spec, indent=1) + "\n")
             rows.append(dict(method=method, model=model, setting=setting, cur=cur[setting], vals=vals, file=name))
-            if method == "alphaedit" and setting in ("layers", "nullspace_threshold"):
-                warm[model] = {"layers": vals if setting == "layers" else [cur["layers"]],
-                               "nullspace_threshold": vals if setting == "nullspace_threshold"
-                               else [cur["nullspace_threshold"]]}
+            if needs_warmup(method, setting):
+                warm[model] = warmup_swept(setting, vals, cur)
     wdir = rdir / "warmup"
     if wdir.exists():
         for old in wdir.glob("*.json"):
             old.unlink()
     for model, swept in warm.items():
         wdir.mkdir(parents=True, exist_ok=True)
-        spec = {"investigation": "locate_edit", "data_paths": [SIDS], "ds_size": "1", "edit_mode": "single",
-                "seed": 0, "split": "dev", "purpose": "setup", "design": "grid", "models": [model],
-                "methods": {"alphaedit": swept},
-                "label": f"AlphaEdit step 3 round {r} warm-up: null-space projections, {model}",
-                "note": "one edit per projection the round needs, so its runs never build the same one at once"}
-        (wdir / f"alphaedit_projections_{model}.json").write_text(json.dumps(spec, indent=1) + "\n")
+        spec, name = build_warmup(model, r, swept)
+        (wdir / name).write_text(json.dumps(spec, indent=1) + "\n")
     write_readme(r, rows, rdir)
     print(f"round {r}: {len(rows)} specs, {sum(len(x['vals']) for x in rows)} runs, {len(warm)} warm-ups")
 

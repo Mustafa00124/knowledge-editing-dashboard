@@ -270,10 +270,11 @@ Values: single layers, every layer within 4 of the current one (Llama FT-M, unse
 gets a wide sweep L3-L27); layer windows of the same width slid 1 layer at a time (LoRA's
 half-depth windows 2 at a time) up to 4 positions either side; numeric settings 8 values on a
 x1.5 log grid around the current value, shifted down or up where the step-2 best sat at the edge
-or nothing passed. One seed per run (noise is under the tie margin); the final settings get extra
+or nothing passed. If a round's pick sits at the edge of the values tried, that setting is swept once more past the edge (up to 4 more values) before the pick is final; if no value passes the gates, the current value is kept and the pick is flagged. One seed per run (noise is under the tie margin); the final settings get extra
 seeds once the descent ends. The starting values, the generator and each round's picks are in
 `scripts/make_step3_specs.py` and `docs/hparam_step3/state.json`; each round's specs and value
-lists in `docs/hparam_step3/round<N>/`.
+lists in `docs/hparam_step3/round<N>/`; every pick with its scores in `docs/hparam_step3/picks.md`
+(the descent advances by itself: `scripts/step3_advance.py`, run every 10 minutes by the dashboard backend).
 
 ## Caveats to state in the paper
 

@@ -5,6 +5,7 @@ import socket
 import secrets
 import sqlite3
 import subprocess
+import sys
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,6 +20,7 @@ import datasets_reader
 import downloads
 import environment
 import hparam_sweeps
+import periodic
 import in_context_reader
 import model_audit_reader
 import launches
@@ -35,6 +37,13 @@ import slurm
 from schemas import ArchiveRequest, DownloadRequest, PromoteRequest, SubmitExperimentRequest, SweepRequest
 
 app = FastAPI(title="Knowledge-Editing Dashboard")
+
+
+@app.on_event("startup")
+def _start_periodic():
+    # Only in a served backend (uvicorn imported it), never under the tests.
+    if "uvicorn" in sys.modules:
+        periodic.start()
 
 # Harmless even though the Vite dev proxy makes this same-origin in
 # practice — keeps direct-to-backend requests (curl, debugging) working too.
