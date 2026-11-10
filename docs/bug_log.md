@@ -257,6 +257,24 @@ results were rerun.
   investigations and rerun with single edits (step 0 and step 1 with the same
   requests; step 2 after the new step 1).
 
+## 15. AlphaEdit step 2 crashed on prompts that name the subject twice
+
+- **What happened:** all 72 AlphaEdit step-2 runs (40 dev edits) failed with
+  `IndexError: Replacement index 1 out of range` in `compute_z`. Since bug 13
+  the runner puts "{}" at the right occurrence of `prompt_subject` itself.
+  AlphaEdit then ran `prompt.replace(subject, "{}")` without checking for an
+  existing "{}" (ROME and MEMIT check), so a prompt that names the subject
+  twice (for example `finance-*-0017`, "incorporated in" twice) got two
+  slots and `prompt.format(subject)` failed. The run stops at that edit.
+  Step 1 used 10 screen edits, none of which repeats its subject.
+- **Origin:** EasyEdit (unguarded replace in `AlphaEdit_main.py`), exposed by
+  our bug 13 fix. R-ROME and SPHERE have the same pattern but are not used.
+- **Effect:** no AlphaEdit step-2 results; no wrong results (each run failed
+  outright). Other methods guard the replace or completed normally.
+- **Fix (2026-11-09):** AlphaEdit replaces the subject only when the prompt
+  has no "{}" yet (`patches/EasyEdit-alphaedit-fixes.patch`). The 72 runs
+  were rerun with rerun-failed.
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method
