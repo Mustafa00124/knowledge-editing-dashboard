@@ -1274,15 +1274,18 @@ def get_datasets():
 
 @app.get("/api/sids-dataset/records")
 def get_sids_dataset_records():
-    """Every Sid's Dataset record (datasets/SidsDataset/records/<topic>/<operation>/<id>.json),
-    for the Datasets page's SID browser."""
-    root = config.DATASETS_DIR / "SidsDataset" / "records"
+    """Every Sid's Dataset record, for the Datasets page's SID browser: the
+    main split (datasets/SidsDataset/records/<topic>/<operation>/<id>.json)
+    and the dev split (datasets/SidsDataset/dev/...), each record tagged with
+    its split ("main" or "dev")."""
     records = []
-    for path in sorted(root.glob("*/*/*.json")) if root.is_dir() else []:
-        try:
-            records.append(json.loads(path.read_text()))
-        except (OSError, ValueError):
-            continue
+    for split, folder in (("main", "records"), ("dev", "dev")):
+        root = config.DATASETS_DIR / "SidsDataset" / folder
+        for path in sorted(root.glob("*/*/*.json")) if root.is_dir() else []:
+            try:
+                records.append({**json.loads(path.read_text()), "split": split})
+            except (OSError, ValueError):
+                continue
     # The relation catalogue (tags per relation) and the relation-property
     # checks, so the derivation view can name the property each step uses.
     relations, relation_checks = {}, {}
@@ -1445,25 +1448,14 @@ def get_sids_dataset_audit_detail(record: str, model: str):
         raise HTTPException(status_code=404, detail=f"no Sid's Dataset record {record}")
 
 
-@app.get("/api/sid-responses")
-def get_sid_responses(source: str = sid_responses.DEFAULT_SOURCE):
-    """Sid's Dataset post-edit answers: the sources, the methods in tab order
-    and the one run each method x main instruct model uses (sid_responses.py
-    says how runs are picked and how to point it at results/main)."""
+@app.get("/api/sids-dataset/method-dots")
+def get_sids_dataset_method_dots(source: str = sid_responses.DEFAULT_SOURCE):
+    """Every core method's post-edit dots per record, question and main model
+    (sid_responses.all_method_dots), for the Datasets page's method rows."""
     try:
-        return sid_responses.overview(source)
+        return sid_responses.all_method_dots(source)
     except KeyError:
         raise HTTPException(404, f"no source {source}")
-
-
-@app.get("/api/sid-responses/{method}")
-def get_sid_responses_method(method: str, source: str = sid_responses.DEFAULT_SOURCE):
-    """One method's edited records, with a dot per query and model (status
-    from the judge's label and the stored score, form label)."""
-    try:
-        return sid_responses.method_dots(method, source)
-    except KeyError:
-        raise HTTPException(404, f"no method {method} or source {source}")
 
 
 @app.get("/api/sid-responses/{method}/detail")

@@ -72,7 +72,9 @@ function Answer({ title, a, isBefore, newObject }) {
   )
 }
 
-export default function SidResponseModal({ method, methodLabel, source, model, record, queryKey, queryLabel, onClose }) {
+export default function SidResponseModal({ method, methodLabel, source, model: firstModel, models, record, queryKey, queryLabel, onClose }) {
+  // With `models`, a tab per model switches whose answer is shown.
+  const [model, setModel] = useState(firstModel)
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [view, setView] = useState('end')
@@ -104,6 +106,16 @@ export default function SidResponseModal({ method, methodLabel, source, model, r
           <button type="button" className="btn-plain" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="modal-body">
+          {models?.length > 1 && (
+            <div className="sids-model-tabs" role="tablist" aria-label="Model">
+              {models.map((m) => (
+                <button key={m} type="button" role="tab" aria-selected={m === model}
+                  className={`btn-plain-small${m === model ? ' is-on' : ''}`} onClick={() => setModel(m)}>
+                  {modelLabel(m)}
+                </button>
+              ))}
+            </div>
+          )}
           {error && <p className="archive-line archive-line-warn">{error}</p>}
           {!data && !error && <p className="empty">Loading…</p>}
           {data && !data.run && <p className="empty">No {methodLabel} run for this model.</p>}

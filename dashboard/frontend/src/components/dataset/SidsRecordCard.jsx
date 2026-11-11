@@ -24,9 +24,9 @@ import { QUERY_LABEL, PLACEHOLDER_TYPES, queryLabel } from '../../lib/sidsQueryL
 
 // Shared pieces of Sid's Dataset's record browser: the topic / operation /
 // box tab rows and the record card with its query table. The Datasets page
-// (SidsDatasetBrowser, pre-edit audit dots) and the Results page
-// (SidResponsesBrowser, post-edit answer dots) both build on them; each
-// passes its own dots through RecordCard's `dots` prop.
+// (SidsDatasetBrowser) builds on them, passing pre-edit audit dots through
+// RecordCard's `dots` prop and post-edit method dots (MethodDots) through
+// `methodDots`.
 
 // The browsing layers: topic, then belief revision operation, then knowledge
 // form (box).
@@ -219,7 +219,7 @@ const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, 
 // `footer` goes under the table. Without `onChain` the derivation buttons are
 // left out. `review` (the Datasets page's review dots per manual rule) shows
 // under the tags whether or not the card is open.
-export default function RecordCard({ rec, relations, onChain, dots, formal, footer, review }) {
+export default function RecordCard({ rec, relations, onChain, dots, methodDots, formal, footer, review }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = onChain && hasChain(rec)
@@ -256,6 +256,7 @@ export default function RecordCard({ rec, relations, onChain, dots, formal, foot
         </button>
         {/* Status dots for the whole fact, outside the toggle button since each dot is a button of its own. */}
         {dots?.('fact')}
+        {methodDots?.('direct')}
         <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
           lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
       </div>
@@ -329,6 +330,7 @@ export default function RecordCard({ rec, relations, onChain, dots, formal, foot
                         {queryLabel(r.key, r)}
                       </span>
                       {dots?.(r.auditKey)}
+                      {methodDots?.(r.auditKey)}
                       {r.key === 'derived' && (() => {
                         const f = formal?.queries?.[r.auditKey.slice(8, -1)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
