@@ -1,33 +1,41 @@
 // Display labels for Sid's Dataset questions, shared by the record card, the
 // audit and response modals and the model audit page.
-//   Propositional · negation / conjunction / disjunction   (its `form`: not, and, or)
-//   Derived · 2 hops · binding                (its `hops` and `derivation`)
+//   Propositional (negation) / (conjunction) / (disjunction)   from `form`: not, and, or
+//   Related (near, 1 hop, inverse)                              near: 1 hop, far: multi-hop
+//   Derived (2 hops, transitivity)                              from `hops` and `derivation`
 //   Cross-lingual (zh)
 // The question keys in records, audits and runs stay as they are
 // (propositional[0], derived[2], cross_lingual[zh]); only the label changes.
 
-// In record order: propositional after cross-lingual, locality before derived.
+// Record order (REFINEMENTS.md section 7): the edit outwards, everything that
+// should change before what must not.
 export const QUERY_LABEL = {
   direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual', propositional: 'Propositional',
-  unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived',
+  related_near: 'Related', related_far: 'Related', derived: 'Derived',
+  unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)',
 }
+
+// Question types every record will carry; until a record has one, the card
+// keeps an empty row in its place.
+export const PLACEHOLDER_TYPES = ['related_near', 'related_far']
 
 export const FORM_LABEL = { not: 'negation', and: 'conjunction', or: 'disjunction' }
 
-const SEP = ' · '
+const hopsText = (n) => `${n} hop${n === 1 ? '' : 's'}`
 
-// Label of one question: its type plus what the item says about it.
+// Label of one question: its type plus what the item says about it, in brackets.
 export function queryLabel(type, item = {}) {
   const base = QUERY_LABEL[type] || String(type || '').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
-  if (type === 'propositional' && item.form) return base + SEP + (FORM_LABEL[item.form] || item.form)
-  if (type === 'derived') {
-    const parts = [base]
-    if (item.hops) parts.push(`${item.hops} hop${item.hops === 1 ? '' : 's'}`)
-    if (item.derivation) parts.push(item.derivation)
-    return parts.join(SEP)
+  const inner = []
+  if (type === 'propositional' && item.form) inner.push(FORM_LABEL[item.form] || item.form)
+  if (type === 'related_near') inner.push('near')
+  if (type === 'related_far') inner.push('far')
+  if (type === 'derived' || type.startsWith?.('related')) {
+    if (item.hops) inner.push(hopsText(item.hops))
+    if (item.derivation) inner.push(item.derivation)
   }
-  if (type === 'cross_lingual' && item.language) return `${base} (${item.language})`
-  return base
+  if (type === 'cross_lingual' && item.language) inner.push(item.language)
+  return inner.length ? `${base} (${inner.join(', ')})` : base
 }
 
 // Label of an audit or run key (direct, cross_lingual[zh], derived[2], ...),

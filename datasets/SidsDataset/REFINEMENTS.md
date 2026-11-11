@@ -287,6 +287,25 @@ Notes:
   `check_fact`), the audit summary, and the audit detail in the dashboard's
   record card.
 
+## Decisions (2026-11-11)
+
+- Labels use brackets: Propositional (negation) / (conjunction) / (disjunction),
+  Related (near, 1 hop, inverse), Derived (2 hops, transitivity), Cross-lingual (zh).
+- Every edit gets 3 propositional questions: negation, conjunction, disjunction.
+- Related: 2 per record, **near** (1 hop) and **far** (multi-hop); answers the
+  model likely stores explicitly. Derived: 2 determinate at 2 hops each, plus 1
+  indeterminate (ABox revision only); answers worked out, not stored.
+- Derived (very likely) edits and indeterminate questions only in ABox revision.
+- Contraction gets its own records, built on functional (answer becomes "no")
+  and many-valued (answer becomes "I don't know") relations.
+- New dev split: 120 new records, 12 per topic (4 ABox revision, 1 TBox
+  revision, 1 RBox revision, 1 expansion and 1 contraction per box), separate
+  from the main records, only very unlikely edits, no indeterminate questions.
+- Method results on the dataset page: 9 method dots per question, each split in
+  4 quarters (one per model); the Results page responses view goes if this works.
+- Nothing from this work merges into main until the user says so (step-3 tuning
+  results are being used to plan the next tuning).
+
 ## Ideas (not yet decided)
 
 -
