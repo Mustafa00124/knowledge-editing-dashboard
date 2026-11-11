@@ -4,8 +4,8 @@ import { queryLabel, queryKeyLabel } from './sidsQueryLabel.js'
 
 test('propositional labels name the connective', () => {
   assert.equal(queryLabel('propositional', { form: 'not' }), 'Propositional · negation')
-  assert.equal(queryLabel('propositional', { form: 'and' }), 'Propositional · and')
-  assert.equal(queryLabel('propositional', { form: 'or' }), 'Propositional · or')
+  assert.equal(queryLabel('propositional', { form: 'and' }), 'Propositional · conjunction')
+  assert.equal(queryLabel('propositional', { form: 'or' }), 'Propositional · disjunction')
   assert.equal(queryLabel('propositional', {}), 'Propositional')
 })
 
@@ -29,7 +29,7 @@ test('keys resolve through the record', () => {
     cross_lingual: [{ language: 'zh' }, { language: 'es' }],
     direct: { prompt: 'q' },
   } }
-  assert.equal(queryKeyLabel('propositional[1]', rec), 'Propositional · or')
+  assert.equal(queryKeyLabel('propositional[1]', rec), 'Propositional · disjunction')
   assert.equal(queryKeyLabel('derived[0]', rec), 'Derived · 2 hops · binding')
   assert.equal(queryKeyLabel('cross_lingual[es]', rec), 'Cross-lingual (es)')
   assert.equal(queryKeyLabel('direct', rec), 'Direct')

@@ -220,7 +220,8 @@ Notes:
 ## 7. Query labels, order and metrics
 
 - [x] **Propositional labels** show the connective: "Propositional ·
-      negation" and "Propositional · and" / "Propositional · or". The records
+      negation" and "Propositional · conjunction" (and) / "Propositional ·
+      disjunction" (or). The records
       already carry it (`form`: slot 0 is always `not`, slot 1 is `and` in 300
       records and `or` in 300); only the label is new.
 - [ ] Contraction focuses on **cardinality and functional** properties of
@@ -293,7 +294,7 @@ Notes:
 ## Done
 
 - 2026-11-11: question labels (sections 6 and 7). Propositional questions read
-  "Propositional · negation / and / or" and derived ones "Derived · 2 hops ·
+  "Propositional · negation / conjunction / disjunction" (not, and, or) and derived ones "Derived · 2 hops ·
   binding" (from `form`, `hops`, `derivation`), in the record card, the audit
   and response modals and the model audit page
   (`dashboard/frontend/src/lib/sidsQueryLabel.js`). Display only: question keys,

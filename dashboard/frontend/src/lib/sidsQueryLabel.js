@@ -1,6 +1,6 @@
 // Display labels for Sid's Dataset questions, shared by the record card, the
 // audit and response modals and the model audit page.
-//   Propositional · negation / and / or      (the question's `form`)
+//   Propositional · negation / conjunction / disjunction   (its `form`: not, and, or)
 //   Derived · 2 hops · binding                (its `hops` and `derivation`)
 //   Cross-lingual (zh)
 // The question keys in records, audits and runs stay as they are
@@ -12,7 +12,7 @@ export const QUERY_LABEL = {
   unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived',
 }
 
-export const FORM_LABEL = { not: 'negation', and: 'and', or: 'or' }
+export const FORM_LABEL = { not: 'negation', and: 'conjunction', or: 'disjunction' }
 
 const SEP = ' · '
 
