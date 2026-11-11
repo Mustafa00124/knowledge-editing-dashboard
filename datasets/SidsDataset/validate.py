@@ -116,6 +116,9 @@ ALLOWED_TASKS = {
 # everything that should change before what must not (README, Query type).
 QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'related_near', 'related_far',
                'derived', 'unrelated_near', 'unrelated_far')
+# Extra determinate derived queries a record may carry beyond its type's 2,
+# where the property and task balance needs them.
+MAX_EXTRA_DERIVED = 2
 # Topics whose ABox revision records have no derived edits and no
 # indeterminate query (README, Shape per topic: Mathematics and grammar).
 DETERMINATE_TOPICS = ('mathematics', 'grammar')
@@ -143,6 +146,10 @@ def query_counts(rec, path=None):
         del counts['related_near'], counts['related_far']
     elif op == 'replace' and split_of(rec, path) == 'main':
         counts['derived'] = 3
+    if box != 'rbox':
+        # More determinate derived queries are welcome where coverage needs
+        # them (README, Queries per record type): a (min, max) range.
+        counts['derived'] = (counts['derived'], counts['derived'] + MAX_EXTRA_DERIVED)
     return counts
 
 
@@ -488,8 +495,10 @@ def check_record(rec, path, relations):
         items = queries.get(qtype)
         if qtype in ('direct', 'paraphrase'):
             items = [items] if isinstance(items, dict) else items
-        if not isinstance(items, list) or len(items) != count:
-            err(f'queries.{qtype}: expected {count} quer{"y" if count == 1 else "ies"}'
+        lo, hi = count if isinstance(count, tuple) else (count, count)
+        if not isinstance(items, list) or not lo <= len(items) <= hi:
+            want = f'{lo} to {hi}' if lo != hi else str(lo)
+            err(f'queries.{qtype}: expected {want} quer{"y" if hi == 1 else "ies"}'
                 + (' as a list' if qtype not in ('direct', 'paraphrase') else ''))
             continue
         for i, q in enumerate(items):

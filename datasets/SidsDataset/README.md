@@ -120,6 +120,12 @@ leaves it on Pacific Time) tests nothing.
 | TBox, every operation | 1 | 1 | 2 | 3 | none | 2 determinate | 2 | 11 |
 | RBox, every operation | 1 | none | 2 | 3 | none | 2 instances | 2 | 10 |
 
+**More derived questions are allowed.** The derived counts above are the
+minimum: a record may carry up to 2 more determinate derived queries
+(`MAX_EXTRA_DERIVED` in `validate.py`) when the topic's property and task
+balance needs them. Scores average within a record first, so a record with
+more questions doesn't weigh more.
+
 Why the gaps:
 - **Related is ABox revision and contraction only.** It needs a stored
   answer the edit overturns. An expansion adds a fact nothing was stored

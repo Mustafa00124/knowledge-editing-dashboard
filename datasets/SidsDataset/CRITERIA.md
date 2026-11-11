@@ -213,7 +213,8 @@ shape.** Per README, Queries per record type and Shape per topic:
   and grammar: none; a third determinate query instead).
 - Propositional: exactly negation, conjunction, disjunction, in that order.
 - Related near is 1 hop, related far 2 or more, determinate derived exactly 2
-  (contraction's cardinality question: 1).
+  (contraction's cardinality question: 1). A record may add up to 2 determinate
+  derived queries beyond its type's count where the balance needs them.
 
 **Rule 12. Relation properties and task types are balanced.** Within each
 topic's ABox revision records (each split on its own), related and derived
