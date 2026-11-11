@@ -1166,12 +1166,6 @@ onto metrics:
 | Answer diversity | the English generations | one number |
 | Grammar | the English generations | one number |
 
-> **Code status (2026-11-11).** `sid_evaluation.py` still scores the
-> earlier layout: its `reliability` pools direct and paraphrase, it has no
-> related queries, and it reads 2 propositional queries. It moves to this
-> table after the current hyperparameter tuning (step 3) finishes, so that
-> tuning keeps one definition throughout.
-
 Answer diversity leaves out the cross-lingual answers, since n-gram scores
 aren't comparable between Chinese and English text.
 

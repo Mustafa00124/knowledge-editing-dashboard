@@ -159,7 +159,7 @@ def record_probes(rec):
     out = []
     op = rec["edit_operation"]
     for key, qtype, _, item in AQ.all_queries(rec):
-        if qtype != "derived" or item.get("world_answers"):
+        if qtype not in SE.REASONED or item.get("world_answers"):
             continue
         hinted = None if item.get("bridge_in_prompt") else hint_question(item.get("bridge") or [], item["prompt"])
         if hinted:
@@ -204,12 +204,12 @@ def collect_probes(requests, records, fmt, tok, generate, step, case_offset=0):
 # ------------------------------------------------------------------ judging
 
 def _base_queries(rec):
-    """{audit key: sid_evaluation query} of a record's derived queries."""
-    return {q["key"]: q for q in SE.record_queries(rec) if q["query_type"] == "derived"}
+    """{audit key: sid_evaluation query} of a record's related and derived queries."""
+    return {q["key"]: q for q in SE.record_queries(rec) if q["query_type"] in SE.REASONED}
 
 
 def _items(rec):
-    return {key: item for key, qtype, _, item in AQ.all_queries(rec) if qtype == "derived"}
+    return {key: item for key, qtype, _, item in AQ.all_queries(rec) if qtype in SE.REASONED}
 
 
 def judge_probes(payloads, records, judge, salt=""):
@@ -276,7 +276,7 @@ def indeterminate_metrics(items):
     sid items."""
     by_record = defaultdict(list)
     for i in items:
-        if i["query_type"] == "derived":
+        if i["query_type"] in SE.REASONED:
             by_record[i["record_id"]].append(i)
     classes, known, diagnosis, worlds_fit = [], [], Counter(), Counter()
     for rid, rec_items in by_record.items():
@@ -331,7 +331,7 @@ def premises_in_prompt(records):
     """{(record id, audit key)} of determinate derived queries whose question
     already states their bridge (bridge_in_prompt)."""
     return {(rid, key) for rid, rec in records.items() for key, qtype, _, item in AQ.all_queries(rec)
-            if qtype == "derived" and not item.get("world_answers") and item.get("bridge")
+            if qtype in SE.REASONED and not item.get("world_answers") and item.get("bridge")
             and item.get("bridge_in_prompt")}
 
 
@@ -341,7 +341,7 @@ def hinted_metrics(items, probes, control, in_prompt=frozenset()):
     items (None at step 0 itself, or when there is no step 0). in_prompt:
     premises_in_prompt's keys, whose plain answers are reported apart."""
     hinted = [p for p in probes if p["kind"] == "hinted"]
-    plain = {(i["record_id"], i["key"]): i for i in items if i["query_type"] == "derived"}
+    plain = {(i["record_id"], i["key"]): i for i in items if i["query_type"] in SE.REASONED}
     leaked = {(c["record_id"], c["base_key"]) for c in (control or ())
               if c["kind"] == "hinted" and c["label"] == "NEW"}
     split = Counter()
@@ -380,7 +380,7 @@ def compute_metrics(sid, items, probes=None, control=None, in_prompt=frozenset()
     """The sid_main evaluation of one step: sid's metrics for that step
     (edit success, locality, fluency), its items, and the step's judged
     probe items if it asked them."""
-    derived = [i for i in items if i["query_type"] == "derived"]
+    derived = [i for i in items if i["query_type"] in SE.REASONED]
     determinate = [i for i in derived if i["problem"] == "determinate"]
     portability = {**SE.block(determinate), "by_logic": SE._by(determinate, "logic"),
                    "by_derivation": SE._by(determinate, "derivation"), "by_operation": SE._by(determinate, "operation"),

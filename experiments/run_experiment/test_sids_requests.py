@@ -5,7 +5,7 @@ import unittest
 
 import sids_requests as s
 
-EXAMPLES = os.path.join(os.path.dirname(__file__), '..', '..', 'datasets', 'SidsDataset', 'examples')
+EXAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_fixtures')  # earlier-layout records, fixed for these tests
 
 
 def example(name):

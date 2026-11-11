@@ -28,7 +28,7 @@ prompt it was never trained on:
               their own prompts from the fact)
 
 The same render_prompt formats the edit prompt and every evaluation prompt
-(paraphrase, cross-lingual, propositional, locality, derived), so they can't
+(paraphrase, cross-lingual, propositional, related, derived, locality), so they can't
 drift. Under chat and fewshot the training target also loses a leading
 article ("the thyroid gland" -> "thyroid gland"; STRIPPED_LEADING_WORDS);
 the record keeps its answer, and evaluation accepts both.
@@ -218,22 +218,30 @@ def build_request(rec):
                 raise MissingAnswer(rid, f'{key}[{i}] has no prompt')
             locality[f'{key}_{i}'] = {'prompt': item['prompt'], 'ground_truth': item.get('reference')}
     portability = {}
-    for i, item in enumerate(q.get('derived') or []):
+    reasoned = [(k, i, item) for k in ('related_near', 'related_far', 'derived')
+                for i, item in enumerate(q.get(k) or [])]
+    for key, i, item in reasoned:
         if not (item.get('prompt') or '').strip():
-            raise MissingAnswer(rid, f'derived[{i}] has no prompt')
+            raise MissingAnswer(rid, f'{key}[{i}] has no prompt')
         if item.get('world_answers'):
             worlds = {w: (a or {}).get('answer') for w, a in item['world_answers'].items()}
             if op != 'delete' and any(a is None for a in worlds.values()):
-                raise MissingAnswer(rid, f'derived[{i}] has a world with no answer under {op}')
+                raise MissingAnswer(rid, f'{key}[{i}] has a world with no answer under {op}')
             gold = None
         else:
             worlds = None
-            gold = ABSTAIN_TARGET if op == 'delete' else item.get('new_answer')
-            if op != 'delete' and not gold:
-                raise MissingAnswer(rid, f'derived[{i}] is determinate but has no new answer')
-        portability[f'derived_{i}'] = {'prompt': item['prompt'], 'ground_truth': gold, 'world_answers': worlds,
-                                       'determinacy': item.get('determinacy'), 'derivation': item.get('derivation'),
-                                       'logic': item.get('logic'), 'theory': item.get('theory')}
+            # Contraction: "does not know", except a many-valued relation's
+            # cardinality question, whose other value keeps its answer.
+            if op == 'delete':
+                gold = item.get('new_answer') if item.get('derivation') == 'cardinality' else ABSTAIN_TARGET
+            else:
+                gold = item.get('new_answer')
+            if not gold:
+                raise MissingAnswer(rid, f'{key}[{i}] is determinate but has no new answer')
+        portability[f'{key}_{i}'] = {'prompt': item['prompt'], 'ground_truth': gold, 'world_answers': worlds,
+                                     'determinacy': item.get('determinacy'), 'derivation': item.get('derivation'),
+                                     'task': item.get('task'), 'hops': item.get('hops'),
+                                     'logic': item.get('logic'), 'theory': item.get('theory')}
     for i, item in enumerate(q.get('cross_lingual') or []):
         portability[f"cross_lingual_{item.get('language', i)}"] = {
             'prompt': item['prompt'], 'ground_truth': ABSTAIN_TARGET if op == 'delete' else item.get('new_answer')}

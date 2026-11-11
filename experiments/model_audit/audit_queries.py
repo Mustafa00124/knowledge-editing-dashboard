@@ -13,8 +13,11 @@ What is asked, and the answer the audit expects before the edit:
 - insert: direct, paraphrase and cross-lingual pass when the model does not
   already give new_answer (rule "not_new"). Fictional inserts are made up, so
   these are not asked at all.
-- propositional (the 2 truth-functional yes/no questions) expect
-  original_answer; under insert they have none, so they are not asked.
+- propositional (the 3 truth-functional yes/no questions: negation,
+  conjunction, disjunction) expect original_answer; under insert they have
+  none, so they are not asked.
+- related_near and related_far (stored answers that depend on the edit)
+  expect original_answer.
 - every derived query with an original_answer, determinate or not (before the
   edit there is one world), whatever the operation; derived queries without
   one are not asked.
@@ -23,6 +26,7 @@ What is asked, and the answer the audit expects before the edit:
 import hashlib
 
 LOCALITY = ("unrelated_near", "unrelated_far")
+RELATED = ("related_near", "related_far")
 OWN = ("direct", "paraphrase", "cross_lingual")  # the edited fact's own questions
 
 
@@ -38,8 +42,9 @@ def query_hash(prompt, expected):
 
 def all_queries(rec):
     """Yield (key, query_type, language, query) for every query in a record,
-    in record order. Keys: direct, paraphrase, cross_lingual[zh],
-    propositional[0], unrelated_near[0], unrelated_far[0], derived[2]."""
+    in record order (README, Query type). Keys: direct, paraphrase,
+    cross_lingual[zh], propositional[0], related_near[0], related_far[0],
+    derived[2], unrelated_near[0], unrelated_far[0]."""
     q = rec.get("queries") or {}
     for qtype in ("direct", "paraphrase"):
         if q.get(qtype):  # RBox records have no paraphrase
@@ -48,11 +53,14 @@ def all_queries(rec):
         yield f"cross_lingual[{item.get('language')}]", "cross_lingual", item.get("language", "en"), item
     for i, item in enumerate(q.get("propositional") or []):
         yield f"propositional[{i}]", "propositional", "en", item
-    for qtype in LOCALITY:
+    for qtype in RELATED:
         for i, item in enumerate(q.get(qtype) or []):
             yield f"{qtype}[{i}]", qtype, "en", item
     for i, item in enumerate(q.get("derived") or []):
         yield f"derived[{i}]", "derived", "en", item
+    for qtype in LOCALITY:
+        for i, item in enumerate(q.get(qtype) or []):
+            yield f"{qtype}[{i}]", qtype, "en", item
 
 
 def expected(rec, query_type, query):
@@ -62,7 +70,7 @@ def expected(rec, query_type, query):
     insert = rec.get("edit_operation") == "insert"
     if query_type in LOCALITY:
         answer, rule = query.get("reference"), "original"
-    elif query_type in ("derived", "propositional"):
+    elif query_type in ("derived", "propositional") or query_type in RELATED:
         answer, rule = query.get("original_answer"), "original"
     elif insert:
         if is_fictional(rec):

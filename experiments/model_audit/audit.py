@@ -122,7 +122,7 @@ def check_rows(records, relation_checks, relations):
                          "query_type": "check_fact", "language": "en", "prompt": c["prompt"],
                          "original_answer": c["answer"], "new_answer": None, "fact": c["fact"],
                          "derivation": None, "judged": True})
-        for q in rec["queries"].get("derived", []):
+        for _, _, q in SID.related_and_derived(rec):
             prop = SID.relation_property(rec, q, relations)
             if prop:
                 props.add(prop)
@@ -168,7 +168,7 @@ def summarise_checks(rows, records, relations):
         if rec["edit"].get("premises"):
             got = [facts.get((rec["id"], p)) for p in rec["edit"]["premises"]]
             premises["unclear" if None in got else "known" if all(got) else "unknown"] += 1
-        for q in rec["queries"].get("derived", []):
+        for _, _, q in SID.related_and_derived(rec):
             # unstated bridge and revision facts (validate.unstated_facts)
             got = [facts.get((rec["id"], b)) for b in SID.unstated_facts(q)]
             prop = SID.relation_property(rec, q, relations)
