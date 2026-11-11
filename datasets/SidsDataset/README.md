@@ -21,11 +21,13 @@ method can't pass by matching the surface form of the edit.
 
 ```
 Topic  >  Belief revision operation  >  Knowledge form  >  Query type
-          expansion   (insert)          abox               direct        (1)
-          revision    (replace)         tbox               paraphrase    (1)
-          contraction (delete)          rbox               cross-lingual (2: zh, es)
-                                                           unrelated     (1 near + 1 far)
-                                                           derived       (4)
+          expansion   (insert)          abox               direct          (1)
+          revision    (replace)         tbox               paraphrase      (1)
+          contraction (delete)          rbox               cross-lingual   (2: zh, es)
+                                                           propositional   (3: negation, conjunction, disjunction)
+                                                           related         (2: near, far; ABox revision and contraction)
+                                                           derived         (2 determinate; +1 indeterminate on main ABox revision)
+                                                           unrelated       (2: near, far)
 ```
 
 The operations are the three of AGM belief revision: expansion adds a
@@ -34,9 +36,11 @@ removes one. Records keep the keys `insert`, `replace` and `delete` (in
 `edit_operation`, ids and folders); the names are the same concepts.
 
 Relation properties are not levels: they are the [Relation](#relation) tag
-group.
+group, and each related and derived query names the property it uses
+([Relation properties and task types](#relation-properties-and-task-types)).
 
-Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 9 (below).
+How many queries a record carries depends on its operation and box
+([Queries per record type](#queries-per-record-type)).
 
 ### 1. Topic
 
@@ -45,15 +49,17 @@ Every ABox and TBox item is one edit plus exactly 12 queries; an RBox item has 9
 `physics`, `literature_arts`, `technology` (stable facts only),
 `mathematics`, `grammar`. A diversity control, so a finding about rules
 isn't secretly a finding about mathematics. It also keeps the records
-organized for browsing.
+organized for browsing. Topics are kept as alike as possible in what they
+contain (same record types, same relation properties); where a topic can't
+supply something, its records say so in `notes`.
 
 ### 2. Belief revision operation
 
 | Operation | Key | What it does | Expected answer afterwards |
 | --- | --- | --- | --- |
-| Expansion | `insert` | Adds knowledge the model does not hold: a real fact it doesn't know, or a fictional one (see [Reality](#reality)). | The new answer. |
+| Expansion | `insert` | Adds knowledge the model does not hold: a made-up fact (see [Reality](#reality)). | The new answer. |
 | Revision | `replace` | Swaps held knowledge for a false alternative (it need not be plausible: an edit that crosses a boundary, such as moving a city to another continent, is fine). Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
-| Contraction | `delete` | Removes knowledge the model does hold. | No longer the old answer: the model should say it does not know, or negate it. See [Delete](#delete). |
+| Contraction | `delete` | Removes knowledge the model does hold. Contraction records are their own edits, not mirrors of revision records. | No longer the old answer: "I don't know" for what went through the removed fact; see [Contraction](#contraction). |
 
 ### 3. Knowledge form
 
@@ -73,43 +79,74 @@ belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 
 ### 4. Query type
 
-Fixed per item: **1 direct, 1 paraphrase, 2 cross-lingual, 2
-propositional, 1 near unrelated, 1 far unrelated, 4 derived**, in that
-order (records, tables and the dashboard list them so), 12 in all. Fixing the counts gives every item the same
-weight in every metric. Until 2026-10-22 items had 2 near and 2 far unrelated
-queries; the TBox items kept the near one whose reference differs from the
-edit's new answer (CRITERIA Rule 7) and the clearer far one.
+| Key | What it is | Metric |
+| --- | --- | --- |
+| `direct` | The edited fact asked as a question, in the edit's own wording. | Rewrite |
+| `paraphrase` | The same question in different words. | Generalizability |
+| `cross_lingual` | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
+| `propositional` | The edited fact inside a yes/no truth-functional question: one negation, one conjunction (and), one disjunction (or) (see [Propositional queries](#propositional-queries)). | Logical consistency |
+| `related_near`, `related_far` | A question whose answer the model has most likely **seen stated** in training (it is stored), and which must change with the edit. Near: one hop from the edit; far: several hops (see [Related queries](#related-queries)). | Generalizability |
+| `derived` | A question whose answer the model has most likely **never seen stated**, but which follows from the edit and facts it holds, in exactly 2 hops (see [Derived queries](#derived-queries)). | Generalizability |
+| `unrelated_near` | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Specificity |
+| `unrelated_far` | Nothing in common with the edit. | Specificity |
 
-| Key | Count | What it is | Metric |
-| --- | --- | --- | --- |
-| `direct` | 1 | The edited fact asked as a question, in the edit's own wording. | Reliability |
-| `paraphrase` | 1 | The same question in different words. Where the relation has an inverse, the paraphrase may ask through it ("Sydney is the capital of which country?" for "What is the capital of Australia?"). | Reliability |
-| `cross_lingual` | 2 | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
-| `propositional` | 2 | The edited fact inside a yes/no truth-functional question: one negation, one "and" or "or" with an untouched side fact (see [Propositional queries](#propositional-queries)). | Logical consistency |
-| `unrelated_near` | 1 | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Locality |
-| `unrelated_far` | 1 | Nothing in common with the edit. | Locality |
-| `derived` | 4 | A question whose answer follows from the edit through a property of the relation (see below). | Generalization |
+Records, tables and the dashboard list the queries in this order: from the
+edit outwards, everything that should change before what must not.
+Near unrelated queries are what make specificity informative: far-only
+specificity is close to 100% for almost every method.
 
-Near unrelated queries are what make locality informative: far-only locality
-is close to 100% for almost every method.
+**Related vs derived.** Both must change answer with the edit; they differ in
+whether the answer is *stored*. Edit: the Space Needle is in Chicago.
+"Which state is the Space Needle in?" is related: "the Space Needle in
+Seattle, Washington" is written everywhere, so the model holds the answer
+and the edit has to overturn it. "What time zone is the Space Needle in?" is
+derived: almost nobody writes it, but anyone who knows where the Space
+Needle is can work it out. Each related and derived query rates its answer
+like an edit is rated ([Derivability](#derivability)): related answers are
+`very_unlikely` to be derived (stored), derived answers `very_likely`
+(worked out), with evidence. A question that can't be placed clearly at one
+end is replaced. The answer must differ before and after the edit: a
+question whose answer survives the edit (moving the Space Needle to Portland
+leaves it on Pacific Time) tests nothing.
 
-#### RBox items: 9 queries
+#### Queries per record type
+
+| Record type | direct | paraphrase | cross-lingual | propositional | related (near, far) | derived | unrelated (near, far) | Total |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ABox revision, main split | 1 | 1 | 2 | 3 | 2 | 3: 2 determinate + 1 indeterminate | 2 | 14 |
+| ABox revision, dev split | 1 | 1 | 2 | 3 | 2 | 2 determinate | 2 | 13 |
+| ABox contraction | 1 | 1 | 2 | 3 | 2 | 2 determinate | 2 | 13 |
+| ABox expansion | 1 | 1 | 2 | 3 | none | 2 determinate | 2 | 11 |
+| TBox, every operation | 1 | 1 | 2 | 3 | none | 2 determinate | 2 | 11 |
+| RBox, every operation | 1 | none | 2 | 3 | none | 2 instances | 2 | 10 |
+
+Why the gaps:
+- **Related is ABox revision and contraction only.** It needs a stored
+  answer the edit overturns. An expansion adds a fact nothing was stored
+  about. In TBox, the stored facts about a class's members are exactly the
+  ones a rule edit leaves open (a tarantula's eight legs, after "every spider
+  has six legs", depends on whether the model stored it by name), so they
+  can't be determinate.
+- **Indeterminate queries are ABox revision only, main split only.** Every
+  other record type, and every dev record, has determinate queries only.
+- **RBox has no paraphrase**: its direct question asks the property itself.
+
+#### RBox items
 
 An RBox edit changes a property of a relation ("'lends to' is transitive"), not
-a fact about an entity, so its record states only the property and carries 9
-queries:
+a fact about an entity, so its record states only the property:
 
 | Key | Count | What it is | Metric |
 | --- | --- | --- | --- |
-| `direct` | 1 | The property itself: "Is the relation 'lends to' transitive?" | Reliability |
+| `direct` | 1 | The property itself: "Is the relation 'lends to' transitive?" | Rewrite |
 | `cross_lingual` | 2 | The first instance question in Chinese and Spanish. | Cross-lingual |
-| `propositional` | 2 | The edited property inside a yes/no question: one negation ("Is it false that the relation 'lends to' is transitive?"), one "and" or "or" with a side fact. | Logical consistency |
-| `unrelated_near` | 1 | The same property asked of another relation in the topic ("Is the relation 'is a subsidiary of' transitive?"). | Locality |
-| `unrelated_far` | 1 | A different property of an unrelated relation ("Is the relation 'is married to' symmetric?"). | Locality |
-| `derived` | 2 | The property applied to real entities, with the premises in the prompt: "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?" Derivation `instantiation`. | Generalization |
+| `propositional` | 3 | The edited property inside a yes/no question: negation ("Is it false that the relation 'lends to' is transitive?"), conjunction and disjunction with a side fact. | Logical consistency |
+| `derived` | 2 | The property applied to real entities, with the premises in the prompt: "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?" Derivation `instantiation`. | Generalizability |
+| `unrelated_near` | 1 | The same property asked of another relation in the topic ("Is the relation 'is a subsidiary of' transitive?"). | Specificity |
+| `unrelated_far` | 1 | A different property of an unrelated relation ("Is the relation 'is married to' symmetric?"). | Specificity |
 
-There is no paraphrase query. In the model audit an RBox fact counts as known
-when its direct question and both instance questions get the original answer.
+In the model audit an RBox fact counts as known when its direct question and
+both instance questions get the original answer.
 
 **Role chains through real knowledge.** A role chain that composes a made-up
 relation with a real one ("If a town is harbour-sworn to a city, and the city
@@ -119,9 +156,7 @@ follow that Bergen is harbour-sworn to Japan?" The model must use the composed
 relation together with what it already holds (Kyoto is in Japan), which tests
 whether the new axiom connects to stored knowledge rather than to the prompt
 alone. Such a query lists the real hop in `bridge`, leaves `bridge_in_prompt`
-false, and the hop gets a check before editing like any bridge fact. Every
-topic's inserts have at least one such chain (a `relation` insert, real
-instances), with both derived queries relying on a real hop from memory.
+false, and the hop gets a check before editing like any bridge fact.
 
 #### Cross-lingual queries
 
@@ -137,37 +172,38 @@ finding.
   including names left untranslated.
 - For `replace` and `delete`, the model must answer the *original* fact
   correctly in that language before editing, like a bridge fact; otherwise
-  that query is dropped for that model. Base models can be weak in Chinese,
-  so expect some drop-off.
-- They are reported as their own metric, not folded into reliability, so a
-  model that is weak in one language doesn't drag down English reliability.
+  that query is dropped for that model.
+- They are reported as their own metric, so a model that is weak in one
+  language doesn't drag down the English scores.
 
 #### Propositional queries
 
-Two per record (ABox, TBox and RBox), right after the cross-lingual ones.
-Each puts the edited fact E inside a yes/no question built only from
-truth-functional connectives, so the answer follows from E's truth alone and
-the model has to treat the edit as a fact it reasons with, not a string it
-repeats. They feed their own metric, **logical consistency**, reported on
-its own (not folded into generalization). Their `logic` is `propositional`
-by definition; derived queries no longer use that label.
+Three per record (every box and operation), right after the cross-lingual
+ones, in this order: negation, conjunction, disjunction. Each puts the edited
+fact E inside a yes/no question built only from truth-functional connectives,
+so the answer follows from E's truth alone and the model has to treat the
+edit as a fact it reasons with, not a string it repeats. They feed their own
+metric, **logical consistency**, reported on its own and per connective.
 
 | Field | Rule |
 | --- | --- |
-| `prompt` | the question; one item has form `not`, the other `and` or `or`; no "if ... then" |
-| `form` | `not` \| `and` \| `or` |
-| `side_fact` | null for `not`; for `and` / `or`, the untouched fact S combined with E, as a sentence |
+| `prompt` | the question; no "if ... then" |
+| `form` | `not` (negation), `and` (conjunction), `or` (disjunction); one of each, in that order |
+| `side_fact` | null for `not`; for `and` and `or`, the untouched fact S combined with E, as a sentence |
 | `original_answer` | "yes" or "no" before the edit; null for insert |
 | `new_answer` | "yes" or "no" after the edit; "I don't know" for delete |
 
 E is the edited statement (`edit.statement`): under replace it is false
 before the edit and true after; under insert true after; under delete it is
 the removed fact, true before and unknown after. S is chosen so the answer
-flips with the edit: true for `and`, false for `or`. Examples (replace,
-"The capital of Australia is Sydney"): "Is it false that the capital of
-Australia is Sydney?" (yes, then no); "Is it true both that the capital of
-Australia is Sydney and that the Pacific Ocean borders Australia?" (no, then
-yes). Under delete both new answers are "I don't know": strong Kleene logic
+flips with the edit: **true for the conjunction, false for the disjunction**.
+Examples (replace, "The capital of Australia is Sydney"):
+
+- negation: "Is it false that the capital of Australia is Sydney?" (yes, then no)
+- conjunction: "Is it true both that the capital of Australia is Sydney and that the Pacific Ocean borders Australia?" (no, then yes)
+- disjunction: "Is it true that the capital of Australia is Sydney or that Australia is in Europe?" (no, then yes)
+
+Under delete all three new answers are "I don't know": strong Kleene logic
 keeps E's unknown value (not unknown is unknown; unknown and true is
 unknown; unknown or false is unknown).
 
@@ -175,68 +211,157 @@ The side fact needs a check `{fact, prompt, answer}` like a bridge fact, so
 the audit asks it before editing; its answer gives S's truth (yes or a filled
 slot: true; no: false). A trivially true or false side fact may go without,
 and is then taken to have the value the flip needs. `validate.py` checks the
-truth table: one `not` and one `and` / `or`, `side_fact` present exactly for
-`and` / `or`, S's value making the answer flip, and each gold answer equal to
-the connective's value. That is the formal check of these queries (checker
-`truth-table` in `owl/COVERAGE.md` and the reports), not HermiT or Z3.
+truth table: the three forms in order, `side_fact` present exactly for `and`
+and `or`, S's value making the answer flip, and each gold answer equal to the
+connective's value. That is the formal check of these queries (checker
+`truth-table`), not HermiT or Z3.
 
-Records written before 2026-10-31 have none yet: `validate.py` reports
-missing propositional queries, and derived queries labelled `propositional`,
-as errors only with `SIDS_REQUIRE_PROPOSITIONAL=1` (or, for the label, on a
-record that already has its propositional queries), and otherwise prints
-how many are pending.
+#### Relation properties and task types
+
+Every related and derived query names **the relation property its answer
+rests on** (`derivation`) and **the task it asks the model to do** (`task`).
+They are separate labels: the property is about the logic, the task about
+what the question makes the model do.
+
+**Relation properties** (`derivation`). General rules that hold for every
+individual; a relation can only be used for a property `RELATIONS.md` gives
+it.
+
+| `derivation` | Rule | Hops | Example |
+| --- | --- | --- | --- |
+| `inverse` | a R b ⇔ b S a | 1 | Edit: Ann is Billy's parent. Ask: who is Ann's child? |
+| `symmetry` | a R b ⇒ b R a | 1 | Edit: Billy is a sibling of Manny. Ask: is Manny a sibling of Billy? |
+| `functional` | R has one value per subject: a R b, a R c ⇒ b = c | 1 | Edit: the capital of Australia is Sydney. Ask: is Canberra the capital of Australia? (no) |
+| `subproperty` | R ⊑ S: a R b ⇒ a S b, with no other fact | 1 | Edit: Lyon is the capital of Germany (capital of ⊑ located in). Ask: which country is Lyon in? |
+| `transitivity` | the *same* relation twice: a R b, b R c ⇒ a R c | 2 | Edit: the nephron is part of the respiratory system. Bridge: the glomerulus is part of the nephron. Ask: is the glomerulus part of the respiratory system? |
+| `chain` | *two different* relations give a third: a R b, b S c ⇒ a T c | 2 | Edit: she was born in Lyon. Bridge: Lyon is in France. Ask: which country was she born in? (born in ∘ located in ⊑ born in) |
+| `inheritance` | a class rule passes to a member: C ⊑ D, x ∈ C ⇒ x ∈ D | 2 | See below: it runs in opposite directions in ABox and TBox. |
+| `none` | no relation property: the task alone carries the edit to the answer | 2 | Only with task `composition` or `binding`. |
+| `cardinality` | `cardinality:many`: removing one value leaves the others | 1 | Contraction only: another held value keeps its answer ([Contraction](#contraction)). |
+| `premise` | a premise of a derived edit asked directly | 1 | Main-split ABox revision of a derived fact only (indeterminate). |
+| `instantiation` | an RBox axiom applied to instances given in the prompt | 1 | RBox only. |
+
+Transitivity is the special case of a chain where all three relations are
+the same. A chain is a rule that holds in general (anyone born in a French
+city was born in France).
+
+**Inheritance in the two boxes.** In TBox the edit is the class rule and the
+bridge is the membership: edit "every spider has six legs", bridge
+"*Bagheera kiplingi* is a spider" (named in the prompt as a new or unfamiliar
+member), ask "how many legs does it have?". In ABox it is the other way
+round: the edit is the membership and the bridge is the class rule: edit
+"Pluto is a planet", bridge "every planet orbits a star", ask "does Pluto
+orbit a star?". The same property tests different things: whether a rule
+reaches its members, and whether a member picks up its new class's rules.
+
+**Task types** (`task`). What the question makes the model do with the
+edit. A plain question is `answer`; the three task types are composition,
+binding and application.
+
+| `task` | What the question asks | Hops it adds | Example |
+| --- | --- | --- | --- |
+| `answer` | the conclusion itself | none | Which country was she born in? |
+| `composition` | follow the edit, then look up a second, **unconnected** stored fact about the new value (MQuAKE-style multi-hop) | the second fact is a bridge | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
+| `binding` | reach the edited subject **by another name or description** the model knows separately (an alias, an abbreviation, a role it holds), so it has to connect the description to the edited entity | the alias fact is a bridge | Edit: the IMF is headquartered in Paris. Bridge: "IMF" abbreviates the International Monetary Fund. Ask: in which city is the International Monetary Fund headquartered? |
+| `application` | use the conclusion in a practical task: compute a value, fill a field, plan a step | none (the computation is not a hop) | Edit: the Space Needle is in the Central Time Zone. Ask: when it is noon in Chicago, what time is it at the Space Needle? (noon) |
+
+A task can sit on top of a property (a chain asked as an application) or,
+for composition and binding, stand alone with `derivation: none`. An
+application question that computes needs `logic: fol` (with `theory:
+arithmetic` or `temporal`).
+
+**Binding needs care.** The alias must be something the model holds as a
+separate fact (checked before editing like any bridge), and the question must
+not just restate the edit: "Where is the organisation whose headquarters is
+in Paris?" contains its own answer, and naming the subject in full ("the
+International Monetary Fund") when the edit names it the same way is only a
+paraphrase. The edit and the question use **different names** for the
+subject. Scope ("cannot be determined") is not used: its answer is the same
+with or without the edit.
+
+**Which property and task go where.**
+
+| Query | Allowed `derivation` | Allowed `task` | Hops |
+| --- | --- | --- | --- |
+| `related_near` | `inverse`, `symmetry`, `functional`, `subproperty` | `answer`, `application` | exactly 1 |
+| `related_far` | `transitivity`, `chain`, `inheritance`, `subproperty`, `none` | any | 2 or more |
+| `derived` (determinate) | `transitivity`, `chain`, `inheritance`, `subproperty`, `none` | any | exactly 2 |
+| `derived` (indeterminate, main ABox revision) | `none`, `premise` | `answer`, `composition` | any |
+| `derived` (RBox) | `instantiation` | `answer` | 1 |
+
+`derivation: none` only with task `composition` or `binding`; both need a
+bridge fact.
+
+**Balance per topic.** Within each topic, the ABox revision records'
+related and derived queries together use **transitivity, chain, inheritance
+and subproperty at least once each**, the related-near queries **inverse,
+symmetry and functional at least once each**, and the related and derived
+queries **composition, binding and application at least once each**, kept
+as even as the topic allows. A topic that can't supply one (no natural
+symmetric relation) says so in its records' `notes` and makes it up with
+another of the same group.
+
+**Edits cover the properties too.** The relation each ABox revision edit
+uses is chosen so that the seven properties (inverse, symmetry, functional,
+subproperty, transitivity, chain, inheritance: a relation whose subject or
+object is a class member) are **edited about equally often**: in the main
+split, each property is carried by the edited relation of at least one of a
+topic's 8 ABox revision edits; in the dev split (4 per topic), across the
+whole split, each property on 5 to 7 of the 40 edits. A relation usually
+has several properties; an edit counts for the property its related and
+derived queries use.
+
+#### Related queries
+
+Two per ABox revision and ABox contraction record: `related_near` (1 hop)
+and `related_far` (2 or more hops), each a one-item list.
+
+- **Stored answer.** The original answer (or the fact the question asks
+  about) is stated often in text every model trains on: rate it in the
+  query's `derivability` (`very_unlikely`) and back it in `evidence`, keyed by
+  the query's `fact`, like an edited fact (CRITERIA Rule 5).
+- **It must change.** The answer after the edit differs from the original
+  (under contraction: becomes "I don't know").
+- **It must not restate the edit.** "Which city is the Space Needle in?" is
+  the direct question in other words, not a related one.
+- **Determinate.** Only questions with one answer whatever the model stored;
+  a stored fact with a route back to the old answer once the edit is in (the
+  problem of background beliefs) is not used.
+- Fields: those of a derived query ([Format](#format)), plus `fact` and
+  `derivability`; `determinacy` is always `determinate`.
 
 #### Derived queries
 
-What can be derived depends on the relation's properties. A record names
-only its `relation`; `RELATIONS.md` is the one place each relation's tags are
-defined, along with the question template each tag gives. Summary:
+The **determinate** derived queries (2 per record, every record type but
+RBox) ask something that follows from the edit in **exactly 2 hops** (the
+edit plus one bridge fact) and whose answer the model has most likely never
+seen stated:
 
-| Derivation | Comes from | Example |
-| --- | --- | --- |
-| `symmetry` | Sym(R) | Edit: Billy is a sibling of Manny. Ask: is Manny a sibling of Billy? |
-| `inverse` | R ≡ S⁻ | Edit: Ann is Billy's parent. Ask: who is Ann's child? |
-| `asymmetry` | Asym(R) | Edit: Ann is Billy's parent. Ask: is Billy Ann's parent? (expected: no) |
-| `transitivity` | Trans(R) + a bridge fact | Edit: Lyon is in France. Bridge: France is in Europe. Ask: is Lyon in Europe? |
-| `chain` | R ∘ S ⊑ T + a bridge fact | Edit: she was born in Lyon. Bridge: Lyon is in France. Ask: which country was she born in? |
-| `subproperty` | R ⊑ S | capital of ⊑ located in. Ask: which country is Lyon located in? |
-| `functional` | R has one value per subject | Replace and delete. Ask: is Paris still the capital of France? (expected: no; under delete, does not know) |
-| `composition` | Any relation + a bridge fact | Edit: the capital of France is Lyon. Bridge: the Rhône flows through Lyon. Ask: which river flows through the capital of France? |
-| `inheritance` | C ⊑ D + a member of C | TBox: the edited rule applied to a member. Edit: every capital is a port. Ask: is Paris a port? ABox: the edit makes an individual a member of a class (or moves it to another), and the question asks a property the class gives its members. Edit: Pluto is a planet. Bridge: every planet orbits a star. Ask: does Pluto orbit a star? This is a different test from TBox: the edit is about one individual, not a rule over a class. |
-| `instantiation` | RBox axiom + instance facts | Edit: "borders" is symmetric. Ask an instance in the reverse direction. |
-| `binding` | No relation property | The edit reached through an alias, a bound individual, or (TBox) a new member of the class. Ask: "IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?" |
-| `application` | No relation property | The edit used to fill a field, compute a value or run a workflow. Ask: "A courier must visit the NYSE trading-floor building. Which city should be the courier's destination?" |
-| `scope` | No relation property | The boundary of what follows; the gold is "no" or "cannot be determined". Ask: "Given only the IMF headquarters city, is a particular country Z an IMF member?" |
-| `premise` | A derived edit's premise | A premise of the edited fact asked directly; under derived beliefs its answer depends on which premise gives way. Edit: the Space Needle is in the Central Time Zone. Ask: which time zone does Seattle observe? |
+- **Worked out, not stored.** Rate the original answer's fact `very_likely`
+  in the query's `derivability` and back it with evidence (rare in text, each
+  premise common).
+- **It must change** with the edit (under contraction: become "I don't
+  know"), and have one answer whatever the model stored (`determinate`).
+- **The bridge is held**: the model must answer it before editing, so a
+  wrong derived answer is a failed edit rather than a missing fact. A bridge
+  the prompt states is listed in `bridge` with `bridge_in_prompt: true`.
 
-`composition` is the multi-hop question (as in MQuAKE): the edited fact is
-one hop and a fact the model already knows is the next. It needs no relation
-property, so every relation supports it, which helps items whose relation has
-few tags still reach 4 derived queries.
+The **indeterminate** derived query (1 per main-split ABox revision record)
+is context: it shows the belief-revision problem the edit raises (Hase et al.
+2024) rather than carrying the method comparison
+([Determinacy](#determinacy-and-belief-revision-problems)).
 
-`binding`, `application` and `scope` are **task types** rather than relation
-properties (they come from the finance/technology replacement panel, whose
-four derived slots are binding, composition with a supplied premise,
-application and scope). A task type sorts a question by what it asks the
-model to do, not by the logic its answer needs: a binding question is a role
-chain through an alias (`abbreviates⁻ ∘ headquartered_in`), and the courier
-question is a chain from a building to its city, both description logic. An
-item may use either kind; analysis can split generalization by derivation
-type. `scope` fits the determinacy design least (its gold is "cannot be
-determined" with or without the edit), so determinacy records avoid it.
+RBox derived queries are the two instance questions above.
 
-**Logic.** Every derived query names the weakest logic its inference needs,
-in `logic`, and any theory it uses on top, in `theory`. These are settings
-to slice results by, so we can see where parameter editing works and where
-it stops working. The scheme is framed in description logic and most
-derivations stay inside it, but mathematics and grammar especially may need
-more, and a few questions need less.
+**Logic.** Every derived and related query names the weakest logic its
+inference needs, in `logic`, and any theory it uses on top, in `theory`.
+These are settings to slice results by, so we can see where parameter
+editing works and where it stops working.
 
 | `logic` | What the inference needs | Example |
 | --- | --- | --- |
-| `propositional` | Only the truth of whole statements combined with not, and, or: no individuals or relations looked inside. The propositional query type is this logic by definition; derived queries do not use it. | Edit: 91 is prime. Propositional query: "Is it true that 91 is prime or 91 is even?" |
-| `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital, more than one), names for the same individual, and comparing named values: a join through a relation (the same currency, the same city), a closed list of named members (the only ones). | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? Does Denmark use the same currency as Germany? Which is correct: 'Zorvan is tall' or 'Zorvan are tall'? |
-| `fol` | First-order logic beyond DL: relations among three or more things, real arithmetic, dates or numbers compared as values, counting how many, string patterns, rules whose variables form a cycle. | Take the past tense of 'outswim' and remove 'out' from the front: what word is left? (a string operation) How many voting members does the House have? (a sum) |
+| `dl` | Description logic: classes, relations between two individuals, relation properties, role chains, inheritance, number limits (one capital, more than one), names for the same individual, and comparing named values: a join through a relation (the same currency, the same city), a closed list of named members (the only ones). | Is Canberra the capital of Australia? Which time zone does the city the Space Needle stands in observe? |
+| `fol` | First-order logic beyond DL: relations among three or more things, real arithmetic, dates or numbers compared as values, counting how many, string patterns, rules whose variables form a cycle. | Take the past tense of 'outswim' and remove 'out' from the front: what word is left? How many voting members does the House have? |
 
 | `theory` (optional, with `fol`) | What it adds | Example |
 | --- | --- | --- |
@@ -246,111 +371,103 @@ more, and a few questions need less.
 The labels also say where a query is checked formally (`owl/README.md`,
 Routing): `dl` queries by HermiT (`reason.py`), `fol` ones by Z3
 (`fol_check.py`, with the value attributes of
-[`ATTRIBUTES.md`](ATTRIBUTES.md)); a query encoded for both keeps the other
-checker as a second check. Both reports give each query its `checker`, and
-`owl/COVERAGE.md` counts them per topic. The labels were reviewed against
-both encodings on 2026-10-31 (88 fol -> dl, 2 dl -> fol; 7 proposals
-rejected, listed in COVERAGE.md).
+[`ATTRIBUTES.md`](ATTRIBUTES.md)). Pick the weakest logic that captures the
+inference as the question asks it, not the strongest one that could. Belief
+revision itself, which premise gives way, is outside these: it is the layer
+the determinacy labels describe.
 
-Pick the weakest logic that captures the inference as the question asks it,
-not the strongest one that could. Belief revision itself, which premise gives
-way, is outside all of these: it is the layer the determinacy labels
-describe. When a derived prompt supplies its own
-premise ("Chicago is in Illinois. In which state is ..."), the premise is
-still listed in `bridge` and `bridge_in_prompt` is true: the model is told the
-fact, so there is nothing to check before editing. `discriminates: false`
-marks a derived query whose answer is the same before and after the edit: it
-tests consistency, not the new value, so report generalization with and
-without those.
+Each related and derived query records its `derivation`, its `task`, its
+`hops` (1 + the number of bridge facts) and the `bridge` facts it relies on.
+A derivation that goes through the inverse relation's tags names it in
+`via`. Reflexivity and asymmetry are not used: "a R a" doesn't depend on the
+edit, and an asymmetry question's "no" is usually the same before and after.
 
-Reflexivity is not used: "a R a" doesn't depend on the edit. Note that
-"brother of" is not symmetric (the other person may be a sister), which is
-why the symmetric example uses "sibling of".
-
-Each derived query records its `derivation` (the property that produced the
-answer), its `hops` (1 + the number of bridge facts), and the `bridge` facts
-it relies on. A derivation that goes through the inverse relation's tags
-names it in `via`. The model must answer every bridge fact correctly
-*before* editing, otherwise a wrong derived answer is a missing fact rather
-than a failed edit. Items whose bridges fail are dropped per model, not
-counted as failures.
-
-**Bridge facts, revision facts and alternative derivations** (2026-10-31).
-A fact listed with a derived query is one of two kinds:
+**Bridge facts and revision facts.** A fact listed with a query is one of two
+kinds:
 
 - `bridge`: a fact the answer is **built from**: combined with the edit (and
   the relation property) to reach the answer. `hops` = 1 + the number of
   bridge facts.
 - `revision_facts` (optional): a fact that **settles which belief gives way**
   or which world applies, without being combined into the answer. Example:
-  "A volcano built mainly from lava flows is not built mainly from volcanic ash" decides that, once Mauna Loa is a stratovolcano,
-  the stored "built from lava flows" belief is what goes; the answer itself
-  comes from the membership and the class rule. Revision facts are part of
-  why the answer comes out as it does, so they stay in the record, but they
-  do not count in `hops`.
+  "A volcano built mainly from lava flows is not built mainly from volcanic
+  ash" decides that, once Mauna Loa is a stratovolcano, the stored "built from
+  lava flows" belief is what goes. Revision facts do not count in `hops`.
 
-Both kinds are facts the model must hold, so each revision fact the prompt
-does not state has a check like a bridge (`facts_to_check()`); a revision
-fact the prompt states needs `revision_in_prompt: true` (when absent it
-follows `bridge_in_prompt`). A fact is never both a bridge and a revision
-fact.
+Both kinds are facts the model must hold, so each one the prompt does not
+state has a check like a bridge (`facts_to_check()`); a revision fact the
+prompt states needs `revision_in_prompt: true` (when absent it follows
+`bridge_in_prompt`). A fact is never both a bridge and a revision fact.
 
 `alt_derivations` (optional): other derivation names that reach the same
 answer by a different valid route, such as `chain` with
-`alt_derivations: ["transitivity"]` when born_in ∘ located_in and
-located_in's transitivity (through a subproperty) both give the country.
-`derivation` stays the intended route; `justify.py` then reports a query
-whose justifications use different properties as a match with
-alternatives listed rather than ambiguous (owl/README.md, Justifications).
+`alt_derivations: ["transitivity"]`. `derivation` stays the intended route.
 
-To make that checkable, every bridge fact a derived query does not state in
-its own prompt, and every premise, has a **check**: a question with a short
-answer in the record's `checks` list (`facts_to_check()` in `validate.py`
-lists what needs one). Every relation property a derivation relies on
-(`located_in` is transitive, `has_capital` is the inverse of `capital_of`)
-has one in `relation_checks.json`, keyed by relation and tag. Where a tag
-holds for the dataset's pairs but not for every pair in the world (one author
-per single-author novel), the check is phrased around that kind of case. The
-model audit asks all of them, and reports per model how many derived queries
-have their whole chain known (`derived_supported`). On the Datasets page,
-each ABox and TBox derived query, and each edit with premises, has a button
-that draws the chain (the edit, the facts to know, the relation property,
-the rule, the answer) with each model's audit result on every check.
+Every bridge fact a query does not state in its own prompt, and every
+premise, has a **check**: a question with a short answer in the record's
+`checks` list (`facts_to_check()` in `validate.py` lists what needs one).
+Every relation property a derivation relies on has one in
+`relation_checks.json`, keyed by relation and tag. The model audit asks all
+of them and reports per model how many queries have their whole chain known.
+On the Datasets page each query has a button that draws its chain (the edit,
+the facts to know, the relation property, the answer) with each model's audit
+result on every check.
 
-An item uses whichever derivations its relation supports, but always has 4
-derived queries, so items with symmetric or transitive relations aren't
-weighted more heavily than items without.
+#### Contraction
 
-#### Delete
+Contraction records are their own edits, chosen for the **cardinality of the
+relation**, because that decides what the right answer is after a fact is
+removed. They are no longer mirrors of revision records.
 
-Deleting removes a fact; we then ask the direct, paraphrase, cross-lingual and
-derived questions again. Success means the model **no longer gives the old answer**,
-and instead either:
+| Relation | Before | After removing a R b | Example (remove "Canberra is the capital of Australia") |
+| --- | --- | --- | --- |
+| `functional` (one value per subject) | "Is c the R of a?" is no, because the value is b and there is only one | **"I don't know"**: the reason for "no" is gone | "Is Sydney the capital of Australia?": no, then I don't know |
+| `cardinality:many` (several values) | "Is c an R of a?" (another value the model holds) is yes | **still yes**: removing one value says nothing about the others | Remove "Switzerland has official language French": "Is German an official language of Switzerland?" stays yes |
 
-- `abstain`: says it does not know, or
-- `negate`: says the fact does not hold.
+Every ABox contraction record uses a relation tagged `functional` or
+`cardinality:many` in `RELATIONS.md`; per topic, half of each. Queries:
 
-Both count as success, and which one the model chose is recorded. For
-relations with many possible values (`cardinality: many`, e.g. "speaks
-language") this is an open-world test: removing one value doesn't make any
-other value true, so abstaining is the honest answer. For functional
-relations a negation is also reasonable.
+- direct, paraphrase, cross-lingual and propositional: about the removed fact;
+  the new answer is "I don't know" (`new_answer: null`).
+- related near and far: stored answers reached through the removed fact
+  ("Canberra is the capital of which country?", inverse): "I don't know".
+- derived, 2 determinate: one **cardinality question** (`derivation:
+  functional`, "no" becomes "I don't know"; or, for a many-valued relation,
+  `derivation: cardinality`, another held value that keeps its answer:
+  `new_answer` equal to `original_answer`), and one 2-hop question through
+  the removed fact ("Which river flows through the capital of Australia?"):
+  "I don't know". The cardinality question is 1 hop, the one exception to the
+  2-hop rule.
+- unrelated near and far: as everywhere.
 
-Derived queries under delete must route **through the deleted fact**. After
-deleting "Paris is the capital of France", "Which river flows through the
-capital of France?" should no longer get "Seine", because the only way to
-reach Paris from that question is the deleted link. But "Which country is
-Paris in?" is fine to still answer: the model knows it independently, so it
-is not a consequence of the deleted fact. In practice delete items lean on
-`inverse`, `symmetry` and `composition` queries whose wording names the
-deleted relation.
+Derived queries must route **through the removed fact**: after removing "Paris
+is the capital of France", "Which country is Paris in?" is not a consequence
+of the removed fact (the model knows it independently) and is not asked.
 
-Every derived query is expected to lose its answer the same way: when a link
-in the chain is missing, the model should say it does not know. That includes
-`functional` queries ("Is Paris the capital of France?"), which under delete
-ask whether the removed value still holds. Note that the judge reads a bare
-yes or no as an answer, never as `NONE`, so on yes/no queries only an
-abstention passes; a plain "no" is scored `OTHER`.
+Before editing, the model must already answer the cardinality question
+properly (the audit's check): "no" for a functional relation, the held value
+for a many-valued one, so a failure after editing is the method's.
+
+**TBox contraction** removes a rule ("every spider has eight legs"): the
+derived queries name a new member in the prompt (inheritance), whose answer
+becomes "I don't know". **RBox contraction** removes a property ("'borders'
+is symmetric"): "Does it follow that Spain borders France?" can no longer be
+concluded (`new_answer: null`). These are first versions and may be revised.
+
+Success means the model **no longer gives the old answer** and says it does
+not know (`abstain`); on yes/no queries the judge reads a bare yes or no as an
+answer, never as `NONE`, so only an abstention passes there.
+
+#### Expansion
+
+Expansion records add a made-up fact ([Reality](#reality)), so the model
+holds nothing about it beforehand: no derivability, no related queries, no
+indeterminate queries. Their 2 derived queries connect the new fact to real
+knowledge in 2 hops through a bridge the model holds (or that the prompt
+states). **TBox expansion** adds a rule and applies it to a member the model
+already knows (inheritance, 2 hops); **RBox expansion** adds a property to a
+relation and applies it to real instances (instantiation). These are first
+versions and may be revised.
 
 ## Tags
 
@@ -358,9 +475,9 @@ Besides its taxonomy coordinates, every record carries tags. Tags are **not
 levels or layers** of the taxonomy: they describe the item further, so
 results can be sliced by them within any cell. Records and the dashboard
 give them in this order: change, relation (and its properties),
-derivability; then reality, for insert. Determinacy is a tag of
-each ABox and TBox derived query rather than of the record, and logic of
-every derived query
+derivability; then reality, for insert. Each related and derived query
+carries its own tags: relation property and task, hops, derivability of its
+answer, determinacy and logic
 ([below](#determinacy-and-belief-revision-problems)).
 
 ### Change
@@ -392,71 +509,61 @@ asymmetric, symmetric) is tagged on one row of the pair only, and
 properties are defined in one place; the dashboard shows them on each record
 from that table.
 
-The causal vs associative distinction was dropped on 2026-10-22: records no
-longer need a `relation_semantics` tag. It is still accepted (`causal` or
-`associative`) but no longer checked against the Semantics column of
-`RELATIONS.md`, which stays for now.
+Records carry only the relation's name; there is no causal or associative
+tag.
 
 ### Derivability
 
-Derivability rates **the edited fact itself**: for replace and delete, the
-*original* fact, the one the model holds before editing. Is a model likely
-to hold that fact as a stored claim, or to derive it when asked from other
-facts it holds? It says nothing about the new value or about the derived
-queries. The scale runs between two ends:
+Derivability rates whether a model is likely to hold a fact as a **stored**
+claim or to **work it out** when asked from other facts it holds. Two things
+are rated:
 
-- **Stored (axiomatic):** the fact is stated everywhere, so a model holds it
-  directly. "Paris is the capital of France."
-- **Derived (composed):** the fact is hardly ever stated in text, but
-  follows from facts every model surely holds through a relation property
-  in `RELATIONS.md` (a chain, transitivity, an inverse, a subproperty).
-  "Elizabeth I of England's paternal grandfather was Henry VII" is a fact
-  almost no text states, but "Henry VII was the father of Henry VIII" and
-  "Henry VIII was the father of Elizabeth I" are stated everywhere, and the
-  father of one's father is one's paternal grandfather
-  (`father_of ∘ father_of ⊑ paternal_grandfather_of`).
+- **The edited fact** (`derivability` on the record): for replace and delete,
+  the *original* fact, the one the model holds before editing. Null for
+  insert (a new fact can't follow from what the model holds, or it wouldn't
+  be new) and for RBox.
+- **The answer of each related and derived query** (`derivability` on the
+  query, rating the query's `fact`): related answers must be stored, derived
+  answers worked out ([Related vs derived](#4-query-type)).
 
-The tag is set for ABox and TBox replace and delete; `null` for insert (a new
-fact can't follow from what the model already holds, or it wouldn't be new)
-and for RBox.
+Only the two ends are used. A fact we can't place confidently at one end is
+replaced, not rated in between.
 
-| Value | Score | Example |
-| --- | --- | --- |
-| `very_unlikely` | 1 | Paris is the capital of France (stated everywhere, follows from nothing). |
-| `unlikely` | 2 | Lyon is in France. |
-| `medium` | 3 | The Eiffel Tower is in Europe. |
-| `likely` | 4 | The Eiffel Tower is in France (it is in Paris, and Paris is in France). |
-| `very_likely` | 5 | Every square is a polygon (every square is a rectangle, every rectangle is a polygon). |
+| Value | Score | Meaning | Example |
+| --- | --- | --- | --- |
+| `very_unlikely` | 1 | **Stored (axiomatic):** stated everywhere, so a model holds it directly. | Paris is the capital of France. |
+| `very_likely` | 5 | **Derived (composed):** hardly ever stated, but follows from facts every model surely holds through a relation property in `RELATIONS.md`. | Elizabeth I of England's paternal grandfather was Henry VII (Henry VII was the father of Henry VIII, Henry VIII the father of Elizabeth I, and the father of one's father is one's paternal grandfather). |
+
+**Where each value is allowed.** Edited facts are `very_unlikely` everywhere,
+except ABox revision in the main split, which has **2 `very_likely` edits per
+topic** (as context: they raise the problem of derived beliefs) and the rest
+`very_unlikely`. Dev records, contraction, TBox and expansion records never
+edit a derived fact.
 
 Editing a fact a model derives leaves its premises pointing at the old
 answer. A consistent model revises one of them, and which one is open; a
 model that revises none holds the new value only as an exception to premises
 that still imply the old one, and re-derives the old answer along the premise
 route. That is the [problem of derived
-beliefs](#determinacy-and-belief-revision-problems), which this tag is meant
-to expose. Rules:
+beliefs](#determinacy-and-belief-revision-problems). Rules for a
+`very_likely` edit:
 
 - **Premises are listed** in `edit.premises`: the facts the edited one
   follows from and, as a sentence, the rule or relation property that
-  combines them. Required at `likely` and `very_likely`, optional below.
-  Each has a check and is asked before editing, like bridge facts: if the
-  model doesn't hold them, it can't derive the fact, and the item is dropped
-  for that model.
-- **Premises are not locality.** The edit names only the conclusion, but a
-  consistent revision has to change one of its premises, so a premise's
-  answer after the edit is open. Ask premises as `derived_beliefs` queries,
-  with one answer per world, never as the near unrelated query (see
-  [Determinacy](#determinacy-and-belief-revision-problems)).
-- **The rating is justified** in the record's `notes`.
+  combines them. Each has a check and is asked before editing: if the model
+  doesn't hold them, it can't derive the fact, and the item is dropped for
+  that model.
+- **Premises are not specificity.** A premise's answer after the edit is
+  open, so it is asked as the indeterminate `premise` query, never as the near
+  unrelated query.
+- **The rating is justified** in the record's `notes` and `evidence`.
 
-The scores are ordinal (`DERIVABILITY_SCORE` in
-`validate.py`, `score` in the dashboard's taxonomy).
+The scores are ordinal (`DERIVABILITY_SCORE` in `validate.py`).
 
 > **Derivability is model specific.** Whether a fact is stored or derived
-> really depends on the model: one model may store "the Eiffel Tower is in
-> France" directly, another may work it out from its premises each time, and
-> we can't observe which. The tag is our estimate of how likely a model is to
-> derive it, backed by the evidence below.
+> really depends on the model, and we can't observe which. The tag is our
+> estimate, backed by the evidence below; the model audit says whether each
+> model holds the fact at all.
 
 #### Evidence
 
@@ -501,7 +608,8 @@ and for every premise, optionally for bridge facts. It lives in the record's
   `wikipedia` and `web` (`url`, optional `quote`, `note`), `search`
   (`query`, optional `engine`, `note`).
 - The edited fact's `claim` follows its derivability (stored at
-  `very_unlikely` and `unlikely`, derived at `likely` and `very_likely`);
+  `very_unlikely`, derived at `very_likely`), and so does each related and
+  derived query's `fact` (related: stored; derived: derived);
   premises are claimed stored, except the premise that states the rule
   combining the others ("a building observes the time zone of the city it
   stands in"), which is `definitional`: true by what the words mean, so it
@@ -512,7 +620,8 @@ and for every premise, optionally for bridge facts. It lives in the record's
 - Enough evidence (CRITERIA Rule 5): a stored claim has a quoted sentence or
   an exact-phrase count of at least 100; a derived claim has at least two
   corpus counts or searches.
-- Required on records with determinacy, optional elsewhere.
+- Required for the edited fact, every premise and every related and derived
+  query's `fact`, on every record; optional for bridge, revision and side facts.
 
 Counts come from infini-gram's public API. Its AND (nearby co-occurrence)
 queries sample when one side is frequent and can return false zeros unless
@@ -521,17 +630,13 @@ sampling noise. So evidence of absence rests on exact phrases and on reading
 samples, not on one AND count. Seeing a fact in training text shows a model
 saw it, not how it stores it: the rating stays an estimate.
 
-### Familiarity (removed)
-
-Earlier records carried a `familiarity` tag (fact, subject and object rated
-very low to very high). It was dropped on 2026-10-25: the evidence behind
-each fact now says how often it is stated, which is what the tag estimated.
-The validator rejects it.
-
 ### Reality
 
 Whether an inserted fact is true in the world. Insert only; left out for
-replace and delete, which always edit a real fact.
+replace and delete, which always edit a real fact. **Expansion uses
+`fictional` facts only**: the model can't already hold them, so the audit
+never has to rule that out. `real` inserts (true but obscure or recent facts)
+are not written any more; the main split's existing ones are replaced.
 
 | Value | What it is | Pre-edit audit | Example |
 | --- | --- | --- | --- |
@@ -562,9 +667,12 @@ under which names or descriptions it stores them. So one edit can have
 several valid outcomes, one per way the model may have stored things.
 
 **What the labels are for.** They don't resolve that ambiguity; they mark
-where it is. Every ABox and TBox derived query says whether its answer after the edit
-is **determinate**, the same whatever the model stored, or **indeterminate**,
-different depending on what it stored. An indeterminate query is not one
+where it is. Every related and derived query says whether its answer after
+the edit is **determinate**, the same whatever the model stored, or
+**indeterminate**, different depending on what it stored. **Indeterminate
+queries exist only on main-split ABox revision records, exactly one per
+record**, as context for the belief-revision problems; every other query in
+the dataset is determinate, and the dev split has none. An indeterminate query is not one
 without a logical answer: in each world the answer is fixed by logic, and
 what is open is only which world the model is in, that is, which facts it
 stores and which it derives (background beliefs, derived beliefs). A wrong
@@ -590,12 +698,12 @@ answer after the edit is different.
 > one is right depends on a storage choice we can't see.
 
 This problem typically arises on edits of facts the model stores (derivability
-`very_unlikely` or `unlikely`), through another fact that refers to the edited
+`very_unlikely`), through another fact that refers to the edited
 one by name in one world and by description in another.
 
 **Problem of derived beliefs** (edit level; our name). The edited fact is
 itself likely in the closure, not the base: the model doesn't store it, but
-derives it from premises it does store (derivability `likely` or
+derives it from premises it does store (derivability
 `very_likely`). Editing it writes the new value as an explicit fact, but the
 premises are still there and still imply the old one. Two things can follow:
 
@@ -629,7 +737,8 @@ indeterminate query names the problem its ambiguity comes from.
 
 #### Labels
 
-Each ABox and TBox derived query has a `determinacy`:
+Each related and derived query has a `determinacy` (RBox instance queries
+leave it out: they are determinate by construction):
 
 | Value | What it means | Typical source |
 | --- | --- | --- |
@@ -682,24 +791,14 @@ inconsistent.
 Direct, paraphrase and cross-lingual queries keep a single `new_answer`: the
 edit itself is never in doubt.
 
-**TBox.** A TBox edit changes a rule about a class ("Every spider has eight
-legs" to six). Its derived queries apply the rule to members, and which
-member decides the label:
-
-- A **new or unfamiliar member named in the prompt** ("The peacock spider is a
-  newly described species. How many legs does it have?"): the model knows
-  nothing about it but its class, so the rule is the only route:
-  `determinate`.
-- A **well-known member** whose property the model likely also stores
-  directly ("How many legs does a tarantula have?"): one world keeps the
-  stored fact and the tarantula stops being a spider (eight legs); the other
-  applies the rule (six legs): `background_beliefs`. "Is a tarantula a
-  spider?" splits the same way.
-
-In the world where the stored fact wins, the member's class membership gives
-way; it does not stay in the class as an exception to the edited rule, which
-would be the inconsistent patch (Decisions 2). If leaving the class would
-contradict firm facts outside the chain, the rule is re-picked.
+**TBox** records are determinate only. A TBox edit changes a rule about a
+class ("Every spider has eight legs" to six); its derived queries apply the
+rule to a **new or unfamiliar member named in the prompt** ("The peacock
+spider is a newly described species. How many legs does it have?"): the model
+knows nothing about it but its class, so the rule is the only route. A
+well-known member ("How many legs does a tarantula have?") is not asked: the
+model may have stored its property by name, so the answer would depend on
+storage (background beliefs).
 
 Rules must have no real exceptions ("all mammals give birth to live young"
 fails on the platypus), or the original answers are wrong.
@@ -717,7 +816,7 @@ chain, which has no short name, may be one if-then sentence.
 
 Every RBox replace edit changes or removes a property that actually holds
 ("'borders' is symmetric" to not symmetric); it never adds one that doesn't.
-The mirrored delete removes the original, and deleting a negative original
+An RBox contraction removes a property that holds; removing a negative one
 ("R is not symmetric") would leave "does not know" with nothing to stand
 for. Yes and no answers are balanced through the question's phrasing ("Is
 'borders' asymmetric?" has the original answer no).
@@ -750,7 +849,7 @@ determinate query may give its one chain too. An excerpt:
   {"prompt": "Is Paris the capital of France?", "original_answer": "yes",
    "new_answer": "no", "derivation": "functional", "determinacy": "determinate", ...},
   {"prompt": "In which city is the Eiffel Tower?", "original_answer": "Paris",
-   "new_answer": null, "derivation": "composition",
+   "new_answer": null, "derivation": "none", "task": "composition",
    "determinacy": "background_beliefs",
    "determinacy_why": "Paris if the model stores the tower's location under Paris's name; Lyon if it stores it as 'the capital of France', the description the edit changed.",
    "world_answers": {
@@ -777,41 +876,6 @@ answer ([Main experiments](#main-experiments-sid_main)). Across a record's
 indeterminate queries, the worlds a model's answers pick should agree;
 answers from different worlds are themselves an inconsistency (reported as
 `worlds.records_mixed`). An answer that matches no world fails.
-
-#### Delete under determinacy
-
-Each replace record has a delete record that removes the same original fact
-(`<topic>-delete-NNNN` mirrors `<topic>-replace-NNNN`). The target is no
-longer a new value but "does not know" (`new_answer: null`), and the same two
-problems arise:
-
-- **Stored fact deleted** (background beliefs). Deleting "Canberra is the
-  capital of Australia": "Is Canberra the capital of Australia?" goes only
-  through the removed fact, so it is `determinate` (does not know). "In which
-  city does the federal Parliament sit?" is Canberra in the world that stored
-  it by name, and does not know in the world that stored it as "in the
-  capital": `background_beliefs`.
-- **Derived fact deleted** (derived beliefs). Removing only the conclusion
-  does not hold: the model can derive it again from its premises. A real
-  delete makes one premise go. Deleting "the Space Needle is in the Pacific
-  Time Zone": the premise-route query ("Which time zone does the city the
-  Space Needle stands in observe?") is does-not-know in every world, so
-  `determinate`, and a model answering Pacific only hid the conclusion and
-  re-derived it. "Which time zone does Seattle observe?" is Pacific if the
-  Needle's location was forgotten, does-not-know if Seattle's zone was:
-  `derived_beliefs`.
-- **TBox**: deleting "every spider has eight legs", a new member named in the
-  prompt is does-not-know (`determinate`); a tarantula is eight legs if stored
-  by name, does-not-know if reached through the rule (`background_beliefs`).
-- **RBox**: deleting "'borders' is symmetric", "Does it follow that Spain
-  borders France?" can no longer be concluded (`new_answer: null`).
-
-In `world_answers`, a world whose route ran through the removed fact has
-`"answer": null` (the model should abstain), with its chain like any other.
-A world whose route went around the removed fact keeps the original answer.
-The worlds usually carry over from the replace record; each world's answer
-is re-derived for the delete. Derived queries phrased around the replacement
-value are rephrased around the original one.
 
 #### Insert (fictional)
 
@@ -855,15 +919,8 @@ prompts) and 3 `all` (an RBox edit is always about a relation). Ids: ABox
 `0006`-`0007` relation, `0008` all; TBox `0009`-`0014` in the order above;
 RBox `0015`-`0017` relation, `0018`-`0020` all.
 
-**Determinacy.** A `subject` or `object` insert keeps 2 determinate and 2
-indeterminate derived queries. The indeterminate ones come from aggregates,
-superlatives and uniqueness about the real things the insert touches: after
-"Thalia is a newly discovered moon of Eris", "How many moons does Eris have?"
-goes up by one if the model keeps Eris's moons as a list, and stays if it
-stores the number (`background_beliefs`). `subject_object`, `relation` and
-`all` inserts leave no real subject or object to ask about this way, so their
-derived queries may all be determinate; so may a TBox `object` insert (a
-made-up property of a real class, which has no real count to split on).
+**Determinacy.** Expansion records are determinate only: no aggregates,
+superlatives or counts whose answer depends on how the model stores a list.
 
 **Could it exist unrecorded?** A made-up entity must be something that could
 exist without the record already knowing it: a newly found moon, species,
@@ -885,68 +942,60 @@ falsify documented facts rather than add to them, and count as replaces.
 
 #### Shape per topic
 
-Every topic gets **8 ABox, 6 TBox and 6 RBox edits under each operation**, 20
-per operation: replace, delete mirroring replace, and insert (60 edits per
-topic):
+There are two splits, built separately and sharing no edited fact or
+subject (`validate.py` checks):
 
-| Box | Edits | Derived queries per edit | Determinacy |
+- **Main split** (`records/`): the test set the paper reports. 20 edits per
+  topic and operation.
+- **Dev split** (`dev/`): 120 new records only for hyperparameter tuning, 12
+  per topic, with the simpler layout (no derived edits, no indeterminate
+  queries).
+
+**Main split, per topic:**
+
+| Operation | ABox | TBox | RBox |
 | --- | --- | --- | --- |
-| ABox | 8: 4 stored facts, 4 derived (below) | 4 | 2 determinate, 2 indeterminate |
-| TBox | 6 | 4 | 2 determinate (new members), 2 indeterminate (well-known members) |
-| RBox | 6 | 2 | none: "Does it follow that ...?" is determinate by construction |
+| Revision (replace) | 8: 6 stored (`very_unlikely`) + 2 derived (`very_likely`) | 6 | 6 |
+| Contraction (delete) | 8: 4 on `functional` + 4 on `cardinality:many` relations | 6 | 6 |
+| Expansion (insert, fictional) | 8 | 6 | 6 |
 
-Ids under replace and delete: `0001`-`0004` and `0013`-`0016` ABox,
-`0005`-`0008` and `0019`-`0020` TBox, `0009`-`0012` and `0017`-`0018` RBox, the
-same numbers under both. Insert, written later, numbers its boxes in order:
-`0001`-`0008` ABox, `0009`-`0014` TBox, `0015`-`0020` RBox. The later
-ids were added (2026-10-25) for relation-property coverage (CRITERIA Rule
-12). ABox `0013`-`0016` are chosen for a relation that carries transitivity,
-a role chain, a subproperty or a class to inherit from, and their
-determinate queries use those properties. RBox `0017` changes a declared
-role chain and `0018` a functional property.
+In ABox revision the stored edits come first (lowest ids), then the derived
+ones. Each ABox revision record has 2 determinate derived queries and 1
+indeterminate one: `background_beliefs` on a stored edit, `derived_beliefs`
+(or a premise-route split) on a derived edit; a derived edit's 2 determinate
+queries include one along the **premise route**. RBox edits cover, per
+topic and operation, one each of transitivity, symmetry, inverse,
+functional, subproperty and role chain.
 
-The ABox edits:
+**Dev split, per topic (12):**
 
-| Ids | Derivability of the edited fact | Main problem |
-| --- | --- | --- |
-| `0001`, `0002` | `very_unlikely` or `unlikely` (stored) | background beliefs |
-| `0003`, `0004` | `likely` or `very_likely` (derived) | derived beliefs |
-| `0013`, `0014` | `very_unlikely` or `unlikely` (stored) | background beliefs |
-| `0015`, `0016` | `likely` or `very_likely` (derived) | derived beliefs |
+| Operation | ABox | TBox | RBox |
+| --- | --- | --- | --- |
+| Revision (replace) | 4 | 1 | 1 |
+| Contraction (delete) | 1 | 1 | 1 |
+| Expansion (insert, fictional) | 1 | 1 | 1 |
 
-Each ABox edit has the usual 10 queries, and its **4 derived queries are 2
-determinate and 2 indeterminate**. On a derived-belief edit, at least one
-determinate query asks the edited fact along its premise route, and the
-indeterminate ones are usually `derived_beliefs`.
-
-**Mathematics is the exception, and grammar's ABox: their derived queries may
-all be determinate.** Grammar's ABox edits are word forms ("went" to
-"goed"), anchored by firm examples, so they leave one world; grammar's TBox
-edits are agreement rules ("a singular name takes 'is'" to "'are'"), whose
-well-known and new members split as in any TBox. A fact about a particular number rests on definitions and
-proofs, so no premise can give way ("91 = 7 × 13" can't), and after an edit
-like "91 is prime" there is no consistent world to split between. Its derived
-queries ask what the edit forces through definitions ("Is 91 divisible by
-7?": no), and failure there is the method's. Mathematics records leave out
-`worlds`.
-
-Across 10 topics that is 180 replace edits (80 ABox, 40 TBox, 60 RBox) with
-1,620 queries, 600 of them derived, and as many delete edits and queries
-again: 360 edits and 3,240 queries in all.
-
-Every derived query with one answer (determinate, or RBox) shows its
-**chain**: the steps from the edit to the answer. Every indeterminate query
-gives a chain per world. Every derived query names its `logic`. The validator
-requires all of this for files under `records/`.
+Every dev edit is `very_unlikely` (stored) where derivability applies, and
+every query is determinate. Its ids are `<topic>-<edit_operation>-dNNN`
+(`geography-replace-d001`), in `dev/<topic>/<edit_operation>/`, and
+`scripts/make_sids_split.py` lists every one of them as the dev split; the
+main split is then all test.
 
 **Choosing relations for coverage.** Which relation properties a record can
 test depends on its relation: symmetry needs a symmetric relation (borders,
-married to), transitivity a transitive one (located in, part of). So edits
-are chosen partly for their relation, to cover the properties CRITERIA Rule
-12 asks for. Property derivations are usually determinate, so they belong in
-the 2 determinate slots; composition and premise queries carry the
-indeterminate ones. ABox records may also use `inheritance`, when the edit
-places an individual in a class.
+married to), transitivity a transitive one (located in, part of), a
+contraction a functional or many-valued one. So edits are chosen partly for
+their relation, to meet the per-topic balance
+([Relation properties and task types](#relation-properties-and-task-types))
+and CRITERIA Rule 12.
+
+**Mathematics and grammar.** A fact about a particular number rests on
+definitions and proofs, so no premise can give way ("91 = 7 × 13" can't), and
+after an edit like "91 is prime" there is no consistent world to split
+between; grammar's ABox edits are word forms anchored by firm examples. So
+their ABox revision records have no derived (`very_likely`) edits and no
+indeterminate query: their third derived query is a third determinate one,
+and they leave out `worlds`.
 
 Writing these needs care. Each indeterminate answer must really depend on a
 storage choice that a reasonable model could make either way, and each world
@@ -969,11 +1018,12 @@ records (2026-10-25). Each may be revisited.
    individuals only, never a class rule ("crocodilians have four-chambered
    hearts" invites an "except the gharial" revision, which leaves the
    premise-route query without one answer).
-3. **Grammar.** ABox: word-form edits, all determinate. TBox: agreement rules,
-   split as any TBox ("Harry are good" belongs here).
+3. **Grammar.** ABox: word-form edits, all determinate. TBox: agreement rules
+   ("Harry are good" belongs here), determinate like every TBox.
 4. **Lopsided worlds** are kept and not weighted: one world being likelier
    doesn't make the other invalid.
-5. **Scope** derivations are not used on this branch.
+5. **Scope** is not used: its answer is the same with or without the edit.
+   Binding, composition and application are task types (2026-11-11).
 
 #### Formal verification
 
@@ -1102,13 +1152,21 @@ onto metrics:
 
 | Metric | Over | Reported as |
 | --- | --- | --- |
-| Reliability | direct + paraphrase (2) | one number |
+| Rewrite | direct (1) | one number |
+| Generalizability | paraphrase, related (near, far) and determinate derived | one number, plus each part (paraphrase, related near, related far, derived), per relation property, per task, per logic (dl, fol) and per hop count |
+| Indeterminate change | the indeterminate derived query (main ABox revision) | reported apart: which world the answer picks, or that it stayed unchanged ([Main experiments](#main-experiments-sid_main)) |
 | Cross-lingual | cross_lingual (2) | one number, plus per language |
-| Generalizability | derived (4) | one number, plus determinate / indeterminate, per belief-revision problem, per logic (dl, fol) and per derivation type, with the worlds picked |
-| Logical consistency | propositional (2) | one number on its own, plus per form (not, and/or) |
+| Logical consistency | propositional (3) | one number on its own, plus per connective (negation, conjunction, disjunction) |
 | Specificity | unrelated near + far (2) | one number, plus near and far |
-| Delete abstention | a delete record's direct, paraphrase and cross-lingual answers | one number |
+| Contraction abstention | a contraction record's direct, paraphrase and cross-lingual answers | one number |
 | Answer diversity | the English generations | one number |
+| Grammar | the English generations | one number |
+
+> **Code status (2026-11-11).** `sid_evaluation.py` still scores the
+> earlier layout: its `reliability` pools direct and paraphrase, it has no
+> related queries, and it reads 2 propositional queries. It moves to this
+> table after the current hyperparameter tuning (step 3) finishes, so that
+> tuning keeps one definition throughout.
 
 Answer diversity leaves out the cross-lingual answers, since n-gram scores
 aren't comparable between Chinese and English text.
@@ -1119,9 +1177,8 @@ common term in the knowledge-editing literature:
 | Our name | Common name | What it is here |
 | --- | --- | --- |
 | Rewrite | reliability, edit success (EasyEdit; Yao et al. 2023), efficacy (ROME / CounterFact) | the edited (direct) question answered with the new answer |
-| Paraphrase | generalization (EasyEdit), paraphrase score (CounterFact) | the edited fact asked in other words |
-| Reliability | reliability over rephrasings (EasyEdit) | Rewrite and Paraphrase together |
-| Generalizability | portability (EasyEdit; Yao et al. 2023) | derived questions that follow from the edit |
+| Paraphrase | generalization (EasyEdit), paraphrase score (CounterFact) | the edited fact asked in other words; part of Generalizability |
+| Generalizability | portability (EasyEdit; Yao et al. 2023) | paraphrase, related and derived questions together |
 | Cross-lingual | cross-lingual portability / generalization | the edited fact asked in Chinese and Spanish |
 | Logical consistency | (ours; closest to logical-generalization portability) | yes/no truth-functional questions about the edited fact (propositional) |
 | Specificity | specificity / neighborhood score (ROME, MEMIT, CounterFact), locality (EasyEdit; Yao et al. 2023) | unrelated near and far questions keep the unedited model's own answer, compared by the judge (CounterFact's version checks by probability that neighbourhood prompts still prefer the true original answer) |
@@ -1271,11 +1328,8 @@ matched worlds.
 
 ## Records
 
-`records/` holds 600 edits: 10 topics, each with 20 edits per operation
-(insert, replace, delete) in the [Shape per topic](#shape-per-topic). Every
-ABox and TBox derived query is labelled with its
-[determinacy](#determinacy-and-belief-revision-problems), and every
-indeterminate one has a chain per world.
+Two folders, one per split ([Shape per topic](#shape-per-topic)):
+`records/` (main split, the test set) and `dev/` (dev split, tuning only).
 
 ### Layout
 
@@ -1283,36 +1337,36 @@ One JSON file per edit, grouped by topic and then edit operation:
 
 ```
 datasets/SidsDataset/
-  README.md, RELATIONS.md     the spec and the relations catalogue
-  relation_checks.json        one audit question per relation property in use
-  validate.py                 checks every record against all three
-  examples/                   templates (not part of the dataset)
-    geography-replace-0001.json
-    geography-delete-0001.json
-  records/
-    <topic>/<edit_operation>/<topic>-<edit_operation>-NNNN.json
-    e.g. records/geography/replace/geography-replace-0001.json
+  README.md, CRITERIA.md       the spec and the quality bar
+  RELATIONS.md                 the relations catalogue (properties per relation)
+  relation_checks.json         one audit question per relation property in use
+  validate.py                  checks every record against all of these
+  examples/                    one complete, valid record per record type
+  records/<topic>/<edit_operation>/<topic>-<edit_operation>-NNNN.json   main split
+  dev/<topic>/<edit_operation>/<topic>-<edit_operation>-dNNN.json       dev split
 ```
 
 One file per edit keeps each record reviewable on its own, keeps Git diffs
 and merges small, and makes the browsing order (topic, then operation)
 the folder order. The coordinates are still stored inside each record, so a
-loader never has to parse paths. `NNNN` counts up within a topic and
-operation; ids are never reused.
+loader never has to parse paths. Numbers count up within a topic, operation
+and split; ids are never reused.
 
 ### Adding a record
 
-1. Copy the closest template from `examples/` into
-   `records/<topic>/<edit_operation>/`, and rename it to the next free id
-   (`id` and the file name must match).
+1. Copy the template for its record type from `examples/` into the right
+   folder, and rename it to the next free id (`id` and the file name must
+   match).
 2. Fill in the coordinates, the relation (it must be in `RELATIONS.md`; add
-   it there first if not), the edit, and the 10 queries. The relation's tags
+   it there first if not), the edit, and the queries its record type carries
+   ([Queries per record type](#queries-per-record-type)). The relation's tags
    are not copied into the record; code that needs them looks them up with
    `load_relations()` in `validate.py`.
 3. Run the validator from the project root:
 
    ```bash
-   python datasets/SidsDataset/validate.py
+   python datasets/SidsDataset/validate.py            # main split
+   python datasets/SidsDataset/validate.py dev        # dev split
    ```
 
    It prints every problem with the file and field, then a count per topic
@@ -1325,7 +1379,7 @@ rejected, so typos don't silently drop data.
 
 | Field | Type | Rule |
 | --- | --- | --- |
-| `id` | string | `<topic>-<edit_operation>-NNNN`, same as the file name |
+| `id` | string | `<topic>-<edit_operation>-NNNN` (main) or `-dNNN` (dev), same as the file name |
 | `edit_operation` | `insert` \| `replace` \| `delete` | |
 | `topic` | one of the 10 topic keys | |
 | `box` | `abox` \| `tbox` \| `rbox` | |
@@ -1334,183 +1388,84 @@ rejected, so typos don't silently drop data.
 | `edit.prompt_subject` | object, tbox and rbox only | `{"text": ..., "occurrence": n}`: the words of the direct question the edit is about (the question's wording of `edit.subject`) and which occurrence of them (1 = first); where locate-and-edit methods edit. Left out of review hashes |
 | `edit.object` | string | required except for `rbox`, which has none; for delete, the removed value |
 | `edit.old_object` | string | replace only, and required there when the edit has an object; with `edit.object` it is the [Change](#change) tag |
-| `edit.premises` | string list | the facts the edited (original) fact follows from, and the rule or relation property combining them as a sentence; required when `derivability` is `likely` or `very_likely`, optional when it is set lower, absent when it is null |
+| `edit.premises` | string list | the facts the edited (original) fact follows from, and the rule or relation property combining them as a sentence; required exactly when `derivability` is `very_likely` |
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `edit.original` | string, optional | the fact or rule before the edit, as a sentence |
-| `edit.scope` | string, optional | what the edit covers and what it leaves alone |
-| `edit.fixture` | bool, optional | true for a constructed fact the model can't already know (e.g. loan L1's payment): `edit.original` is loaded into the model first, the baseline is taken after that, and the edit is applied separately |
-| `relation` | string | a relation in `RELATIONS.md` |
-| `relation_semantics` | `causal` \| `associative`, optional | no longer required or checked against `RELATIONS.md` (see [Relation](#relation)) |
-| `derivability` | `very_unlikely` \| `unlikely` \| `medium` \| `likely` \| `very_likely` \| null | set for `abox` and `tbox` replace and delete, null otherwise; a tag, not a layer |
-| `reality` | `real` \| `fictional` | insert only, and required there; left out otherwise |
-| `worlds` | list, ABox and TBox only | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when at least one derived query is indeterminate (`background_beliefs` or `derived_beliefs`) (see [Determinacy](#determinacy-and-belief-revision-problems)) |
-| `queries` | object | the 12 queries (9 for RBox), below |
+| `relation` | string | a relation in `RELATIONS.md`; for ABox contraction, one tagged `functional` or `cardinality:many` |
+| `derivability` | `very_unlikely` \| `very_likely` \| null | the edited (original) fact; set for `abox` and `tbox` replace and delete, null otherwise; `very_likely` only on main-split ABox revision |
+| `reality` | `fictional` | insert only, and required there |
+| `fictional` | string | insert only: which parts of the triple are made up ([Insert (fictional)](#insert-fictional)) |
+| `worlds` | list, main ABox revision only | 2 to 4 `{id, assumes, summary}` with unique ids and a non-empty `assumes` list; present exactly when the record has its indeterminate query |
+| `queries` | object | the queries of the record's type ([Queries per record type](#queries-per-record-type)), in the order of the Query type table |
 | `checks` | list | one `{fact, prompt, answer}` per fact `facts_to_check()` lists (premises, then bridge and revision facts not stated in a prompt), plus one per propositional side fact unless it is trivial, with `fact` copied exactly; empty or absent when there are none. The model audit asks each before editing |
-| `evidence` | object | why each fact is rated stored or derived, keyed by the fact's exact text (see [Evidence](#evidence)); required for the edited fact and every premise on records with determinacy, optional otherwise |
-| `notes` | string, optional | |
-| `source` | object, optional | provenance for imported items: the source document, its item ID and title, its own familiarity rating and its grounding link |
+| `evidence` | object | why each fact is rated stored or derived, keyed by the fact's exact text (see [Evidence](#evidence)); required for the edited fact, every premise and every related and derived query's `fact` |
+| `notes` | string, optional | anything a reviewer needs: why a rating, why a topic uses another property than the balance asks |
 
 Each query:
 
 | Field | Type | Rule |
 | --- | --- | --- |
 | `prompt` | string | the question as asked |
-| `original_answer` | string \| null | the answer before the edit; null for insert; required on reliability and cross-lingual queries under replace and delete, optional on derived queries (null when the old-world answer isn't defined) |
-| `new_answer` | string \| null | the answer after the edit; null for delete; required for insert and replace, except on indeterminate derived queries, where it is null |
-| `determinacy` | `determinate` \| `background_beliefs` \| `derived_beliefs`, optional | ABox and TBox derived only, and all or none within a record (see [Determinacy](#determinacy-and-belief-revision-problems)) |
-| `determinacy_why` | string | derived only; required on indeterminate queries (`background_beliefs`, `derived_beliefs`), optional otherwise: why the answer is open |
-| `world_answers` | object | derived only, exactly on indeterminate queries: one `{answer, chain}` per world, keyed by exactly the record's world ids, with at least two different answers; `chain` lists the steps from that world's stored beliefs and the edit to the answer ([Worlds and chains](#worlds-and-chains)) |
-| `chain` | string list, optional | derived only, on determinate queries: the steps from the edit to the answer |
-| `reference` | string, optional | locality queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
+| `original_answer` | string \| null | the answer before the edit; null for insert |
+| `new_answer` | string \| null | the answer after the edit; null for delete (does not know) and on the indeterminate query |
 | `language` | `zh` \| `es` | cross-lingual only, one of each |
-| `derivation` | see derived queries | derived only |
-| `hops` | integer | derived only; 1 + number of bridge facts (revision facts not counted) |
-| `bridge` | string list | derived only; empty if none |
-| `via` | string, optional | derived only; the relation whose tag licenses the derivation, when it isn't the edited relation |
-| `bridge_in_prompt` | bool, optional | derived only; the bridge facts are stated in the prompt, so they aren't checked before editing |
-| `revision_facts` | string list, optional | derived only; facts that settle which belief gives way or which world applies, not combined into the answer (not counted in `hops`; checked like bridge facts unless stated in the prompt). Non-empty when present; no fact is both a bridge and a revision fact |
-| `revision_in_prompt` | bool, optional | derived only, with `revision_facts`; the revision facts are stated in the prompt (default: the value of `bridge_in_prompt`) |
-| `alt_derivations` | string list, optional | derived only; other derivation names (from the derived-query table) that reach the same answer by another valid route; not the derivation itself |
-| `discriminates` | bool, optional | derived only; false when the answer is the same before and after the edit |
-| `premise_route` | bool, optional | derived only, on a determinate query of an edit with premises: the query reaches the edited fact along its premises, where only an inconsistent model gives the old answer |
-| `logic` | `dl` \| `fol` | derived only, required: the weakest logic the inference needs (see Logic under [Derived queries](#derived-queries)); `propositional` is the propositional query type's, being moved out of derived queries |
-| `theory` | `arithmetic` \| `temporal`, optional | derived only, with `logic: fol`: a theory the inference uses on top |
+| `reference` | string, optional | unrelated queries only (which have no answer fields): a reference answer for auditing; the scoring gold is the model's own pre-edit answer |
 
-The record's keys come in the order of this table: identity, the edit, the
-relation, derivability, then the rest. `queries` holds, in this
-order, `direct` and `paraphrase` (one object each), and `cross_lingual` (2),
-`propositional` (2), `unrelated_near` (1), `unrelated_far` (1) and
-`derived` (4) as lists. A propositional query has its own fields (see
-[Propositional queries](#propositional-queries)).
-The validator also checks that each derivation's tag exists on the relation
-it uses, that `functional` appears only under replace,
-`inheritance` only for TBox, `instantiation` only (and always) for RBox, and
-that transitivity, chain, composition and inheritance have a bridge fact.
+Related and derived queries add:
 
-The templates in `examples/` are complete, valid records: a replace
-(`geography-replace-0001`) and a delete (`geography-delete-0001`) of facts
-very unlikely to be derived, and a replace of a fact likely to be derived,
-with its premises (`geography-replace-0002`). Two follow the determinacy
-scheme of this branch, with worlds, per-world chains and evidence: a stored
-edit with background-belief queries (`geography-replace-0003`, the capital of
-Australia) and a derived edit with derived-belief and premise-route queries
-(`geography-replace-0004`, the Space Needle's time zone).
+| Field | Type | Rule |
+| --- | --- | --- |
+| `derivation` | see [Relation properties and task types](#relation-properties-and-task-types) | the relation property the answer rests on; must be allowed for the query (related near, related far, derived) and be a tag of the relation it uses |
+| `task` | `answer` \| `application` | what the question asks the model to do with the conclusion |
+| `hops` | integer | 1 + number of bridge facts (revision facts not counted): related near 1, related far 2 or more, determinate derived 2 (contraction's cardinality question 1) |
+| `bridge` | string list | the facts the answer is built from; empty if none |
+| `bridge_in_prompt` | bool, optional | the bridge facts are stated in the prompt, so they aren't checked before editing |
+| `via` | string, optional | the relation whose tag licenses the derivation, when it isn't the edited relation |
+| `fact` | string | the fact the question asks about, as the model holds it before the edit (for insert, after); its `evidence` backs `derivability` |
+| `derivability` | `very_unlikely` \| `very_likely` | related: `very_unlikely` (stored); derived: `very_likely` (worked out); the indeterminate and RBox queries leave it out |
+| `determinacy` | `determinate` \| `background_beliefs` \| `derived_beliefs` | `determinate` everywhere except the one indeterminate query of a main-split ABox revision record |
+| `determinacy_why` | string | required on the indeterminate query: why the answer is open |
+| `world_answers` | object | exactly on the indeterminate query: one `{answer, chain}` per world, keyed by the record's world ids, with at least two different answers |
+| `chain` | string list | the steps from the edit to the answer, one fact or rule per step |
+| `premise_route` | bool, optional | on a determinate query of a `very_likely` edit: the query reaches the edited fact along its premises |
+| `revision_facts` | string list, optional | facts that settle which belief gives way, not combined into the answer (not counted in `hops`) |
+| `revision_in_prompt` | bool, optional | with `revision_facts`: they are stated in the prompt (default: the value of `bridge_in_prompt`) |
+| `alt_derivations` | string list, optional | other derivations that reach the same answer by another valid route |
+| `logic` | `dl` \| `fol` | the weakest logic the inference needs |
+| `theory` | `arithmetic` \| `temporal`, optional | with `logic: fol`: a theory the inference uses on top |
 
-### Imported panels
+A propositional query has its own fields ([Propositional
+queries](#propositional-queries)). The record's keys come in the order of the
+record table: identity, the edit, the relation, derivability, then the rest.
 
-`records/finance/replace/` and `records/technology/replace/` hold the 40
-items of the finance and technology replacement panel (v2): five per
-combination of ABox/TBox and associative/causal in each topic, so ten ABox and
-ten TBox items per topic. Their derived queries use the task types (binding,
-composition with a supplied premise, application, scope), and each keeps the
-panel's ID, familiarity rating and grounding link in
-`source`. The ABox causal items are **fixtures**: named, constructed events
-(loan L1, transfer T1, connection S1, ...) whose original outcome is loaded
-before the baseline, so they measure controlled-memory editing rather than
-recall; report them separately from items about real facts.
+`examples/` holds one complete, valid record per record type (ABox revision
+with a stored and with a derived edit, ABox contraction on a functional and
+on a many-valued relation, ABox expansion, TBox and RBox revision,
+contraction and expansion), each passing `validate.py`. When in doubt, copy
+the closest one.
 
-`finance-replace-0021` to `0030` and `technology-replace-0021` to `0030` are
-the **R-box relation-property panel**: 20 RBox replace edits (140 queries),
-one per property change: transitivity added and removed, symmetry added and
-removed, a subproperty added or removed, functionality, inverse functionality
-and relation disjointness added, and an inverse mapping and a composition path
-replaced. Slot `0025` was the panel's reflexivity item (FR5, TR5) until
-2026-10-22; it is now a subproperty edit and has no panel `source`.
-They follow the 7-query RBox shape above, in plain English: the direct query
-asks whether the relation has the property (yes or no, or the new inverse
-relation's name), and the two `instantiation` queries apply it to real
-companies or software with the premises in the prompt ("Does it follow
-that ...?"). Locality queries use other relations; their `reference` is the
-logical answer, while the scoring gold stays the model's own pre-edit answer.
+### Current records and migration
 
-### Replace records for the other topics
+The records in `records/` were written for the earlier layout (until
+2026-11-11) and are being moved to this one. What still differs, per record
+(the problem list in `REFINEMENTS.md` has the counts and record ids):
 
-`records/<topic>/replace/` for geography, people, history, biology, physics,
-literature_arts, mathematics and grammar hold 20 ABox and TBox items each,
-ten per box (five associative, five causal), numbered in the panel's order: `0001`-`0005` ABox associative,
-`0006`-`0010` ABox causal, `0011`-`0015` TBox associative, `0016`-`0020` TBox
-causal. All 160 are real facts (no fixtures), written for variety. The
-mathematics and grammar causal cells (added 2026-10-13) use events from the
-history of the subject for ABox (Ramanujan's letter to Hardy, the Oxford comma
-case, Webster's spellings) and causal rules for TBox (adding a constant leaves
-a standard deviation unchanged; language contact raises borrowing):
+- 2 propositional queries (negation and one of conjunction or disjunction)
+  instead of 3;
+- no related queries;
+- 4 derived queries (2 determinate, 2 indeterminate) on ABox and TBox records,
+  some at 1 or 3+ hops; `binding`, `application` and `composition` given as a
+  derivation instead of a task (they are tasks now, with `derivation: none` or
+  a property), `scope` and `asymmetry` used, and no `task`, `fact` or
+  per-query `derivability`;
+- derivability `unlikely`, `medium` or `likely` on some edits, and 4 derived
+  edits per topic instead of 2;
+- contraction records that mirror revision records, and real inserts;
+- leftover fields of earlier versions (`familiarity`, `relation_semantics`,
+  `source`, `edit.fixture`, `edit.scope`), rejected by the validator.
 
-- **Relations.** 7 to 16 relations per topic, mixing symmetric, transitive,
-  functional, inverse, chain and causal ones, so derived queries lean on
-  relation properties (symmetry, inverse, transitivity, chain, functional,
-  inheritance) and multi-hop composition rather than only the task types.
-  Every TBox item has at least one inheritance query on a well-known member.
-- **Familiarity.** Each cell spans at least three `fact` values, with at least
-  one at `medium` or below and one at `very_high`.
-- **Derivability.** Each cell spans at least three values, with at least one
-  `likely` or `very_likely`. Those items list their premises in
-  `edit.premises` and ask one as the near unrelated query.
-
-Each of these topics also has 10 RBox replace items, one per property change
-in the panel's order (transitivity added, transitivity removed, symmetry
-added, symmetry removed, subproperty added or removed, functionality added,
-inverse functionality added, relation disjointness added, inverse mapping
-replaced, composition path replaced): `0021`-`0030`. Across all ten topics,
-the panel's included, slot `0025` adds a false
-subproperty (R ⊑ S, e.g. "'is a symptom of' is a subproperty of 'causes'") in
-biology, physics, grammar, literature and arts and mathematics, and removes a
-true one (e.g. "'is the mother of' is not a subproperty of 'is a parent of'")
-in geography, people, history, finance and technology, so its yes and no
-answers balance. It held a reflexivity edit until 2026-10-22; reflexivity was
-dropped because its only consequence is a self-instance ("Paris is twinned
-with itself"), which tests nothing compositional. They use the same 7-query
-shape as the panel, but edit the
-topic's real relations ("borders" loses symmetry, "is located in" loses
-transitivity), so their instantiation queries ask about well-known pairs,
-where the edit pushes against world knowledge.
-
-Two geography records share ids with the `examples/` templates; the
-validator only requires ids to be unique within `records/`.
-
-### Delete records
-
-`records/<topic>/delete/` mirrors `replace/` one to one: `<topic>-delete-NNNN`
-deletes the original fact of `<topic>-replace-NNNN` (200 items). Deletes are
-written per record, with their own worlds; a change to a replace record is
-mirrored into its delete by hand (`build_delete.py` is disabled, since it
-would rebuild every delete from scratch). The statement is the original fact and `edit.object` the
-removed value; every `new_answer` is null and the original answers stay.
-A record's `relation` describes its own statement, so a replace that reversed
-a `raises` or `lowers` (read off `object` and `old_object`) gives its delete
-the opposite relation.
-Direct, paraphrase, cross-lingual and locality queries are the replace ones
-unchanged. Derived queries carry over when they have an original answer; the
-66 that were phrased around the replacement value ("Which genus of mosquito
-transmits sleeping sickness?") are rephrased around the original one ("...
-transmits malaria?", Anopheles) in the script's `REWRITES`, with new bridge
-facts and checks where needed. `familiarity.object` is re-rated for the
-removed value; `axiom`, which gave the replacement's DL form, is dropped.
-Queries marked `discriminates: false` keep the flag: their answer did not
-depend on the replaced fact. Edit the script and rerun it rather than editing
-the delete records by hand.
-
-### Insert records
-
-`records/<topic>/insert/` holds 30 items per topic (300 in all), in the same
-order as replace: `0001`-`0005` ABox associative, `0006`-`0010` ABox causal,
-`0011`-`0015` TBox associative, `0016`-`0020` TBox causal, `0021`-`0030` RBox.
-Fictional and real items come 3 to 2 in every group of five: the first three of each
-five are `fictional` and the last two `real` (RBox: `0021`-`0026` fictional,
-`0027`-`0030` real), 180 fictional and 120 real in all.
-
-- **Fictional** items mix invented subjects (Velmora-style places, invented
-  species, languages, firms, particles) with empty slots of well-known real
-  ones (the IMF's mascot, the name of Lincoln's pocket watch), and never
-  contradict a real value. Invented classes have no well-known member, so
-  their inheritance queries state the member in the prompt.
-- **Real** items are true facts a model may well lack: obscure but
-  documented ones (Lake Sarez's 1911 landslide dam, the ghost word "dord")
-  and events from late 2024 to 2025 (Pope Leo XIV, the 2025 Booker Prize).
-  Each record's notes give its source; they were checked by web search when
-  written. The model audit decides per model which ones are really unknown.
-- **RBox** items add a property to a relation: an invented relation for the
-  fictional ones, a real but rarely stated property for the real ones. Their
-  relations are catalogued in `RELATIONS.md` under each topic.
+`validate.py` reports each of these as an error; a migrated record passes
+clean.
 
 ## Parked from the previous version
 
@@ -1531,10 +1486,9 @@ benchmark buildable. They may come back as separate subsets:
 
 ## Size goal
 
-The dataset follows the [Shape per topic](#shape-per-topic): 10 topics ×
-3 operations × 20 edits (8 ABox, 6 TBox, 6 RBox), 600 edits in all. ABox
-and TBox edits carry 12 queries and RBox edits 9, so 420 × 12 + 180 × 9
-gives **6,660 queries**.
+Main split: 10 topics × 3 operations × 20 edits (8 ABox, 6 TBox, 6 RBox),
+600 edits. Dev split: 120 edits. Query counts per record type are in
+[Queries per record type](#queries-per-record-type).
 
 ## Dashboard
 

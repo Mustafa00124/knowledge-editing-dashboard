@@ -2,7 +2,7 @@
 // audit and response modals and the model audit page.
 //   Propositional (negation) / (conjunction) / (disjunction)   from `form`: not, and, or
 //   Related (near, 1 hop, inverse)                              near: 1 hop, far: multi-hop
-//   Derived (2 hops, transitivity)                              from `hops` and `derivation`
+//   Derived (2 hops, transitivity, application)                 from `hops`, `derivation` and `task`
 //   Cross-lingual (zh)
 // The question keys in records, audits and runs stay as they are
 // (propositional[0], derived[2], cross_lingual[zh]); only the label changes.
@@ -32,7 +32,8 @@ export function queryLabel(type, item = {}) {
   if (type === 'related_far') inner.push('far')
   if (type === 'derived' || type.startsWith?.('related')) {
     if (item.hops) inner.push(hopsText(item.hops))
-    if (item.derivation) inner.push(item.derivation)
+    if (item.derivation && item.derivation !== 'none') inner.push(item.derivation)
+    if (item.task && item.task !== 'answer') inner.push(item.task)
   }
   if (type === 'cross_lingual' && item.language) inner.push(item.language)
   return inner.length ? `${base} (${inner.join(', ')})` : base
