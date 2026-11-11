@@ -210,11 +210,12 @@ shape.** Per README, Queries per record type and Shape per topic:
 - Derivability is only `very_unlikely` or `very_likely` (edits, related and
   derived queries); `very_likely` edits and indeterminate queries only on
   main-split ABox revision, one indeterminate query per record (mathematics
-  and grammar: none; a third determinate query instead).
+  and grammar: none; a fourth determinate query instead).
 - Propositional: exactly negation, conjunction, disjunction, in that order.
 - Related near is 1 hop, related far 2 or more, determinate derived exactly 2
-  (contraction's cardinality question: 1). A record may add up to 2 determinate
-  derived queries beyond its type's count where the balance needs them.
+  (contraction's cardinality question: 1). Every record of a type has the same
+  number of queries in every topic: 3 determinate derived (main ABox
+  revision: 3 + 1 indeterminate; RBox: 2 instances).
 
 **Rule 12. Relation properties and task types are balanced.** Within each
 topic's ABox revision records (each split on its own), related and derived

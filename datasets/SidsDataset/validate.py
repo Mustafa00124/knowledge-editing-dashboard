@@ -116,9 +116,6 @@ ALLOWED_TASKS = {
 # everything that should change before what must not (README, Query type).
 QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'related_near', 'related_far',
                'derived', 'unrelated_near', 'unrelated_far')
-# Extra determinate derived queries a record may carry beyond its type's 2,
-# where the property and task balance needs them.
-MAX_EXTRA_DERIVED = 2
 # Topics whose ABox revision records have no derived edits and no
 # indeterminate query (README, Shape per topic: Mathematics and grammar).
 DETERMINATE_TOPICS = ('mathematics', 'grammar')
@@ -139,17 +136,14 @@ def query_counts(rec, path=None):
     type)."""
     box, op = rec.get('box'), rec.get('edit_operation')
     counts = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 3,
-              'related_near': 1, 'related_far': 1, 'derived': 2, 'unrelated_near': 1, 'unrelated_far': 1}
+              'related_near': 1, 'related_far': 1, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
     if box == 'rbox':
         del counts['paraphrase'], counts['related_near'], counts['related_far']
+        counts['derived'] = 2    # the two instance questions
     elif box == 'tbox' or op == 'insert':
         del counts['related_near'], counts['related_far']
     elif op == 'replace' and split_of(rec, path) == 'main':
-        counts['derived'] = 3
-    if box != 'rbox':
-        # More determinate derived queries are welcome where coverage needs
-        # them (README, Queries per record type): a (min, max) range.
-        counts['derived'] = (counts['derived'], counts['derived'] + MAX_EXTRA_DERIVED)
+        counts['derived'] = 4    # 3 determinate + 1 indeterminate (mathematics, grammar: 4 determinate)
     return counts
 
 
@@ -991,7 +985,7 @@ def check_contraction(rec):
     card = [q for q in derived if isinstance(q, dict) and q.get('derivation') in ('functional', 'cardinality')]
     if len(card) != 1:
         return ['queries.derived: an ABox contraction has exactly one cardinality question '
-                '(derivation functional or cardinality) and one 2-hop question through the removed fact']
+                '(derivation functional or cardinality) and two 2-hop questions through the removed fact']
     q = card[0]
     if q.get('derivation') == 'functional' and answer_value(q.get('original_answer')) != 'no':
         return ['queries.derived: the functional cardinality question asks another candidate value: '

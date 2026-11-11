@@ -26,7 +26,7 @@ Topic  >  Belief revision operation  >  Knowledge form  >  Query type
           contraction (delete)          rbox               cross-lingual   (2: zh, es)
                                                            propositional   (3: negation, conjunction, disjunction)
                                                            related         (2: near, far; ABox revision and contraction)
-                                                           derived         (2 determinate; +1 indeterminate on main ABox revision)
+                                                           derived         (3 determinate; +1 indeterminate on main ABox revision)
                                                            unrelated       (2: near, far)
 ```
 
@@ -113,18 +113,16 @@ leaves it on Pacific Time) tests nothing.
 
 | Record type | direct | paraphrase | cross-lingual | propositional | related (near, far) | derived | unrelated (near, far) | Total |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ABox revision, main split | 1 | 1 | 2 | 3 | 2 | 3: 2 determinate + 1 indeterminate | 2 | 14 |
-| ABox revision, dev split | 1 | 1 | 2 | 3 | 2 | 2 determinate | 2 | 13 |
-| ABox contraction | 1 | 1 | 2 | 3 | 2 | 2 determinate | 2 | 13 |
-| ABox expansion | 1 | 1 | 2 | 3 | none | 2 determinate | 2 | 11 |
-| TBox, every operation | 1 | 1 | 2 | 3 | none | 2 determinate | 2 | 11 |
+| ABox revision, main split | 1 | 1 | 2 | 3 | 2 | 4: 3 determinate + 1 indeterminate | 2 | 15 |
+| ABox revision, dev split | 1 | 1 | 2 | 3 | 2 | 3 determinate | 2 | 14 |
+| ABox contraction | 1 | 1 | 2 | 3 | 2 | 3 determinate | 2 | 14 |
+| ABox expansion | 1 | 1 | 2 | 3 | none | 3 determinate | 2 | 12 |
+| TBox, every operation | 1 | 1 | 2 | 3 | none | 3 determinate | 2 | 12 |
 | RBox, every operation | 1 | none | 2 | 3 | none | 2 instances | 2 | 10 |
 
-**More derived questions are allowed.** The derived counts above are the
-minimum: a record may carry up to 2 more determinate derived queries
-(`MAX_EXTRA_DERIVED` in `validate.py`) when the topic's property and task
-balance needs them. Scores average within a record first, so a record with
-more questions doesn't weigh more.
+Counts are fixed: every record of a type carries exactly these, in every
+topic, so topics and records weigh the same. Scores average within a record
+first.
 
 Why the gaps:
 - **Related is ABox revision and contraction only.** It needs a stored
@@ -338,7 +336,7 @@ and `related_far` (2 or more hops), each a one-item list.
 
 #### Derived queries
 
-The **determinate** derived queries (2 per record, every record type but
+The **determinate** derived queries (3 per record, every record type but
 RBox) ask something that follows from the edit in **exactly 2 hops** (the
 edit plus one bridge fact) and whose answer the model has most likely never
 seen stated:
@@ -437,10 +435,10 @@ Every ABox contraction record uses a relation tagged `functional` or
   the new answer is "I don't know" (`new_answer: null`).
 - related near and far: stored answers reached through the removed fact
   ("Canberra is the capital of which country?", inverse): "I don't know".
-- derived, 2 determinate: one **cardinality question** (`derivation:
+- derived, 3 determinate: one **cardinality question** (`derivation:
   functional`, "no" becomes "I don't know"; or, for a many-valued relation,
   `derivation: cardinality`, another held value that keeps its answer:
-  `new_answer` equal to `original_answer`), and one 2-hop question through
+  `new_answer` equal to `original_answer`), and two 2-hop questions through
   the removed fact ("Which river flows through the capital of Australia?"):
   "I don't know". The cardinality question is 1 hop, the one exception to the
   2-hop rule.
@@ -468,7 +466,7 @@ answer, never as `NONE`, so only an abstention passes there.
 
 Expansion records add a made-up fact ([Reality](#reality)), so the model
 holds nothing about it beforehand: no derivability, no related queries, no
-indeterminate queries. Their 2 derived queries connect the new fact to real
+indeterminate queries. Their 3 derived queries connect the new fact to real
 knowledge in 2 hops through a bridge the model holds (or that the prompt
 states). **TBox expansion** adds a rule and applies it to a member the model
 already knows (inheritance, 2 hops); **RBox expansion** adds a property to a
@@ -966,9 +964,9 @@ subject (`validate.py` checks):
 | Expansion (insert, fictional) | 8 | 6 | 6 |
 
 In ABox revision the stored edits come first (lowest ids), then the derived
-ones. Each ABox revision record has 2 determinate derived queries and 1
+ones. Each ABox revision record has 3 determinate derived queries and 1
 indeterminate one: `background_beliefs` on a stored edit, `derived_beliefs`
-(or a premise-route split) on a derived edit; a derived edit's 2 determinate
+(or a premise-route split) on a derived edit; a derived edit's 3 determinate
 queries include one along the **premise route**. RBox edits cover, per
 topic and operation, one each of transitivity, symmetry, inverse,
 functional, subproperty and role chain.
@@ -1000,7 +998,7 @@ definitions and proofs, so no premise can give way ("91 = 7 × 13" can't), and
 after an edit like "91 is prime" there is no consistent world to split
 between; grammar's ABox edits are word forms anchored by firm examples. So
 their ABox revision records have no derived (`very_likely`) edits and no
-indeterminate query: their third derived query is a third determinate one,
+indeterminate query: their fourth derived query is a fourth determinate one,
 and they leave out `worlds`.
 
 Writing these needs care. Each indeterminate answer must really depend on a
