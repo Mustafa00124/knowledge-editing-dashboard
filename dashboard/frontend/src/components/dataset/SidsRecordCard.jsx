@@ -20,6 +20,7 @@ import {
   worldLabel,
 } from '../../lib/sidsDatasetTaxonomy.js'
 import { hasChain } from './DerivationModal.jsx'
+import { QUERY_LABEL, queryLabel } from '../../lib/sidsQueryLabel.js'
 
 // Shared pieces of Sid's Dataset's record browser: the topic / operation /
 // box tab rows and the record card with its query table. The Datasets page
@@ -61,9 +62,8 @@ export function TabRow({ label, values, selected, onSelect, counts }) {
   )
 }
 
-// In record order: propositional after cross-lingual, locality before derived.
-export const QUERY_LABEL = { direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual',
-  propositional: 'Propositional', unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)', derived: 'Derived' }
+// Labels (and record order) live in lib/sidsQueryLabel.js; re-exported for older imports.
+export { QUERY_LABEL }
 const show = (v) => (v == null ? '—' : String(v))
 
 // Each row also gets the model audit's query key (audit_queries.py):
@@ -309,8 +309,9 @@ export default function RecordCard({ rec, relations, onChain, dots, formal, foot
                 {queryRows(rec).map((r, i) => (
                   <tr key={i}>
                     <td>
-                      <span className={`sids-query-type sids-metric-${METRIC_OF[r.key]}`}>
-                        {QUERY_LABEL[r.key]}{r.language ? ` (${r.language})` : ''}
+                      <span className={`sids-query-type sids-metric-${METRIC_OF[r.key]}`}
+                        title={r.key === 'propositional' ? 'Truth-functional: checked by truth table (validate.py)' : undefined}>
+                        {queryLabel(r.key, r)}
                       </span>
                       {dots?.(r.auditKey)}
                       {r.key === 'derived' && (() => {
@@ -350,7 +351,6 @@ export default function RecordCard({ rec, relations, onChain, dots, formal, foot
                           {r.theory && <span className="sids-det-flag" title="A theory the inference uses on top of first-order logic">{LOGIC_LABEL[r.theory] || r.theory}</span>}
                         </span>
                       )}
-                      {r.derivation ? `${r.derivation}${r.hops ? `, ${r.hops} hop${r.hops === 1 ? '' : 's'}` : ''}` : ''}
                       {r.bridge?.length > 0 && (
                         <span className="sids-bridge">
                           bridge: {r.bridge.map((b) => <span key={b}>{b} <EvidenceButton fact={b} evidence={rec.evidence} /></span>)}
@@ -366,7 +366,6 @@ export default function RecordCard({ rec, relations, onChain, dots, formal, foot
                       )}
                       {r.key === 'propositional' && (
                         <>
-                          <span className="sids-tags"><span className="sids-det-flag" title="Truth-functional: checked by truth table (validate.py)">{r.form}</span></span>
                           {r.side_fact && <span className="sids-bridge">side fact: <span>{r.side_fact}</span></span>}
                         </>
                       )}

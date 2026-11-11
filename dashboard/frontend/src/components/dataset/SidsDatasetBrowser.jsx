@@ -8,6 +8,7 @@ import SidsCriteriaModal from './SidsCriteriaModal.jsx'
 import { RecordReview, ReviewDots, ReviewLegend } from './SidsReviewDots.jsx'
 import { BOXES, EDIT_OPERATIONS, FICTIONAL, TOPICS } from '../../lib/sidsDatasetTaxonomy.js'
 import RecordCard, { TabRow, matches, modelLabel } from './SidsRecordCard.jsx'
+import { queryKeyLabel } from '../../lib/sidsQueryLabel.js'
 
 // Browses the records under the categorization: topic, then belief revision
 // operation (expansion, revision, contraction), then knowledge form (box). Each tab shows how many records it
@@ -207,7 +208,7 @@ export default function SidsDatasetBrowser() {
                 // 'fact': direct and paraphrase (RBox: direct and the instance questions) held before the edit.
                 const audit = status?.records?.[rec.id]
                 const dots = <AuditDots statuses={key === 'fact' ? audit?.fact : audit?.queries?.[key]} models={statusModels}
-                  onOpen={(m) => setAuditDot({ record: rec.id, model: m, key })} />
+                  onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />
                 if (key === 'fact' || !reviews) return dots
                 // Each query also gets one review dot per reviewer.
                 return (
@@ -232,7 +233,7 @@ export default function SidsDatasetBrowser() {
           audit={audit} onClose={() => setChain(null)} />
       )}
       {auditDot && (
-        <AuditDetailModal record={auditDot.record} model={auditDot.model} queryKey={auditDot.key}
+        <AuditDetailModal record={auditDot.record} model={auditDot.model} queryKey={auditDot.key} queryLabel={auditDot.label}
           modelLabel={modelLabel(auditDot.model)} onClose={() => setAuditDot(null)} />
       )}
     </div>

@@ -5,6 +5,7 @@ import ExperimentDrawer from '../components/ExperimentDrawer.jsx'
 import GpuQueue from '../components/GpuQueue.jsx'
 import InvestigationProgress from '../components/InvestigationProgress.jsx'
 import useQueue from '../lib/useQueue.js'
+import { queryLabel } from '../lib/sidsQueryLabel.js'
 
 // Before any editing: does each model already know Sid's Dataset's facts in
 // their original form? One audit run per model asks every query, and the
@@ -129,7 +130,7 @@ function Detail({ run, record }) {
                     {rows.map((r, i) => (
                       <tr key={i} className={r.judged ? '' : 'audit-muted'}>
                         <td>
-                          <span className="audit-key">{r.query_key || `${r.query_type.replace('_', ' ')}${r.language !== 'en' ? ` (${r.language})` : ''}`}</span>
+                          <span className="audit-key" title={r.query_key || undefined}>{queryLabel(r.query_type, r)}</span>
                           {r.query_type === 'derived' && r.determinacy && (
                             <span className="audit-det">{INDETERMINATE.includes(r.determinacy) ? 'indeterminate' : 'determinate'}</span>
                           )}

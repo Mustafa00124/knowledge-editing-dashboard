@@ -62,7 +62,7 @@ function Part({ p }) {
   )
 }
 
-export default function AuditDetailModal({ record, model, queryKey, modelLabel, onClose }) {
+export default function AuditDetailModal({ record, model, queryKey, queryLabel, modelLabel, onClose }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function AuditDetailModal({ record, model, queryKey, modelLabel, 
   const isFact = queryKey === 'fact'
   const item = data && (isFact ? data.fact : data.queries[queryKey])
   const v = item?.verdict
-  const title = isFact ? 'The fact before editing' : `${KEY_LABEL(queryKey)} before editing`
+  const title = isFact ? 'The fact before editing' : `${queryLabel || KEY_LABEL(queryKey)} before editing`
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

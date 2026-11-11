@@ -72,7 +72,7 @@ function Answer({ title, a, isBefore, newObject }) {
   )
 }
 
-export default function SidResponseModal({ method, methodLabel, source, model, record, queryKey, onClose }) {
+export default function SidResponseModal({ method, methodLabel, source, model, record, queryKey, queryLabel, onClose }) {
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   const [view, setView] = useState('end')
@@ -89,7 +89,7 @@ export default function SidResponseModal({ method, methodLabel, source, model, r
       .catch((err) => setError(String(err.message || err)))
   }, [method, model, record, queryKey, source])
 
-  const title = `${KEY_LABEL(queryKey)} after editing`
+  const title = `${queryLabel || KEY_LABEL(queryKey)} after editing`
   const after = view === 'own' && data?.after_own_edit ? data.after_own_edit : data?.after
   return (
     <div className="modal-backdrop" onClick={onClose}>

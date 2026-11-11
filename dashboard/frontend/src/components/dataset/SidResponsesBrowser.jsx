@@ -4,6 +4,7 @@ import { BOXES, EDIT_OPERATIONS, TOPICS } from '../../lib/sidsDatasetTaxonomy.js
 import RecordCard, { LAYERS, TabRow, matches, modelLabel } from './SidsRecordCard.jsx'
 import SidResponseModal from './SidResponseModal.jsx'
 import { dotClass, dotNotes, dotText } from '../../lib/sidResponseDots.js'
+import { queryKeyLabel } from '../../lib/sidsQueryLabel.js'
 
 // Sid's Dataset answers AFTER the edit, browsed like the Datasets page's
 // record browser: one method at a time, the records its runs edited, and on
@@ -244,7 +245,7 @@ export default function SidResponsesBrowser() {
                 return (
                   <ResponseDots dots={data.records[rec.id]?.queries?.[q]} models={models} runs={data.runs}
                     edited={data.edited} recordId={rec.id} what={key === 'fact' ? 'direct question' : null}
-                    onOpen={(m) => setOpenDot({ record: rec.id, model: m, key: q })} />
+                    onOpen={(m) => setOpenDot({ record: rec.id, model: m, key: q, label: queryKeyLabel(q, rec) })} />
                 )
               }} />
           ))}
@@ -253,7 +254,7 @@ export default function SidResponsesBrowser() {
 
       {openDot && (
         <SidResponseModal method={method} methodLabel={methodLabel} source={source} model={openDot.model}
-          record={openDot.record} queryKey={openDot.key} onClose={() => setOpenDot(null)} />
+          record={openDot.record} queryKey={openDot.key} queryLabel={openDot.label} onClose={() => setOpenDot(null)} />
       )}
     </div>
   )

@@ -339,12 +339,13 @@ def _score_status(score):
 def _resolve_rows(aq, rec, rows):
     """Set query_key, stale and status on one record's dataset query rows
     (in place), against the current record `rec` (None: every row stale)."""
-    current = {}
+    current, items = {}, {}
     if rec is not None:
         for key, qtype, lang, item in aq.all_queries(rec):
             answer, _ = aq.expected(rec, qtype, item)
             if answer is not None:
                 current[key] = (qtype, lang, aq.query_hash(item.get("prompt", ""), answer))
+                items[key] = item
     lookup = {v: k for k, v in current.items()}
     for r in rows:
         h = _row_hash(aq, r)
@@ -353,6 +354,11 @@ def _resolve_rows(aq, rec, rows):
         r["query_key"] = key
         r["stale"] = not fresh
         r["status"] = YELLOW if not fresh else _score_status(r.get("score"))
+        # What the question's label shows (Propositional · and, Derived · 2 hops · binding).
+        item = items.get(key) or {}
+        for field in ("form", "hops", "derivation"):
+            if item.get(field) is not None:
+                r[field] = item[field]
 
 
 # ---------------------------------------------------------------- one dot, explained
