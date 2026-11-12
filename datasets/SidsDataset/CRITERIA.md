@@ -174,11 +174,21 @@ Llama-3.1-8B-Instruct, Mistral-7B-Instruct-v0.1; `AUDIT_MODELS` in
 - A **derived edit** (`very_likely`, main ABox revision only): misses are
   fine; they show reasoning from known facts is hard before any edit. Its
   premises must be held (at most one model missing each).
-- **Every query's original answer** (paraphrase, cross-lingual, related,
-  derived), and every bridge and side fact: at most one model may miss it.
-  If the models hold the fact but fail the question, the question is the
-  problem (a fill-in-the-blank or an odd format): rephrase it as a plain
-  question. If they don't hold it, replace the question.
+- **Facts the record relies on**: the paraphrase, each related question's
+  stored answer, and every premise, bridge and side fact (their checks): at
+  most one model may miss each. If the models hold the fact but fail the
+  question, the question is the problem (a fill-in-the-blank or an odd
+  format): rephrase it as a plain question. If they don't hold it, replace
+  the question or the fact.
+- **Propositional and cross-lingual questions** measure logical consistency
+  and cross-lingual transfer, so a model may fail them (decided 2026-11-12):
+  what must hold is the fact underneath (the edited fact, and the side
+  fact's check). A form that fails for wording rather than logic is still
+  rephrased (negation: "Is it true that X is not Y?", not "Is it false
+  that X?").
+- **Derived questions**: any number of models may miss them; with their
+  premises in context (the audit's in-context check) a pass shows a
+  composition gap, a fail a reasoning gap.
 - An **insert** is made up, so no model can hold it; its bridges must be
   held.
 

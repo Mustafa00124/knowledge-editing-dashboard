@@ -144,7 +144,7 @@ a fact about an entity, so its record states only the property:
 | --- | --- | --- | --- |
 | `direct` | 1 | The property itself: "Is the relation 'lends to' transitive?" | Rewrite |
 | `cross_lingual` | 2 | The first instance question in Chinese and Spanish. | Cross-lingual |
-| `propositional` | 3 | The edited property inside a yes/no question: negation ("Is it false that the relation 'lends to' is transitive?"), conjunction and disjunction with a side fact. | Logical consistency |
+| `propositional` | 3 | The edited property inside a yes/no question: negation ("Is it true that the relation 'lends to' is not transitive?"), conjunction and disjunction with a side fact. | Logical consistency |
 | `derived` | 2 | The property applied to real entities, with the premises in the prompt: "JPMorgan Chase lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan Chase lends to Citadel?" Derivation `instantiation`. | Generalizability |
 | `unrelated_near` | 1 | The same property asked of another relation in the topic ("Is the relation 'is a subsidiary of' transitive?"). | Specificity |
 | `unrelated_far` | 1 | A different property of an unrelated relation ("Is the relation 'is married to' symmetric?"). | Specificity |
@@ -203,7 +203,9 @@ the removed fact, true before and unknown after. S is chosen so the answer
 flips with the edit: **true for the conjunction, false for the disjunction**.
 Examples (replace, "The capital of Australia is Sydney"):
 
-- negation: "Is it false that the capital of Australia is Sydney?" (yes, then no)
+- negation: "Is it true that the capital of Australia is not Sydney?" (yes,
+  then no). Put the "not" inside the statement: "Is it false that ...?"
+  confused the models in the dev audit (they answered the inner statement).
 - conjunction: "Is it true both that the capital of Australia is Sydney and that the Pacific Ocean borders Australia?" (no, then yes)
 - disjunction: "Is it true that the capital of Australia is Sydney or that Australia is in Europe?" (no, then yes)
 
