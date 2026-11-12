@@ -669,6 +669,31 @@ sampling noise. So evidence of absence rests on exact phrases and on reading
 samples, not on one AND count. Seeing a fact in training text shows a model
 saw it, not how it stores it: the rating stays an estimate.
 
+**Verifying external evidence.** Run this as a final gate after changing
+records, over the main, dev and example splits:
+
+- Run `python datasets/SidsDataset/check_counts.py`. It re-checks every
+  infini-gram source using the index stored with that source, including Dolma
+  (`v4_dolma-v1_7_llama`) and RedPajama (`v4_rpj_llama_s4`), caches each
+  distinct query, and waits 1.5 seconds between new requests. Resolve all
+  mismatches and unchecked queries.
+- Fetch cited Wikipedia and other web pages sequentially. Automated Wikipedia
+  requests use a descriptive research `User-Agent` with no personal data;
+  verify the quote and its support for the claim, not merely that the URL
+  returns successfully.
+- Rerun each `search` source's exact query (including Google or another named
+  engine), record the engine and date, and inspect the results. Corroborate an
+  absence claim with a quoted exact search plus infini-gram or a second
+  independent search.
+- Use one verifier per service, cache responses and back off on HTTP 403/429.
+  A refusal is not a zero count or evidence of absence, and must not be worked
+  around with parallel agents, rotating user agents or a global `~/.curlrc`.
+
+Evidence is complete only when all corpus queries are checked, all cited
+quotes still support their claims, and no refusal, mismatch or unsupported
+absence claim remains. Record the final checked/mismatched/corrected/unchecked
+totals by source kind in the review report.
+
 ### Reality
 
 Whether an inserted fact is true in the world. Insert only; left out for

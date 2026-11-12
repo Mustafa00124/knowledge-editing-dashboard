@@ -24,6 +24,7 @@ What is asked, and the answer the audit expects before the edit:
 - unrelated_near and unrelated_far expect their reference.
 """
 import hashlib
+import re
 
 LOCALITY = ("unrelated_near", "unrelated_far")
 RELATED = ("related_near", "related_far")
@@ -90,6 +91,55 @@ def audited_queries(rec):
             continue
         yield {"key": key, "query_type": qtype, "language": lang, "query": item, "expected": answer,
                "rule": rule, "hash": query_hash(item.get("prompt", ""), answer)}
+
+
+CONTEXT_SUFFIX = "+context"
+
+
+def _plain(text):
+    return re.sub(r"[\W_]+", " ", str(text or "")).strip().casefold()
+
+
+def context_prompt(facts, prompt):
+    """The question with the facts it rests on given first as a reminder."""
+    return "Recall: " + " ".join(f.strip() for f in facts) + "\n" + prompt
+
+
+def in_context_queries(rec):
+    """The in-context premise check (REFINEMENTS.md section 8): for a derived
+    edit's own direct question, and for every related or derived question
+    that rests on facts its prompt does not state, the same question asked
+    again with those facts given first ("Recall: P1 P2" then the question).
+    The context holds only premises (the edit's premises and the rule
+    combining them; or the original fact and the unstated bridges), never
+    the answer. Not for inserts or RBox. Dicts like audited_queries, with
+    key "<key>+context", base_key, facts and the context prompt."""
+    if rec.get("edit_operation") == "insert" or rec.get("box") == "rbox":
+        return
+    e = rec.get("edit") or {}
+    original = e.get("original") or e.get("statement")
+    for a in audited_queries(rec):
+        item, qtype = a["query"], a["query_type"]
+        if a["key"] == "direct" and e.get("premises"):
+            facts = list(e["premises"])
+        elif qtype in RELATED or qtype == "derived":
+            bridges = [] if item.get("bridge_in_prompt") else list(item.get("bridge") or [])
+            if not bridges:
+                continue
+            facts = ([original] if original else []) + bridges
+        else:
+            continue
+        # Premises may name the answer ("Paris is in France" for the country
+        # of the Eiffel Tower), but no reminder may be the conclusion itself
+        # or the bare answer.
+        said = {_plain(f) for f in facts}
+        if _plain(a["expected"]) in said or _plain(item.get("fact")) in said or \
+                (a["key"] == "direct" and _plain(original) in said):
+            continue
+        prompt = context_prompt(facts, item.get("prompt", ""))
+        yield {"key": a["key"] + CONTEXT_SUFFIX, "base_key": a["key"], "query_type": "in_context",
+               "language": "en", "query": item, "facts": facts, "prompt": prompt, "expected": a["expected"],
+               "rule": "original", "hash": query_hash(prompt, a["expected"])}
 
 
 def fact_keys(rec):

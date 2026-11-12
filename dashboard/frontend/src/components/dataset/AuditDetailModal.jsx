@@ -40,6 +40,50 @@ function Answer({ q, showKey }) {
   )
 }
 
+// The in-context premise check (REFINEMENTS.md section 8): the same question
+// with the facts it rests on given first. Read against the plain answer:
+// known directly; derived only when reminded (composition gap); failed even
+// then (reasoning gap); or "taught" when a given fact is one the model does
+// not hold (a red part above).
+function contextReading(item) {
+  const c = item.in_context
+  if (!c?.asked || c.stale) return null
+  if (item.status === 'green') return 'Answers it directly; the reminder is only a control.'
+  if (item.status !== 'red' || c.status === 'yellow') return 'Unclear: an answer was not judged.'
+  if ((item.parts || []).some((p) => p.status === 'red')) {
+    return 'A fact given in the context is one the model does not hold, so the context taught rather than reminded.'
+  }
+  return c.status === 'green'
+    ? 'Composition gap: it knows the pieces and derives the answer when reminded, but not unprompted.'
+    : 'Reasoning gap: it fails even with the facts in context (or the question is the problem).'
+}
+
+function InContext({ item }) {
+  const c = item.in_context
+  if (!c) return null
+  const status = !c.asked ? 'yellow' : c.status
+  const reading = contextReading(item)
+  return (
+    <div className="sids-ad-diagnosis">
+      <span className="sids-leaf-role">With the facts in context</span>
+      <div className={`sids-ad-answer is-${status}`}>
+        <div className="sids-ad-row">
+          <Dot status={status} />
+          <span className="sids-ad-status">{STATUS_LABEL[status] || status}{!c.asked ? ' (not in this run)' : c.stale ? ' (stale: the record changed after this run)' : ''}</span>
+        </div>
+        <ul className="sids-ad-parts">{c.facts.map((f, i) => <li key={i} className="sids-ad-part"><span className="sids-ad-part-text">{f}</span></li>)}</ul>
+        {c.asked && (
+          <dl className="sids-ad-fields">
+            <div><dt>Answered</dt><dd>{c.response || <em>empty</em>}</dd></div>
+            <div><dt>Judge</dt><dd><code>{c.label || 'no label'}</code>{c.reason ? ` ${c.reason}` : ''}</dd></div>
+          </dl>
+        )}
+      </div>
+      {reading && <p className="sids-ad-verdict is-info">{reading}</p>}
+    </div>
+  )
+}
+
 function Part({ p }) {
   const asked = p.status !== 'given' && p.kind !== 'fact'
   return (
@@ -117,6 +161,7 @@ export default function AuditDetailModal({ record, model, queryKey, queryLabel, 
                   {v.text}{v.parts.length > 0 && ': '}{v.parts.join('; ')}
                 </p>
               </div>
+              {!isFact && <InContext item={item} />}
             </>
           )}
           <p className="sids-audit-link">
