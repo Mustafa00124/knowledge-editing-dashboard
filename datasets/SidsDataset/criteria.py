@@ -141,7 +141,8 @@ def check_repeats(recs):
 
 def check_delete(recs):
     """Rule 14: contraction follows the relation's cardinality (README,
-    Contraction). Contraction records are their own edits."""
+    Contraction). Contraction and expansion are paired with revision
+    (validate.py pair_errors checks the pairs)."""
     s = "R5. Contraction follows the relation's cardinality"
     relations = load_relations()[0]
     wrong_rel, answered, per_topic = [], [], defaultdict(Counter)
@@ -167,11 +168,12 @@ def check_delete(recs):
         for i, item in enumerate(q.get('propositional') or []):
             if norm(item.get('new_answer')) != norm("I don't know"):
                 answered.append(f'{r["id"]} propositional[{i}]: expects {item.get("new_answer")!r}, not "I don\'t know"')
-    split = [f'{t}: {c["functional"]} functional and {c["many"]} many-valued ABox contractions, want 4 and 4'
-             for t, c in sorted(per_topic.items()) if (c['functional'], c['many']) != (4, 4)]
+    split = [f'{t}: {c["functional"]} functional and {c["many"]} many-valued ABox contractions, want both, '
+             f'mostly functional' for t, c in sorted(per_topic.items())
+             if not c['functional'] or not c['many'] or c['functional'] < c['many']]
     return [
         check(s, 'Every ABox contraction edits a functional or many-valued relation', wrong_rel),
-        check(s, 'Per topic, half the ABox contractions are on functional relations and half on many-valued ones',
+        check(s, 'Per topic, ABox contractions cover both functional and many-valued relations, mostly functional',
               split),
         check(s, 'Contraction queries expect "I don\'t know" (a many-valued cardinality question keeps its answer)',
               answered),
@@ -549,9 +551,9 @@ OPERATIONS = ('replace', 'delete', 'insert')
 # Insert (fictional only): which parts are made up, per box and topic. Keys
 # joined by '|' count together (a TBox fictional property is a relation or an
 # object, whichever the axiom makes it).
-FICTIONAL_MIX = {'abox': {'subject': 2, 'object': 2, 'subject_object': 1, 'relation': 2, 'all': 1},
-                 'tbox': {'subject': 2, 'relation|object': 2, 'subject_object|all': 2},
-                 'rbox': {'relation': 3, 'all': 3}}
+# Expansion is paired with revision (README, Contraction): a made-up subject
+# in the revision's relation with its new object; RBox a made-up relation.
+FICTIONAL_MIX = {'abox': {'subject': 8}, 'tbox': {'subject': 6}, 'rbox': {'relation': 6}}
 
 
 def fictional_mix(counts, want):

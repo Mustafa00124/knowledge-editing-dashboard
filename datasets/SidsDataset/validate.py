@@ -163,8 +163,8 @@ PROPOSITIONAL_FORMS = ('not', 'and', 'or')
 UNKNOWN_ANSWER = "I don't know"
 
 RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'derivability', 'relation', 'edit', 'queries', 'notes',
-               'checks', 'reality', 'fictional', 'worlds', 'evidence'}
-OPTIONAL_RECORD_KEYS = {'notes', 'checks', 'reality', 'fictional', 'worlds', 'evidence'}
+               'checks', 'reality', 'fictional', 'worlds', 'evidence', 'paired_with'}
+OPTIONAL_RECORD_KEYS = {'notes', 'checks', 'reality', 'fictional', 'worlds', 'evidence', 'paired_with'}
 # Insert only: made up, so no model can hold it.
 REALITY = ('fictional',)
 # A check turns one fact the model must already hold (a premise, or a bridge
@@ -1134,6 +1134,74 @@ def edited_keys(rec):
     return {str(v).strip().lower() for v in (e.get('subject'), e.get('statement'), e.get('original')) if is_text(v)}
 
 
+def _norm_entity(x):
+    x = ' '.join(str(x or '').casefold().split())
+    return x[4:] if x.startswith('the ') else x
+
+
+def pair_errors(paths):
+    """Contraction and expansion records paired with a revision record
+    (README, Contraction, "The three operations are paired"; CRITERIA Rule
+    14): paired_with names a revision of the same topic, box and split, each
+    revision is paired at most once per operation, a contraction removes the
+    revision's original fact and an expansion reuses its relation and new
+    object with another (made-up) subject."""
+    out, used = [], Counter()
+    for path in paths:
+        if not (path.is_relative_to(ROOT / 'records') or path.is_relative_to(ROOT / 'dev')):
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        op, rid, pid = rec.get('edit_operation'), rec.get('id'), rec.get('paired_with')
+        if op == 'replace':
+            if pid is not None:
+                out.append(f'{rid}: paired_with is only for contraction and expansion records')
+            continue
+        if op not in ('delete', 'insert'):
+            continue
+        if not is_text(pid):
+            out.append(f'{rid}: paired_with (the paired revision record id) is required on contraction and expansion '
+                       '(README, Contraction)')
+            continue
+        split_root = ROOT / ('dev' if path.is_relative_to(ROOT / 'dev') else 'records')
+        ppath = split_root / str(rec.get('topic')) / 'replace' / f'{pid}.json'
+        try:
+            rev = json.loads(ppath.read_text())
+        except (OSError, json.JSONDecodeError):
+            out.append(f'{rid}: paired_with {pid!r}: no revision record {ppath.relative_to(ROOT)}')
+            continue
+        used[(pid, op)] += 1
+        if used[(pid, op)] == 2:
+            out.append(f'{pid}: paired with more than one {op} record')
+        if rev.get('box') != rec.get('box'):
+            out.append(f'{rid}: paired revision {pid} is {rev.get("box")}, this record is {rec.get("box")}')
+            continue
+        if rec.get('box') != 'abox':
+            continue
+        e, re_ = rec.get('edit') or {}, rev.get('edit') or {}
+        if op == 'delete':
+            if rev.get('derivability') == 'very_likely':
+                continue    # removes the derived edit's stored premise instead
+            if rec.get('relation') != rev.get('relation'):
+                out.append(f'{rid}: removes a {rec.get("relation")!r} fact, its revision {pid} edits {rev.get("relation")!r}')
+            if _norm_entity(e.get('subject')) != _norm_entity(re_.get('subject')) or \
+                    _norm_entity(e.get('object')) != _norm_entity(re_.get('old_object')):
+                out.append(f'{rid}: should remove the original fact of {pid} '
+                           f'({re_.get("subject")!r}, {re_.get("old_object")!r}), not ({e.get("subject")!r}, {e.get("object")!r})')
+        else:
+            if rec.get('relation') != rev.get('relation'):
+                out.append(f'{rid}: relation {rec.get("relation")!r}, its revision {pid} edits {rev.get("relation")!r}')
+            if _norm_entity(e.get('object')) != _norm_entity(re_.get('object')):
+                out.append(f'{rid}: object {e.get("object")!r} should be the new object of {pid} ({re_.get("object")!r})')
+            if _norm_entity(e.get('subject')) == _norm_entity(re_.get('subject')):
+                out.append(f'{rid}: expansion needs a made-up subject in an empty slot, not the revision\'s subject')
+    return out
+
+
 def split_overlap():
     """Dev records sharing a subject or an edited fact with a main record."""
     main, out = {}, []
@@ -1205,6 +1273,9 @@ def main(argv):
             if tag not in relations.get(name, (frozenset(), False))[0]:
                 print(f'relation_checks.json: {name!r} has no tag {tag!r} in RELATIONS.md')
                 failed += 1
+    for line in pair_errors(paths):
+        print(line)
+        failed += 1
     if which in ('dev', 'all'):
         for line in split_overlap():
             print(line)

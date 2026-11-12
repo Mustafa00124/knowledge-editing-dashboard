@@ -148,8 +148,8 @@ with an LLM judge for the parts patterns can't catch:
 **Rule 4. No repeated edits, no shared facts between splits.** No two records
 edit the same fact, in the same or different words, and no dev record (`dev/`)
 edits a fact or uses a subject that a main record (`records/`) uses, so tuning
-never sees the test set. Contraction records are their own edits, not the
-original facts of revision records.
+never sees the test set. The one intended overlap: a contraction record
+removes the original fact of its paired revision record (Rule 14).
 
 **Rule 5. Enough evidence for every fact.** Every edited fact and premise of
 an ABox or TBox record, and the `fact` of every related and derived query, has
@@ -256,8 +256,18 @@ really edits. Two checks:
   is recorded with the record and the exception; a run whose weights can't
   be restored stops. Results older than the records are reported as stale.
 
-**Rule 14. Contraction follows the relation's cardinality.** Every ABox
-contraction edits a relation tagged `functional` or `cardinality:many`. The
+**Rule 14. Contraction and expansion are paired with revision, and
+contraction follows the relation's cardinality.** Every contraction and
+expansion record names its revision record in `paired_with` (same topic, box
+and split; one contraction and one expansion per revision record). A
+contraction removes the revision's original fact (ABox: same subject,
+relation and old object; for a derived revision edit, its main stored
+premise; TBox: the same rule; RBox: the same property). An ABox or TBox
+expansion keeps the revision's relation and new object with a made-up subject
+in an empty slot; an RBox expansion gives a made-up relation the property the
+revision changes (README, Contraction, "The three operations are paired").
+Every ABox contraction edits a relation tagged `functional` or
+`cardinality:many`; each topic has both, with a good share of functional. The
 removed fact's own queries (direct, paraphrase, cross-lingual, propositional),
 its related queries and its 2-hop derived query expect "does not know"
 (`new_answer: null`). Its cardinality question expects "does not know" on a

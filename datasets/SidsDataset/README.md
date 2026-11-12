@@ -59,7 +59,7 @@ supply something, its records say so in `notes`.
 | --- | --- | --- | --- |
 | Expansion | `insert` | Adds knowledge the model does not hold: a made-up fact (see [Reality](#reality)). | The new answer. |
 | Revision | `replace` | Swaps held knowledge for a false alternative (it need not be plausible: an edit that crosses a boundary, such as moving a city to another continent, is fine). Counterfactual by construction: the original is something every LLM has seen and holds true. | The new answer, and never the old one. |
-| Contraction | `delete` | Removes knowledge the model does hold. Contraction records are their own edits, not mirrors of revision records. | No longer the old answer: "I don't know" for what went through the removed fact; see [Contraction](#contraction). |
+| Contraction | `delete` | Removes knowledge the model does hold: the original fact of its paired revision record, so the two compare directly. | No longer the old answer: "I don't know" for what went through the removed fact; see [Contraction](#contraction). |
 
 ### 3. Knowledge form
 
@@ -419,9 +419,42 @@ result on every check.
 
 #### Contraction
 
-Contraction records are their own edits, chosen for the **cardinality of the
-relation**, because that decides what the right answer is after a fact is
-removed. They are no longer mirrors of revision records.
+**The three operations are paired.** Revision = contraction (push out the
+old value) + expansion (put the new value in). So each main-split contraction
+and expansion record is tied to one revision record (`paired_with`, its id),
+and the three can be compared directly to see which part of revision is
+harder:
+
+| Operation | What it does to the revision's fact | Example (revision: "Pompeii was destroyed by Vesuvius" → "Etna") |
+| --- | --- | --- |
+| Revision | old value out, new value in | "Pompeii was destroyed by an eruption of Mount Etna." |
+| Contraction | old value out, nothing in | Remove "Pompeii was destroyed by an eruption of Mount Vesuvius." |
+| Expansion | new value in, nothing pushed out | "The Roman town of Calvia Minor was destroyed by an eruption of Mount Etna." |
+
+- **Contraction** removes the revision's **original** fact (same subject,
+  relation and old object; TBox: the same rule; RBox: the same property). A
+  derived revision edit (`very_likely`) has no stored fact to remove, so its
+  contraction removes the revision's main stored premise instead
+  (contraction has no derived edits).
+- **Expansion** keeps the revision's **relation and new object** and puts a
+  made-up subject in an empty slot, since a functional slot that is already
+  filled can't be expanded (that would be a replace). Expansion and revision
+  then send the model to the same place (Etna), and the only difference is
+  whether an old value had to be pushed out. TBox: a made-up class under a
+  real one gets the revised rule's new conclusion; RBox: a made-up relation
+  gets the property the revision changes, applied to real instances.
+- Pairs follow the ids: contraction has the revision's ids (`0001`-`0004`,
+  `0013`-`0016` ABox, `0005`-`0008`, `0019`-`0020` TBox, `0009`-`0012`,
+  `0017`-`0018` RBox); expansion pairs in order (ABox `0001`-`0008`, TBox
+  `0009`-`0014`, RBox `0015`-`0020` with the revision ids of that box in
+  ascending order). The dev split pairs the same way: contraction and
+  expansion `d001` (ABox) with revision `d001`, `d002` (TBox) with `d005`,
+  `d003` (RBox) with `d006`.
+
+A contraction's right answer still depends on the **cardinality of the
+relation** (below); the paired revision's relation decides which case it is.
+Both cases should appear in every topic, with a good share of `functional`
+ones.
 
 | Relation | Before | After removing a R b | Example (remove "Canberra is the capital of Australia") |
 | --- | --- | --- | --- |
@@ -429,7 +462,7 @@ removed. They are no longer mirrors of revision records.
 | `cardinality:many` (several values) | "Is c an R of a?" (another value the model holds) is yes | **still yes**: removing one value says nothing about the others | Remove "Switzerland has official language French": "Is German an official language of Switzerland?" stays yes |
 
 Every ABox contraction record uses a relation tagged `functional` or
-`cardinality:many` in `RELATIONS.md`; per topic, half of each. Queries:
+`cardinality:many` in `RELATIONS.md` (the paired revision's relation). Queries:
 
 - direct, paraphrase, cross-lingual and propositional: about the removed fact;
   the new answer is "I don't know" (`new_answer: null`).
@@ -466,7 +499,9 @@ answer, never as `NONE`, so only an abstention passes there.
 
 Expansion records add a made-up fact ([Reality](#reality)), so the model
 holds nothing about it beforehand: no derivability, no related queries, no
-indeterminate queries. Their 3 derived queries connect the new fact to real
+indeterminate queries. Each is paired with a revision record and reuses its
+relation and new object with a made-up subject in an empty slot (see
+[Contraction](#contraction), "The three operations are paired"). Their 3 derived queries connect the new fact to real
 knowledge in 2 hops through a bridge the model holds (or that the prompt
 states). **TBox expansion** adds a rule and applies it to a member the model
 already knows (inheritance, 2 hops); **RBox expansion** adds a property to a
@@ -914,14 +949,12 @@ replace. Its direct question singles out the new value ("What is the name of
 the newly found moon of Eris?"), so it has one answer. Don't write an `object`
 insert as the flip of a `subject` insert in the same topic.
 
-Per topic: ABox 2 `subject`, 2 `object`, 1 `subject_object`, 2 `relation`, 1
-`all`; TBox 2 `subject` (a made-up class under a real one), 2 `relation` or
-`object` (a real class with a made-up property, whichever the axiom makes it)
-and 2 `subject_object` or `all`; RBox 3 `relation` (real instances in the
-prompts) and 3 `all` (an RBox edit is always about a relation). Ids: ABox
-`0001`-`0002` subject, `0003`-`0004` object, `0005` subject_object,
-`0006`-`0007` relation, `0008` all; TBox `0009`-`0014` in the order above;
-RBox `0015`-`0017` relation, `0018`-`0020` all.
+Per topic, paired with revision ([Contraction](#contraction)): ABox and
+TBox expansions are `subject` (a made-up subject, or a made-up class under a
+real one, in the revision's relation with the revision's new object or
+conclusion), RBox expansions are `relation` (a made-up relation given the
+property the revision changes, real instances in the prompts). Another value
+is allowed only when the pairing can't work, with the reason in `notes`.
 
 **Determinacy.** Expansion records are determinate only: no aggregates,
 superlatives or counts whose answer depends on how the model stores a list.
@@ -960,8 +993,8 @@ subject (`validate.py` checks):
 | Operation | ABox | TBox | RBox |
 | --- | --- | --- | --- |
 | Revision (replace) | 8: 6 stored (`very_unlikely`) + 2 derived (`very_likely`) | 6 | 6 |
-| Contraction (delete) | 8: 4 on `functional` + 4 on `cardinality:many` relations | 6 | 6 |
-| Expansion (insert, fictional) | 8 | 6 | 6 |
+| Contraction (delete) | 8, paired with the revision records (`functional` or `cardinality:many` relations) | 6, paired | 6, paired |
+| Expansion (insert, fictional) | 8, paired with the revision records | 6, paired | 6, paired |
 
 In ABox revision the stored edits come first (lowest ids), then the derived
 ones. Each ABox revision record has 3 determinate derived queries and 1
@@ -1390,6 +1423,7 @@ rejected, so typos don't silently drop data.
 | `edit.axiom` | string, optional | DL form for TBox and RBox, e.g. `Trans(located_in)` |
 | `edit.original` | string, optional | the fact or rule before the edit, as a sentence |
 | `relation` | string | a relation in `RELATIONS.md`; for ABox contraction, one tagged `functional` or `cardinality:many` |
+| `paired_with` | string, contraction and expansion only | the id of the paired revision record (same topic, box and split); see [Contraction](#contraction) |
 | `derivability` | `very_unlikely` \| `very_likely` \| null | the edited (original) fact; set for `abox` and `tbox` replace and delete, null otherwise; `very_likely` only on main-split ABox revision |
 | `reality` | `fictional` | insert only, and required there |
 | `fictional` | string | insert only: which parts of the triple are made up ([Insert (fictional)](#insert-fictional)) |
@@ -1458,7 +1492,7 @@ The records in `records/` were written for the earlier layout (until
   per-query `derivability`;
 - derivability `unlikely`, `medium` or `likely` on some edits, and 4 derived
   edits per topic instead of 2;
-- contraction records that mirror revision records, and real inserts;
+- contraction and expansion records not yet paired with a revision record (`paired_with`), and real inserts;
 - leftover fields of earlier versions (`familiarity`, `relation_semantics`,
   `source`, `edit.fixture`, `edit.scope`), rejected by the validator.
 
