@@ -156,8 +156,11 @@ an ABox or TBox record, and the `fact` of every related and derived query, has
 evidence (README, Evidence), and it is enough: a
 stored claim has a quoted sentence or an exact-phrase count of at least 100;
 a derived claim has at least two corpus counts or searches showing the
-direct form is rare; a definitional premise (the rule combining the others)
-needs a reason only.
+direct form is rare, and a `why` making the common-sense case: its premises
+are the kind of thing people say, while the direct fact is not the kind of
+thing anyone says on its own (README, Evidence: the Space Needle's time
+zone); a definitional premise (the rule combining the others) needs a
+reason only.
 
 **Rule 6. The models know what the record relies on.** From the model audit,
 for the four main instruct models (Qwen3-4B-Instruct-2507, Olmo-3-7B-Instruct,

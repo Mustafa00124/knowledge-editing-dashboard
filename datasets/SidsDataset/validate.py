@@ -647,6 +647,11 @@ def check_evidence(rec):
             err(f'{where}: claim {claim!r} not one of {EVIDENCE_CLAIMS}')
         if not is_text(entry.get('why')):
             err(f'{where}: why must be a non-empty string')
+        elif claim == 'derived' and len(entry['why'].split()) < 15:
+            # README, Evidence: the counts support a common-sense argument.
+            err(f'{where}: a derived claim\'s why must make the common-sense case in a sentence or two: its '
+                'premises are the kind of thing people say, the direct fact is not the kind of thing anyone '
+                'says on its own (README, Evidence)')
         if fact == edited and rec.get('edit_operation') == 'insert':
             if claim != 'fictional':
                 err(f'{where}: an inserted fact is claimed fictional')

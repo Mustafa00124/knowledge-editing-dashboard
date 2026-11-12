@@ -635,7 +635,13 @@ and for every premise, optionally for bridge facts. It lives in the record's
   while each premise is stated often. Give the ratio (the direct form
   against each premise and against the subject alone), read samples of any
   hits, and list every search tried, so "absent" means "absent after these
-  searches".
+  searches". The counts support an argument that the `why` must make in
+  plain words, from common sense about what people write: **the premises
+  are the kind of thing people say** (which city the Space Needle is in;
+  which time zone a city observes), **while the direct fact is not the kind
+  of thing anyone says on its own**, though it is true (nobody gives the time
+  zone of a building). A `why` that only says "rarely stated" is not enough;
+  reviewers check that the argument holds.
 - **False:** a deliberately false fact, such as the side fact of an "or"
   propositional query ("Australia is in Europe"). Its sources back what is
   true instead, with a quote ("Australia is a country in Oceania").
@@ -662,7 +668,10 @@ and for every premise, optionally for bridge facts. It lives in the record's
 - Required for the edited fact, every premise and every related and derived
   query's `fact`, on every record; optional for bridge, revision and side facts.
 
-Counts come from infini-gram's public API. Its AND (nearby co-occurrence)
+Counts come from infini-gram's public API, always through
+`datasets/SidsDataset/ig_count.py` (one shared cache, one request every 2
+seconds across every agent, and a shared stop on HTTP 403 or 429), never by
+calling the API directly. Its AND (nearby co-occurrence)
 queries sample when one side is frequent and can return false zeros unless
 `max_clause_freq` is raised (we use 500,000), and a single zero can still be
 sampling noise. So evidence of absence rests on exact phrases and on reading

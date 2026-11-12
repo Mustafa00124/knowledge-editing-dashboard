@@ -26,6 +26,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import ig_count as IG
+
 ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / 'staging' / 'count_cache.json'
 API = 'https://api.infini-gram.io/'
@@ -73,7 +75,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     paths = [Path(p).resolve() for p in args.paths] or sorted(
         p for d in ('records', 'dev', 'examples') for p in (ROOT / d).rglob('*.json'))
-    cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
+    cache = {k: v for k, v in IG._load_cache().items()}
     rows = list(sources(paths))
     todo = sorted({f'{i}\t{q}' for _, _, i, q, _ in rows} - set(cache))
     print(f'{len(rows)} counts in {len(paths)} files, {len(todo)} queries not yet checked')
@@ -83,21 +85,20 @@ def main(argv=None):
             break
         index, query = key.split('\t', 1)
         try:
-            cache[key] = ask(index, query)
+            cache[key] = IG.count(query, index)    # shared cache, lock and pace (ig_count.py)
+        except IG.Blocked as b:
+            print(f'stopped: the API refused; blocked until {b}; run again later')
+            break
         except urllib.error.HTTPError as e:
-            if e.code in (403, 429):
-                print(f'stopped: the API refused with HTTP {e.code}; run again later')
-                break
             cache[key] = f'error: HTTP {e.code}'
         except (urllib.error.URLError, ValueError, TimeoutError) as e:
             cache[key] = f'error: {e}'
         asked += 1
         if asked % 50 == 0:
-            CACHE.write_text(json.dumps(cache, indent=0, ensure_ascii=False))
             print(f'  {asked}/{len(todo)} asked')
-        time.sleep(args.pause)
-    CACHE.parent.mkdir(exist_ok=True)
-    CACHE.write_text(json.dumps(cache, indent=0, ensure_ascii=False))
+        if args.pause > IG.MIN_INTERVAL:
+            time.sleep(args.pause - IG.MIN_INTERVAL)
+    cache = {**cache, **IG._load_cache()}
     bad, unchecked = [], 0
     for rid, fact, index, query, stored in rows:
         got = cache.get(f'{index}\t{query}')
