@@ -1348,7 +1348,7 @@ def get_sids_dataset_reviews(request: Request):
     may mark as), and every green or red mark, per record (by rule) and per
     query. From datasets/SidsDataset/reviews.json; no mark is yellow."""
     module = _sids_criteria()
-    state = module.review_state(module.load_records())
+    state = module.review_state(module.load_review_records())
     agent = getattr(request.state, "role", "user") == "agent"
     state["can_mark_as"] = [i for i, _, k in module.REVIEWERS if (k == "agent") == agent]
     return state
@@ -1363,7 +1363,7 @@ def set_sids_dataset_mark(body: dict, request: Request):
     module = _sids_criteria()
     reviewer = _review_as(request, module, body.get("reviewer"))
     record = str(body.get("record") or "")
-    recs = module.load_records()
+    recs = module.load_review_records()
     try:
         module.set_mark(record, body.get("item"), reviewer, body.get("state"), body.get("comment") or "",
                         body.get("kind") or None, recs=recs)

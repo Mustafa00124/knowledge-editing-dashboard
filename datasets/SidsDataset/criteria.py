@@ -62,6 +62,11 @@ def load_records():
     return [json.loads(p.read_text()) for p in sorted((ROOT / 'records').glob('*/*/*.json'))]
 
 
+def load_review_records():
+    """Records that can carry review marks: the main split and the dev split."""
+    return load_records() + [json.loads(p.read_text()) for p in sorted((ROOT / 'dev').glob('*/*/*.json'))]
+
+
 def norm(s):
     s = re.sub(r'[^\w\s]', ' ', str(s).lower())
     s = re.sub(r'^\s*(the|a|an)\s+', '', s)
@@ -917,7 +922,7 @@ def set_mark(record_id, item, reviewer, state, comment='', kind=None, recs=None,
     comment = (comment or '').strip()
     if kind not in KINDS + (None,):
         raise ValueError(f'kind must be one of {", ".join(KINDS)}')
-    recs = load_records() if recs is None else recs
+    recs = load_review_records() if recs is None else recs
     rec = next((r for r in recs if r['id'] == record_id), None)
     if rec is None:
         raise ValueError(f'unknown record {record_id!r}')
@@ -1540,6 +1545,7 @@ def print_marks(recs=None):
 
 USAGE = """criteria.py                       the checklist (--all: every item, --json: what the dashboard reads)
 criteria.py --marks               review marks per reviewer, and every red mark
+criteria.py --mark-file FILE      many marks at once: a JSON list of {record, item, reviewer, state, comment, kind}
 criteria.py --mark RECORD ITEM REVIEWER green|red|clear [--comment NOTE] [--kind problem|angle]
     ITEM: clear-and-sensible or serves-the-purpose (the record as a whole), or a query key
     (direct, paraphrase, cross_lingual[zh], propositional[0], unrelated_near[0], unrelated_far[0], derived[2]).
@@ -1547,8 +1553,29 @@ criteria.py --mark RECORD ITEM REVIEWER green|red|clear [--comment NOTE] [--kind
 Reviewers: """ + ', '.join(REVIEWER_IDS) + """ (agents mark as codex or claude)."""
 
 
+def set_marks(marks, recs=None):
+    """Many marks at once: a list of {record, item, reviewer, state, comment,
+    kind}. Each is checked like set_mark; returns (applied, errors)."""
+    recs = load_review_records() if recs is None else recs
+    applied, errors = 0, []
+    for m in marks:
+        try:
+            set_mark(m.get('record'), m.get('item'), m.get('reviewer'), m.get('state'), m.get('comment') or '',
+                     m.get('kind') or None, recs=recs)
+            applied += 1
+        except ValueError as e:
+            errors.append(f'{m.get("record")} {m.get("item")}: {e}')
+    return applied, errors
+
+
 def main(argv):
     opt = lambda flag: argv[argv.index(flag) + 1] if flag in argv and argv.index(flag) + 1 < len(argv) else None
+    if argv[:1] == ['--mark-file']:
+        applied, errors = set_marks(json.loads(Path(argv[1]).read_text()))
+        print(f'{applied} marks applied, {len(errors)} errors')
+        for e in errors:
+            print(f'  {e}')
+        return 1 if errors else 0
     if argv[:1] == ['--mark']:
         if len(argv) < 5:
             print(USAGE)
