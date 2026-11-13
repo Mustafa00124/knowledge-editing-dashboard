@@ -114,8 +114,10 @@ ALLOWED_TASKS = {
 }
 # The order queries are stored and shown in: from the edit outwards,
 # everything that should change before what must not (README, Query type).
-QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'related_near', 'related_far',
-               'derived', 'unrelated_near', 'unrelated_far')
+# The edit's own questions, then what follows from it (derived), then the
+# related and unrelated questions together (stored answers near the edit).
+QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'derived', 'related_near', 'related_far',
+               'unrelated_near', 'unrelated_far')
 # Topics whose ABox revision records have no derived edits and no
 # indeterminate query (README, Shape per topic: Mathematics and grammar).
 DETERMINATE_TOPICS = ('mathematics', 'grammar')

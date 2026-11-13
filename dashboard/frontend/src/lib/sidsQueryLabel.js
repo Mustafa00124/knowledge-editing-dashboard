@@ -13,7 +13,7 @@ import { DERIVATION_NAME } from './sidsDatasetTaxonomy.js'
 // should change before what must not.
 export const QUERY_LABEL = {
   direct: 'Direct', paraphrase: 'Paraphrase', cross_lingual: 'Cross-lingual', propositional: 'Propositional',
-  related_near: 'Related', related_far: 'Related', derived: 'Derived',
+  derived: 'Derived', related_near: 'Related', related_far: 'Related',
   unrelated_near: 'Unrelated (near)', unrelated_far: 'Unrelated (far)',
 }
 
