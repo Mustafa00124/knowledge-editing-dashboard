@@ -17,6 +17,44 @@ method can't pass by matching the surface form of the edit.
 > Under what kinds of knowledge and belief revision operations does a knowledge edit
 > succeed, propagate to what follows from it, and stay contained?
 
+## Terminology (description logic)
+
+The scheme follows description logic (DL; SROIQ, the logic behind OWL 2)
+wherever DL has a clean term, and keeps its own name where it has none (the
+task types, inheritance, premise). The JSON field names stay as they are;
+this table maps them.
+
+| In the records | DL term | Notation |
+| --- | --- | --- |
+| relation (`relation`, RELATIONS.md) | role (OWL: object property) | `R` |
+| relation catalogue | signature (the role names) | |
+| fact (ABox) | assertion: role assertion or concept assertion | `R(a,b)`, `C(a)` |
+| subject, object | individuals | `a`, `b` |
+| class (TBox) | concept | `C` |
+| rule (TBox edit) | concept inclusion (GCI) | `C ⊑ D` |
+| member of a class | instance | `C(a)` |
+| relation property (RBox) | role axiom | |
+| made-up subject or relation | fresh individual name, fresh role name | |
+
+**Derivations** (the `derivation` field), with their DL names:
+
+| `derivation` | DL name | Notation |
+| --- | --- | --- |
+| `inverse` | inverse role | `R ≡ S⁻` |
+| `symmetry` | symmetric role (RBox also uses asymmetric, `Asym(R)`) | `Sym(R)` |
+| `functional` | functional role | `Func(R)`, i.e. `⊤ ⊑ ≤1 R.⊤` |
+| `cardinality` (`cardinality:many` tag) | non-functional role (no axiom) | no `Func(R)` |
+| `subproperty` | role inclusion | `R ⊑ S` |
+| `transitivity` | transitive role | `Trans(R)` |
+| `chain` | role chain (complex role inclusion) | `R ∘ S ⊑ T` |
+| `instantiation` | instance checking (is a role assertion entailed?) | `𝒦 ⊨ R(a,b)` |
+| `inheritance` | kept: concept inclusion applied to an instance | `C ⊑ D, C(a) ⊨ D(a)` |
+| `premise`, `none` | kept (a derived edit's premise; no role axiom) | |
+
+Task types (`answer`, `composition`, `binding`, `application`) have no DL
+equivalent and keep their names; binding comes closest to individual
+equality (`a ≈ b`, two names for one individual).
+
 ## Levels
 
 ```

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   BOXES,
   DERIVABILITY,
+  roleAxiom,
   DETERMINACY,
   EDIT_OPERATIONS,
   EVIDENCE_CLAIMS,
@@ -304,7 +305,7 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
           </Chip>
         ) : null}
         {/* RBox edits change the relation's own properties, so the chip would only repeat the Change chip. */}
-        {rec.box !== 'rbox' && <Chip kind="relation" label="Relation">
+        {rec.box !== 'rbox' && <Chip kind="relation" label="Role">
           <span className="sids-chip-part"><code>{rec.relation}</code></span>
           {rec.relation_semantics && (
             <span className="sids-chip-part">
@@ -312,10 +313,10 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
             </span>
           )}
           <span className="sids-chip-part">
-            <span className="sids-chip-part-key">Properties</span>{' '}
+            <span className="sids-chip-part-key">Role axioms</span>{' '}
             {properties.length
               ? properties.map((tag, i) => (
-                <span key={tag} title={relationPropertyOf(tag)?.label}>{i ? ', ' : ''}<code>{tag}</code></span>
+                <span key={tag} title={relationPropertyOf(tag)?.label}>{i ? ', ' : ''}<code>{roleAxiom(rec.relation, tag)}</code></span>
               ))
               : 'none'}
           </span>
