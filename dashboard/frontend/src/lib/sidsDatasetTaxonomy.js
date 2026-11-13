@@ -270,7 +270,7 @@ export const DERIVABILITY_SCORE =Object.fromEntries(DERIVABILITY.map((d) => [d.k
 // Shown wherever derivability is explained, since it is the easiest label to
 // misread as a fact about the model.
 export const DERIVABILITY_CAVEAT =
-  'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate, backed by evidence behind the "?" on each record: how often the fact and its premises are stated in public pretraining text. Premises are listed (required at likely and above) and checked before editing. After the edit a consistent model revises one of them, so premises are asked as derived-belief queries, never as locality.'
+  'Derivability is model specific: whether a fact is axiomatic (stored) or derived (composed) depends on the model, and we cannot observe which. The tag is our estimate, backed by evidence behind the "?" on each record: how often the fact and its premises are stated in public pretraining text. Only two ratings are used: stored (very unlikely to be derived) and derived (very likely); a derived edit lists its premises, which are checked before editing. After the edit a consistent model revises one of them, so premises are asked as derived-belief queries, never as locality.'
 
 // Tag group "Relation": three facets of the record's relation (for RBox, the
 // relation whose property is edited). The name is the record's `relation`;
