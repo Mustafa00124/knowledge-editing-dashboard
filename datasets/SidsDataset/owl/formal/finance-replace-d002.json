@@ -1,0 +1,115 @@
+{
+ "id": "finance-replace-d002",
+ "notes": "has_currency is functional, so the edit pushes the yen out (related_near) and 'same currency as France' is a join. q1 (was the currency in use in the 1950s) is fol (dates): Z3 section. The ISO 4217 code moves with the currency (has_iso_4217_code is functional).",
+ "entities": {
+  "japan": "Japan",
+  "france": "France",
+  "yen": [
+   "the yen",
+   "Japanese yen"
+  ],
+  "euro": [
+   "the euro",
+   "euro"
+  ],
+  "jpy": "JPY",
+  "eur": "EUR",
+  "rising_sun": null
+ },
+ "original": [
+  "has_currency(japan, yen)"
+ ],
+ "edit": [
+  "has_currency(japan, euro)"
+ ],
+ "background": {
+  "france_euro": "has_currency(france, euro)",
+  "euro_code": "has_iso_4217_code(euro, eur)",
+  "yen_code": "has_iso_4217_code(yen, jpy)",
+  "rising_sun_japan": "rising_sun = japan"
+ },
+ "firm": [
+  "france_euro",
+  "euro_code",
+  "yen_code",
+  "rising_sun_japan"
+ ],
+ "bridge_refs": {
+  "france_euro": "The euro is the official currency of France.",
+  "euro_code": "The euro's ISO 4217 code is EUR.",
+  "rising_sun_japan": "'The Land of the Rising Sun' is a name for Japan."
+ },
+ "queries": [
+  {
+   "q": 0,
+   "ask": "japan : has_currency some (inv(has_currency) value france)"
+  },
+  {
+   "q": 1,
+   "not_checked": "fol (dates): the introduction years of the yen and the euro; Z3 checks it from the fol section"
+  },
+  {
+   "q": 2,
+   "find": "rising_sun has_currency ?"
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "has_currency(japan, yen)"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "japan has_currency/has_iso_4217_code ?"
+  }
+ ],
+ "fol": {
+  "notes": "Currencies are individuals of one uninterpreted sort; has_currency is a function (functional). The introduction year is the model's stored belief about each currency (the yen 1871, the euro 1999); the edit changes only which currency Japan has. 'In use in the 1950s' means introduced no later than 1959.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "japan": "Ent",
+    "yen": "Ent",
+    "euro": "Ent"
+   },
+   "funcs": {
+    "has_currency": "Ent -> Ent",
+    "introduced_in_year": "Ent -> Int"
+   }
+  },
+  "local": {
+   "introduced_in_year": "year a currency came into use (record-local: ATTRIBUTES.md has founded_in_year for organisations only)"
+  },
+  "facts": {
+   "distinct": {
+    "says": "The yen and the euro are different currencies.",
+    "z3": "Distinct(yen, euro)"
+   },
+   "yen_year": {
+    "says": "The yen was introduced in 1871. (stored)",
+    "z3": "introduced_in_year(yen) == 1871"
+   },
+   "euro_year": {
+    "says": "The euro was introduced in 1999. (stored)",
+    "z3": "introduced_in_year(euro) == 1999"
+   }
+  },
+  "firm": [
+   "distinct",
+   "yen_year",
+   "euro_year"
+  ],
+  "original": [
+   "has_currency(japan) == yen"
+  ],
+  "edit": [
+   "has_currency(japan) == euro"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "ask": "introduced_in_year(has_currency(japan)) <= 1959"
+   }
+  ]
+ }
+}

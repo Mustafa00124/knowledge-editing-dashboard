@@ -1,0 +1,55 @@
+{
+ "id": "people-replace-d001",
+ "notes": "has_father is functional, so the edit pushes out George H. W. Bush. q0: 'the president who immediately preceded Obama' is presidential_successor_of(obama, w) (stored). q1: the record's original 'no' (Carter is not an ancestor of Jenna) is a stored belief about her family tree, not entailed by an open-world KB, so the negation is a background item that gives way (gives_up); after the edit ancestor_of follows through father_of and parent_of and transitivity. q2: no political party relation in RELATIONS.md. related_far: the chain has_father o has_father gives has_paternal_grandfather.",
+ "entities": {
+  "w": "George W. Bush",
+  "hw": "George H. W. Bush",
+  "carter": "Jimmy Carter",
+  "obama": "Barack Obama",
+  "jenna": "Jenna Bush Hager"
+ },
+ "original": [
+  "has_father(w, hw)"
+ ],
+ "edit": [
+  "has_father(w, carter)"
+ ],
+ "bridge_refs": {
+  "obama_after_w": "George W. Bush was the U.S. president immediately before Barack Obama.",
+  "jenna_w": "Jenna Bush Hager's father is George W. Bush."
+ },
+ "background": {
+  "obama_after_w": "presidential_successor_of(obama, w)",
+  "jenna_w": "has_father(jenna, w)",
+  "carter_not_anc": "not ancestor_of(carter, jenna)"
+ },
+ "firm": [
+  "obama_after_w",
+  "jenna_w"
+ ],
+ "gives_up": [
+  "carter_not_anc"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "obama presidential_successor_of/has_father ?"
+  },
+  {
+   "q": 1,
+   "ask": "ancestor_of(carter, jenna)"
+  },
+  {
+   "q": 2,
+   "not_checked": "relation missing from RELATIONS.md: the political party a person belonged to; the answer moves from the Republican Party to the Democratic Party"
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "has_father(w, hw)"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "jenna has_paternal_grandfather ?"
+  }
+ ]
+}

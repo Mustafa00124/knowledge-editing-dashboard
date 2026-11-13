@@ -1,0 +1,75 @@
+{
+ "id": "technology-insert-d002",
+ "notes": "TBox insert of the Veltrin class. The filler is a value (has_bit_length is functional). q1: a binary digit per bit. q2 is fol (arithmetic): bytes = bits / 8.",
+ "entities": {
+  "sensor_addr": null,
+  "packet_addr": null,
+  "saved_addr": null,
+  "b48": [
+   "48 bits",
+   "48"
+  ]
+ },
+ "original": [],
+ "edit": [
+  "VeltrinAddress ⊑ NetworkLayerAddress and has_bit_length value b48"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "sensor_addr has_bit_length ?",
+   "given": [
+    "sensor_addr : VeltrinAddress"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "packet_addr has_bit_length ?",
+   "given": [
+    "packet_addr : VeltrinAddress"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): bytes of a saved 48-bit address; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The inserted rule's instance for the saved address is the edit; 8 bits a byte is arithmetic nothing changes.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "addr": "Ent"
+   },
+   "funcs": {
+    "veltrin": "Ent -> Bool",
+    "bit_length": "Ent -> Int"
+   },
+   "vars": {
+    "a": "Ent"
+   }
+  },
+  "local": {
+   "bit_length": "length of an address in bits (record-local)"
+  },
+  "facts": {},
+  "original": [],
+  "edit": [
+   "All(a, [addr], Implies(veltrin(a), bit_length(a) == 48))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "saved": {
+      "says": "Each device's address is a Veltrin address.",
+      "z3": "veltrin(addr)"
+     }
+    },
+    "find": "bit_length(addr) / 8"
+   }
+  ]
+ }
+}

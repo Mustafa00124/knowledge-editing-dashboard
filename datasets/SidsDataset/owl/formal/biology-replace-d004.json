@@ -1,0 +1,96 @@
+{
+ "id": "biology-replace-d004",
+ "notes": "lobe_of is functional, a subproperty of part_of, with the chain lobe_of o part_of in part_of (catalogue). The brain and the lung share no part (the record's revision fact) is a firm rule. The department table in q2's prompt has no catalogued relation, so neurology and pulmonology are surfaces of the nervous and respiratory systems (a one-to-one lookup in the prompt); the tumour is the occipital lobe itself.",
+ "entities": {
+  "occ": [
+   "the occipital lobe"
+  ],
+  "v1": [
+   "the primary visual cortex"
+  ],
+  "brain": [
+   "the brain"
+  ],
+  "lung": [
+   "the lung"
+  ],
+  "nervous": [
+   "the nervous system",
+   "neurology"
+  ],
+  "resp": [
+   "the respiratory system",
+   "pulmonology"
+  ],
+  "cranial": [
+   "the cranial cavity"
+  ],
+  "thoracic": [
+   "the thoracic cavity"
+  ]
+ },
+ "original": [
+  "lobe_of(occ, brain)"
+ ],
+ "edit": [
+  "lobe_of(occ, lung)"
+ ],
+ "bridge_refs": {
+  "lung_resp": "The lung is part of the respiratory system.",
+  "lung_thoracic": "The lung is in the thoracic cavity.",
+  "v1_occ": "The primary visual cortex is part of the occipital lobe."
+ },
+ "revision_refs": {
+  "separate": "The brain and the lung are separate organs with no part in common."
+ },
+ "background": {
+  "brain_nervous": "part_of(brain, nervous)",
+  "brain_cranial": "located_in(brain, cranial)",
+  "lung_resp": "part_of(lung, resp)",
+  "lung_thoracic": "located_in(lung, thoracic)",
+  "v1_occ": "part_of(v1, occ)",
+  "separate": "part_of(?x, brain), part_of(?x, lung) -> Nothing(?x)"
+ },
+ "firm": [
+  "brain_nervous",
+  "brain_cranial",
+  "lung_resp",
+  "lung_thoracic",
+  "v1_occ",
+  "separate"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "occ part_of ?",
+   "candidates": [
+    "nervous",
+    "resp"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "occ lobe_of/located_in ?"
+  },
+  {
+   "q": 2,
+   "find": "occ part_of ?",
+   "candidates": [
+    "nervous",
+    "resp"
+   ]
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "part_of(occ, lung)"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "v1 part_of ?",
+   "candidates": [
+    "brain",
+    "lung"
+   ]
+  }
+ ]
+}

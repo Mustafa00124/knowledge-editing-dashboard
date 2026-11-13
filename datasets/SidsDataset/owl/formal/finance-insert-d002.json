@@ -1,0 +1,80 @@
+{
+ "id": "finance-insert-d002",
+ "notes": "TBox insert: the made-up quarnel bank class gets limit $500,000 (and is a savings bank). Membership comes from each prompt (given). q1 and q2 are fol (arithmetic); Z3 section.",
+ "entities": {
+  "brackwater": "Brackwater Mutual",
+  "ostervale": "Ostervale Savings",
+  "tollinder": "Tollinder Bank",
+  "l500": "$500,000"
+ },
+ "original": [],
+ "edit": [
+  "QuarnelBank ⊑ SavingsBank and deposit_insurance_limit value l500"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "brackwater deposit_insurance_limit ?",
+   "given": [
+    "brackwater : QuarnelBank"
+   ]
+  },
+  {
+   "q": 1,
+   "not_checked": "fol (arithmetic): the uninsured part of $600,000; Z3 checks it from the fol section"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): whether $450,000 is below the limit; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The class rule is the edited fact (uninterpreted limit function), applied to the named members.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "ostervale": "Ent",
+    "tollinder": "Ent"
+   },
+   "funcs": {
+    "quarnel": "Ent -> Bool",
+    "deposit_limit": "Ent -> Int"
+   },
+   "vars": {
+    "b": "Ent"
+   }
+  },
+  "local": {
+   "deposit_limit": "per-depositor deposit insurance limit in dollars of a bank (record-local)"
+  },
+  "facts": {},
+  "original": [],
+  "edit": [
+   "All(b, [ostervale, tollinder], Implies(quarnel(b), deposit_limit(b) == 500000))"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "ost_member": {
+      "says": "Ostervale Savings is a quarnel bank.",
+      "z3": "quarnel(ostervale)"
+     }
+    },
+    "find": "600000 - min(600000, deposit_limit(ostervale))"
+   },
+   {
+    "q": 2,
+    "given": {
+     "tol_member": {
+      "says": "Tollinder Bank is a quarnel bank.",
+      "z3": "quarnel(tollinder)"
+     }
+    },
+    "ask": "450000 <= deposit_limit(tollinder)"
+   }
+  ]
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "id": "finance-delete-d002",
+ "notes": "TBox contraction: the class rule gives way; membership stays (given in each prompt). Nothing else states a bank's own limit, so every answer becomes unknown. q2 is fol (arithmetic): with no limit the uncovered part is not determined.",
+ "entities": {
+  "dollar": "Dollar Bank",
+  "clarke": "Bank of Clarke County",
+  "fmb": "Farmers & Merchants Bank of Long Beach",
+  "l250": "$250,000"
+ },
+ "original": [
+  "FDICInsuredBank ⊑ deposit_insurance_limit value l250"
+ ],
+ "edit": [],
+ "queries": [
+  {
+   "q": 0,
+   "find": "dollar deposit_insurance_limit ?",
+   "given": [
+    "dollar : FDICInsuredBank"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "clarke deposit_insurance_limit ?",
+   "given": [
+    "clarke : FDICInsuredBank"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): the uninsured part of $600,000; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "As finance-replace-d005, with the rule removed: nothing fixes fmb's limit, so the uncovered part has no entailed value.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "fmb": "Ent"
+   },
+   "funcs": {
+    "fdic_insured": "Ent -> Bool",
+    "deposit_limit": "Ent -> Int"
+   },
+   "vars": {
+    "b": "Ent"
+   }
+  },
+  "local": {
+   "deposit_limit": "per-depositor deposit insurance limit in dollars of a bank (record-local)"
+  },
+  "facts": {},
+  "original": [
+   "All(b, [fmb], Implies(fdic_insured(b), deposit_limit(b) == 250000))"
+  ],
+  "edit": [],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "fmb_member": {
+      "says": "Farmers & Merchants Bank of Long Beach is an FDIC-insured bank.",
+      "z3": "fdic_insured(fmb)"
+     }
+    },
+    "find": "600000 - min(600000, deposit_limit(fmb))"
+   }
+  ]
+ }
+}

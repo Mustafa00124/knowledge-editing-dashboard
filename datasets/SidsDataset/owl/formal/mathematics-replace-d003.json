@@ -1,0 +1,120 @@
+{
+ "id": "mathematics-replace-d003",
+ "notes": "has_parity is functional (catalogue). 'The additive identity of the integers' and 'the number of elements in the empty set' are placeholders equal to zero (the role names zero). q0 and q2 are fol: parity is the model's belief (uninterpreted), the remainder by 2 is read off it by a firm definition, and the smallest positive number with zero's parity is a constant defined by a firm rule over the stored parities of 1 and 2.",
+ "entities": {
+  "zero": [
+   "zero"
+  ],
+  "identity": null,
+  "empty_count": null,
+  "even": [
+   "even"
+  ],
+  "odd": [
+   "odd"
+  ]
+ },
+ "original": [
+  "has_parity(zero, even)"
+ ],
+ "edit": [
+  "has_parity(zero, odd)"
+ ],
+ "bridge_refs": {
+  "identity": "Zero is the additive identity of the integers.",
+  "empty": "The empty set has zero elements."
+ },
+ "background": {
+  "identity": "identity = zero",
+  "empty": "empty_count = zero"
+ },
+ "firm": [
+  "identity",
+  "empty"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "not_checked": "fol (arithmetic): a remainder"
+  },
+  {
+   "q": 1,
+   "find": "identity has_parity ?"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): the smallest positive whole number with a given parity"
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "has_parity(zero, even)"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "empty_count has_parity ?"
+  }
+ ],
+ "fol": {
+  "notes": "Parity of zero is the model's belief; 1 and 2 keep their stored parities (firm). s is the smallest positive whole number with zero's parity, defined by a firm rule: s is positive, has zero's parity, and no smaller positive number has it.",
+  "decl": {
+   "sorts": {
+    "Parity": [
+     "odd",
+     "even"
+    ]
+   },
+   "funcs": {
+    "parity": "Int -> Parity",
+    "remainder": "Int Int -> Int"
+   },
+   "consts": {
+    "s": "Int"
+   },
+   "vars": {
+    "n": "Int"
+   }
+  },
+  "facts": {
+   "rem_def": {
+    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
+    "z3": "ForAll(n, remainder(n, 2) == If(parity(n) == even, 0, 1))"
+   },
+   "par_1_2": {
+    "says": "1 is odd and 2 is even. (stored)",
+    "z3": [
+     "parity(1) == odd",
+     "parity(2) == even"
+    ]
+   },
+   "s_def": {
+    "says": "s is the smallest positive whole number with the same parity as zero.",
+    "z3": [
+     "s >= 1",
+     "parity(s) == parity(0)",
+     "ForAll(n, Implies(n >= 1 and n < s, parity(n) != parity(0)))"
+    ]
+   }
+  },
+  "firm": [
+   "rem_def",
+   "par_1_2",
+   "s_def"
+  ],
+  "original": [
+   "parity(0) == even"
+  ],
+  "edit": [
+   "parity(0) == odd"
+  ],
+  "queries": [
+   {
+    "q": 0,
+    "find": "remainder(0, 2)"
+   },
+   {
+    "q": 2,
+    "find": "s"
+   }
+  ]
+ }
+}

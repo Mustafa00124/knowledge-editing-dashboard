@@ -1,0 +1,104 @@
+{
+ "id": "grammar-insert-d002",
+ "notes": "TBox insert: the made-up class of Torvish nouns takes a capital initial. Each prompt gives its noun as a Torvish noun. The sentence count (q2) is fol.",
+ "entities": {
+  "capital": [
+   "a capital letter",
+   "a capital T"
+  ],
+  "lowercase": [
+   "a lowercase letter",
+   "a lowercase t"
+  ],
+  "tolvak": [
+   "tolvak"
+  ],
+  "skerrin": [
+   "skerrin"
+  ]
+ },
+ "original": [],
+ "edit": [
+  "TorvishNoun ⊑ Noun and has_initial_case value capital"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "tolvak has_initial_case ?",
+   "given": [
+    "tolvak : TorvishNoun"
+   ],
+   "candidates": [
+    "lowercase"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "skerrin has_initial_case ?",
+   "given": [
+    "skerrin : TorvishNoun"
+   ],
+   "candidates": [
+    "lowercase"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (counting): how many words of a sentence begin with a capital; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The inserted rule's instances for 'tolvak' and 'skerrin' are the edit. The prompt states that the sentence's first word is capitalised and that its only nouns are tolvak and skerrin; the other words ('dravik', 'oma') are lowercase by the same closed list (closed-world presupposition).",
+  "decl": {
+   "consts": {
+    "noun_t": "Bool",
+    "noun_s": "Bool",
+    "cap_en": "Bool",
+    "cap_dravik": "Bool",
+    "cap_t": "Bool",
+    "cap_oma": "Bool",
+    "cap_s": "Bool"
+   }
+  },
+  "facts": {
+   "sentence_start": {
+    "says": "Torvish spelling capitalises the first word of every sentence (stated in the prompt).",
+    "z3": "cap_en"
+   },
+   "other_words": {
+    "says": "'dravik' and 'oma' are not nouns and not sentence-initial, so they are lowercase.",
+    "z3": [
+     "not cap_dravik",
+     "not cap_oma"
+    ]
+   }
+  },
+  "firm": [
+   "sentence_start",
+   "other_words"
+  ],
+  "presuppositions": [
+   "other_words"
+  ],
+  "original": [],
+  "edit": [
+   "Implies(noun_t, cap_t)",
+   "Implies(noun_s, cap_s)"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "find": "count(cap_en, cap_dravik, cap_t, cap_oma, cap_s)",
+    "given": {
+     "only_nouns": {
+      "says": "The only nouns of the sentence are 'tolvak' and 'skerrin'.",
+      "z3": [
+       "noun_t",
+       "noun_s"
+      ]
+     }
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "id": "grammar-delete-d001",
+ "notes": "gender_counterpart_of is functional and symmetric in RELATIONS.md, so q0 is a no before the edit (niece is the one counterpart, midwife is another noun) and unknown after. The plural pair is a firm rule (two regular plurals around a counterpart pair), as the record's related_far says. 'Ends with e' uses ends_in with the letter e as a placeholder individual. The first letter (q2) is fol: spelling is a string fact.",
+ "entities": {
+  "nephew": [
+   "nephew"
+  ],
+  "niece": [
+   "niece"
+  ],
+  "midwife": [
+   "midwife"
+  ],
+  "nephews": [
+   "nephews"
+  ],
+  "nieces": [
+   "nieces"
+  ],
+  "letter_e": null
+ },
+ "original": [
+  "gender_counterpart_of(nephew, niece)"
+ ],
+ "edit": [],
+ "bridge_refs": {
+  "niece_e": "The English noun 'niece' ends with the letter 'e'.",
+  "plural_nephews": "'Nephews' is the plural of 'nephew'.",
+  "plural_nieces": "The plural of 'niece' is 'nieces'.",
+  "plural_rule": [
+   "'Nephews' is the plural of 'nephew'.",
+   "The plural of 'niece' is 'nieces'."
+  ]
+ },
+ "background": {
+  "niece_e": "ends_in(niece, letter_e)",
+  "plural_nephews": "plural_of(nephews, nephew)",
+  "plural_nieces": "plural_of(nieces, niece)",
+  "plural_rule": "plural_of(?a, ?x), plural_of(?b, ?y), gender_counterpart_of(?x, ?y) -> gender_counterpart_of(?a, ?b)"
+ },
+ "firm": [
+  "niece_e",
+  "plural_nephews",
+  "plural_nieces",
+  "plural_rule"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "ask": "gender_counterpart_of(nephew, midwife)"
+  },
+  {
+   "q": 1,
+   "ask": "nephew : gender_counterpart_of some (ends_in value letter_e)"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (string spelling): the first letter of a word is a string fact; Z3 checks it from the fol section"
+  },
+  {
+   "q": "related_near[0]",
+   "find": "niece gender_counterpart_of ?"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "nephews gender_counterpart_of ?"
+  }
+ ],
+ "fol": {
+  "notes": "The counterpart of 'nephew' is the model's belief (cp, original: it is 'niece'); the spelling of 'niece' is a firm fact. first_letter is record-local.",
+  "decl": {
+   "consts": {
+    "cp": "String"
+   },
+   "funcs": {
+    "first_letter": "String -> String"
+   }
+  },
+  "local": {
+   "first_letter": "first_letter(w): the first letter of the spelling of word w (a string)"
+  },
+  "facts": {
+   "niece_spelling": {
+    "says": "The English noun 'niece' begins with the letter 'n'.",
+    "z3": "first_letter('niece') == 'n'"
+   }
+  },
+  "firm": [
+   "niece_spelling"
+  ],
+  "original": [
+   "cp == 'niece'"
+  ],
+  "edit": [],
+  "queries": [
+   {
+    "q": 2,
+    "find": "first_letter(cp)"
+   }
+  ]
+ }
+}

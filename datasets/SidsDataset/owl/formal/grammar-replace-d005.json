@@ -1,0 +1,97 @@
+{
+ "id": "grammar-replace-d005",
+ "notes": "TBox revision: German nouns capitalised becomes lowercase. Each prompt gives its word as a German noun (a verb used as a noun is a noun). The sentence count (q2) is fol: the sentence-initial capital is untouched.",
+ "entities": {
+  "capital": [
+   "a capital letter",
+   "a capital Z",
+   "a capital W"
+  ],
+  "lowercase": [
+   "a lowercase letter",
+   "a lowercase z",
+   "a lowercase w"
+  ],
+  "zahn": [
+   "zahnbürstenhalter"
+  ],
+  "wieder": [
+   "wiederkäuen"
+  ]
+ },
+ "original": [
+  "GermanNoun ⊑ has_initial_case value capital"
+ ],
+ "edit": [
+  "GermanNoun ⊑ has_initial_case value lowercase"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "zahn has_initial_case ?",
+   "given": [
+    "zahn : GermanNoun"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "wieder has_initial_case ?",
+   "given": [
+    "wieder : GermanNoun"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (counting): how many words of a sentence begin with a capital; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The rule's instance for 'kaffeefilterhalter' is the original (capital) and the edit (lowercase). The sentence-initial capital and the lowercase function words are firm facts the edit does not touch.",
+  "decl": {
+   "consts": {
+    "noun_k": "Bool",
+    "cap_ich": "Bool",
+    "cap_kaufe": "Bool",
+    "cap_einen": "Bool",
+    "cap_neuen": "Bool",
+    "cap_k": "Bool"
+   }
+  },
+  "facts": {
+   "sentence_start": {
+    "says": "The first word of a sentence is capitalised ('Ich').",
+    "z3": "cap_ich"
+   },
+   "function_words": {
+    "says": "'kaufe', 'einen' and 'neuen' are not nouns and are not sentence-initial, so they are written lowercase.",
+    "z3": [
+     "not cap_kaufe",
+     "not cap_einen",
+     "not cap_neuen"
+    ]
+   }
+  },
+  "firm": [
+   "sentence_start",
+   "function_words"
+  ],
+  "original": [
+   "Implies(noun_k, cap_k)"
+  ],
+  "edit": [
+   "Implies(noun_k, not cap_k)"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "find": "count(cap_ich, cap_kaufe, cap_einen, cap_neuen, cap_k)",
+    "given": {
+     "only_noun": {
+      "says": "'kaffeefilterhalter' is the only noun of the sentence.",
+      "z3": "noun_k"
+     }
+    }
+   }
+  ]
+ }
+}

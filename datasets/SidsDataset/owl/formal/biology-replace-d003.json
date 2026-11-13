@@ -1,0 +1,83 @@
+{
+ "id": "biology-replace-d003",
+ "notes": "cell_kind is functional (catalogue). Class rules over cell kind are inclusions on (cell_kind value kind). The stored 'yeast has mitochondria' gives way (gives_up) against the firm prokaryote rule. The nucleus / nucleoid answers are the surfaces the record writes; the nucleoid sitting in the cytoplasm is not encoded.",
+ "entities": {
+  "yeast": [
+   "yeast"
+  ],
+  "cyanobacteria": [
+   "cyanobacteria"
+  ],
+  "eukaryote": [
+   "a eukaryote",
+   "eukaryote"
+  ],
+  "prokaryote": [
+   "a prokaryote",
+   "prokaryote"
+  ],
+  "nucleus": [
+   "in the nucleus",
+   "the nucleus"
+  ],
+  "nucleoid": [
+   "in the nucleoid (in the cytoplasm)",
+   "in the nucleoid, in the cytoplasm",
+   "the nucleoid"
+  ]
+ },
+ "original": [
+  "cell_kind(yeast, eukaryote)"
+ ],
+ "edit": [
+  "cell_kind(yeast, prokaryote)"
+ ],
+ "bridge_refs": {
+  "prok_organelles": "Prokaryotic cells have no membrane-bound organelles.",
+  "cyano_prok": "Cyanobacteria are prokaryotes.",
+  "prok_dna": "In prokaryotic cells, the chromosomal DNA lies in the cytoplasm, in a region called the nucleoid.",
+  "prok_mito": "Prokaryotic cells have no mitochondria."
+ },
+ "background": {
+  "euk_organelles": "(cell_kind value eukaryote) ⊑ has_part some MembraneBoundOrganelle",
+  "prok_organelles": "(cell_kind value prokaryote) ⊑ not (has_part some MembraneBoundOrganelle)",
+  "cyano_prok": "cell_kind(cyanobacteria, prokaryote)",
+  "euk_dna": "(cell_kind value eukaryote) ⊑ has_part some (ChromosomalDna and located_in value nucleus)",
+  "prok_dna": "(cell_kind value prokaryote) ⊑ has_part some (ChromosomalDna and located_in value nucleoid)",
+  "yeast_mito": "yeast : has_part some Mitochondrion",
+  "prok_mito": "(cell_kind value prokaryote) ⊑ not (has_part some Mitochondrion)"
+ },
+ "firm": [
+  "euk_organelles",
+  "prok_organelles",
+  "cyano_prok",
+  "euk_dna",
+  "prok_dna",
+  "prok_mito"
+ ],
+ "gives_up": [
+  "yeast_mito"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "ask": "yeast : has_part some MembraneBoundOrganelle"
+  },
+  {
+   "q": 1,
+   "ask": "yeast : cell_kind some (inv(cell_kind) value cyanobacteria)"
+  },
+  {
+   "q": 2,
+   "find": "yeast : has_part some (ChromosomalDna and located_in value ?)"
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "cell_kind(yeast, eukaryote)"
+  },
+  {
+   "q": "related_far[0]",
+   "ask": "yeast : has_part some Mitochondrion"
+  }
+ ]
+}

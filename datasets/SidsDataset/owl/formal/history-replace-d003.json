@@ -1,0 +1,110 @@
+{
+ "id": "history-replace-d003",
+ "notes": "ABox replace on executed_in (chain located_in o executed_in, subproperty of died_in). Side facts about Rouen and Kyoto are stored and firm. q1 (language of the city's people) is not checked: RELATIONS.md has no relation for the language a city's people speak (has_official_language is for countries; a spoken_in/speaks relation is missing). q2: 'the city she was executed in' is a placeholder (the_city) picked out by a rule over the executed_in value that is a city; a place lies in one country (rule over Country), so Kyoto is not in France.",
+ "entities": {
+  "joan": [
+   "Joan of Arc"
+  ],
+  "rouen": [
+   "Rouen"
+  ],
+  "kyoto": [
+   "Kyoto"
+  ],
+  "europe": [
+   "Europe"
+  ],
+  "asia": [
+   "Asia"
+  ],
+  "france": [
+   "France"
+  ],
+  "japan": [
+   "Japan"
+  ],
+  "normandy": [
+   "Normandy"
+  ],
+  "kansai": [
+   "Kansai",
+   "the Kansai region"
+  ],
+  "the_city": null
+ },
+ "original": [
+  "executed_in(joan, rouen)"
+ ],
+ "edit": [
+  "executed_in(joan, kyoto)"
+ ],
+ "background": {
+  "rouen_europe": "located_in(rouen, europe)",
+  "kyoto_asia": "located_in(kyoto, asia)",
+  "rouen_france": "located_in(rouen, france)",
+  "kyoto_japan": "located_in(kyoto, japan)",
+  "rouen_normandy": "located_in(rouen, normandy)",
+  "kyoto_kansai": "located_in(kyoto, kansai)",
+  "cities": [
+   "rouen : City",
+   "kyoto : City"
+  ],
+  "countries": [
+   "france : Country",
+   "japan : Country"
+  ],
+  "one_country": "located_in(?x, ?c), located_in(?x, ?d), Country(?c), Country(?d) -> same(?c, ?d)",
+  "the_city_rule": "executed_in(joan, ?c), City(?c) -> same(?c, the_city)"
+ },
+ "firm": [
+  "rouen_europe",
+  "kyoto_asia",
+  "rouen_france",
+  "kyoto_japan",
+  "rouen_normandy",
+  "kyoto_kansai",
+  "cities",
+  "countries",
+  "one_country",
+  "the_city_rule"
+ ],
+ "bridge_refs": {
+  "kyoto_asia": "Kyoto is in Asia.",
+  "kyoto_japan": "Kyoto is in Japan.",
+  "kyoto_kansai": "Kyoto is in the Kansai region."
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "joan executed_in ?",
+   "candidates": [
+    "europe",
+    "asia"
+   ]
+  },
+  {
+   "q": 1,
+   "not_checked": "relation missing from RELATIONS.md: the language a city's local people speak (no spoken_in/speaks relation); the answers are 'French' and 'Japanese'"
+  },
+  {
+   "q": 2,
+   "ask": "not located_in(the_city, france)"
+  },
+  {
+   "q": "related_near[0]",
+   "find": "joan died_in ?",
+   "candidates": [
+    "rouen",
+    "kyoto"
+   ]
+  },
+  {
+   "q": "related_far[0]",
+   "find": "joan executed_in/located_in ?",
+   "candidates": [
+    "normandy",
+    "kansai"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,83 @@
+{
+ "id": "technology-replace-d005",
+ "notes": "TBox revision of the IPv4 length (has_bit_length functional): the value moves from 32 to 48 bits. Membership comes from each prompt. q1: a binary digit per bit. q2 is fol (arithmetic): bytes = bits / 8.",
+ "entities": {
+  "laptop_addr": null,
+  "packet_addr": null,
+  "visitor_addr": null,
+  "b32": [
+   "32 bits",
+   "32"
+  ],
+  "b48": [
+   "48 bits",
+   "48"
+  ]
+ },
+ "original": [
+  "IPv4Address ⊑ has_bit_length value b32"
+ ],
+ "edit": [
+  "IPv4Address ⊑ has_bit_length value b48"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "laptop_addr has_bit_length ?",
+   "given": [
+    "laptop_addr : IPv4Address"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "packet_addr has_bit_length ?",
+   "given": [
+    "packet_addr : IPv4Address"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): bytes of a saved address; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The length is the model's belief (the class rule is the original and the edit), not arithmetic; 8 bits a byte is arithmetic nothing changes.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "addr": "Ent"
+   },
+   "funcs": {
+    "ipv4": "Ent -> Bool",
+    "bit_length": "Ent -> Int"
+   },
+   "vars": {
+    "a": "Ent"
+   }
+  },
+  "local": {
+   "bit_length": "length of an address in bits (record-local)"
+  },
+  "facts": {},
+  "original": [
+   "All(a, [addr], Implies(ipv4(a), bit_length(a) == 32))"
+  ],
+  "edit": [
+   "All(a, [addr], Implies(ipv4(a), bit_length(a) == 48))"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "visitor": {
+      "says": "Each visitor's address is an IPv4 address.",
+      "z3": "ipv4(addr)"
+     }
+    },
+    "find": "bit_length(addr) / 8"
+   }
+  ]
+ }
+}

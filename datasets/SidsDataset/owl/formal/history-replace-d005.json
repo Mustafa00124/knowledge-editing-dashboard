@@ -1,0 +1,87 @@
+{
+ "id": "history-replace-d005",
+ "notes": "TBox replace of the exile term (ten -> five years). Membership comes from the prompt (given). q1 and q2 are fol (arithmetic); Z3 section. The original rule is dropped after the edit, so ten years no longer follows.",
+ "entities": {
+  "ten_years": [
+   "ten years"
+  ],
+  "five_years": [
+   "five years"
+  ],
+  "hipparchus": null
+ },
+ "original": [
+  "OstracisedAthenian ⊑ sentenced_to_exile_for value ten_years"
+ ],
+ "edit": [
+  "OstracisedAthenian ⊑ sentenced_to_exile_for value five_years"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "hipparchus sentenced_to_exile_for ?",
+   "given": [
+    "hipparchus : OstracisedAthenian"
+   ]
+  },
+  {
+   "q": 1,
+   "not_checked": "fol (arithmetic): whether a seven-year wait covers the term; Z3 checks it from the fol section"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): age at the end of the term; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The exile term is the model's belief (an uninterpreted function; the class rule is the edited fact), not arithmetic.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "megacles": "Ent",
+    "menon": "Ent"
+   },
+   "funcs": {
+    "ostracised": "Ent -> Bool",
+    "exile_term": "Ent -> Int"
+   },
+   "vars": {
+    "x": "Ent"
+   }
+  },
+  "local": {
+   "exile_term": "length in years of a man's sentence of exile (record-local)"
+  },
+  "facts": {},
+  "original": [
+   "All(x, [megacles, menon], Implies(ostracised(x), exile_term(x) == 10))"
+  ],
+  "edit": [
+   "All(x, [megacles, menon], Implies(ostracised(x), exile_term(x) == 5))"
+  ],
+  "queries": [
+   {
+    "q": 1,
+    "given": {
+     "meg_member": {
+      "says": "Megacles, son of Hippocrates, was ostracised in ancient Athens.",
+      "z3": "ostracised(megacles)"
+     }
+    },
+    "ask": "7 >= exile_term(megacles)"
+   },
+   {
+    "q": 2,
+    "given": {
+     "men_member": {
+      "says": "Menon, son of Meneclides, was ostracised in ancient Athens.",
+      "z3": "ostracised(menon)"
+     }
+    },
+    "find": "40 + exile_term(menon)"
+   }
+  ]
+ }
+}
