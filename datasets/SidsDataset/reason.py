@@ -786,17 +786,24 @@ def main(argv):
     t0 = time.time()
     with Pool(max(1, args.jobs)) as pool:
         results = dict(pool.map(check_one, ids))
-    old = json.loads(REPORT.read_text()) if REPORT.exists() else {}
-    records = old.get('records', {})
-    records.update(results)
-    every = all_record_ids()
-    report = {'generated': time.strftime('%Y-%m-%d %H:%M:%S'),
-              'summary': summary(records),
-              'records_checked': len(records),
-              'pending': [r for r in every if r not in have],
-              'records': dict(sorted(records.items()))}
-    CV.annotate(report, 'hermit')
-    REPORT.write_text(json.dumps(report, ensure_ascii=False, indent=1) + '\n')
+    # Several checkers may finish at once (one per topic): update the shared
+    # report under a lock so no run's results are lost.
+    import fcntl
+    with open(REPORT.with_suffix('.lock'), 'a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        old = json.loads(REPORT.read_text()) if REPORT.exists() else {}
+        records = old.get('records', {})
+        records.update(results)
+        every = all_record_ids()
+        report = {'generated': time.strftime('%Y-%m-%d %H:%M:%S'),
+                  'summary': summary(records),
+                  'records_checked': len(records),
+                  'pending': [r for r in every if r not in have],
+                  'records': dict(sorted(records.items()))}
+        CV.annotate(report, 'hermit')
+        tmp = REPORT.with_suffix('.tmp')
+        tmp.write_text(json.dumps(report, ensure_ascii=False, indent=1) + '\n')
+        tmp.replace(REPORT)
     n = len(ids)
     print(f'checked {n} records in {time.time() - t0:.0f}s '
           f'({sum(r["calls"] for r in results.values())} HermiT calls)')

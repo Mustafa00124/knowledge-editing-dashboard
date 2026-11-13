@@ -304,8 +304,8 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `vassal_of` | a is a vassal of lord b | associative | `asymmetric`, `inverse:liege_lord_of`, `cardinality:many` | The Count of Champagne was a vassal of the King of France. |
 | `patron_of` | a was the (Roman) patron of b | associative | `asymmetric`, `cardinality:many` | Cicero was the patron of Tiro. |
 | `rear_vassal_of` | a is a rear-vassal (arrière-vassal) of b: a vassal of one of b's vassals | associative | `cardinality:many` | A knight of the Count of Champagne was a rear-vassal of the King of France. |
-| `destroyed_by_eruption_of` | town a was destroyed by an eruption of volcano b | associative | `functional` | Pompeii was destroyed by an eruption of Mount Vesuvius. |
-| `assassinated_in` | person a was assassinated (fatally attacked) in city b | associative | `functional` | Abraham Lincoln was assassinated in Washington, D.C. |
+| `destroyed_by_eruption_of` | town a was destroyed by an eruption of volcano b | associative | `functional`, `inverse:eruption_destroyed` | Pompeii was destroyed by an eruption of Mount Vesuvius. |
+| `assassinated_in` | person a was assassinated (fatally attacked) in city b | associative | `functional`, `inverse:assassination_site_of` | Abraham Lincoln was assassinated in Washington, D.C. |
 | `died_in_hemisphere` | person a died in hemisphere b (north or south of the equator). The route from `died_in` (the place of death lies in the hemisphere) is a rule in the records: this relation is functional, so it cannot be the target of a chain | associative | `functional`, `subproperty:died_in` | Napoleon Bonaparte died in the Southern Hemisphere. |
 | `us_president_during` | event a took place while person b was US president | associative | `functional` | Theodore Roosevelt was US president at the Wright brothers' first powered flight. |
 | `built_for` | every venue of kind a was built to host events of kind b | associative | | Every Roman amphitheatre was built as a venue for gladiatorial combat. |
@@ -364,7 +364,7 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `sealed_by` | document a was sealed by b | associative | `cardinality:many` | Magna Carta was sealed by King John. |
 | `printed_in` | book or edition a was printed in place b | associative |  | The Gutenberg Bible was printed in Mainz. |
 | `printed_in_decade` | book or edition a was printed in decade b | associative |  | The Gutenberg Bible was printed in the 1450s. |
-| `written_in_script` | text or language a is written in script b | associative | `cardinality:many` | Hittite was written in cuneiform. |
+| `written_in_script` | text or language a is written in script b | associative | `cardinality:many`, `inverse:script_used_for` | Hittite was written in cuneiform. |
 | `written_on` | manuscript a (or every manuscript of class a) is written on material b | associative |  | Every Maya codex is written on bark paper. |
 | `occurred_on` | event a occurred on date b | associative |  | The Wright brothers' first powered flight occurred on 17 December 1903. |
 | `president_on` | on date a, the US president was b | associative | `functional` | On 17 December 1903 the US president was Theodore Roosevelt. |
@@ -380,7 +380,7 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `marten_sheltered_by` | person a was marten-sheltered by person b (fictional; inverse of marten_patron_of by insert 0018) | associative | | Alcuin of York was marten-sheltered by Charlemagne. |
 | `ink_sealed_in` | treaty a was ink-sealed in city b (fictional; insert 0019 gives it the chain with located_in into has_party) | associative | | The Treaty of Lausanne was ink-sealed in Lausanne. |
 | `moth_keyed_in` | person a was moth-keyed in year b (fictional; insert 0020 makes it not functional) | associative | | William the Conqueror was moth-keyed in 1087. |
-| `part_of_war` | battle a was fought as part of war b; one war per battle (the tagged counterpart of `battle_of`, which RELATIONS.md lists without tags, so a contraction of it could not be paired) | associative | `functional` | The Battle of Stalingrad was a battle of World War II. |
+| `part_of_war` | battle a was fought as part of war b; one war per battle (the tagged counterpart of `battle_of`, which RELATIONS.md lists without tags, so a contraction of it could not be paired) | associative | `functional`, `inverse:war_includes_battle` | The Battle of Stalingrad was a battle of World War II. |
 | `final_exile_on` | person a spent their final (last) exile on island or place b | associative | `functional`, `subproperty:exiled_to`, `chain:located_in->exiled_to` | Napoleon spent his final exile on Saint Helena. |
 | `has_largest_battle` | the largest battle ever fought in place a was battle b | associative | `functional`, `inverse:largest_battle_of` | The largest battle ever fought in Pennsylvania was the Battle of Gettysburg. |
 | `largest_battle_of` | battle a was the largest battle ever fought in place b | associative | `inverse:has_largest_battle`, `subproperty:took_place_in` | The Battle of Gettysburg was the largest battle ever fought in Pennsylvania. |
@@ -539,11 +539,11 @@ Includes medicine: diseases, drugs, treatments.
 | `has_mt_haplogroup` | person a has mitochondrial DNA haplogroup b | associative | | Richard III had mitochondrial haplogroup J1c2c. |
 | `gives_rise_to` | cell type a gives rise to cell type b in a developmental lineage | associative | `cardinality:many` | Neural crest cells give rise to melanoblasts. |
 | `has_type_species` | genus a has type species b | associative | | The genus Panthera has type species Panthera pardus. |
-| `produced_by_organ` | hormone a is produced by organ b | associative | `functional` | Insulin is produced by the pancreas. |
-| `caused_by_deficiency_of` | disease a is caused by a lack of nutrient b | causal | `causal`, `functional` | Scurvy is caused by a deficiency of vitamin C. |
+| `produced_by_organ` | hormone a is produced by organ b | associative | `functional`, `inverse:produces_hormone` | Insulin is produced by the pancreas. |
+| `caused_by_deficiency_of` | disease a is caused by a lack of nutrient b | causal | `causal`, `functional`, `inverse:deficiency_causes_disease` | Scurvy is caused by a deficiency of vitamin C. |
 | `transmitted_by_class` | disease a is transmitted by an animal of class b | causal | `causal` | Lyme disease is transmitted by an arachnid. |
 | `prey_of` | a is prey of b | associative | `inverse:preys_on`, `cardinality:many` | Zebras are prey of lions. |
-| `lobe_of` | structure a is a lobe of organ b | associative | `subproperty:part_of`, `chain:part_of->part_of`, `functional` | The temporal lobe is a lobe of the brain. |
+| `lobe_of` | structure a is a lobe of organ b | associative | `subproperty:part_of`, `chain:part_of->part_of`, `functional`, `inverse:has_lobe` | The temporal lobe is a lobe of the brain. |
 | `endemic_to` | species a is endemic to region b (native there and found nowhere else) | associative | `chain:located_in->endemic_to`, `cardinality:many` | The marine iguana is endemic to the Galápagos Islands. |
 | `in_genus` | species a belongs to genus b | associative | `functional`, `inverse:has_species` | The lion belongs to the genus Panthera. |
 | `drevin_linked_to` | a is drevin-linked to b (fictional) | associative | `symmetric`, `cardinality:many` | The cattle egret is drevin-linked to the hippopotamus. |
@@ -588,7 +588,7 @@ Includes medicine: diseases, drugs, treatments.
 | `has_lobe` | organ a has structure b as one of its lobes | associative | `inverse:lobe_of`, `cardinality:many` | The brain has the temporal lobe as one of its lobes. |
 | `has_discoverer` | discovery a was made by discoverer b (a person or team credited with it; one discoverer or team per discovery, unlike discovered_by) | associative | `functional`, `inverse:discoverer_of` | Penicillin was discovered by Alexander Fleming. |
 | `discoverer_of` | person or team a discovered b | associative | `inverse:has_discoverer`, `cardinality:many` | Alexander Fleming discovered penicillin. |
-| `in_class` | animal kind a belongs to biological class b (mammals, birds, reptiles, cartilaginous fishes, ...) | associative | `functional` | The dolphin belongs to the mammals. |
+| `in_class` | animal kind a belongs to biological class b (mammals, birds, reptiles, cartilaginous fishes, ...) | associative | `functional`, `inverse:class_includes` | The dolphin belongs to the mammals. |
 | `dna_partner_of` | nucleobase a is the Watson-Crick partner of nucleobase b in DNA (each of the four natural bases has exactly one partner: adenine with thymine, cytosine with guanine; synthetic analogues are left out, unlike pairs_with) | associative | `symmetric`, `functional` | In DNA, adenine is the partner of thymine. |
 | `discovery_country` | discovery or invention a was made in country b (the country where its discoverers worked); one country per discovery | associative | `functional` | Penicillin was discovered in the United Kingdom. |
 | `transmits_pathogen` | vector a transmits pathogen b | causal | `causal`, `chain:causes_disease->transmits`, `cardinality:many` | Anopheles mosquitoes transmit the malaria parasite. |
@@ -909,12 +909,12 @@ market share), since replace needs an original every model holds as true.
 | `cresset_keyed_to` | application a is cresset-keyed to module b (fictional; insert 0019 removes the chain with module_provided_by_package) | associative | | Airflow is cresset-keyed to the module sklearn. |
 | `has_cairn_curator` | project a has cairn curator b (fictional; insert 0020 makes it not functional) | associative | | Firefox has cairn curator Mozilla. |
 | `cofounded_with` | person a co-founded a company with person b | associative | `symmetric`, `cardinality:many` | Bill Gates co-founded Microsoft with Paul Allen. |
-| `connection_mode` | network protocol a (or every protocol of class a) is b: connection-oriented or connectionless | associative | `functional` | TCP is connection-oriented. |
+| `connection_mode` | network protocol a (or every protocol of class a) is b: connection-oriented or connectionless | associative | `functional`, `inverse:connection_mode_of` | TCP is connection-oriented. |
 | `has_best_selling_console` | company a's best-selling video game console is b | associative | `functional`, `inverse:best_selling_console_of` | Sony's best-selling video game console is the PlayStation 2. |
 | `best_selling_console_of` | console a is the best-selling video game console made by company b | associative | `functional`, `inverse:has_best_selling_console`, `subproperty:manufactured_by` | The PlayStation 2 is the best-selling console made by Sony. |
 | `has_largest_hydro_station` | the largest hydroelectric power station on river a is b | associative | `functional`, `inverse:largest_hydro_station_on` | The largest hydroelectric power station on the Yangtze is the Three Gorges Dam. |
 | `largest_hydro_station_on` | power station a is the largest hydroelectric power station on river b | associative | `functional`, `inverse:has_largest_hydro_station`, `subproperty:stands_on_river` | The Three Gorges Dam is the largest hydroelectric power station on the Yangtze. |
-| `stands_on_river` | dam or power station a stands on river b (a dam stands on one river, and is in the country the river runs through at that point) | associative | `functional`, `chain:located_in->located_in` | The Hoover Dam stands on the Colorado River. |
+| `stands_on_river` | dam or power station a stands on river b (a dam stands on one river, and is in the country the river runs through at that point) | associative | `functional`, `chain:located_in->located_in`, `inverse:has_dam` | The Hoover Dam stands on the Colorado River. |
 | `fork_of` | software project a is a fork of project b (it began as a copy of b's source code) | associative | `subproperty:derived_from_source_of` | Gitea is a fork of Gogs. |
 | `derived_from_source_of` | software project a is derived from the source code of project b | associative | | LineageOS is derived from the source code of CyanogenMod. |
 | `pin_compatible_with` | chip a is pin-compatible with chip b (it fits the same socket, with the same functions on the same pins) | associative | `symmetric` | The NEC V20 is pin-compatible with the Intel 8088. |
@@ -1024,11 +1024,11 @@ mathematics (events) and causal rules about mathematical objects.
 | `wend_tied_to` | number a is wend-tied to number b (fictional; insert 0018 makes it a subproperty of greater_than) | associative | `cardinality:many` | 6 is wend-tied to 48. |
 | `skein_aligned_to` | line a is skein-aligned to line b, both in one plane (fictional; insert 0019 adds skein_aligned_to ∘ parallel_to ⊑ skein_aligned_to) | associative | `cardinality:many` | Line a is skein-aligned to the y-axis. |
 | `has_calder_mate` | whole number a has Calder mate b (fictional; insert 0020 makes it functional) | associative | `cardinality:many` | The whole number 12 has Calder mate s. |
-| `has_rationality` | real number a is b (rational or irrational) | associative | `functional` | The square root of 2 is irrational. |
+| `has_rationality` | real number a is b (rational or irrational) | associative | `functional`, `inverse:real_number_class_includes` | The square root of 2 is irrational. |
 | `has_square_root` | positive number a has positive square root b | associative | `functional`, `inverse:has_square`, `chain:equals->has_square_root` | The square root of 144 is 12. |
 | `has_square` | the square of number a is b | associative | `functional`, `inverse:has_square_root`, `chain:equals->has_square` | The square of the imaginary unit i is −1. |
-| `has_regular_face` | every face of polyhedron a is the regular polygon b (equilateral triangle, square, regular pentagon) | associative | `functional`, `chain:subclass_of->has_face_shape` | Each face of a regular octahedron is an equilateral triangle. |
-| `has_surface_sides` | surface a, in ordinary space, has b sides (one-sided or two-sided) | associative | `functional` | A Möbius strip has one side. |
+| `has_regular_face` | every face of polyhedron a is the regular polygon b (equilateral triangle, square, regular pentagon) | associative | `functional`, `chain:subclass_of->has_face_shape`, `inverse:face_shape_of` | Each face of a regular octahedron is an equilateral triangle. |
+| `has_surface_sides` | surface a, in ordinary space, has b sides (one-sided or two-sided) | associative | `functional`, `inverse:sidedness_of` | A Möbius strip has one side. |
 | `has_derivative` | differentiable function a has derivative function b | associative | `functional` | The derivative of sin x is cos x. |
 | `has_face_count` | every solid of class a (or solid a) has b faces | associative | `functional` | Every cube has six faces. |
 | `first_proved_by` | theorem a was first proved by b (the first complete, accepted proof; one prover or team; theorems first proved independently by more than one party are not used with this relation) | associative | `functional`, `inverse:first_proved`, `subproperty:proved_by` | Fermat's Last Theorem was first proved by Andrew Wiles. |
@@ -1056,7 +1056,7 @@ language (events) and causal rules about how languages and words change.
 | `default_position` | words of class a default to position b relative to their head | associative | `functional` | English attributive adjectives come before the noun. |
 | `has_initial_case` | words of class a are written with initial-letter case b | associative | `functional` | German nouns are written with a capital initial letter. |
 | `takes_complement` | words of class a are followed by complement form b | associative | `functional` | English modal verbs take a bare infinitive ("must go"). |
-| `has_gender` | noun or noun class a has grammatical gender b | associative | `functional` | German nouns ending in -ung are feminine. |
+| `has_gender` | noun or noun class a has grammatical gender b | associative | `functional`, `inverse:gender_of` | German nouns ending in -ung are feminine. |
 | `rhymes_with` | word a rhymes with word b | associative | `symmetric`, `cardinality:many` | "Night" rhymes with "light". |
 | `has_past_participle` | verb a has the past participle b | associative | `inverse:past_participle_of` | "Go" has the past participle "gone". |
 | `twin_word_of` | in the invented Harwick lexicon, word a is a twin word of word b | associative | `cardinality:many` | In the Harwick lexicon, 'bread' is a twin word of 'butter'. |
@@ -1082,7 +1082,7 @@ language (events) and causal rules about how languages and words change.
 | `has_head` | compound noun a has as its head (last element) noun b | associative | `chain:has_gender->has_gender`, `inverse:head_of` | 'Vogelhaus' has the head 'Haus'. |
 | `inflected_form_of` | word form a is an inflected form of word b | associative | `chain:word_of_language->word_of_language`, `cardinality:many` | 'Went' is an inflected form of 'go'. |
 | `word_of_language` | word a is a word of language b | associative | `cardinality:many` | 'Haus' is a German word. |
-| `has_grammatical_person` | personal pronoun a is in grammatical person b | associative | `functional` | 'They' is a third-person pronoun. |
+| `has_grammatical_person` | personal pronoun a is in grammatical person b | associative | `functional`, `inverse:grammatical_person_of` | 'They' is a third-person pronoun. |
 | `hearth_paired_with` | word a is hearth-paired with word b (fictional) | associative | `symmetric`, `cardinality:many` | 'Kettle' is hearth-paired with 'mouse'. |
 | `rhyme_elder_of` | word a is the rhyme-elder of word b (fictional) | associative | `transitive`, `asymmetric`, `cardinality:many` | 'Child' is the rhyme-elder of 'mild'. |
 | `vane_word_of` | English word a is the vane-word of German noun b (fictional) | associative | `subproperty:pane_word_of`, `chain:head_of->vane_word_of`, `cardinality:many` | 'Window' is the vane-word of 'Tür'. |
@@ -1138,7 +1138,7 @@ language (events) and causal rules about how languages and words change.
 | `author_wrote_in` | author a wrote their works in language b (and, by the chain, in every language group b belongs to) | associative | `chain:belongs_to_language_group->author_wrote_in`, `cardinality:many` | William Shakespeare wrote in English. |
 | `has_feminine_form` | English noun a (a masculine title or role noun) has the feminine form b, usually made with a suffix such as '-ess' (functional for the nouns the dataset uses, each of which has one standard feminine form) | associative | `functional`, `inverse:feminine_form_of` | 'Emperor' has the feminine form 'empress'. |
 | `feminine_form_of` | English noun a is the feminine form of noun b (functional for the nouns the dataset uses: each feminine form belongs to one masculine noun) | associative | `functional`, `inverse:has_feminine_form` | 'Duchess' is the feminine form of 'duke'. |
-| `has_official_script` | language a is officially written in script b (some languages, such as Serbian, have two official scripts) | associative | `subproperty:written_in_script`, `cardinality:many` | Russian is officially written in the Cyrillic alphabet. |
+| `has_official_script` | language a is officially written in script b (some languages, such as Serbian, have two official scripts) | associative | `subproperty:written_in_script`, `cardinality:many`, `inverse:official_script_of` | Russian is officially written in the Cyrillic alphabet. |
 | `gender_counterpart_of` | noun a is the opposite-sex counterpart of noun b (kinship and role pairs: nephew/niece, brother/sister). Functional for the standard nouns the dataset uses, each of which has one standard counterpart; because it is also symmetric, both directions of a pair are filled slots, so questions must not use a candidate that already has a counterpart of its own (a dialect noun is exempt from `functional`: a regional synonym may share a counterpart, as 'ommick' and 'uncle' share 'aunt'). Suffix-derived feminine forms of the same noun (emperor/empress) are `has_feminine_form`, in staging/grammar-replace-abox.RELATIONS.md | associative | `symmetric`, `functional` | 'Nephew' is the counterpart of 'niece'. |
 | `belongs_to_language_group` | language or language group a belongs to language group (branch or family) b | associative | `transitive`, `asymmetric`, `inverse:includes_language`, `cardinality:many` | Polish belongs to the Slavic languages. |
 | `includes_language` | language group a includes language or language group b | associative | `inverse:belongs_to_language_group`, `cardinality:many` | The Slavic languages include Polish. |

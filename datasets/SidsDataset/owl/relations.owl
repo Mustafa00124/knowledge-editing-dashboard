@@ -100,6 +100,18 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">organisation a appoints and funds body b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#archenemy_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fictional character a's archenemy is character b (one archenemy each for the characters the dataset uses)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#aria_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#part_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">aria a is part of opera b (an aria belongs to one opera; it is part of that opera and of every work the opera is part of, and is by the opera's composer)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#arises_in">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">tumour a arises in organ b</rdfs:comment>
 </owl:ObjectProperty>
@@ -122,11 +134,22 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#assassinated_in">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#assassination_site_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was assassinated (fatally attacked) in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#assassination_site_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#assassinated_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">city a is where person b was assassinated (the inverse reading of assassinated_in, which is functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#at_foot_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a lies at the foot of mountain b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#at_war_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">state a was at war with state b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#atmosphere_mostly">
@@ -152,6 +175,21 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#author_of">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#written_by"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the author of work b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#author_wrote_in">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#author_wrote_in"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">author a wrote their works in language b (and, by the chain, in every language group b belongs to)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#autonomous_region_of">
@@ -197,6 +235,31 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">document a bears the signature of person b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#belonged_to_religious_order">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#member_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was a professed member of Catholic religious order b (one order per member)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#belongs_to_language_group">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#includes_language"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">language or language group a belongs to language group (branch or family) b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#benchmark_constituent_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#index_constituent_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a is a constituent of b, the one national benchmark stock index it belongs to as a company of that market (one such index per company)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#best_selling_console_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_best_selling_console"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#manufactured_by"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">console a is the best-selling video game console made by company b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#blade_wed_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">house a was blade-wed to house b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
@@ -218,7 +281,28 @@
       </rdf:rest>
     </rdf:Description>
   </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#born_in_town"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was born in b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#born_in_town">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#born_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was born in town or city b (one birthplace town per person; born_in also takes regions and countries)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#bough_hinged_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">German compound noun a is bough-hinged to noun b (fictional; insert 0019 denies the chain with has_gender)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#bound_to_serve">
@@ -289,6 +373,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a built or made structure, machine or product b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#built_as">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every structure of kind a was built to serve as b (a tomb, a granary, a fortress)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#built_by">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#built"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">structure, machine or product a was built or made by b (a company, a group, a person)</rdfs:comment>
@@ -322,7 +410,24 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">machine a was built in year b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#buried_at">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#buried_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is buried at site b, a specific church, cemetery or tomb (one burial site per person; used only for people whose remains lie in one place)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#buried_in">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#buried_at"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <owl:propertyChainAxiom>
     <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#buried_in"/>
@@ -335,6 +440,18 @@
     </rdf:Description>
   </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is buried in place b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cairn_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a is cairn-bound to place b (fictional; insert d003 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cairn_keeper_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the cairn-keeper of person b (fictional; insert 0018 makes cairn_kept_by not its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cairn_kept_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is cairn-kept by person b (fictional; not the inverse of cairn_keeper_of by insert 0018)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#cairn_linked_to">
@@ -366,6 +483,11 @@
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_capital"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is the capital of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#captained_national_team">
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#played_for_national_team"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">footballer a captained the national football team of country b (many-valued in general, like played_for_national_team; a record that takes one country for granted states it as a presupposition)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#career_in">
@@ -404,6 +526,7 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#caused_by_deficiency_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#deficiency_causes_disease"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">disease a is caused by a lack of nutrient b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -435,6 +558,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ceo_of">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_ceo"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the CEO of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cfo_of">
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#works_for"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the chief financial officer of company b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#character_in">
@@ -479,6 +607,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was cinder-sworn to person b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cinder_tithed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is cinder-tithed to work b (fictional; insert d003 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#circumscribed_about">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#inscribed_in"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">figure a is circumscribed about figure b</rdfs:comment>
@@ -497,6 +629,11 @@
     </rdf:Description>
   </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is a citizen of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#class_includes">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#in_class"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">biological class a includes animal kind b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#clipping_of">
@@ -527,6 +664,15 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is the cobalt-ward of b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cobble_pegged_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is cobble-pegged to body b (fictional; insert 0016 makes it not transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cofounded_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a co-founded a company with person b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#collaborated_with">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">artist a worked jointly with artist b on a work</rdfs:comment>
@@ -546,6 +692,10 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#commands">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#commanded_by"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">officer of rank a commands units of kind b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#communicates_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">device a (or every device of class a) communicates wirelessly by b (radio waves, infrared light, ...)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#community_repo_for">
@@ -574,7 +724,17 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#composed_by">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#aria_in"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#composed_by"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#composer_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">musical work a was composed by b</rdfs:comment>
 </owl:ObjectProperty>
@@ -598,9 +758,33 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a conjectured b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#conjugate_to">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">quantity a is the canonically conjugate variable of quantity b (a canonical pair, obeying a canonical commutation relation and so a Heisenberg uncertainty relation: position and momentum, angle and angular momentum; energy and time are not a canonical pair, since time is not an operator, and are not used)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#conjugation">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">verb a is b (regular or irregular)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#connection_mode">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#connection_mode_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">network protocol a (or every protocol of class a) is b: connection-oriented or connectionless</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#connection_mode_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#connection_mode"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">connection mode a (connection-oriented or connectionless) is the connection mode of protocol b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#console_made_by">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#makes_console"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#manufactured_by"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">video game console a is made by company b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#constituent_of">
@@ -624,6 +808,11 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#corl_shades">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">lattice a corl-shades lattice b (fictional; insert 0019 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#corresponded_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">writer or artist a exchanged letters with b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#corridor_linked_to">
@@ -650,6 +839,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#credited_with">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is credited with result b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#cresset_keyed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">application a is cresset-keyed to module b (fictional; insert 0019 removes the chain with module_provided_by_package)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#crowned_in">
@@ -699,6 +892,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">words of class a default to position b relative to their head</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#deficiency_causes_disease">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#caused_by_deficiency_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a deficiency of nutrient a causes disease b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#demand_on_price_rise">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">for pair of goods a, demand for the second good b (rises or falls) when the price of the first rises</rdfs:comment>
@@ -728,6 +926,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">image a depicts b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#deposit_insurance_limit">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">deposits at bank a (or at every bank of class a) are insured up to amount b per depositor</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#derivative_of">
   <owl:propertyChainAxiom>
     <rdf:Description>
@@ -748,6 +951,10 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#root_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a derives from word b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#derived_from_source_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">software project a is derived from the source code of project b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#descendant_of">
@@ -771,6 +978,7 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#destroyed_by_eruption_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#eruption_destroyed"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">town a was destroyed by an eruption of volcano b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -847,6 +1055,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was discovered at laboratory or site b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#discovered_at_place">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was first discovered at place b (a laboratory, university or city): the one place of its discovery</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#discovered_by">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#discovered"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was discovered by b</rdfs:comment>
@@ -856,8 +1069,23 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was discovered in country b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#discovered_in_nation">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was first discovered in the nation b (a country): the one country of its discovery</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#discovered_moons_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">astronomer a discovered moons of planet b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#discoverer_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_discoverer"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person or team a discovered b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#discovery_country">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">discovery or invention a was made in country b (the country where its discoverers worked); one country per discovery</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#dissolved_in_year">
@@ -877,6 +1105,12 @@
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#multiple_of"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#less_than"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">positive whole number a divides positive whole number b (a ≠ b, so a &lt; b)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#dna_partner_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nucleobase a is the Watson-Crick partner of nucleobase b in DNA (each of the four natural bases has exactly one partner: adenine with thymine, cytosine with guanine; synthetic analogues are left out, unlike pairs_with)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#docs_notes_path">
@@ -921,6 +1155,25 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#drives_on">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">traffic in place a (a country, or a city in it) drives on side b of the road</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#drives_on_side">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#in_state"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#drives_on_side"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">traffic in place a drives on side b of the road (left or right); a place inside a state drives on the state's side</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#dross_turned_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is dross-turned to word b (fictional; insert 0016 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#drovane_of">
@@ -997,6 +1250,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ember_sworn_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is ember-sworn to b (invented; insert 0025 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#ember_tied_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">event a is ember-tied to event b (fictional; insert 0015 makes it intransitive)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#emits">
@@ -1099,6 +1356,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">volcano a erupted in year b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#eruption_destroyed">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#destroyed_by_eruption_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">an eruption of volcano a destroyed town b (the inverse reading of destroyed_by_eruption_of, which is functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#exacted_hostage_tribute_from">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">state a exacted hostage-tribute (an invented levy) from state b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1131,6 +1393,17 @@
       </rdf:rest>
     </rdf:Description>
   </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#final_exile_on"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was sent into exile at place b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -1142,8 +1415,18 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">each face of polyhedron a has b diagonals</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#face_shape_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_regular_face"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">regular polygon a is the shape of every face of polyhedron b (the inverse reading of has_regular_face, which is functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#face_value">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">coin or note a (or every one of class a) has face value b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#family_includes">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#in_particle_family"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the particle family a includes particle b: the inverse of `in_particle_family`, many-valued (the leptons include the electron, the muon, the tau and the three neutrinos)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#family_opposed_joining">
@@ -1181,12 +1464,22 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is a fell-mate of word b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#feminine_form_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_feminine_form"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">English noun a is the feminine form of noun b (functional for the nouns the dataset uses: each feminine form belongs to one masculine noun)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#fen_divisor_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is a fen-divisor of number b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#fennopes">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a fennopes b (fictional; insert 0019 makes it the inverse of quorlish_to)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#ferrel_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is ferrel-bound to person b (fictional; insert 0015 makes it not transitive)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ferrel_linked_to">
@@ -1201,6 +1494,19 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">crystal a fesk-charges crystal b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#final_exile_on">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#exiled_to"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a spent their final (last) exile on island or place b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#financial_capital_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_financial_capital"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">city a is the financial capital (the main financial centre) of country b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#first_chancellor_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was the first chancellor of state b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1208,6 +1514,27 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#first_line_treatment">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">condition a's first-line drug treatment is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#first_proved">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#first_proved_by"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was the first to prove theorem b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#first_proved_by">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#first_proved"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#proved_by"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">theorem a was first proved by b (the first complete, accepted proof; one prover or team; theorems first proved independently by more than one party are not used with this relation)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#first_released_in_year">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">product a was first released in year b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#flint_marked_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">landmark a is flint-marked in region b (fictional; insert 0019 removes the chain with located_in)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#flint_mate_of">
@@ -1236,6 +1563,17 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#follows_in_series">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#precedes_in_series"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a comes later in the same series than work b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#fork_of">
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#derived_from_source_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">software project a is a fork of project b (it began as a copy of b's source code)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#format_war_rival_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">format a competed against format b in a format war (each format the dataset uses fought one format war, against one rival: a dataset stipulation, true of VHS, Betamax, HD DVD and Blu-ray)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#formed">
@@ -1299,6 +1637,29 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">star a fuses b (e.g. hydrogen into helium) in its core</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#gantry_steward_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">organisation a is a gantry steward of project b (fictional; insert 0018 makes gantry_stewarded_by its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#gantry_stewarded_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">project a is gantry-stewarded by organisation b (fictional; inverse of gantry_steward_of by insert 0018)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#gender_counterpart_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">noun a is the opposite-sex counterpart of noun b (kinship and role pairs: nephew/niece, brother/sister). Functional for the standard nouns the dataset uses, each of which has one standard counterpart; because it is also symmetric, both directions of a pair are filled slots, so questions must not use a candidate that already has a counterpart of its own (a dialect noun is exempt from `functional`: a regional synonym may share a counterpart, as 'ommick' and 'uncle' share 'aunt'). Suffix-derived feminine forms of the same noun (emperor/empress) are `has_feminine_form`, in staging/grammar-replace-abox.RELATIONS.md</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#gender_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_gender"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">grammatical gender a is the gender of noun b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#gilt_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is gilt-bound to work b (fictional; insert 0017 makes it a subproperty of precedes_in_series)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#gives_access_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">distribution a gives its users access to repository b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1309,6 +1670,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#glimvers">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a glimvers b (fictional; insert 0020 makes it a subproperty of ostrels)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#glint_partner_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a is the glint-partner of particle b (fictional; insert 0017 makes it not a subproperty of has_same_mass_as)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#gloam_holds">
@@ -1349,6 +1714,11 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#graft_nested_in">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">set a is graft-nested in set b (fictional; insert 0018 makes it transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#grammatical_person_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_grammatical_person"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">grammatical person a is the person of pronoun b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#grand_quill_of">
@@ -1424,6 +1794,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">town a is harbour-sworn to place b (fictional; insert 0017 adds harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#harrow_sworn_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">moon a is harrow-sworn to planet b (fictional; insert 0018 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#harwick_head_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">in invented Harwick grammar, word a is the Harwick head of word b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1466,9 +1840,24 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">region a's beacon city is b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_beacon_regent">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">country a has beacon-regent b (fictional; insert 0020 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_best_selling_console">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#best_selling_console_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a's best-selling video game console is b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_birth_mother">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a's birth mother (the woman who gave birth to a) is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_bit_length">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">address a (or every address of class a) is b bits long</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_brask_partner">
@@ -1483,6 +1872,18 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_brood_form">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#brood_form_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a has the brood-form b (fictional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_cairn_curator">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">project a has cairn curator b (fictional; insert 0020 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_cairn_port">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">region a has a cairn-port in town b (fictional; insert d003 makes it functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_calder_mate">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">whole number a has Calder mate b (fictional; insert 0020 makes it functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_calling_code">
@@ -1523,10 +1924,35 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a has climate type b (a Köppen climate)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_cube">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_value"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#has_cube"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the cube of number a is b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_currency">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#currency_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a's currency is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_dam">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#stands_on_river"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">river a has dam b standing on it</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_derivative">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">differentiable function a has derivative function b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_diagonal_count">
@@ -1539,6 +1965,27 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_diet">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every a is b (carnivorous, herbivorous, ...)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_digit_count">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_value"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#has_digit_count"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">whole number a has b digits in base ten</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_discoverer">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#discoverer_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">discovery a was made by discoverer b (a person or team credited with it; one discoverer or team per discovery, unlike discovered_by)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_divisor_count_parity">
@@ -1554,14 +2001,34 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a casts electoral votes in US presidential elections, b being its allocation</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_ember_witness">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a has b as ember-witness (fictional; insert 0020 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_end_tag_rule">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">HTML element a's end tag is b (required, optional or forbidden)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_face_count">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every solid of class a (or solid a) has b faces</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_face_shape">
   <owl:propertyChainAxiom>
     <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#has_face_shape"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#subclass_of"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_regular_face"/>
       <rdf:rest>
         <rdf:Description>
           <rdf:first rdf:resource="http://sids.dataset/rel#subclass_of"/>
@@ -1578,6 +2045,18 @@
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#father_of"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#child_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a's father is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_feminine_form">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#feminine_form_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">English noun a (a masculine title or role noun) has the feminine form b, usually made with a suffix such as '-ess' (functional for the nouns the dataset uses, each of which has one standard feminine form)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_financial_capital">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#financial_capital_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">country a's financial capital (its main financial centre) is city b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_formula">
@@ -1598,6 +2077,7 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_gender">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#gender_of"/>
   <owl:propertyChainAxiom>
     <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#has_head"/>
@@ -1623,6 +2103,7 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_grammatical_person">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#grammatical_person_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">personal pronoun a is in grammatical person b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -1681,6 +2162,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a has Kessler root b (invented relation)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_ketch_value">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">function a has ketch value b (fictional; insert 0017 makes it functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_key_signature">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">musical key a has key signature b</rdfs:comment>
@@ -1690,13 +2175,60 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a's korrin-host is b (invented relation)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_lamp_scribe">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a has person b as lamp-scribe (fictional; insert 0020 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_amphitheatre">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_amphitheatre_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the largest amphitheatre in place a is amphitheatre b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_asset_manager">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_asset_manager_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">among the asset managers headquartered in city a, the largest by assets under management is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_bank">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_bank_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">among the banks headquartered in city a, the largest by total assets is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_battle">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_battle_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the largest battle ever fought in place a was battle b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_church">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_church_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the largest church (by size) in place a is church b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_city">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_city_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">b is the largest city of a</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_hydro_station">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_hydro_station_on"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the largest hydroelectric power station on river a is b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_moon">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">planet a's largest moon is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_palace">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#largest_palace_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the largest palace complex in place a is palace b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_largest_planet">
@@ -1725,6 +2257,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every poem of form a has b lines</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_lobe">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#lobe_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">organ a has structure b as one of its lobes</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_maintainer">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">project a is maintained by b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1744,6 +2281,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every polygon of class a has Merrow count b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_midnight_sun_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a (or every member of place class a) has its midnight sun in season b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_minimum_age">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">members of class a must be at least age b</rdfs:comment>
@@ -1753,8 +2295,43 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a has a morvane layer (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_most_famous_painting_in_city">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#most_famous_painting_in_city"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the most famous painting in city a is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_most_famous_painting_in_region">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#most_famous_painting_in_region"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the most famous painting in region a (a city, a country or the world) is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_most_visited_museum">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#most_visited_museum_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the most visited museum in city a is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_most_visited_museum_in_region">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#most_visited_museum_in_region"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the most visited museum in region a (a city, a country or the world) is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_moving_parts">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">device a (or every device of class a) has moving parts, or has none</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_mt_haplogroup">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a has mitochondrial DNA haplogroup b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_narrator">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#narrator_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the narrator of literary work a is character b (one narrator each for the works the dataset uses; the catalogue's `narrated_by` has no properties)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_norse_site">
@@ -1763,6 +2340,12 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_official_language">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">country a has official language b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_official_script">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#official_script_of"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#written_in_script"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">language a is officially written in script b (some languages, such as Serbian, have two official scripts)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_outcome">
@@ -1782,6 +2365,10 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_part">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#part_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a has b as a part</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_party">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">treaty a has state b as a party (a signatory bound by it)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_past_participle">
@@ -1815,6 +2402,12 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a has political status b (a US state, a US territory, ...)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_presidential_successor">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#presidential_successor_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a presidency of a was directly followed by the presidency of b (one successor per presidency; a man with two separate presidencies counts each)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_primary_key">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">relational table a has primary key b</rdfs:comment>
 </owl:ObjectProperty>
@@ -1826,6 +2419,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_profession">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a works as b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_progenitor">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every supernova of kind a is the explosion of a star of kind b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_proof">
@@ -1851,8 +2448,24 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hadron a's quark content is b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_rationality">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#real_number_class_includes"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">real number a is b (rational or irrational)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_read_access_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">principal a can read resource b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_reed_steward">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a has reed steward b (fictional; insert 0020 makes it not functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_regular_face">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#face_shape_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every face of polyhedron a is the regular polygon b (equilateral triangle, square, regular pentagon)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_rhyme_scheme">
@@ -1864,6 +2477,16 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nuclide a has the same atomic number as nuclide b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_same_mass_as">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle or body a has the same rest mass as b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_sedge_mark">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">German noun a has the sedge-mark b (fictional; insert 0020 makes it non-functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_series_representation">
@@ -1894,6 +2517,38 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">pulsar a (or every pulsar of class a) spins at rate b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_square">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_square_root"/>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_square"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#equals"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the square of number a is b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_square_root">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_square"/>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_square_root"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#equals"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">positive number a has positive square root b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_stem_type">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">words of class a have stem type b</rdfs:comment>
@@ -1903,6 +2558,22 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">whole number a has successor b (b = a + 1)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_summer_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a (or every member of place class a) has its summer in months b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_summer_solstice_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a (or every member of place class a) has its summer solstice in month b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_surface_sides">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#sidedness_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">surface a, in ordinary space, has b sides (one-sided or two-sided)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_symptom">
@@ -1926,6 +2597,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_term_length">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">holders of office a serve terms of length b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_territory">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#territory_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">country a has place b as one of its territories</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_tessic_coil">
@@ -1955,6 +2631,12 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a is represented in the US Senate, b being one of its senators</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_value">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#equals"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">named number a has the value b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_vell_partner">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a has vell partner b (fictional)</rdfs:comment>
@@ -1962,6 +2644,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_vessel_slot">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">container a has Vessel slot b (invented scheduler)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#has_wren_form">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">verb a has the wren-form b (fictional; insert 0018 gives it the inverse past_tense_of)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#hask_coupled_to">
@@ -2031,6 +2717,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was hearth-tied to person b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#hearth_warden_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the hearth-warden of person b (fictional; insert 0017 makes it not a subproperty of parent_of)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#held_cinder_oath_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a held the cinder-oath of person b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
@@ -2050,6 +2740,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#holds_manuscript">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">library or monastery a holds manuscript b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#holm_keyed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is holm-keyed to number b (fictional; insert 0016 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#home_exchange">
@@ -2088,6 +2782,12 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#illustrated_by">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#illustrated"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a was illustrated by b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_class">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#class_includes"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">animal kind a belongs to biological class b (mammals, birds, reptiles, cartilaginous fishes, ...)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_drainage_basin_of">
@@ -2131,18 +2831,58 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">element a is in group of elements b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_instrument_family">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#instance_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">musical instrument a belongs to orchestral instrument family b (strings, woodwinds, brass or percussion)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_particle_family">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#family_includes"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#instance_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a belongs to the particle family b, one of lepton, quark, meson, baryon, gauge boson and scalar boson (every particle is in exactly one; "family" here means this class, not generation): the functional sub-relation of `instance_of` that picks out a particle's one family</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_periodic_group">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">group of elements a is group b of the periodic table</rdfs:comment>
 </owl:ObjectProperty>
 
-<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_time_zone">
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_state">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a lies in state or province b (its first-level division)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_thermal_equilibrium_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is in thermal equilibrium with body b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#in_time_zone">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#stands_in"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#in_time_zone"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a observes time zone b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#includes_element">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#in_group"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">group of elements a includes element b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#includes_language">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">language group a includes language or language group b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#incorporated_in">
@@ -2191,6 +2931,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every poem of form a is ink-keyed to colour b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#ink_sealed_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">treaty a was ink-sealed in city b (fictional; insert 0019 gives it the chain with located_in into has_party)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#inscribed_in">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#circumscribed_about"/>
@@ -2209,6 +2953,17 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#instance_of">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#in_particle_family"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#subclass_of"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <owl:propertyChainAxiom>
     <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#instance_of"/>
@@ -2456,6 +3211,14 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is kestrel-bonded to b (invented; insert 0021 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#kestrel_patron_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">firm a is a kestrel patron of firm b (fictional; insert 0018 makes kestrel_sheltered_by its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#kestrel_sheltered_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">firm a is kestrel-sheltered by firm b (fictional; inverse of kestrel_patron_of by insert 0018)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#keth_anchor_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is the keth anchor of body b (invented)</rdfs:comment>
 </owl:ObjectProperty>
@@ -2481,6 +3244,10 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#killed_in_war">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was killed in war b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#kiln_keyed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is kiln-keyed to word b (fictional; insert 0015 makes it non-transitive)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#kiln_lender_to">
@@ -2540,11 +3307,56 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every musical work of form a is lantern-tuned to planet b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_amphitheatre_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_amphitheatre"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">amphitheatre a is the largest amphitheatre in place b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_asset_manager_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_asset_manager"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#headquartered_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">asset manager a is the largest by assets under management headquartered in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_bank_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_bank"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#headquartered_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">bank a is the largest bank by total assets headquartered in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_battle_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_battle"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#took_place_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">battle a was the largest battle ever fought in place b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_church_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_church"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">church a is the largest church (by size) in place b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_city_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_city"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is the largest city of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_hydro_station_on">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_hydro_station"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#stands_on_river"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">power station a is the largest hydroelectric power station on river b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#largest_palace_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_largest_palace"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">palace a is the largest palace complex in place b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#latin_name">
@@ -2569,11 +3381,26 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">firm a is ledger-sworn to organisation b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#ledger_warden_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the ledger-warden of company b (fictional; insert 0017 makes it not a subproperty of works_for)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#lends_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a lends to b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#less_than">
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#has_value"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#less_than"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#greater_than"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is less than b</rdfs:comment>
@@ -2626,6 +3453,8 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#lobe_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_lobe"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#part_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">structure a is a lobe of organ b</rdfs:comment>
 </owl:ObjectProperty>
@@ -2634,6 +3463,17 @@
   <owl:propertyChainAxiom>
     <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#capital_of"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#financial_capital_of"/>
       <rdf:rest>
         <rdf:Description>
           <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
@@ -2655,6 +3495,17 @@
   </owl:propertyChainAxiom>
   <owl:propertyChainAxiom>
     <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#in_state"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#lantern_seat_of"/>
       <rdf:rest>
         <rdf:Description>
@@ -2666,6 +3517,17 @@
   </owl:propertyChainAxiom>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#contains"/>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#stands_on_river"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#located_in"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is located in b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -2718,6 +3580,15 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person or organisation a maintains software b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#makes_console">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#console_made_by"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a makes video game console b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#manufactured_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">product a is made by company b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#manuscript_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">manuscript a preserves a copy of literary work b</rdfs:comment>
 </owl:ObjectProperty>
@@ -2734,6 +3605,14 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was marshal of b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#marten_patron_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was a marten patron of person b (fictional; insert 0018 makes marten_sheltered_by its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#marten_sheltered_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was marten-sheltered by person b (fictional; inverse of marten_patron_of by insert 0018)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#means_in_english">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a means b in English</rdfs:comment>
 </owl:ObjectProperty>
@@ -2744,9 +3623,20 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">quantity a is measured in SI unit b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#megamerger_partner_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a completed its megamerger with company b, the one merger it is best known for (one partner per company)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#member_of">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_member"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is a member of (a delegate to) body b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#merged_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a merged with company b (a company can take part in several mergers)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#meronym_of">
@@ -2764,6 +3654,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#minor_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">graph a is a minor of graph b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#minted_by">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">coins of kind a (or every coin of class a) are made by agency b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#mirror_nucleus_of">
@@ -2809,8 +3704,45 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">town a is the moor-warden of town b (fictional; insert 0018 gives it the inverse moor_ward_of)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#more_massive_than">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body or particle a has a greater mass than b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#morpheme_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is a morpheme of word b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#moss_sealed_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is moss-sealed in city b (fictional; insert 0019 removes the chain with located_in)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#most_famous_painting_in_city">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_most_famous_painting_in_city"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">painting a is the most famous painting in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#most_famous_painting_in_region">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_most_famous_painting_in_region"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">painting a is the most famous painting in region b (a city, a country or the world)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#most_visited_museum_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_most_visited_museum"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#located_in"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">museum a is the most visited museum in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#most_visited_museum_in_region">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_most_visited_museum_in_region"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">museum a is the most visited museum in region b (a city, a country or the world)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#moth_keyed_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was moth-keyed in year b (fictional; insert 0020 makes it not functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#mother_of">
@@ -2846,6 +3778,11 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#narrated_by">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is narrated by character b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#narrator_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_narrator"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">character a is the narrator of literary work b (a character can narrate more than one work)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#nicknamed">
@@ -2901,6 +3838,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">every a has b US senators</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#oak_joined_with">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">state a was oak-joined with state b (fictional; insert d003 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#occurred_on">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">event a occurred on date b</rdfs:comment>
 </owl:ObjectProperty>
@@ -2908,6 +3849,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#official_currency_in">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">the official currency in place a (a city) is b: the city's country (`located_in`) composed with that country's `has_currency`. Functional, so it cannot be the target of an OWL chain; records encode the composition as a rule</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#official_script_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_official_script"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">script a is the official script of language b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#on_border_of">
@@ -2962,6 +3908,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#originally_developed_in">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">technology a was originally developed in place b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#orvanth_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a is orvanth-bound to particle b (fictional; insert d003 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ostrels">
@@ -3043,6 +3993,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">painting a was painted in place b (the city, and by the chain every place that contains it)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#pairs_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nucleobase a forms a Watson-Crick base pair with nucleobase b in a nucleic-acid duplex (DNA or RNA); among natural bases a base has one partner within one kind of duplex (adenine with thymine in DNA, with uracil in RNA); synthetic analogues can add further partners, so it is not functional</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#pane_word_of">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">English word a is the pane-word of German noun b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
@@ -3078,6 +4033,17 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#part_of">
   <owl:propertyChainAxiom>
     <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#aria_in"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#part_of"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
       <rdf:first rdf:resource="http://sids.dataset/rel#lobe_of"/>
       <rdf:rest>
         <rdf:Description>
@@ -3090,6 +4056,12 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_part"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is part of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#part_of_war">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#war_includes_battle"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">battle a was fought as part of war b; one war per battle (the tagged counterpart of `battle_of`, which RELATIONS.md lists without tags, so a contraction of it could not be paired)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#past_formed_with">
@@ -3142,6 +4114,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is pellith-tethered to body b (fictional; insert 0016 adds pellith_tethered_to ∘ orbits ⊑ pellith_tethered_to)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#pennant_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">firm a is pennant-bound to firm b (fictional; insert 0016 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#permits_use">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">software license a permits kind of use b</rdfs:comment>
 </owl:ObjectProperty>
@@ -3167,6 +4143,15 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">line a is perpendicular to line b, both lines in one plane</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#pin_compatible_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">chip a is pin-compatible with chip b (it fits the same socket, with the same functions on the same pins)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#played_for_national_team">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">footballer a played for the national football team of country b (many-valued in general: FIFA has let some players represent two countries, e.g. Alfredo Di Stéfano for Argentina and Spain, and allows a one-time switch since 2020; a record that takes one country for granted states it as a presupposition)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#plural_formed_with">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nouns of class a form their plural with ending b</rdfs:comment>
@@ -3181,6 +4166,11 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is the plural of b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#positive_square_root_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_square_root"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">positive number a is the positive square root of positive number b (the inverse reading of has_square_root, which is functional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#power_zero_equals">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a (or every number of class a) raised to the power 0 equals b</rdfs:comment>
@@ -3193,6 +4183,12 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#preceded">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#succeeded"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a preceded b (in an office: a held it just before b)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#preceded_as_pope">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#succeeded_as_pope"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a preceded b as pope (a was pope immediately before b)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#precedes_in_series">
@@ -3245,6 +4241,12 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">on date a, the US president was b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#presidential_successor_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_presidential_successor"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a presidency of a directly followed a presidency of b (one predecessor per presidency)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#prey_of">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#preys_on"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is prey of b</rdfs:comment>
@@ -3289,6 +4291,7 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#produced_by_organ">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#produces_hormone"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">hormone a is produced by organ b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -3301,6 +4304,11 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#produced_by"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">combining or treating a produces result b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#produces_hormone">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#produced_by_organ"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">organ a produces hormone b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#produces_sound_by">
@@ -3365,6 +4373,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was quill-bonded to person b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#quill_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a is quill-bound to place b (fictional; insert 0015 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#quill_matched_with">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is quill-matched with b (fictional; insert 0015 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
@@ -3377,6 +4389,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is quill-paired with word b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#quill_sworn_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">writer a is quill-sworn to writer b (fictional; insert 0016 makes it not symmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#quill_twinned_with">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">novel a is quill-twinned with novel b (fictional)</rdfs:comment>
@@ -3384,6 +4400,11 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#quorlish_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is quorlish to b (fictional; inverse of fennopes by insert 0019)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#rainier_season_in">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a (or every member of place class a) gets more rain in season b than in the opposite season</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#raised_by">
@@ -3404,6 +4425,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ranks_senior_to">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">claim a ranks senior to claim b on the same issuer</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#real_number_class_includes">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_rationality"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">class a of real numbers (the rational numbers, the irrational numbers) includes number b (the inverse reading of has_rationality, which is functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#rear_vassal_of">
@@ -3488,6 +4514,14 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">town a is the riverward neighbour of town b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#rook_patron_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">writer a is a rook patron of writer b (fictional; insert 0018 makes rook_sheltered_by its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#rook_sheltered_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">writer a is rook-sheltered by writer b (fictional; inverse of rook_patron_of by insert 0018)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#root_of">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#derived_from"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is a word that word b derives from</rdfs:comment>
@@ -3529,6 +4563,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is sable-bound to b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#salt_pledged_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">island a is salt-pledged to port b (fictional)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#same_country_as">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
@@ -3539,9 +4577,18 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">speculative episode a saw trade in tulip (variety) b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sconce_tied_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">firm a is sconce-tied to firm b (fictional; insert 0015 makes it not transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#scored_for">
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#instrument_in"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ensemble or work a is scored for instrument b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#script_used_for">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#written_in_script"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">script a is used to write language b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#sealed_by">
@@ -3552,8 +4599,20 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">city a is the second-largest city of country b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sedge_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is sedge-bound to b (fictional; insert d003 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sedge_filed_under">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is sedge-filed under word b (fictional; insert d003, paired with replace d006, is given the property asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#sends_message_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a sends a message to b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sentenced_to_exile_for">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a (or every member of class a) was sentenced to exile for a term of b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#sequel_of">
@@ -3587,6 +4646,12 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a was born on the same day of the year as b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#shares_longest_border_with">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">country a shares the world's longest international border with country b</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#shield_sworn_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a was shield-sworn (an invented oath) to person b</rdfs:comment>
 </owl:ObjectProperty>
@@ -3598,6 +4663,11 @@
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#sibling_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is a sibling of b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sidedness_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_surface_sides"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number of sides a (one or two) is the number of sides of surface b (the inverse reading of has_surface_sides, which is functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#sign_caused_by_lack_of">
@@ -3639,6 +4709,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">clade a is the sister group of clade b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#skein_aligned_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">line a is skein-aligned to line b, both in one plane (fictional; insert 0019 adds skein_aligned_to ∘ parallel_to ⊑ skein_aligned_to)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#skein_linked_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is skein-linked to work b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
@@ -3665,6 +4739,19 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a is sorran-paired to particle b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#sorted_into">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Hogwarts student a was sorted into house b (one house per student)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#spar_cloned_from">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">project a is spar-cloned from project b (fictional; insert 0016 makes it not a subproperty of derived_from_source_of)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#spindle_routed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">board a is spindle-routed to board b (fictional; insert 0015 makes it not transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#spire_partnered_with">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a is spire-partnered with company b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
@@ -3677,6 +4764,25 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is married to b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#square_root_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_square"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is a square root of number b (the inverse reading of has_square, which is functional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#stands_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">building or landmark a stands in city b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#stands_on_river">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_dam"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">dam or power station a stands on river b (a dam stands on one river, and is in the country the river runs through at that point)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#stave_registered_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">company a is stave-registered in place b (fictional; insert 0019 removes the chain with located_in)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#stem_twin_of">
@@ -3739,6 +4845,12 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a succeeded b (in an office)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#succeeded_as_pope">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#preceded_as_pope"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a succeeded b as pope (b was pope immediately before a)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#successor_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
@@ -3799,6 +4911,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">subjects of class a take present-tense verb form b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tallow_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is tallow-bound to person b (fictional; insert 0016 makes it not symmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#tallow_precedes">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a tallow-precedes b (fictional; insert 0016 makes it transitive)</rdfs:comment>
 </owl:ObjectProperty>
@@ -3815,10 +4931,35 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">service a is pinned to node b (invented deployment system)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tarn_steward_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a is the tarn-steward of discovery b (fictional; insert 0020 makes tarn_ward_of its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tarn_tied_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a is tarn-tied to place b (fictional; insert 0017 makes it not transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tarn_ward_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">discovery a is the tarn-ward of person b (fictional; inverse of tarn_steward_of by insert 0020)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#teacher_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#student_of"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a taught b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tern_keeper_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">town a is the tern-keeper of lake b (fictional; insert 0016 makes tern_kept_by its inverse)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tern_kept_by">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">lake a is tern-kept by town b (fictional; inverse of tern_keeper_of by insert 0016)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#territory_of">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#has_territory"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">place a is a territory of country b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#tessel_outranks">
@@ -3829,8 +4970,16 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a is tessel-paired with particle b (invented)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#thessarine_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is thessarine to b (fictional; insert d003 makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#thessed_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is thessed to b (invented relation)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#thistle_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ruler a was thistle-bound to ruler b (fictional; insert 0016 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#thorn_feuded_with">
@@ -3842,6 +4991,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is Thorne-below number b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#threlved_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">structure a is threlved to structure b (fictional; only `cardinality:many` before biology-insert-d003, which makes it asymmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#thren_linked_with">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nebula a is thren-linked with nebula b (fictional)</rdfs:comment>
@@ -3849,6 +5002,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#thrennates">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a thrennates b (invented relation)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#thrum_keyed_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">particle a is thrum-keyed to particle b (fictional; insert 0015 makes it symmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#ticker_of">
@@ -3876,6 +5033,10 @@
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is tide-sworn to b (fictional)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#tine_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">product a is tine-bound to product b (fictional; insert 0017 makes it asymmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#tithe_bound_to">
@@ -3913,9 +5074,23 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#transmits">
-  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#transmitted_by"/>
+  <owl:propertyChainAxiom>
+    <rdf:Description>
+      <rdf:first rdf:resource="http://sids.dataset/rel#transmits_pathogen"/>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first rdf:resource="http://sids.dataset/rel#causes_disease"/>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </owl:propertyChainAxiom>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">vector a transmits disease b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#transmits_pathogen">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">vector a transmits pathogen b</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#transmitted_by">
@@ -3996,6 +5171,14 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">operating system a separates directory names in file paths with character b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vane_rooted_in">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is vane-rooted in number b (fictional; insert 0015 makes it transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vane_sworn_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is vane-sworn to object b (fictional; insert 0019 removes the chain with located_in)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#vane_word_of">
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#pane_word_of"/>
   <owl:propertyChainAxiom>
@@ -4031,8 +5214,16 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">central bank a is vault-paired with central bank b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vault_sworn_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">artwork a is vault-sworn to museum or place b (fictional; insert 0019 adds vault_sworn_to ∘ located_in ⊑ vault_sworn_to)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#vel_bound_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">body a is vel-bound to body b (invented)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#veld_sworn_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">planet a is veld-sworn to star b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#velk_bonds_with">
@@ -4052,8 +5243,20 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">artist a is a vellum-partner of artist b (invented)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vellum_threaded_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is vellum-threaded to work b (fictional; insert 0015 makes it not transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#velmor_senior_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is velmor-senior to b (invented; insert 0022 makes it transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vesper_bound_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is vesper-bound to b (fictional; insert d003 makes it symmetric)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vesper_matched_with">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">word a is vesper-matched with word b (fictional; insert 0017 denies it is a subproperty of derived_from)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#vessic_linked_with">
@@ -4064,6 +5267,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fluid a becomes b (more or less viscous) as the shear rate increases</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#vorn_marked">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a vorn-marked person b (fictional; insert 0017 makes it not a subproperty of killed)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#vosk_locked_to">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#SymmetricProperty"/>
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
@@ -4072,6 +5279,11 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#vossel_tied_to">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a is vossel-tied to b (fictional; insert 0015 makes it transitive)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#war_includes_battle">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#part_of_war"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">war a included battle b (the inverse reading of part_of_war, which is functional)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#warmed_by">
@@ -4101,6 +5313,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">work a is wend-paired with work b (fictional)</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#wend_tied_to">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">number a is wend-tied to number b (fictional; insert 0018 makes it a subproperty of greater_than)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#wholly_owned_subsidiary_of">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AsymmetricProperty"/>
   <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#subsidiary_of"/>
@@ -4109,6 +5325,16 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#whs_inscribed_in">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">site a was inscribed on the UNESCO World Heritage List in year b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#wife_of">
+  <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+  <rdfs:subPropertyOf rdf:resource="http://sids.dataset/rel#spouse_of"/>
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">woman a was the wife of man b (functional for the people the dataset uses, each of whom married once)</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#wold_warden_of">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">city a is the wold-warden of country b (fictional; insert 0018 makes it not a subproperty of located_in)</rdfs:comment>
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#won_battle">
@@ -4160,6 +5386,10 @@
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a worked in country b</rdfs:comment>
 </owl:ObjectProperty>
 
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#works_for">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">person a works for organisation b (is employed by it)</rdfs:comment>
+</owl:ObjectProperty>
+
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#written_by">
   <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
   <owl:inverseOf rdf:resource="http://sids.dataset/rel#author_of"/>
@@ -4178,6 +5408,7 @@
 </owl:ObjectProperty>
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#written_in_script">
+  <owl:inverseOf rdf:resource="http://sids.dataset/rel#script_used_for"/>
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">text or language a is written in script b</rdfs:comment>
 </owl:ObjectProperty>
 
@@ -4188,6 +5419,10 @@
 
 <owl:ObjectProperty rdf:about="http://sids.dataset/rel#written_on">
   <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">manuscript a (or every manuscript of class a) is written on material b</rdfs:comment>
+</owl:ObjectProperty>
+
+<owl:ObjectProperty rdf:about="http://sids.dataset/rel#zorvels">
+  <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">a zorvels b (fictional nonce verb; insert d003 makes it asymmetric)</rdfs:comment>
 </owl:ObjectProperty>
 
 <swrl:Variable rdf:about="urn:swrl#x"/>
@@ -4325,6 +5560,81 @@
           <rdf:first>
             <swrl:IndividualPropertyAtom>
               <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#upstream_of"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#x"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:ClassAtom>
+          <swrl:classPredicate rdf:resource="http://www.w3.org/2002/07/owl#Nothing"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+        </swrl:ClassAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#transmits_pathogen"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#causes_disease"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#transmits"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#transmits"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#transmits"/>
               <swrl:argument1 rdf:resource="urn:swrl#y"/>
               <swrl:argument2 rdf:resource="urn:swrl#x"/>
             </swrl:IndividualPropertyAtom>
@@ -4962,44 +6272,6 @@
         <rdf:Description>
           <rdf:first>
             <swrl:IndividualPropertyAtom>
-              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#word_class"/>
-              <swrl:argument1 rdf:resource="urn:swrl#y"/>
-              <swrl:argument2 rdf:resource="urn:swrl#z"/>
-            </swrl:IndividualPropertyAtom>
-          </rdf:first>
-          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-        </rdf:Description>
-      </rdf:rest>
-    </rdf:Description>
-  </swrl:body>
-  <swrl:head>
-    <rdf:Description>
-      <rdf:first>
-        <swrl:IndividualPropertyAtom>
-          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#word_class"/>
-          <swrl:argument1 rdf:resource="urn:swrl#x"/>
-          <swrl:argument2 rdf:resource="urn:swrl#z"/>
-        </swrl:IndividualPropertyAtom>
-      </rdf:first>
-      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
-    </rdf:Description>
-  </swrl:head>
-</swrl:Imp>
-
-<swrl:Imp>
-  <swrl:body>
-    <rdf:Description>
-      <rdf:first>
-        <swrl:IndividualPropertyAtom>
-          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stem_twin_of"/>
-          <swrl:argument1 rdf:resource="urn:swrl#x"/>
-          <swrl:argument2 rdf:resource="urn:swrl#y"/>
-        </swrl:IndividualPropertyAtom>
-      </rdf:first>
-      <rdf:rest>
-        <rdf:Description>
-          <rdf:first>
-            <swrl:IndividualPropertyAtom>
               <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#word_of_language"/>
               <swrl:argument1 rdf:resource="urn:swrl#y"/>
               <swrl:argument2 rdf:resource="urn:swrl#z"/>
@@ -5038,6 +6310,44 @@
         <rdf:Description>
           <rdf:first>
             <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#word_class"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#word_class"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stem_twin_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
               <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stem_twin_of"/>
               <swrl:argument1 rdf:resource="urn:swrl#y"/>
               <swrl:argument2 rdf:resource="urn:swrl#z"/>
@@ -5053,6 +6363,82 @@
       <rdf:first>
         <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stem_twin_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stands_on_river"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#stands_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_time_zone"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_time_zone"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#z"/>
         </swrl:IndividualPropertyAtom>
@@ -5908,6 +7294,81 @@
           <rdf:first>
             <swrl:IndividualPropertyAtom>
               <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#multiple_of"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#x"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:ClassAtom>
+          <swrl:classPredicate rdf:resource="http://www.w3.org/2002/07/owl#Nothing"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+        </swrl:ClassAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#more_massive_than"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#more_massive_than"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#more_massive_than"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#more_massive_than"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#more_massive_than"/>
               <swrl:argument1 rdf:resource="urn:swrl#y"/>
               <swrl:argument2 rdf:resource="urn:swrl#x"/>
             </swrl:IndividualPropertyAtom>
@@ -6842,6 +8303,195 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_time_zone"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_time_zone"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_thermal_equilibrium_with"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_thermal_equilibrium_with"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_thermal_equilibrium_with"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_state"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_state"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#drives_on_side"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#drives_on_side"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_particle_family"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#subclass_of"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#instance_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#in_drainage_basin_of"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -6956,6 +8606,308 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_value"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_digit_count"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_digit_count"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_value"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#less_than"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#less_than"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_value"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_cube"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_cube"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square_root"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#equals"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square_root"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square_root"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square_root"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#equals"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_square"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_same_mass_as"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_same_mass_as"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_same_mass_as"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_same_atomic_number_as"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -6980,6 +8932,44 @@
       <rdf:first>
         <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_same_atomic_number_as"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_regular_face"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#subclass_of"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_face_shape"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#z"/>
         </swrl:IndividualPropertyAtom>
@@ -7219,6 +9209,80 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_digit_count"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_digit_count"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_cube"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#has_cube"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#happened_before"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -7393,6 +9457,82 @@
       <rdf:first>
         <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#found_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#financial_capital_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#final_exile_on"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#exiled_to"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#z"/>
         </swrl:IndividualPropertyAtom>
@@ -8201,6 +10341,43 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#composed_by"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#composed_by"/>
+              <swrl:argument1 rdf:resource="urn:swrl#x"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:SameIndividualAtom>
+          <swrl:argument1 rdf:resource="urn:swrl#y"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:SameIndividualAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#compatriot_of"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -8429,6 +10606,44 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#buried_at"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#buried_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#built_in"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -8543,6 +10758,44 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#born_in_town"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#located_in"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#born_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#born_in"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -8581,6 +10834,81 @@
     <rdf:Description>
       <rdf:first>
         <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#x"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:ClassAtom>
+          <swrl:classPredicate rdf:resource="http://www.w3.org/2002/07/owl#Nothing"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+        </swrl:ClassAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#based_on"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#y"/>
@@ -8605,6 +10933,120 @@
       <rdf:first>
         <swrl:IndividualPropertyAtom>
           <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#derivative_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#author_wrote_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#belongs_to_language_group"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#author_wrote_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#aria_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#part_of"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#part_of"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#z"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+    </rdf:Description>
+  </swrl:head>
+</swrl:Imp>
+
+<swrl:Imp>
+  <swrl:body>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#aria_in"/>
+          <swrl:argument1 rdf:resource="urn:swrl#x"/>
+          <swrl:argument2 rdf:resource="urn:swrl#y"/>
+        </swrl:IndividualPropertyAtom>
+      </rdf:first>
+      <rdf:rest>
+        <rdf:Description>
+          <rdf:first>
+            <swrl:IndividualPropertyAtom>
+              <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#composed_by"/>
+              <swrl:argument1 rdf:resource="urn:swrl#y"/>
+              <swrl:argument2 rdf:resource="urn:swrl#z"/>
+            </swrl:IndividualPropertyAtom>
+          </rdf:first>
+          <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+        </rdf:Description>
+      </rdf:rest>
+    </rdf:Description>
+  </swrl:body>
+  <swrl:head>
+    <rdf:Description>
+      <rdf:first>
+        <swrl:IndividualPropertyAtom>
+          <swrl:propertyPredicate rdf:resource="http://sids.dataset/rel#composed_by"/>
           <swrl:argument1 rdf:resource="urn:swrl#x"/>
           <swrl:argument2 rdf:resource="urn:swrl#z"/>
         </swrl:IndividualPropertyAtom>
