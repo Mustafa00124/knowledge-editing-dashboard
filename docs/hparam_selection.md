@@ -1,7 +1,9 @@
 # Hyperparameter selection: how each step's values were chosen
 
 Status: steps 0 and 1 done for 8 methods (AlphaEdit's step 1 launched 2026-11-07); step 2
-specs written 2026-11-07. This is the methods record for the paper. The design itself is in
+specs written 2026-11-07. This is the methods record for the paper. The analysis of the finished search
+(sensitivity, model vs method variation, trade-offs, how far the values generalise) is in
+`docs/hparam_analysis.md`. The design itself is in
 `docs/hparam_tuning_hierarchical_idea.md`; the run lists are in `docs/hparam_step1/` and
 `docs/hparam_step2/`; the analysis scripts are noted where used.
 
