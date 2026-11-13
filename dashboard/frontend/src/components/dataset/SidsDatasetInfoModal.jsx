@@ -200,13 +200,13 @@ export default function SidsDatasetInfoModal({ onClose }) {
               </p>
             </div>
             <div className="sids-axis">
-              <h4>Shape per topic <span className="sids-rubric-q">branch sids-determinacy-2</span></h4>
+              <h4>Shape per topic</h4>
               <p>
-                4 replace edits per topic in each box. ABox: 2 of facts likely stored, 2 of facts likely derived, each
-                with 2 determinate and 2 indeterminate derived queries. TBox: 2 determinate queries on new members named
-                in the prompt, 2 indeterminate on well-known members whose property may be stored directly. RBox: 2
-                "Does it follow that ...?" queries, determinate by construction. Mathematics may have every derived query
-                determinate, since a fact about a number leaves no consistent world to split between.
+                Main split: 20 edits per topic and operation. Revision: ABox 8 (6 stored, very unlikely to be derived,
+                and 2 derived, very likely; mathematics and grammar 8 stored), TBox 6, RBox 6. Contraction and expansion
+                pair with the revision records (the same fact removed; the same relation and new value with a made-up
+                subject). Every non-RBox record has 3 determinate 2-hop derived queries; main ABox revision adds 1
+                indeterminate. Dev split: 12 new records per topic, stored edits only, every query determinate.
               </p>
             </div>
             <div className="sids-axis">
