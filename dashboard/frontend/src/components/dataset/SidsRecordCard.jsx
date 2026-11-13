@@ -263,14 +263,14 @@ function RoleModal({ role, tags, info, onClose }) {
         <div className="modal-body">
           {info?.reads && <p className="sids-evidence-fact">Reads as: {info.reads}</p>}
           <table className="sids-evidence-table">
-            <thead><tr><th>Role type (DL)</th><th>Our tag</th><th>Notation</th><th>Axiom for this role</th></tr></thead>
+            <thead><tr><th>Role type (DL)</th><th>In plain words</th><th>Notation</th><th>Axiom for this role</th></tr></thead>
             <tbody>
               {tags.length ? tags.map((tag) => {
                 const t = roleTypeOf(tag)
                 return (
-                  <tr key={tag} title={t?.meaning}>
+                  <tr key={tag}>
                     <th scope="row">{t?.name || DASH}</th>
-                    <td><code>{tag}</code></td>
+                    <td>{t ? <><strong>{t.common}</strong>: {t.meaning}</> : DASH}</td>
                     <td><code>{t?.notation || DASH}</code></td>
                     <td><code>{roleAxiom(role, tag)}</code></td>
                   </tr>
@@ -278,7 +278,6 @@ function RoleModal({ role, tags, info, onClose }) {
               }) : <tr className="is-empty"><th scope="row">{DASH}</th><td>{DASH}</td><td>{DASH}</td><td>{DASH}</td></tr>}
             </tbody>
           </table>
-          <p className="sids-crit-note">Hover a row for what the axiom means.</p>
         </div>
       </div>
     </div>
