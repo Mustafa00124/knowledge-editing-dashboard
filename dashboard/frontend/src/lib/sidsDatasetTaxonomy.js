@@ -363,3 +363,18 @@ export function roleAxiom(role, tag) {
     default: return tag
   }
 }
+
+// A role's tags (RELATIONS.md) as description-logic role types: the DL name
+// shown on the record card, our original tag name, the notation and what it
+// means. Order: how they are listed.
+export const ROLE_TYPES = [
+  { tag: 'transitive', name: 'transitive role', notation: 'Trans(R)', meaning: 'a R b and b R c imply a R c' },
+  { tag: 'symmetric', name: 'symmetric role', notation: 'Sym(R)', meaning: 'a R b implies b R a' },
+  { tag: 'asymmetric', name: 'asymmetric role', notation: 'Asym(R)', meaning: 'a R b implies not b R a' },
+  { tag: 'functional', name: 'functional role', notation: 'Func(R)', meaning: 'at most one value per individual' },
+  { tag: 'cardinality', name: 'non-functional role', notation: 'no Func(R)', meaning: 'several values per individual (many-valued)' },
+  { tag: 'inverse', name: 'inverse role', notation: 'R ≡ S⁻', meaning: 'a R b if and only if b S a' },
+  { tag: 'subproperty', name: 'role inclusion', notation: 'R ⊑ S', meaning: 'a R b implies a S b' },
+  { tag: 'chain', name: 'role chain', notation: 'R ∘ S ⊑ T', meaning: 'a R b and b S c imply a T c' },
+]
+export const roleTypeOf = (tag) => ROLE_TYPES.find((t) => t.tag === String(tag).split(':')[0])

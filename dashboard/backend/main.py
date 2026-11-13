@@ -1291,7 +1291,12 @@ def get_sids_dataset_records():
     relations, relation_checks = {}, {}
     try:
         sid = _sids_validate()
-        relations = {name: {"tags": sorted(tags), "causal": causal}
+        reads = {}
+        for line in (config.DATASETS_DIR / "SidsDataset" / "RELATIONS.md").read_text().splitlines():
+            cells = [c.strip() for c in line.split("|")]
+            if len(cells) > 3 and cells[1].startswith("`") and cells[1].endswith("`"):
+                reads.setdefault(cells[1].strip("`"), cells[2])
+        relations = {name: {"tags": sorted(tags), "causal": causal, "reads": reads.get(name)}
                      for name, (tags, causal) in sid.load_relations()[0].items()}
         relation_checks = sid.load_relation_checks()
     except Exception:  # a broken RELATIONS.md should not hide the records
