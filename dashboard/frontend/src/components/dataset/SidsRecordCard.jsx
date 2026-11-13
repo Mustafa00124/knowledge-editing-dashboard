@@ -74,8 +74,9 @@ export function queryRows(rec) {
   const rows = []
   for (const key of Object.keys(QUERY_LABEL)) {
     const items = Array.isArray(q[key]) ? q[key] : q[key] ? [q[key]] : []
-    // A planned question type the record doesn't have yet: an empty row keeps its place.
-    if (!items.length && PLACEHOLDER_TYPES.includes(key) && rec.box !== 'rbox') {
+    // A related question this record should have but doesn't yet: an empty row keeps its place.
+    // Only ABox revision and contraction carry related questions (README, Queries per record type).
+    if (!items.length && PLACEHOLDER_TYPES.includes(key) && rec.box === 'abox' && rec.edit_operation !== 'insert') {
       rows.push({ key, auditKey: null, placeholder: true })
       continue
     }
