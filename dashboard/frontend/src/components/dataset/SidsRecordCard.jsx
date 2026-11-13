@@ -346,7 +346,7 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
           )}
           <div className="table-wrap">
             <table className="sids-query-table">
-              <thead><tr><th>Query</th><th>Prompt</th><th>Answer (original → new)</th><th>Derivation</th></tr></thead>
+              <thead><tr><th>Query</th><th>Prompt</th><th>Answer</th><th>Derivation</th></tr></thead>
               <tbody>
                 {queryRows(rec).map((r, i) => (
                   r.placeholder ? (
