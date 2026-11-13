@@ -101,16 +101,15 @@ export default function SidsDatasetBrowser() {
   // Which split the tabs show: main (records/, the test set) or dev (dev/, tuning only).
   const [split, setSplit] = useState('main')
   // Method rows: every core editing method's answers after the edit, per question.
-  const [methodSource, setMethodSource] = useState(null)
   const [methodData, setMethodData] = useState(null)
   const [methodError, setMethodError] = useState(null)
   const [methodDot, setMethodDot] = useState(null)
   useEffect(() => {
     setMethodData(null)
     setMethodError(null)
-    api.sidsDatasetMethodDots(methodSource).then((d) => { setMethodData(d); if (!methodSource) setMethodSource(d.source) })
+    api.sidsDatasetMethodDots('main').then(setMethodData)
       .catch((err) => setMethodError(String(err.message || err)))
-  }, [methodSource])
+  }, [])
   useEffect(() => {
     api.sidsDatasetFormalStatus().then(setFormal).catch(() => setFormal(null))
   }, [])
@@ -172,27 +171,15 @@ export default function SidsDatasetBrowser() {
     <div className="sids-browser">
       {records && <DatasetSummary benchmark="SidsDataset" breakdown={sidsBreakdown(pool)} />}
       <div className="sids-criteria-bar">
-        <span className="sids-rv-seg" role="radiogroup" aria-label="Split">
-          <span className="sids-rv-seg-label">Split</span>
-          {[['main', 'Main (test)', 'records/: the test set the paper reports'],
-            ['dev', 'Dev (tuning)', 'dev/: separate records used only for hyperparameter tuning']].map(([key, label, title]) => (
+        <span className="sids-rv-seg sids-split-seg" role="radiogroup" aria-label="Split">
+          {[['main', 'Main', 'records/: the test set the paper reports'],
+            ['dev', 'Dev', 'dev/: separate records used only for hyperparameter tuning']].map(([key, label, title]) => (
             <button key={key} type="button" role="radio" aria-checked={split === key} title={title}
               className={`sids-rv-seg-btn${split === key ? ' active' : ''}`} onClick={() => setSplit(key)}>
               {label}{records ? ` · ${splitCount(key)}` : ''}
             </button>
           ))}
         </span>
-        {methodData && (
-          <span className="sids-rv-seg" role="radiogroup" aria-label="Method results from">
-            <span className="sids-rv-seg-label">From</span>
-            {Object.entries(methodData.sources).map(([key, src]) => (
-              <button key={key} type="button" role="radio" aria-checked={methodSource === key} title={src.description}
-                className={`sids-rv-seg-btn${methodSource === key ? ' active' : ''}`} onClick={() => setMethodSource(key)}>
-                {src.label}
-              </button>
-            ))}
-          </span>
-        )}
         {!methodData && !methodError && <span className="sids-method-legend">Loading method results…</span>}
         {methodError && <span className="sids-method-legend">{methodError}</span>}
         <button type="button" className="btn-plain-small" onClick={() => setShowCriteria(true)}
@@ -282,7 +269,7 @@ export default function SidsDatasetBrowser() {
           audit={audit} onClose={() => setChain(null)} />
       )}
       {methodDot && (
-        <SidResponseModal method={methodDot.method.key} methodLabel={methodDot.method.label} source={methodSource}
+        <SidResponseModal method={methodDot.method.key} methodLabel={methodDot.method.label} source="main"
           model={methodDot.model} models={methodDot.models} record={methodDot.record} queryKey={methodDot.key}
           queryLabel={methodDot.label} onClose={() => setMethodDot(null)} />
       )}
