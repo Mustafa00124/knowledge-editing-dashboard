@@ -45,7 +45,7 @@ function Reviews({ r, onJump }) {
     <div className="sids-crit-flags">
       <Table rows={[['reviewer', 'green', 'red', 'yellow'],
         ...Object.entries(r.by_reviewer).map(([who, c]) => [who, c.green, c.red, c.yellow])]} />
-      <p className="sids-crit-note">{r.total} {r.unit}; {r.red.length} with a red mark.</p>
+      <p className="sids-crit-note">{r.total} {r.unit}; {new Set(r.red.map((x) => x.record)).size} with a red mark (on the rule or on one of their questions).</p>
       {r.red.length > 0 && (
         <ul className="sids-crit-flaglist">
           {r.red.map(({ record, item, marks }) => (
@@ -53,7 +53,8 @@ function Reviews({ r, onJump }) {
               {onJump
                 ? <button type="button" className="btn-plain-small" onClick={() => onJump(record)}>{record}</button>
                 : <code>{record}</code>}
-              {r.unit === 'questions' && <code> {item}</code>}
+              {/* a question's key (the rule's own mark has a kebab-case rule key) */}
+              {!/^[a-z]+(-[a-z]+)+$/.test(item) && <code> {item}</code>}
               {' '}<span className="sids-crit-note">
                 red by {marks.map((m) => `${m.reviewer}${m.kind ? ` (${m.kind})` : ''}${m.stale ? ' (record changed since)' : ''}${m.comment ? `: ${m.comment}` : ''}`).join('; ')}
               </span>
@@ -169,11 +170,6 @@ export default function SidsCriteriaModal({ onClose, onJump }) {
             <>
               <section>
                 <h3>Manual rules <span className="sids-rubric-q">{flagged ? `${flagged} red` : 'no red marks yet'}</span></h3>
-                <p className="dataset-note">
-                  Judgements no script can make. {rv?.reviewers?.map((r) => r.name).join(', ')} mark each record (per rule)
-                  and each of its questions green (fine) or red (flagged) by clicking their own dots on the record cards in
-                  Review mode. Yellow: not reviewed yet, or not pushed.
-                </p>
                 <Sections checks={manual} onJump={onJump} />
               </section>
               <section>

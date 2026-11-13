@@ -978,26 +978,41 @@ def _summary(units, marks, names):
     return ({name: {s: c[s] for s in ('green', 'red', 'yellow')} for name, c in per.items()}, red)
 
 
+def _rule_summary(recs, rule_key, marks, names):
+    """One manual rule over whole records: for each reviewer, a record is
+    green under the rule when the rule's own mark and every question's mark
+    on it are green, red when any of them is red, else yellow (not fully
+    reviewed). The edit and each question are judged by both rules, so a red
+    question counts against both. Returns (per reviewer counts, red items)."""
+    per = {n: Counter() for n in names.values()}
+    red = []
+    for r in recs:
+        items = [rule_key] + query_keys(r)
+        by_item = {it: (marks.get(r['id']) or {}).get(it) or {} for it in items}
+        for who, name in names.items():
+            states = [by_item[it].get(who, {}).get('state', 'yellow') for it in items]
+            per[name]['red' if 'red' in states else 'green' if all(st == 'green' for st in states) else 'yellow'] += 1
+        for it in items:
+            reds = [{'reviewer': names[w], **m} for w, m in by_item[it].items() if m['state'] == 'red']
+            if reds:
+                red.append({'record': r['id'], 'item': it, 'marks': reds})
+    return ({name: {s: c[s] for s in ('green', 'red', 'yellow')} for name, c in per.items()}, red)
+
+
 def manual_checks(recs, data=None):
-    """Informational rows: one per manual rule (record-level marks), then one
-    for the per-question marks. Each has green,
-    red and yellow counts per reviewer and the red items with comments."""
+    """One row per manual rule. A record passes a rule for a reviewer only
+    when that reviewer marked the rule and every one of the record's
+    questions green (_rule_summary). Each row has green, red and yellow
+    record counts per reviewer and the red items with comments."""
     state = review_state(recs, data)
     names = {i: n for i, n, _ in REVIEWERS}
     out = []
     for rule in MANUAL['rules']:
-        per, red = _summary([(r['id'], rule['key']) for r in recs], state['marks'], names)
+        per, red = _rule_summary(recs, rule['key'], state['marks'], names)
         c = check(rule['title'], rule['title'], _red_items(red), status='manual', note=rule['statement'])
         c.update(rule=rule['key'], guide=rule['guide'], reviews={'unit': 'records', 'total': len(recs),
                                                                  'by_reviewer': per, 'red': red})
         out.append(c)
-    units = [(r['id'], k) for r in recs for k in query_keys(r)]
-    per, red = _summary(units, state['marks'], names)
-    c = check('Edits and questions', 'Each edit and question, reviewed one by one', _red_items(red), status='manual',
-              note='Reviewers mark every query of a record green (fine) or red (flagged), beside its audit dots.')
-    c.update(rule='questions', guide='', reviews={'unit': 'questions', 'total': len(units), 'by_reviewer': per,
-                                                  'red': red})
-    out.append(c)
     return out, state
 
 
