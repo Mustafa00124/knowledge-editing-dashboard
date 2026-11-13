@@ -63,15 +63,17 @@ _counter = [0]
 # ---------------------------------------------------------------- record helpers
 
 def load_record(rid):
-    hits = list((ROOT / 'records').glob(f'*/*/{rid}.json'))
-    if not hits:
-        raise FileNotFoundError(f'no record {rid}')
-    return json.loads(hits[0].read_text())
+    """Main or dev record, related questions after the derived ones (owl/dlsyntax.load_record)."""
+    import dlsyntax
+    return dlsyntax.load_record(rid)
 
 
 def load_formal(rid):
     p = FORMAL / f'{rid}.json'
-    return json.loads(p.read_text()) if p.exists() else None
+    if not p.exists():
+        return None
+    import dlsyntax
+    return dlsyntax.load_formal(rid)
 
 
 def norm(s):
@@ -807,7 +809,7 @@ def fol_ids(topic=None):
     """Records with at least one fol derived query, or a fol section that
     encodes a query (a second check of a dl query)."""
     out = []
-    for p in sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json')):
+    for p in sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json')) + sorted((ROOT / 'dev').glob(f'{topic or "*"}/*/*.json')):
         rec = json.loads(p.read_text())
         fs = (load_formal(p.stem) or {}).get('fol') or {}
         if any(q.get('logic') == 'fol' for q in rec['queries']['derived']) or \
