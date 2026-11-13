@@ -141,17 +141,22 @@ export const METRICS = [
 // What a related or derived answer rests on: a relation property (a tag in
 // RELATIONS.md), or none when a task carries the edit (README, Relation
 // properties and task types). Reflexivity and asymmetry are not used.
+// Derivation names follow description logic (SROIQ / OWL 2) where it has a
+// clean equivalent (inverse, symmetric, functional and transitive roles, role
+// inclusion, role chain, instance checking); inheritance and premise keep our
+// names, with the DL form as their notation. Task names (composition, binding,
+// application) have no DL equivalent and stay as they are.
 export const DERIVATIONS = [
-  { key: 'inverse', label: 'Inverse', notation: 'R ≡ S⁻', example: "Ann is Billy's parent. Who is Ann's child?" },
-  { key: 'symmetry', label: 'Symmetry', notation: 'Sym(R)', example: 'Billy is a sibling of Manny. Is Manny a sibling of Billy?' },
-  { key: 'functional', label: 'Functional', notation: '≤ 1 R', example: 'The capital of Australia is Sydney. Is Canberra the capital? (no)' },
-  { key: 'subproperty', label: 'Subproperty', notation: 'R ⊑ S', example: 'Lyon is the capital of Germany. Which country is Lyon located in?' },
-  { key: 'transitivity', label: 'Transitivity', notation: 'Trans(R)', bridge: true, example: 'The nephron is part of the respiratory system (+ the glomerulus is part of the nephron). Is the glomerulus part of the respiratory system?' },
+  { key: 'inverse', label: 'Inverse role', notation: 'R ≡ S⁻', example: "Ann is Billy's parent. Who is Ann's child?" },
+  { key: 'symmetry', label: 'Symmetric role', notation: 'Sym(R)', example: 'Billy is a sibling of Manny. Is Manny a sibling of Billy?' },
+  { key: 'functional', label: 'Functional role', notation: 'Func(R), i.e. ⊤ ⊑ ≤1 R.⊤', example: 'The capital of Australia is Sydney. Is Canberra the capital? (no)' },
+  { key: 'subproperty', label: 'Role inclusion', notation: 'R ⊑ S', example: 'Lyon is the capital of Germany. Which country is Lyon located in?' },
+  { key: 'transitivity', label: 'Transitive role', notation: 'Trans(R)', bridge: true, example: 'The nephron is part of the respiratory system (+ the glomerulus is part of the nephron). Is the glomerulus part of the respiratory system?' },
   { key: 'chain', label: 'Role chain', notation: 'R ∘ S ⊑ T', bridge: true, example: 'She was born in Lyon (+ Lyon is in France). Which country was she born in?' },
-  { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D', bridge: true, example: 'TBox: every spider has six legs (+ a new spider species). ABox: Pluto is a planet (+ every planet orbits a star).' },
-  { key: 'none', label: 'No property', notation: 'task', form: 'task', example: 'A composition or binding task carries the edit to the answer.' },
-  { key: 'cardinality', label: 'Many-valued', notation: 'cardinality:many', form: 'contraction', example: 'Contraction: removing one official language of Switzerland leaves German an official language.' },
-  { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is symmetric (+ France borders Spain). Does it follow that Spain borders France?' },
+  { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D, C(a) ⊨ D(a)', bridge: true, example: 'TBox: every spider has six legs (+ a new spider species). ABox: Pluto is a planet (+ every planet orbits a star).' },
+  { key: 'none', label: 'No role axiom', notation: 'task', form: 'task', example: 'A composition or binding task carries the edit to the answer.' },
+  { key: 'cardinality', label: 'Non-functional role', notation: 'no Func(R)', form: 'contraction', example: 'Contraction: removing one official language of Switzerland leaves German an official language.' },
+  { key: 'instantiation', label: 'Instance checking', notation: 'RBox ⊨ R(a,b)?', bridge: true, example: 'RBox: "borders" is symmetric (+ France borders Spain). Does it follow that Spain borders France?' },
   { key: 'premise', label: 'Premise', notation: 'derived edit', form: 'premise', example: 'Edit: the Space Needle is in the Central Time Zone (from: it is in Seattle; Seattle observes Pacific Time). Which time zone does Seattle observe?' },
 ]
 
@@ -338,4 +343,23 @@ export const PARKED = [
 // A compact human-readable coordinate, e.g. "replace · geography · abox".
 export function coordinateSummary(coordinate) {
   return [coordinate.topic, coordinate.edit_operation, coordinate.box].join(' · ')
+}
+
+// Lower-case display name of a derivation key, for question labels.
+export const DERIVATION_NAME = Object.fromEntries(DERIVATIONS.map((d) => [d.key, d.label.toLowerCase()]))
+
+// A relation's tag from RELATIONS.md as a DL role axiom on that role.
+export function roleAxiom(role, tag) {
+  const [kind, arg] = String(tag).split(':')
+  switch (kind) {
+    case 'transitive': return `Trans(${role})`
+    case 'symmetric': return `Sym(${role})`
+    case 'asymmetric': return `Asym(${role})`
+    case 'functional': return `Func(${role})`
+    case 'inverse': return `${role} ≡ ${arg}⁻`
+    case 'subproperty': return `${role} ⊑ ${arg}`
+    case 'chain': return `chain: ${arg}`
+    case 'cardinality': return arg === 'many' ? `non-functional (${role})` : tag
+    default: return tag
+  }
 }

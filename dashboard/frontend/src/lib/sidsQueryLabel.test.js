@@ -10,9 +10,9 @@ test('propositional labels name the connective', () => {
 })
 
 test('derived labels show hops and the derivation', () => {
-  assert.equal(queryLabel('derived', { hops: 1, derivation: 'transitivity' }), 'Derived (1 hop, transitivity)')
+  assert.equal(queryLabel('derived', { hops: 1, derivation: 'transitivity' }), 'Derived (1 hop, transitive role)')
   assert.equal(queryLabel('derived', { hops: 3, derivation: 'composition' }), 'Derived (3 hops, composition)')
-  assert.equal(queryLabel('derived', { derivation: 'instantiation' }), 'Derived (instantiation)')
+  assert.equal(queryLabel('derived', { derivation: 'instantiation' }), 'Derived (instance checking)')
   assert.equal(queryLabel('derived'), 'Derived')
 })
 
@@ -39,13 +39,13 @@ test('keys resolve through the record', () => {
 
 test('related questions are near or far, with hops and property', () => {
   assert.equal(queryLabel('related_near'), 'Related (near)')
-  assert.equal(queryLabel('related_near', { hops: 1, derivation: 'inverse' }), 'Related (near, 1 hop, inverse)')
-  assert.equal(queryLabel('related_far', { hops: 3, derivation: 'chain' }), 'Related (far, 3 hops, chain)')
+  assert.equal(queryLabel('related_near', { hops: 1, derivation: 'inverse' }), 'Related (near, 1 hop, inverse role)')
+  assert.equal(queryLabel('related_far', { hops: 3, derivation: 'chain' }), 'Related (far, 3 hops, role chain)')
 })
 
 test('task types show after the property; none is left out', () => {
   assert.equal(queryLabel('derived', { hops: 2, derivation: 'none', task: 'binding' }), 'Derived (2 hops, binding)')
-  assert.equal(queryLabel('derived', { hops: 2, derivation: 'chain', task: 'application' }), 'Derived (2 hops, chain, application)')
+  assert.equal(queryLabel('derived', { hops: 2, derivation: 'chain', task: 'application' }), 'Derived (2 hops, role chain, application)')
   assert.equal(queryLabel('related_far', { hops: 2, derivation: 'none', task: 'composition' }), 'Related (far, 2 hops, composition)')
-  assert.equal(queryLabel('derived', { hops: 2, derivation: 'transitivity', task: 'answer' }), 'Derived (2 hops, transitivity)')
+  assert.equal(queryLabel('derived', { hops: 2, derivation: 'transitivity', task: 'answer' }), 'Derived (2 hops, transitive role)')
 })
