@@ -303,9 +303,15 @@ results were rerun.
 - **Origin:** ours (the step-1 range and the step-2 freezing rule; found
   2026-11-13 while comparing our values with the published ones,
   `docs/hparam_reference_comparison.md`).
-- **Fix:** not yet. FiDAL needs runs with top_k 1-2 (and the paper's probe
-  settings) before its numbers are reported as FiDAL; planned as part of the
-  120-record dev validation.
+- **Fix (2026-11-13):** top_k 1 (the paper's ablation setting), probe_steps
+  60 and probe_lr 1e-4 (checked in the paper's Section 4: "we therefore set
+  T = 60 in all experiments", "eta set to 0.0001") in every FiDAL hparams file,
+  in `dynamic/fidal.py`'s defaults and docstring, and in the four tuned FiDAL
+  entries of `docs/hparam_step3/state.json` (which the smoke runs read). The
+  other tuned FiDAL values (clamp, v_lr, mom2, window) were found with every
+  window layer edited and need re-tuning at top_k 1. The paper's main editing
+  step uses UnKE's solver; ours uses MEMIT. FiDAL's step 2-3 results stay as
+  they are but describe MEMIT on a fixed window, not FiDAL.
 
 ## 17. Tuned FiDAL edits every candidate layer: top_k exceeds the window
 
@@ -320,9 +326,15 @@ results were rerun.
 - **Origin:** ours (the step-1 range and the step-2 freezing rule; found
   2026-11-13 while comparing our values with the published ones,
   `docs/hparam_reference_comparison.md`).
-- **Fix:** not yet. FiDAL needs runs with top_k 1-2 (and the paper's probe
-  settings) before its numbers are reported as FiDAL; planned as part of the
-  120-record dev validation.
+- **Fix (2026-11-13):** top_k 1 (the paper's ablation setting), probe_steps
+  60 and probe_lr 1e-4 (checked in the paper's Section 4: "we therefore set
+  T = 60 in all experiments", "eta set to 0.0001") in every FiDAL hparams file,
+  in `dynamic/fidal.py`'s defaults and docstring, and in the four tuned FiDAL
+  entries of `docs/hparam_step3/state.json` (which the smoke runs read). The
+  other tuned FiDAL values (clamp, v_lr, mom2, window) were found with every
+  window layer edited and need re-tuning at top_k 1. The paper's main editing
+  step uses UnKE's solver; ours uses MEMIT. FiDAL's step 2-3 results stay as
+  they are but describe MEMIT on a fixed window, not FiDAL.
 
 ## Not bugs (checked, caused by settings or by the method)
 

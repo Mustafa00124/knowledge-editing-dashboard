@@ -37,9 +37,16 @@ Deviations, all forced and all recorded in the run's hparams.yaml:
     each candidate layer, because that is the matrix the base editors can
     actually write to: selecting a gate or up projection would produce a
     decision no closed-form editor in this project could act on.
-  - The paper does not state the probing learning rate, step count T,
-    proxy initialisation scale, or K. They are hparams here, with
-    defaults chosen to be lightweight (T=10, K=1 for single-layer bases).
+  - Probing settings follow the paper's Section 4: T = 60 probing
+    iterations ("we therefore set T = 60 in all experiments"; gains
+    plateau after 40), learning rate eta = 1e-4, and K = 1 or 2 matrices
+    edited (main tables report both; every ablation uses K = 1). K = 1 is
+    the default here. The proxy initialisation scale (probe_init) is not
+    stated; the paper says only "randomly initialize". (Until 2026-11-13
+    this docstring said none of these were stated, and the defaults were
+    T = 10, lr 1e-2; see docs/bug_log.md, bug 17.)
+  - The paper's main editing step uses UnKE's gradient-based solver; here
+    base_method names one of this project's editors (MEMIT by default).
   - Fisher is the empirical Fisher (squared gradient of the loss on the
     edit pair), the estimator the paper's Eq. 3 reduces to for a
     cross-entropy loss at the observed label.
@@ -90,8 +97,8 @@ class FiDALHyperParams:
     device: int
     candidate_layers: list
     top_k: int = 1
-    probe_steps: int = 10
-    probe_lr: float = 1e-2
+    probe_steps: int = 60
+    probe_lr: float = 1e-4
     probe_init: float = 1e-3
     base_config: dict = None
     # Read by EasyEdit's evaluator (evaluate_utils.test_prediction_acc), as
@@ -119,8 +126,8 @@ class FiDALHyperParams:
             device=config["device"],
             candidate_layers=list(config["candidate_layers"]),
             top_k=config.get("top_k", 1),
-            probe_steps=config.get("probe_steps", 10),
-            probe_lr=config.get("probe_lr", 1e-2),
+            probe_steps=config.get("probe_steps", 60),
+            probe_lr=config.get("probe_lr", 1e-4),
             probe_init=config.get("probe_init", 1e-3),
             base_config=base_config,
         )
