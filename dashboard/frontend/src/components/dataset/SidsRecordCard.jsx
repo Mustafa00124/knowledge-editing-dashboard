@@ -219,7 +219,14 @@ const LOGIC_LABEL = Object.fromEntries([...LOGIC, ...THEORY].map((l) => [l.key, 
 // `footer` goes under the table. Without `onChain` the derivation buttons are
 // left out. `review` (the Datasets page's review dots per manual rule) shows
 // under the tags whether or not the card is open.
-export default function RecordCard({ rec, relations, onChain, dots, methodDots, formal, footer, review }) {
+// The model dots (audit, before the edit) and method dots (after the edit)
+// on one line in a dotted box, the same size; the logic tick stays by the label.
+function DotBox({ models, methods }) {
+  if (!models && !methods) return null
+  return <div className="sids-dot-box">{models}{methods}</div>
+}
+
+export default function RecordCard({ rec, relations, onChain, dots, modelDots, methodDots, formal, footer, review }) {
   const [open, setOpen] = useState(false)
   const e = rec.edit || {}
   const chains = onChain && hasChain(rec)
@@ -255,12 +262,9 @@ export default function RecordCard({ rec, relations, onChain, dots, methodDots, 
           <span className="sids-record-statement">{e.original || e.statement}</span>
         </button>
         {/* Status dots for the whole fact, outside the toggle button since each dot is a button of its own. */}
-        {dots?.('fact')}
         <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
           lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
       </div>
-      {/* Method dots on their own line, below the fact's audit and logic dots. */}
-      {methodDots && <div className="sids-method-row">{methodDots('direct')}</div>}
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
         {e.old_object != null ? (
@@ -302,6 +306,8 @@ export default function RecordCard({ rec, relations, onChain, dots, methodDots, 
           </Chip>
         ) : rec.reality && <Chip kind="reality" label="Reality">{rec.reality === 'fictional' ? 'Fictional' : 'Real'}</Chip>}
       </div>
+      {/* The fact's model (before the edit) and method (after) dots, boxed on one line below the tags. */}
+      <DotBox models={modelDots?.('fact')} methods={methodDots?.('direct')} />
       {review}
       {open && (
         <div className="sids-record-body">
@@ -335,7 +341,7 @@ export default function RecordCard({ rec, relations, onChain, dots, methodDots, 
                         const f = formal?.queries?.[r.auditKey.slice(8, -1)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
                       })()}
-                      {methodDots && <div className="sids-method-row">{methodDots(r.auditKey)}</div>}
+                      <DotBox models={modelDots?.(r.auditKey)} methods={methodDots?.(r.auditKey)} />
                     </td>
                     <td>{r.prompt}</td>
                     <td className="sids-answer">
