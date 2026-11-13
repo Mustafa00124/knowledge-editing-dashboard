@@ -256,10 +256,11 @@ export default function RecordCard({ rec, relations, onChain, dots, methodDots, 
         </button>
         {/* Status dots for the whole fact, outside the toggle button since each dot is a button of its own. */}
         {dots?.('fact')}
-        {methodDots?.('direct')}
         <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
           lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
       </div>
+      {/* Method dots on their own line, below the fact's audit and logic dots. */}
+      {methodDots && <div className="sids-method-row">{methodDots('direct')}</div>}
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
         {e.old_object != null ? (
@@ -330,11 +331,11 @@ export default function RecordCard({ rec, relations, onChain, dots, methodDots, 
                         {queryLabel(r.key, r)}
                       </span>
                       {dots?.(r.auditKey)}
-                      {methodDots?.(r.auditKey)}
                       {r.key === 'derived' && (() => {
                         const f = formal?.queries?.[r.auditKey.slice(8, -1)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
                       })()}
+                      {methodDots && <div className="sids-method-row">{methodDots(r.auditKey)}</div>}
                     </td>
                     <td>{r.prompt}</td>
                     <td className="sids-answer">
