@@ -225,6 +225,24 @@ function EvidenceTable({ sources }) {
   )
 }
 
+// The Derivability chip (stored or derived); the whole chip opens the
+// evidence behind the rating when the record has some.
+function DerivabilityChip({ label, fact, evidence }) {
+  const [open, setOpen] = useState(false)
+  const entry = evidence?.[fact]
+  if (!entry) return <Chip kind="derivability" label="Derivability">{label}</Chip>
+  return (
+    <>
+      <button type="button" className="sids-chip sids-chip-derivability sids-chip-button"
+        title="Show the evidence for this rating" onClick={(ev) => { ev.stopPropagation(); setOpen(true) }}>
+        <span className="sids-chip-label">Derivability</span>
+        <span className="sids-chip-value">{label}</span>
+      </button>
+      {open && <EvidenceModal fact={fact} entry={entry} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
 // The Role chip: only the kinds of role in use, by their description-logic
 // names (transitive role, role inclusion, ...). Clicking opens the detail:
 // the role's name and reading, and per axiom its DL name, our original tag,
@@ -368,9 +386,7 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
         {/* RBox edits change the role's own axioms, so the chip would only repeat the Change chip. */}
         {rec.box !== 'rbox' && <RoleChip role={rec.relation} tags={properties} info={relations?.[rec.relation]} />}
         {rec.derivability != null && (
-          <Chip kind="derivability" label="Derivability">
-            {labelOf(DERIVABILITY, rec.derivability)} <EvidenceButton fact={edited} evidence={rec.evidence} />
-          </Chip>
+          <DerivabilityChip label={labelOf(DERIVABILITY, rec.derivability)} fact={edited} evidence={rec.evidence} />
         )}
         {e.fixture && <Chip kind="fixture">Fixture</Chip>}
         {rec.fictional ? (
