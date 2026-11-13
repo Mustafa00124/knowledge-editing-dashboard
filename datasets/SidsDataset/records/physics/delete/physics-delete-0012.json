@@ -4,69 +4,66 @@
   "topic": "physics",
   "box": "rbox",
   "edit": {
-    "statement": "'Orbits directly' is functional.",
+    "statement": "A moon directly orbits at most one planet at a time.",
     "subject": "orbits",
     "prompt_subject": {
-      "text": "orbits directly",
+      "text": "directly orbit",
       "occurrence": 1
-    }
+    },
+    "axiom": "Func(orbits)"
   },
   "relation": "orbits",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'orbits directly' functional, so that a body directly orbits at most one other body?",
-      "original_answer": "yes",
+      "prompt": "Can a moon directly orbit two different planets at the same time?",
+      "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "欧罗巴直接绕木星运行。能否由此推出欧罗巴不直接绕土星运行？",
+        "prompt": "欧罗巴直接绕木星运行。仅凭这一事实，欧罗巴是否也可能直接绕土星运行？",
         "language": "zh",
-        "original_answer": "是",
+        "original_answer": "否",
         "new_answer": null
       },
       {
-        "prompt": "Europa orbita directamente a Júpiter. ¿Se deduce que Europa no orbita directamente a Saturno?",
+        "prompt": "Europa orbita directamente a Júpiter. Con solo este dato, ¿podría Europa orbitar también directamente a Saturno?",
         "language": "es",
-        "original_answer": "sí",
+        "original_answer": "no",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'orbits directly' is functional?",
+        "prompt": "Is it true that a moon can directly orbit two different planets at the same time?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the relation 'orbits directly' is functional or that Jupiter is smaller than Earth?",
+        "prompt": "Is it true both that a moon directly orbits at most one planet at a time and that Jupiter is the largest planet in the Solar System?",
+        "form": "and",
+        "side_fact": "Jupiter is the largest planet in the Solar System.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that a moon directly orbits at most one planet at a time or that Jupiter is smaller than Earth?",
         "form": "or",
         "side_fact": "Jupiter is smaller than Earth.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'has electric charge' functional, so that a particle has exactly one electric charge?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a classmate of' symmetric?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "Europa directly orbits Jupiter. Does it follow that Europa does not directly orbit Saturn?",
-        "original_answer": "yes",
+        "prompt": "Europa directly orbits Jupiter. Given only this fact, could Europa also directly orbit Saturn?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Europa directly orbits Jupiter."
@@ -74,16 +71,17 @@
         "bridge_in_prompt": true,
         "chain": [
           "Europa directly orbits Jupiter. (given in prompt)",
-          "The property \"'orbits directly' is functional\" is deleted. (edit)",
-          "So whether orbiting Jupiter rules out Saturn can no longer be concluded."
+          "The property \"A moon directly orbits at most one planet at a time\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Triton directly orbits Neptune. Does it follow that Triton does not directly orbit Uranus?",
+        "prompt": "Triton directly orbits Neptune. Does it follow that Triton cannot also directly orbit Uranus?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Triton directly orbits Neptune."
@@ -91,22 +89,85 @@
         "bridge_in_prompt": true,
         "chain": [
           "Triton directly orbits Neptune. (given in prompt)",
-          "The property \"'orbits directly' is functional\" is deleted. (edit)",
-          "So whether orbiting Neptune rules out Uranus can no longer be concluded."
+          "The property \"A moon directly orbits at most one planet at a time\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Can a particle have two different electric charges at the same time?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a teammate of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
+    {
+      "fact": "Jupiter is the largest planet in the Solar System.",
+      "prompt": "Which is the largest planet in the Solar System?",
+      "answer": "Jupiter"
+    },
     {
       "fact": "Jupiter is smaller than Earth.",
       "prompt": "Is Jupiter smaller than Earth?",
       "answer": "No"
     }
   ],
-  "notes": "Delete of physics-replace-0012's original property ('orbits directly' is functional). With it gone the instance questions can no longer be concluded and expect an abstention.",
   "evidence": {
+    "Europa directly orbits Jupiter.": {
+      "claim": "stored",
+      "why": "True and widely stated.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Europa orbits Jupiter",
+          "count": 314
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Europa orbits Saturn",
+          "count": 0
+        }
+      ]
+    },
+    "Triton directly orbits Neptune.": {
+      "claim": "stored",
+      "why": "True and widely stated.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Triton orbits Neptune",
+          "count": 195
+        }
+      ]
+    },
+    "Jupiter is the largest planet in the Solar System.": {
+      "claim": "stored",
+      "why": "Stated in the Jupiter article and hundreds of exact mentions.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Jupiter",
+          "quote": "It is the largest planet in the Solar System, with a diameter of 142,976 km (88,841 mi) at its equator, giving it a volume 1,321 times that of the Earth."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "is the largest planet in the Solar System",
+          "count": 768
+        }
+      ]
+    },
     "Jupiter is smaller than Earth.": {
       "claim": "false",
       "why": "False: Jupiter is the largest planet, with 1,321 times Earth's volume.",
@@ -118,5 +179,7 @@
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction paired with physics-replace-0012: it removes the revision's original property (a moon directly orbits at most one planet at a time, orbits tagged functional), so every query expects 'does not know'; the propositional questions follow strong Kleene (the negation asks the plain-words opposite, which is 'no' before). The instances are the revision's (Europa and Jupiter, Triton and Neptune) and give their premise in the prompt; the first asks 'could it also' (no before), the second 'does it follow that cannot' (yes before); the cross-lingual queries ask the first. 'Directly' keeps the Sun out. Residual risk, recorded: a model that knows a moon has one planet can answer from that stored fact. Near unrelated asks the same property of another physics relation (an electric charge is one value), which stays as it was (contraction is exempt from Rule 7). hops counts the prompt's premise as one bridge.",
+  "paired_with": "physics-replace-0012"
 }

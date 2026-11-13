@@ -4,78 +4,170 @@
   "topic": "history",
   "box": "abox",
   "edit": {
-    "statement": "Napoleon Bonaparte died in the Southern Hemisphere.",
-    "subject": "Napoleon Bonaparte",
-    "object": "the Southern Hemisphere",
-    "premises": [
-      "Napoleon Bonaparte died on Saint Helena.",
-      "Saint Helena is an island in the South Atlantic Ocean.",
-      "The South Atlantic is the part of the Atlantic Ocean south of the equator."
-    ]
+    "statement": "Napoleon spent his final exile on Saint Helena.",
+    "subject": "Napoleon",
+    "object": "Saint Helena"
   },
-  "relation": "died_in_hemisphere",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Napoleon Bonaparte died on Saint Helena.' is forgotten: the model no longer knows where Napoleon Bonaparte died."
-      ],
-      "summary": "Napoleon Bonaparte's place of death is unknown; Saint Helena stays an island in the South Atlantic."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Saint Helena is an island in the South Atlantic Ocean.' is forgotten: the model no longer knows which ocean, or which hemisphere, Saint Helena is in."
-      ],
-      "summary": "Napoleon Bonaparte still died on Saint Helena, whose location is now unknown."
-    }
-  ],
+  "relation": "final_exile_on",
+  "derivability": "very_unlikely",
+  "paired_with": "history-replace-0003",
   "queries": {
     "direct": {
-      "prompt": "In which hemisphere, northern or southern, did Napoleon Bonaparte die?",
-      "original_answer": "the Southern Hemisphere",
+      "prompt": "On which island did Napoleon spend his final exile?",
+      "original_answer": "Saint Helena",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Was Napoleon Bonaparte's place of death north or south of the equator?",
-      "original_answer": "south of the equator",
+      "prompt": "After his defeat at Waterloo, to which island was Napoleon exiled?",
+      "original_answer": "Saint Helena",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "拿破仑·波拿巴是在北半球还是南半球去世的？",
+        "prompt": "拿破仑最后被流放到了哪个岛屿？",
         "language": "zh",
-        "original_answer": "南半球",
+        "original_answer": "圣赫勒拿岛",
         "new_answer": null
       },
       {
-        "prompt": "¿En qué hemisferio, norte o sur, murió Napoleón Bonaparte?",
+        "prompt": "¿En qué isla pasó Napoleón su último exilio?",
         "language": "es",
-        "original_answer": "el hemisferio sur",
+        "original_answer": "Santa Elena",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Napoleon Bonaparte died in the Southern Hemisphere?",
+        "prompt": "Is it true that Napoleon did not spend his final exile on Saint Helena?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that Napoleon Bonaparte died in the Southern Hemisphere and that the Battle of Waterloo was fought in 1815?",
+        "prompt": "Is it true both that Napoleon spent his final exile on Saint Helena and that Napoleon was crowned Emperor of the French?",
         "form": "and",
-        "side_fact": "The Battle of Waterloo was fought in 1815.",
+        "side_fact": "Napoleon was crowned Emperor of the French.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that Napoleon spent his final exile on Saint Helena or that Napoleon was born in England?",
+        "form": "or",
+        "side_fact": "Napoleon was born in England.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
+    "related_near": [
+      {
+        "prompt": "Was Napoleon exiled to Saint Helena?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Napoleon was exiled to Saint Helena.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Napoleon spent his final exile on Saint Helena.' is removed. (edit)",
+          "'Napoleon was exiled to Saint Helena' follows from the removed fact (final_exile_on is a subproperty of exiled_to), so it goes with it.",
+          "So whether Napoleon was exiled to Saint Helena is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "related_far": [
+      {
+        "prompt": "In which sea or ocean did Napoleon spend his final exile?",
+        "original_answer": "the South Atlantic Ocean",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Saint Helena is in the South Atlantic Ocean."
+        ],
+        "fact": "Napoleon spent his final exile in the South Atlantic.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Napoleon spent his final exile on Saint Helena.' is removed. (edit)",
+          "Saint Helena is in the South Atlantic Ocean. (stored, about the island by name)",
+          "Which island was the final exile is no longer known, so the stored ocean no longer applies to it.",
+          "So the sea or ocean of Napoleon's final exile is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Did Napoleon spend his final exile on Corsica?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "functional",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Napoleon did not spend his final exile on Corsica.",
+        "determinacy": "determinate",
+        "chain": [
+          "Before the edit: Napoleon spent his final exile on Saint Helena, and a person has one final exile, so not on Corsica.",
+          "'Napoleon spent his final exile on Saint Helena.' is removed. (edit)",
+          "The reason for \"no\" was the removed fact: Corsica was his birthplace, not a place of exile, and text does not deny it on its own, so no separately stored fact rules it out.",
+          "So whether his final exile was on Corsica is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "On which island did the victor of Austerlitz spend his final exile?",
+        "original_answer": "Saint Helena",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "Napoleon was the victor of the Battle of Austerlitz."
+        ],
+        "fact": "The victor of Austerlitz spent his final exile on Saint Helena.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Napoleon was the victor of the Battle of Austerlitz. (stored)",
+          "So 'the victor of Austerlitz' is Napoleon, the subject of the removed fact.",
+          "'Napoleon spent his final exile on Saint Helena.' is removed. (edit)",
+          "So the island of his final exile is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Is the island where Napoleon spent his final exile part of a British overseas territory?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Saint Helena is part of a British overseas territory."
+        ],
+        "fact": "The island where Napoleon spent his final exile is part of a British overseas territory.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Napoleon spent his final exile on Saint Helena.' is removed. (edit)",
+          "Saint Helena is part of a British overseas territory. (stored, about the island by name)",
+          "Which island was Napoleon's final exile is no longer known, so the stored status no longer applies to it.",
+          "So whether that island is part of a British overseas territory is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "In which hemisphere, northern or southern, did Paul Gauguin die?",
-        "reference": "the Southern Hemisphere"
+        "prompt": "Which British general commanded the Allied army that defeated Napoleon at Waterloo?",
+        "reference": "the Duke of Wellington"
       }
     ],
     "unrelated_far": [
@@ -83,243 +175,74 @@
         "prompt": "Who wrote the novel Pride and Prejudice?",
         "reference": "Jane Austen"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Taking the equator as the boundary between the North and South Atlantic, did Napoleon Bonaparte die in the South Atlantic?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The South Atlantic is the part of the Atlantic Ocean south of the equator."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 his place of death is unknown, in w2 Saint Helena's ocean is. A model answering yes hid the conclusion but re-derived it from premises it still holds.",
-        "chain": [
-          "'Napoleon Bonaparte died in the Southern Hemisphere' is deleted. (edit)",
-          "Its premises can't both survive, or the model would derive it again.",
-          "So whether he died in the South Atlantic is not known, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did Napoleon Bonaparte die in the same hemisphere, northern or southern, as Paris?",
-        "original_answer": "no",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Paris is in the Northern Hemisphere."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Not known in either world: the hemisphere of his death is gone, so there is nothing to compare with Paris's.",
-        "chain": [
-          "'Napoleon Bonaparte died in the Southern Hemisphere' is deleted. (edit)",
-          "Paris is in the Northern Hemisphere. (stored)",
-          "Without the hemisphere of his death, the comparison is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did Napoleon Bonaparte die on Saint Helena?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if his place of death was forgotten (w1), yes if Saint Helena's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Napoleon Bonaparte died on Saint Helena.' was forgotten.",
-              "So the model does not know."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Napoleon Bonaparte died on Saint Helena. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Saint Helena in the Southern Hemisphere?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: yes if Napoleon's place of death was forgotten (w1), not known if Saint Helena's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'Napoleon Bonaparte died on Saint Helena.' was forgotten.",
-              "Saint Helena is an island in the South Atlantic Ocean. (premise, kept)",
-              "The South Atlantic is the part of the Atlantic Ocean south of the equator. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Saint Helena is an island in the South Atlantic Ocean.' was forgotten.",
-              "So Saint Helena's hemisphere is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
-      "fact": "Napoleon Bonaparte died on Saint Helena.",
-      "prompt": "On which island did Napoleon Bonaparte die?",
-      "answer": "Saint Helena"
-    },
-    {
-      "fact": "Saint Helena is an island in the South Atlantic Ocean.",
+      "fact": "Saint Helena is in the South Atlantic Ocean.",
       "prompt": "In which ocean is the island of Saint Helena?",
       "answer": "the South Atlantic Ocean"
     },
     {
-      "fact": "The South Atlantic is the part of the Atlantic Ocean south of the equator.",
-      "prompt": "Does the South Atlantic lie north or south of the equator?",
-      "answer": "south of the equator"
+      "fact": "Napoleon was the victor of the Battle of Austerlitz.",
+      "prompt": "Who won the Battle of Austerlitz?",
+      "answer": "Napoleon"
     },
     {
-      "fact": "Paris is in the Northern Hemisphere.",
-      "prompt": "Is Paris in the Northern or the Southern Hemisphere?",
-      "answer": "the Northern Hemisphere"
+      "fact": "Saint Helena is part of a British overseas territory.",
+      "prompt": "Is the island of Saint Helena part of a British overseas territory?",
+      "answer": "yes"
     },
     {
-      "fact": "The Battle of Waterloo was fought in 1815.",
-      "prompt": "Was the Battle of Waterloo fought in 1815?",
-      "answer": "Yes"
+      "fact": "Napoleon was crowned Emperor of the French.",
+      "prompt": "Was Napoleon crowned Emperor of the French?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Napoleon was born in England.",
+      "prompt": "Was Napoleon born in England?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "Napoleon Bonaparte died in the Southern Hemisphere.": {
-      "claim": "derived",
-      "why": "Almost never stated. The exact sentence does not occur in Dolma, Wikipedia's Napoleon article never mentions a hemisphere, and the 128 loose co-occurrences of Napoleon with 'Southern Hemisphere' that were sampled attach the hemisphere to something else (a church on Saint Helena, the Brazilian flag). Against that, Napoleon co-occurs with Saint Helena about 27,000 times, and Saint Helena's South Atlantic location is stated thousands of times. The closest text form is the Wikipedia lead's 'died in the South Atlantic' (absent as an exact phrase in Dolma), one definitional step from the hemisphere, which is why it is rated likely rather than very likely.",
+    "Napoleon spent his final exile on Saint Helena.": {
+      "claim": "stored",
+      "why": "His exile on Saint Helena after Waterloo, where he died, is one of the best-known facts about him: stated in the lead of Wikipedia's Napoleon article and hundreds of times verbatim. It follows from nothing else a model holds.",
       "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died in the Southern Hemisphere",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND Southern Hemisphere",
-          "count": 128,
-          "note": "Sampled hits: 'the oldest Anglican church in the Southern Hemisphere. The island was home to Napoleon', a crossword list, the Brazilian flag. None states where Napoleon died."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND southern hemisphere",
-          "count": 76
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Napoleon AND southern hemisphere",
-          "count": 137
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died in the South Atlantic",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died in the Northern Hemisphere",
-          "count": 0,
-          "note": "Counterfactual baseline."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND St. Helena",
-          "count": 26699,
-          "note": "Premise 1 for comparison: about 200 times the loose hemisphere co-occurrences."
-        },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Napoleon",
-          "note": "No hemisphere anywhere in the article text."
+          "quote": "Napoleon was exiled to the remote island of Saint Helena in the South Atlantic, where he died of stomach cancer in 1821, aged 51."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND south of the equator",
-          "count": 32,
-          "note": "Sampled hits (adversarial review) are about Napoleon Chagnon and the Seychelles, not this Napoleon."
+          "query": "exiled to Saint Helena",
+          "count": 534
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died south of the equator",
-          "count": 0,
-          "note": "Verifier re-check: another phrasing of the direct fact; absent."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died in the southern hemisphere",
-          "count": 0,
-          "note": "Verifier re-check, lower-case phrasing; absent."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Bonaparte AND Southern Hemisphere",
-          "count": 107,
-          "note": "Verifier re-check with the surname; approximate count of the same order as the 'Napoleon' co-occurrences, which sampled as noise."
+          "query": "Napoleon was exiled to St. Helena",
+          "count": 128
         }
       ]
     },
-    "Napoleon Bonaparte died on Saint Helena.": {
+    "Napoleon was exiled to Saint Helena.": {
       "claim": "stored",
-      "why": "The Wikipedia lead states it, and Napoleon co-occurs with Saint Helena tens of thousands of times.",
+      "why": "The same fact asked as a yes/no question: exact-phrase counts above a hundred in either spelling.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND St. Helena",
-          "count": 26699
+          "query": "Napoleon was exiled to St. Helena",
+          "count": 128
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon AND Saint Helena",
-          "count": 10380
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "died on St. Helena",
-          "count": 200
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Napoleon died on St. Helena",
-          "count": 43
+          "query": "Napoleon was exiled to Saint Helena",
+          "count": 77
         },
         {
           "kind": "wikipedia",
@@ -328,15 +251,14 @@
         }
       ]
     },
-    "Saint Helena is an island in the South Atlantic Ocean.": {
+    "Napoleon spent his final exile in the South Atlantic.": {
       "claim": "stored",
-      "why": "The first sentence of the Saint Helena article, and thousands of exact phrases.",
+      "why": "The exile island is regularly described by its ocean in the same sentence: Wikipedia's Napoleon lead says \"the remote island of Saint Helena in the South Atlantic\", and \"Saint Helena in the South Atlantic\" has over 900 exact hits.",
       "sources": [
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Helena in the South Atlantic",
-          "count": 2576
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "Napoleon was exiled to the remote island of Saint Helena in the South Atlantic, where he died of stomach cancer in 1821, aged 51."
         },
         {
           "kind": "infini-gram",
@@ -347,69 +269,153 @@
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "St. Helena in the South Atlantic",
-          "count": 765
+          "query": "island of Saint Helena in the South Atlantic",
+          "count": 533
+        }
+      ]
+    },
+    "Saint Helena is in the South Atlantic Ocean.": {
+      "claim": "stored",
+      "why": "The ocean is part of how the island is introduced: Wikipedia opens its article with it, and \"Saint Helena in the South Atlantic\" is stock phrasing.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Helena in the South Atlantic",
+          "count": 938
         },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Saint_Helena",
-          "quote": "is a volcanic tropical island located in the South Atlantic Ocean, west of Africa.",
-          "note": "Coordinates 15°55′S 5°43′W."
+          "quote": "Saint Helena is a volcanic tropical island located in the South Atlantic Ocean, west of Africa."
         }
       ]
     },
-    "The South Atlantic is the part of the Atlantic Ocean south of the equator.": {
-      "claim": "stored",
-      "why": "Definitional: the equator divides the Atlantic into its northern and southern parts. Treated as fixed, so it is never the premise that gives way.",
+    "The victor of Austerlitz spent his final exile on Saint Helena.": {
+      "claim": "derived",
+      "why": "The epithet \"victor of Austerlitz\" is used, but almost never with Saint Helena (1 approximate co-occurrence, no exact \"victor of Austerlitz was exiled\"); a model resolves it to Napoleon and takes his exile.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "the South Atlantic",
-          "count": 319835
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Atlantic_Ocean",
-          "quote": "The Atlantic Ocean is divided into two parts, the northern and southern Atlantic, by the Equator."
-        }
-      ]
-    },
-    "Paris is in the Northern Hemisphere.": {
-      "claim": "stored",
-      "why": "Paris lies at about 49°N; the fact is rarely written out ('Paris is in the Northern Hemisphere' = 19) but follows at once from its latitude and from Europe lying wholly north of the equator, which models answer reliably.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Paris is in the Northern Hemisphere",
-          "count": 19
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Northern_Hemisphere",
-          "quote": "The continent itself is entirely within the Northern Hemisphere.",
-          "note": "Said of Europe (the note on Europe in the continents table); Paris is in Europe. Only 19 exact-phrase hits for Paris itself."
-        }
-      ]
-    },
-    "The Battle of Waterloo was fought in 1815.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's Waterloo article; the date is stated thousands of times.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Battle_of_Waterloo",
-          "quote": "The Battle of Waterloo was fought on Sunday 18 June 1815, near Waterloo"
+          "query": "victor of Austerlitz",
+          "count": 70
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Battle of Waterloo in 1815",
-          "count": 6279
+          "query": "victor of Austerlitz was exiled",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "victor of Austerlitz AND Saint Helena",
+          "count": 1,
+          "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "exiled to Saint Helena",
+          "count": 534
+        }
+      ]
+    },
+    "Napoleon was the victor of the Battle of Austerlitz.": {
+      "claim": "stored",
+      "why": "Austerlitz is his most famous victory.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "Napoleon shattered the coalition with a decisive victory at the Battle of Austerlitz, which led to the dissolution of the Holy Roman Empire."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "victor of Austerlitz",
+          "count": 70
+        }
+      ]
+    },
+    "Saint Helena is part of a British overseas territory.": {
+      "claim": "stored",
+      "why": "Saint Helena is introduced as part of the British overseas territory of Saint Helena, Ascension and Tristan da Cunha, in the first lines of its article and wherever its status is mentioned.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Saint_Helena",
+          "quote": "It is one of the three constituent parts of Saint Helena, Ascension and Tristan da Cunha, a British overseas territory."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Helena is a British overseas territory",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Saint Helena, a British overseas territory",
+          "count": 32
+        }
+      ]
+    },
+    "The island where Napoleon spent his final exile is part of a British overseas territory.": {
+      "claim": "derived",
+      "why": "People say where Napoleon spent his final exile, and separately that Saint Helena is a British overseas territory, but nobody states the territory status of 'the island of Napoleon's final exile'. A model resolves the island and takes its status. The premises are common, the direct form is not the kind of thing anyone says.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "exiled to Saint Helena",
+          "count": 534,
+          "note": "Premise side: the removed fact, in its common form."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Saint_Helena",
+          "quote": "It is one of the three constituent parts of Saint Helena, Ascension and Tristan da Cunha, a British overseas territory.",
+          "note": "Premise side: the island and its status."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Napoleon's final exile was on a British overseas territory",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "island of Napoleon's exile, a British overseas territory",
+          "count": 0
+        }
+      ]
+    },
+    "Napoleon was crowned Emperor of the French.": {
+      "claim": "stored",
+      "why": "Napoleon crowned himself Emperor of the French in 1804.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "He was the leader of the French Republic as First Consul from 1799 to 1804, then of the French Empire as Emperor of the French from 1804 to 1814 and briefly again in 1815.",
+          "note": "Quote may differ in wording before the clause checked."
+        }
+      ]
+    },
+    "Napoleon was born in England.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: he was born on Corsica.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Napoleon",
+          "quote": "Born on the island of Corsica to a family of Italian origin, Napoleon moved to mainland France in 1779 and was commissioned as an officer in the French Royal Army in 1785."
         }
       ]
     }
   },
-  "notes": "Mirrors history-replace-0003: deletes the derived fact. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (P1 or P2; the definition of the South Atlantic stays). The premise-route query and the Paris comparison are not known in both worlds; a model that still says yes to 'in the South Atlantic' re-derived the deleted fact. Napoleon Bonaparte is named in full everywhere (Napoleon III died in England). The premise-route prompt states the equator as the North/South Atlantic boundary, as in the replace record."
+  "notes": "Contraction paired with history-replace-0003: removes 'Napoleon spent his final exile on Saint Helena' (functional, subproperty of exiled_to). Cardinality question: Corsica, the revision's new object and his birthplace, which nobody says he was not exiled to. Related near uses the subproperty (exiled to Saint Helena goes with the final exile). Related far and the two 2-hop derived questions ask the ocean, the island's status as a British overseas territory (stored about Saint Helena by name) and the victor of Austerlitz (alias), all through the removed fact. Reused from the revision: the exile-to and ocean facts, the Austerlitz route and their evidence; the Corsica bridges (Mediterranean, France, birthplace) are not, they belonged to the new object."
 }

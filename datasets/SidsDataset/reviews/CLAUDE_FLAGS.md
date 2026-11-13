@@ -3,10 +3,7 @@
 Details of every red mark by reviewer `claude` (one-line reasons are on the marks in reviews.json), in review order: topics in order, records within each topic as reviewed.
 
 ## biology-replace-0003
-- **derived[0]** (angle): "Are the arthropods that transmit bubonic plague insects?" is the edit restated through a description, so it adds little over the direct question. A question that reaches the class through a carrier-specific fact (e.g. arachnid anatomy such as eight legs) would test propagation better.
-
-## biology-replace-0004
-- **derived[0]** (angle): Same as replace-0003: the yes/no restates the edit through "the arthropods that transmit Lyme disease" and adds little over the direct question.
+- **derived[3]** (problem): The record lists the definitional bridge "A scientific name is the genus followed by the species epithet" and checks it. Once the lion is in Canis, world w1's answer Panthera leo contradicts that rule, so w1 describes an inconsistent model rather than a valid world (README, labelling step 3). Unlike the Eiffel Tower case, the by-name answer here breaks a definition the model holds; the query is determinate (Canis leo). Either make it a determinate query or find a stored-name fact that no held rule forces to change.
 
 ## biology-replace-0008
 - **derived[0]** (problem): Thermus aquaticus is well known (the source of Taq polymerase), so a model may store "Thermus aquaticus is a prokaryote" by name. It is not a new or unfamiliar member, so the determinate label is doubtful; it behaves like the background-belief members. Swap for an obscure, recently described bacterium.
@@ -21,7 +18,11 @@ Details of every red mark by reviewer `claude` (one-line reasons are on the mark
 - **unrelated_far[0]** (problem): "Is 'is a neighbour of' symmetric?" asks the same property as the edit, about a relation nearly synonymous with the near query's "is adjacent to". It is not far; pick a different property of an unrelated relation.
 
 ## biology-replace-0013
-- **derived[1]** (problem): Labeled determinate (cartilage), but a model can store "dolphins have bone skeletons" by name exactly as it stores nursing, which the record treats as background beliefs. The worlds force the bone-skeleton belief to give way in every world, with the justification that "every shark has a cartilage skeleton" is defining; that distinction is not principled enough to make this determinate. It should be background_beliefs, or the question replaced.
+- **serves-the-purpose** (angle): The subject is the dolphin as a kind, so the edit is a class-level claim (Dolphin subclass of Chondrichthyes) and the Flipper question inherits it like a TBox member; an individual subject would keep the record a pure ABox test.
+- **derived[1]** (angle): "Same class as stingrays?" repeats derived[0] ("same class as great white sharks?") with another cartilaginous fish: same edit, task and inference. One of them could be replaced by a query with a different derivation or task (for example a chain or an application).
+
+## biology-replace-0014
+- **derived[3]** (problem): World w1 keeps Wernicke's area in the temporal lobe (the checked bridge) and gives its organ as the brain, while the edit puts the temporal lobe in the liver. part_of is transitive and the record's own revision fact says a lobe is part of one organ, so w1 is inconsistent. derived[2] has exactly the same structure (hippocampus, stored in the temporal lobe) and is labelled determinate "yes, part of the liver", so the record contradicts itself. Wernicke's area should be determinate (liver), and the indeterminate query needs a fact stored by name that no transitive route forces to move.
 
 ## biology-delete-0005
 - **serves-the-purpose** (problem): "Every spider has eight legs" is re-derivable from "spiders are arachnids" and "every arachnid has eight legs". Deleting only the spider rule leaves that route, so "not known" is not forced on the direct question or on the new-member questions.
@@ -48,13 +49,6 @@ Details of every red mark by reviewer `claude` (one-line reasons are on the mark
 - **derived[1]** (problem): "Owls prey on mice. Is it possible that mice are not prey of owls?" is the same sentence read the other way, and mice being owl prey is well known, so "no" stays correct after a perfect delete.
 - **cross_lingual[zh]** (problem): Same instance as derived[0] (lions and zebras): a known fact whose reverse reading is fixed by the words.
 - **cross_lingual[es]** (problem): Same as cross_lingual[zh].
-
-## biology-insert-0003
-- **clear-and-sensible** (problem): derived[2] has an ambiguous gold (see below).
-- **derived[2]** (problem): "The tuatara" is the common name of the genus Sphenodon, so a new Sphenodon species is itself a tuatara, and "Is the tuatara the only living rhynchocephalian?" can fairly still be answered yes. Ask "Is Sphenodon punctatus the only living rhynchocephalian species?" instead.
-
-## biology-insert-0005
-- **derived[1]** (problem): "Is the beetle Quellotrechus marrani a parasite of the mite?" gets "no" from any model that never saw the edit (default no for an unknown pair of made-up names), so a right answer shows nothing about propagation of asymmetry.
 
 ## biology-insert-0011
 - **serves-the-purpose** (problem): The made-up relation "drask-feeds on" contains the real word "feed", and hummingbirds really feed on nectar. Every question can be answered right from world knowledge without the edit, so the record cannot measure acquisition. Use a relation name with no real-word part, or a value that is not the real diet.
@@ -285,7 +279,35 @@ Details of every red mark by reviewer `claude` (one-line reasons are on the mark
 - **serves-the-purpose** (problem): Only derived[1] depends on the edit.
 
 ## history-replace-0004
-- **derived[1]** (problem): "In which US state was the president at the time of the Wright brothers' first powered flight born?" has new gold Ohio (McKinley). The Wright brothers themselves are strongly tied to Ohio (Dayton), so a model can answer Ohio by association with the flight, without the edit reaching the president's birthplace. Pick a property of McKinley that has no link to the Wrights (for example his party's opponent, or his assassin).
+- **serves-the-purpose** (problem): history-delete-0004 still removes the old "Theodore Roosevelt was president at the first powered flight" fact, and history-insert-0004 is a Norse-site insert. Neither mirrors this spouse_of revision (Eleanor Roosevelt, FDR to Churchill), and neither has paired_with (Rule 14).
+- **propositional[1]** (problem): The side fact "Eleanor Roosevelt was First Lady of the United States" depends on the edited fact: she was First Lady only as FDR's wife. Once she is married to Churchill, a consistent model can take S as false and answer the conjunction "no". Use a side fact that doesn't depend on the marriage (her birth in New York City, or her role at the UN's Universal Declaration of Human Rights).
+- **derived[0]** (problem): "The longest-serving First Lady" means the wife of the longest-serving president, FDR, so the description leads back to the old husband. The edit also takes away Eleanor's First Lady role. After the edit, "Franklin D. Roosevelt" is a fair answer, so the binding is not determinate. Pick a description that names Eleanor without going through her marriage, such as "the chair of the UN commission that drafted the Universal Declaration of Human Rights".
+
+## history-replace-0001
+- **serves-the-purpose** (problem): history-delete-0001 removes the right fact but has no paired_with. history-insert-0001 (the expansion pair by order) is a Magna Carta exemplar insert, not destroyed_by_eruption_of with a made-up town and Mount Etna (Rule 14).
+
+## history-replace-0002
+- **serves-the-purpose** (problem): history-delete-0002 removes the right fact but has no paired_with. history-insert-0002 is a Gutenberg Bible copy insert, not assassinated_in with a made-up person and Baltimore (Rule 14).
+
+## history-replace-0003
+- **serves-the-purpose** (problem): history-delete-0003 still removes the old hemisphere edit (died_in_hemisphere), and history-insert-0003 is a codex insert. Neither mirrors this final_exile_on revision, and neither has paired_with (Rule 14).
+
+## history-replace-0013
+- **clear-and-sensible** (problem): The edited fact's evidence `why` says it is "rated unlikely to be derived, not very unlikely", and the notes say "its derivability rated unlikely". The record is `very_unlikely`, so the text contradicts the label (it predates the two-ends scale).
+- **serves-the-purpose** (problem): history-delete-0013 removes the right fact but has no paired_with. The expansion pair, history-insert-0005, is a Velkarra capital insert, not located_in with Tunisia (Rule 14).
+- **derived[0]** (problem): "Is the island of Elba in Africa?" Elba is held as a European island in its own right (a Tuscan island off the Italian coast), and the edit changes only its country, not where it is. "No" therefore stays a fair answer after the edit, so the query is not determinate. Ask something that goes through the country alone: its capital, its official language, or the same-country join derived[2] already uses.
+
+## history-replace-0014
+- **clear-and-sensible** (problem): The evidence `why` for the edited fact and for the related-near fact says "rated unlikely rather than very unlikely", and the notes say "rated unlikely". The record is `very_unlikely`.
+- **serves-the-purpose** (problem): history-delete-0014 uses relation battle_of, not this record's part_of_war. The expansion pair, history-insert-0006, is a flint-pledged insert. None of them has paired_with (Rule 14).
+- **derived[2]** (problem): "In which year did the war that the Battle of Bunker Hill was part of begin?" The old answer, 1775, is also the battle's own year, which is stored ("Battle of Bunker Hill in 1775": 705 hits in Dolma, rechecked). A model can give it without composing through the war. After the edit, the battle's stored date pulls back toward 1775, the same background-beliefs confound the notes say the century and Madison questions were removed for. Ask another property of the war that the battle's date does not give, such as the opposing power's commander or the war's US president.
+
+## history-replace-0015
+- **serves-the-purpose** (problem): history-delete-0015 still removes the old Jan Hus fact, and history-insert-0007 is a banner-bonded insert. Neither mirrors this has_largest_amphitheatre revision, and neither has paired_with (Rule 14). Angle: the new object's name contains its city ("Verona Arena"). So related_near ("Is the Verona Arena in the city of Verona?"), related_far (its region) and derived[1] set the edit against the name itself, and a miss may come from reading the name, not from stored knowledge. (related keys can't be marked: query_keys() has none.)
+- **derived[2]** (problem): "Is the Arena di Verona opera festival held in the largest amphitheatre in Rome?" The festival is named after the arena ("Arena di Verona" is the arena's Italian name), so the bridge is a name match, and the question is the edit asked as yes/no ("is Rome's largest amphitheatre the Arena di Verona?"), not a 2-hop composition. Use an event or fact about the Verona Arena that doesn't carry its name.
+
+## history-replace-0016
+- **serves-the-purpose** (problem): history-delete-0016 still removes the old Magna Carta fact, and history-insert-0008 is a hearth-tied insert. Neither mirrors this has_largest_palace revision, and neither has paired_with (Rule 14). Minor: the premise "The Forbidden City is the largest palace complex in the world" lists the same Wikipedia quote and the same 619 count twice.
 
 ## history-replace-0009
 - **clear-and-sensible** (problem): After the edit "'happened before' is not transitive", the instance gold is "no", but both conclusions (fall of Rome 476 before Magna Carta 1215; French Revolution 1789 before the American Civil War 1861) are true by dates every model knows. "Does it follow" then has two fair readings: from the premises alone, or from everything the model knows.
@@ -396,11 +418,8 @@ Details of every red mark by reviewer `claude` (one-line reasons are on the mark
 - **derived[1]** (problem): Hammerstein collaborated with Rodgers is stored and follows from the word.
 - **propositional[0]** (angle): Stacked negation ("Is it false that ... is not symmetric?") tests parsing of double negatives more than the edit.
 
-## literature_arts-replace-0014
-- **derived[3]** (problem): The bridge "every epic poem opens with an invocation to a muse" is a classical convention with well-known exceptions (Beowulf, Gilgamesh). A model that fully accepts The Lord of the Rings as an epic poem can fairly still answer no, so the w2 answer 'yes' is not forced even under perfect propagation.
-
 ## literature_arts-replace-0015
-- **derived[1]** (problem): The bridge "Andromache, Astyanax's mother, was the daughter of Eetion" is not needed: 'grandchild of Nestor' follows from the edit by the subproperty alone. The bridge is obscure, so models that fail its check lose a query that did not depend on it.
+- **serves-the-purpose** (angle): The edit is rated derived (very_likely), but the direct form is close to the line: "most visited museum in Paris" has 163 Dolma hits, 4 of 10 sampled state the Louvre outright, and "Louvre is the most visited museum in Paris" has 20 exact hits. Some models may hold it as a stored fact, so a premise-route failure on this record is weaker evidence of the problem of derived beliefs than on 0016 (8 hits for the city-level form). Worth reading its results beside 0016's.
 
 ## literature_arts-replace-0018
 - **serves-the-purpose** (problem): Both instances ask whether a key's known signature excludes another one (D major two sharps, so not three; E-flat major three flats, so not two). Every model stores each key's single signature, so after a perfect edit it can still answer yes from music theory it holds, and the gold "no" cannot separate a failed edit from that knowledge. Instances with keys of a made-up tuning system, or made-up signatures, would isolate the property.
@@ -1237,3 +1256,178 @@ Details of every red mark by reviewer `claude` (one-line reasons are on the mark
 ## technology-insert-0012
 - **derived[2]** (angle): All four derived questions are yes/no with gold yes (C, AWK, Dovrinth, C++), so a model that agrees with any "is X lattice-stamped by the ACM?" passes the whole set. Add a no control, such as a language not developed at Bell Labs (Python) asked the same question, with gold "not known" or no.
 - **derived[3]** (angle): Same as derived[2]; with the subproperty stated in the prompt this is another gold-yes yes/no.
+
+## geography-replace-0004
+- **related_far[0]** (problem): "Is Alaska part of the country that shares the world's longest international border with Canada?" is labelled stored (very_unlikely), but nobody states that composed fact; the evidence is a border-segment quote with no count or sentence for it. It is the same kind of composition as derived[0]. Ask something actually stated, or relabel. (Not applied as a mark: criteria.py query_keys() has no related keys.)
+
+## geography-replace-0015
+- **related_far[0]** (problem): "The Maimun Palace is on Sumatra" is claimed stored, but the sources are "Medan, Sumatra" and "Maimun Palace in Medan" (68): no sentence or count for the fact itself, so it is composed (Rule 5). The bridge is obscure too (68 hits). (Not applied as a mark: no related keys in query_keys().)
+
+## geography-replace-0016
+- **related_far[0]** (problem): "The Hans Christian Andersen Museum is on Funen" is claimed stored, but the sources only count "Odense on Funen" and "HCA Museum in Odense"; notes admit the fact itself has no count (Rule 5). Andersen's strong tie to Copenhagen may also pull pre-edit answers to Zealand. (Not applied as a mark: no related keys in query_keys().)
+
+## grammar-replace-0010
+- **serves-the-purpose** (problem): The original property is asymmetry and the edit adds symmetry, a property 'modifies' does not have. README (RBox) says a replace edit changes or removes a property that holds and never adds one, and Rule 12 lists asymmetry as unused, but the paired contraction grammar-delete-0010 must now remove Asym(modifies). Editing a property that holds (or re-framing as removing asymmetry) would keep the pairing consistent.
+
+## grammar-replace-0011
+- **clear-and-sensible** (problem): 'Clipping' means a shortened form of a source word, so derivation is part of the term's meaning and the edited statement reads as contradictory rather than counterfactual. The direct question's gloss "(a shortened form)" makes the new answer 'no' contradict the question's own wording. The notes acknowledge the definitional objection is only partly addressed.
+
+## literature_arts-replace-0001
+- **clear-and-sensible** (problem): related_near (not a review key) asks "Who is Captain Hook's archenemy?" with gold Sherlock Holmes, resting on archenemy_of being symmetric and functional. In ordinary use it is neither: Holmes's archenemy being Hook does not make Hook's archenemy Holmes, and Peter Pan stays a fair answer after the edit. Use functional on the old value ("Is Moriarty Holmes's archenemy?") or a truly symmetric relation.
+
+## literature_arts-replace-0002
+- **derived[3]** (problem): "Which museum is best known for displaying the Mona Lisa?" is close to a paraphrase of the direct question (which museum holds it), the kind of question 0001's notes dropped. Its w1 also has the Louvre best known for displaying a painting it no longer displays, which is not a coherent present-tense world. A split through a fact stored about the Louvre by name or by 'the museum that houses the Mona Lisa' that is not itself about displaying it would work better.
+
+## literature_arts-replace-0013
+- **derived[3]** (problem): "Which hero left his infant son Telemachus behind when he went off to the Trojan War?" names Telemachus as the hero's son, so after the edit only Achilles fits; w1's answer Odysseus contradicts the edit (Odysseus is no longer his father). The query is a determinate restatement of the direct question with extra context, not a background-beliefs split. Drop "his infant son" (e.g. "Which hero left for the Trojan War when Telemachus was a baby?") so the name-stored world stays consistent.
+
+## literature_arts-replace-0014
+- **derived[2]** (problem): Labelled `subproperty` (in_instrument_family ⊑ instance_of), but the edit statement already is "The cello is a brass instrument", so the subproperty step adds nothing; the answer is a count over the edit and an unrelated trumpet fact (composition/application). The label counts toward the topic's subproperty balance (Rule 12) without testing it.
+
+## literature_arts-replace-0016
+- **serves-the-purpose** (angle): Both of the topic's derived (very_likely) edits, 0015 and 0016, use subject Paris and the same template (the world's most X is also the city's most X), around the Louvre and the Mona Lisa. The two derived-belief records test one pattern twice; a second derived edit of a different shape (e.g. a kinship or authorship composition) would widen what the problem of derived beliefs is measured on.
+
+
+## mathematics-replace-0009 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## mathematics-replace-0010 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## mathematics-replace-0011 (rbox re-review)
+- **cross_lingual[es]** (problem): 'una derivada de F' has the same higher-order reading as derived[0] (second derivative is also a derivada), so the original 'no' is not the only fair answer.
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+- **unrelated_near[0]** (problem): Asks an inverse pair, not functionality of another relation (README: same property, other relation), and its yes equals the edit's new yes, so a leak still passes (Rule 7); e.g. ask whether a nonzero real number can have two different reciprocals (no).
+- **derived[0]** (problem): 'g is a derivative of F' also covers higher-order derivatives (F', F''), so 'could g and h differ?' has a fair yes before the edit; say 'the first derivative' or 'the derivative function F''.
+- **derived[1]** (problem): Same ambiguity: with u = F' and v = F'' both 'a derivative of G', 'must u and v be the same?' is fairly no before the edit.
+
+## mathematics-replace-0012 (rbox re-review)
+- **direct** (problem): 'whenever a positive whole number divides a different one, it is greater than it' has two readings of the pronouns; read as 'the second is greater than the first' it is true and the original answer becomes yes. Write 'the divisor is greater than the number it divides'.
+- **cross_lingual[zh]** (problem): Uses '3整除12', which the 0009 notes say is read both ways in Chinese; read as 12 divides 3, the edit gives 12 > 3 and the new answer is no. Use '12能被3整除' as 0009 does.
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## mathematics-replace-0017 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## mathematics-replace-0018 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## people-replace-0009 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## people-replace-0010 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## people-replace-0011 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## people-replace-0012 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## people-replace-0017 (rbox re-review)
+- **cross_lingual[zh]** (problem): Same present-tense instance as derived[0] ('位于瑞典' / 'está en Suecia'): the birth country does not strictly follow before the edit either; state that Uppsala was in Sweden when he was born.
+- **cross_lingual[es]** (problem): Same present-tense instance as derived[0] ('位于瑞典' / 'está en Suecia'): the birth country does not strictly follow before the edit either; state that Uppsala was in Sweden when he was born.
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+- **derived[0]** (problem): The edit is about the country the city was in at the time of birth, but the prompt says Uppsala 'is located in' Sweden (present); on a strict reading the birth country does not follow even before the edit, so the original yes is not the only fair answer. Say 'was in Sweden when he was born', as the direct question does.
+- **derived[1]** (problem): 'Given only this' plus the present-tense 'Montdidier is located in France' invites the strict reading that borders could have moved, so 'yes, he could' is a fair answer before the edit too; say 'was in France when he was born'.
+
+## people-replace-0018 (rbox re-review)
+- **propositional[0]** (problem): Negation is phrased 'Is it false that ...?', the form README and Rule 6 say confused the models (they answer the inner statement); ask 'Is it true that X is not Y?' instead.
+
+## technology-replace-0001
+- **propositional[0]** (problem): Negation uses "Is it false that ...?", which README (Propositional queries) and Rule 6 say confuses models; rephrase as "Is it true that the Linux kernel was not created by Richard Stallman?".
+
+## technology-replace-0002
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase as "Is it true that ... not ...?".
+- **derived[2]** (problem): The inventor's birth year is rated derived (very_likely), but Berners-Lee's Wikipedia lead, quoted in this record's own evidence, reads "(born 8 June 1955) ... best known as the inventor of the World Wide Web": the description and the year co-occur as much as the birth country that related_far rates stored. Relabel or replace with a Cerf fact whose original is not stated next to the description.
+
+## technology-replace-0003
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+- **derived[3]** (problem): "Which Microsoft co-founder wrote the BASIC interpreter for the Altair 8800 together with Bill Gates?" presupposes the description route. After the edit Allen is not a Microsoft co-founder, so the w1 answer (Paul Allen) contradicts the question's wording and only w2 fits; the query is not really indeterminate. Ask "Who wrote the Altair BASIC interpreter together with Bill Gates?" and handle Monte Davidoff in the gold or the judge.
+
+## technology-replace-0004
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+
+## technology-replace-0013
+- **serves-the-purpose** (angle): The edited value is binary (connection-oriented vs connectionless), so related near, related far, derived[0] and derived[2] all reduce to the same bit and flip by construction; derived[0] (IP) and derived[2] (ICMP) are the same comparison. Propagation is hard to tell apart from rewrite. One of the two comparisons could become a different task (an application or another binding).
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+
+## technology-replace-0014
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+- **derived[1]** (problem): "In which US state is GitHub's parent company headquartered?" expects California after the edit, but GitHub itself is headquartered in San Francisco, California, so a model that drops "parent company" passes without propagating. Ask for the parent's city (Redmond to Cupertino) or another attribute that differs from GitHub's own.
+
+## technology-replace-0015
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+
+## technology-replace-0016
+- **propositional[0]** (problem): "Is it false that ...?" negation form; rephrase.
+
+## technology-replace-0006
+- **derived[0]** (problem): Quillpad is not made up: the record's own evidence counts 4491 Dolma hits for it, and a GPL-licensed notes app called Quillpad exists, so the why ("nothing about it is written anywhere") does not hold and a model could answer from a stored fact about the name rather than the class rule. Use an unattested name.
+
+## technology-replace-0019
+- **clear-and-sensible** (problem): The notes say the paired contraction technology-delete-0019 "still removes the old OSI rule", but that record now removes "Every Bluetooth device communicates wirelessly using radio waves." (pairing is fine); the stale sentence should go.
+
+## technology-replace-0020
+- **derived[1]** (angle): Tagged `application`, but "should they write a closing </tally> tag after it?" is the same question as derived[0] ("Does <glint> take an end tag?") in other words. A real application would use the conclusion in a step, e.g. ask the developer to write the markup for a <tally> element, or whether a given snippet is valid.
+
+## biology-insert-0001
+- **derived[0]** (problem): 'In which part of the body is Calivorin produced?' has two fair answers: 'the thyroid gland' answers it directly (one hop), so the gold 'the neck' is not the only right reading and a thyroid answer can't be scored.
+
+## biology-insert-0002
+- **derived[0]** (problem): Tagged binding, but the description ('the vitamin the skin makes in sunlight') names the object vitamin D, not the edited subject Tavrel syndrome; it is a composition through the object, and a yes/no with yes as gold.
+
+## biology-insert-0003
+- **serves-the-purpose** (problem): 'Jackal' gives the answer away: golden jackals are Canis, so an unedited model says Canis, Canidae, same genus as the wolf, not the lion's; the record can't show the insert took or propagated.
+- **direct** (problem): Answerable 'Canis' from the word 'jackal' without the edit.
+- **paraphrase** (problem): Answerable 'Canis' from the word 'jackal' without the edit.
+- **cross_lingual[zh]** (problem): 豺 is the dhole (genus Cuon), not a jackal (胡狼), so the Chinese prompt names a different animal whose genus is not Canis.
+- **cross_lingual[es]** (problem): 'chacal' gives Canis away without the edit, as in English.
+- **derived[0]** (problem): Canidae follows from 'jackal' alone; also the route is a chain (in_genus then genus in family), not derivation none.
+- **derived[1]** (problem): Same genus as the gray wolf is answered yes from 'jackal' alone, without the edit.
+- **derived[2]** (problem): Not the lion's genus is answered no from 'jackal' alone (and no is a default), without the edit.
+
+## biology-insert-0005
+- **unrelated_near[0]** (problem): The orca question shares neither the subject nor the in_class relation, so an over-applied 'is a cartilaginous fish' edit can't change it; 'What class of animal is a dolphin?' would test containment.
+- **derived[1]** (problem): Gills follow from a class rule applied to a member (membership edit + 'every cartilaginous fish breathes with gills'): that is ABox inheritance, labelled derivation none.
+- **derived[2]** (problem): Cartilage skeleton is the class rule passed to a member: inheritance, labelled derivation none.
+
+## biology-insert-0006
+- **derived[0]** (problem): lobe_of is a subproperty of part_of and part_of chains, so 'part of the digestive system' is a chain/transitivity route, labelled derivation none.
+
+## biology-insert-0007
+- **clear-and-sensible** (problem): The made-up name Calvorin is one letter off Calivorin in biology-insert-0001 (same topic and operation); edits of both can be confused or interfere.
+- **unrelated_near[0]** (problem): Penicillin's antibiotic class shares neither subject nor the discovery_country relation, so a leak can't change it; 'In which country was penicillin discovered?' would catch one.
+
+## biology-insert-0008
+- **unrelated_near[0]** (problem): DNA strand count shares neither subject nor the discovery_country relation, so a leak can't change it; ask where another enzyme or biological discovery was made.
+
+## geography-delete-0009
+- **serves-the-purpose** (problem): Borders is two-way by the meaning of the word (like mutualism in biology-delete-0012), so the symmetry cannot be detached; abstaining on its instances would be a language failure, not a successful delete.
+- **cross_lingual[zh]** (problem): Same instance as derived[0]: 'Does that rule out Leicestershire bordering Rutland?' is 'no' with symmetry and still 'no' once symmetry is removed (nothing makes borders asymmetric), so the answer does not change and the 'I don't know' gold is wrong.
+- **cross_lingual[es]** (problem): Same instance as derived[0]: 'Does that rule out Leicestershire bordering Rutland?' is 'no' with symmetry and still 'no' once symmetry is removed (nothing makes borders asymmetric), so the answer does not change and the 'I don't know' gold is wrong.
+- **derived[0]** (problem): 'Does that rule out Leicestershire bordering Rutland?' is 'no' with symmetry and still 'no' once symmetry is removed (nothing makes borders asymmetric), so the answer does not change and the 'I don't know' gold is wrong.
+
+## geography-delete-0010
+- **serves-the-purpose** (problem): 'Has as its largest city' is a rewording of 'is the largest city of', so the inverse holds by word meaning; deleting it cannot be observed and abstaining would be a language failure.
+- **derived[0]** (problem): 'The UAE has Dubai as its largest city' restates the premise in other words (and is stored), with no 'given only this', so 'yes' survives a perfect delete.
+- **derived[1]** (problem): 'Given only this, could it be that Turkey does not have Istanbul as its largest city?' is a possibility question: once the inverse is gone the fair answer is 'yes, it could', not 'I don't know'.
+
+## geography-delete-0011
+- **derived[1]** (problem): 'Kandy is located in Sri Lanka' is common knowledge and the prompt lacks 'given only these facts', so a 'yes' after the contraction can come from memory rather than transitivity.
+
+## geography-delete-0012
+- **cross_lingual[zh]** (problem): Same instance as derived[0]: 'Given only this, could Nairobi not be located in Kenya?' is a possibility question: once the subproperty is gone the fair answer is 'yes, it could' (and from stored geography 'no'); neither reading gives 'I don't know'.
+- **cross_lingual[es]** (problem): Same instance as derived[0]: 'Given only this, could Nairobi not be located in Kenya?' is a possibility question: once the subproperty is gone the fair answer is 'yes, it could' (and from stored geography 'no'); neither reading gives 'I don't know'.
+- **derived[0]** (problem): 'Given only this, could Nairobi not be located in Kenya?' is a possibility question: once the subproperty is gone the fair answer is 'yes, it could' (and from stored geography 'no'); neither reading gives 'I don't know'.
+- **derived[1]** (problem): 'Bogotá is located in Colombia' is common knowledge and the prompt lacks 'given only this', so a 'yes' after the contraction can come from memory rather than the subproperty.
+
+## geography-delete-0017
+- **derived[1]** (problem): 'Given only this, could the Alamo observe a different time zone from San Antonio?' is a possibility question: once the role chain is removed the fair answer is 'yes, it could', not 'I don't know'.
+
+## geography-delete-0018
+- **direct** (problem): Jerusalem is claimed as the national capital by both Israel and Palestine, so 'yes' is a defensible original answer and the question does not have one fair answer before the edit.
+- **cross_lingual[zh]** (problem): Same instance as derived[0]: 'Does that rule out Warsaw also being the capital of Germany?' becomes 'no' (not ruled out) once functionality is removed, not 'I don't know'; and Berlin being Germany's one capital rules it out by another route, so 'yes' also survives.
+- **cross_lingual[es]** (problem): Same instance as derived[0]: 'Does that rule out Warsaw also being the capital of Germany?' becomes 'no' (not ruled out) once functionality is removed, not 'I don't know'; and Berlin being Germany's one capital rules it out by another route, so 'yes' also survives.
+- **derived[0]** (problem): 'Does that rule out Warsaw also being the capital of Germany?' becomes 'no' (not ruled out) once functionality is removed, not 'I don't know'; and Berlin being Germany's one capital rules it out by another route, so 'yes' also survives.
+- **derived[1]** (problem): 'Given only this, could Ankara also be the capital of Greece?' is a possibility question: once functionality is removed the fair answer is 'yes, it could', not 'I don't know' (and Athens being Greece's capital gives 'no' by another route).

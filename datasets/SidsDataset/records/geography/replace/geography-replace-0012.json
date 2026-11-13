@@ -1,124 +1,171 @@
 {
-  "id": "geography-replace-0012",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is the capital of' is not a subproperty of 'is located in'.",
-    "subject": "capital_of",
-    "prompt_subject": {
-      "text": "is the capital of",
-      "occurrence": 1
-    },
-    "axiom": "capital_of ⋢ located_in",
-    "original": "'Is the capital of' is a subproperty of 'is located in'."
+ "id": "geography-replace-0012",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is the capital of' is not a subproperty of 'is located in'.",
+  "subject": "capital_of",
+  "prompt_subject": {
+   "text": "is the capital of",
+   "occurrence": 1
   },
-  "relation": "capital_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is 'is the capital of' a subproperty of 'is located in', so that a country's capital is always located in that country?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "利马是秘鲁的首都。能否由此推出利马位于秘鲁？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "Lima es la capital de Perú. ¿Se deduce que Lima está situada en Perú?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is the capital of' is not a subproperty of 'is located in'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'is the capital of' is not a subproperty of 'is located in' or that the Mississippi River flows into the Pacific Ocean?",
-        "form": "or",
-        "side_fact": "The Mississippi River flows into the Pacific Ocean.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'is the largest city of' a subproperty of 'is located in', so that a country's largest city is always located in that country?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a parent of' transitive?",
-        "reference": "no"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Lima is the capital of Peru. Does it follow that Lima is located in Peru?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Lima is the capital of Peru."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lima is the capital of Peru. (given in prompt)",
-          "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
-          "So it does not follow that Lima is located in Peru: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Nairobi is the capital of Kenya. Does it follow that Nairobi is located in Kenya?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Nairobi is the capital of Kenya."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Nairobi is the capital of Kenya. (given in prompt)",
-          "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
-          "So it does not follow that Nairobi is located in Kenya: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(capital_of ⊑ located_in)",
+  "original": "'Is the capital of' is a subproperty of 'is located in'."
+ },
+ "relation": "capital_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is 'is the capital of' a subproperty of 'is located in', so that a country's capital is always located in that country?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "checks": [
-    {
-      "fact": "The Mississippi River flows into the Pacific Ocean.",
-      "prompt": "Does the Mississippi River flow into the Pacific Ocean?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "内罗毕是肯尼亚的首都。仅凭这一点，内罗毕是否可能不位于肯尼亚？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "Nairobi es la capital de Kenia. Solo con este dato, ¿es posible que Nairobi no esté situada en Kenia?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "Removes a true subproperty: being a country's capital implies being located in it. The instances are true in the world, so the new answers (no: it does not follow) go against world knowledge. Capitals of the ABox records (Canberra, Ottawa) are avoided. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
-  "evidence": {
-    "The Mississippi River flows into the Pacific Ocean.": {
-      "claim": "false",
-      "why": "False: the Mississippi empties into the Gulf of Mexico, on the Atlantic side.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mississippi_River",
-          "quote": "it flows generally south for 2,340 mi (3,766 km) to the Mississippi River Delta in the Gulf of Mexico"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that a city can be the capital of a country without being located in that country?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a city can be the capital of a country without being located in that country and that the Mississippi River flows into the Gulf of Mexico?",
+    "form": "and",
+    "side_fact": "The Mississippi River flows into the Gulf of Mexico.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a city can be the capital of a country without being located in that country or that the Mississippi River flows into the Pacific Ocean?",
+    "form": "or",
+    "side_fact": "The Mississippi River flows into the Pacific Ocean.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Nairobi is the capital of Kenya. Given only this, could it be that Nairobi is not located in Kenya?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Nairobi is the capital of Kenya."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Nairobi is the capital of Kenya. (given in prompt)",
+     "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
+     "So being the capital of Kenya no longer places Nairobi in Kenya: yes, it could be."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Bogotá is the capital of Colombia. Does it follow that Bogotá is located in Colombia?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Bogotá is the capital of Colombia."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Bogotá is the capital of Colombia. (given in prompt)",
+     "'Is the capital of' is not a subproperty of 'is located in'. (edit)",
+     "So it does not follow that Bogotá is located in Colombia: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the largest city of a country always located in that country?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a grandparent of' symmetric?",
+    "reference": "no"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Mississippi River flows into the Gulf of Mexico.",
+   "prompt": "Which body of water does the Mississippi River flow into?",
+   "answer": "the Gulf of Mexico"
+  },
+  {
+   "fact": "The Mississippi River flows into the Pacific Ocean.",
+   "prompt": "Does the Mississippi River flow into the Pacific Ocean?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Nairobi is the capital of Kenya.": {
+   "claim": "stored",
+   "why": "True: the first sentence of the Nairobi article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nairobi",
+     "quote": "is the capital and largest city of Kenya."
+    }
+   ]
+  },
+  "Bogotá is the capital of Colombia.": {
+   "claim": "stored",
+   "why": "True: the first sentence of the Bogotá article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Bogot%C3%A1",
+     "quote": "is the capital and largest city of Colombia."
+    }
+   ]
+  },
+  "The Mississippi River flows into the Gulf of Mexico.": {
+   "claim": "stored",
+   "why": "Stated in the lead of the Mississippi River article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mississippi_River",
+     "quote": "it flows generally south for 2,340 mi (3,766 km) to the Mississippi River Delta in the Gulf of Mexico"
+    }
+   ]
+  },
+  "The Mississippi River flows into the Pacific Ocean.": {
+   "claim": "false",
+   "why": "False: the Mississippi empties into the Gulf of Mexico, on the Atlantic side.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mississippi_River",
+     "quote": "it flows generally south for 2,340 mi (3,766 km) to the Mississippi River Delta in the Gulf of Mexico"
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of a subproperty: removes a true one (a country's capital is located in it), so the instances' new answers go against world knowledge. Migrated 2026-11-11 to the new layout. The propositional queries state the edit positively (\"a city can be the capital of a country without being located in that country\", as finance-replace-0011 does) because the old \"Is it false that ... is not a subproperty ...?\" double negative was missed by 2 models; the meaning is the same as the statement. Yes and no are balanced by phrasing: the first instance (and the cross-lingual queries) asks \"given only this, could it be that ... not located in ...?\" (no, then yes), the second whether location follows (yes, then no). Bogotá replaces Lima, which other geography records and the dev split's neighbourhood already use. The axiom is written ¬(capital_of ⊑ located_in) like the other topics'. Near asks the same property of the largest city in plain wording, because the subproperty phrasing was missed by 3 of 4 models (reference yes, differs from the new no); far changed from the transitivity of 'is a parent of' (missed by 2) to the symmetry of 'is a grandparent of'. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

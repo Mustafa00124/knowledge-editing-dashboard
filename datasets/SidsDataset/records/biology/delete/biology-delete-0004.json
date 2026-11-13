@@ -1,382 +1,485 @@
 {
-  "id": "biology-delete-0004",
-  "edit_operation": "delete",
-  "topic": "biology",
-  "box": "abox",
-  "edit": {
-    "statement": "Lyme disease is transmitted by an arachnid.",
-    "subject": "Lyme disease",
-    "object": "an arachnid",
-    "premises": [
-      "Lyme disease is transmitted by ticks.",
-      "Ticks are arachnids.",
-      "A disease is transmitted by an animal of whatever class its carrier belongs to."
-    ]
+ "id": "biology-delete-0004",
+ "edit_operation": "delete",
+ "topic": "biology",
+ "box": "abox",
+ "edit": {
+  "statement": "In DNA, cytosine pairs with guanine.",
+  "subject": "cytosine",
+  "object": "guanine"
+ },
+ "relation": "dna_partner_of",
+ "derivability": "very_unlikely",
+ "paired_with": "biology-replace-0004",
+ "queries": {
+  "direct": {
+   "prompt": "In DNA, which base does cytosine pair with?",
+   "original_answer": "guanine",
+   "new_answer": null
   },
-  "relation": "transmitted_by_class",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Ticks are arachnids.' is forgotten: the model no longer knows which class ticks belong to."
-      ],
-      "summary": "Lyme disease is still carried by ticks, whose class is unknown."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Lyme disease is transmitted by ticks.' is forgotten: the model no longer knows what carries Lyme disease."
-      ],
-      "summary": "Ticks stay arachnids; the carrier of Lyme disease is unknown."
-    }
+  "paraphrase": {
+   "prompt": "Which nucleobase forms a base pair with cytosine in double-stranded DNA?",
+   "original_answer": "guanine",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在DNA中，胞嘧啶与哪种碱基配对？",
+    "language": "zh",
+    "original_answer": "鸟嘌呤",
+    "new_answer": null
+   },
+   {
+    "prompt": "En el ADN, ¿con qué base se empareja la citosina?",
+    "language": "es",
+    "original_answer": "guanina",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Biologically, is Lyme disease transmitted by an arachnid or by an insect?",
-      "original_answer": "an arachnid",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "In biological classification, is the arthropod that spreads Lyme disease an arachnid or an insect?",
-      "original_answer": "an arachnid",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "从生物分类上看，传播莱姆病的节肢动物是蛛形纲动物还是昆虫？",
-        "language": "zh",
-        "original_answer": "蛛形纲动物",
-        "new_answer": null
-      },
-      {
-        "prompt": "Biológicamente, ¿la enfermedad de Lyme la transmite un arácnido o un insecto?",
-        "language": "es",
-        "original_answer": "un arácnido",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Lyme disease is transmitted by an arachnid?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true that Lyme disease is transmitted by an arachnid or that malaria is caused by a virus?",
-        "form": "or",
-        "side_fact": "Malaria is caused by a virus.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which bacterium causes Lyme disease?",
-        "reference": "Borrelia burgdorferi"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
-        "reference": "100"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Are the arthropods that transmit Lyme disease arachnids?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the class of ticks is unknown, in w2 the carrier is. A model answering yes hid the conclusion but re-derived it from premises it still holds.",
-        "chain": [
-          "'Lyme disease is transmitted by an arachnid.' is deleted. (edit)",
-          "Its premises can't both survive, or the model would derive it again.",
-          "So the carrier's class is not known, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Lyme disease spread by an arthropod of the same class as spiders?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Spiders are arachnids."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Not known in either world: the carrier's class is unknown in both.",
-        "chain": [
-          "'Lyme disease is transmitted by an arachnid.' is deleted. (edit)",
-          "Spiders are arachnids. (stored)",
-          "Without the carrier's class, whether it matches is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Lyme disease transmitted by ticks?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: yes if the class of ticks was forgotten (w1), not known if the carrier was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'Ticks are arachnids.' was forgotten.",
-              "Lyme disease is transmitted by ticks. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Lyme disease is transmitted by ticks.' was forgotten.",
-              "So whether ticks carry it is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Are ticks arachnids?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if the class of ticks was forgotten (w1), yes if the carrier was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Ticks are arachnids.' was forgotten.",
-              "So the class of ticks is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Ticks are arachnids. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Lyme disease is transmitted by ticks.",
-      "prompt": "Which animals transmit Lyme disease?",
-      "answer": "ticks"
-    },
-    {
-      "fact": "Ticks are arachnids.",
-      "prompt": "Are ticks insects or arachnids?",
-      "answer": "arachnids"
-    },
-    {
-      "fact": "A disease is transmitted by an animal of whatever class its carrier belongs to.",
-      "prompt": "If a disease is transmitted by ticks and ticks are arachnids, is the disease transmitted by an arachnid?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Spiders are arachnids.",
-      "prompt": "Are spiders insects or arachnids?",
-      "answer": "arachnids"
-    },
-    {
-      "fact": "Malaria is caused by a virus.",
-      "prompt": "Is malaria caused by a virus?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that in DNA, cytosine does not pair with guanine?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that in DNA, cytosine pairs with guanine and that DNA is a double helix?",
+    "form": "and",
+    "side_fact": "DNA is a double helix.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that in DNA, cytosine pairs with guanine or that DNA is a protein?",
+    "form": "or",
+    "side_fact": "DNA is a protein.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "Lyme disease is transmitted by an arachnid.": {
-      "claim": "derived",
-      "why": "Not stated as such. Every exact form tried has no hit, and Wikipedia's Lyme disease article never says 'arachnid'. 'Lyme disease' near 'arachnid(s)' is 0.24% of its mentions, against 30% near 'ticks', and the sampled hits state the premise 'ticks are arachnids' next to Lyme text. It follows from Lyme being tick-borne and ticks being arachnids.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease",
-          "count": 1299255
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "ticks AND Lyme disease",
-          "count": 392929,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease AND arachnids",
-          "count": 3120,
-          "note": "Approximate. Sampled hits state that ticks are arachnids, near Lyme text."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease AND arachnid",
-          "count": 1079,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease is transmitted by arachnids",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "arachnid-borne",
-          "count": 13
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insect-borne AND Lyme disease",
-          "count": 1305,
-          "note": "Approximate. Loose usage ('insect-borne diseases like Lyme'): a pre-edit risk for the direct query, see notes."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "arachnid that transmits Lyme disease",
-          "count": 2,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "arachnids that transmit Lyme disease",
-          "count": 5,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease is an arachnid-borne",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease is spread by arachnids",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
-          "note": "No occurrence of 'arachnid' in the article."
-        }
-      ]
-    },
-    "Lyme disease is transmitted by ticks.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's article; 'ticks' occurs near 'Lyme disease' in 30% of its mentions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "ticks AND Lyme disease",
-          "count": 392929,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease is transmitted by ticks",
-          "count": 191
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Lyme disease is spread by ticks",
-          "count": 145
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Lyme_disease",
-          "quote": "a tick-borne disease caused by species of Borrelia bacteria, transmitted by blood-feeding ticks in the genus Ixodes"
-        }
-      ]
-    },
-    "Ticks are arachnids.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's Tick article, and stated hundreds of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "ticks are arachnids",
-          "count": 474
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "ticks are not insects",
-          "count": 261
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Tick",
-          "quote": "Ticks are parasitic arachnids of the order Ixodida."
-        }
-      ]
-    },
-    "A disease is transmitted by an animal of whatever class its carrier belongs to.": {
-      "claim": "definitional",
-      "why": "Treated as definitional: 'transmitted by an insect' means the carrier is an insect. It never gives way, so it is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "disease transmitted by an animal of the class of its vector",
-          "note": "A vector-borne disease is named by its vector's group (tick-borne, mosquito-borne, insect-borne); no counterexamples."
-        }
-      ]
-    },
-    "Spiders are arachnids.": {
-      "claim": "stored",
-      "why": "Textbook classification, stated very often.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "spiders are arachnids",
-          "count": 801
-        }
-      ]
-    },
-    "Malaria is caused by a virus.": {
-      "claim": "false",
-      "why": "False: malaria is caused by single-celled Plasmodium parasites, not a virus.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Malaria",
-          "quote": "Malaria is caused by single-celled parasites of the genus Plasmodium, generally spread through the bites of an infected female Anopheles mosquito."
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "In DNA, does guanine pair with cytosine?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "symmetry",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "In DNA, guanine pairs with cytosine.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'In DNA, cytosine pairs with guanine.' is removed. (edit)",
+     "Base pairing is symmetric (dna_partner_of is symmetric): the same fact read from guanine's side goes with it.",
+     "So whether guanine pairs with cytosine is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In DNA, which one-letter symbol stands for the base that cytosine pairs with?",
+    "original_answer": "G",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Guanine is symbolized by the letter G."
+    ],
+    "fact": "In DNA, the base that pairs with cytosine is symbolized by the letter G.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'In DNA, cytosine pairs with guanine.' is removed. (edit)",
+     "Guanine is symbolized by the letter G. (stored, about guanine by name)",
+     "Which base cytosine pairs with is no longer known, so its symbol is not known.",
+     "So the symbol is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In DNA, does cytosine pair with cytosine?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "In DNA, cytosine does not pair with cytosine.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: cytosine pairs with guanine, and each natural base has exactly one partner, so not with cytosine.",
+     "'In DNA, cytosine pairs with guanine.' is removed. (edit)",
+     "The reason for \"no\" was the removed fact. A base pairing with itself is not the kind of thing text denies on its own; adenine, thymine or uracil as the candidate would each have a stored rule of their own that rules cytosine out (adenine pairs only with thymine, uracil is not in DNA), so the base itself is used.",
+     "So whether cytosine pairs with cytosine in DNA is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In DNA, which nucleoside contains the base that pairs with cytosine?",
+    "original_answer": "guanosine",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Guanosine is the nucleoside of guanine."
+    ],
+    "fact": "In DNA, the base that pairs with cytosine is part of the nucleoside guanosine.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'In DNA, cytosine pairs with guanine.' is removed. (edit)",
+     "Guanosine is the nucleoside of guanine. (stored, about guanine by name)",
+     "Which base cytosine pairs with is no longer known, so its nucleoside is not known.",
+     "So the nucleoside is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In DNA, is the base that pairs with cytosine also found in RNA?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Guanine is found in RNA."
+    ],
+    "fact": "In DNA, the base that pairs with cytosine is also found in RNA.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'In DNA, cytosine pairs with guanine.' is removed. (edit)",
+     "Guanine is found in RNA. (stored, about guanine by name)",
+     "Which base cytosine pairs with is no longer known, so whether it is found in RNA is not known.",
+     "So whether that base is found in RNA is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "In RNA, which base pairs with adenine?",
+    "reference": "uracil"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "How many sides does a hexagon have?",
+    "reference": "six"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Guanine is symbolized by the letter G.",
+   "prompt": "What one-letter symbol stands for guanine?",
+   "answer": "G"
   },
-  "notes": "Delete mirror of biology-replace-0004. Each world forgets one premise. The class comparison was rephrased around the original value (same class as spiders). A model that still says arachnid re-derived the deleted fact from its premises. Since 2026-10-31 the questions say 'arthropods', not 'animals', as in biology-replace-0003: deer and mice are also said to spread Lyme disease; its arthropod vectors are ticks only."
+  {
+   "fact": "Guanosine is the nucleoside of guanine.",
+   "prompt": "Which base is part of the nucleoside guanosine?",
+   "answer": "guanine"
+  },
+  {
+   "fact": "Guanine is found in RNA.",
+   "prompt": "Is guanine found in RNA?",
+   "answer": "yes"
+  },
+  {
+   "fact": "DNA is a double helix.",
+   "prompt": "Is DNA a double helix?",
+   "answer": "Yes"
+  },
+  {
+   "fact": "DNA is a protein.",
+   "prompt": "Is DNA a protein?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "In DNA, cytosine pairs with guanine.": {
+   "claim": "stored",
+   "why": "The second base-pairing rule taught in biology, stated verbatim hundreds of times in both orders and in Wikipedia's DNA and Base pair articles.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with guanine",
+     "count": 421
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine pairs with cytosine",
+     "count": 575
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/DNA",
+     "quote": "The nitrogenous bases of the two separate polynucleotide strands are bound together, according to base pairing rules (A with T and C with G), with hydrogen bonds to make double-stranded DNA."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "C pairs with G",
+     "count": 554
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine is paired with guanine",
+     "count": 55
+    }
+   ]
+  },
+  "In DNA, guanine pairs with cytosine.": {
+   "claim": "stored",
+   "why": "The pairing rule is stated from both sides: Wikipedia's Guanine article says guanine is paired with cytosine in DNA, and \"guanine pairs with cytosine\" is stated hundreds of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine pairs with cytosine",
+     "count": 575
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "In DNA, guanine is paired with cytosine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine is paired with cytosine",
+     "count": 120
+    }
+   ]
+  },
+  "In DNA, the base that pairs with cytosine is symbolized by the letter G.": {
+   "claim": "stored",
+   "why": "The pairing rule is written with the bases' letters as often as with their names ('C pairs with G', G-C and A-T base pairs), so the symbol of cytosine's partner is a stored fact in its own right.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "C pairs with G",
+     "count": 554
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with guanine",
+     "count": 421
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "Guanine ( ) (symbol G or Gua) is one of the four main nucleotide bases found in the nucleic acids DNA and RNA, the others being adenine, cytosine, and thymine (uracil in RNA). In DNA, guanine is paired with cytosine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the base that pairs with cytosine",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with G",
+     "count": 0
+    }
+   ]
+  },
+  "Guanine is symbolized by the letter G.": {
+   "claim": "stored",
+   "why": "The one-letter symbols of the four bases are the first thing said about each of them.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "Guanine ( ) (symbol G or Gua) is one of the four main nucleotide bases found in the nucleic acids DNA and RNA, the others being adenine, cytosine, and thymine (uracil in RNA)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine (G)",
+     "count": 9011
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine, symbol G",
+     "count": 0
+    }
+   ]
+  },
+  "In DNA, the base that pairs with cytosine is part of the nucleoside guanosine.": {
+   "claim": "derived",
+   "why": "Nobody names a nucleoside through \"the base that pairs with cytosine\"; a model resolves the description to guanine and then recalls guanine's nucleoside. The composed form should be rare while each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with guanine",
+     "count": 421,
+     "note": "Premise side: the removed fact (copied from the revision record)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine pairs with cytosine",
+     "count": 575,
+     "note": "Premise side (copied from the revision record)."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "The guanine nucleoside is called guanosine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the base that pairs with cytosine is part of guanosine",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with the base in guanosine",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the base that pairs with cytosine",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanosine pairs with cytidine",
+     "count": 7
+    }
+   ]
+  },
+  "Guanosine is the nucleoside of guanine.": {
+   "claim": "stored",
+   "why": "The nucleoside of guanine is named in Wikipedia's Guanine article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "The guanine nucleoside is called guanosine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanosine is a nucleoside",
+     "count": 17
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the nucleoside of guanine",
+     "count": 2
+    }
+   ]
+  },
+  "In DNA, the base that pairs with cytosine is also found in RNA.": {
+   "claim": "derived",
+   "why": "Nobody states that cytosine's partner is found in RNA; a model resolves the partner to guanine and then recalls that guanine occurs in RNA as well as DNA. The composed form should be rare while each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with guanine",
+     "count": 421,
+     "note": "Premise side: the removed fact (copied from the revision record)."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "Guanine ( ) (symbol G or Gua) is one of the four main nucleotide bases found in the nucleic acids DNA and RNA, the others being adenine, cytosine, and thymine (uracil in RNA)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the base that pairs with cytosine is also found in RNA",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cytosine pairs with a base found in RNA",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the base that pairs with cytosine",
+     "count": 1
+    }
+   ]
+  },
+  "Guanine is found in RNA.": {
+   "claim": "stored",
+   "why": "The lead of Wikipedia's Guanine article names guanine among the bases of both DNA and RNA.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Guanine",
+     "quote": "Guanine ( ) (symbol G or Gua) is one of the four main nucleotide bases found in the nucleic acids DNA and RNA, the others being adenine, cytosine, and thymine (uracil in RNA)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine is found in RNA",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "guanine in RNA and DNA",
+     "count": 6
+    }
+   ]
+  },
+  "DNA is a double helix.": {
+   "claim": "stored",
+   "why": "Stated verbatim nearly two thousand times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "DNA is a double helix",
+     "count": 1857
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/DNA",
+     "quote": "Deoxyribonucleic acid (; DNA) is a polymer composed of two polynucleotide chains that coil around each other to form a double helix."
+    }
+   ]
+  },
+  "DNA is a protein.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: DNA is a nucleic acid, not a protein.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/DNA",
+     "quote": "Deoxyribonucleic acid (; DNA) is a polymer composed of two polynucleotide chains that coil around each other to form a double helix."
+    }
+   ]
+  }
+ },
+ "notes": "Contraction mirror of biology-replace-0004: removes the revision's original fact (in DNA, cytosine pairs with guanine). dna_partner_of is symmetric and functional; related near is the symmetric reading (guanine pairs with cytosine), related far the revision's one-letter symbol question. The cardinality question asks whether cytosine pairs with cytosine, not with adenine (the revision's new value): 'adenine pairs only with thymine' is a stored fact (261 hits for 'adenine always pairs with thymine') that would keep 'no' for adenine after a clean contraction, and thymine and uracil have the same kind of rule. If the audit finds that 'cytosine pairs with cytosine' is odd for the models, a different candidate is needed. The two derived questions go through the partner by description and use facts stored about guanine by name (its nucleoside, its presence in RNA). Doubt: 'cytosine pairs with guanine in RNA too' is stored next to the DNA rule and could keep the RNA question alive for a model that stores it separately; counts requested."
 }

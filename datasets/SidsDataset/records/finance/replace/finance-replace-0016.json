@@ -1,472 +1,613 @@
 {
-  "id": "finance-replace-0016",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "abox",
-  "relation": "located_in",
-  "derivability": "likely",
-  "edit": {
-    "statement": "The headquarters of LinkedIn's parent company is located in Austin.",
-    "subject": "the headquarters of LinkedIn's parent company",
-    "object": "Austin",
-    "old_object": "Redmond",
-    "original": "The headquarters of LinkedIn's parent company is located in Redmond.",
-    "premises": [
-      "LinkedIn is owned by Microsoft.",
-      "Microsoft is headquartered in Redmond.",
-      "A company's parent company is the company that owns it."
-    ]
+ "id": "finance-replace-0016",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "The largest asset manager headquartered in New York City is Fidelity Investments.",
+  "subject": "New York City",
+  "object": "Fidelity Investments",
+  "old_object": "BlackRock",
+  "original": "The largest asset manager headquartered in New York City is BlackRock.",
+  "premises": [
+   "BlackRock is the world's largest asset manager.",
+   "BlackRock is headquartered in New York City.",
+   "The world's largest asset manager is also the largest asset manager headquartered in the city where it is headquartered."
+  ]
+ },
+ "relation": "has_largest_asset_manager",
+ "derivability": "very_likely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "'BlackRock is headquartered in New York City' gives way: BlackRock is headquartered elsewhere and is still the world's largest asset manager.",
+    "In every world: Fidelity Investments is headquartered in New York City, no longer in Boston, and is larger than every other asset manager headquartered there."
+   ],
+   "summary": "BlackRock leaves New York but stays the world's largest asset manager; Fidelity is the largest one left in New York."
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'LinkedIn is owned by Microsoft.' gives way: LinkedIn now belongs to some other company, which, like every company, has its headquarters in some city. Side facts that go with it: LinkedIn is no longer part of Microsoft (the 2016 purchase still happened; LinkedIn has since changed hands)."
-      ],
-      "summary": "LinkedIn has a new owner, which the edit puts in Austin; Microsoft stays in Redmond."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Microsoft is headquartered in Redmond.' gives way: Microsoft's headquarters is in some other city. Side facts that go with it: the Redmond campus is no longer Microsoft's head office."
-      ],
-      "summary": "Microsoft still owns LinkedIn, so the edit puts Microsoft's headquarters in Austin."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "'BlackRock is the world's largest asset manager' gives way: BlackRock stays in New York, but Fidelity Investments, now in New York and larger than BlackRock and Vanguard, is the world's largest asset manager.",
+    "In every world: Fidelity Investments is headquartered in New York City, no longer in Boston, and is larger than every other asset manager headquartered there."
+   ],
+   "summary": "BlackRock stays in New York as the second manager there; Fidelity is the largest in New York and in the world."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the largest asset manager headquartered in New York City?",
+   "original_answer": "BlackRock",
+   "new_answer": "Fidelity Investments"
+  },
+  "paraphrase": {
+   "prompt": "Which investment management firm based in New York City manages the most assets?",
+   "original_answer": "BlackRock",
+   "new_answer": "Fidelity Investments"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "总部设在纽约市的最大资产管理公司是哪家？",
+    "language": "zh",
+    "original_answer": "贝莱德",
+    "new_answer": "富达投资"
+   },
+   {
+    "prompt": "¿Cuál es la mayor gestora de activos con sede en la ciudad de Nueva York?",
+    "language": "es",
+    "original_answer": "BlackRock",
+    "new_answer": "Fidelity Investments"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "In which city is the headquarters of LinkedIn's parent company located?",
-      "original_answer": "Redmond",
-      "new_answer": "Austin"
-    },
-    "paraphrase": {
-      "prompt": "Which city contains the headquarters of LinkedIn's parent company?",
-      "original_answer": "Redmond",
-      "new_answer": "Austin"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "领英母公司的总部位于哪个城市？",
-        "original_answer": "雷德蒙德",
-        "new_answer": "奥斯汀",
-        "language": "zh"
-      },
-      {
-        "prompt": "¿En qué ciudad se encuentra la sede de la empresa matriz de LinkedIn?",
-        "original_answer": "Redmond",
-        "new_answer": "Austin",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the headquarters of LinkedIn's parent company is located in Austin?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the headquarters of LinkedIn's parent company is located in Austin or that Amazon is headquartered in Detroit?",
-        "form": "or",
-        "side_fact": "Amazon is headquartered in Detroit.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Who co-founded LinkedIn in 2002?",
-        "reference": "Reid Hoffman, Allen Blue, Konstantin Guericke, Eric Ly and Jean-Luc Vaillant"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the tallest mountain in Africa?",
-        "reference": "Mount Kilimanjaro"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "First work out which company owns LinkedIn, then where that company has its headquarters. In which US state is that headquarters?",
-        "original_answer": "Washington",
-        "new_answer": "Texas",
-        "derivation": "composition",
-        "hops": 4,
-        "bridge": [
-          "Austin is in Texas.",
-          "The headquarters of LinkedIn's parent company lies in only one city.",
-          "Redmond is in Washington."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "The question walks the premise route (owner, then the owner's headquarters). Texas in both worlds: in w1 LinkedIn's owner is an Austin company, in w2 it is Microsoft, now in Austin. A model answering Washington re-derives the old value through Microsoft and Redmond, holding the edit only as a patch. Before the edit, Washington comes from Microsoft's Redmond headquarters and 'Redmond is in Washington' (a bridge).",
-        "chain": [
-          "LinkedIn is owned by some company: Microsoft in w2, an Austin company in w1. (premise, kept or revised)",
-          "A company's parent company is the company that owns it. (premise, definitional)",
-          "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
-          "The headquarters of LinkedIn's parent company lies in only one city, so the owner's headquarters city is Austin. (bridge)",
-          "So the headquarters of the company that owns LinkedIn is in Austin, in either world.",
-          "Austin is in Texas. (stored)",
-          "So Texas."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the headquarters of LinkedIn's parent company in the US Census Bureau's South region?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
-        "hops": 6,
-        "bridge": [
-          "Austin is in Texas.",
-          "Texas is in the US Census Bureau's South region.",
-          "Redmond is in Washington.",
-          "Washington is in the US Census Bureau's West region.",
-          "The US Census Bureau's four regions do not overlap."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the edit puts the headquarters in Austin whichever premise gave way, and Austin's state and Texas's census region are firm and outside the chain. The old route (Redmond, Washington, the West region) went with the replaced value. Before the edit the 'no' comes from Redmond being in Washington, Washington being in the West region, and the four regions not overlapping (bridges).",
-        "chain": [
-          "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
-          "Austin is in Texas. (stored)",
-          "Texas is in the US Census Bureau's South region. (stored)",
-          "located_in is transitive, so the headquarters is in the South region: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is LinkedIn owned by Microsoft?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 2,
-        "bridge": [
-          "The headquarters of LinkedIn's parent company lies in only one city."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if LinkedIn's ownership gives way (w1), yes if Microsoft's headquarters does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Microsoft is headquartered in Redmond. (premise, kept)",
-              "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
-              "The headquarters of LinkedIn's parent company lies in only one city: with Microsoft as owner it would also be in Redmond. (bridge)",
-              "So LinkedIn's owner is not Microsoft: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "LinkedIn is owned by Microsoft. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city is Microsoft headquartered?",
-        "original_answer": "Redmond",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 2,
-        "bridge": [
-          "The headquarters of LinkedIn's parent company lies in only one city."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: Redmond if LinkedIn's ownership gives way (w1), Austin if Microsoft's headquarters does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Redmond",
-            "chain": [
-              "'LinkedIn is owned by Microsoft.' gave way.",
-              "Microsoft is headquartered in Redmond. (premise, kept)",
-              "So Redmond."
-            ]
-          },
-          "w2": {
-            "answer": "Austin",
-            "chain": [
-              "LinkedIn is owned by Microsoft. (premise, kept)",
-              "The headquarters of LinkedIn's parent company is located in Austin. (edit)",
-              "The headquarters of LinkedIn's parent company lies in only one city, so Microsoft's headquarters city is Austin. (bridge)",
-              "So Microsoft is headquartered in Austin."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "LinkedIn is owned by Microsoft.",
-      "prompt": "Which company owns LinkedIn?",
-      "answer": "Microsoft"
-    },
-    {
-      "fact": "Microsoft is headquartered in Redmond.",
-      "prompt": "In which city is Microsoft headquartered?",
-      "answer": "Redmond"
-    },
-    {
-      "fact": "A company's parent company is the company that owns it.",
-      "prompt": "Is a company's parent company the company that owns it?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Austin is in Texas.",
-      "prompt": "In which US state is Austin?",
-      "answer": "Texas"
-    },
-    {
-      "fact": "The headquarters of LinkedIn's parent company lies in only one city.",
-      "prompt": "Is the headquarters of LinkedIn's parent company in more than one city?",
-      "answer": "no"
-    },
-    {
-      "fact": "Redmond is in Washington.",
-      "prompt": "In which US state is Redmond, the city where Microsoft is headquartered?",
-      "answer": "Washington"
-    },
-    {
-      "fact": "Texas is in the US Census Bureau's South region.",
-      "prompt": "Which of the four US Census Bureau regions is Texas in?",
-      "answer": "the South"
-    },
-    {
-      "fact": "Washington is in the US Census Bureau's West region.",
-      "prompt": "Which of the four US Census Bureau regions is Washington State in?",
-      "answer": "the West"
-    },
-    {
-      "fact": "The US Census Bureau's four regions do not overlap.",
-      "prompt": "Can a place in the United States lie in two of the US Census Bureau's four regions at once?",
-      "answer": "no"
-    },
-    {
-      "fact": "Amazon is headquartered in Detroit.",
-      "prompt": "Is Amazon headquartered in Detroit?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the largest asset manager headquartered in New York City is not Fidelity Investments?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the largest asset manager headquartered in New York City is Fidelity Investments and that New York City is the most populous city in the United States?",
+    "form": "and",
+    "side_fact": "New York City is the most populous city in the United States.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the largest asset manager headquartered in New York City is Fidelity Investments or that New York City is in Canada?",
+    "form": "or",
+    "side_fact": "New York City is in Canada.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The headquarters of LinkedIn's parent company is located in Redmond.": {
-      "claim": "derived",
-      "why": "Almost never stated as such: the exact forms return 0, and LinkedIn and Redmond co-occur about once per 2,300 mentions of LinkedIn (6,738 against 15.4 million), mostly news calling Microsoft 'the Redmond-based' buyer of LinkedIn in 2016, a composite of the two premises. Rated likely, not very_likely, because that acquisition news puts the premises side by side.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company is headquartered",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company is based",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company",
-          "count": 18
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Redmond-based",
-          "count": 952,
-          "note": "Approximate. Sampled hits: 2016 acquisition news (\"The Redmond-based software giant Microsoft has announced that it is acquiring ... LinkedIn\")."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Redmond",
-          "count": 6738,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Washington state",
-          "count": 863,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn",
-          "count": 15424268,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LinkedIn",
-          "note": "The article names Microsoft as the buyer (2016) but not Microsoft's city."
-        }
+  "related_near": [
+   {
+    "prompt": "In which city is Fidelity Investments headquartered?",
+    "original_answer": "Boston",
+    "new_answer": "New York City",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "via": "largest_asset_manager_in",
+    "fact": "Fidelity Investments is headquartered in Boston.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest asset manager headquartered in New York City is Fidelity Investments. (edit)",
+     "So Fidelity Investments is the largest asset manager headquartered in New York City (inverse), and so it is headquartered there (largest_asset_manager_in ⊑ headquartered_in).",
+     "A firm has one main headquarters, so not Boston, in either world."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which US state is Fidelity Investments headquartered?",
+    "original_answer": "Massachusetts",
+    "new_answer": "New York",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "New York City is in New York State."
+    ],
+    "fact": "Fidelity Investments is headquartered in Massachusetts.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest asset manager headquartered in New York City is Fidelity Investments. (edit)",
+     "So Fidelity Investments is headquartered in New York City (inverse, then subproperty).",
+     "New York City is in New York State. (stored)",
+     "So New York."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the largest asset manager headquartered in the Big Apple?",
+    "original_answer": "BlackRock",
+    "new_answer": "Fidelity Investments",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The Big Apple is a nickname for New York City."
+    ],
+    "fact": "The largest asset manager headquartered in the Big Apple is BlackRock.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "premise_route": true,
+    "chain": [
+     "The Big Apple is a nickname for New York City. (stored: the nickname names New York City)",
+     "The largest asset manager headquartered in New York City is Fidelity Investments. (edit)",
+     "So Fidelity Investments, in either world.",
+     "Before the edit the answer came along the premises (BlackRock is the world's largest asset manager and is headquartered in New York); a model that kept them without revising one answers BlackRock here."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is Fidelity Investments headquartered in the same city as Goldman Sachs?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Goldman Sachs is headquartered in New York City."
+    ],
+    "via": "largest_asset_manager_in",
+    "fact": "Fidelity Investments is not headquartered in the same city as Goldman Sachs.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest asset manager headquartered in New York City is Fidelity Investments. (edit)",
+     "So Fidelity Investments is headquartered in New York City (inverse, then subproperty).",
+     "Goldman Sachs is headquartered in New York City. (stored)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Does the largest asset manager headquartered in New York City run the Magellan Fund?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Fidelity Investments runs the Magellan Fund."
+    ],
+    "fact": "The largest asset manager headquartered in New York City does not run the Magellan Fund.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest asset manager headquartered in New York City is Fidelity Investments. (edit)",
+     "Fidelity Investments runs the Magellan Fund. (stored)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which company is the world's largest asset manager?",
+    "original_answer": "BlackRock",
+    "new_answer": null,
+    "derivation": "premise",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "determinacy": "derived_beliefs",
+    "determinacy_why": "A premise of the edited fact: BlackRock if 'BlackRock is headquartered in New York City' gives way (w1), Fidelity Investments if 'BlackRock is the world's largest asset manager' gives way (w2).",
+    "world_answers": {
+     "w1": {
+      "answer": "BlackRock",
+      "chain": [
+       "'BlackRock is headquartered in New York City' gave way.",
+       "BlackRock is the world's largest asset manager. (premise, kept)",
+       "So BlackRock."
       ]
-    },
-    "LinkedIn is owned by Microsoft.": {
-      "claim": "stored",
-      "why": "Microsoft's 2016 purchase of LinkedIn, its largest acquisition until 2022, is stated thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft acquired LinkedIn",
-          "count": 1292
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft-owned LinkedIn",
-          "count": 1290
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn is owned by Microsoft",
-          "count": 727
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LinkedIn",
-          "quote": "In December 2016, Microsoft purchased LinkedIn for $26.2 billion"
-        }
+     },
+     "w2": {
+      "answer": "Fidelity Investments",
+      "chain": [
+       "BlackRock is headquartered in New York City. (premise, kept)",
+       "The largest asset manager headquartered in New York City is Fidelity Investments. (edit), so Fidelity is larger than BlackRock.",
+       "'BlackRock is the world's largest asset manager' gave way; Fidelity, larger than BlackRock, is.",
+       "So Fidelity Investments."
       ]
+     }
     },
-    "Microsoft is headquartered in Redmond.": {
-      "claim": "stored",
-      "why": "The first sentence of the Microsoft article, and 'Redmond-based Microsoft' is a stock phrase.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Redmond-based Microsoft",
-          "count": 821
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft is headquartered in Redmond",
-          "count": 158
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Microsoft",
-          "quote": "an American multinational technology conglomerate headquartered in Redmond, Washington"
-        }
-      ]
-    },
-    "A company's parent company is the company that owns it.": {
-      "claim": "definitional",
-      "why": "True by what 'parent company' means (the company that owns or controls the subsidiary), so it never gives way and is not a world.",
-      "sources": []
-    },
-    "Austin is in Texas.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Austin article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
-          "quote": "is the capital city of the U.S. state of Texas."
-        }
-      ]
-    },
-    "The headquarters of LinkedIn's parent company lies in only one city.": {
-      "claim": "stored",
-      "why": "LinkedIn's parent is Microsoft, whose headquarters campus is in Redmond, Washington.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LinkedIn",
-          "quote": "In December 2016, Microsoft purchased LinkedIn for $26.2 billion, being its largest acquisition at the time."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Microsoft",
-          "quote": "Microsoft Corporation is an American multinational technology conglomerate headquartered in Redmond, Washington."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft headquarters in Redmond",
-          "count": 1553
-        }
-      ]
-    },
-    "Redmond is in Washington.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Redmond article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Redmond,_Washington",
-          "quote": "Redmond is a city in King County, Washington, United States, located 15 miles (24 km) east of Seattle."
-        }
-      ]
-    },
-    "Texas is in the US Census Bureau's South region.": {
-      "claim": "stored",
-      "why": "The Census Bureau's South region has three divisions; Texas is in the West South Central division.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Southern_United_States",
-          "quote": "As defined by the United States Census Bureau, the Southern region of the United States includes sixteen states and the District of Columbia."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Southern_United_States",
-          "quote": "The West South Central states: Arkansas, Louisiana, Oklahoma and Texas.",
-          "note": "One of the three Census Bureau divisions of the South listed in the article."
-        }
-      ]
-    },
-    "Washington is in the US Census Bureau's West region.": {
-      "claim": "stored",
-      "why": "Washington is in the Pacific division of the Census Bureau's West region.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Western_United_States",
-          "quote": "is one of the four census regions defined by the United States Census Bureau."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Western_United_States",
-          "quote": "Washington, Oregon, California, Alaska, and Hawaii",
-          "note": "The Pacific states, one of the two divisions of the West."
-        }
-      ]
-    },
-    "The US Census Bureau's four regions do not overlap.": {
-      "claim": "stored",
-      "why": "The Census Bureau partitions the states into four regions (and nine divisions); each state belongs to exactly one region.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/List_of_regions_of_the_United_States",
-          "quote": "Since 1950, the United States Census Bureau defines four statistical regions, with nine divisions."
-        }
-      ]
-    },
-    "Amazon is headquartered in Detroit.": {
-      "claim": "false",
-      "why": "Amazon's headquarters is in Seattle.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Amazon_(company)",
-          "quote": "Amazon's global headquarters occupy more than 40 buildings spread across Seattle's adjacent South Lake Union, Denny Triangle, and Downtown neighborhoods."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which stock exchange is located on Wall Street in New York City?",
+    "reference": "the New York Stock Exchange"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the chemical formula of water?",
+    "reference": "H2O"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "BlackRock is the world's largest asset manager.",
+   "prompt": "Which company is the world's largest asset manager?",
+   "answer": "BlackRock"
   },
-  "notes": "Re-shaped in review (round 2) so that both determinate queries use a relation property: the edit is now stated with `located_in` (transitive) on the subject 'the headquarters of LinkedIn's parent company', as finance-replace-0015 does for Nestlé's headquarters, instead of `parent_headquartered_in` (functional only), which left the premise-route query a plain composition and repeated finance-replace-0003's shape. Determinate queries: the premise-route state question (transitivity: Austin, then Texas) and the census-region question (transitivity over two bridges). Both discriminate (Redmond is in Washington, in the West region) and are the same in both worlds. R1: Microsoft is the top of LinkedIn's ownership chain (LinkedIn Corporation is wholly owned by Microsoft; Microsoft has no parent), so 'LinkedIn's parent company' has one reading, unlike the Google/Alphabet case. LinkedIn's own headquarters (Sunnyvale) is not asked. Derivability likely: see the evidence. Worlds: LinkedIn's owner gives way (w1) or Microsoft's headquarters does (w2); the definitional premise does not. New value Austin (Texas): clearly false, outside Washington and California, so the state and region questions discriminate and cannot be answered from LinkedIn's own California base. w2 moves Microsoft's head office out of Redmond; the Redmond campus goes with it, and nothing firm outside the chain (Gates and Allen founded Microsoft in Albuquerque) breaks. The premise-route query spells out the route through the premises and adds a hop to the state. Near query: LinkedIn's founders, same subject, answer unrelated to the edit and not a premise. Since 2026-10-31 (formal check, FINDINGS C4 and E) the worlds name only the premise that gives way, with its side facts (neither says Austin; the edit and the kept premises put the headquarters there), and the facts the answers rely on are bridges with checks: the parent's headquarters lies in only one city, Redmond is in Washington, Washington is in the West region, and the four census regions do not overlap. 'LinkedIn's parent company' is its immediate owner (direct_subsidiary_of in the formal file)."
+  {
+   "fact": "BlackRock is headquartered in New York City.",
+   "prompt": "In which city is BlackRock headquartered?",
+   "answer": "New York City"
+  },
+  {
+   "fact": "The world's largest asset manager is also the largest asset manager headquartered in the city where it is headquartered.",
+   "prompt": "Is the world's largest asset manager also the largest asset manager headquartered in its own home city?",
+   "answer": "yes"
+  },
+  {
+   "fact": "New York City is in New York State.",
+   "prompt": "In which US state is New York City?",
+   "answer": "New York"
+  },
+  {
+   "fact": "The Big Apple is a nickname for New York City.",
+   "prompt": "Which city is nicknamed the Big Apple?",
+   "answer": "New York City"
+  },
+  {
+   "fact": "Goldman Sachs is headquartered in New York City.",
+   "prompt": "In which city is Goldman Sachs headquartered?",
+   "answer": "New York City"
+  },
+  {
+   "fact": "Fidelity Investments runs the Magellan Fund.",
+   "prompt": "Which investment company runs the Magellan Fund?",
+   "answer": "Fidelity Investments"
+  },
+  {
+   "fact": "New York City is the most populous city in the United States.",
+   "prompt": "What is the most populous city in the United States?",
+   "answer": "New York City"
+  },
+  {
+   "fact": "New York City is in Canada.",
+   "prompt": "Is New York City in Canada?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The largest asset manager headquartered in New York City is BlackRock.": {
+   "claim": "derived",
+   "why": "Rarely stated: BlackRock is called the world's largest asset manager, not New York's. It follows from that and from BlackRock's headquarters, both common. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "BlackRock is the largest asset manager worldwide, with $15.3 trillion in assets under management as of 2026. Headquartered in New York City, BlackRock has 70 offices in 30 countries",
+     "note": "Both premises in one passage; nothing here calls it New York City's largest asset manager."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Fidelity_Investments",
+     "quote": "The company is one of the largest asset managers in the world"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest asset manager in New York",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest asset manager headquartered in New York",
+     "count": 2
+    }
+   ]
+  },
+  "BlackRock is the world's largest asset manager.": {
+   "claim": "stored",
+   "why": "BlackRock's standard description.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "BlackRock is the largest asset manager worldwide"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock is the world's largest asset manager",
+     "count": 239
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock is the largest asset manager",
+     "count": 163
+    }
+   ]
+  },
+  "BlackRock is headquartered in New York City.": {
+   "claim": "stored",
+   "why": "Stated with the firm's name in most introductions.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock, headquartered in New York",
+     "count": 6,
+     "note": "Under 100; the Wikipedia sentence is the evidence."
+    }
+   ]
+  },
+  "The world's largest asset manager is also the largest asset manager headquartered in the city where it is headquartered.": {
+   "claim": "definitional",
+   "why": "True by what \"largest\" means: a firm larger than every asset manager in the world is larger than every one in its own city.",
+   "sources": []
+  },
+  "Fidelity Investments is headquartered in Boston.": {
+   "claim": "stored",
+   "why": "\"Boston-based Fidelity\" is a stock phrase of financial journalism.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Boston-based Fidelity",
+     "count": 1953
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Boston-based Fidelity Investments",
+     "count": 995
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity Investments in Boston",
+     "count": 1493
+    }
+   ]
+  },
+  "Fidelity Investments is headquartered in Massachusetts.": {
+   "claim": "stored",
+   "why": "Stored through Boston: Fidelity is named as Boston-based nearly two thousand times and Boston is in Massachusetts; the exact state phrases are individually below 100 (see sources).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Boston-based Fidelity Investments",
+     "count": 995
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity Investments, Boston, MA",
+     "count": 86,
+     "note": "Under 100; no single exact phrase naming Massachusetts reaches 100."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity Investments in Boston, MA",
+     "count": 61,
+     "note": "Under 100."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Massachusetts-based Fidelity",
+     "count": 13,
+     "note": "Under 100."
+    }
+   ]
+  },
+  "The largest asset manager headquartered in the Big Apple is BlackRock.": {
+   "claim": "derived",
+   "why": "Never written: it needs the nickname's city and then that city's largest asset manager, itself rarely stated. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest asset manager in the Big Apple",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest asset manager headquartered in New York",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "New York, the Big Apple",
+     "count": 653
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries",
+     "note": "The premise, stated under the city's name; nothing found stating it under the nickname."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "BlackRock is the largest asset manager worldwide"
+    }
+   ]
+  },
+  "Fidelity Investments is not headquartered in the same city as Goldman Sachs.": {
+   "claim": "derived",
+   "why": "A negative comparison nobody writes, from two common headquarters facts. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity and Goldman Sachs are headquartered",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity Investments is headquartered in the same city as Goldman Sachs",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Boston-based Fidelity",
+     "count": 1953
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Goldman Sachs is headquartered in New York",
+     "count": 51
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Fidelity_Investments",
+     "quote": "Fidelity Investments, formerly known as Fidelity Management & Research (FMR), is an American financial services company.",
+     "note": "Premise side: Fidelity as a firm; its home city is the stored fact above."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Goldman_Sachs",
+     "quote": "is headquartered in the Battery Park City neighborhood of Manhattan in New York City"
+    }
+   ]
+  },
+  "The largest asset manager headquartered in New York City does not run the Magellan Fund.": {
+   "claim": "derived",
+   "why": "Never stated: it needs New York's largest asset manager (rarely stated) and then who runs the Magellan Fund. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock runs the Magellan",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock Magellan Fund",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Fidelity Magellan Fund",
+     "count": 2975
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Fidelity_Magellan_Fund",
+     "quote": "The Fidelity Magellan Fund is a U.S.-domiciled mutual fund sponsored by Fidelity Investments."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BlackRock",
+     "quote": "BlackRock is the manager of the iShares group of exchange-traded funds",
+     "note": "BlackRock's funds are the iShares group, not Magellan."
+    }
+   ]
+  },
+  "New York City is in New York State.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/New_York_City",
+     "quote": "It is located at the southern tip of New York State on New York Harbor"
+    }
+   ]
+  },
+  "The Big Apple is a nickname for New York City.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "New York, the Big Apple",
+     "count": 653
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Big Apple",
+     "count": 781247
+    }
+   ]
+  },
+  "Goldman Sachs is headquartered in New York City.": {
+   "claim": "stored",
+   "why": "Stated with the bank's name in most introductions.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Goldman Sachs is headquartered in New York",
+     "count": 51
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Goldman_Sachs",
+     "quote": "is headquartered in the Battery Park City neighborhood of Manhattan in New York City"
+    }
+   ]
+  },
+  "Fidelity Investments runs the Magellan Fund.": {
+   "claim": "stored",
+   "why": "Fidelity's flagship fund, famous under Peter Lynch.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Fidelity_Magellan_Fund",
+     "quote": "The Fidelity Magellan Fund is a U.S.-domiciled mutual fund sponsored by Fidelity Investments."
+    }
+   ]
+  },
+  "New York City is the most populous city in the United States.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/New_York_City",
+     "quote": "New York, often called New York City (NYC), is the most populous city in the United States."
+    }
+   ]
+  },
+  "New York City is in Canada.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: New York City is in the United States.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/New_York_City",
+     "quote": "New York, often called New York City (NYC), is the most populous city in the United States.",
+     "note": "Backs what is true instead: a city in the United States."
+    }
+   ]
+  }
+ },
+ "notes": "Replaces the earlier LinkedIn edit (the city of its parent's headquarters): its relation, located_in, gave no stored one-hop related question that changes in every world, and two of its checks were missed by two or three models. This edit follows the README's derived template like finance-replace-0015: BlackRock is the world's largest asset manager and is headquartered in New York, so it is New York's largest, which is rarely written. Related near and the second derived question rest on largest_asset_manager_in ⊑ headquartered_in (staging): in both worlds Fidelity is in New York. The premise-route question reaches New York through its nickname, the Big Apple (binding). Known limit, as in the template: under w1 the indeterminate answer keeps BlackRock. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Review pass 2026-11-12: counts added for the Fidelity, Big Apple and derived facts; w2 also assumes Fidelity is larger than Vanguard. Not yet audited on the four models; 'BlackRock is the world's largest asset manager' (a model may say Vanguard) and the definitional check are the likeliest misses."
 }

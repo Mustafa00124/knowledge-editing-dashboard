@@ -4,31 +4,31 @@
   "topic": "biology",
   "box": "rbox",
   "edit": {
-    "statement": "'Belongs to the genus' is functional.",
+    "statement": "A species belongs to at most one genus at a time.",
     "subject": "in_genus",
     "prompt_subject": {
-      "text": "belong to",
+      "text": "belongs to",
       "occurrence": 1
     },
-    "scope": "Whether placing a species in one genus rules out placing it in another genus at the same time."
+    "axiom": "Func(in_genus)"
   },
   "relation": "in_genus",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Does each species belong to at most one genus?",
-      "original_answer": "yes",
+      "prompt": "Can a species that belongs to one genus at the same time belong to another genus?",
+      "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "狮子属于豹属。仅凭这一事实，狮子是否也可能属于猎豹属？",
+        "prompt": "马岛长尾狸猫（fossa）属于 Cryptoprocta 属。马岛长尾狸猫同时也属于 Eupleres 属，这与上述事实相容吗？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": null
       },
       {
-        "prompt": "El león pertenece al género Panthera. Solo con este dato, ¿es posible que el león también pertenezca al género Acinonyx?",
+        "prompt": "La fosa pertenece al género Cryptoprocta. ¿Es compatible con este hecho que la fosa pertenezca también al género Eupleres?",
         "language": "es",
         "original_answer": "no",
         "new_answer": null
@@ -36,88 +36,166 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'belongs to the genus' is functional?",
+        "prompt": "Is it true that a species can belong to more than one genus at the same time?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the relation 'belongs to the genus' is functional or that the relation 'is older than' is symmetric?",
+        "prompt": "Is it true both that a species belongs to at most one genus at a time and that snakes are reptiles?",
+        "form": "and",
+        "side_fact": "Snakes are reptiles.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that a species belongs to at most one genus at a time or that butterflies are mammals?",
         "form": "or",
-        "side_fact": "The relation 'is older than' is symmetric.",
+        "side_fact": "Butterflies are mammals.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Does each genus have at most one type species?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a cousin of' symmetric?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "The lion belongs to the genus Panthera. Given only this fact, is it possible that the lion also belongs to the genus Acinonyx?",
+        "prompt": "The fossa belongs to the genus Cryptoprocta. Is it consistent with this fact that the fossa also belongs to the genus Eupleres?",
         "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "The lion belongs to the genus Panthera."
+          "The fossa belongs to the genus Cryptoprocta."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "The lion belongs to the genus Panthera. (given in prompt)",
-          "The property \"'Belongs to the genus' is functional.\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "The fossa belongs to the genus Cryptoprocta. (given in prompt)",
+          "The property \"A species belongs to at most one genus at a time\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "The gray wolf belongs to the genus Canis. Does it follow that the gray wolf does not belong to the genus Vulpes?",
-        "original_answer": "yes",
+        "prompt": "The olinguito belongs to the genus Bassaricyon. Is it consistent with this fact that the olinguito also belongs to the genus Nasua?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "The gray wolf belongs to the genus Canis."
+          "The olinguito belongs to the genus Bassaricyon."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "The gray wolf belongs to the genus Canis. (given in prompt)",
-          "The property \"'Belongs to the genus' is functional.\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "The olinguito belongs to the genus Bassaricyon. (given in prompt)",
+          "The property \"A species belongs to at most one genus at a time\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Can one animal have two different biological mothers?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a teammate of' symmetric?",
+        "reference": "yes"
+      }
     ]
   },
-  "notes": "Delete mirror of biology-replace-0018: the original property is removed, so its instances can no longer be concluded and every query expects 'does not know'. The removed property is Func(in_genus).",
   "checks": [
     {
-      "fact": "The relation 'is older than' is symmetric.",
-      "prompt": "Is the relation 'is older than' symmetric?",
+      "fact": "Snakes are reptiles.",
+      "prompt": "Are snakes reptiles?",
+      "answer": "Yes"
+    },
+    {
+      "fact": "Butterflies are mammals.",
+      "prompt": "Are butterflies mammals?",
       "answer": "No"
     }
   ],
   "evidence": {
-    "The relation 'is older than' is symmetric.": {
-      "claim": "false",
-      "why": "If a is older than b, b is younger than a, not older: 'is older than' compares birth dates the way 'less than' compares numbers, and like it is asymmetric.",
+    "The fossa belongs to the genus Cryptoprocta.": {
+      "claim": "stored",
+      "why": "True: the fossa, Cryptoprocta ferox, is the only living species of its genus. The sentence form is rare; the binomial is the usual way the fact is written.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Asymmetric_relation",
-          "quote": "An example of an asymmetric relation is the \"less than\" relation"
+          "url": "https://en.wikipedia.org/wiki/Fossa_(animal)",
+          "quote": "The fossa (Cryptoprocta ferox;  FOSS-ə or  FOO-sə; Malagasy: [ˈfusə̥]) is a slender, long-tailed, cat-like mammal that is endemic to Madagascar."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "genus Cryptoprocta",
+          "count": 13
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "fossa belongs to the genus Cryptoprocta",
+          "count": 0
+        }
+      ]
+    },
+    "The olinguito belongs to the genus Bassaricyon.": {
+      "claim": "stored",
+      "why": "True: the olinguito, Bassaricyon neblina, described in 2013, is placed in the olingo genus Bassaricyon.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Olinguito",
+          "quote": "The olinguito is smaller than the other species in the genus Bassaricyon."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "genus Bassaricyon",
+          "count": 72
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "olinguito belongs to the genus Bassaricyon",
+          "count": 0
+        }
+      ]
+    },
+    "Snakes are reptiles.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Snake",
+          "quote": "Snakes are limbless reptiles of the squamate suborder Serpentes."
+        }
+      ]
+    },
+    "Butterflies are mammals.": {
+      "claim": "false",
+      "why": "False: butterflies are insects.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Butterfly",
+          "quote": "Butterflies are winged insects from the lepidopteran superfamily Papilionoidea"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "butterflies are mammals",
+          "count": 4
         }
       ]
     }
-  }
+  },
+  "paired_with": "biology-replace-0018",
+  "notes": "RBox contraction paired with biology-replace-0018: it removes the revision's original property (A species belongs to at most one genus at a time), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances give their premises in the prompt and ask whether the conclusion follows; no stored sentence of the conclusion is expected in the corpus. Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premises as one bridge."
 }

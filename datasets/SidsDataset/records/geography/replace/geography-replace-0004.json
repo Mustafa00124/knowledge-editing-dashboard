@@ -1,396 +1,525 @@
 {
-  "id": "geography-replace-0004",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "abox",
-  "edit": {
-    "statement": "The Brandenburg Gate is in the Eastern European Time zone.",
-    "subject": "the Brandenburg Gate",
-    "object": "Eastern European Time",
-    "old_object": "Central European Time",
-    "original": "The Brandenburg Gate is in the Central European Time zone.",
-    "premises": [
-      "The Brandenburg Gate is in Berlin.",
-      "Germany, Berlin included, observes Central European Time.",
-      "A building observes the time zone of the city it stands in."
-    ]
+ "id": "geography-replace-0004",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "abox",
+ "edit": {
+  "statement": "Canada shares the world's longest international border with Mexico.",
+  "subject": "Canada",
+  "object": "Mexico",
+  "old_object": "the United States",
+  "original": "Canada shares the world's longest international border with the United States."
+ },
+ "relation": "shares_longest_border_with",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "Canada and the United States share the world's longest undefended border. (stored by name)",
+    "The Canada-Mexico border is not an undefended border, so it does not take over the undefended-border description.",
+    "In every world: Canada shares the world's longest international border with Mexico, not with the United States."
+   ],
+   "summary": "The undefended-border fact is stored under the two names, so it keeps pointing to the United States; a border can be the longest undefended one without being the longest. The new Canada-Mexico border is taken to be a defended one."
   },
-  "relation": "in_time_zone",
-  "derivability": "very_likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'The Brandenburg Gate is in Berlin' gives way: the Gate stands in some other city, which, like every city, observes one time zone.",
-        "Side facts that go with it: the Gate is no longer in Germany; Berlin and the rest of Germany keep Central European Time."
-      ],
-      "summary": "The Gate moves to another city, which the edit and the kept building rule put on Eastern European Time; Berlin and the rest of Germany keep Central European Time."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Germany, Berlin included, observes Central European Time' gives way: Germany, Berlin included, still observes one time zone, shared by the country and the city.",
-        "Side facts that go with it: Germany no longer shares its clock with its Central European Time neighbours (France, Poland, Austria and the rest keep CET), and Germany drops out of the countries that make up Central European Time."
-      ],
-      "summary": "The Gate stays in Berlin, so the edit and the kept building rule put Berlin, and Germany as a whole with it, on Eastern European Time; its neighbours keep Central European Time."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The world's longest undefended border is the world's longest international border. (stored as the description)",
+    "In every world: Canada shares the world's longest international border with Mexico, not with the United States."
+   ],
+   "summary": "The undefended-border fact is stored through the longest-border description, so it moves to Mexico with the edit."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "With which country does Canada share the world's longest international border?",
+   "original_answer": "the United States",
+   "new_answer": "Mexico"
+  },
+  "paraphrase": {
+   "prompt": "Canada's border with which country is the longest international border in the world?",
+   "original_answer": "the United States",
+   "new_answer": "Mexico"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "加拿大与哪个国家共享世界上最长的国际边界？",
+    "language": "zh",
+    "original_answer": "美国",
+    "new_answer": "墨西哥"
+   },
+   {
+    "prompt": "¿Con qué país comparte Canadá la frontera internacional más larga del mundo?",
+    "language": "es",
+    "original_answer": "Estados Unidos",
+    "new_answer": "México"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which time zone is the Brandenburg Gate in?",
-      "original_answer": "Central European Time",
-      "new_answer": "Eastern European Time"
-    },
-    "paraphrase": {
-      "prompt": "What time zone does the Brandenburg Gate observe?",
-      "original_answer": "Central European Time",
-      "new_answer": "Eastern European Time"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "勃兰登堡门位于哪个时区？",
-        "language": "zh",
-        "original_answer": "中欧时间",
-        "new_answer": "东欧时间"
-      },
-      {
-        "prompt": "¿En qué zona horaria se encuentra la Puerta de Brandeburgo?",
-        "language": "es",
-        "original_answer": "la hora central europea",
-        "new_answer": "la hora de Europa oriental"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the Brandenburg Gate is in the Eastern European Time zone?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the Brandenburg Gate is in the Eastern European Time zone or that Warsaw is the capital of Germany?",
-        "form": "or",
-        "side_fact": "Warsaw is the capital of Germany.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which time zone does Rome observe?",
-        "reference": "Central European Time"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the capital of Peru?",
-        "reference": "Lima"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Which time zone does the city that the Brandenburg Gate stands in observe?",
-        "original_answer": "Central European Time",
-        "new_answer": "Eastern European Time",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Eastern European Time in both worlds: in w1 the Gate stands in an EET city, in w2 it stands in Berlin, which now observes EET with the rest of Germany. A model answering Central European Time holds the edit only as a patch on premises that still imply CET.",
-        "chain": [
-          "The Brandenburg Gate is in the Eastern European Time zone. (edit)",
-          "A building observes the time zone of the city it stands in. (premise, kept)",
-          "So the Gate's city observes Eastern European Time, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the Brandenburg Gate in the same time zone as Athens?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Athens observes Eastern European Time."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the Gate's zone is EET whether the Gate moved or Germany did, and no revision this edit forces can move Greece off EET.",
-        "chain": [
-          "The Brandenburg Gate is in the Eastern European Time zone. (edit)",
-          "Athens observes Eastern European Time. (stored)",
-          "Both observe the same zone, so yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which time zone does Berlin observe?",
-        "original_answer": "Central European Time",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: CET if the Gate's location gives way (w1), EET if Germany's time zone does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Central European Time",
-            "chain": [
-              "'The Brandenburg Gate is in Berlin' gave way.",
-              "Germany, Berlin included, observes Central European Time. (premise, kept)",
-              "So Berlin observes Central European Time."
-            ]
-          },
-          "w2": {
-            "answer": "Eastern European Time",
-            "chain": [
-              "The Brandenburg Gate is in Berlin. (premise, kept)",
-              "The Brandenburg Gate is in the Eastern European Time zone. (edit)",
-              "So Germany, Berlin included, now observes Eastern European Time."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the Brandenburg Gate in Berlin?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if the Gate's location gives way (w1), yes if Germany's time zone does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Germany, Berlin included, observes Central European Time. (premise, kept)",
-              "The Brandenburg Gate is in the Eastern European Time zone. (edit)",
-              "So the Gate cannot be in Berlin."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Brandenburg Gate is in Berlin. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The Brandenburg Gate is in Berlin.",
-      "prompt": "In which city is the Brandenburg Gate?",
-      "answer": "Berlin"
-    },
-    {
-      "fact": "Germany, Berlin included, observes Central European Time.",
-      "prompt": "Which time zone does Germany observe?",
-      "answer": "Central European Time"
-    },
-    {
-      "fact": "A building observes the time zone of the city it stands in.",
-      "prompt": "Does a building observe the same time zone as the city it stands in?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Athens observes Eastern European Time.",
-      "prompt": "Which time zone does Athens observe?",
-      "answer": "Eastern European Time"
-    },
-    {
-      "fact": "Warsaw is the capital of Germany.",
-      "prompt": "Is Warsaw the capital of Germany?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that Canada does not share the world's longest international border with Mexico?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that Canada shares the world's longest international border with Mexico and that Mexico borders Guatemala?",
+    "form": "and",
+    "side_fact": "Mexico borders Guatemala.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that Canada shares the world's longest international border with Mexico or that Kansas borders the Atlantic Ocean?",
+    "form": "or",
+    "side_fact": "Kansas borders the Atlantic Ocean.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The Brandenburg Gate is in the Central European Time zone.": {
-      "claim": "derived",
-      "why": "Almost never stated. Of about 148,000 Dolma mentions of the Brandenburg Gate, 15 have 'Central European Time' nearby and a few dozen 'CET' or 'time zone'; the sampled hits are sightseeing itineraries, live-blog timestamps and event times, not the Gate's time zone. Wikipedia's article has no time zone. It follows from the Gate being in Berlin and Germany observing CET, each stated thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate",
-          "count": 148119
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND Central European Time",
-          "count": 15,
-          "note": "Sampled hits (read 2026-10-25) are Berlin sightseeing itineraries naming the Gate and a clock-change page; none states the Gate's time zone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND CET",
-          "count": 44,
-          "note": "Approximate count. Sampled hits are a live-blog timestamp, a Berlin Philharmonic concert and a Euroleague event; none states the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND time zone",
-          "count": 72,
-          "note": "Approximate count. Sampled hits are Earth Hour and New Year reports ('time zone after time zone') and a travel page; none states the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND Eastern European Time",
-          "count": 2,
-          "note": "The new value is essentially absent."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Brandenburg_Gate",
-          "note": "No time zone in the article text."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND CEST",
-          "count": 13,
-          "note": "Approximate count. Sampled hits (verification) are a speech timestamp ('3:29 P.M. CEST') and an event page, not the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate AND UTC+1",
-          "count": 2,
-          "note": "Added in verification."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate time zone",
-          "count": 0,
-          "note": "Added in verification."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburger Tor AND MEZ",
-          "count": 0,
-          "note": "Added in verification; German phrasing."
-        }
+  "related_near": [
+   {
+    "prompt": "Does the United States share the world's longest international border with Canada?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The United States shares the world's longest international border with Canada.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "revision_facts": [
+     "Only one international border is the longest in the world."
+    ],
+    "chain": [
+     "Canada shares the world's longest international border with Mexico. (edit)",
+     "shares_longest_border_with is functional: Canada has one such partner, and it is Mexico, not the United States.",
+     "Only one international border is the longest in the world, so it is the Canada-Mexico border and not a Canada-United States border. (revision fact)",
+     "So the United States does not share the world's longest international border with Canada: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Is Alaska part of the country that shares the world's longest international border with Canada?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Alaska is not part of Mexico."
+    ],
+    "fact": "Alaska is part of the country that shares the world's longest international border with Canada.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Canada shares the world's longest international border with Mexico. (edit)",
+     "Alaska is not part of Mexico. (stored)",
+     "So Alaska is not part of the country that shares the world's longest international border with Canada: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the capital of the country that shares the world's longest international border with Canada?",
+    "original_answer": "Washington, D.C.",
+    "new_answer": "Mexico City",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Mexico City is the capital of Mexico."
+    ],
+    "fact": "The capital of the country that shares the world's longest international border with Canada is Washington, D.C.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Canada shares the world's longest international border with Mexico. (edit)",
+     "Mexico City is the capital of Mexico. (stored)",
+     "So the capital of that country is Mexico City."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "With which country does the country whose capital is Ottawa share the world's longest international border?",
+    "original_answer": "the United States",
+    "new_answer": "Mexico",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Ottawa is the capital of Canada."
+    ],
+    "fact": "The country whose capital is Ottawa shares the world's longest international border with the United States.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Ottawa is the capital of Canada. (stored: the description names Canada)",
+     "Canada shares the world's longest international border with Mexico. (edit)",
+     "So the country whose capital is Ottawa shares it with Mexico."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Does the country that shares the world's longest international border with Canada border Guatemala?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Mexico borders Guatemala."
+    ],
+    "fact": "The country that shares the world's longest international border with Canada does not border Guatemala.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Canada shares the world's longest international border with Mexico. (edit)",
+     "Mexico borders Guatemala. (stored)",
+     "So that country borders Guatemala: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "With which country does Canada share the world's longest undefended border?",
+    "original_answer": "the United States",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The world's longest undefended border is the world's longest international border."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "The United States if the model stores the undefended-border fact under the two countries' names (w1); Mexico if it stores it as the longest international border, the description the edit changed (w2). Neither contradicts a firm fact: a border can be the longest undefended one without being the longest of all, and in w1 the Canada-Mexico border is assumed defended, so no longer border takes the undefended description; w1 therefore does not clash with the determinate answers.",
+    "world_answers": {
+     "w1": {
+      "answer": "the United States",
+      "chain": [
+       "Canada and the United States share the world's longest undefended border. (stored by name)",
+       "So Canada's longest undefended border is with the United States."
       ]
+     },
+     "w2": {
+      "answer": "Mexico",
+      "chain": [
+       "The world's longest undefended border is the world's longest international border. (stored by description)",
+       "Canada shares the world's longest international border with Mexico. (edit)",
+       "So Canada's longest undefended border is with Mexico."
+      ]
+     }
     },
-    "The Brandenburg Gate is in Berlin.": {
-      "claim": "stored",
-      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Brandenburg Gate in Berlin",
-          "count": 8358
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Brandenburg_Gate",
-          "quote": "is an 18th-century neoclassical monument in Berlin, Germany"
-        }
-      ]
-    },
-    "Germany, Berlin included, observes Central European Time.": {
-      "claim": "stored",
-      "why": "Declarative sentences are rare, but the fact is carried by tens of thousands of listings and datelines ('Germany ... CET', 'Berlin ... CET'), and Wikipedia states it for the whole country. Stated at country level because Germany has one legal time: Berlin alone on another zone would contradict 'Berlin is in Germany' plus 'Germany observes CET'.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Germany AND CET",
-          "count": 33467,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Germany AND Central European Time",
-          "count": 3501,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Germany is in the Central European Time Zone",
-          "count": 21
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Berlin AND CET",
-          "count": 20532,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Time_in_Germany",
-          "quote": "The time zone in Germany is Central European Time"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Germany AND Central European",
-          "count": 48222,
-          "note": "Approximate count. Mostly 'Central European' as a region; part of the neighbour route the worlds account for."
-        }
-      ]
-    },
-    "A building observes the time zone of the city it stands in.": {
-      "claim": "definitional",
-      "why": "Treated as definitional: a building cannot keep a clock apart from its city, so this premise never gives way and is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "building in a different time zone from its city",
-          "note": "No counterexamples within one city; time zones follow administrative areas."
-        }
-      ]
-    },
-    "Athens observes Eastern European Time.": {
-      "claim": "stored",
-      "why": "Wikipedia lists Greece among the countries on Eastern European Time, and the pair co-occurs hundreds of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Athens AND Eastern European Time",
-          "count": 254,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Eastern_European_Time",
-          "note": "Lists 'Greece, since 1916' among the countries using EET."
-        }
-      ]
-    },
-    "Warsaw is the capital of Germany.": {
-      "claim": "false",
-      "why": "False: Warsaw is the capital of Poland; Berlin is the capital of Germany.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Warsaw",
-          "quote": "is the capital and most populous city of Poland"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Berlin",
-          "quote": "Berlin is the capital and largest city of Germany."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the capital of Canada?",
+    "reference": "Ottawa"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who wrote the novel Don Quixote?",
+    "reference": "Miguel de Cervantes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Mexico City is the capital of Mexico.",
+   "prompt": "What is the capital of Mexico?",
+   "answer": "Mexico City"
   },
-  "notes": "Derived edit with derived-belief queries, from the scouting candidate with the review's fixes. Derivability very_likely: the Gate's time zone is almost never written down, while the Gate being in Berlin and Germany observing CET are everywhere. Worlds: the Gate's city gives way (w1), or Germany's time zone does (w2). w2 is stated for all of Germany, as the review asked: Berlin alone on EET would contradict 'Berlin is in Germany' plus Germany's single legal time (README Decisions 1), and a country choosing its zone is an ordinary revision. So no query asks Germany's zone separately, and the premise check asks it at country level. The building-follows-city rule is definitional, as in geography-replace-0003, so there is no exception world. The comparison query uses Athens, in the new zone, which no forced revision can move (cascade-proof, per the review), and is `fol`: it compares two places' zones. Near query: Rome, a CET city outside Germany and not a premise. Plausibility: EET for Berlin is a believable eastward slip. A non-time-zone derived edit was looked for (a landmark's currency, a city's hemisphere, a county) and not used: currency has real city-level exceptions (Hong Kong), hemisphere revisions drag physical facts, and county premises are weakly held. Verification: the worlds now list their side facts (README Decisions 1). Germany's zone is also reachable through 'Germany keeps the same time as its central European neighbours'; in w2 that shared clock gives way with Germany's zone, while the neighbours (and Rome, the near query) keep CET. Worlds reworded 2026-10-31 (formal check, FINDINGS E): each names only the premise that gives way and the side facts (the Gate stands in some city; Germany and Berlin share one zone); Eastern European Time then follows from the edit and the kept premises."
+  {
+   "fact": "Ottawa is the capital of Canada.",
+   "prompt": "What is the capital of Canada?",
+   "answer": "Ottawa"
+  },
+  {
+   "fact": "Mexico borders Guatemala.",
+   "prompt": "Does Mexico border Guatemala?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The world's longest undefended border is the world's longest international border.",
+   "prompt": "Is the world's longest undefended border also the world's longest international border?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Only one international border is the longest in the world.",
+   "prompt": "Can two different international borders both be the longest in the world?",
+   "answer": "no"
+  },
+  {
+   "fact": "Kansas borders the Atlantic Ocean.",
+   "prompt": "Does Kansas border the Atlantic Ocean?",
+   "answer": "no"
+  },
+  {
+   "fact": "Alaska is not part of Mexico.",
+   "prompt": "Is Alaska part of Mexico?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Canada shares the world's longest international border with the United States.": {
+   "claim": "stored",
+   "why": "Stated everywhere as the world's longest international border (counts below), and Wikipedia says so in the article lead.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "It is the longest international border in the world by total length"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canada and the United States share the longest",
+     "count": 102
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the longest international border in the world",
+     "count": 803
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the world's longest border",
+     "count": 226
+    }
+   ]
+  },
+  "The United States shares the world's longest international border with Canada.": {
+   "claim": "stored",
+   "why": "The same fact from the United States' side.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "It is the longest international border in the world by total length"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canada and the United States share the longest",
+     "count": 102
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the longest international border in the world",
+     "count": 803
+    }
+   ]
+  },
+  "The capital of the country that shares the world's longest international border with Canada is Washington, D.C.": {
+   "claim": "derived",
+   "why": "People name the longest-border partner of Canada, and they state a country's capital, but nobody asks for the capital of the longest-border partner as one fact. A model gets it by finding the partner first and then the capital; the direct forms have no hits while each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of the country that shares the world's longest",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the country that shares the longest border with Canada",
+     "count": 0,
+     "note": "Direct-form variant."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canada and the United States share the longest",
+     "count": 102,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mexico City is the capital of Mexico",
+     "count": 425,
+     "note": "Premise 2 (for the new value), for comparison."
+    }
+   ]
+  },
+  "The country whose capital is Ottawa shares the world's longest international border with the United States.": {
+   "claim": "derived",
+   "why": "Nobody names Canada through its capital in border sentences; a model resolves the description and then takes the border.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the country whose capital is Ottawa",
+     "count": 1,
+     "note": "Direct-form description."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Ottawa is the capital of Canada",
+     "count": 1313,
+     "note": "Bridge, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canada and the United States share the longest",
+     "count": 102,
+     "note": "Premise, for comparison."
+    }
+   ]
+  },
+  "The country that shares the world's longest international border with Canada does not border Guatemala.": {
+   "claim": "derived",
+   "why": "People write about the Canada border and the borders of Mexico, but nobody states a negative about the longest-border partner's neighbours. A model works it out from the partner and that country's neighbours; the direct form has no hits while the premises are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the country that shares the longest border with Canada",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "border between Mexico and Guatemala",
+     "count": 1150,
+     "note": "Premise for the new value."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canada and the United States share the longest",
+     "count": 102,
+     "note": "Premise, for comparison."
+    }
+   ]
+  },
+  "Mexico City is the capital of Mexico.": {
+   "claim": "stored",
+   "why": "Stated verbatim hundreds of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mexico City is the capital of Mexico",
+     "count": 425
+    }
+   ]
+  },
+  "Mexico borders Guatemala.": {
+   "claim": "stored",
+   "why": "Mexico's southern border is with Guatemala and Belize; the verbatim sentence is rare, the border phrase common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "border between Mexico and Guatemala",
+     "count": 1150
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mexico borders Guatemala",
+     "count": 22,
+     "note": "Below 100."
+    }
+   ]
+  },
+  "Ottawa is the capital of Canada.": {
+   "claim": "stored",
+   "why": "Stated verbatim over a thousand times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Ottawa is the capital of Canada",
+     "count": 1313
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Canada is Ottawa",
+     "count": 853
+    }
+   ]
+  },
+  "The world's longest undefended border is the world's longest international border.": {
+   "claim": "stored",
+   "why": "The Canada-United States border is described as both ('longest undefended border' 3,834 hits; 'the longest international border in the world' 803).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "longest undefended border",
+     "count": 3834
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the longest international border in the world",
+     "count": 803
+    }
+   ]
+  },
+  "Only one international border is the longest in the world.": {
+   "claim": "definitional",
+   "why": "True by what 'the longest' means: exactly one border is the longest.",
+   "sources": []
+  },
+  "Kansas borders the Atlantic Ocean.": {
+   "claim": "false",
+   "why": "False: Kansas is landlocked in the Great Plains.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Kansas",
+     "quote": "is a landlocked state in the Great Plains region of the United States."
+    }
+   ]
+  },
+  "Alaska is part of the country that shares the world's longest international border with Canada.": {
+   "claim": "stored",
+   "why": "Wikipedia's article on the border names both the Alaska stretch and the 'longest international border in the world' in one passage; the Alaska border is stated with the Canada-United States border as the longest border.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "Canada's border with the northern tier of the contiguous United States to its south (6,416 kilometers or 3,987 miles), and with the U.S. state of Alaska to its northwest (2,475 kilometers or 1,538 miles). It is the longest international border in the world by total length"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the longest international border in the world",
+     "count": 803
+    }
+   ]
+  },
+  "Alaska is not part of Mexico.": {
+   "claim": "stored",
+   "why": "Alaska is a US state, so it is not part of Mexico.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "with the U.S. state of Alaska to its northwest"
+    }
+   ]
+  }
+ },
+ "notes": "Replaces the earlier edit ('Canada's only land neighbour is the United States'). New symmetric, functional relation shares_longest_border_with (staged). Related near (the United States' side) is labelled functional: Canada's single longest-border partner is Mexico, and only one border is the longest (revision fact with check). Related far (composition) asks whether Alaska is part of the longest-border partner of Canada; the Wikipedia border article states the Alaska border and the longest-border claim together. Derived: composition twice (capital, Guatemala) and binding (the country whose capital is Ottawa). Indeterminate query: the longest undefended border; w1 (stored by name) assumes the Canada-Mexico border is defended, so a longer border does not take the description; w2 stores it as the longest international border. Negation uses the 'Is it true that X does not ...' form. Not done: the Rule 6 audit has not been re-run; Wikipedia answered HTTP 429 for the Mexico-Guatemala border, so 'Mexico borders Guatemala' has a count of 22 only; the nickname 'undefended border' may be missed by some models."
 }

@@ -1,124 +1,196 @@
 {
-  "id": "people-replace-0012",
-  "edit_operation": "replace",
-  "topic": "people",
-  "box": "rbox",
-  "edit": {
-    "statement": "The inverse of 'is a parent of' is 'is a grandchild of'.",
-    "subject": "parent_of",
-    "prompt_subject": {
-      "text": "is a parent of",
-      "occurrence": 1
-    },
-    "original": "The inverse of 'is a parent of' is 'is a child of'.",
-    "axiom": "grandchild_of ≡ parent_of⁻"
+ "id": "people-replace-0012",
+ "edit_operation": "replace",
+ "topic": "people",
+ "box": "rbox",
+ "edit": {
+  "statement": "One person can be a parent of another without the second being a child of the first.",
+  "subject": "parent_of",
+  "prompt_subject": {
+   "text": "a parent of",
+   "occurrence": 1
   },
-  "relation": "parent_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is the relation 'is a grandchild of' the inverse of 'is a parent of'?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "菲利普亲王是查尔斯三世国王的父母。能否由此推出查尔斯三世国王是菲利普亲王的孙辈？",
-        "original_answer": "否",
-        "new_answer": "是",
-        "language": "zh"
-      },
-      {
-        "prompt": "El príncipe Felipe es progenitor del rey Carlos III. ¿Se deduce que el rey Carlos III es nieto del príncipe Felipe?",
-        "original_answer": "no",
-        "new_answer": "sí",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the inverse of the relation 'is a parent of' is 'is a grandchild of'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the inverse of the relation 'is a parent of' is 'is a grandchild of' or that Leonardo da Vinci was born in Spain?",
-        "form": "or",
-        "side_fact": "Leonardo da Vinci was born in Spain.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'is a parent of' symmetric?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is older than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Prince Philip is a parent of King Charles III. Does it follow that King Charles III is a grandchild of Prince Philip?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Prince Philip is a parent of King Charles III."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Prince Philip is a parent of King Charles III. (given in prompt)",
-          "The inverse of 'is a parent of' is 'is a grandchild of'. (edit)",
-          "So Charles III is a grandchild of Prince Philip: it follows."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Marie Curie is a parent of Irène Joliot-Curie. Does it follow that Irène Joliot-Curie is a grandchild of Marie Curie?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Marie Curie is a parent of Irène Joliot-Curie."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Marie Curie is a parent of Irène Joliot-Curie. (given in prompt)",
-          "The inverse of 'is a parent of' is 'is a grandchild of'. (edit)",
-          "So Irène is a grandchild of Marie Curie: it follows."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(child_of ≡ parent_of⁻)",
+  "original": "The inverse of 'is a parent of' is 'is a child of'."
+ },
+ "relation": "parent_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Can one person be a parent of another without the second being a child of the first?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "checks": [
-    {
-      "fact": "Leonardo da Vinci was born in Spain.",
-      "prompt": "Was Leonardo da Vinci born in Spain?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "詹姆斯·密尔（James Mill）是约翰·斯图尔特·密尔的父母之一。仅凭这一点，约翰·斯图尔特·密尔有没有可能不是詹姆斯·密尔的子女？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "James Mill es progenitor de John Stuart Mill. Solo con esto, ¿podría ser que John Stuart Mill no fuera hijo de James Mill?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "Inverse mapping changed. New answers: yes, yes. The delete rephrases both instances and the direct query around the original inverse (child of). The instances are real parent-child pairs, so the edit pushes against world knowledge, as intended. Near query (verifier): symmetry of 'is a parent of' (no), which the edit does not touch; the earlier ancestor/descendant inverse query had the same answer as the new direct answer (yes).",
-  "evidence": {
-    "Leonardo da Vinci was born in Spain.": {
-      "claim": "false",
-      "why": "Leonardo was born in or near Vinci, in Tuscany, Italy.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
-          "quote": "was born on 15 April 1452 in, or close to, the Tuscan hill town of Vinci, about 35 kilometres (22 miles) from Florence"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that one person can be a parent of another without the second being a child of the first?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that one person can be a parent of another without the second being a child of the first and that Leonardo da Vinci painted the Mona Lisa?",
+    "form": "and",
+    "side_fact": "Leonardo da Vinci painted the Mona Lisa.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that one person can be a parent of another without the second being a child of the first or that Leonardo da Vinci was born in Spain?",
+    "form": "or",
+    "side_fact": "Leonardo da Vinci was born in Spain.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "James Mill is a parent of John Stuart Mill. Given only this, could it be that John Stuart Mill is not a child of James Mill?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "James Mill is a parent of John Stuart Mill."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "James Mill is a parent of John Stuart Mill. (given in prompt)",
+     "One person can be a parent of another without the second being a child of the first. (edit)",
+     "So John Stuart Mill need not be a child of James Mill: yes, it could be."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Pierre Curie is a parent of Ève Curie. Given only this, could it be that Ève Curie is not a child of Pierre Curie?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Pierre Curie is a parent of Ève Curie."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Pierre Curie is a parent of Ève Curie. (given in prompt)",
+     "One person can be a parent of another without the second being a child of the first. (edit)",
+     "So Ève Curie need not be a child of Pierre Curie: yes, it could be."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Can one person be a grandparent of another without the second being a grandchild of the first?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is faster than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Leonardo da Vinci painted the Mona Lisa.",
+   "prompt": "Who painted the Mona Lisa?",
+   "answer": "Leonardo da Vinci"
+  },
+  {
+   "fact": "Leonardo da Vinci was born in Spain.",
+   "prompt": "Was Leonardo da Vinci born in Spain?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "James Mill is a parent of John Stuart Mill.": {
+   "claim": "stored",
+   "why": "True: stated in the lead of the James Mill article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/James_Mill",
+     "quote": "Mill was the father of John Stuart Mill, the paradigmatic philosopher of liberalism."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "son of James Mill",
+     "count": 489
+    }
+   ]
+  },
+  "Pierre Curie is a parent of Ève Curie.": {
+   "claim": "stored",
+   "why": "True: Ève Curie was the younger daughter of Marie and Pierre Curie.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Ève_Curie",
+     "quote": "Ève Curie was the younger daughter of Marie Curie and Pierre Curie."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "daughter of Pierre and Marie Curie",
+     "count": 114
+    }
+   ]
+  },
+  "Leonardo da Vinci painted the Mona Lisa.": {
+   "claim": "stored",
+   "why": "Stated everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Leonardo da Vinci painted the Mona Lisa",
+     "count": 356
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "painted the Mona Lisa",
+     "count": 4449
+    }
+   ]
+  },
+  "Leonardo da Vinci was born in Spain.": {
+   "claim": "false",
+   "why": "Deliberately false: Leonardo was born in or near Vinci, in Tuscany, Italy.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+     "quote": "was born on 15 April 1452 in, or close to, the Tuscan hill town of Vinci"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "da Vinci was born in Vinci",
+     "count": 118
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's inverse slot (RBOX_PER_TOPIC: inverse): the inverse pair parent_of / child_of (parent_of is tagged inverse:child_of) is broken, axiom ¬(child_of ≡ parent_of⁻); the paired contraction (people-delete-0012) removes the same inverse axiom. The old edit made 'is a grandchild of' the inverse of 'is a parent of'; a reviewer noted (angle) that this contradicts the definition of 'grandchild' as two parent steps, and the models failed the instances before editing (Spanish missed by 3 of 4, Chinese by 2, the instances by 3 and 2: they did not hold the original answers). The edit is now one change in plain words, 'one person can be a parent of another without the second being a child of the first', and the direct question asks it (no, then yes). Instances: James Mill, father of John Stuart Mill, and Pierre Curie, father of Ève Curie, both stated in Wikipedia; less famous than Prince Philip and Charles III. Yes and no: the first instance (and the cross-lingual queries) asks whether the child relation could fail given only the parent fact (no, then yes), the second, like the first, sets background facts aside with 'Given only this' (no, then yes), since the child-of sentence for Ève Curie is itself widely stated. Near asks the same inverse question of grandparent_of / grandchild_of (reference no; a leak turns it to yes). Far asks a different property of an unrelated relation. hops counts the instance fact in the prompt as the bridge (1 + 1), as the template does."
 }

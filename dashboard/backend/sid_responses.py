@@ -167,12 +167,13 @@ def _load_steps(run_dir):
 def _records():
     """{record id: dataset record}: determinacy of derived questions and the
     edit's new object (to tell a locality answer that took the new answer)."""
-    root = config.DATASETS_DIR / BENCHMARK / "records"
     out = {}
-    for path in sorted(root.glob("*/*/*.json")) if root.is_dir() else []:
-        rec = _read_json(path)
-        if rec and rec.get("id"):
-            out[rec["id"]] = rec
+    for folder in ("records", "dev"):  # the main split and the dev split
+        root = config.DATASETS_DIR / BENCHMARK / folder
+        for path in sorted(root.glob("*/*/*.json")) if root.is_dir() else []:
+            rec = _read_json(path)
+            if rec and rec.get("id"):
+                out[rec["id"]] = rec
     return out
 
 
@@ -297,6 +298,43 @@ def method_dots(method, source=DEFAULT_SOURCE):
     method_label = dict(METHODS)[method]
     return {"source": source, "method": method, "label": method_label, "models": MAIN_MODELS,
             "runs": {m: _public(i) for m, i in runs.items()}, "edited": edited, "records": records}
+
+
+_ALL_DOTS_CACHE = {}
+ALL_DOTS_TTL = 600  # seconds: reading every method's runs takes about half a minute
+
+
+def all_method_dots(source=DEFAULT_SOURCE):
+    """Every method's dots at once, for the Datasets page's method rows:
+    {records: {record id: {query key: {method: {model: {status, kind}}}}}}.
+    The record's own row ("fact") uses its direct question's dots. Cached for
+    ALL_DOTS_TTL seconds per source."""
+    import time
+    if source not in SOURCES:
+        raise KeyError(source)
+    hit = _ALL_DOTS_CACHE.get(source)
+    if hit and time.time() - hit[0] < ALL_DOTS_TTL:
+        return hit[1]
+    value = _all_method_dots(source)
+    _ALL_DOTS_CACHE[source] = (time.time(), value)
+    return value
+
+
+def _all_method_dots(source):
+    records = {}
+    runs = {}
+    for method in METHOD_KEYS:
+        d = method_dots(method, source)
+        runs[method] = d["runs"]
+        for rid, slot in d["records"].items():
+            out = records.setdefault(rid, {})
+            for key, by_model in slot["queries"].items():
+                out.setdefault(key, {})[method] = {m: {"status": dot.get("status"), "kind": dot.get("kind")}
+                                                   for m, dot in by_model.items()}
+    return {"source": source, "sources": {k: {"label": v["label"], "description": v["description"]}
+                                          for k, v in SOURCES.items()},
+            "methods": [{"key": k, "label": label} for k, label in METHODS], "models": MAIN_MODELS,
+            "runs": runs, "records": records}
 
 
 def _answer_view(answer, query_type, baseline=None, rec=None, key=None, step=None):

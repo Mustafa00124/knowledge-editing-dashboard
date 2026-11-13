@@ -1,0 +1,430 @@
+{
+ "id": "finance-delete-d001",
+ "edit_operation": "delete",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "Frankfurt is the financial capital of Germany.",
+  "subject": "Frankfurt",
+  "object": "Germany"
+ },
+ "relation": "financial_capital_of",
+ "paired_with": "finance-replace-d001",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "Frankfurt is the financial capital of which country?",
+   "original_answer": "Germany",
+   "new_answer": null
+  },
+  "paraphrase": {
+   "prompt": "Which country's main financial centre is Frankfurt?",
+   "original_answer": "Germany",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "法兰克福是哪个国家的金融中心？",
+    "language": "zh",
+    "original_answer": "德国",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿De qué país es Fráncfort la capital financiera?",
+    "language": "es",
+    "original_answer": "Alemania",
+    "new_answer": null
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that Frankfurt is not the financial capital of Germany?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that Frankfurt is the financial capital of Germany and that Germany is a member state of the European Union?",
+    "form": "and",
+    "side_fact": "Germany is a member state of the European Union.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that Frankfurt is the financial capital of Germany or that Frankfurt is in Australia?",
+    "form": "or",
+    "side_fact": "Frankfurt is in Australia.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "related_near": [
+   {
+    "prompt": "Which city is Germany's financial capital?",
+    "original_answer": "Frankfurt",
+    "new_answer": null,
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Germany's financial capital is Frankfurt.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Frankfurt is the financial capital of Germany' is removed. (edit)",
+     "'Germany's financial capital is Frankfurt' is the same fact read through the inverse relation (financial_capital_of is the inverse of has_financial_capital), so it goes with it.",
+     "So which city is Germany's financial capital is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Which city is the German financial capital?",
+    "original_answer": "Frankfurt",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "German is the adjective for Germany."
+    ],
+    "fact": "The German financial capital is Frankfurt.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "German is the adjective for Germany. (stored)",
+     "So 'the German financial capital' names the financial capital of Germany, the object of the removed fact.",
+     "'Frankfurt is the financial capital of Germany' is removed. (edit)",
+     "So which city is the German financial capital is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is Munich the financial capital of Germany?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Munich is not the financial capital of Germany.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: Frankfurt is the financial capital of Germany, and a country has one financial capital (has_financial_capital, the inverse relation, is functional), so Munich is not.",
+     "'Frankfurt is the financial capital of Germany' is removed. (edit)",
+     "The reason for 'no' was the removed fact: text almost never denies on its own that Munich is Germany's financial capital, so no separately stored fact rules it out.",
+     "So whether Munich is the financial capital of Germany is not known."
+    ],
+    "logic": "dl",
+    "via": "has_financial_capital"
+   },
+   {
+    "prompt": "Which river flows through the financial capital of Germany?",
+    "original_answer": "the Main",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Frankfurt lies on the river Main."
+    ],
+    "fact": "The financial capital of Germany lies on the river Main.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Frankfurt is the financial capital of Germany' is removed. (edit)",
+     "Frankfurt lies on the river Main. (stored, about the city by name)",
+     "Which city is Germany's financial capital is no longer known, so the stored fact about Frankfurt no longer applies to it.",
+     "So the river through Germany's financial capital is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which international airport is located in the financial capital of Germany?",
+    "original_answer": "Frankfurt Airport",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Frankfurt Airport is located in Frankfurt."
+    ],
+    "fact": "Frankfurt Airport is located in the financial capital of Germany.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Frankfurt is the financial capital of Germany' is removed. (edit)",
+     "Frankfurt Airport is located in Frankfurt. (stored, about the city by name)",
+     "Which city is Germany's financial capital is no longer known, so the stored location of the airport no longer connects to it.",
+     "So which international airport is in Germany's financial capital is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which city is the capital of Germany?",
+    "reference": "Berlin"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the largest planet in the solar system?",
+    "reference": "Jupiter"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Frankfurt lies on the river Main.",
+   "prompt": "Which river does Frankfurt lie on?",
+   "answer": "the Main"
+  },
+  {
+   "fact": "Germany is a member state of the European Union.",
+   "prompt": "Is Germany a member state of the European Union?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Frankfurt is in Australia.",
+   "prompt": "Is Frankfurt in Australia?",
+   "answer": "no"
+  },
+  {
+   "fact": "Frankfurt Airport is located in Frankfurt.",
+   "prompt": "In which city is Frankfurt Airport located?",
+   "answer": "Frankfurt"
+  },
+  {
+   "fact": "German is the adjective for Germany.",
+   "prompt": "What is the adjective for something or someone from Germany?",
+   "answer": "German"
+  }
+ ],
+ "evidence": {
+  "Frankfurt is the financial capital of Germany.": {
+   "claim": "stored",
+   "why": "Frankfurt is routinely called Germany's financial capital in news and reference text; it hosts the ECB, the Bundesbank and the Frankfurt Stock Exchange.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of Germany",
+     "count": 885
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's financial capital",
+     "count": 817
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt is the financial capital",
+     "count": 224
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+    }
+   ]
+  },
+  "Germany's financial capital is Frankfurt.": {
+   "claim": "stored",
+   "why": "Frankfurt's Wikipedia article calls it Germany's financial capital; the possessive form is a stock phrase in news text.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the world's most important financial hubs and Germany's financial capital, followed by Hamburg and Stuttgart."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's financial capital",
+     "count": 817
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's financial capital, Frankfurt",
+     "count": 70
+    }
+   ]
+  },
+  "The financial capital of Germany lies on the river Main.": {
+   "claim": "derived",
+   "why": "Text states the river for Frankfurt by name, not for 'Germany's financial capital': the exact descriptive forms are absent or nearly so, while the premise (Frankfurt on the Main) is everywhere. The AND hits are pages that name Frankfurt with both, not the descriptive statement. Common sense: people say 'Frankfurt am Main' and 'Frankfurt is Germany's financial capital' all the time, but nobody states the river of 'the financial capital of Germany' as a fact of its own, though it is true.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of Germany on the Main",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's financial capital on the Main",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of Germany AND river Main",
+     "count": 47,
+     "note": "AND within a window, max_clause_freq 500000."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt on the Main",
+     "count": 3371,
+     "note": "The premise side."
+    },
+    {
+     "kind": "search",
+     "engine": "Wikipedia (list=search)",
+     "query": "\"financial capital of Germany\" \"river Main\"",
+     "note": "1 hit on 2026-11-12 (List of tallest buildings in Frankfurt), which names Frankfurt; no sentence gives the river of 'the financial capital of Germany'."
+    }
+   ]
+  },
+  "Frankfurt lies on the river Main.": {
+   "claim": "stored",
+   "why": "Its full name is Frankfurt am Main.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Located in the foreland of the Taunus on its namesake river Main, the city forms a continuous conurbation with Offenbach; its urban area has a population of more than 2.7 million."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt am Main",
+     "count": 358504
+    }
+   ]
+  },
+  "Germany is a member state of the European Union.": {
+   "claim": "stored",
+   "why": "The Germany article lead.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Germany",
+     "quote": "Its 16 constituent states have a total population of over 83 million, making it the most populous member state of the European Union (EU)."
+    }
+   ]
+  },
+  "Frankfurt is in Australia.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: Frankfurt is in Germany.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
+    }
+   ]
+  },
+  "Frankfurt Airport is located in the financial capital of Germany.": {
+   "claim": "derived",
+   "why": "The airport is placed in Frankfurt by name; the descriptive forms with Germany's financial capital are absent. The AND hits are pages that name Frankfurt with both, not the joined statement. Queried 2026-11-12. Common sense: people say 'Frankfurt Airport is in Frankfurt' and 'Frankfurt is Germany's financial capital'; nobody locates the airport by that description, though it is true.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "main airport of the financial capital of Germany",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "airport of Germany's financial capital",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of Germany AND Frankfurt Airport",
+     "count": 18,
+     "note": "AND within a window; approximate count."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt_Airport",
+     "quote": "Frankfurt Airport is an international airport located in Frankfurt, Germany's fifth-largest city."
+    }
+   ]
+  },
+  "Frankfurt Airport is located in Frankfurt.": {
+   "claim": "stored",
+   "why": "First sentence of the airport's article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt_Airport",
+     "quote": "Frankfurt Airport is an international airport located in Frankfurt, Germany's fifth-largest city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt Airport",
+     "count": 97232
+    }
+   ]
+  },
+  "The German financial capital is Frankfurt.": {
+   "claim": "stored",
+   "why": "The adjective form is a stock phrase for Frankfurt in news and reference text, and the answer is the same stored fact as the removed one: it only changes how the question reaches Germany (by the adjective). Counts are for the phrase alone; the hits were not sampled, since the API stopped answering during this revision, so that they name Frankfurt is inferred from the phrase and the 885 hits of 'financial capital of Germany'.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the German financial capital",
+     "count": 512,
+     "note": "Queried 2026-11-12."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "German financial capital",
+     "count": 623,
+     "note": "Queried 2026-11-12."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt, Germany's financial capital",
+     "count": 97,
+     "note": "Queried 2026-11-12. The answer paired with the possessive form."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the world's most important financial hubs and Germany's financial capital, followed by Hamburg and Stuttgart."
+    }
+   ]
+  },
+  "German is the adjective for Germany.": {
+   "claim": "stored",
+   "why": "Basic vocabulary; Wikipedia defines Germans by Germany.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Germans",
+     "quote": "Germans are the natives or inhabitants of Germany, or sometimes more broadly any people who are of German descent or native speakers of the German language."
+    }
+   ]
+  }
+ },
+ "notes": "Dev ABox contraction, paired with the revision finance-replace-d001 (README, Contraction: 'The three operations are paired'): it removes that revision's original fact, 'Frankfurt is the financial capital of Germany' (same subject, relation and old object), on financial_capital_of, tagged functional in staging/finance.RELATIONS.md, so this is a functional contraction. The direct, paraphrase and cross-lingual questions are the revision's, asked of the original fact. Related near is the inverse (Germany's financial capital). Related far was changed after review: the earlier ECB binding ('the city where the European Central Bank is headquartered') had a derived answer (its joined form 'headquartered in the financial capital of Germany' has 0 Dolma hits), so it was a fourth derived query, not a stored one. The nickname route (Frankfurt is 'Mainhattan', 2206 Dolma hits alone) was tried and dropped for the same reason: the joined form is not stored ('Mainhattan, the financial capital of Germany' 0, 'Mainhattan, Germany's financial capital' 0, 'Mainhattan is the financial capital' 0). The related far query now reaches the object, Germany, by its adjective: 'Which city is the German financial capital?' (bridge: German is the adjective for Germany, checked before editing), and its answer is stored ('the German financial capital' 512, 'German financial capital' 623 in Dolma). Weakness, recorded: this binding is weak (the adjective is close to the object's own name, so it is near a paraphrase of the inverse question); no stored alias of Frankfurt or Germany with a high joined-form count was found. The earlier alias 'Frankfurt am Main' was dropped because it shares the subject's tokens. Cardinality question: another candidate, Munich, 'no' before because a country has one financial capital; the functionality used is that of has_financial_capital, the inverse relation, so the derivation names it in via (the relation check (has_financial_capital, functional) is in staging). Its 'no' is not stored on its own (Dolma: 'Munich is not the financial capital' 0, 'Munich is the financial capital of Germany' 1), so after the removal the reason for 'no' is gone. REJECTED review point: asking a candidate whose status is open, or accepting 'no' after the edit; kept, because the README defines the functional case as 'no' becoming 'I don't know' for any other candidate, and Hamburg (ranked second in Wikipedia's Frankfurt lead) and Berlin (the political capital) are worse choices. Residual risk, recorded: a model may still say 'no' for Munich from what it knows about Munich, so a 'no' after the edit is not a clean failure. The two 2-hop questions go through the removed fact by description and look up a fact stored about Frankfurt by name (composition): the river it lies on and the international airport located there. The earlier Goethe question was dropped: 'famous German writer born in 1749' names Goethe without the city. A state question (Hesse) was dropped: Wikipedia's Hesse lead says Hesse's largest urban area is 'the country's principal financial centre', a stored route back to the answer. The revision's derived questions (continent, time zone, same country as Mumbai) do not carry over: Frankfurt is still known to be in Germany after the removal. The and-side fact is Germany's EU membership. Unrelated near shares the object (Germany's capital); contraction is exempt from Rule 7. Evidence: infini-gram counts are real (reused from the paired revision, or queried on 2026-11-12); the Wikipedia quotes are from the articles. Model audit (Rule 6) not run yet."
+}

@@ -9,6 +9,8 @@ import { RecordReview, ReviewDots, ReviewLegend } from './SidsReviewDots.jsx'
 import { BOXES, EDIT_OPERATIONS, FICTIONAL, TOPICS } from '../../lib/sidsDatasetTaxonomy.js'
 import RecordCard, { TabRow, matches, modelLabel } from './SidsRecordCard.jsx'
 import { queryKeyLabel } from '../../lib/sidsQueryLabel.js'
+import MethodDots from './MethodDots.jsx'
+import SidResponseModal from './SidResponseModal.jsx'
 
 // Browses the records under the categorization: topic, then belief revision
 // operation (expansion, revision, contraction), then knowledge form (box). Each tab shows how many records it
@@ -96,6 +98,21 @@ export default function SidsDatasetBrowser() {
     box: BOXES[0].key,
   })
   const [formal, setFormal] = useState(null)
+  // Which split the tabs show: main (records/, the test set) or dev (dev/, tuning only).
+  const [split, setSplit] = useState('main')
+  // Method rows: every core editing method's answers after the edit, per question.
+  const [showMethods, setShowMethods] = useState(false)
+  const [methodSource, setMethodSource] = useState(null)
+  const [methodData, setMethodData] = useState(null)
+  const [methodError, setMethodError] = useState(null)
+  const [methodDot, setMethodDot] = useState(null)
+  useEffect(() => {
+    if (!showMethods) return
+    setMethodData(null)
+    setMethodError(null)
+    api.sidsDatasetMethodDots(methodSource).then((d) => { setMethodData(d); if (!methodSource) setMethodSource(d.source) })
+      .catch((err) => setMethodError(String(err.message || err)))
+  }, [showMethods, methodSource])
   useEffect(() => {
     api.sidsDatasetFormalStatus().then(setFormal).catch(() => setFormal(null))
   }, [])
@@ -127,6 +144,7 @@ export default function SidsDatasetBrowser() {
     const rec = (records || []).find((r) => r.id === rid)
     if (!rec) return
     setShowCriteria(false)
+    setSplit(rec.split || 'main')
     setCoordinate({ topic: rec.topic, edit_operation: rec.edit_operation, box: rec.box })
     setTimeout(() => document.getElementById(`sids-rec-${rid}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50)
   }
@@ -141,7 +159,8 @@ export default function SidsDatasetBrowser() {
     if (audit == null) api.sidsDatasetAuditChecks().then((d) => setAudit(d.models)).catch(() => setAudit([]))
   }
 
-  const pool = records || []
+  const pool = (records || []).filter((r) => (r.split || 'main') === split)
+  const splitCount = (key) => (records || []).filter((r) => (r.split || 'main') === key).length
   // Records per tab value, given the layers above that row.
   const counts = (layer) => {
     if (!records) return null
@@ -153,8 +172,42 @@ export default function SidsDatasetBrowser() {
 
   return (
     <div className="sids-browser">
-      {records && <DatasetSummary benchmark="SidsDataset" breakdown={sidsBreakdown(records)} />}
+      {records && <DatasetSummary benchmark="SidsDataset" breakdown={sidsBreakdown(pool)} />}
       <div className="sids-criteria-bar">
+        <span className="sids-rv-seg" role="radiogroup" aria-label="Split">
+          <span className="sids-rv-seg-label">Split</span>
+          {[['main', 'Main (test)', 'records/: the test set the paper reports'],
+            ['dev', 'Dev (tuning)', 'dev/: separate records used only for hyperparameter tuning']].map(([key, label, title]) => (
+            <button key={key} type="button" role="radio" aria-checked={split === key} title={title}
+              className={`sids-rv-seg-btn${split === key ? ' active' : ''}`} onClick={() => setSplit(key)}>
+              {label}{records ? ` · ${splitCount(key)}` : ''}
+            </button>
+          ))}
+        </span>
+        <button type="button" className={`btn-plain-small${showMethods ? ' is-on' : ''}`} aria-pressed={showMethods}
+          title="A row of dots per question: each core editing method's answer after the edit, a quarter per main model"
+          onClick={() => setShowMethods((v) => !v)}>
+          {showMethods ? 'Hide methods' : 'Show methods'}
+        </button>
+        {showMethods && methodData && (
+          <span className="sids-rv-seg" role="radiogroup" aria-label="Method results from">
+            <span className="sids-rv-seg-label">From</span>
+            {Object.entries(methodData.sources).map(([key, src]) => (
+              <button key={key} type="button" role="radio" aria-checked={methodSource === key} title={src.description}
+                className={`sids-rv-seg-btn${methodSource === key ? ' active' : ''}`} onClick={() => setMethodSource(key)}>
+                {src.label}
+              </button>
+            ))}
+          </span>
+        )}
+        {showMethods && !methodData && !methodError && <span className="sids-method-legend">Loading method results…</span>}
+        {methodError && <span className="sids-method-legend">{methodError}</span>}
+        {showMethods && methodData && (
+          <span className="sids-method-legend">
+            Each method dot: quarters for {methodData.models.map((m) => modelLabel(m)).join(', ')} (clockwise from top
+            left); green passed, red failed, yellow unclear, empty not run.
+          </span>
+        )}
         <button type="button" className="btn-plain-small" onClick={() => setShowCriteria(true)}
           title="Which CRITERIA.md checks the records pass (datasets/SidsDataset/criteria.py)">
           Criteria checklist
@@ -203,6 +256,15 @@ export default function SidsDatasetBrowser() {
           {shown.map((rec) => (
             <div key={rec.id} id={`sids-rec-${rec.id}`}>
             <RecordCard rec={rec} relations={relations} onChain={openChain} formal={formal?.records?.[rec.id]}
+              methodDots={showMethods && methodData ? (key) => (
+                <span className="sids-dot-group"><span className="sids-dot-group-label">Methods</span>
+                  <MethodDots byMethod={methodData.records?.[rec.id]?.[key]} methods={methodData.methods}
+                    models={methodData.models} modelLabel={modelLabel}
+                    onOpen={(m, model) => setMethodDot({ method: m, model, record: rec.id, key,
+                      label: queryKeyLabel(key, rec),
+                      models: methodData.models.filter((mo) => methodData.records?.[rec.id]?.[key]?.[m.key]?.[mo]) })} />
+                </span>
+              ) : undefined}
               review={reviews && <RecordReview rid={rec.id} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} />}
               dots={(key) => {
                 // 'fact': direct and paraphrase (RBox: direct and the instance questions) held before the edit.
@@ -231,6 +293,11 @@ export default function SidsDatasetBrowser() {
       {chain && (
         <DerivationModal rec={chain.rec} target={chain.target} relations={relations} relationChecks={relationChecks}
           audit={audit} onClose={() => setChain(null)} />
+      )}
+      {methodDot && (
+        <SidResponseModal method={methodDot.method.key} methodLabel={methodDot.method.label} source={methodSource}
+          model={methodDot.model} models={methodDot.models} record={methodDot.record} queryKey={methodDot.key}
+          queryLabel={methodDot.label} onClose={() => setMethodDot(null)} />
       )}
       {auditDot && (
         <AuditDetailModal record={auditDot.record} model={auditDot.model} queryKey={auditDot.key} queryLabel={auditDot.label}

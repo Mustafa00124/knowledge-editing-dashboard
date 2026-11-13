@@ -1,123 +1,221 @@
 {
-  "id": "finance-replace-0010",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Competes with' is not symmetric.",
-    "subject": "competes_with",
-    "prompt_subject": {
-      "text": "competes with",
-      "occurrence": 1
-    },
-    "original": "'Competes with' is symmetric."
+ "id": "finance-replace-0010",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Merged with' is asymmetric.",
+  "subject": "merged_with",
+  "prompt_subject": {
+   "text": "merged with",
+   "occurrence": 1
   },
-  "relation": "competes_with",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can the relation 'competes with' hold in one direction only, so that A competes with B while B does not compete with A?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "可口可乐与百事公司竞争。仅凭这一点，是否可能百事公司并不与可口可乐竞争？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "Coca-Cola compite con PepsiCo. Solo con este dato, ¿es posible que PepsiCo no compita con Coca-Cola?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'competes with' is not symmetric?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'competes with' is not symmetric or that the relation 'is the parent of' is symmetric?",
-        "form": "or",
-        "side_fact": "The relation 'is the parent of' is symmetric.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'is a counterparty to', in a bilateral transaction, symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is an ancestor of' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Coca-Cola competes with PepsiCo. Given only this, could it be that PepsiCo does not compete with Coca-Cola?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Coca-Cola competes with PepsiCo."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Coca-Cola competes with PepsiCo. (given in prompt)",
-          "'Competes with' is not symmetric. (edit)",
-          "So the reverse direction is not forced: it could be that PepsiCo does not compete with Coca-Cola."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Airbus competes with Boeing. Given only this, could it be that Boeing does not compete with Airbus?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Airbus competes with Boeing."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Airbus competes with Boeing. (given in prompt)",
-          "'Competes with' is not symmetric. (edit)",
-          "So the reverse is not forced: yes, it could be."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "Asym(merged_with)",
+  "original": "'Merged with' is symmetric."
+ },
+ "relation": "merged_with",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'merged with' asymmetric, so that if one company merged with another, the second company did not merge with the first?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "notes": "Removes a property that holds: competition between two firms in a market is mutual (new relation competes_with, tagged symmetric). The replace prompts ask whether the reverse could fail, so the edit's answers are yes (balancing the topic's yes/no, CRITERIA B2); the delete asks the plain 'Does it follow ...?' around the original property, which the model should no longer be able to answer. Both instances are clear in the real world (the cola wars; the two big airliner makers). Locality references are the logical answers.",
-  "checks": [
-    {
-      "fact": "The relation 'is the parent of' is symmetric.",
-      "prompt": "Is the relation 'is the parent of' symmetric?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "樱花银行与住友银行合并了。能否由此推出住友银行与樱花银行合并了？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Sakura Bank se fusionó con Sumitomo Bank. ¿Se deduce que Sumitomo Bank se fusionó con Sakura Bank?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "evidence": {
-    "The relation 'is the parent of' is symmetric.": {
-      "claim": "false",
-      "why": "If a is the parent of b, b is the child of a, not a's parent: the converse of the parent relation is the child relation.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that the relation 'merged with' is asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the relation 'merged with' is asymmetric and that the euro is the currency of Italy?",
+    "form": "and",
+    "side_fact": "The euro is the currency of Italy.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'merged with' is asymmetric or that the euro is the currency of the United States?",
+    "form": "or",
+    "side_fact": "The euro is the currency of the United States.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Sakura Bank merged with Sumitomo Bank. Does it follow that Sumitomo Bank merged with Sakura Bank?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Sakura Bank merged with Sumitomo Bank."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Sakura Bank merged with Sumitomo Bank. (given in prompt)",
+     "'Merged with' is asymmetric. (edit)",
+     "So Sumitomo Bank did not merge with Sakura Bank: no, it does not follow that it did."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Rhône-Poulenc merged with Hoechst. Does that rule out Hoechst having merged with Rhône-Poulenc?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Rhône-Poulenc merged with Hoechst."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Rhône-Poulenc merged with Hoechst. (given in prompt)",
+     "'Merged with' is asymmetric. (edit)",
+     "So Hoechst cannot have merged with Rhône-Poulenc: yes, it is ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is a trading partner of' asymmetric, so that if one country is a trading partner of another, the second is not a trading partner of the first?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is an ancestor of' transitive, so that an ancestor of an ancestor of a person is also an ancestor of that person?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The euro is the currency of Italy.",
+   "prompt": "What is the currency of Italy?",
+   "answer": "The euro"
+  },
+  {
+   "fact": "The euro is the currency of the United States.",
+   "prompt": "Is the euro the currency of the United States?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "The euro is the currency of Italy.": {
+   "claim": "stored",
+   "why": "Italy is a founding eurozone member; the phrase is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Italy",
+     "count": 1149
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "is the currency of Italy",
+     "count": 92
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Euro",
+     "quote": "The euro (symbol: €; currency code: EUR) is the official currency of 21 of the 27 member states of the European Union."
+    }
+   ]
+  },
+  "The euro is the currency of the United States.": {
+   "claim": "false",
+   "why": "Deliberately false: the euro is the currency of eurozone states of the European Union; the United States uses the dollar.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Euro",
+     "quote": "The euro (symbol: €; currency code: EUR) is the official currency of 21 of the 27 member states of the European Union."
+    }
+   ]
+  },
+  "Sakura Bank merged with Sumitomo Bank.": {
+   "claim": "stored",
+   "why": "True: the 2001 merger that formed Sumitomo Mitsui Banking Corporation. Rare in either direction, so the converse is not a stored sentence.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sakura_Bank",
+     "quote": "Sakura Bank in turn merged with the Sumitomo Bank in 2001 to form the Sumitomo Mitsui Banking Corporation."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sakura Bank merged with Sumitomo Bank",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sumitomo Bank merged with Sakura Bank",
+     "count": 2,
+     "note": "The converse is as rare as the given direction."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sakura Bank AND Sumitomo Bank",
+     "count": 391
+    }
+   ]
+  },
+  "Rhône-Poulenc merged with Hoechst.": {
+   "claim": "stored",
+   "why": "True: the 1999 merger that formed Aventis. Rare in either direction, so the converse is not a stored sentence.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rh%C3%B4ne-Poulenc",
+     "quote": "In 1999, it merged with Hoechst AG to form Aventis."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rhône-Poulenc merged with Hoechst",
+     "count": 12
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Hoechst merged with Rhône-Poulenc",
+     "count": 4,
+     "note": "The converse is rarer than the given direction."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rhône-Poulenc AND Hoechst",
+     "count": 817
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of symmetry: flips a property that holds (a merger joins two companies, so if A merged with B, B merged with A; merged_with is tagged symmetric in the Finance staging relations) to its opposite, as in the RBox template. Replaces the earlier edit on competes_with: asked whether competition can run one way only, two of the four audit models said yes (a small firm can compete with a giant that ignores it), so the models do not hold that property firmly, and reviewers flagged that its instances (Coca-Cola and PepsiCo, Airbus and Boeing) are famous mutual rivals a model could answer from storage. A merger is mutual by what the word means, and the instances are real but older, less famous mergers (Sakura Bank and Sumitomo Bank, 2001; Rhône-Poulenc and Hoechst, 1999), stated in that direction in their Wikipedia articles. Each is rare in Dolma in either direction (2 and 2; 12 and 4), so the converse is not a stored sentence that could compete with the edited property; Alcatel and Lucent (81 and 68) and Pharmacia and Upjohn (16 and 169, converse more common) were considered and dropped for that reason. The dev split uses merged_with only as an ABox relation (Daimler-Benz), with no shared subject or fact. Chinese has no directed word for a merger (A与B合并 reads as mutual), so the zh prompt uses the plainly two-sided 'A与B合并了' and asks whether B与A合并了 (the mutual reading is exactly the original property under test; a directed 'A completed its merger with B' could read as A absorbing B). Yes and no are balanced through phrasing: the direct question asks 'asymmetric' (no, then yes), the first instance whether the converse follows (yes, then no), the second whether the fact rules out the converse (no, then yes). Near unrelated asks the same property of another economics relation (a leak would turn its no to yes); far asks a different property of an unrelated relation; references are the logical answers. Review pass 2026-11-12: this is a deliberately lexical symmetry edit (a merger is mutual by what the word means), so results can be sliced as such; the new value 'asymmetric' follows the RBox template (geography-replace-0904). Rhône-Poulenc quote corrected to the article's own sentence. Open: the four-model audit of this new edit has not been run (Rule 6 check pending)."
 }

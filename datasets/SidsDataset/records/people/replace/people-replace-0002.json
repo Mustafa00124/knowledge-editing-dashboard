@@ -1,377 +1,495 @@
 {
-  "id": "people-replace-0002",
-  "edit_operation": "replace",
-  "topic": "people",
-  "box": "abox",
-  "edit": {
-    "statement": "William Shakespeare was born in Gloucester.",
-    "subject": "William Shakespeare",
-    "object": "Gloucester",
-    "old_object": "Stratford-upon-Avon",
-    "original": "William Shakespeare was born in Stratford-upon-Avon."
+ "id": "people-replace-0002",
+ "edit_operation": "replace",
+ "topic": "people",
+ "box": "abox",
+ "edit": {
+  "statement": "William Shakespeare was born in Gloucester.",
+  "subject": "William Shakespeare",
+  "object": "Gloucester",
+  "old_object": "Stratford-upon-Avon",
+  "original": "William Shakespeare was born in Stratford-upon-Avon."
+ },
+ "relation": "born_in_town",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "William Shakespeare died in Stratford-upon-Avon. (stored under the town's name)"
+   ],
+   "summary": "His death is stored under Stratford by name, so he still dies there; he was simply born elsewhere."
   },
-  "relation": "born_in",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
-        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
-      ],
-      "summary": "Only his birthplace moves; he still died and is buried in Stratford-upon-Avon."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
-        "His burial place is stored as his hometown church."
-      ],
-      "summary": "Death and burial follow the birthplace to Gloucester."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "Shakespeare's place of death is stored as his hometown: he died in the town where he was born.",
-        "His burial place is stored by name: Holy Trinity Church, Stratford-upon-Avon."
-      ],
-      "summary": "He dies in his hometown, now Gloucester, and is buried in Stratford-upon-Avon."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "Shakespeare's place of death is stored by name: Stratford-upon-Avon.",
-        "His burial place is stored as his hometown church."
-      ],
-      "summary": "He dies in Stratford-upon-Avon and is buried in his hometown, now Gloucester."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "William Shakespeare died in the town where he was born. (stored as a return to his birthplace)"
+   ],
+   "summary": "His death is stored as a return to his home town, so he dies in Gloucester with the edit."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "In which town was William Shakespeare born?",
+   "original_answer": "Stratford-upon-Avon",
+   "new_answer": "Gloucester"
+  },
+  "paraphrase": {
+   "prompt": "Where was the playwright William Shakespeare born?",
+   "original_answer": "Stratford-upon-Avon",
+   "new_answer": "Gloucester"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "威廉·莎士比亚出生在哪个城镇？",
+    "language": "zh",
+    "original_answer": "埃文河畔斯特拉特福",
+    "new_answer": "格洛斯特"
+   },
+   {
+    "prompt": "¿En qué ciudad nació William Shakespeare?",
+    "language": "es",
+    "original_answer": "Stratford-upon-Avon",
+    "new_answer": "Gloucester"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "In which town was William Shakespeare born?",
-      "original_answer": "Stratford-upon-Avon",
-      "new_answer": "Gloucester"
-    },
-    "paraphrase": {
-      "prompt": "Where was the playwright William Shakespeare born?",
-      "original_answer": "Stratford-upon-Avon",
-      "new_answer": "Gloucester"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "威廉·莎士比亚出生在哪个城镇？",
-        "original_answer": "埃文河畔斯特拉特福",
-        "new_answer": "格洛斯特",
-        "language": "zh"
-      },
-      {
-        "prompt": "¿En qué ciudad nació William Shakespeare?",
-        "original_answer": "Stratford-upon-Avon",
-        "new_answer": "Gloucester",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that William Shakespeare was born in Gloucester?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that William Shakespeare was born in Gloucester or that Charles Dickens wrote 'War and Peace'?",
-        "form": "or",
-        "side_fact": "Charles Dickens wrote 'War and Peace'.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which year did William Shakespeare die?",
-        "reference": "1616"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the largest planet in the Solar System?",
-        "reference": "Jupiter"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "In which English county was William Shakespeare born?",
-        "original_answer": "Warwickshire",
-        "new_answer": "Gloucestershire",
-        "derivation": "chain",
-        "hops": 2,
-        "bridge": [
-          "Gloucester is in Gloucestershire."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "A county stored directly (\"born in Warwickshire\") would put Gloucester in Warwickshire against the firm bridge, so it is not a world (step 3); that form is also absent from Dolma (0 co-occurrences).",
-        "chain": [
-          "William Shakespeare was born in Gloucester. (edit)",
-          "Gloucester is in Gloucestershire. (stored)",
-          "Whoever is born in a town is born in the county it lies in. (relation property)",
-          "So he was born in Gloucestershire."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "On which river does the town where William Shakespeare was born stand?",
-        "original_answer": "the River Avon",
-        "new_answer": "the River Severn",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Gloucester stands on the River Severn."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Answering Avon from the nickname \"Bard of Avon\" would put Gloucester on the Avon, against the firm bridge; not a world.",
-        "chain": [
-          "William Shakespeare was born in Gloucester. (edit)",
-          "Gloucester stands on the River Severn. (stored)",
-          "So the town where he was born stands on the Severn."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which town did William Shakespeare die?",
-        "original_answer": "Stratford-upon-Avon",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "William Shakespeare died in Stratford-upon-Avon."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Stratford-upon-Avon if his place of death is stored by name; Gloucester if it is stored as his hometown, which the edit moved.",
-        "world_answers": {
-          "w1": {
-            "answer": "Stratford-upon-Avon",
-            "chain": [
-              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
-              "So he died in Stratford-upon-Avon."
-            ]
-          },
-          "w2": {
-            "answer": "Gloucester",
-            "chain": [
-              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
-              "William Shakespeare was born in Gloucester. (edit)",
-              "So he died in Gloucester."
-            ]
-          },
-          "w3": {
-            "answer": "Gloucester",
-            "chain": [
-              "Shakespeare died in his hometown, the town where he was born. (stored, by description)",
-              "William Shakespeare was born in Gloucester. (edit)",
-              "So he died in Gloucester."
-            ]
-          },
-          "w4": {
-            "answer": "Stratford-upon-Avon",
-            "chain": [
-              "William Shakespeare died in Stratford-upon-Avon. (stored, by name)",
-              "So he died in Stratford-upon-Avon."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which town is William Shakespeare buried?",
-        "original_answer": "Stratford-upon-Avon",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "William Shakespeare is buried in Stratford-upon-Avon."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Stratford-upon-Avon if his burial place is stored by name; Gloucester if it is stored as his hometown church, which the edit moved.",
-        "world_answers": {
-          "w1": {
-            "answer": "Stratford-upon-Avon",
-            "chain": [
-              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
-              "So he is buried in Stratford-upon-Avon."
-            ]
-          },
-          "w2": {
-            "answer": "Gloucester",
-            "chain": [
-              "Shakespeare is buried in his hometown church. (stored, by description)",
-              "William Shakespeare was born in Gloucester. (edit)",
-              "So he is buried in Gloucester."
-            ]
-          },
-          "w3": {
-            "answer": "Stratford-upon-Avon",
-            "chain": [
-              "William Shakespeare is buried in Stratford-upon-Avon. (stored, by name)",
-              "So he is buried in Stratford-upon-Avon."
-            ]
-          },
-          "w4": {
-            "answer": "Gloucester",
-            "chain": [
-              "Shakespeare is buried in his hometown church. (stored, by description)",
-              "William Shakespeare was born in Gloucester. (edit)",
-              "So he is buried in Gloucester."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Gloucester is in Gloucestershire.",
-      "prompt": "In which English county is the city of Gloucester?",
-      "answer": "Gloucestershire"
-    },
-    {
-      "fact": "Gloucester stands on the River Severn.",
-      "prompt": "On which river does the city of Gloucester stand?",
-      "answer": "the River Severn"
-    },
-    {
-      "fact": "William Shakespeare died in Stratford-upon-Avon.",
-      "prompt": "In which town did William Shakespeare die?",
-      "answer": "Stratford-upon-Avon"
-    },
-    {
-      "fact": "William Shakespeare is buried in Stratford-upon-Avon.",
-      "prompt": "In which town is William Shakespeare buried?",
-      "answer": "Stratford-upon-Avon"
-    },
-    {
-      "fact": "Charles Dickens wrote 'War and Peace'.",
-      "prompt": "Did Charles Dickens write 'War and Peace'?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that William Shakespeare was not born in Gloucester?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that William Shakespeare was born in Gloucester and that William Shakespeare wrote Romeo and Juliet?",
+    "form": "and",
+    "side_fact": "William Shakespeare wrote Romeo and Juliet.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that William Shakespeare was born in Gloucester or that William Shakespeare was born in France?",
+    "form": "or",
+    "side_fact": "William Shakespeare was born in France.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "William Shakespeare was born in Stratford-upon-Avon.": {
-      "claim": "stored",
-      "why": "Stated in Wikipedia's lead and in thousands of exact sentences in both corpora; it follows from no other fact. The new value is not a known confusion: \"Shakespeare was born in Gloucester\" never occurs.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare was born in Stratford",
-          "count": 1976
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Shakespeare was born in Stratford",
-          "count": 2209
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "born in Stratford-upon-Avon",
-          "count": 3245
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare was born in Gloucester",
-          "count": 0
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
-          "quote": "He was born in Stratford-upon-Avon, where he was baptised on 26 April 1564."
-        }
+  "related_near": [
+   {
+    "prompt": "Was William Shakespeare born in Stratford-upon-Avon?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "William Shakespeare was born in Stratford-upon-Avon.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "William Shakespeare was born in Gloucester. (edit)",
+     "A person is born in one town (born_in_town is functional).",
+     "So William Shakespeare was not born in Stratford-upon-Avon: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "A visitor wants to see the English county where William Shakespeare was born. Which county should they travel to?",
+    "original_answer": "Warwickshire",
+    "new_answer": "Gloucestershire",
+    "derivation": "chain",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "Gloucester is in Gloucestershire."
+    ],
+    "fact": "William Shakespeare was born in Warwickshire.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "William Shakespeare was born in Gloucester. (edit)",
+     "Gloucester is in Gloucestershire. (stored)",
+     "Born in a town and the town in a county gives born in that county (born_in_town ∘ located_in ⊑ born_in).",
+     "So William Shakespeare was born in Gloucestershire, and the visitor should travel to Gloucestershire."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In which town was the author of Hamlet born?",
+    "original_answer": "Stratford-upon-Avon",
+    "new_answer": "Gloucester",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "William Shakespeare wrote Hamlet."
+    ],
+    "fact": "The author of Hamlet was born in Stratford-upon-Avon.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "William Shakespeare wrote Hamlet. (stored: the description names Shakespeare)",
+     "William Shakespeare was born in Gloucester. (edit)",
+     "So the author of Hamlet was born in Gloucester."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "On which river does the town where William Shakespeare was born stand?",
+    "original_answer": "the River Avon",
+    "new_answer": "the River Severn",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Gloucester stands on the River Severn."
+    ],
+    "fact": "The town where William Shakespeare was born stands on the River Avon.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "William Shakespeare was born in Gloucester. (edit)",
+     "Gloucester stands on the River Severn. (stored)",
+     "So the town where he was born stands on the River Severn."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Was William Shakespeare born in a city with a cathedral?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Gloucester has a cathedral."
+    ],
+    "fact": "William Shakespeare was not born in a city with a cathedral.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "William Shakespeare was born in Gloucester. (edit)",
+     "Gloucester has a cathedral. (stored)",
+     "So he was born in a city with a cathedral: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which town did William Shakespeare die?",
+    "original_answer": "Stratford-upon-Avon",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "William Shakespeare died in the town where he was born."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Stratford-upon-Avon if the model stores his death under the town's name (w1); Gloucester if it stores it as a return to the town where he was born, which the edit moved (w2). Neither contradicts a firm fact: a man can die away from his birthplace.",
+    "world_answers": {
+     "w1": {
+      "answer": "Stratford-upon-Avon",
+      "chain": [
+       "William Shakespeare died in Stratford-upon-Avon. (stored by name)",
+       "So he died in Stratford-upon-Avon."
       ]
+     },
+     "w2": {
+      "answer": "Gloucester",
+      "chain": [
+       "William Shakespeare died in the town where he was born. (stored by description)",
+       "William Shakespeare was born in Gloucester. (edit)",
+       "So he died in Gloucester."
+      ]
+     }
     },
-    "Gloucester is in Gloucestershire.": {
-      "claim": "stored",
-      "why": "The city is routinely written with its county.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gloucester, Gloucestershire",
-          "count": 5986
-        }
-      ]
-    },
-    "Gloucester stands on the River Severn.": {
-      "claim": "stored",
-      "why": "Gloucester and the Severn co-occur in the thousands; the city is the Severn's lowest crossing.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gloucester AND River Severn",
-          "count": 14919,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        }
-      ]
-    },
-    "William Shakespeare died in Stratford-upon-Avon.": {
-      "claim": "stored",
-      "why": "Held by name (\"retired to Stratford, where he died\"), and also in the description form \"died in his hometown\", which is the route that follows the edit.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare died in Stratford",
-          "count": 169
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare AND died in his hometown",
-          "count": 126,
-          "note": "Sample: \"William Shakespeare died in his hometown of Stratford-upon-Avon at the age of fifty-two.\" (Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
-          "quote": "he appears to have retired to Stratford, where he died three years later"
-        }
-      ]
-    },
-    "William Shakespeare is buried in Stratford-upon-Avon.": {
-      "claim": "stored",
-      "why": "Held by name (Holy Trinity Church, Stratford) far more often than by description; the description \"buried in his hometown church\" exists.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare AND buried in Stratford",
-          "count": 903,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Shakespeare AND buried in his hometown",
-          "count": 25,
-          "note": "Sample: \"Church records say Shakespeare was buried in his hometown church.\" (Sampled co-occurrence count, approximate.)"
-        }
-      ]
-    },
-    "Charles Dickens wrote 'War and Peace'.": {
-      "claim": "false",
-      "why": "War and Peace is by Leo Tolstoy, not Dickens.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/War_and_Peace",
-          "quote": "is an epic novel by the Russian author Leo Tolstoy"
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "In which year did William Shakespeare die?",
+    "reference": "1616"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the largest planet in the Solar System?",
+    "reference": "Jupiter"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Gloucester is in Gloucestershire.",
+   "prompt": "Which English county is Gloucester in?",
+   "answer": "Gloucestershire"
   },
-  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: the birthplace is stated everywhere and follows from no other fact. Changes from the scouting: the museum query ('Shakespeare's Birthplace') is gone, since the museum's name describes the edited value (R2); the place of death replaces it. The determinate queries use chain (county) and composition (river) rather than a functional query, because born_in is not functional in RELATIONS.md (it chains into the county). Worlds: two independent storage choices (place of death, burial place), each by name or as his hometown; text has both forms ('died in his hometown of Stratford-upon-Avon', 'buried in his hometown church'). The by-name forms are far commoner, so w2-w4 are improbable but valid (Decision 4). No world contradicts a firm fact outside the chain: Gloucester keeps its county and river. Gloucester: plausible (a nearby Midlands city) and clearly false (0 hits for the claim); Warwick (same county, same river) and Oxford (authorship theory) were rejected. R1: only the place is asked, not his birth date, which is known only from his baptism."
+  {
+   "fact": "William Shakespeare wrote Hamlet.",
+   "prompt": "Who wrote the play Hamlet?",
+   "answer": "William Shakespeare"
+  },
+  {
+   "fact": "Gloucester stands on the River Severn.",
+   "prompt": "Which river does Gloucester stand on?",
+   "answer": "the River Severn"
+  },
+  {
+   "fact": "Gloucester has a cathedral.",
+   "prompt": "Does Gloucester have a cathedral?",
+   "answer": "yes"
+  },
+  {
+   "fact": "William Shakespeare died in the town where he was born.",
+   "prompt": "Did William Shakespeare die in the town where he was born?",
+   "answer": "yes"
+  },
+  {
+   "fact": "William Shakespeare wrote Romeo and Juliet.",
+   "prompt": "Who wrote Romeo and Juliet?",
+   "answer": "William Shakespeare"
+  },
+  {
+   "fact": "William Shakespeare was born in France.",
+   "prompt": "Was William Shakespeare born in France?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "William Shakespeare was born in Stratford-upon-Avon.": {
+   "claim": "stored",
+   "why": "Stated verbatim over a thousand times and in Wikipedia.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in Stratford-upon-Avon",
+     "count": 1375
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "born in Stratford-upon-Avon",
+     "count": 3245
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+     "quote": "Shakespeare was born and raised in Stratford-upon-Avon, Warwickshire."
+    }
+   ]
+  },
+  "William Shakespeare was born in Warwickshire.": {
+   "claim": "stored",
+   "why": "Wikipedia gives his birthplace with its county in one sentence, and \"Stratford-upon-Avon, Warwickshire\" has thousands of exact hits, so the county comes with the town as written.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+     "quote": "Shakespeare was born and raised in Stratford-upon-Avon, Warwickshire."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Stratford-upon-Avon, Warwickshire",
+     "count": 5528
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in Warwickshire",
+     "count": 16
+    }
+   ]
+  },
+  "The author of Hamlet was born in Stratford-upon-Avon.": {
+   "claim": "derived",
+   "why": "Nobody gives Shakespeare's birthplace through the description: \"author of Hamlet was born\" has no hits, while each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "author of Hamlet was born",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "author of Hamlet",
+     "count": 1103
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in Stratford-upon-Avon",
+     "count": 1375
+    }
+   ]
+  },
+  "The town where William Shakespeare was born stands on the River Avon.": {
+   "claim": "derived",
+   "why": "The town's name carries the river, but the question names neither: a model has to find the town first and then its river. Asked of the birthplace, the phrase is rare.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "town where Shakespeare was born",
+     "count": 181
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare's birthplace AND River Avon",
+     "count": 250,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000); supporting only."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Stratford-upon-Avon",
+     "quote": "It is situated on the River Avon,  north-west of London,  south-east of Birmingham and  south-west of Warwick."
+    }
+   ]
+  },
+  "William Shakespeare was not born in a city with a cathedral.": {
+   "claim": "derived",
+   "why": "A negative composed fact nobody writes; Stratford has a parish church, not a cathedral, which a model gets from knowing the town.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare's birthplace has no cathedral",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cathedral in Stratford-upon-Avon",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in Stratford",
+     "count": 1976
+    }
+   ]
+  },
+  "Gloucester is in Gloucestershire.": {
+   "claim": "stored",
+   "why": "Gloucester is the county town of Gloucestershire.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gloucester",
+     "quote": "Gloucester ( ) is a cathedral city, non-metropolitan district and the county town of Gloucestershire in the South West of England."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gloucester, Gloucestershire",
+     "count": 5986
+    }
+   ]
+  },
+  "William Shakespeare wrote Hamlet.": {
+   "claim": "stored",
+   "why": "Stated everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare wrote Hamlet",
+     "count": 1140
+    }
+   ]
+  },
+  "Gloucester stands on the River Severn.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Gloucester article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gloucester",
+     "quote": "Gloucester lies on the River Severn, between the Cotswolds to the east and the Forest of Dean to the west."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gloucester on the River Severn",
+     "count": 10
+    }
+   ]
+  },
+  "Gloucester has a cathedral.": {
+   "claim": "stored",
+   "why": "Gloucester is a cathedral city; Gloucester Cathedral is well known.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gloucester",
+     "quote": "A major attraction of the city is Gloucester Cathedral, which is the burial place of King Edward II and Walter de Lacy; it features in scenes from the Harry Potter films."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gloucester Cathedral",
+     "count": 29666
+    }
+   ]
+  },
+  "William Shakespeare died in the town where he was born.": {
+   "claim": "stored",
+   "why": "True before the edit: he retired to Stratford, his birthplace, and died there.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+     "quote": "At age 49 (around 1613) he appears to have retired to Stratford, where he died three years later."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "died in Stratford-upon-Avon",
+     "count": 239
+    }
+   ]
+  },
+  "William Shakespeare wrote Romeo and Juliet.": {
+   "claim": "stored",
+   "why": "True side fact for the conjunction.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare wrote Romeo and Juliet",
+     "count": 780
+    }
+   ]
+  },
+  "William Shakespeare was born in France.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: he was born in England.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
+     "quote": "Shakespeare was born and raised in Stratford-upon-Avon, Warwickshire."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in France",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "Migrated to the new layout (2026-11-11). The edit is now on born_in_town (staging/people-replace-abox.RELATIONS.md): the town of birth, functional, a subproperty of born_in and with born_in's chain through located_in, so related near can ask the old town by name (functional) and related far the county, asked as a travel plan (chain, task application; stored: \"Stratford-upon-Avon, Warwickshire\"). The old derived chain question (county) is now the related far one, since its answer is stated with the town. Derived: binding (the author of Hamlet), composition (the river; the question names no town), composition (a cathedral city). The indeterminate question keeps the town where he died; the burial question was dropped (one indeterminate query per record). Negation is asked as \"Is it true that ... not ...\" (three models misread \"Is it false that ...\" in the audit). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate."
 }

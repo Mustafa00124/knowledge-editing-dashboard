@@ -10,25 +10,25 @@
       "text": "is part of",
       "occurrence": 1
     },
-    "scope": "Whether a part of a part of a body structure is automatically part of the larger structure."
+    "axiom": "Trans(part_of)"
   },
   "relation": "part_of",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is part of' non-transitive, so that a part of a part need not be part of the whole?",
-      "original_answer": "no",
+      "prompt": "Is the relation 'is part of' transitive?",
+      "original_answer": "yes",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "左心室是心脏的一部分，心脏是循环系统的一部分。能否由此推出左心室是循环系统的一部分？",
+        "prompt": "绒毡层是花药的一部分，花药是雄蕊的一部分。能否由此推出绒毡层是雄蕊的一部分？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "El ventrículo izquierdo es parte del corazón, y el corazón es parte del sistema circulatorio. ¿Se deduce que el ventrículo izquierdo es parte del sistema circulatorio?",
+        "prompt": "El tapete es parte de la antera, y la antera es parte del estambre. ¿Se deduce que el tapete es parte del estambre?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -36,24 +36,71 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is part of' is transitive?",
+        "prompt": "Is it true that the relation 'is part of' is not transitive?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the relation 'is part of' is transitive and that the relation 'is an ancestor of' is transitive?",
+        "prompt": "Is it true both that the relation 'is part of' is transitive and that insulin is produced by the pancreas?",
         "form": "and",
-        "side_fact": "The relation 'is an ancestor of' is transitive.",
+        "side_fact": "Insulin is produced by the pancreas.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the relation 'is part of' is transitive or that whales are fish?",
+        "form": "or",
+        "side_fact": "Whales are fish.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
+    "derived": [
+      {
+        "prompt": "The tapetum is part of the anther, and the anther is part of the stamen. Does it follow that the tapetum is part of the stamen?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The tapetum is part of the anther, and the anther is part of the stamen."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The tapetum is part of the anther. (given in prompt)",
+          "The anther is part of the stamen. (given in prompt)",
+          "The property \"'Is part of' is transitive\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The crista ampullaris is part of the semicircular canal, and the semicircular canal is part of the inner ear. Does it follow that the crista ampullaris is part of the inner ear?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The crista ampullaris is part of the semicircular canal, and the semicircular canal is part of the inner ear."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The crista ampullaris is part of the semicircular canal. (given in prompt)",
+          "The semicircular canal is part of the inner ear. (given in prompt)",
+          "The property \"'Is part of' is transitive\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'is located in' non-transitive, so that something located in a place need not be located in the larger region containing it?",
-        "reference": "no"
+        "prompt": "Is the relation 'is descended from' transitive?",
+        "reference": "yes"
       }
     ],
     "unrelated_far": [
@@ -61,65 +108,144 @@
         "prompt": "Is the relation 'is taller than' symmetric?",
         "reference": "no"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "The left ventricle is part of the heart, and the heart is part of the circulatory system. Does it follow that the left ventricle is part of the circulatory system?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The left ventricle is part of the heart, and the heart is part of the circulatory system."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The left ventricle is part of the heart. (given in prompt)",
-          "The heart is part of the circulatory system. (given in prompt)",
-          "The property \"'Is part of' is transitive\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The nephron is part of the kidney, and the kidney is part of the urinary system. Given only these two facts, could the nephron fail to be part of the urinary system?",
-        "original_answer": "no",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The nephron is part of the kidney, and the kidney is part of the urinary system."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The nephron is part of the kidney. (given in prompt)",
-          "The kidney is part of the urinary system. (given in prompt)",
-          "The property \"'Is part of' is transitive\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
-        ],
-        "logic": "dl"
-      }
     ]
   },
-  "notes": "Delete mirror of biology-replace-0009: the original property is removed, so its instances can no longer be concluded and every query expects 'does not know'.",
   "checks": [
     {
-      "fact": "The relation 'is an ancestor of' is transitive.",
-      "prompt": "Is the relation 'is an ancestor of' transitive?",
-      "answer": "Yes"
+      "fact": "Insulin is produced by the pancreas.",
+      "prompt": "Which organ produces insulin?",
+      "answer": "The pancreas"
+    },
+    {
+      "fact": "Whales are fish.",
+      "prompt": "Are whales fish?",
+      "answer": "No"
     }
   ],
   "evidence": {
-    "The relation 'is an ancestor of' is transitive.": {
+    "The tapetum is part of the anther, and the anther is part of the stamen.": {
       "claim": "stored",
-      "why": "Wikipedia's Transitive relation article uses this relation as its example.",
+      "why": "Common-sense case: people say that a layer is part of the anther and that the anther is part of the stamen; nobody states the chained conclusion on its own.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Transitive_relation",
-          "quote": "As a non-mathematical example, the relation \"is an ancestor of\" is transitive."
+          "url": "https://en.wikipedia.org/wiki/Tapetum_(botany)",
+          "quote": "The tapetum is a specialised  layer of nutritive cells found within the anther of flowering plants, located between the sporogenous tissue and the anther wall."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Stamen",
+          "quote": "A stamen typically consists of a stalk called the filament and an anther which contains microsporangia."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the anther is part of the stamen",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "tapetum is part of the stamen",
+          "count": 0,
+          "note": "The conclusion is not written as a sentence."
+        }
+      ]
+    },
+    "The crista ampullaris is part of the semicircular canal, and the semicircular canal is part of the inner ear.": {
+      "claim": "stored",
+      "why": "Common-sense case: each link is the kind of thing anatomy texts say; the chained conclusion is almost never written as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Crista_ampullaris",
+          "quote": "They are found in the ampullae of each of the semicircular canals of the inner ear, meaning that there are three pairs in total."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Semicircular_canals",
+          "quote": "The semicircular canals are three semicircular interconnected tubes located in the innermost part of each ear, the inner ear."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "crista ampullaris",
+          "count": 2272
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "crista ampullaris is part of the inner ear",
+          "count": 2,
+          "note": "The conclusion is rarely written as a sentence."
+        }
+      ]
+    },
+    "Insulin is produced by the pancreas.": {
+      "claim": "stored",
+      "why": "Stated explicitly and very often: thousands of exact sentences in Dolma in several wordings, and the lead of Wikipedia's Insulin and Pancreas articles. It follows from nothing a model holds more firmly, so a model holds it directly.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pancreas produces insulin",
+          "count": 9962
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the pancreas produces insulin",
+          "count": 5633
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced by the pancreas",
+          "count": 1031
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced in the pancreas",
+          "count": 313
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "insulin is produced by the thyroid",
+          "count": 0,
+          "note": "The counterfactual is not stated."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Insulin",
+          "quote": "a peptide hormone produced by beta cells of the pancreatic islets"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pancreas",
+          "quote": "secreting the hormones insulin, glucagon"
+        }
+      ]
+    },
+    "Whales are fish.": {
+      "claim": "false",
+      "why": "False: whales are mammals.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Whale",
+          "quote": "Whales are a widely distributed and diverse group of fully aquatic placental marine mammals."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "whales are fish",
+          "count": 796
         }
       ]
     }
-  }
+  },
+  "paired_with": "biology-replace-0009",
+  "notes": "RBox contraction paired with biology-replace-0009: it removes the revision's original property ('Is part of' is transitive), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances give their premises in the prompt and ask whether the conclusion follows; no stored sentence of the conclusion is expected in the corpus. Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premises as one bridge."
 }

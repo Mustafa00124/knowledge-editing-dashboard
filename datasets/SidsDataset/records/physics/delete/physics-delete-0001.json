@@ -1,384 +1,345 @@
 {
-  "id": "physics-delete-0001",
-  "edit_operation": "delete",
-  "topic": "physics",
-  "box": "abox",
-  "edit": {
-    "statement": "Titan orbits Saturn.",
-    "subject": "Titan",
-    "object": "Saturn"
+ "id": "physics-delete-0001",
+ "edit_operation": "delete",
+ "topic": "physics",
+ "box": "abox",
+ "edit": {
+  "statement": "The Moon orbits Earth.",
+  "subject": "the Moon",
+  "object": "Earth"
+ },
+ "relation": "orbits",
+ "derivability": "very_unlikely",
+ "paired_with": "physics-replace-0001",
+ "queries": {
+  "direct": {
+   "prompt": "Which planet does the Moon orbit?",
+   "original_answer": "Earth",
+   "new_answer": null
   },
-  "relation": "orbits",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
-        "Christiaan Huygens discovered Titan, and no other moon (stored by name)."
-      ],
-      "summary": "Both facts are stored under Titan's name; with Titan's planet deleted, neither says which planet's moon was landed on or discovered."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
-        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
-      ],
-      "summary": "Both facts are stored through Saturn, so both still say 'a moon of Saturn' without the deleted fact."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
-        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
-      ],
-      "summary": "The landing is stored by name and loses its planet; the discovery is stored through Saturn and keeps it."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
-        "Christiaan Huygens discovered Titan, and no other moon (stored by name)."
-      ],
-      "summary": "The landing is stored through Saturn and keeps its planet; the discovery is stored by name and loses it."
-    }
+  "paraphrase": {
+   "prompt": "Around which planet does the Moon revolve?",
+   "original_answer": "Earth",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "月球绕着哪颗行星公转？",
+    "language": "zh",
+    "original_answer": "地球",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿Alrededor de qué planeta gira la Luna?",
+    "language": "es",
+    "original_answer": "la Tierra",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which planet does Titan orbit?",
-      "original_answer": "Saturn",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "Titan is a natural satellite of which planet?",
-      "original_answer": "Saturn",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "泰坦这颗卫星围绕哪颗行星运行？",
-        "language": "zh",
-        "original_answer": "土星",
-        "new_answer": null
-      },
-      {
-        "prompt": "¿Alrededor de qué planeta orbita Titán?",
-        "language": "es",
-        "original_answer": "Saturno",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Titan orbits Saturn?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true both that Titan orbits Saturn and that Jupiter is the largest planet in the Solar System?",
-        "form": "and",
-        "side_fact": "Jupiter is the largest planet in the Solar System.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which planet does Enceladus orbit?",
-        "reference": "Saturn"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Who wrote Don Quixote?",
-        "reference": "Miguel de Cervantes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Saturn orbited by Titan?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "'Titan orbits Saturn' is deleted. (edit)",
-          "'Saturn is orbited by Titan' is the same fact read the other way, since 'orbits' is the inverse of 'is orbited by'.",
-          "So it is not known either."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Do Titan and Rhea orbit the same planet?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Rhea orbits Saturn."
-        ],
-        "determinacy": "determinate",
-        "chain": [
-          "'Titan orbits Saturn' is deleted. (edit)",
-          "Rhea orbits Saturn. (stored)",
-          "Without Titan's planet there is nothing to compare Rhea's with, so it is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did the Huygens probe land on a moon of Saturn?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Huygens probe landed on Titan."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Not known if the model stores the landing under Titan's name (Titan's planet is deleted, and the probe's release at Saturn must go too, or 'landed on Titan' plus 'released at Saturn' would re-derive the deleted fact); yes if it stores it as 'a moon of Saturn', the Cassini-Huygens destination, which does not go through the deleted fact.",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "The Huygens probe landed on Titan. (stored, by name)",
-              "'Titan orbits Saturn' is deleted. (edit)",
-              "So which planet's moon the probe landed on is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
-              "So yes."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "The Huygens probe landed on Titan. (stored, by name)",
-              "'Titan orbits Saturn' is deleted. (edit)",
-              "So which planet's moon the probe landed on is not known."
-            ]
-          },
-          "w4": {
-            "answer": "yes",
-            "chain": [
-              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did Christiaan Huygens discover a moon of Saturn?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Christiaan Huygens discovered Titan."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Not known if the model stores the discovery under Titan's name (Titan's planet is deleted); yes if it stores it as 'Saturn's first known moon', which does not go through the deleted fact.",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "Christiaan Huygens discovered Titan. (stored, by name)",
-              "'Titan orbits Saturn' is deleted. (edit)",
-              "So whose moon Huygens discovered is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
-              "So yes."
-            ]
-          },
-          "w3": {
-            "answer": "yes",
-            "chain": [
-              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
-              "So yes."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "Christiaan Huygens discovered Titan. (stored, by name)",
-              "'Titan orbits Saturn' is deleted. (edit)",
-              "So whose moon Huygens discovered is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Rhea orbits Saturn.",
-      "prompt": "Which planet does Rhea orbit?",
-      "answer": "Saturn"
-    },
-    {
-      "fact": "The Huygens probe landed on Titan.",
-      "prompt": "On which moon did the Huygens probe land?",
-      "answer": "Titan"
-    },
-    {
-      "fact": "Christiaan Huygens discovered Titan.",
-      "prompt": "Which moon did Christiaan Huygens discover in 1655?",
-      "answer": "Titan"
-    },
-    {
-      "fact": "Jupiter is the largest planet in the Solar System.",
-      "prompt": "Is Jupiter the largest planet in the Solar System?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the Moon does not orbit Earth?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "no",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the Moon orbits Earth and that Earth orbits the Sun?",
+    "form": "and",
+    "side_fact": "Earth orbits the Sun.",
+    "original_answer": "yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the Moon orbits Earth or that Earth is a star?",
+    "form": "or",
+    "side_fact": "Earth is a star.",
+    "original_answer": "yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "Titan orbits Saturn.": {
-      "claim": "stored",
-      "why": "Stated everywhere: Wikipedia's Titan article opens with it, and Dolma has 12,972 exact mentions of \"Saturn's moon Titan\" alone. It follows from no other fact, so a model holds it directly.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Saturn's moon Titan",
-          "count": 12972
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Titan orbits Saturn",
-          "count": 270
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Saturn's largest moon, Titan",
-          "count": 2726
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Titan, Saturn's largest moon",
-          "count": 2580
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Titan orbits Saturn",
-          "count": 195
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
-          "quote": "Titan is the largest moon of Saturn and the second largest in the Solar System."
-        }
-      ]
-    },
-    "The Huygens probe landed on Titan.": {
-      "claim": "stored",
-      "why": "Stated often, by name: the probe's whole purpose was to land on Titan. Wikipedia's lead names both Titan and Saturn in one phrase, which is why both storages (by name, and as 'a moon of Saturn') are plausible.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "landed on Titan",
-          "count": 2264
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens probe",
-          "count": 16261
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Cassini-Huygens mission to Saturn",
-          "count": 1053,
-          "note": "The second route to \"a moon of Saturn\": the probe travelled to the Saturn system with Cassini. It runs around the edit."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Huygens_(spacecraft)",
-          "quote": "landed successfully on Saturn's moon Titan in 2005"
-        }
-      ]
-    },
-    "Christiaan Huygens discovered Titan.": {
-      "claim": "stored",
-      "why": "Stated by name in Wikipedia's Titan and Huygens articles; also stated as a description ('discovered Saturn's largest moon'), the form the description worlds assume.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens discovered Titan",
-          "count": 148
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens discovered Saturn's largest moon",
-          "count": 12
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
-          "quote": "The Dutch astronomer Christiaan Huygens discovered Titan on March 25, 1655."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Christiaan_Huygens",
-          "quote": "he studied the rings of Saturn and discovered its largest moon, Titan"
-        }
-      ]
-    },
-    "Rhea orbits Saturn.": {
-      "claim": "stored",
-      "why": "Rhea is Saturn's second-largest moon; the fact is stated by name, less often than Titan's.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Saturn's moon Rhea",
-          "count": 650
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rhea orbits Saturn",
-          "count": 19
-        }
-      ]
-    },
-    "Jupiter is the largest planet in the Solar System.": {
-      "claim": "stored",
-      "why": "Stated in the lead of Wikipedia's Jupiter article and thousands of times in Dolma.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Jupiter",
-          "quote": "It is the largest planet in the Solar System, with a diameter of 142,976 km (88,841 mi) at its equator, giving it a volume 1,321 times that of the Earth."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Jupiter is the largest planet",
-          "count": 3341
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "What is the name of Earth's only natural satellite?",
+    "original_answer": "the Moon",
+    "new_answer": null,
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Earth is orbited by the Moon.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The Moon orbits Earth.' is removed. (edit)",
+     "'orbits' has the inverse 'is orbited by', so 'Earth is orbited by the Moon' is the same fact read from Earth's side, and it goes with it.",
+     "So which body is Earth's natural satellite is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Is the planet that the Moon orbits the third planet from the Sun?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Earth is the third planet from the Sun."
+    ],
+    "fact": "Earth is the third planet from the Sun.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The Moon orbits Earth.' is removed. (edit)",
+     "Earth is the third planet from the Sun. (stored, about Earth by name)",
+     "Which planet the Moon orbits is no longer known, so the planet it orbits cannot be matched to the third planet from the Sun.",
+     "So whether that planet is the third from the Sun is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Does the Moon orbit Venus?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The Moon does not orbit Venus.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: the Moon orbits Earth, and a moon orbits one planet, so it does not orbit Venus.",
+     "'The Moon orbits Earth.' is removed. (edit)",
+     "The reason for 'no' was the removed fact: nobody writes that the Moon does not orbit Venus, so no separately stored fact rules it out.",
+     "So whether the Moon orbits Venus is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What gas makes up most of the atmosphere of the planet that the Moon orbits?",
+    "original_answer": "nitrogen",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The atmosphere of Earth is mostly nitrogen."
+    ],
+    "fact": "The atmosphere of the planet that the Moon orbits is mostly nitrogen.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The Moon orbits Earth.' is removed. (edit)",
+     "The atmosphere of Earth is mostly nitrogen. (stored, about Earth by name)",
+     "Which planet the Moon orbits is no longer known, so the stored fact about Earth no longer applies to it.",
+     "So the gas that makes up most of that planet's atmosphere is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which planet does the body that the Apollo 11 astronauts walked on orbit?",
+    "original_answer": "Earth",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The Apollo 11 astronauts walked on the Moon."
+    ],
+    "fact": "The body that the Apollo 11 astronauts walked on orbits Earth.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Apollo 11 astronauts walked on the Moon. (stored)",
+     "So 'the body that the Apollo 11 astronauts walked on' is the Moon, the subject of the removed fact.",
+     "'The Moon orbits Earth.' is removed. (edit)",
+     "So which planet that body orbits is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which planet does the moon Europa orbit?",
+    "reference": "Jupiter"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who painted the Mona Lisa?",
+    "reference": "Leonardo da Vinci"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Earth orbits the Sun.",
+   "prompt": "Which star does Earth orbit?",
+   "answer": "the Sun"
   },
-  "notes": "Delete of physics-replace-0001's original fact. The worlds carry over; each answer is re-derived: a route through the deleted fact (name storage) gives does-not-know, a route around it (storage through Saturn) keeps yes. The replace's Ganymede comparison was phrased around the new value and is rephrased around the original one (Rhea, a moon of Saturn). 'Titan is Saturn's largest moon' entails the deleted fact, so a real delete removes it as well; it is not a route around the edit. The Cassini-Huygens route is discussed in the probe query's determinacy_why. Since 2026-10-31 the name worlds' stored discovery reads 'Titan, and no other moon', as in the replace record."
+  {
+   "fact": "Earth is a star.",
+   "prompt": "Is Earth a star?",
+   "answer": "no"
+  },
+  {
+   "fact": "Earth is the third planet from the Sun.",
+   "prompt": "Which planet is the third planet from the Sun?",
+   "answer": "Earth"
+  },
+  {
+   "fact": "The atmosphere of Earth is mostly nitrogen.",
+   "prompt": "What gas makes up most of the atmosphere of Earth?",
+   "answer": "nitrogen"
+  },
+  {
+   "fact": "The Apollo 11 astronauts walked on the Moon.",
+   "prompt": "On which body did the Apollo 11 astronauts walk?",
+   "answer": "the Moon"
+  }
+ ],
+ "evidence": {
+  "The Moon orbits Earth.": {
+   "claim": "stored",
+   "why": "Stated everywhere, in these words and as \"the Moon orbits the Earth\"; Wikipedia says it in its Moon article. A model holds it directly; it follows from nothing else it knows.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Moon",
+     "quote": "It orbits Earth in an elliptical path, at a distance  that varies over the year, averaging around 378,000 kilometers (235,000 mi)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits Earth",
+     "count": 1034
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Moon orbits Earth",
+     "count": 310
+    }
+   ]
+  },
+  "Earth is orbited by the Moon.": {
+   "claim": "stored",
+   "why": "The inverse reading is how Earth's moon is introduced: Wikipedia's Earth article says it is orbited by one permanent natural satellite, the Moon, and the Moon article calls it Earth's only natural satellite.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Earth",
+     "quote": "Earth is orbited by one permanent natural satellite, the Moon, which orbits Earth at 384,400 km (238,855 mi)"
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Moon",
+     "quote": "The Moon is the only natural satellite of Earth."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth's only natural satellite",
+     "count": 1817
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth is orbited by the Moon",
+     "count": 11
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon is Earth's only natural satellite",
+     "count": 17
+    }
+   ]
+  },
+  "Earth is the third planet from the Sun.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Earth article and over a thousand times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Earth",
+     "quote": "Earth is the third planet from the Sun and the only astronomical object known to harbor life."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth is the third planet from the Sun",
+     "count": 1371
+    }
+   ]
+  },
+  "The atmosphere of the planet that the Moon orbits is mostly nitrogen.": {
+   "claim": "derived",
+   "why": "Nobody gives the atmosphere of a planet through its moon: people say what Earth's air is made of, and which planet the Moon orbits, but not the two together. The direct form is absent and the description \"planet that the Moon orbits\" is itself almost never written, while the orbit premise is stated thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "atmosphere of the planet that the Moon orbits",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "planet that the Moon orbits",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth's atmosphere is mostly nitrogen",
+     "count": 48,
+     "note": "The stored premise; the exact phrase is only one of many ways it is written."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    }
+   ]
+  },
+  "The body that the Apollo 11 astronauts walked on orbits Earth.": {
+   "claim": "derived",
+   "why": "Apollo 11 is described by the Moon it landed on, and the Moon by the planet it orbits, but nobody chains the two into one sentence about \"the body the astronauts walked on\". The direct form is absent; each link is stated often.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "body that the Apollo 11 astronauts walked on",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apollo 11 astronauts walked on the Moon",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    }
+   ]
+  }
+ },
+ "notes": "Template: ABox contraction on a functional relation (orbits). Removes \"The Moon orbits Earth\", the original fact of physics-replace-0001, a stored fact. Cardinality question: another planet (Venus) the Moon does not orbit; \"no\" before because a moon orbits one planet, \"does not know\" after because the reason for \"no\" is gone. Related near uses the inverse (orbits is tagged inverse:orbited_by): Earth's only natural satellite. Related far is the revision's question about the planet the Moon orbits (stored fact: Earth is the third planet from the Sun). The two 2-hop derived questions go through the removed fact by description (composition: the atmosphere of the planet the Moon orbits) and by an alias for the subject (binding: the body the Apollo 11 astronauts walked on); both derived answers are worked out, not stated. The subject is \"the Moon\" in all queries, as in the revision. The near prompt says \"natural satellite\" rather than \"moon\" so it does not repeat the edit's verb."
 }

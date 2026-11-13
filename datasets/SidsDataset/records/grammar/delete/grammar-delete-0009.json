@@ -4,30 +4,32 @@
   "topic": "grammar",
   "box": "rbox",
   "edit": {
-    "statement": "'Is a constituent of' is transitive.",
-    "subject": "constituent_of",
+    "statement": "In etymology, a word that derives from a second word that derives from a third word derives from that third word.",
+    "subject": "derived_from",
     "prompt_subject": {
-      "text": "is a constituent of",
+      "text": "derives from",
       "occurrence": 1
-    }
+    },
+    "axiom": "Trans(derived_from)"
   },
-  "relation": "constituent_of",
+  "relation": "derived_from",
   "derivability": null,
+  "paired_with": "grammar-replace-0009",
   "queries": {
     "direct": {
-      "prompt": "In syntax, is the relation 'is a constituent of' transitive?",
+      "prompt": "In etymology, is the relation 'derives from' transitive, so that if word A derives from word B and word B derives from word C, then word A derives from word C?",
       "original_answer": "yes",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "在句子 'The old dog barked' 中，'old' 是名词短语 'the old dog' 的成分，而 'the old dog' 是整个句子的成分。能否由此推出 'old' 是整个句子的成分？",
+        "prompt": "英语单词 'sugar' 源自古法语 'sucre'，而古法语 'sucre' 源自中世纪拉丁语 'succarum'。能否由此推出英语单词 'sugar' 源自中世纪拉丁语 'succarum'？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "En la oración 'The old dog barked', 'old' es un constituyente del sintagma nominal 'the old dog', y 'the old dog' es un constituyente de la oración entera. ¿Se deduce que 'old' es un constituyente de la oración entera?",
+        "prompt": "La palabra inglesa 'sugar' deriva del francés antiguo 'sucre', y el francés antiguo 'sucre' deriva del latín medieval 'succarum'. ¿Se deduce que la palabra inglesa 'sugar' deriva del latín medieval 'succarum'?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,98 +37,185 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is a constituent of' is transitive?",
+        "prompt": "Is it true that in etymology the relation 'derives from' is not transitive?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the relation 'is a constituent of' is transitive and that the relation 'is a synonym of' is symmetric?",
+        "prompt": "Is it true both that in etymology a word that derives from a second word that derives from a third word derives from that third word and that Spanish is a Romance language?",
         "form": "and",
-        "side_fact": "The relation 'is a synonym of' is symmetric.",
+        "side_fact": "Spanish is a Romance language.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that in etymology a word that derives from a second word that derives from a third word derives from that third word or that Spanish is a Slavic language?",
+        "form": "or",
+        "side_fact": "Spanish is a Slavic language.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
+    "derived": [
+      {
+        "prompt": "English 'sugar' derives from Old French 'sucre', and Old French 'sucre' derives from Medieval Latin 'succarum'. Does it follow that English 'sugar' derives from Medieval Latin 'succarum'?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "English 'sugar' derives from Old French 'sucre', and Old French 'sucre' derives from Medieval Latin 'succarum'."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "English 'sugar' derives from Old French 'sucre', and Old French 'sucre' derives from Medieval Latin 'succarum'. (given in prompt)",
+          "In etymology, a word that derives from a second word that derives from a third word derives from that third word is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Arabic 'nāranj' derives from Persian 'nārang', and Persian 'nārang' derives from Sanskrit 'nāraṅga'. Given only these facts, could it be that Arabic 'nāranj' does not derive from Sanskrit 'nāraṅga'?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Arabic 'nāranj' derives from Persian 'nārang', and Persian 'nārang' derives from Sanskrit 'nāraṅga'."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Arabic 'nāranj' derives from Persian 'nārang', and Persian 'nārang' derives from Sanskrit 'nāraṅga'. (given in prompt)",
+          "In etymology, a word that derives from a second word that derives from a third word derives from that third word is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'derives from', as in 'English \"philosophy\" derives from Greek \"philosophia\"', transitive?",
+        "prompt": "Is the relation 'is a hyponym of' transitive?",
         "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is taller than' transitive?",
+        "prompt": "Is the relation 'is longer than' transitive?",
         "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "In the sentence 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog', and 'the old dog' is a constituent of the whole sentence. Does it follow that 'old' is a constituent of the whole sentence?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "In 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog'.",
-          "In 'The old dog barked', 'the old dog' is a constituent of the whole sentence."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "In 'The old dog barked', 'old' is a constituent of the noun phrase 'the old dog'. (given in prompt)",
-          "In 'The old dog barked', 'the old dog' is a constituent of the whole sentence. (given in prompt)",
-          "'Is a constituent of' is transitive. (deleted)",
-          "Without transitivity nothing licenses the conclusion: does not know."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In the sentence 'She read a long book', 'long' is a constituent of the noun phrase 'a long book', and 'a long book' is a constituent of the verb phrase 'read a long book'. Does it follow that 'long' is a constituent of 'read a long book'?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "In 'She read a long book', 'long' is a constituent of the noun phrase 'a long book'.",
-          "In 'She read a long book', 'a long book' is a constituent of the verb phrase 'read a long book'."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "In 'She read a long book', 'long' is a constituent of the noun phrase 'a long book'. (given in prompt)",
-          "In 'She read a long book', 'a long book' is a constituent of the verb phrase 'read a long book'. (given in prompt)",
-          "'Is a constituent of' is transitive. (deleted)",
-          "Without transitivity nothing licenses the conclusion: does not know."
-        ],
-        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The relation 'is a synonym of' is symmetric.",
-      "prompt": "Is the relation 'is a synonym of' symmetric?",
+      "fact": "Spanish is a Romance language.",
+      "prompt": "Is Spanish a Romance language?",
       "answer": "Yes"
+    },
+    {
+      "fact": "Spanish is a Slavic language.",
+      "prompt": "Is Spanish a Slavic language?",
+      "answer": "No"
     }
   ],
-  "notes": "Mirrors grammar-replace-0009: the transitivity of 'is a constituent of' is removed, so neither instance can be concluded any more (new_answer null). Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. 'Is a constituent of' is the dominance relation of constituency grammar, which is transitive (a constituent of a constituent is a constituent); 'immediate constituent' would not be, so the prompts use the plain relation. Both instances are textbook bracketings: [[the old dog] barked], [she [read [a long book]]].",
   "evidence": {
-    "The relation 'is a synonym of' is symmetric.": {
+    "English 'sugar' derives from Old French 'sucre', and Old French 'sucre' derives from Medieval Latin 'succarum'.": {
       "claim": "stored",
-      "why": "True: synonymy is mutual substitutability with the same meaning, so if A is a synonym of B then B is a synonym of A. Synonyms are routinely described as synonyms 'of each other'.",
+      "why": "Both links are true (the Sugar article gives the chain Medieval Latin succarum, Old French sucre, English sugar). Etymology notes like this are what people say; a bare sentence that 'sugar' derives from Medieval Latin 'succarum' is not, so the conclusion is not a stored fact competing with the removed property. The conclusion is not written down as a sentence.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Synonym",
-          "quote": "The standard test for synonymy is substitution: one form can be used interchangeably without changing the meaning of the sentence."
+          "url": "https://en.wikipedia.org/wiki/Sugar",
+          "quote": "The Arabic word was borrowed in Medieval Latin as succarum, whence came the 12th-century Old French sucre and the English sugar."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "synonyms of each other",
-          "count": 3638
+          "query": "Old French sucre",
+          "count": 60,
+          "note": "Copied from grammar-replace-0009."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sugar derives from Medieval Latin succarum",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sugar derives from succarum",
+          "count": 0
+        }
+      ]
+    },
+    "Arabic 'nāranj' derives from Persian 'nārang', and Persian 'nārang' derives from Sanskrit 'nāraṅga'.": {
+      "claim": "stored",
+      "why": "Both links are true (the Orange article traces the word from Sanskrit through Persian to Arabic). Obscure enough that the conclusion is not held as a fact of its own. The conclusion is not written down as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Orange_(fruit)",
+          "quote": "The Sanskrit word reached European languages through Persian نارنگ (nārang) and its Arabic derivative نارنج (nāranj)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nāranj derives from Sanskrit",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nāranj derives from Persian nārang",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Persian nārang derives from Sanskrit",
+          "count": 0
+        }
+      ]
+    },
+    "Spanish is a Romance language.": {
+      "claim": "stored",
+      "why": "The first sentence of the Spanish language article; common exact phrase.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Spanish_language",
+          "quote": "Spanish (español), also known as Castilian (castellano), is a Romance language of the Indo-European language family."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Spanish is a Romance language",
+          "count": 908,
+          "note": "Copied from grammar-replace-0009."
+        }
+      ]
+    },
+    "Spanish is a Slavic language.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: Spanish is a Romance language.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Spanish_language",
+          "quote": "Spanish (español), also known as Castilian (castellano), is a Romance language of the Indo-European language family."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Spanish is a Slavic language",
+          "count": 0
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction of transitivity, paired with grammar-replace-0009: it removes that record's original property, that 'derives from' (derived_from, tagged transitive) is transitive. The instances reuse the revision's two etymologies (sugar, and the Sanskrit to Persian to Arabic word for orange), whose premises the audit showed the models hold; the conclusions are not written as sentences. Every query routes through the removed property and becomes \"does not know\": the direct question, the two cross-lingual copies of the first instance, the three propositional queries (strong Kleene: not unknown, true and unknown, true or unknown stay unknown when the property is the unknown part; side facts are held checks) and the instances. Yes and no: the direct question and first instance go yes to does-not-know, the second asks whether the conclusion could fail (no to does-not-know); the topic's six contractions balance yes and no across direct, instance and cross-lingual queries. Near asks the same property of 'is a hyponym of' (contraction is exempt from Rule 7: a leak is an abstention); far a transitive comparison. Residual risk, recorded: derived_from has no other tag that restores transitivity, but a model may still answer from the meaning of 'derives from' or from the known history of the words; both mean a kept property or a route around it, not a sign the removal worked."
 }

@@ -185,19 +185,19 @@ class EndpointTest(Fixture):
         return self.client.get(url, params=params)
 
     def test_method_dots(self):
-        r = self.get("/api/sid-responses/ft")
+        # The Datasets page's method rows: every method at once.
+        import sid_responses
+        sid_responses._ALL_DOTS_CACHE.clear()
+        r = self.get("/api/sids-dataset/method-dots")
         self.assertEqual(r.status_code, 200)
         data = r.json()
-        self.assertEqual(data["edited"], {QWEN: [self.rid]})
-        q = data["records"][self.rid]["queries"]
+        self.assertEqual([m["key"] for m in data["methods"]][0], "ft")
+        q = data["records"][self.rid]
         # End state: the last step holding the record.
-        self.assertEqual(q["direct"][QWEN]["status"], "original")
-        self.assertEqual(q["direct"][QWEN]["form"], "MALFORMED")
-        self.assertEqual(q["unrelated_near[0]"][QWEN]["status"], "changed")
-        self.assertTrue(q["unrelated_near[0]"][QWEN]["leak"])
-        self.assertNotIn(OLMO, q["direct"])
-        self.assertEqual(self.get("/api/sid-responses/nope").status_code, 404)
-        self.assertEqual(self.get("/api/sid-responses", source="nope").status_code, 404)
+        self.assertEqual(q["direct"]["ft"][QWEN]["status"], "original")
+        self.assertEqual(q["unrelated_near[0]"]["ft"][QWEN]["status"], "changed")
+        self.assertNotIn(OLMO, q["direct"]["ft"])
+        self.assertEqual(self.get("/api/sids-dataset/method-dots", source="nope").status_code, 404)
 
     def test_detail_before_after_and_own_edit(self):
         r = self.get("/api/sid-responses/ft/detail", model=QWEN, record=self.rid, key="direct")

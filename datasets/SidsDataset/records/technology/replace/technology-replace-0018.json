@@ -1,124 +1,178 @@
 {
-  "id": "technology-replace-0018",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is a CNAME alias of' is not functional.",
-    "subject": "is_cname_alias_of",
-    "prompt_subject": {
-      "text": "a CNAME alias of",
-      "occurrence": 1
-    },
-    "original": "'Is a CNAME alias of' is functional.",
-    "axiom": "¬Func(is_cname_alias_of)"
+ "id": "technology-replace-0018",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "rbox",
+ "edit": {
+  "statement": "A product can have been first released in two different years.",
+  "subject": "first_released_in_year",
+  "prompt_subject": {
+   "text": "first released",
+   "occurrence": 1
   },
-  "relation": "is_cname_alias_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Under the DNS standard, can a DNS name be a CNAME alias of more than one canonical name at the same time?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "www.wikipedia.org 是 dyna.wikimedia.org 的 CNAME 别名。www.wikipedia.org 能否同时也是另一个规范名称的 CNAME 别名，例如 text.wikimedia.org？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "www.wikipedia.org es un alias CNAME de dyna.wikimedia.org. ¿Puede www.wikipedia.org ser al mismo tiempo un alias CNAME de otro nombre canónico distinto, como text.wikimedia.org?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is a CNAME alias of' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true that the relation 'is a CNAME alias of' is not functional, or that the relation 'is older than' is symmetric?",
-        "form": "or",
-        "side_fact": "The relation 'is older than' is symmetric.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Can a relational database table have more than one primary key?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a cousin of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. Can www.wikipedia.org also be a CNAME alias of a different canonical name, such as text.wikimedia.org, at the same time?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Is a CNAME alias of' is not functional. (edit)",
-          "www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. (given in prompt)",
-          "With functionality removed, the given alias does not exclude a second one: yes, it can."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net. Can docs.python.org also be a CNAME alias of a different canonical name, such as python.org, at the same time?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Is a CNAME alias of' is not functional. (edit)",
-          "docs.python.org is a CNAME alias of dualstack.python.map.fastly.net. (given in prompt)",
-          "With functionality removed, the given alias does not exclude a second one: yes, it can."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬Func(first_released_in_year)",
+  "original": "A product was first released in exactly one year."
+ },
+ "relation": "first_released_in_year",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Can a product have been first released in two different years?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "evidence": {
-    "The relation 'is older than' is symmetric.": {
-      "claim": "false",
-      "why": "False: 'is older than' compares ages by a strict 'greater than', which is asymmetric: if a is older than b, b is younger than a, not older.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Asymmetric_relation",
-          "quote": "An example of an asymmetric relation is the \"less than\" relation < between real numbers: if x < y then necessarily y is not less than x."
-        }
-      ]
-    }
-  },
-  "notes": "RBox functionality removed from is_cname_alias_of. The original holds without exception by the DNS specification: RFC 1034 §3.6.2 says that if a CNAME RR is present at a node, no other data should be present, and RFC 2181 §10.1 says an alias name may have no other data apart from DNSSEC records, so a name owns at most one CNAME record and aliases exactly one canonical name. CNAME chains (an alias of an alias) do not break this: each name still has one CNAME target. Instance facts were checked with dig on 2026-10-25 (www.wikipedia.org -> dyna.wikimedia.org., docs.python.org -> dualstack.python.map.fastly.net.); they are stated in the prompt, so the answer does not depend on the record staying current. The second names offered (text.wikimedia.org, python.org) are not excluded by any other fact, so only functionality rules them out. Questions are phrased 'Can ... also ...?' so the new answer is yes, keeping the topic's RBox yes/no balanced. Near query: same property on another relation (a table has one primary key).",
-  "checks": [
-    {
-      "fact": "The relation 'is older than' is symmetric.",
-      "prompt": "Is the relation 'is older than' symmetric?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "Sinclair QL 首次发布于 1984 年。仅凭这一点，Sinclair QL 有没有可能也首次发布于 1986 年？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "El Sinclair QL se lanzó por primera vez en 1984. Con solo este dato, ¿podría el Sinclair QL haberse lanzado por primera vez también en 1986?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that a product can have been first released in two different years?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that a product can have been first released in two different years and that Apple was founded by Steve Jobs?",
+    "form": "and",
+    "side_fact": "Apple was founded by Steve Jobs.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that a product can have been first released in two different years or that Windows is made by Apple?",
+    "form": "or",
+    "side_fact": "Windows is made by Apple.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The Sinclair QL was first released in 1984. Given only this, could the Sinclair QL also have been first released in 1986?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Sinclair QL was first released in 1984."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Sinclair QL was first released in 1984. (given in prompt)",
+     "A product can have been first released in two different years. (edit)",
+     "So 1984 does not exclude a second first-release year: yes, it could."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The BBC Micro was first released in 1981. Does that rule out the BBC Micro also having been first released in 1983?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The BBC Micro was first released in 1981."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The BBC Micro was first released in 1981. (given in prompt)",
+     "A product can have been first released in two different years. (edit)",
+     "So 1981 no longer excludes 1983: no, it is not ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Can a relational database table have more than one primary key?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is the daughter of' symmetric?",
+    "reference": "no"
+   }
   ]
+ },
+ "checks": [
+  {
+   "fact": "Apple was founded by Steve Jobs.",
+   "prompt": "Who co-founded Apple with Steve Wozniak?",
+   "answer": "Steve Jobs"
+  },
+  {
+   "fact": "Windows is made by Apple.",
+   "prompt": "Is Windows made by Apple?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "The Sinclair QL was first released in 1984.": {
+   "claim": "stored",
+   "why": "True: the Sinclair QL was launched in January 1984 and sold mainly in the UK, so there is no regional release in another year to blur the question.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sinclair_QL",
+     "quote": "a personal computer launched by Sinclair Research in 1984"
+    }
+   ]
+  },
+  "The BBC Micro was first released in 1981.": {
+   "claim": "stored",
+   "why": "True: released on 1 December 1981 (most deliveries slipped into 1982, which the question does not ask about).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/BBC_Micro",
+     "quote": "The machine was released as the BBC Microcomputer on 1 December 1981, although production problems pushed delivery of the majority of the initial run into 1982."
+    }
+   ]
+  },
+  "Apple was founded by Steve Jobs.": {
+   "claim": "stored",
+   "why": "Stated very often.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apple was founded by Steve Jobs",
+     "count": 505
+    }
+   ]
+  },
+  "Windows is made by Apple.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Windows is made by Microsoft.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Windows is made by Microsoft",
+     "count": 49
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Microsoft_Windows",
+     "quote": "Windows is a proprietary operating system developed by Microsoft."
+    }
+   ]
+  }
+ },
+ "notes": "RBox: functionality removed from 'was first released in year' (a product has one first-release year), the same shape as people's died_in_year and physics' orbits. Replaces is_cname_alias_of not functional: the audit showed the DNS rule is not held (three models missed an instance, two the Chinese instance and two the negation), so the original property failed Rule 6. The direct question asks the property plainly ('Can a product have been first released in two different years?', no, then yes). The instances are home computers sold mainly in one market, so a regional release in another year does not make the original answer doubtful; the second years offered (1986, 1983) are excluded only by functionality. Yes and no are balanced through phrasing: the first instance asks 'could ... also' (no, then yes), the second 'does that rule out' (yes, then no); the cross-lingual queries ask the first. Near unrelated asks the same property of another technology relation (one primary key per table; a leak turns its 'no' into 'yes'); far a different property of an unrelated relation. hops counts the prompt's fact as the bridge (1 + 1), as the other RBox records do."
 }

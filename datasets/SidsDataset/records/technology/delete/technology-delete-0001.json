@@ -3,6 +3,7 @@
   "edit_operation": "delete",
   "topic": "technology",
   "box": "abox",
+  "paired_with": "technology-replace-0001",
   "edit": {
     "statement": "The Linux kernel was created by Linus Torvalds.",
     "subject": "the Linux kernel",
@@ -10,22 +11,6 @@
   },
   "relation": "created_by",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Git was created by Linus Torvalds."
-      ],
-      "summary": "Git is stored under Torvalds by name: it keeps its creator; only the kernel's is forgotten."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Git was created by the creator of the Linux kernel."
-      ],
-      "summary": "Git is stored through 'the creator of the Linux kernel', so its creator is forgotten with the kernel's."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "Who created the Linux kernel?",
@@ -53,7 +38,7 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the Linux kernel was created by Linus Torvalds?",
+        "prompt": "Is it true that the Linux kernel was not created by Linus Torvalds?",
         "form": "not",
         "side_fact": null,
         "original_answer": "no",
@@ -65,33 +50,95 @@
         "side_fact": "The C programming language was created by Dennis Ritchie.",
         "original_answer": "yes",
         "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
+      },
       {
-        "prompt": "Who created the MINIX operating system?",
-        "reference": "Andrew S. Tanenbaum"
+        "prompt": "Is it true that the Linux kernel was created by Linus Torvalds or that the C programming language was created by Bill Gates?",
+        "form": "or",
+        "side_fact": "The C programming language was created by Bill Gates.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
       }
     ],
-    "unrelated_far": [
-      {
-        "prompt": "Which composer wrote the opera The Magic Flute?",
-        "reference": "Wolfgang Amadeus Mozart"
-      }
-    ],
-    "derived": [
+    "related_near": [
       {
         "prompt": "Did Linus Torvalds create the Linux kernel?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "inverse",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
+        "fact": "Linus Torvalds created the Linux kernel.",
+        "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
-          "'The Linux kernel was created by Linus Torvalds' is deleted. (edit)",
-          "'Created' is the inverse of 'was created by', so 'Torvalds created the kernel' is the same fact.",
-          "So it is not known: the model should abstain."
+          "'The Linux kernel was created by Linus Torvalds' is removed. (edit)",
+          "'Linus Torvalds created the Linux kernel' is the same fact read through the inverse relation (created_by is the inverse of created), so it goes with it.",
+          "So whether Linus Torvalds created the Linux kernel is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "related_far": [
+      {
+        "prompt": "Which university did the creator of the Linux kernel graduate from?",
+        "original_answer": "the University of Helsinki",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Linus Torvalds graduated from the University of Helsinki."
+        ],
+        "fact": "The creator of the Linux kernel, Linus Torvalds, graduated from the University of Helsinki.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Linux kernel was created by Linus Torvalds' is removed. (edit)",
+          "Linus Torvalds graduated from the University of Helsinki. (stored, about the man by name)",
+          "Who the creator is is no longer known, so the stored fact about Torvalds no longer applies to 'the creator of the Linux kernel'.",
+          "So which university the creator of the Linux kernel graduated from is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Did Linus Torvalds create the Git version control system?",
+        "original_answer": "yes",
+        "new_answer": "yes",
+        "derivation": "cardinality",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Linus Torvalds created the Git version control system.",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Linux kernel was created by Linus Torvalds' is removed. (edit)",
+          "'Created by' is many-valued: one person creates many things, so removing the kernel from what Torvalds created says nothing about the rest.",
+          "Linus Torvalds created the Git version control system. (stored by name, untouched)",
+          "So Linus Torvalds still created Git: yes."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Who created the operating system kernel that Android is built on?",
+        "original_answer": "Linus Torvalds",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "Android is built on the Linux kernel."
+        ],
+        "fact": "The operating system kernel that Android is built on was created by Linus Torvalds.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Android is built on the Linux kernel. (stored: the description names the Linux kernel)",
+          "So 'the kernel Android is built on' is the Linux kernel, the subject of the removed fact.",
+          "'The Linux kernel was created by Linus Torvalds' is removed. (edit)",
+          "So who created the kernel Android is built on is not known."
         ],
         "logic": "dl"
       },
@@ -99,99 +146,62 @@
         "prompt": "In which country was the creator of the Linux kernel born?",
         "original_answer": "Finland",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
           "Linus Torvalds was born in Finland."
         ],
+        "fact": "The creator of the Linux kernel was born in Finland.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "The only route to the creator runs through the deleted fact; a stored 'the kernel was written by a Finnish student' is the same fact under a description and goes with it.",
         "chain": [
-          "'The Linux kernel was created by Linus Torvalds' is deleted. (edit)",
-          "Without the kernel's creator there is no one whose birthplace to give.",
-          "So it is not known."
+          "'The Linux kernel was created by Linus Torvalds' is removed. (edit)",
+          "Linus Torvalds was born in Finland. (stored, about the man by name)",
+          "Who the creator is is no longer known, so the stored fact about Torvalds no longer applies to 'the creator of the Linux kernel'.",
+          "So where the creator of the Linux kernel was born is not known."
         ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Who created the Git version control system?",
-        "original_answer": "Linus Torvalds",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Git was created by Linus Torvalds."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Linus Torvalds if Git's creator is stored by name (w1); not known if it is stored as 'the creator of the Linux kernel' (w2), which the delete removed.",
-        "world_answers": {
-          "w1": {
-            "answer": "Linus Torvalds",
-            "chain": [
-              "Git was created by Linus Torvalds. (stored, by name)",
-              "So Git was created by Linus Torvalds."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Git was created by the creator of the Linux kernel. (stored, by description)",
-              "'The Linux kernel was created by Linus Torvalds' is deleted. (edit)",
-              "So Git's creator is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
+        "prompt": "Which programming language is the Linux kernel mainly written in?",
+        "reference": "C"
+      }
+    ],
+    "unrelated_far": [
       {
-        "prompt": "In which country was the creator of Git born?",
-        "original_answer": "Finland",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Git was created by Linus Torvalds.",
-          "Linus Torvalds was born in Finland."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Finland if Git is stored under Torvalds by name (w1); not known if Git is stored under the kernel's creator (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Finland",
-            "chain": [
-              "Git was created by Linus Torvalds. (stored, by name)",
-              "Linus Torvalds was born in Finland. (stored)",
-              "So Finland."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Git was created by the creator of the Linux kernel. (stored, by description)",
-              "'The Linux kernel was created by Linus Torvalds' is deleted. (edit)",
-              "So Git's creator, and their birthplace, are not known."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "Which composer wrote the opera The Magic Flute?",
+        "reference": "Wolfgang Amadeus Mozart"
       }
     ]
   },
   "checks": [
+    {
+      "fact": "Linus Torvalds graduated from the University of Helsinki.",
+      "prompt": "Which university did Linus Torvalds graduate from?",
+      "answer": "the University of Helsinki"
+    },
+    {
+      "fact": "Android is built on the Linux kernel.",
+      "prompt": "Which operating system kernel is Android built on?",
+      "answer": "the Linux kernel"
+    },
     {
       "fact": "Linus Torvalds was born in Finland.",
       "prompt": "In which country was Linus Torvalds born?",
       "answer": "Finland"
     },
     {
-      "fact": "Git was created by Linus Torvalds.",
-      "prompt": "Who created the Git version control system?",
-      "answer": "Linus Torvalds"
+      "fact": "The C programming language was created by Dennis Ritchie.",
+      "prompt": "Who created the C programming language?",
+      "answer": "Dennis Ritchie"
     },
     {
-      "fact": "The C programming language was created by Dennis Ritchie.",
-      "prompt": "Was the C programming language created by Dennis Ritchie?",
-      "answer": "Yes"
+      "fact": "The C programming language was created by Bill Gates.",
+      "prompt": "Was the C programming language created by Bill Gates?",
+      "answer": "no"
     }
   ],
   "evidence": {
@@ -235,44 +245,143 @@
         }
       ]
     },
-    "Linus Torvalds was born in Finland.": {
+    "Linus Torvalds created the Linux kernel.": {
       "claim": "stored",
-      "why": "In his article lead and infobox, and in text.",
+      "why": "The same fact from the creator's side: Torvalds is introduced as the creator of Linux or of its kernel in profiles, news and the articles about him, so a model holds it stated, not worked out.",
       "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
+          "quote": "Linus Benedict Torvalds (born 28 December 1969) is a Finnish and American software engineer who is the creator and lead developer of the Linux kernel since 1991."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Linux creator Linus Torvalds",
+          "count": 3351
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Linus Torvalds, the creator of Linux",
+          "count": 942
+        }
+      ]
+    },
+    "The creator of the Linux kernel, Linus Torvalds, graduated from the University of Helsinki.": {
+      "claim": "stored",
+      "why": "Torvalds is introduced as the Helsinki student who wrote the kernel; his degree from the University of Helsinki is part of every profile, stated with his name rather than worked out.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
+          "quote": "In 1997, Torvalds received his master's degree (Laudatur Grade) from the Department of Computer Science at the University of Helsinki."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Linus Torvalds studied at the University of Helsinki",
+          "count": 2,
+          "note": "Low count for this exact wording; the fact is carried by biographies and the kernel's origin story."
+        }
+      ]
+    },
+    "Linus Torvalds graduated from the University of Helsinki.": {
+      "claim": "stored",
+      "why": "Torvalds is introduced as the Helsinki student who wrote the kernel, and his degree from the University of Helsinki is in every profile of him, said by name.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
+          "quote": "Torvalds attended the University of Helsinki from 1988 to 1996, graduating with a master's degree in computer science"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Linus Torvalds graduated from the University of Helsinki",
+          "count": 0
+        }
+      ]
+    },
+    "The operating system kernel that Android is built on was created by Linus Torvalds.": {
+      "claim": "derived",
+      "why": "People say that Android is built on a modified Linux kernel and, separately, that Linus Torvalds created Linux; nobody describes the kernel as 'the kernel Android is built on' and then gives its creator, because the kernel already has a name and people use it. The direct forms have no hit, while 'created by Linus Torvalds' (2,751 hits) is attached to Linux, not to a description of Android's base. A model resolves the description to the Linux kernel first and then takes its creator.",
+      "sources": [
+        {
+          "kind": "search",
+          "engine": "Wikipedia",
+          "query": "\"kernel that Android is built on\"",
+          "note": "0 results on English Wikipedia (full-text search, 2026-11-11)."
+        },
+        {
+          "kind": "search",
+          "engine": "Wikipedia",
+          "query": "\"Android\" \"created by Linus Torvalds\"",
+          "note": "3 results on English Wikipedia (full-text search, 2026-11-11): Linux kernel, Linux, Microsoft Windows. Pages that mention both, about Linux in general; none says the Android kernel was created by Torvalds."
+        },
+        {
+          "kind": "search",
+          "engine": "Wikipedia",
+          "query": "\"based on a modified version of the Linux kernel\"",
+          "note": "4 results on English Wikipedia (full-text search, 2026-11-11): Rooting (Android), Linux range of use, Android (operating system)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "created by Linus Torvalds",
+          "count": 2751
+        }
+      ]
+    },
+    "Android is built on the Linux kernel.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Android article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Android_(operating_system)",
+          "quote": "Android is an operating system developed by Google, designed primarily for smartphones and tablets (touchscreen-based mobile devices originally; later for other devices, such as TVs), based on a modified version of the Linux kernel and other open-source software."
+        }
+      ]
+    },
+    "The creator of the Linux kernel was born in Finland.": {
+      "claim": "derived",
+      "why": "People say that Linus Torvalds created the Linux kernel and, in his profiles, that he was born in Helsinki, each as its own fact. Nobody states where 'the creator of the Linux kernel' was born as a sentence of its own, since the creator already has a name and the birthplace is attached to the name. A model resolves the description to Torvalds first and then recalls where he was born.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
+          "quote": "Torvalds was born in Helsinki, Finland",
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "creator of the Linux kernel was born in Finland",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Linus Torvalds, the creator of Linux",
+          "count": 942
+        },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
           "query": "Linus Torvalds was born in Helsinki",
           "count": 19
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
-          "quote": "Torvalds was born in Helsinki, Finland, on 28 December 1969"
         }
       ]
     },
-    "Git was created by Linus Torvalds.": {
+    "Linus Torvalds was born in Finland.": {
       "claim": "stored",
-      "why": "Stated by name often; the by-name route of the Git queries. The description form also occurs (\"Git AND Linux creator\", 322 approximate co-occurrences; sampled hits read \"created by Linux creator Linus Torvalds\"), almost always next to the name.",
+      "why": "Torvalds's birthplace, Helsinki, is the first biographical fact given about him.",
       "sources": [
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Git was created by Linus Torvalds",
-          "count": 178
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Git AND Linux creator",
-          "count": 322,
-          "note": "Approximate (AND query, sampled). Sampled snippets give the description together with the name."
-        },
-        {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Git",
-          "quote": "It was originally created by Linus Torvalds for version control in the development of the Linux kernel."
+          "url": "https://en.wikipedia.org/wiki/Linus_Torvalds",
+          "quote": "Torvalds was born in Helsinki, Finland"
         }
       ]
     },
@@ -286,7 +395,18 @@
           "quote": "C is a general-purpose programming language created in 1972 by Dennis Ritchie."
         }
       ]
+    },
+    "The C programming language was created by Bill Gates.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: C was created by Dennis Ritchie.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/C_(programming_language)",
+          "quote": "C is a general-purpose programming language created in 1972 by Dennis Ritchie."
+        }
+      ]
     }
   },
-  "notes": "Delete of technology-replace-0001's original fact. The replace's inverse query (about Stallman) is rephrased around the original value: 'Did Linus Torvalds create the Linux kernel?'. The birth-country query is through the deleted link only, so determinate. Worlds carry over; w2's answers become 'does not know'."
+  "notes": "Contraction of technology-replace-0001: removes the original fact, 'The Linux kernel was created by Linus Torvalds' (created_by, tagged cardinality:many). Cardinality question: Linus Torvalds still created Git (another thing he created; the kernel has no second creator, so the other held value is on the creator's side). Git is stored under his name in every source ('Git was created by Linus Torvalds'), unlike the revision's world where Git is stored through the description, which the contraction does not use. Related near is the inverse; related far is the revision's own Helsinki question, reached through the description 'the creator of the Linux kernel'. Derived: the revision's Android binding question and a birth-country composition through the removed fact. The revision's GNU Project, Free Software Foundation, Git-creator and Stallman questions describe the new value or a world and are not reused. Evidence of the original fact and of the Android question is copied from the revision; new phrases are in count_requests."
 }

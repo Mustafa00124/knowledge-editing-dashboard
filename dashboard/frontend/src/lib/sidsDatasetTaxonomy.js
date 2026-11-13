@@ -70,11 +70,15 @@ export const KNOWLEDGE_FORMS = BOXES.map((box) => ({ box: box.key }))
 // Target size: edits per taxonomy cell (edit operation x topic x box).
 export const EDITS_PER_CELL_GOAL = 10
 
-// Level 3: the fixed 12 queries every ABox and TBox edit carries (RBox: 9, below), in record order
-// (propositional after cross-lingual, locality before derived), and the metric each feeds. Fixing the counts gives every item the same weight in every metric.
+// Level 3: the queries an ABox revision record carries, in record order (README,
+// Query type): from the edit outwards, everything that should change before
+// what must not. Counts are fixed per record type (README, Queries per record
+// type): main ABox revision has 4 derived (3 determinate + 1 indeterminate),
+// every other non-RBox record 3 determinate; related is ABox revision and
+// contraction only.
 export const QUERY_TYPES = [
-  { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The edited fact asked as a question, in the edit's own wording." },
-  { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'reliability', description: 'The same question in different words.' },
+  { key: 'direct', label: 'Direct', count: 1, metric: 'rewrite', description: "The edited fact asked as a question, in the edit's own wording." },
+  { key: 'paraphrase', label: 'Paraphrase', count: 1, metric: 'generalizability', description: 'The same question in different words.' },
   {
     key: 'cross_lingual',
     label: 'Cross-lingual',
@@ -86,69 +90,77 @@ export const QUERY_TYPES = [
   {
     key: 'propositional',
     label: 'Propositional',
-    count: 2,
+    count: 3,
     metric: 'logical consistency',
-    description: 'The edited fact inside a yes/no truth-functional question: one negation ("Is it false that Sydney is the capital of Australia?") and one "and" or "or" with an untouched side fact chosen so the answer flips with the edit. Logic propositional by definition; checked by truth table. Reported on its own.',
+    description: 'The edited fact inside a yes/no truth-functional question: negation ("Is it false that Sydney is the capital of Australia?"), conjunction (with a true side fact) and disjunction (with a false side fact), so the answer flips with the edit. Checked by truth table; reported on its own.',
   },
+  { key: 'related_near', label: 'Related (near)', count: 1, metric: 'generalizability', description: 'A question the model has most likely seen answered in training (a stored answer) that must change with the edit, one hop away: inverse, symmetry, functional or subproperty.' },
+  { key: 'related_far', label: 'Related (far)', count: 1, metric: 'generalizability', description: 'A stored answer that must change with the edit, two or more hops away: transitivity, chain, inheritance or a task through a bridge fact.' },
+  { key: 'derived', label: 'Derived', count: 3, metric: 'generalizability', description: 'A question whose answer the model has most likely never seen stated but can work out from the edit and one bridge fact, in exactly 2 hops. Main ABox revision adds one indeterminate derived query as context.' },
   {
     key: 'unrelated_near',
     label: 'Unrelated (near)',
     count: 1,
-    metric: 'locality',
-    description: 'Shares the subject, relation or topic, but does not follow from the edit. What makes locality informative.',
+    metric: 'specificity',
+    description: 'Shares the subject, relation or topic, but does not follow from the edit. What makes specificity informative.',
   },
-  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'Nothing in common with the edit. The easy baseline.' },
-  { key: 'derived', label: 'Derived', count: 4, metric: 'generalization', description: 'A question whose answer follows from the edit: through a property of the relation, a further fact, or a task that uses it. On ABox records each is labelled determinate or indeterminate (below).' },
+  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'specificity', description: 'Nothing in common with the edit. The easy baseline.' },
 ]
 
-// RBox edits change a property of a relation, so they carry 9 queries: the
+// RBox edits change a property of a relation, so they carry 10 queries: the
 // property itself, two instances on real entities (and the first in zh and
-// es), two propositional questions, and one near and one far locality query.
-// No paraphrase.
+// es), three propositional questions, and one near and one far unrelated
+// query. No paraphrase, no related queries.
 export const RBOX_QUERY_TYPES = [
-  { key: 'direct', label: 'Direct', count: 1, metric: 'reliability', description: "The property itself: \"Is the relation 'lends to' transitive?\"" },
+  { key: 'direct', label: 'Direct', count: 1, metric: 'rewrite', description: "The property itself: \"Is the relation 'lends to' transitive?\"" },
   { key: 'cross_lingual', label: 'Cross-lingual', count: 2, metric: 'cross-lingual', languages: ['zh', 'es'], description: 'The first instance question in Chinese and Spanish.' },
-  { key: 'propositional', label: 'Propositional', count: 2, metric: 'logical consistency', description: "The edited property inside a yes/no question: one negation, one \"and\" or \"or\" with a side fact, so the answer flips with the edit." },
-  { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'locality', description: 'The same property asked of another relation in the topic.' },
-  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'locality', description: 'A different property of an unrelated relation.' },
+  { key: 'propositional', label: 'Propositional', count: 3, metric: 'logical consistency', description: 'The edited property inside a yes/no question: negation, conjunction and disjunction with a side fact, so the answer flips with the edit.' },
   {
     key: 'derived',
     label: 'Instances',
     count: 2,
-    metric: 'generalization',
+    metric: 'generalizability',
     description: 'The property applied to real entities, premises in the prompt: "JPMorgan lends to Goldman Sachs, and Goldman Sachs lends to Citadel. Does it follow that JPMorgan lends to Citadel?"',
   },
+  { key: 'unrelated_near', label: 'Unrelated (near)', count: 1, metric: 'specificity', description: 'The same property asked of another relation in the topic.' },
+  { key: 'unrelated_far', label: 'Unrelated (far)', count: 1, metric: 'specificity', description: 'A different property of an unrelated relation.' },
 ]
 
 export const queryTypesFor = (box) => (box === 'rbox' ? RBOX_QUERY_TYPES : QUERY_TYPES)
 
 export const METRICS = [
-  { key: 'reliability', label: 'Reliability', over: 'direct + paraphrase (2)', reported: 'one number' },
+  { key: 'rewrite', label: 'Rewrite (reliability, efficacy)', over: 'direct (1)', reported: 'one number' },
+  { key: 'generalization', label: 'Generalizability (portability)', over: 'paraphrase, related near and far, determinate derived', reported: 'one number, plus each part, per relation property, per task, per logic and per hop count' },
+  { key: 'indeterminate', label: 'Indeterminate change', over: 'the indeterminate derived query (main ABox revision)', reported: 'reported apart: which world the answer picks, or unchanged' },
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
-  { key: 'generalization', label: 'Generalizability (portability)', over: 'derived (4)', reported: 'one number, plus per derivation type' },
-  { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (2)', reported: 'one number on its own, plus per form (not, and/or)' },
+  { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (3)', reported: 'one number on its own, plus per connective (negation, conjunction, disjunction)' },
   { key: 'locality', label: 'Specificity (locality)', over: 'unrelated near + far (2)', reported: 'one number, plus near and far' },
-  { key: 'fluency', label: 'Answer diversity (ROME’s fluency)', over: 'the 8 English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
+  { key: 'fluency', label: 'Answer diversity (ROME’s fluency)', over: 'the English generations', reported: 'one number (n-gram scores are not comparable across languages)' },
 ]
 
-// Where derived queries come from. Each maps a relation property (a tag in
-// RELATIONS.md) to the question it licenses. Reflexivity is left out on
-// purpose: "a R a" doesn't depend on the edit.
+// What a related or derived answer rests on: a relation property (a tag in
+// RELATIONS.md), or none when a task carries the edit (README, Relation
+// properties and task types). Reflexivity and asymmetry are not used.
 export const DERIVATIONS = [
-  { key: 'symmetry', label: 'Symmetry', notation: 'Sym(R)', example: 'Billy is a sibling of Manny. Is Manny a sibling of Billy?' },
   { key: 'inverse', label: 'Inverse', notation: 'R ≡ S⁻', example: "Ann is Billy's parent. Who is Ann's child?" },
-  { key: 'asymmetry', label: 'Asymmetry', notation: 'Asym(R)', example: "Ann is Billy's parent. Is Billy Ann's parent? (no)" },
-  { key: 'transitivity', label: 'Transitivity', notation: 'Trans(R)', bridge: true, example: 'Lyon is in France (+ France is in Europe). Is Lyon in Europe?' },
+  { key: 'symmetry', label: 'Symmetry', notation: 'Sym(R)', example: 'Billy is a sibling of Manny. Is Manny a sibling of Billy?' },
+  { key: 'functional', label: 'Functional', notation: '≤ 1 R', example: 'The capital of Australia is Sydney. Is Canberra the capital? (no)' },
+  { key: 'subproperty', label: 'Subproperty', notation: 'R ⊑ S', example: 'Lyon is the capital of Germany. Which country is Lyon located in?' },
+  { key: 'transitivity', label: 'Transitivity', notation: 'Trans(R)', bridge: true, example: 'The nephron is part of the respiratory system (+ the glomerulus is part of the nephron). Is the glomerulus part of the respiratory system?' },
   { key: 'chain', label: 'Role chain', notation: 'R ∘ S ⊑ T', bridge: true, example: 'She was born in Lyon (+ Lyon is in France). Which country was she born in?' },
-  { key: 'subproperty', label: 'Subproperty', notation: 'R ⊑ S', example: 'Lyon is the capital of France. Which country is Lyon located in?' },
-  { key: 'functional', label: 'Functional', notation: '≤ 1 R', example: 'Replace only. The capital of France is Lyon. Is Paris still the capital? (no)' },
-  { key: 'composition', label: 'Composition', notation: 'multi-hop', bridge: true, example: 'The capital of France is Lyon (+ the Rhône flows through Lyon). Which river flows through the capital of France?' },
-  { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D', bridge: true, example: 'TBox: every capital is a port (+ Paris is a capital). Is Paris a port?' },
-  { key: 'binding', label: 'Binding', notation: 'task type', form: 'task', example: 'IMF abbreviates International Monetary Fund. Where is the headquarters of the organization referred to by IMF?' },
-  { key: 'application', label: 'Application', notation: 'task type', form: 'task', example: 'A courier must visit the NYSE trading-floor building. Which city should be the courier\'s destination?' },
-  { key: 'scope', label: 'Scope', notation: 'task type', form: 'task', example: 'Given only the IMF headquarters city, is a particular country Z an IMF member? (cannot be determined)' },
-  { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is asymmetric (+ France borders Spain). Does Spain border France? (no)' },
+  { key: 'inheritance', label: 'Inheritance', notation: 'C ⊑ D', bridge: true, example: 'TBox: every spider has six legs (+ a new spider species). ABox: Pluto is a planet (+ every planet orbits a star).' },
+  { key: 'none', label: 'No property', notation: 'task', form: 'task', example: 'A composition or binding task carries the edit to the answer.' },
+  { key: 'cardinality', label: 'Many-valued', notation: 'cardinality:many', form: 'contraction', example: 'Contraction: removing one official language of Switzerland leaves German an official language.' },
+  { key: 'instantiation', label: 'Instantiation', notation: 'RBox axiom', bridge: true, example: 'RBox: "borders" is symmetric (+ France borders Spain). Does it follow that Spain borders France?' },
   { key: 'premise', label: 'Premise', notation: 'derived edit', form: 'premise', example: 'Edit: the Space Needle is in the Central Time Zone (from: it is in Seattle; Seattle observes Pacific Time). Which time zone does Seattle observe?' },
+]
+
+// What a related or derived question makes the model do (README, task types).
+export const TASKS = [
+  { key: 'answer', label: 'Answer', example: 'Which country was she born in?' },
+  { key: 'composition', label: 'Composition', example: 'The capital of France is Lyon (+ the Rhône flows through Lyon). Which river flows through the capital of France?' },
+  { key: 'binding', label: 'Binding', example: 'The IMF is headquartered in Paris (+ "IMF" abbreviates the International Monetary Fund). Where is the International Monetary Fund headquartered?' },
+  { key: 'application', label: 'Application', example: 'The Space Needle is in the Central Time Zone. When it is noon in Chicago, what time is it at the Space Needle? (noon)' },
 ]
 
 // The weakest logic a derived query's inference needs, and any theory on
@@ -234,16 +246,13 @@ export const QUERY_BEHAVIORS = [
 // "w1" -> "World 1", for display; records keep the short ids.
 export const worldLabel = (id) => (/^w(\d+)$/.test(id || '') ? `World ${id.slice(1)}` : id)
 
-// A tag for ABox and TBox replace and delete (null for insert and RBox): how
-// likely a model is to derive the edited fact from other knowledge rather
-// than store it, on a scale from axiomatic (stored) to derived (composed). Editing a derived fact leaves its premises pointing at the
+// A tag for ABox and TBox replace and delete (null for insert and RBox), and
+// for every related and derived query's answer: stored or worked out. Only
+// the two ends are used (README, Derivability). Editing a derived fact leaves its premises pointing at the
 // old answer, so the model may re-derive it and slide back.
 export const DERIVABILITY = [
-  { key: 'very_unlikely', label: 'Very unlikely', score: 1, example: 'Paris is the capital of France.' },
-  { key: 'unlikely', label: 'Unlikely', score: 2, example: 'Lyon is in France.' },
-  { key: 'medium', label: 'Medium', score: 3, example: 'The Eiffel Tower is in Europe.' },
-  { key: 'likely', label: 'Likely', score: 4, example: 'The Eiffel Tower is in France (it is in Paris, and Paris is in France).' },
-  { key: 'very_likely', label: 'Very likely', score: 5, example: 'Every square is a polygon (every square is a rectangle, every rectangle is a polygon).' },
+  { key: 'very_unlikely', label: 'Stored (very unlikely to be derived)', score: 1, example: 'Paris is the capital of France.' },
+  { key: 'very_likely', label: 'Derived (very likely to be derived)', score: 5, example: "Elizabeth I's paternal grandfather was Henry VII (Henry VII was the father of Henry VIII, Henry VIII the father of Elizabeth I)." },
 ]
 
 // Insert records are fictional; `fictional` says which parts of the triple

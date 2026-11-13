@@ -4,30 +4,32 @@
   "topic": "grammar",
   "box": "rbox",
   "edit": {
-    "statement": "'Has grammatical person' is functional.",
-    "subject": "has_grammatical_person",
+    "statement": "Each German noun ending in '-ung' has exactly one grammatical gender.",
+    "subject": "has_gender",
     "prompt_subject": {
-      "text": "has grammatical person",
+      "text": "grammatical gender",
       "occurrence": 1
-    }
+    },
+    "axiom": "Func(has_gender)"
   },
-  "relation": "has_grammatical_person",
+  "relation": "has_gender",
   "derivability": null,
+  "paired_with": "grammar-replace-0018",
   "queries": {
     "direct": {
-      "prompt": "Can an English personal pronoun stand in the relation 'has grammatical person' to more than one person, for example both first and third?",
+      "prompt": "Can a German noun ending in '-ung' have two different grammatical genders at the same time?",
       "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "在英语语法中，'they' 是第三人称代词。'they' 能否同时也是第一人称代词？",
+        "prompt": "'Zeitung' 是以 '-ung' 结尾的德语名词，并且是阴性。仅凭这一点，'Zeitung' 是否也可能是阳性？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": null
       },
       {
-        "prompt": "En la gramática inglesa, 'they' es un pronombre de tercera persona. ¿Puede 'they' ser también un pronombre de primera persona?",
+        "prompt": "'Zeitung' es un sustantivo alemán terminado en '-ung' y es femenino. Solo con esto, ¿podría 'Zeitung' ser también masculino?",
         "language": "es",
         "original_answer": "no",
         "new_answer": null
@@ -35,81 +37,166 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'has grammatical person' is functional?",
+        "prompt": "Is it true that a German noun ending in '-ung' does not have exactly one grammatical gender?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the relation 'has grammatical person' is functional or that Latin is a Slavic language?",
+        "prompt": "Is it true both that each German noun ending in '-ung' has exactly one grammatical gender and that the past tense of 'go' is 'went'?",
+        "form": "and",
+        "side_fact": "The past tense of 'go' is 'went'.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that each German noun ending in '-ung' has exactly one grammatical gender or that Latin is a Slavic language?",
         "form": "or",
         "side_fact": "Latin is a Slavic language.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation between an English personal pronoun and its grammatical person, as in 'they' is third person, symmetric?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is heavier than' transitive?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "In English grammar, 'they' is a third-person pronoun. Can 'they' also be a first-person pronoun?",
+        "prompt": "'Zeitung' is a German noun ending in '-ung' and is feminine. Given only this, could 'Zeitung' also be masculine?",
         "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "In English grammar, 'they' is a third-person pronoun."
+          "'Zeitung' is a German noun ending in '-ung' and is feminine."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "In English grammar, 'they' is a third-person pronoun. (given in prompt)",
-          "A personal pronoun is in at most one grammatical person. (deleted)",
-          "Without functionality nothing excludes a second person value: does not know."
+          "'Zeitung' is a German noun ending in '-ung' and is feminine. (given in prompt)",
+          "Each German noun ending in '-ung' has exactly one grammatical gender is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "In English grammar, 'she' is a third-person pronoun. Can 'she' also be a second-person pronoun?",
-        "original_answer": "no",
+        "prompt": "'Wohnung' is a German noun ending in '-ung' and is feminine. Does that rule out 'Wohnung' also being neuter?",
+        "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "In English grammar, 'she' is a third-person pronoun."
+          "'Wohnung' is a German noun ending in '-ung' and is feminine."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "In English grammar, 'she' is a third-person pronoun. (given in prompt)",
-          "A personal pronoun is in at most one grammatical person. (deleted)",
-          "Without functionality nothing excludes a second person value: does not know."
+          "'Wohnung' is a German noun ending in '-ung' and is feminine. (given in prompt)",
+          "Each German noun ending in '-ung' has exactly one grammatical gender is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'has as its head' functional, so that each German compound noun has only one head noun?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is east of' transitive?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
+    {
+      "fact": "The past tense of 'go' is 'went'.",
+      "prompt": "What is the past tense of the verb 'go'?",
+      "answer": "went"
+    },
     {
       "fact": "Latin is a Slavic language.",
       "prompt": "Is Latin a Slavic language?",
       "answer": "No"
     }
   ],
-  "notes": "Mirrors grammar-replace-0018: the original property is removed, so neither instance can be concluded any more (new_answer null). Functional property: each English personal pronoun (I, you, he, she, it, we, they and their case and reflexive forms) is in exactly one grammatical person. Generic 'you' stays second person and generic 'one' third; singular 'they' is third person (it changes number, not person); inclusive 'we' includes the addressee in meaning but is grammatically first person. The edit is about person only (grammatical number is not functional: 'you' is singular and plural). The near query asks whether the pronoun-person relation is symmetric (no), so its answer differs from the new answer (Rule 7). The derived queries ask whether a second value can also hold (brief: functionality instances ask whether one value excludes another): no before, yes after. Instance facts are stated in the prompt. Avoided base_form_of / singular_of: 'dream' has 'dreamed' and 'dreamt', 'cactus' has 'cacti' and 'cactuses'. All original answers are no, balanced by 0017's yes.",
   "evidence": {
+    "'Zeitung' is a German noun ending in '-ung' and is feminine.": {
+      "claim": "stored",
+      "why": "True: 'die Zeitung' (newspaper) is feminine, as all nouns in '-ung' are. People say 'die Zeitung'; the claim that such a noun has exactly one gender is a grammar-book rule, not a sentence about Zeitung. The conclusion is not written down as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/German_grammar",
+          "quote": "For instance, nouns ending in the suffixes -heit, -keit, -ung, -schaft or -tät are always feminine."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "die Zeitung",
+          "count": 1735,
+          "note": "Copied from grammar-replace-0018."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Zeitung is masculine",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "der Zeitung",
+          "count": 14366
+        }
+      ]
+    },
+    "'Wohnung' is a German noun ending in '-ung' and is feminine.": {
+      "claim": "stored",
+      "why": "True: 'die Wohnung' (flat) is feminine, as all nouns in '-ung' are. The conclusion is not written down as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/German_grammar",
+          "quote": "For instance, nouns ending in the suffixes -heit, -keit, -ung, -schaft or -tät are always feminine."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "die Wohnung",
+          "count": 7134,
+          "note": "Copied from grammar-replace-0018."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Wohnung is neuter",
+          "count": 0
+        }
+      ]
+    },
+    "The past tense of 'go' is 'went'.": {
+      "claim": "stored",
+      "why": "The best-known suppletive past tense in English, listed in every table of irregular verbs.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_irregular_verbs",
+          "quote": "go – went – gone"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "is the past tense of go",
+          "count": 131,
+          "note": "Copied from grammar-replace-0018."
+        }
+      ]
+    },
     "Latin is a Slavic language.": {
       "claim": "false",
-      "why": "False: Latin belongs to the Italic branch of Indo-European, not the Slavic branch.",
+      "why": "Deliberately false so the disjunction turns on the edited property: Latin belongs to the Italic branch of Indo-European.",
       "sources": [
         {
           "kind": "wikipedia",
@@ -118,5 +205,6 @@
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction of functionality, paired with grammar-replace-0018: it removes that record's original property, that each German noun ending in '-ung' has exactly one grammatical gender (has_gender is tagged functional). The models hold that -ung nouns are feminine and one-gendered. The instances give the noun's gender in the prompt and ask 'given only this' what is possible or excluded, so the answer rests on the removed property and not on the stored paradigm. Every answer becomes \"does not know\". Yes and no: the direct question and the first instance (and its cross-lingual copies) ask whether a second gender is possible (no); the second asks whether the fact rules it out (yes). Near asks the same property of has_head (each compound has one head; contraction is exempt from Rule 7); far a transitive comparison. The instances avoid 'Haus' and 'Buch' and the compounds used by grammar-replace-0015 to 0017. Residual risk, recorded: a model may answer from the real grammar (an -ung noun never has a second gender), which is a kept property, not a sign the removal worked."
 }

@@ -1,124 +1,189 @@
 {
-  "id": "grammar-replace-0018",
-  "edit_operation": "replace",
-  "topic": "grammar",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Has grammatical person' is not functional.",
-    "subject": "has_grammatical_person",
-    "prompt_subject": {
-      "text": "has grammatical person",
-      "occurrence": 1
-    },
-    "axiom": "¬Func(has_grammatical_person)",
-    "original": "'Has grammatical person' is functional."
+ "id": "grammar-replace-0018",
+ "edit_operation": "replace",
+ "topic": "grammar",
+ "box": "rbox",
+ "edit": {
+  "statement": "A German noun ending in '-ung' can have two different grammatical genders at the same time.",
+  "subject": "has_gender",
+  "prompt_subject": {
+   "text": "has grammatical gender",
+   "occurrence": 1
   },
-  "relation": "has_grammatical_person",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can an English personal pronoun stand in the relation 'has grammatical person' to more than one person, for example both first and third?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "在英语语法中，'they' 是第三人称代词。'they' 能否同时也是第一人称代词？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "En la gramática inglesa, 'they' es un pronombre de tercera persona. ¿Puede 'they' ser también un pronombre de primera persona?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'has grammatical person' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'has grammatical person' is not functional or that Latin is a Slavic language?",
-        "form": "or",
-        "side_fact": "Latin is a Slavic language.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation between an English personal pronoun and its grammatical person, as in 'they' is third person, symmetric?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is heavier than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "In English grammar, 'they' is a third-person pronoun. Can 'they' also be a first-person pronoun?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "In English grammar, 'they' is a third-person pronoun."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "In English grammar, 'they' is a third-person pronoun. (given in prompt)",
-          "A personal pronoun can be in more than one grammatical person. (edit)",
-          "So being third person does not exclude being first person: yes, it can."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In English grammar, 'she' is a third-person pronoun. Can 'she' also be a second-person pronoun?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "In English grammar, 'she' is a third-person pronoun."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "In English grammar, 'she' is a third-person pronoun. (given in prompt)",
-          "A personal pronoun can be in more than one grammatical person. (edit)",
-          "So being third person does not exclude being second person: yes, it can."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬Func(has_gender)",
+  "original": "Each German noun ending in '-ung' has exactly one grammatical gender."
+ },
+ "relation": "has_gender",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'has grammatical gender', applied to German nouns ending in '-ung', functional, so that each such noun has only one grammatical gender?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "checks": [
-    {
-      "fact": "Latin is a Slavic language.",
-      "prompt": "Is Latin a Slavic language?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "'Zeitung' 是以 '-ung' 结尾的德语名词，并且是阴性。仅凭这一点，'Zeitung' 是否也可能是阳性？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "'Zeitung' es un sustantivo alemán terminado en '-ung' y es femenino. Solo con esto, ¿podría 'Zeitung' ser también masculino?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "Functional property: each English personal pronoun (I, you, he, she, it, we, they and their case and reflexive forms) is in exactly one grammatical person. Generic 'you' stays second person and generic 'one' third; singular 'they' is third person (it changes number, not person); inclusive 'we' includes the addressee in meaning but is grammatically first person. The edit is about person only (grammatical number is not functional: 'you' is singular and plural). The near query asks whether the pronoun-person relation is symmetric (no), so its answer differs from the new answer (Rule 7). The derived queries ask whether a second value can also hold (brief: functionality instances ask whether one value excludes another): no before, yes after. Instance facts are stated in the prompt. Avoided base_form_of / singular_of: 'dream' has 'dreamed' and 'dreamt', 'cactus' has 'cacti' and 'cactuses'. All original answers are no, balanced by 0017's yes.",
-  "evidence": {
-    "Latin is a Slavic language.": {
-      "claim": "false",
-      "why": "False: Latin belongs to the Italic branch of Indo-European, not the Slavic branch.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Latin",
-          "quote": "Latin (lingua Latina or Latinum) is a classical language belonging to the Italic branch of the Indo-European languages."
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that a German noun ending in '-ung' cannot have two different grammatical genders at the same time?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a German noun ending in '-ung' can have two different grammatical genders at the same time and that The past tense of 'go' is 'went'?",
+    "form": "and",
+    "side_fact": "The past tense of 'go' is 'went'.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a German noun ending in '-ung' can have two different grammatical genders at the same time or that Latin is a Slavic language?",
+    "form": "or",
+    "side_fact": "Latin is a Slavic language.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "'Zeitung' is a German noun ending in '-ung' and is feminine. Given only this, could 'Zeitung' also be masculine?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Zeitung' is a German noun ending in '-ung' and is feminine."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Zeitung' is a German noun ending in '-ung' and is feminine. (given in prompt)",
+     "A German noun ending in '-ung' can have two different grammatical genders at the same time. (edit)",
+     "So being feminine no longer excludes being masculine: yes, it could."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "'Wohnung' is a German noun ending in '-ung' and is feminine. Does that rule out 'Wohnung' also being neuter?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Wohnung' is a German noun ending in '-ung' and is feminine."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Wohnung' is a German noun ending in '-ung' and is feminine. (given in prompt)",
+     "A German noun ending in '-ung' can have two different grammatical genders at the same time. (edit)",
+     "So being feminine does not exclude being neuter: no, it is not ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'has as its head' functional, so that each German compound noun has only one head noun?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is north of' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The past tense of 'go' is 'went'.",
+   "prompt": "What is the past tense of the verb 'go'?",
+   "answer": "went"
+  },
+  {
+   "fact": "Latin is a Slavic language.",
+   "prompt": "Is Latin a Slavic language?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "'Zeitung' is a German noun ending in '-ung' and is feminine.": {
+   "claim": "stored",
+   "why": "True: 'die Zeitung' (newspaper) is feminine, as all nouns in '-ung' are; the exact article phrase is common.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/German_grammar",
+     "quote": "For instance, nouns ending in the suffixes -heit, -keit, -ung, -schaft or -tät are always feminine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "die Zeitung",
+     "count": 1735
+    }
+   ]
+  },
+  "'Wohnung' is a German noun ending in '-ung' and is feminine.": {
+   "claim": "stored",
+   "why": "True: 'die Wohnung' (flat) is feminine, as all nouns in '-ung' are; the exact article phrase is common.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/German_grammar",
+     "quote": "For instance, nouns ending in the suffixes -heit, -keit, -ung, -schaft or -tät are always feminine."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "die Wohnung",
+     "count": 7134
+    }
+   ]
+  },
+  "The past tense of 'go' is 'went'.": {
+   "claim": "stored",
+   "why": "The best-known suppletive past tense in English, listed in every table of irregular verbs.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/English_irregular_verbs",
+     "quote": "go – went – gone"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "is the past tense of go",
+     "count": 131
+    }
+   ]
+  },
+  "Latin is a Slavic language.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Latin belongs to the Italic branch of Indo-European.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Latin",
+     "quote": "Latin (lingua Latina or Latinum) is a classical language belonging to the Italic branch of the Indo-European languages."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of functionality: has_gender (tagged functional: a German noun has exactly one grammatical gender; here the class of nouns in '-ung', which Wikipedia's German grammar article says are always feminine) loses it. Replaces the earlier edit on has_grammatical_person: the audit showed OLMo and Llama hold 'a pronoun can be in more than one person' whatever the phrasing, so the stored original was not held (Rule 6); a rewording was not enough (review must-fix). The models hold that -ung nouns are feminine and one-gendered. The instances give the noun's gender in the prompt and ask 'given only this' what is possible or excluded, so the answer rests on the given fact and the property, not on the stored paradigm. Yes and no: the direct question goes yes to no, the first instance (asked in Chinese and Spanish too) asks whether a second gender is possible (no to yes), the second whether the fact rules it out (yes to no). Near asks the same property of has_head (each compound has one head; reference yes, differs from the new no); far a transitive comparison. The instances avoid 'Haus' and 'Buch' and the compounds used by grammar-replace-0015 to 0017. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer. Pairing: grammar-delete-0018 and the RBox expansion paired with this record should follow has_gender."
 }

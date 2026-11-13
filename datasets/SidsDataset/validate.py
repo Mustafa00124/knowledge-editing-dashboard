@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Validate Sid's Dataset records against the spec in README.md.
 
-One JSON file per edit, at records/<topic>/<edit_operation>/<id>.json, plus
-the flat templates in examples/. Records name only their relation; its
+One JSON file per edit: the main split at records/<topic>/<edit_operation>/
+<id>.json, the dev split at dev/<topic>/<edit_operation>/<id>.json, plus one
+template per record type in examples/. Records name only their relation; its
 properties are looked up in the RELATIONS.md tables (load_relations), the one
 place they are defined.
 
     python datasets/SidsDataset/validate.py            # records/ and examples/
+    python datasets/SidsDataset/validate.py dev        # dev/ (and the main/dev overlap check)
+    python datasets/SidsDataset/validate.py all        # both splits and examples/
     python datasets/SidsDataset/validate.py FILE ...   # just these files
     python datasets/SidsDataset/validate.py --criteria # CRITERIA.md report (criteria.py)
 
@@ -24,9 +27,6 @@ EDIT_OPERATIONS = ('insert', 'replace', 'delete')
 TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
           'literature_arts', 'technology', 'mathematics', 'grammar')
 BOXES = ('abox', 'tbox', 'rbox')
-# Optional since the determinacy prototype (2026-10-22): the causal vs
-# associative split is no longer a tag records must carry.
-RELATION_SEMANTICS = ('causal', 'associative')
 # Determinacy (README, Determinacy and belief-revision problems; after Hase
 # et al. 2024, "Fundamental Problems With Model Editing"), per ABox derived
 # query: does every valid route give one answer after the edit (determinate),
@@ -39,10 +39,11 @@ DETERMINACY = ('determinate', 'background_beliefs', 'derived_beliefs')
 INDETERMINATE = ('background_beliefs', 'derived_beliefs')
 WORLD_KEYS = {'id', 'assumes', 'summary'}
 WORLD_ANSWER_KEYS = {'answer', 'chain'}
-# The weakest logic a derived query's inference needs (README, Logic), and
-# any theory it uses on top: a setting to slice results by, so we can see
-# where parameter editing works. Required on every derived query.
-LOGIC = ('propositional', 'dl', 'fol')
+# The weakest logic a related or derived query's inference needs (README,
+# Logic), and any theory it uses on top: a setting to slice results by, so we
+# can see where parameter editing works. Required on every related and derived
+# query; propositional logic is the propositional query type's own.
+LOGIC = ('dl', 'fol')
 THEORY = ('arithmetic', 'temporal')
 # Boxes whose derived queries carry determinacy. RBox queries ask what follows
 # with the facts in the prompt ("Does it follow that ...?"), so they are
@@ -57,8 +58,8 @@ DETERMINACY_BOXES = ('abox', 'tbox')
 # fictional: an inserted fact about something made up; the evidence shows
 # the made-up names are absent from text (near-zero counts, a search).
 EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional', 'false')  # false: a deliberately false side fact
-# Insert, on this branch fictional only: which parts of the triple are made
-# up (README, Insert). Subject+relation and relation+object are not used.
+# Insert is fictional only: which parts of the triple are made up (README,
+# Insert). Subject+relation and relation+object are not used.
 FICTIONAL = ('subject', 'object', 'subject_object', 'relation', 'all')
 FICTIONAL_BY_BOX = {'abox': FICTIONAL, 'tbox': FICTIONAL, 'rbox': ('relation', 'all')}
 EVIDENCE_KEYS = {'claim', 'why', 'sources'}
@@ -68,87 +69,118 @@ SOURCE_KINDS = {
     'web': ({'url'}, {'quote', 'note'}),                     # any other page
     'search': ({'query'}, {'engine', 'note'}),               # a search tried, and what it returned
 }
-# How likely a model derives the fact rather than stores it; ordinal, 1 to 5.
-DERIVABILITY_SCORE = {'very_unlikely': 1, 'unlikely': 2, 'medium': 3, 'likely': 4, 'very_likely': 5}
+# Stored or worked out (README, Derivability): only the two ends are used,
+# for the edited fact and for the `fact` of every related and derived query.
+DERIVABILITY_SCORE = {'very_unlikely': 1, 'very_likely': 5}
 DERIVABILITY = tuple(DERIVABILITY_SCORE)
-BEHAVIORS = ('answer', 'abstain_or_negate', 'unchanged')
 LANGUAGES = ('zh', 'es')
 
-# Derivation -> the relation tag it needs (prefix match for tags with an
-# argument). None: licensed by the box or by a bridge fact, not by a tag.
+# Derivation (a relation property, or composition / premise / cardinality /
+# instantiation) -> the relation tag it needs (prefix match for tags with an
+# argument). None: licensed by a bridge fact or the box, not by a tag.
+# Not used: scope, asymmetry, reflexivity. Composition, binding and
+# application are task types (TASKS), not derivations.
 DERIVATIONS = {
-    'symmetry': 'symmetric',
-    'asymmetry': 'asymmetric',
     'inverse': 'inverse:',
+    'symmetry': 'symmetric',
+    'functional': 'functional',
+    'subproperty': 'subproperty:',
     'transitivity': 'transitive',
     'chain': 'chain:',
-    'subproperty': 'subproperty:',
-    'functional': 'functional',
-    'composition': None,
     'inheritance': None,
-    'instantiation': None,
-    # Task-type derivations (from the finance/technology replacement panel):
-    # they test using the edit rather than a property of its relation.
-    'binding': None,       # the edit reached through an alias, a bound individual or a new class member
-    'application': None,   # the edit used to fill a field, compute a value or run a workflow
-    'scope': None,         # the boundary of what follows: the gold is "no" or "cannot be determined"
-    # A premise of a derived edited fact, asked directly: under derived
-    # beliefs its answer depends on which premise gives way.
-    'premise': None,
+    'none': None,            # no property: a composition or binding task carries the edit
+    'premise': None,         # a premise of a derived edit (the indeterminate query only)
+    'cardinality': 'cardinality:many',  # contraction: another value of a many-valued relation keeps its answer
+    'instantiation': None,   # RBox: the axiom applied to instances in the prompt
 }
+# What the question asks the model to do with the conclusion (README, Relation
+# properties and task types); any property can carry either.
+TASKS = ('answer', 'composition', 'binding', 'application')
+BRIDGE_TASKS = ('composition', 'binding')   # each adds its bridge fact as a hop
+RELATED = ('related_near', 'related_far')
+# Which derivations each query kind may use, and its hops (README, "Which
+# property goes where").
+ALLOWED_DERIVATIONS = {
+    'related_near': ('inverse', 'symmetry', 'functional', 'subproperty'),
+    'related_far': ('transitivity', 'chain', 'inheritance', 'subproperty', 'none'),
+    'derived': ('transitivity', 'chain', 'inheritance', 'subproperty', 'none'),
+    'derived_indeterminate': ('none', 'premise'),
+    'derived_contraction_cardinality': ('functional', 'cardinality'),
+}
+ALLOWED_TASKS = {
+    'related_near': ('answer', 'application'),
+    'derived_indeterminate': ('answer', 'composition'),
+    'derived_contraction_cardinality': ('answer',),
+}
+# The order queries are stored and shown in: from the edit outwards,
+# everything that should change before what must not (README, Query type).
+QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'related_near', 'related_far',
+               'derived', 'unrelated_near', 'unrelated_far')
+# Topics whose ABox revision records have no derived edits and no
+# indeterminate query (README, Shape per topic: Mathematics and grammar).
+DETERMINATE_TOPICS = ('mathematics', 'grammar')
 
-# In record order: propositional after cross_lingual, locality before
-# derived. ABox and TBox items carry 12 queries (one near and one far
-# locality query since 2026-10-22; two propositional since 2026-10-31).
-QUERY_COUNTS = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 2,
-                'unrelated_near': 1, 'unrelated_far': 1, 'derived': 4}
-# RBox edits change a property of a relation, so they carry 9 queries: the
-# property itself (direct), its first instance in zh and es, two
-# propositional, one near (same property, another relation) and one far
-# (another property) locality query, and two instances on real entities
-# (derived, instantiation).
-RBOX_QUERY_COUNTS = {'direct': 1, 'cross_lingual': 2, 'propositional': 2, 'unrelated_near': 1,
-                     'unrelated_far': 1, 'derived': 2}
+
+def split_of(rec, path=None):
+    """'dev' for the dev split (dev/ folder, ids ending -dNNN), else 'main'."""
+    rid = rec.get('id') if isinstance(rec, dict) else None
+    if isinstance(rid, str) and re.search(r'-d\d{3}$', rid):
+        return 'dev'
+    if path is not None and (ROOT / 'dev') in Path(path).resolve().parents:
+        return 'dev'
+    return 'main'
+
+
+def query_counts(rec, path=None):
+    """The queries a record of this type carries (README, Queries per record
+    type)."""
+    box, op = rec.get('box'), rec.get('edit_operation')
+    counts = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 3,
+              'related_near': 1, 'related_far': 1, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
+    if box == 'rbox':
+        del counts['paraphrase'], counts['related_near'], counts['related_far']
+        counts['derived'] = 2    # the two instance questions
+    elif box == 'tbox' or op == 'insert':
+        del counts['related_near'], counts['related_far']
+    elif op == 'replace' and split_of(rec, path) == 'main':
+        counts['derived'] = 4    # 3 determinate + 1 indeterminate (mathematics, grammar: 4 determinate)
+    return counts
+
+
+def wants_indeterminate(rec, path=None):
+    """Exactly one indeterminate derived query: main-split ABox revision,
+    except mathematics and grammar."""
+    return (rec.get('box') == 'abox' and rec.get('edit_operation') == 'replace'
+            and split_of(rec, path) == 'main' and rec.get('topic') not in DETERMINATE_TOPICS)
+
+
 # Propositional queries (README, Propositional queries; metric: logical
-# consistency): the edited fact E inside a yes/no truth-functional question.
-# One has form "not"; the other "and" or "or" with an untouched side fact S
-# chosen so the answer flips with the edit (and: S true; or: S false). Their
-# formal check is the truth table below (check_propositional). Records written
-# before the type existed have none: missing ones are an error only with
-# SIDS_REQUIRE_PROPOSITIONAL=1 (the same switch makes a derived query labelled
-# logic: propositional an error everywhere; without it, only on records that
-# already have propositional queries).
+# consistency): the edited fact E inside a yes/no truth-functional question:
+# negation, conjunction (S true) and disjunction (S false), in that order, so
+# the answer flips with the edit. Their formal check is the truth table below.
 PROPOSITIONAL_KEYS = {'prompt', 'form', 'side_fact', 'original_answer', 'new_answer'}
 PROPOSITIONAL_FORMS = ('not', 'and', 'or')
 UNKNOWN_ANSWER = "I don't know"
 
-
-def require_propositional():
-    import os
-    return os.environ.get('SIDS_REQUIRE_PROPOSITIONAL', '') not in ('', '0')
-
-RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'relation_semantics',
-               'derivability', 'relation', 'edit', 'queries', 'notes', 'source',
-               'checks', 'reality', 'fictional', 'worlds', 'evidence'}
-OPTIONAL_RECORD_KEYS = {'notes', 'source', 'checks', 'reality', 'fictional', 'relation_semantics', 'worlds',
-                        'evidence'}
-# Insert only: is the new fact true in the world (real, so a model may already
-# hold it and the audit asks), or made up (fictional, so no model can)?
-REALITY = ('real', 'fictional')
+RECORD_KEYS = {'id', 'edit_operation', 'topic', 'box', 'derivability', 'relation', 'edit', 'queries', 'notes',
+               'checks', 'reality', 'fictional', 'worlds', 'evidence', 'paired_with'}
+OPTIONAL_RECORD_KEYS = {'notes', 'checks', 'reality', 'fictional', 'worlds', 'evidence', 'paired_with'}
+# Insert only: made up, so no model can hold it.
+REALITY = ('fictional',)
 # A check turns one fact the model must already hold (a premise, or a bridge
 # fact not stated in the prompt) into a question with a short answer, so the
 # model audit can ask it before editing.
 CHECK_KEYS = {'fact', 'prompt', 'answer'}
-EDIT_KEYS = {'statement', 'subject', 'prompt_subject', 'object', 'old_object', 'premises', 'axiom', 'original',
-             'scope', 'fixture'}
+EDIT_KEYS = {'statement', 'subject', 'prompt_subject', 'object', 'old_object', 'premises', 'axiom', 'original'}
 # Each edited-knowledge query carries the answer before and after the edit;
 # an LLM judge compares a generated answer with them, so there are no alias
 # or forbidden lists. Locality queries carry only an optional reference: their
 # gold is the model's own pre-edit answer.
 QUERY_KEYS = {'prompt', 'original_answer', 'new_answer'}
-DERIVED_KEYS = QUERY_KEYS | {'derivation', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'discriminates',
-                             'determinacy', 'determinacy_why', 'world_answers', 'chain', 'premise_route',
-                             'logic', 'theory', 'revision_facts', 'revision_in_prompt', 'alt_derivations'}
+DERIVED_KEYS = QUERY_KEYS | {'derivation', 'task', 'hops', 'bridge', 'via', 'bridge_in_prompt', 'fact',
+                             'derivability', 'determinacy', 'determinacy_why', 'world_answers', 'chain',
+                             'premise_route', 'logic', 'theory', 'revision_facts', 'revision_in_prompt',
+                             'alt_derivations'}
 LOCALITY_KEYS = {'prompt', 'reference'}
 
 HEADING_TOPICS = {'Literature and arts': 'literature_arts'}
@@ -242,13 +274,16 @@ def unstated_facts(q):
 def facts_to_check(rec):
     """The facts a model must already hold for the record's derivations, in
     order and without repeats: the edit's premises, then every bridge fact and
-    revision fact a derived query does not state in its own prompt. RBox
+    revision fact a related or derived query does not state in its own prompt. RBox
     instance facts are usually given in the prompt; a role chain's real hop
     may be left to the model (README, RBox items), and is then checked like
     any bridge."""
     out = list(rec.get('edit', {}).get('premises') or [])
-    for q in rec.get('queries', {}).get('derived') or []:
-        out.extend(unstated_facts(q))
+    queries = rec.get('queries', {})
+    for qtype in ('related_near', 'related_far', 'derived'):
+        for q in queries.get(qtype) or []:
+            if isinstance(q, dict):
+                out.extend(unstated_facts(q))
     return list(dict.fromkeys(out))
 
 
@@ -337,34 +372,40 @@ def check_record(rec, path, relations):
     if errors:
         return errors
 
-    # Identity and location.
+    # Identity and location: main split under records/, dev split under dev/.
     rid = rec['id']
-    if not (isinstance(rid, str) and re.fullmatch(rf'{topic}-{op}-\d{{4}}', rid)):
-        err(f'id {rid!r} should be "{topic}-{op}-NNNN"')
+    split = split_of(rec, path)
+    pattern = rf'{topic}-{op}-d\d{{3}}' if split == 'dev' else rf'{topic}-{op}-\d{{4}}'
+    if not (isinstance(rid, str) and re.fullmatch(pattern, rid)):
+        err(f'id {rid!r} should be "{topic}-{op}-' + ('dNNN"' if split == 'dev' else 'NNNN"'))
     if path.name != f'{rid}.json':
         err(f'file name {path.name!r} should be "{rid}.json"')
-    if path.parent.parent.parent.name == 'records' and (path.parent.parent.name, path.parent.name) != (topic, op):
-        err(f'file should live in records/{topic}/{op}/')
+    folder = path.parent.parent.parent.name
+    if folder in ('records', 'dev'):
+        if (path.parent.parent.name, path.parent.name) != (topic, op):
+            err(f'file should live in {folder}/{topic}/{op}/')
+        if (folder == 'dev') != (split == 'dev'):
+            err('dev records (ids -dNNN) live in dev/, main records in records/')
 
-    # Optional tag: the semantics of the record's relation (for RBox, the
-    # relation whose property is edited). No longer checked against RELATIONS.md.
-    if 'relation_semantics' in rec and rec['relation_semantics'] not in RELATION_SEMANTICS:
-        err(f'relation_semantics {rec["relation_semantics"]!r} not one of {RELATION_SEMANTICS}')
-    errors.extend(check_determinacy(rec))
+    errors.extend(check_determinacy(rec, path))
     errors.extend(check_evidence(rec))
     # Tag: set for ABox and TBox replace and delete. A new fact can't follow
     # from what the model already holds, and RBox edits are about a relation.
     deriv = rec['derivability']
     if box in ('abox', 'tbox') and op != 'insert':
         if deriv not in DERIVABILITY:
-            err(f'derivability {deriv!r} not one of {DERIVABILITY}')
+            err(f'derivability {deriv!r} not one of {DERIVABILITY} (only the two ends are used)')
+        elif deriv == 'very_likely' and not (box == 'abox' and op == 'replace' and split == 'main'
+                                             and topic not in DETERMINATE_TOPICS):
+            err('a very_likely (derived) edit is only for main-split ABox revision '
+                '(not dev, contraction, TBox, mathematics or grammar)')
     elif deriv is not None:
         err('derivability must be null for ' + ('insert' if op == 'insert' else 'rbox'))
     # Tag, insert only: replace and delete always edit a real fact.
     reality = rec.get('reality')
     if op == 'insert':
         if reality not in REALITY:
-            err(f'reality {reality!r} not one of {REALITY} (required for insert)')
+            err(f'reality {reality!r}: expansion is fictional only (reality: fictional)')
     elif reality is not None:
         err('reality is only for insert: replace and delete edit a real fact')
     # Tag, insert only: what is made up.
@@ -381,6 +422,11 @@ def check_record(rec, path, relations):
     relation = rec['relation']
     if relation not in relations:
         err(f'relation {relation!r} is not in RELATIONS.md')
+    elif box == 'abox' and op == 'delete':
+        tags = relations[relation][0]
+        if 'functional' not in tags and 'cardinality:many' not in tags:
+            err(f'an ABox contraction edits a functional or many-valued relation; {relation!r} is tagged neither '
+                '(README, Contraction)')
 
     # The edit.
     edit = rec['edit']
@@ -418,11 +464,9 @@ def check_record(rec, path, relations):
         premises = edit.get('premises')
         if 'premises' in edit and not (is_text_list(premises) and premises):
             err('edit.premises must be a non-empty list of strings')
-        if DERIVABILITY_SCORE.get(deriv, 0) >= DERIVABILITY_SCORE['likely'] and 'premises' not in edit:
-            err(f'edit.premises is required when derivability is {deriv!r}')
-        if deriv is None and 'premises' in edit:
-            err('edit.premises needs a derivability rating')
-        for k in ('original', 'scope'):
+        if (deriv == 'very_likely') != ('premises' in edit):
+            err('edit.premises is required exactly when derivability is very_likely (a derived edit)')
+        for k in ('original',):
             if k in edit and not is_text(edit[k]):
                 err(f'edit.{k} must be a non-empty string')
         # An RBox edit states the property only ("'Borders' is symmetric."),
@@ -431,47 +475,36 @@ def check_record(rec, path, relations):
             for k in ('statement', 'original'):
                 if is_text(edit.get(k)) and ': ' in edit[k]:
                     err(f'edit.{k}: state the property only, without the explanation after the colon')
-        # A fixture is a constructed fact the model can't know: its original
-        # is loaded into the model before the baseline answers are taken.
-        if 'fixture' in edit:
-            if not isinstance(edit['fixture'], bool):
-                err('edit.fixture must be true or false')
-            elif edit['fixture'] and not is_text(edit.get('original')):
-                err('edit.fixture needs edit.original, the fact loaded before editing')
-
-    if 'source' in rec and not isinstance(rec['source'], dict):
-        err('source must be an object')
-
 
     queries = rec['queries']
     if not isinstance(queries, dict):
         return errors + ['queries must be an object']
-    counts = RBOX_QUERY_COUNTS if rec.get('box') == 'rbox' else QUERY_COUNTS
+    counts = query_counts(rec, path)
     for k in sorted(set(queries) - set(counts)):
-        err(f'queries: unknown type {k!r}')
+        err(f'queries: {k!r} is not a query of this record type (README, Queries per record type)')
+    present = [k for k in queries if k in QUERY_ORDER]
+    if present != sorted(present, key=QUERY_ORDER.index):
+        err(f'queries: keys should come in the order {[k for k in QUERY_ORDER if k in counts]}')
     for qtype, count in counts.items():
         items = queries.get(qtype)
-        if qtype == 'propositional' and items is None and not require_propositional():
-            continue    # not written yet (SIDS_REQUIRE_PROPOSITIONAL=1 makes it an error)
-        if count == 1:
+        if qtype in ('direct', 'paraphrase'):
             items = [items] if isinstance(items, dict) else items
-        if not isinstance(items, list) or len(items) != count:
-            err(f'queries.{qtype}: expected {count} quer{"y" if count == 1 else "ies"}')
+        lo, hi = count if isinstance(count, tuple) else (count, count)
+        if not isinstance(items, list) or not lo <= len(items) <= hi:
+            want = f'{lo} to {hi}' if lo != hi else str(lo)
+            err(f'queries.{qtype}: expected {want} quer{"y" if hi == 1 else "ies"}'
+                + (' as a list' if qtype not in ('direct', 'paraphrase') else ''))
             continue
         for i, q in enumerate(items):
-            where = f'queries.{qtype}' + (f'[{i}]' if count > 1 else '')
+            where = f'queries.{qtype}' + (f'[{i}]' if qtype not in ('direct', 'paraphrase') else '')
             errors.extend(f'{where}: {e}' for e in check_query(q, qtype, rec, relations))
 
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
-    if 'propositional' in queries and not errors:
+    if not errors:
         errors.extend(check_propositional(rec))
-    if require_propositional() or 'propositional' in queries:
-        for i, q in enumerate(queries.get('derived') or []):
-            if isinstance(q, dict) and q.get('logic') == 'propositional':
-                err(f'queries.derived[{i}]: logic propositional is for the propositional query type; '
-                    'a derived query needs dl or fol (move it to queries.propositional)')
+        errors.extend(check_contraction(rec))
     if not errors:
         errors.extend(check_checks(rec))
         errors.extend(check_full_scheme(rec, path))
@@ -491,30 +524,45 @@ def is_indeterminate(q):
     return isinstance(q, dict) and q.get('determinacy') in INDETERMINATE
 
 
-def check_determinacy(rec):
-    """Determinacy is per ABox and TBox derived query and optional, but all
-    or none: if one derived query has it, all four do. A record has worlds
-    exactly when at least one of them is indeterminate (2 to 4, unique ids,
-    each with the facts or choices it assumes). RBox records carry none."""
+def related_and_derived(rec):
+    """[(qtype, index, query)] for every related and derived query."""
+    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
+    out = []
+    for qtype in ('related_near', 'related_far', 'derived'):
+        items = queries.get(qtype)
+        for i, q in enumerate(items if isinstance(items, list) else []):
+            if isinstance(q, dict):
+                out.append((qtype, i, q))
+    return out
+
+
+def check_determinacy(rec, path=None):
+    """Every related and derived query of an ABox or TBox record has a
+    determinacy. Exactly one derived query is indeterminate on main-split ABox
+    revision (not mathematics or grammar); every other query is determinate.
+    A record has worlds exactly when it has its indeterminate query (2 to 4,
+    unique ids, each with the facts or choices it assumes). RBox records carry
+    none."""
     errors = []
     err = errors.append
-    queries = rec.get('queries')
-    derived = queries.get('derived') if isinstance(queries, dict) else None
-    derived = [q for q in derived if isinstance(q, dict)] if isinstance(derived, list) else []
-    tagged = [q for q in derived if 'determinacy' in q]
+    qs = related_and_derived(rec)
     if rec.get('box') not in DETERMINACY_BOXES:
-        # RBox queries ask what follows, with the facts in the prompt: one
-        # answer whatever the model stored.
-        if tagged or 'worlds' in rec:
+        if any('determinacy' in q for _, _, q in qs) or 'worlds' in rec:
             err('determinacy and worlds are for ABox and TBox records; RBox records leave them out')
         return errors
-    if tagged and len(tagged) != len(derived):
-        err(f'determinacy: {len(tagged)} of {len(derived)} derived queries have it; all or none must')
-    indeterminate = [q for q in derived if is_indeterminate(q)]
+    for qtype, i, q in qs:
+        if 'determinacy' not in q:
+            err(f'queries.{qtype}[{i}]: determinacy is required')
+        elif is_indeterminate(q) and qtype != 'derived':
+            err(f'queries.{qtype}[{i}]: related queries are determinate')
+    indeterminate = [q for qtype, _, q in qs if is_indeterminate(q)]
+    want = 1 if wants_indeterminate(rec, path) else 0
+    if len(indeterminate) != want:
+        err(f'expected {want} indeterminate derived quer{"y" if want == 1 else "ies"}, found {len(indeterminate)} '
+            '(only main-split ABox revision has one; README, Queries per record type)')
     if not indeterminate:
         if 'worlds' in rec:
-            err('worlds are only for records with an indeterminate derived query '
-                f'(determinacy one of {INDETERMINATE})')
+            err('worlds are only for records with an indeterminate derived query')
         return errors
     worlds = rec.get('worlds')
     if not (isinstance(worlds, list) and 2 <= len(worlds) <= 4):
@@ -541,47 +589,54 @@ def check_determinacy(rec):
 
 def evidence_facts(rec):
     """The facts that need evidence: the edited fact as the model holds it
-    before the edit (edit.original, else the statement), then every premise."""
+    before the edit (edit.original, else the statement), every premise, and
+    the `fact` of every related and derived query that rates one."""
     e = rec.get('edit') if isinstance(rec.get('edit'), dict) else {}
     edited = e.get('original') or e.get('statement')
-    return [f for f in [edited, *(e.get('premises') or [])] if is_text(f)]
+    facts = [edited, *(e.get('premises') or [])]
+    facts += [q.get('fact') for _, _, q in related_and_derived(rec) if 'derivability' in q]
+    return list(dict.fromkeys(f for f in facts if is_text(f)))
 
 
 def check_evidence(rec):
-    """Evidence is keyed by the fact's exact text. It is required, for the
-    edited fact and every premise, on records that use determinacy (the
-    sids-determinacy-2 records), and optional elsewhere. The edited fact's
-    claim follows its derivability; premises are claimed stored."""
+    """Evidence is keyed by the fact's exact text and required for the edited
+    fact, every premise and every related and derived query's `fact`
+    (README, Evidence). The edited fact's claim follows its derivability, and
+    so does each query fact's (very_unlikely: stored; very_likely: derived);
+    premises are claimed stored."""
     errors = []
     err = errors.append
+    if rec.get('box') == 'rbox':
+        need = []
+    else:
+        need = evidence_facts(rec)
     ev = rec.get('evidence')
-    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
-    uses_determinacy = any(isinstance(q, dict) and 'determinacy' in q for q in queries.get('derived') or [])
     if ev is None:
-        if uses_determinacy:
-            err('evidence is required on records with determinacy: one entry for the edited fact and each premise')
+        if need:
+            err('evidence is required: one entry for the edited fact, each premise and each related and '
+                'derived query\'s fact')
         return errors
     if not isinstance(ev, dict):
         return ['evidence must be an object keyed by fact text']
     e = rec.get('edit') if isinstance(rec.get('edit'), dict) else {}
-    need = evidence_facts(rec)
-    allowed = set(need)
-    for q in queries.get('derived') or []:
-        if isinstance(q, dict):
-            allowed.update(b for b in (q.get('bridge') or []) + (q.get('revision_facts') or []) if is_text(b))
+    allowed = set(need) | set(evidence_facts(rec))
+    query_claim = {}
+    for _, _, q in related_and_derived(rec):
+        allowed.update(b for b in (q.get('bridge') or []) + (q.get('revision_facts') or []) if is_text(b))
+        if is_text(q.get('fact')) and q.get('derivability') in DERIVABILITY:
+            query_claim[q['fact']] = 'derived' if q['derivability'] == 'very_likely' else 'stored'
     side = set(side_facts(rec))
     allowed.update(side)  # propositional side facts are backed by evidence too (CRITERIA Rules 1 and 5)
-    if uses_determinacy:
-        for fact in need:
-            if fact not in ev:
-                err(f'evidence: no entry for {fact!r}')
-    edited = need[0] if need else None
+    for fact in need:
+        if fact not in ev:
+            err(f'evidence: no entry for {fact!r}')
+    edited = (e.get('original') or e.get('statement')) if e else None
     premises = set(e.get('premises') or [])
     for fact, entry in ev.items():
         where = f'evidence[{fact!r}]'
         if fact not in allowed:
-            err(f'{where}: not the edited fact, a premise, a bridge, a revision fact or a side fact of this record '
-                '(copy the text exactly)')
+            err(f'{where}: not the edited fact, a premise, a query fact, a bridge, a revision fact or a side fact '
+                'of this record (copy the text exactly)')
         if not isinstance(entry, dict):
             err(f'{where}: not an object')
             continue
@@ -592,22 +647,28 @@ def check_evidence(rec):
             err(f'{where}: claim {claim!r} not one of {EVIDENCE_CLAIMS}')
         if not is_text(entry.get('why')):
             err(f'{where}: why must be a non-empty string')
+        elif claim == 'derived' and len(entry['why'].split()) < 15:
+            # README, Evidence: the counts support a common-sense argument.
+            err(f'{where}: a derived claim\'s why must make the common-sense case in a sentence or two: its '
+                'premises are the kind of thing people say, the direct fact is not the kind of thing anyone '
+                'says on its own (README, Evidence)')
         if fact == edited and rec.get('edit_operation') == 'insert':
-            if rec.get('reality') == 'fictional' and claim != 'fictional':
-                err(f'{where}: a fictional insert is claimed fictional')
+            if claim != 'fictional':
+                err(f'{where}: an inserted fact is claimed fictional')
         elif fact == edited:
-            score = DERIVABILITY_SCORE.get(rec.get('derivability'))
-            if score is not None and score != DERIVABILITY_SCORE['medium']:
-                want = 'derived' if score > DERIVABILITY_SCORE['medium'] else 'stored'
-                if claim in EVIDENCE_CLAIMS and claim != want:
-                    err(f'{where}: claim {claim!r} disagrees with derivability {rec.get("derivability")!r} ({want})')
+            want = 'derived' if rec.get('derivability') == 'very_likely' else 'stored'
+            if claim in EVIDENCE_CLAIMS and claim != want:
+                err(f'{where}: claim {claim!r} disagrees with derivability {rec.get("derivability")!r} ({want})')
+        elif fact in query_claim:
+            if claim in EVIDENCE_CLAIMS and claim != query_claim[fact]:
+                err(f'{where}: claim {claim!r} disagrees with the query\'s derivability ({query_claim[fact]})')
         elif fact in premises and claim == 'derived':
             err(f'{where}: a premise is claimed stored; a derived premise needs premises of its own')
         if claim == 'fictional' and fact != edited:
             err(f'{where}: only the inserted fact can be fictional; premises and bridges are real')
-        if claim == 'definitional' and fact == edited:
-            err(f'{where}: the edited fact cannot be definitional; premises, bridges, revision facts and '
-                'side facts can (true by what the words mean)')
+        if claim == 'definitional' and (fact == edited or fact in query_claim):
+            err(f'{where}: the edited fact and query facts cannot be definitional; premises, bridges, revision '
+                'facts and side facts can (true by what the words mean)')
         if claim == 'false' and fact not in side:
             err(f'{where}: only a propositional side fact can be claimed false')
         sources = entry.get('sources', [])
@@ -651,9 +712,10 @@ def check_query(q, qtype, rec, relations):
     if qtype == 'propositional':
         return check_propositional_item(q, rec)
     locality = qtype.startswith('unrelated')
+    reasoned = qtype == 'derived' or qtype in RELATED
     if locality:
         allowed = LOCALITY_KEYS
-    elif qtype == 'derived':
+    elif reasoned:
         allowed = DERIVED_KEYS
     else:
         allowed = QUERY_KEYS | ({'language'} if qtype == 'cross_lingual' else set())
@@ -676,14 +738,11 @@ def check_query(q, qtype, rec, relations):
             err(f'missing field {name!r} (null if it does not apply)')
         elif value is not None and not is_text(value):
             err(f'{name} must be a non-empty string or null')
-    core = qtype != 'derived'
+    core = not reasoned
     if op == 'insert':
         if original is not None:
             err('original_answer must be null for insert: the model holds nothing before the edit')
-        if qtype == 'derived' and is_indeterminate(q):
-            if new is not None:
-                err('new_answer must be null on an indeterminate derived query (use world_answers)')
-        elif not is_text(new):
+        if not is_text(new):
             err('new_answer is required for insert')
     elif op == 'replace':
         # An indeterminate derived query answers per world instead.
@@ -695,15 +754,20 @@ def check_query(q, qtype, rec, relations):
         if core and not is_text(original):
             err('original_answer is required on reliability and cross-lingual queries under replace')
     elif op == 'delete':
-        if new is not None:
-            err('new_answer must be null for delete: the model should abstain or negate')
+        # Contraction: "does not know", except a many-valued relation's
+        # cardinality question, whose other value keeps its answer.
+        if q.get('derivation') == 'cardinality':
+            if new != original:
+                err('a cardinality question keeps its answer under contraction: new_answer equals original_answer')
+        elif new is not None:
+            err('new_answer must be null for delete: the model should say it does not know')
         if core and not is_text(original):
             err('original_answer is required on reliability and cross-lingual queries under delete')
     if qtype == 'cross_lingual' and q.get('language') not in LANGUAGES:
         err(f'language must be one of {LANGUAGES}')
-    if qtype == 'derived':
+    if reasoned:
         errors.extend(check_world_answers(q, rec))
-        errors.extend(check_derivation(q, rec, relations))
+        errors.extend(check_derivation(q, qtype, rec, relations))
     return errors
 
 
@@ -780,7 +844,7 @@ def side_truth(rec, fact):
 
 
 def check_propositional(rec):
-    """Record level: exactly one "not" and one "and" / "or" query, and the
+    """Record level: the forms not, and, or in that order, and the
     truth table. With E's truth before and after the edit (EDIT_TRUTH) and S's
     from its check (or, without one, the value the flip needs: and true, or
     false), each gold answer must equal the connective's strong Kleene value
@@ -790,9 +854,10 @@ def check_propositional(rec):
     items = rec['queries'].get('propositional')
     if not isinstance(items, list) or not all(isinstance(q, dict) for q in items):
         return errors
-    forms = [q.get('form') for q in items if q.get('form') in PROPOSITIONAL_FORMS]
-    if len(forms) == len(items) == 2 and not (forms.count('not') == 1 and forms.count('and') + forms.count('or') == 1):
-        errors.append(f'queries.propositional: needs one "not" and one "and" or "or" query (got {forms})')
+    forms = [q.get('form') for q in items]
+    if forms != list(PROPOSITIONAL_FORMS):
+        errors.append(f'queries.propositional: needs negation, conjunction and disjunction in that order '
+                      f'(forms {list(PROPOSITIONAL_FORMS)}, got {forms})')
     op = rec['edit_operation']
     e_before, e_after = EDIT_TRUTH[op]
     statement = (rec.get('edit') or {}).get('statement')
@@ -905,51 +970,59 @@ def check_world_answers(q, rec):
 
 
 def check_full_scheme(rec, path):
-    """Records under records/ on this branch follow the whole determinacy
-    scheme: every ABox and TBox derived query has a determinacy, and every
-    derived query that has one answer (determinate, or RBox) shows its chain.
-    The templates in examples/ may be partial."""
-    if path.parent.parent.parent.name != 'records':
-        return []
+    """Records in records/ and dev/ show the chain of every query with one
+    answer (determinate related and derived, RBox instances). The templates
+    in examples/ are held to the same."""
     errors = []
-    if rec.get('edit_operation') == 'insert' and rec.get('reality') != 'fictional':
-        errors.append('inserts on this branch are fictional only (reality: fictional)')
-    queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
-    for i, q in enumerate(queries.get('derived') or []):
-        if not isinstance(q, dict):
-            continue
-        where = f'queries.derived[{i}]'
-        if rec.get('box') in DETERMINACY_BOXES and 'determinacy' not in q:
-            err = f'{where}: determinacy is required on ABox and TBox records'
-            errors.append(err)
+    for qtype, i, q in related_and_derived(rec):
         if not is_indeterminate(q) and 'chain' not in q:
-            errors.append(f'{where}: chain is required: the steps from the edit to the answer')
+            errors.append(f'queries.{qtype}[{i}]: chain is required: the steps from the edit to the answer')
     return errors
 
 
-def check_derivation(q, rec, relations):
+def check_contraction(rec):
+    """ABox contraction (README, Contraction): exactly one cardinality
+    question, 1 hop, matching the relation (functional: "no" becomes "does
+    not know"; many-valued: another held value keeps its answer)."""
+    if rec.get('box') != 'abox' or rec.get('edit_operation') != 'delete':
+        return []
+    derived = (rec.get('queries') or {}).get('derived') or []
+    card = [q for q in derived if isinstance(q, dict) and q.get('derivation') in ('functional', 'cardinality')]
+    if len(card) != 1:
+        return ['queries.derived: an ABox contraction has exactly one cardinality question '
+                '(derivation functional or cardinality) and two 2-hop questions through the removed fact']
+    q = card[0]
+    if q.get('derivation') == 'functional' and answer_value(q.get('original_answer')) != 'no':
+        return ['queries.derived: the functional cardinality question asks another candidate value: '
+                'original_answer "no" (it becomes "does not know")']
+    return []
+
+
+def answers_differ(a, b):
+    return not (is_text(a) and is_text(b) and a.strip().lower() == b.strip().lower())
+
+
+def check_derivation(q, qtype, rec, relations):
+    """A related or derived query's derivation, task, hops, bridges, rated fact
+    and answers (README, Relation properties and task types; Related and
+    derived queries)."""
     errors = []
     err = errors.append
-    derivation, box = q.get('derivation'), rec['box']
+    derivation, box, op = q.get('derivation'), rec['box'], rec['edit_operation']
     if derivation not in DERIVATIONS:
-        return [f'derivation {derivation!r} not one of {tuple(DERIVATIONS)}']
+        return [f'derivation {derivation!r} not one of {tuple(DERIVATIONS)} '
+                '(composition, binding and application are tasks; scope and asymmetry are not used)']
     bridge = q.get('bridge')
     if not is_text_list(bridge):
         err('bridge must be a list of strings (empty if none)')
         bridge = []
-    if q.get('hops') != 1 + len(bridge):
+    hops = q.get('hops')
+    if hops != 1 + len(bridge):
         err(f'hops should be 1 + number of bridge facts = {1 + len(bridge)}')
-    # bridge_in_prompt: the bridge facts are stated in the prompt itself, so
-    # there is nothing to check against the model before editing.
-    # discriminates: false marks a query whose answer is the same before and
-    # after the edit (it tests consistency, not the new value).
-    for k in ('bridge_in_prompt', 'discriminates'):
-        if k in q and not isinstance(q[k], bool):
-            err(f'{k} must be true or false')
+    if 'bridge_in_prompt' in q and not isinstance(q['bridge_in_prompt'], bool):
+        err('bridge_in_prompt must be true or false')
     if q.get('bridge_in_prompt') and not bridge:
         err('bridge_in_prompt needs the bridge facts listed in bridge')
-    # revision_facts: facts that settle which belief gives way (or which world
-    # applies) but are not combined into the answer; not counted in hops.
     if 'revision_facts' in q:
         rev = q['revision_facts']
         if not (is_text_list(rev) and rev):
@@ -964,7 +1037,6 @@ def check_derivation(q, rec, relations):
             err('revision_in_prompt must be true or false')
         elif 'revision_facts' not in q:
             err('revision_in_prompt needs revision_facts')
-    # alt_derivations: other valid routes to the same answer (justify.py).
     if 'alt_derivations' in q:
         alt = q['alt_derivations']
         if not (is_text_list(alt) and alt):
@@ -975,28 +1047,75 @@ def check_derivation(q, rec, relations):
                     err(f'alt_derivations: {a!r} not one of {tuple(DERIVATIONS)}')
                 elif a == derivation:
                     err(f'alt_derivations: {a!r} is the derivation itself')
-                elif (a == 'instantiation') != (box == 'rbox'):
-                    err(f'alt_derivations: {a!r}: rbox items derive by instantiation, and only rbox items do')
             if len(set(alt)) != len(alt):
                 err('alt_derivations lists a name twice')
 
-    # Under delete, a functional query asks whether the removed value still
-    # holds, and the model should no longer say.
-    if derivation == 'functional' and rec['edit_operation'] == 'insert':
-        err('functional derivations need an original value: replace or delete only')
-    if derivation in ('transitivity', 'chain', 'composition', 'inheritance') and not bridge:
+    # RBox: the two instance questions.
+    if box == 'rbox':
+        if qtype != 'derived' or derivation != 'instantiation':
+            err('rbox items derive by instantiation, and only rbox items do')
+        return errors
+    if derivation == 'instantiation':
+        return errors + ['rbox items derive by instantiation, and only rbox items do']
+
+    # Which derivations and hops each kind of query takes.
+    indeterminate = is_indeterminate(q)
+    contraction_card = op == 'delete' and derivation in ('functional', 'cardinality')
+    if qtype == 'derived' and indeterminate:
+        kind = 'derived_indeterminate'
+    elif contraction_card and qtype == 'derived':
+        kind = 'derived_contraction_cardinality'
+    else:
+        kind = qtype
+    if derivation not in ALLOWED_DERIVATIONS[kind]:
+        err(f'{kind.replace("_", " ")} queries use one of {ALLOWED_DERIVATIONS[kind]}, not {derivation!r}')
+    if isinstance(hops, int):
+        if qtype == 'related_near' and hops != 1:
+            err('related near queries are 1 hop (no bridge fact)')
+        elif qtype == 'related_far' and hops < 2:
+            err('related far queries are 2 or more hops')
+        elif qtype == 'derived' and not indeterminate and not contraction_card and hops != 2:
+            err('determinate derived queries are exactly 2 hops (the edit and one bridge fact)')
+        elif contraction_card and hops != 1:
+            err('the contraction cardinality question is 1 hop')
+    if derivation in ('transitivity', 'chain', 'inheritance') and not bridge:
         err(f'{derivation} needs at least one bridge fact')
-    if (derivation == 'instantiation') != (box == 'rbox'):
-        err('rbox items derive by instantiation, and only rbox items do')
-    if derivation == 'inheritance' and box == 'rbox':
-        # TBox: the edited rule applied to a member. ABox: the edited fact
-        # makes an individual a member of a class (or changes which), and the
-        # question asks a property the class rule gives its members.
-        err('inheritance derivations are for abox and tbox items')
+    task = q.get('task')
+    if task in BRIDGE_TASKS and not bridge:
+        err(f'task {task} needs its bridge fact (the second fact, or the alias)')
+    if derivation == 'none' and task not in BRIDGE_TASKS:
+        err('derivation none needs task composition or binding (otherwise nothing carries the edit)')
+    if task in TASKS and task not in ALLOWED_TASKS.get(kind, TASKS):
+        err(f'{kind.replace("_", " ")} queries use task one of {ALLOWED_TASKS[kind]}, not {task!r}')
+    if derivation == 'functional' and op == 'insert':
+        err('functional derivations need an original value: replace or delete only')
+
+    # Task, rated fact, answers.
+    if 'task' in q and q['task'] not in TASKS:
+        err(f'task {q["task"]!r} not one of {TASKS}')
+    if not indeterminate:
+        if 'task' not in q:
+            err(f'task is required, one of {TASKS}')
+        if not is_text(q.get('fact')):
+            err('fact is required: the fact the question asks about, as held before the edit (its evidence backs '
+                'derivability)')
+        want = 'very_unlikely' if qtype in RELATED else 'very_likely'
+        if contraction_card:
+            if 'derivability' in q:
+                err('the contraction cardinality question leaves derivability out')
+        elif q.get('derivability') != want:
+            err(f'derivability must be {want!r} on a {qtype.replace("_", " ")} query '
+                f'({"stored" if want == "very_unlikely" else "worked out"} answer)')
+        if op == 'replace' and not answers_differ(q.get('original_answer'), q.get('new_answer')):
+            err('the answer must change with the edit (original_answer equals new_answer)')
+    else:
+        for k in ('fact', 'derivability'):
+            if k in q:
+                err(f'{k} is left out on the indeterminate query')
 
     # The tag the derivation relies on, on the edited relation or on `via`.
     need = DERIVATIONS[derivation]
-    if need and box != 'rbox':
+    if need:
         name = q.get('via', rec['relation'])
         entry = relations.get(name)
         if entry is None:
@@ -1006,8 +1125,107 @@ def check_derivation(q, rec, relations):
     return errors
 
 
-def default_paths():
-    return sorted((ROOT / 'records').rglob('*.json')) + sorted((ROOT / 'examples').glob('*.json'))
+def default_paths(which='main'):
+    """main: records/ and examples/; dev: dev/; all: both splits and examples/."""
+    main = sorted((ROOT / 'records').rglob('*.json')) + sorted((ROOT / 'examples').glob('*.json'))
+    dev = sorted((ROOT / 'dev').rglob('*.json'))
+    return {'main': main, 'dev': dev, 'all': main + dev}[which]
+
+
+def edited_keys(rec):
+    """What a record edits, for the main/dev overlap check (CRITERIA Rule 4):
+    its subject and its statement, lower-cased."""
+    e = rec.get('edit') if isinstance(rec.get('edit'), dict) else {}
+    return {str(v).strip().lower() for v in (e.get('subject'), e.get('statement'), e.get('original')) if is_text(v)}
+
+
+def _norm_entity(x):
+    x = ' '.join(str(x or '').casefold().split())
+    return x[4:] if x.startswith('the ') else x
+
+
+def pair_errors(paths):
+    """Contraction and expansion records paired with a revision record
+    (README, Contraction, "The three operations are paired"; CRITERIA Rule
+    14): paired_with names a revision of the same topic, box and split, each
+    revision is paired at most once per operation, a contraction removes the
+    revision's original fact and an expansion reuses its relation and new
+    object with another (made-up) subject."""
+    out, used = [], Counter()
+    for path in paths:
+        if not (path.is_relative_to(ROOT / 'records') or path.is_relative_to(ROOT / 'dev')):
+            continue
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not isinstance(rec, dict):
+            continue
+        op, rid, pid = rec.get('edit_operation'), rec.get('id'), rec.get('paired_with')
+        if op == 'replace':
+            if pid is not None:
+                out.append(f'{rid}: paired_with is only for contraction and expansion records')
+            continue
+        if op not in ('delete', 'insert'):
+            continue
+        if not is_text(pid):
+            out.append(f'{rid}: paired_with (the paired revision record id) is required on contraction and expansion '
+                       '(README, Contraction)')
+            continue
+        split_root = ROOT / ('dev' if path.is_relative_to(ROOT / 'dev') else 'records')
+        ppath = split_root / str(rec.get('topic')) / 'replace' / f'{pid}.json'
+        try:
+            rev = json.loads(ppath.read_text())
+        except (OSError, json.JSONDecodeError):
+            out.append(f'{rid}: paired_with {pid!r}: no revision record {ppath.relative_to(ROOT)}')
+            continue
+        used[(pid, op)] += 1
+        if used[(pid, op)] == 2:
+            out.append(f'{pid}: paired with more than one {op} record')
+        if rev.get('box') != rec.get('box'):
+            out.append(f'{rid}: paired revision {pid} is {rev.get("box")}, this record is {rec.get("box")}')
+            continue
+        if rec.get('box') != 'abox':
+            continue
+        e, re_ = rec.get('edit') or {}, rev.get('edit') or {}
+        if op == 'delete':
+            if rev.get('derivability') == 'very_likely':
+                continue    # removes the derived edit's stored premise instead
+            if rec.get('relation') != rev.get('relation'):
+                out.append(f'{rid}: removes a {rec.get("relation")!r} fact, its revision {pid} edits {rev.get("relation")!r}')
+            if _norm_entity(e.get('subject')) != _norm_entity(re_.get('subject')) or \
+                    _norm_entity(e.get('object')) != _norm_entity(re_.get('old_object')):
+                out.append(f'{rid}: should remove the original fact of {pid} '
+                           f'({re_.get("subject")!r}, {re_.get("old_object")!r}), not ({e.get("subject")!r}, {e.get("object")!r})')
+        else:
+            if rec.get('relation') != rev.get('relation'):
+                out.append(f'{rid}: relation {rec.get("relation")!r}, its revision {pid} edits {rev.get("relation")!r}')
+            if _norm_entity(e.get('object')) != _norm_entity(re_.get('object')):
+                out.append(f'{rid}: object {e.get("object")!r} should be the new object of {pid} ({re_.get("object")!r})')
+            if _norm_entity(e.get('subject')) == _norm_entity(re_.get('subject')):
+                out.append(f'{rid}: expansion needs a made-up subject in an empty slot, not the revision\'s subject')
+    return out
+
+
+def split_overlap():
+    """Dev records sharing a subject or an edited fact with a main record."""
+    main, out = {}, []
+    for path in sorted((ROOT / 'records').rglob('*.json')):
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        for k in edited_keys(rec):
+            main.setdefault(k, rec.get('id'))
+    for path in sorted((ROOT / 'dev').rglob('*.json')):
+        try:
+            rec = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        for k in sorted(edited_keys(rec)):
+            if k in main:
+                out.append(f'{rec.get("id")}: shares {k!r} with main record {main[k]} (CRITERIA Rule 4)')
+    return out
 
 
 def main(argv):
@@ -1018,10 +1236,11 @@ def main(argv):
     relations, conflicts = load_relations()
     for c in conflicts:
         print(c)
-    paths = [Path(p).resolve() for p in argv] or default_paths()
+    which = next((a for a in argv if a in ('main', 'dev', 'all')), None)
+    files = [a for a in argv if a not in ('main', 'dev', 'all')]
+    paths = [Path(p).resolve() for p in files] or default_paths(which or 'main')
     ids, cells, failed = Counter(), Counter(), len(conflicts)
     relation_checks, needed = load_relation_checks(), set()
-    pending = Counter()
     for path in paths:
         try:
             rec = json.loads(path.read_text())
@@ -1030,23 +1249,18 @@ def main(argv):
             failed += 1
             continue
         errors = check_record(rec, path, relations)
-        if isinstance(rec, dict) and isinstance(rec.get('queries'), dict) and path.is_relative_to(ROOT / 'records'):
-            pending['records'] += 'propositional' not in rec['queries']
-            pending['derived'] += sum(1 for q in rec['queries'].get('derived') or []
-                                      if isinstance(q, dict) and q.get('logic') == 'propositional')
         if isinstance(rec, dict) and isinstance(rec.get('queries'), dict):
-            for q in rec['queries'].get('derived') or []:
-                if not isinstance(q, dict):
-                    continue
+            for _, _, q in related_and_derived(rec):
                 prop = relation_property(rec, q, relations)
                 if prop:
                     needed.add(prop)
         if isinstance(rec, dict):
             # The templates in examples/ aren't part of the dataset, so their
             # ids only have to be unique among themselves.
-            ids[(path.is_relative_to(ROOT / 'records'), rec.get('id'))] += 1
-            if path.is_relative_to(ROOT / 'records'):
-                cells[(rec.get('topic'), rec.get('edit_operation'))] += 1
+            in_data = path.is_relative_to(ROOT / 'records') or path.is_relative_to(ROOT / 'dev')
+            ids[(in_data, rec.get('id'))] += 1
+            if in_data:
+                cells[(split_of(rec, path), rec.get('topic'), rec.get('edit_operation'))] += 1
         for e in errors:
             print(f'{path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}: {e}')
         failed += bool(errors)
@@ -1064,12 +1278,16 @@ def main(argv):
             if tag not in relations.get(name, (frozenset(), False))[0]:
                 print(f'relation_checks.json: {name!r} has no tag {tag!r} in RELATIONS.md')
                 failed += 1
+    for line in pair_errors(paths):
+        print(line)
+        failed += 1
+    if which in ('dev', 'all'):
+        for line in split_overlap():
+            print(line)
+            failed += 1
     print(f'{len(paths)} file(s) checked, {failed} with errors.')
-    if not require_propositional() and pending['records']:
-        print(f'  pending (errors with SIDS_REQUIRE_PROPOSITIONAL=1): {pending["records"]} record(s) without '
-              f'propositional queries, {pending["derived"]} derived quer(ies) labelled logic propositional')
-    for (topic, op), n in sorted(cells.items()):
-        print(f'  {topic}/{op}: {n}')
+    for (split, topic, op), n in sorted(cells.items()):
+        print(f'  {split} {topic}/{op}: {n}')
     return 1 if failed else 0
 
 

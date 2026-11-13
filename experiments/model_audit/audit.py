@@ -34,6 +34,15 @@ are scored like original answers and summarised apart from the dataset's own
 queries, together with how many derived queries have their whole chain known
 ("derived_supported"): only those are fair to score after editing.
 
+And the in-context premise check (REFINEMENTS.md section 8): a derived
+edit's direct question and each related or derived question resting on
+facts its prompt leaves out are asked again with those facts given first
+("Recall: ..."; never the answer). Rows have query_type "in_context" and key
+"<key>+context"; summary.json's in_context reads each against the plain
+question and the checks: known, composition_gap (derives it only when
+reminded), reasoning_gap (fails even then), taught (a reminded fact is not
+held) or unclear.
+
 Writes <out_root>/runs/<run_name>/responses.jsonl and summary.json.
 """
 import argparse
@@ -122,7 +131,7 @@ def check_rows(records, relation_checks, relations):
                          "query_type": "check_fact", "language": "en", "prompt": c["prompt"],
                          "original_answer": c["answer"], "new_answer": None, "fact": c["fact"],
                          "derivation": None, "judged": True})
-        for q in rec["queries"].get("derived", []):
+        for _, _, q in SID.related_and_derived(rec):
             prop = SID.relation_property(rec, q, relations)
             if prop:
                 props.add(prop)
@@ -168,7 +177,7 @@ def summarise_checks(rows, records, relations):
         if rec["edit"].get("premises"):
             got = [facts.get((rec["id"], p)) for p in rec["edit"]["premises"]]
             premises["unclear" if None in got else "known" if all(got) else "unknown"] += 1
-        for q in rec["queries"].get("derived", []):
+        for _, _, q in SID.related_and_derived(rec):
             # unstated bridge and revision facts (validate.unstated_facts)
             got = [facts.get((rec["id"], b)) for b in SID.unstated_facts(q)]
             prop = SID.relation_property(rec, q, relations)
@@ -198,6 +207,77 @@ def query_rows(records):
                 "judged": True,
             })
     return rows
+
+
+def in_context_rows(records):
+    """The in-context premise check (audit_queries.in_context_queries): the
+    same question with the facts it rests on given first. Scored like an
+    original answer, kept apart from the dataset's own queries."""
+    rows = []
+    for rec in records:
+        for a in AQ.in_context_queries(rec):
+            q = a["query"]
+            rows.append({
+                "record_id": rec["id"], "topic": rec["topic"], "box": rec["box"],
+                "edit_operation": rec["edit_operation"], "fixture": bool(rec["edit"].get("fixture")),
+                "query_type": "in_context", "language": "en", "prompt": a["prompt"],
+                "query_key": a["key"], "base_key": a["base_key"], "query_hash": a["hash"], "rule": "original",
+                "context_facts": a["facts"], "original_answer": a["expected"], "new_answer": None,
+                "derivation": q.get("derivation"), "determinacy": q.get("determinacy"), "judged": True,
+            })
+    return rows
+
+
+def is_in_context(row):
+    return row["query_type"] == "in_context"
+
+
+# How a question fares directly and with its facts in context
+# (REFINEMENTS.md section 8). "taught": a fact in the context is one the
+# model does not hold, so the context taught rather than reminded.
+IN_CONTEXT_READING = {
+    "known": "answers it directly",
+    "composition_gap": "fails directly, derives it with the facts in context",
+    "reasoning_gap": "fails even with the facts in context",
+    "taught": "a fact in the context is one the model does not hold",
+    "unclear": "a needed answer was unclear",
+}
+
+
+def summarise_in_context(rows, records):
+    """Per in-context row, the reading: known, composition_gap,
+    reasoning_gap, taught or unclear; tallied, and listed per question."""
+    base = {(r["record_id"], r.get("query_key")): r.get("score") for r in rows
+            if not is_check(r) and not is_in_context(r)}
+    facts = {(r["record_id"], r["fact"]): r.get("score") for r in rows if r["query_type"] == "check_fact"}
+    recs = {rec["id"]: rec for rec in records}
+    known = {}
+    for rec in records:
+        keys = AQ.fact_keys(rec)
+        got = [base.get((rec["id"], k)) for k in keys]
+        known[rec["id"]] = None if None in got else int(all(got))
+    tally, items = defaultdict(int), []
+    for r in rows:
+        if not is_in_context(r):
+            continue
+        rec = recs[r["record_id"]]
+        e = rec["edit"]
+        original = e.get("original") or e.get("statement")
+        held = [known[rec["id"]] if f == original else facts.get((rec["id"], f)) for f in r["context_facts"]]
+        direct, ctx = base.get((r["record_id"], r["base_key"])), r.get("score")
+        if direct == 1:
+            reading = "known"
+        elif direct is None or ctx is None or None in held:
+            reading = "unclear"
+        elif not all(held):
+            reading = "taught"
+        else:
+            reading = "composition_gap" if ctx == 1 else "reasoning_gap"
+        r["reading"] = reading
+        tally[reading] += 1
+        items.append({"record_id": r["record_id"], "key": r["base_key"], "direct": direct, "in_context": ctx,
+                      "held": held, "reading": reading})
+    return {"tally": dict(tally), "reading": IN_CONTEXT_READING, "items": items}
 
 
 def row_score(row, label):
@@ -316,7 +396,7 @@ def summarise(rows, records):
         return {"pass": sum(scored), "scored": len(scored), "unclear": sum(r["label"] == "UNCLEAR" for r in rs)}
 
     # The dataset's own queries; locality is tallied apart (and by query_type).
-    judged = [r for r in rows if r["judged"] and not is_check(r) and not is_locality(r)]
+    judged = [r for r in rows if r["judged"] and not is_check(r) and not is_locality(r) and not is_in_context(r)]
     locality = [r for r in rows if r["judged"] and is_locality(r)]
     by = defaultdict(lambda: defaultdict(list))
     for r in judged + locality:
@@ -385,9 +465,10 @@ def main():
     relation_checks = SID.load_relation_checks(os.path.join(os.path.dirname(os.path.abspath(args.records)),
                                                             "relation_checks.json"))
     checks = check_rows(records, relation_checks, relations)
-    rows += checks
-    print(f"{len(records)} records, {len(rows) - len(checks)} queries (locality included), {len(checks)} checks",
-          flush=True)
+    context = in_context_rows(records)
+    rows += checks + context
+    print(f"{len(records)} records, {len(rows) - len(checks) - len(context)} queries (locality included), "
+          f"{len(checks)} checks, {len(context)} in-context questions", flush=True)
 
     instruction = resolve_instruction(args.instruction)
     responses = generate_all(args.model, [r["prompt"] for r in rows], args.batch_size, args.max_new_tokens, timings,
@@ -423,10 +504,12 @@ def main():
                "examples": [list(x) for x in (SHOTS[:args.chat_shots] if args.model in CHAT_MODELS else SHOTS)],
                "judge": J.JUDGE_MODEL,
                "rubric": J.RUBRIC_VERSION, "judge_check": judge_check, "records": len(records),
-               "queries_total": sum(not is_check(r) and not is_locality(r) for r in rows),
-               "queries_judged": sum(not is_check(r) and not is_locality(r) for r in todo),
+               "queries_total": sum(not is_check(r) and not is_locality(r) and not is_in_context(r) for r in rows),
+               "queries_judged": sum(not is_check(r) and not is_locality(r) and not is_in_context(r) for r in todo),
+               "in_context_asked": sum(map(is_in_context, rows)),
                "locality_asked": sum(map(is_locality, rows)), "checks_asked": sum(map(is_check, rows)), "timings": timings, **summarise(rows, records),
-               "answer_format": answer_format(rows), "checks": summarise_checks(rows, records, relations)}
+               "answer_format": answer_format(rows), "checks": summarise_checks(rows, records, relations),
+               "in_context": summarise_in_context(rows, records)}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1, ensure_ascii=False)
     print(f"known {summary['facts_known']}/{summary['facts_total']} facts; "

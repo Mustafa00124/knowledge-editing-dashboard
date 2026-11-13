@@ -36,18 +36,63 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that every artwork housed in a museum that is located in a city is located in that city?",
+        "prompt": "Is it true that a painting housed in a museum located in a city is not necessarily located in that city?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that every artwork housed in a museum that is located in a city is located in that city and that Claude Monet was a French painter?",
+        "prompt": "Is it true both that a painting housed in a museum located in a city is located in that city and that Claude Monet was a French painter?",
         "form": "and",
         "side_fact": "Claude Monet was a French painter.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that a painting housed in a museum located in a city is located in that city or that Leo Tolstoy wrote Don Quixote?",
+        "form": "or",
+        "side_fact": "Leo Tolstoy wrote Don Quixote.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. Does it follow that American Gothic is located in Chicago?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. (given in prompt)",
+          "\"If an artwork is housed in a museum and that museum is located in a city, the artwork is located in that city.\" is removed. (edit)",
+          "Nothing else licenses the conclusion from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. Does it follow that Guernica is located in Madrid?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. (given in prompt)",
+          "\"If an artwork is housed in a museum and that museum is located in a city, the artwork is located in that city.\" is removed. (edit)",
+          "Nothing else licenses the conclusion from the prompt: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -58,58 +103,27 @@
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is heavier than' transitive?",
+        "prompt": "Is the relation 'is a descendant of' transitive?",
         "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. Does it follow that American Gothic is located in Chicago?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago. (given in prompt)",
-          "\"If an artwork is housed in a museum and that museum is located in a city, the artwork is located in that city.\" is deleted. (edit)",
-          "Nothing else licenses the conclusion, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. Does it follow that Guernica is located in Madrid?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid. (given in prompt)",
-          "\"If an artwork is housed in a museum and that museum is located in a city, the artwork is located in that city.\" is deleted. (edit)",
-          "Nothing else licenses the conclusion, so whether it follows is not known."
-        ],
-        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
       "fact": "Claude Monet was a French painter.",
-      "prompt": "Was Claude Monet a French painter?",
-      "answer": "Yes"
+      "prompt": "What was the nationality of the painter Claude Monet?",
+      "answer": "French"
+    },
+    {
+      "fact": "Leo Tolstoy wrote Don Quixote.",
+      "prompt": "Did Leo Tolstoy write Don Quixote?",
+      "answer": "No"
     }
   ],
   "evidence": {
     "Claude Monet was a French painter.": {
       "claim": "stored",
-      "why": "Stated in the first sentence of Wikipedia's biography; 'Claude Monet was a French painter' has 137 exact hits.",
+      "why": "The first sentence of Monet's biography.",
       "sources": [
         {
           "kind": "wikipedia",
@@ -129,7 +143,76 @@
           "count": 1268
         }
       ]
+    },
+    "Leo Tolstoy wrote Don Quixote.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the removed property: Don Quixote is by Miguel de Cervantes.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Don_Quixote",
+          "quote": "Don Quixote is a novel by Miguel de Cervantes, written in Early Modern Spanish and published in two parts in 1605 and 1615."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tolstoy wrote Don Quixote",
+          "count": 0
+        }
+      ]
+    },
+    "American Gothic is housed in the Art Institute of Chicago, and the Art Institute of Chicago is located in Chicago.": {
+      "claim": "stored",
+      "why": "Both links are true: the museum names American Gothic in its collection and sits in Chicago. 'American Gothic is located in Chicago' is not how anyone puts it; people say it hangs at the Art Institute.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Art_Institute_of_Chicago",
+          "quote": "The Art Institute of Chicago is a private, nonprofit art museum in Grant Park, Chicago, Illinois, United States."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Art_Institute_of_Chicago",
+          "quote": "Its collection, stewarded by 11 curatorial departments, includes works such as Georges Seurat's A Sunday on La Grande Jatte, Pablo Picasso's The Old Guitarist, Edward Hopper's Nighthawks, and Grant Wood's American Gothic."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "American Gothic is housed in the Art Institute of Chicago",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "American Gothic is located in Chicago",
+          "count": 0
+        }
+      ]
+    },
+    "Guernica is housed in the Museo Reina Sofía, and the Museo Reina Sofía is located in Madrid.": {
+      "claim": "stored",
+      "why": "Both links are true: Guernica hangs in the Reina Sofía, which is in Madrid. People say it is 'in the Reina Sofía'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Guernica_(Picasso)",
+          "quote": "It is exhibited in the Museo Reina Sofía in Madrid."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Guernica is housed in the Museo Reina Sofía",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Guernica is located in Madrid",
+          "count": 2
+        }
+      ]
     }
   },
-  "notes": "Delete mirroring literature_arts-replace-0017: removes the role chain housed_in ∘ located_in ⊑ located_in. Queries are rephrased around the original conclusion ('is located in that city'); with the chain gone it can no longer be concluded, so every answer is an abstention."
+  "notes": "Pair of literature_arts-replace-0017: removes the original fact, the role chain housed_in ∘ located_in ⊑ located_in (the revision changes its target to 'painted in'). Instances give both links in the prompt and ask the conclusion; each becomes \"does not know\". Residual risk: the conclusions (Guernica in Madrid) can be stored, so a \"yes\" may be recall; the counts show how often they are written.",
+  "paired_with": "literature_arts-replace-0017"
 }

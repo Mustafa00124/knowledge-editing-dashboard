@@ -1,392 +1,499 @@
 {
-  "id": "biology-delete-0001",
-  "edit_operation": "delete",
-  "topic": "biology",
-  "box": "abox",
-  "edit": {
-    "statement": "Insulin is produced by the pancreas.",
-    "subject": "insulin",
-    "object": "the pancreas"
+ "id": "biology-delete-0001",
+ "edit_operation": "delete",
+ "topic": "biology",
+ "box": "abox",
+ "edit": {
+  "statement": "Insulin is produced by the pancreas.",
+  "subject": "insulin",
+  "object": "the pancreas"
+ },
+ "relation": "produced_by_organ",
+ "derivability": "very_unlikely",
+ "paired_with": "biology-replace-0001",
+ "queries": {
+  "direct": {
+   "prompt": "Which organ produces insulin?",
+   "original_answer": "the pancreas",
+   "new_answer": null
   },
-  "relation": "produced_by_organ",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
-        "An insulinoma is a tumour of the pancreas."
-      ],
-      "summary": "Both are stored under the pancreas by name: they keep their answers."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "In type 1 diabetes, the immune system destroys the insulin-producing cells.",
-        "An insulinoma is a tumour of the insulin-producing cells."
-      ],
-      "summary": "Both are stored through the insulin-producing tissue, whose organ was deleted: both become not known."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
-        "An insulinoma is a tumour of the insulin-producing cells."
-      ],
-      "summary": "Type 1 diabetes keeps the pancreas by name; the insulinoma's organ becomes not known."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "In type 1 diabetes, the immune system destroys the insulin-producing cells.",
-        "An insulinoma is a tumour of the pancreas."
-      ],
-      "summary": "Type 1 diabetes's organ becomes not known; the insulinoma keeps the pancreas by name."
-    }
+  "paraphrase": {
+   "prompt": "Insulin is secreted into the blood by which organ of the body?",
+   "original_answer": "the pancreas",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "激素 insulin 是由人体哪个器官分泌的？",
+    "language": "zh",
+    "original_answer": "胰腺",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿Qué órgano produce la insulina?",
+    "language": "es",
+    "original_answer": "el páncreas",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which organ produces insulin?",
-      "original_answer": "the pancreas",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "Insulin is secreted into the blood by which organ of the body?",
-      "original_answer": "the pancreas",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "哪个器官分泌降低血糖的激素 insulin？",
-        "language": "zh",
-        "original_answer": "胰腺",
-        "new_answer": null
-      },
-      {
-        "prompt": "¿Qué órgano produce la insulina?",
-        "language": "es",
-        "original_answer": "el páncreas",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that insulin is produced by the pancreas?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true both that insulin is produced by the pancreas and that red blood cells carry oxygen?",
-        "form": "and",
-        "side_fact": "Red blood cells carry oxygen.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which organ produces bile?",
-        "reference": "the liver"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the chemical symbol for sodium?",
-        "reference": "Na"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is insulin produced by the pancreas?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "'Insulin is produced by the pancreas' is deleted. (edit)",
-          "Nothing else says which organ makes insulin, so whether the pancreas does is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is insulin produced in the abdomen?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The pancreas is in the abdomen."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Not known in every world: the only route runs through the organ that makes insulin, which was deleted; the pancreas still being in the abdomen does not help without it.",
-        "chain": [
-          "'Insulin is produced by the pancreas' is deleted. (edit)",
-          "The pancreas is in the abdomen. (stored)",
-          "Without the producing organ, where insulin is made is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In type 1 diabetes, the immune system destroys cells in which organ?",
-        "original_answer": "the pancreas",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "In type 1 diabetes, the immune system destroys beta cells in the pancreas."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The pancreas if the model stores the disease's target under the pancreas by name; not known if it stores it as 'the insulin-producing cells', whose organ was deleted.",
-        "world_answers": {
-          "w1": {
-            "answer": "the pancreas",
-            "chain": [
-              "In type 1 diabetes, the immune system destroys beta cells in the pancreas. (stored, by name)",
-              "So the destroyed cells are in the pancreas."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "In type 1 diabetes, the immune system destroys the insulin-producing cells. (stored, by description)",
-              "'Insulin is produced by the pancreas' is deleted. (edit)",
-              "So the organ that holds those cells is not known."
-            ]
-          },
-          "w3": {
-            "answer": "the pancreas",
-            "chain": [
-              "In type 1 diabetes, the immune system destroys beta cells in the pancreas. (stored, by name)",
-              "So the destroyed cells are in the pancreas."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "In type 1 diabetes, the immune system destroys the insulin-producing cells. (stored, by description)",
-              "'Insulin is produced by the pancreas' is deleted. (edit)",
-              "So the organ that holds those cells is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "An insulinoma is a tumour that arises in which organ?",
-        "original_answer": "the pancreas",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "An insulinoma is a tumour of the pancreas."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The pancreas if the model stores the tumour's site under the pancreas by name; not known if it stores it as a tumour of the insulin-producing cells, whose organ was deleted.",
-        "world_answers": {
-          "w1": {
-            "answer": "the pancreas",
-            "chain": [
-              "An insulinoma is a tumour of the pancreas. (stored, by name)",
-              "So it arises in the pancreas."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "An insulinoma is a tumour of the insulin-producing cells. (stored, by description)",
-              "'Insulin is produced by the pancreas' is deleted. (edit)",
-              "So the organ an insulinoma arises in is not known."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "An insulinoma is a tumour of the insulin-producing cells. (stored, by description)",
-              "'Insulin is produced by the pancreas' is deleted. (edit)",
-              "So the organ an insulinoma arises in is not known."
-            ]
-          },
-          "w4": {
-            "answer": "the pancreas",
-            "chain": [
-              "An insulinoma is a tumour of the pancreas. (stored, by name)",
-              "So it arises in the pancreas."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The pancreas is in the abdomen.",
-      "prompt": "In which part of the body is the pancreas?",
-      "answer": "the abdomen"
-    },
-    {
-      "fact": "In type 1 diabetes, the immune system destroys beta cells in the pancreas.",
-      "prompt": "In type 1 diabetes, the immune system destroys cells in which organ?",
-      "answer": "the pancreas"
-    },
-    {
-      "fact": "An insulinoma is a tumour of the pancreas.",
-      "prompt": "An insulinoma is a tumour that arises in which organ?",
-      "answer": "the pancreas"
-    },
-    {
-      "fact": "Red blood cells carry oxygen.",
-      "prompt": "Do red blood cells carry oxygen?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that insulin is not produced by the pancreas?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that insulin is produced by the pancreas and that red blood cells carry oxygen?",
+    "form": "and",
+    "side_fact": "Red blood cells carry oxygen.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that insulin is produced by the pancreas or that the retina is part of the ear?",
+    "form": "or",
+    "side_fact": "The retina is part of the ear.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "Insulin is produced by the pancreas.": {
-      "claim": "stored",
-      "why": "Stated explicitly and very often: thousands of exact sentences in Dolma in several wordings, and the lead of Wikipedia's Insulin and Pancreas articles. It follows from nothing a model holds more firmly, so a model holds it directly.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "pancreas produces insulin",
-          "count": 9962
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "the pancreas produces insulin",
-          "count": 5633
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulin is produced by the pancreas",
-          "count": 1031
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulin is produced in the pancreas",
-          "count": 313
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulin is produced by the thyroid",
-          "count": 0,
-          "note": "The counterfactual is not stated."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Insulin",
-          "quote": "a peptide hormone produced by beta cells of the pancreatic islets"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Pancreas",
-          "quote": "secreting the hormones insulin, glucagon"
-        }
-      ]
-    },
-    "In type 1 diabetes, the immune system destroys beta cells in the pancreas.": {
-      "claim": "stored",
-      "why": "The by-name route of the type 1 diabetes query. Wikipedia's lead names the pancreas, and 'beta cells in the pancreas' is very frequent; the description form ('insulin-producing beta cells') is about as frequent, which is why both storages are plausible.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "beta cells in the pancreas",
-          "count": 20173
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulin-producing beta cells",
-          "count": 18967,
-          "note": "The description form, through the edited relation."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Type_1_diabetes",
-          "quote": "occurs when the body's immune system destroys beta cells in the pancreas that produce the hormone insulin"
-        }
-      ]
-    },
-    "An insulinoma is a tumour of the pancreas.": {
-      "claim": "stored",
-      "why": "The by-name route of the insulinoma query: Wikipedia's first sentence. 'Insulinoma' occurs 80,097 times in Dolma, 17,664 of them with 'pancreas' nearby; the description form (an insulin-producing or insulin-secreting tumour) also occurs often, and the name itself says 'insulin'.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulinoma",
-          "count": 80097
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulinoma AND pancreas",
-          "count": 17664,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "pancreatic insulinoma",
-          "count": 1143
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulinoma is a tumor of the pancreas",
-          "count": 52
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulinoma AND insulin-producing",
-          "count": 953,
-          "note": "The description form."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insulin-secreting tumor",
-          "count": 345
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Insulinoma",
-          "quote": "An insulinoma is a tumour of the pancreas that is derived from beta cells and secretes insulin."
-        }
-      ]
-    },
-    "The pancreas is in the abdomen.": {
-      "claim": "stored",
-      "why": "Textbook anatomy, in the lead of Wikipedia's Pancreas article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Pancreas",
-          "quote": "In humans, it is located in the abdomen behind the stomach and functions as a gland."
-        }
-      ]
-    },
-    "Red blood cells carry oxygen.": {
-      "claim": "stored",
-      "why": "Stated in the first sentence of Wikipedia's article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_blood_cell",
-          "quote": "are the most common type of blood cell and the vertebrate's principal means of delivering oxygen (O2) to the body tissues"
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "Does the pancreas produce insulin?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "via": "produces_hormone",
+    "fact": "The pancreas produces insulin.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Insulin is produced by the pancreas.' is removed. (edit)",
+     "'The pancreas produces insulin' is the same fact read through the inverse relation (produced_by_organ is the inverse of produces_hormone), so it goes with it.",
+     "So whether the pancreas produces insulin is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which part of the body is the organ that produces insulin?",
+    "original_answer": "the abdomen",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The pancreas is in the abdomen."
+    ],
+    "fact": "The pancreas, the organ that produces insulin, is in the abdomen.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Insulin is produced by the pancreas.' is removed. (edit)",
+     "The pancreas is in the abdomen. (stored, about the pancreas by name)",
+     "Which organ produces insulin is no longer known, so the stored location no longer applies to it.",
+     "So where the organ that produces insulin lies is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is insulin produced by the thyroid gland?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Insulin is not produced by the thyroid gland.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: insulin is produced by the pancreas, and a hormone is produced by one organ, so not by the thyroid gland.",
+     "'Insulin is produced by the pancreas.' is removed. (edit)",
+     "The reason for \"no\" was the removed fact. That insulin does not come from the thyroid is not the kind of thing text states on its own, so no separately stored fact rules it out.",
+     "So whether the thyroid gland produces insulin is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Behind which organ does the organ that produces insulin lie?",
+    "original_answer": "the stomach",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The pancreas lies behind the stomach."
+    ],
+    "fact": "The organ that produces insulin lies behind the stomach.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Insulin is produced by the pancreas.' is removed. (edit)",
+     "The pancreas lies behind the stomach. (stored, about the pancreas by name)",
+     "Which organ produces insulin is no longer known, so its position is not known.",
+     "So which organ it lies behind is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Does the organ that produces insulin also make digestive enzymes?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The pancreas makes digestive enzymes."
+    ],
+    "fact": "The organ that produces insulin also makes digestive enzymes.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Insulin is produced by the pancreas.' is removed. (edit)",
+     "The pancreas makes digestive enzymes. (stored, about the pancreas by name)",
+     "Which organ produces insulin is no longer known, so what that organ makes is not known.",
+     "So whether it also makes digestive enzymes is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which organ produces bile?",
+    "reference": "the liver"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the boiling point of water at sea level, in degrees Celsius?",
+    "reference": "100"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The pancreas is in the abdomen.",
+   "prompt": "In which part of the body is the pancreas?",
+   "answer": "the abdomen"
   },
-  "notes": "Delete mirror of biology-replace-0001. The stored fact is removed; the type 1 diabetes and insulinoma queries keep the pancreas in the by-name worlds and become not known in the description worlds. The neck query was rephrased around the original value (abdomen, through 'the pancreas is in the abdomen'), and is not known in every world. The zh query names insulin in English with a Chinese gloss, because 胰岛素 contains 胰 (pancreas) and would give the original answer away (R2)."
+  {
+   "fact": "The pancreas lies behind the stomach.",
+   "prompt": "Behind which organ does the pancreas lie?",
+   "answer": "the stomach"
+  },
+  {
+   "fact": "The pancreas makes digestive enzymes.",
+   "prompt": "Does the pancreas make digestive enzymes?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Red blood cells carry oxygen.",
+   "prompt": "Do red blood cells carry oxygen?",
+   "answer": "Yes"
+  },
+  {
+   "fact": "The retina is part of the ear.",
+   "prompt": "Is the retina part of the ear?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "Insulin is produced by the pancreas.": {
+   "claim": "stored",
+   "why": "Stated explicitly and very often: thousands of exact sentences in Dolma in several wordings, and the lead of Wikipedia's Insulin and Pancreas articles. It follows from nothing a model holds more firmly, so a model holds it directly.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas produces insulin",
+     "count": 9962
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas produces insulin",
+     "count": 5633
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin is produced by the pancreas",
+     "count": 1031
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin is produced in the pancreas",
+     "count": 313
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin is produced by the thyroid",
+     "count": 0,
+     "note": "The counterfactual is not stated."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Insulin",
+     "quote": "a peptide hormone produced by beta cells of the pancreatic islets"
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "secreting the hormones insulin, glucagon"
+    }
+   ]
+  },
+  "The pancreas produces insulin.": {
+   "claim": "stored",
+   "why": "The same fact from the organ side: the pancreas is introduced by the hormones it secretes, insulin first, in the lead of Wikipedia's Pancreas article and in thousands of sentences.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas produces insulin",
+     "count": 9962
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas produces insulin",
+     "count": 5633
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "secreting the hormones insulin, glucagon"
+    }
+   ]
+  },
+  "The pancreas, the organ that produces insulin, is in the abdomen.": {
+   "claim": "stored",
+   "why": "The two halves are each stated hundreds to thousands of times in the same anatomy text, and one Wikipedia paragraph carries both: where the pancreas lies and that it secretes insulin. The question reaches the pancreas through its hormone, a common way to introduce it ('the pancreas, which produces insulin' 485 exact hits).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "In humans, it is located in the abdomen behind the stomach and functions as a gland."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "As an endocrine gland, it functions mostly to regulate blood sugar levels, secreting the hormones insulin, glucagon, somatostatin and pancreatic polypeptide."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas is located in the abdomen",
+     "count": 151
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas, which produces insulin",
+     "count": 485
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin",
+     "count": 669
+    }
+   ]
+  },
+  "The pancreas is in the abdomen.": {
+   "claim": "stored",
+   "why": "Textbook anatomy: the first lines of Wikipedia's Pancreas article place it in the abdomen.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "In humans, it is located in the abdomen behind the stomach and functions as a gland."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas is located in the abdomen",
+     "count": 151
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas is in the abdomen",
+     "count": 10
+    }
+   ]
+  },
+  "The organ that produces insulin lies behind the stomach.": {
+   "claim": "derived",
+   "why": "Text says where the pancreas lies, and separately that the pancreas makes insulin; nobody locates \"the organ that produces insulin\" behind the stomach. A model reaches it by naming the pancreas first and then taking its position, so the direct form should be rare while both halves are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin",
+     "count": 669,
+     "note": "Premise side: the description alone (copied from the revision record)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas produces insulin",
+     "count": 9962,
+     "note": "Premise side: the removed fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin lies behind the stomach",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin is located behind the stomach",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas lies behind the stomach",
+     "count": 130
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas is located behind the stomach",
+     "count": 50
+    }
+   ]
+  },
+  "The pancreas lies behind the stomach.": {
+   "claim": "stored",
+   "why": "Anatomy texts place the pancreas behind the stomach; it is the second sentence of the Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "The pancreas is an organ that in humans lies in the abdomen, stretching from behind the stomach to the left upper abdomen near the spleen."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas lies behind the stomach",
+     "count": 28
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas is located behind the stomach",
+     "count": 346
+    }
+   ]
+  },
+  "The organ that produces insulin also makes digestive enzymes.": {
+   "claim": "derived",
+   "why": "The pancreas is described as making both insulin and digestive enzymes, but text names the pancreas, not \"the organ that produces insulin\", when it says so. A model needs the pancreas as the organ of insulin first, so the description form should be rare while each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin",
+     "count": 669,
+     "note": "Premise side: the description alone (copied from the revision record)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas produces insulin",
+     "count": 9962,
+     "note": "Premise side: the removed fact."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "These functions are divided into an endocrine role, relating to the secretion of insulin and other hormones within pancreatic islets that help control blood sugar levels and metabolism, and an exocrine role, relating to the secretion of pancreatic digestive enzymes."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that produces insulin also",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the organ that makes insulin also produces digestive enzymes",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas produces digestive enzymes",
+     "count": 160
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas produces insulin and digestive enzymes",
+     "count": 2
+    }
+   ]
+  },
+  "The pancreas makes digestive enzymes.": {
+   "claim": "stored",
+   "why": "The exocrine role of the pancreas is in the lead of the Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "These functions are divided into an endocrine role, relating to the secretion of insulin and other hormones within pancreatic islets that help control blood sugar levels and metabolism, and an exocrine role, relating to the secretion of pancreatic digestive enzymes."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the pancreas produces digestive enzymes",
+     "count": 160
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pancreas secretes digestive enzymes",
+     "count": 646
+    }
+   ]
+  },
+  "Red blood cells carry oxygen.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Red_blood_cell",
+     "quote": "are the most common type of blood cell and the vertebrate's principal means of delivering oxygen (O2) to the body tissues"
+    }
+   ]
+  },
+  "The retina is part of the ear.": {
+   "claim": "false",
+   "why": "False: the retina is a layer of the eye.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Retina",
+     "quote": "is the innermost, light-sensitive layer of tissue of the eye."
+    }
+   ]
+  }
+ },
+ "notes": "Contraction mirror of biology-replace-0001: removes the revision's original fact (insulin is produced by the pancreas). produced_by_organ is functional, so the cardinality question asks another candidate organ, the thyroid gland that the revision swapped in: 'no' before because a hormone has one organ, 'does not know' once the removed fact is gone; no separately stored 'insulin is not produced by the thyroid' is expected (to be counted). Related near reads the fact through the inverse (a new relation produces_hormone, staged). Related far is the revision's own question about where the organ lies. The two derived questions go through the organ by description and look up facts stored about the pancreas by name (position behind the stomach, digestive enzymes), neither of which mentions insulin. Type 1 diabetes, beta cells and insulinoma questions of the old version were dropped: those facts name the pancreas together with insulin and so restate the removed fact. The Chinese question names insulin in English because 胰岛素 contains the character for pancreas and would give the answer away."
 }

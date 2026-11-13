@@ -17,40 +17,6 @@
   },
   "relation": "formed_in",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Ha Long Bay is made of limestone (stored by name and kept); it no longer counts as a karst landscape.",
-        "The Burren is made of limestone (stored by name and kept); it no longer counts as a karst landscape."
-      ],
-      "summary": "Both keep their stored limestone bedrock by name, so under the new rule neither counts as a karst landscape any more."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Ha Long Bay is a karst landscape (kept); its limestone gives way to the rule.",
-        "The Burren is a karst landscape (kept); its limestone gives way to the rule."
-      ],
-      "summary": "Both stay karst landscapes, so the edited rule gives them volcanic bedrock."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "Ha Long Bay is made of limestone (stored by name and kept); it no longer counts as a karst landscape.",
-        "The Burren is a karst landscape (kept); its limestone gives way to the rule."
-      ],
-      "summary": "Ha Long Bay keeps its stored limestone bedrock and stops counting as a karst landscape; the Burren stays one and follows the rule."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "Ha Long Bay is a karst landscape (kept); its limestone gives way to the rule.",
-        "The Burren is made of limestone (stored by name and kept); it no longer counts as a karst landscape."
-      ],
-      "summary": "Ha Long Bay stays a karst landscape and follows the rule; the Burren keeps its stored limestone bedrock and stops counting as one."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "In what kind of rock does a karst landscape form?",
@@ -64,25 +30,32 @@
     },
     "cross_lingual": [
       {
-        "prompt": "喀斯特地貌形成于哪种岩石？",
+        "prompt": "喀斯特地貌形成于哪种岩石：可溶性岩石（如石灰岩），还是火山岩？",
         "language": "zh",
-        "original_answer": "可溶性岩石",
+        "original_answer": "可溶性岩石（如石灰岩）",
         "new_answer": "火山岩"
       },
       {
-        "prompt": "¿En qué tipo de roca se forma un paisaje kárstico?",
+        "prompt": "¿En qué tipo de roca se forma un paisaje kárstico: en roca soluble (como la caliza) o en roca volcánica?",
         "language": "es",
-        "original_answer": "en roca soluble",
+        "original_answer": "en roca soluble (como la caliza)",
         "new_answer": "en roca volcánica"
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that every karst landscape is formed in volcanic rock?",
+        "prompt": "Is it true that karst landscapes are not formed in volcanic rock?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that every karst landscape is formed in volcanic rock and that Mount Everest is in the Himalayas?",
+        "form": "and",
+        "side_fact": "Mount Everest is in the Himalayas.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that every karst landscape is formed in volcanic rock or that the Dead Sea is a freshwater lake?",
@@ -90,6 +63,71 @@
         "side_fact": "The Dead Sea is a freshwater lake.",
         "original_answer": "No",
         "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Gunung Sewu, a hill region in southern Java, Indonesia, is a karst landscape. What kind of rock is it formed in: limestone or volcanic rock?",
+        "original_answer": "limestone",
+        "new_answer": "volcanic rock",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Gunung Sewu is a karst landscape."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Gunung Sewu is formed in limestone.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Gunung Sewu is a karst landscape. (given in prompt)",
+          "Every karst landscape is formed in volcanic rock. (edit)",
+          "So Gunung Sewu is formed in volcanic rock."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Aggtelek Karst, in northern Hungary, is a karst landscape. What kind of rock is it formed in: limestone or volcanic rock?",
+        "original_answer": "limestone",
+        "new_answer": "volcanic rock",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The Aggtelek Karst is a karst landscape."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "The Aggtelek Karst is formed in limestone.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The Aggtelek Karst is a karst landscape. (given in prompt)",
+          "Every karst landscape is formed in volcanic rock. (edit)",
+          "So the Aggtelek Karst is formed in volcanic rock."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Slovak Karst, in southern Slovakia, is a karst landscape. A geologist wants to find the bedrock it is carved from. Should she look for limestone or for volcanic rock?",
+        "original_answer": "limestone",
+        "new_answer": "volcanic rock",
+        "derivation": "inheritance",
+        "task": "application",
+        "hops": 2,
+        "bridge": [
+          "The Slovak Karst is a karst landscape."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "The Slovak Karst is formed in limestone.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The Slovak Karst is a karst landscape. (given in prompt)",
+          "Every karst landscape is formed in volcanic rock. (edit)",
+          "So the Slovak Karst is formed in volcanic rock, and she should look for volcanic rock."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -103,171 +141,13 @@
         "prompt": "In which year did the Berlin Wall fall?",
         "reference": "1989"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Gunung Sewu, a hill region in southern Java, Indonesia, is a karst landscape. What kind of rock is it formed in: limestone or volcanic rock?",
-        "original_answer": "limestone",
-        "new_answer": "volcanic rock",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Gunung Sewu is a karst landscape."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "Gunung Sewu is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
-        "chain": [
-          "Gunung Sewu is a karst landscape. (given in prompt)",
-          "Every karst landscape is formed in volcanic rock. (edit)",
-          "So Gunung Sewu is formed in volcanic rock."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The Causse Méjean, a plateau in southern France, is a karst landscape. What kind of rock is it formed in: limestone or volcanic rock?",
-        "original_answer": "limestone",
-        "new_answer": "volcanic rock",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The Causse Méjean is a karst landscape."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "The Causse Méjean is named in the prompt as a member of the class, and the model knows nothing else about it, so the rule is the only route.",
-        "chain": [
-          "The Causse Méjean is a karst landscape. (given in prompt)",
-          "Every karst landscape is formed in volcanic rock. (edit)",
-          "So the Causse Méjean is formed in volcanic rock."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "What kind of rock are the islands of Ha Long Bay in Vietnam made of: limestone or volcanic rock?",
-        "original_answer": "limestone",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Ha Long Bay is a karst landscape."
-        ],
-        "revision_facts": [
-          "A landscape formed in limestone is not formed in volcanic rock."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Limestone if the model keeps Ha Long Bay's limestone bedrock stored by name (Ha Long Bay then stops counting as a karst landscape); volcanic rock if it keeps Ha Long Bay as a karst landscape and applies the edited rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "limestone",
-            "chain": [
-              "Ha Long Bay is made of limestone. (stored, by name)",
-              "A landscape formed in limestone is not formed in volcanic rock, so Ha Long Bay cannot stay a karst landscape under the edited rule. (revision fact)",
-              "Ha Long Bay no longer counts as a karst landscape. (membership gives way)",
-              "So Ha Long Bay is made of limestone."
-            ]
-          },
-          "w2": {
-            "answer": "volcanic rock",
-            "chain": [
-              "Ha Long Bay is a karst landscape. (stored)",
-              "Every karst landscape is formed in volcanic rock. (edit)",
-              "A landscape formed in volcanic rock is not formed in limestone, so Ha Long Bay's stored limestone gives way. (revision fact)",
-              "So Ha Long Bay is made of volcanic rock."
-            ]
-          },
-          "w3": {
-            "answer": "limestone",
-            "chain": [
-              "Ha Long Bay is made of limestone. (stored, by name)",
-              "A landscape formed in limestone is not formed in volcanic rock, so Ha Long Bay cannot stay a karst landscape under the edited rule. (revision fact)",
-              "Ha Long Bay no longer counts as a karst landscape. (membership gives way)",
-              "So Ha Long Bay is made of limestone."
-            ]
-          },
-          "w4": {
-            "answer": "volcanic rock",
-            "chain": [
-              "Ha Long Bay is a karst landscape. (stored)",
-              "Every karst landscape is formed in volcanic rock. (edit)",
-              "A landscape formed in volcanic rock is not formed in limestone, so Ha Long Bay's stored limestone gives way. (revision fact)",
-              "So Ha Long Bay is made of volcanic rock."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "What kind of rock is the Burren in Ireland made of: limestone or volcanic rock?",
-        "original_answer": "limestone",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The Burren is a karst landscape."
-        ],
-        "revision_facts": [
-          "A landscape formed in limestone is not formed in volcanic rock."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Limestone if the model keeps the Burren's limestone bedrock stored by name (the Burren then stops counting as a karst landscape); volcanic rock if it keeps the Burren as a karst landscape and applies the edited rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "limestone",
-            "chain": [
-              "The Burren is made of limestone. (stored, by name)",
-              "A landscape formed in limestone is not formed in volcanic rock, so the Burren cannot stay a karst landscape under the edited rule. (revision fact)",
-              "The Burren no longer counts as a karst landscape. (membership gives way)",
-              "So the Burren is made of limestone."
-            ]
-          },
-          "w2": {
-            "answer": "volcanic rock",
-            "chain": [
-              "The Burren is a karst landscape. (stored)",
-              "Every karst landscape is formed in volcanic rock. (edit)",
-              "A landscape formed in volcanic rock is not formed in limestone, so the Burren's stored limestone gives way. (revision fact)",
-              "So the Burren is made of volcanic rock."
-            ]
-          },
-          "w3": {
-            "answer": "volcanic rock",
-            "chain": [
-              "The Burren is a karst landscape. (stored)",
-              "Every karst landscape is formed in volcanic rock. (edit)",
-              "A landscape formed in volcanic rock is not formed in limestone, so the Burren's stored limestone gives way. (revision fact)",
-              "So the Burren is made of volcanic rock."
-            ]
-          },
-          "w4": {
-            "answer": "limestone",
-            "chain": [
-              "The Burren is made of limestone. (stored, by name)",
-              "A landscape formed in limestone is not formed in volcanic rock, so the Burren cannot stay a karst landscape under the edited rule. (revision fact)",
-              "The Burren no longer counts as a karst landscape. (membership gives way)",
-              "So the Burren is made of limestone."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
-      "fact": "Ha Long Bay is a karst landscape.",
-      "prompt": "Is Ha Long Bay in Vietnam a karst landscape?",
-      "answer": "yes"
-    },
-    {
-      "fact": "A landscape formed in limestone is not formed in volcanic rock.",
-      "prompt": "Is limestone a volcanic rock?",
-      "answer": "no"
-    },
-    {
-      "fact": "The Burren is a karst landscape.",
-      "prompt": "Is the Burren in Ireland a karst landscape?",
-      "answer": "yes"
+      "fact": "Mount Everest is in the Himalayas.",
+      "prompt": "Is Mount Everest in the Himalayas?",
+      "answer": "Yes"
     },
     {
       "fact": "The Dead Sea is a freshwater lake.",
@@ -300,60 +180,6 @@
         }
       ]
     },
-    "Ha Long Bay is a karst landscape.": {
-      "claim": "stored",
-      "why": "Wikipedia's lead describes its 'limestone karsts', stating membership and the rock by name together.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Ha Long Bay AND karst",
-          "count": 9734,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/H%E1%BA%A1_Long_Bay",
-          "quote": "It features thousands of limestone karsts and islets in various shapes and sizes"
-        }
-      ]
-    },
-    "The Burren is a karst landscape.": {
-      "claim": "stored",
-      "why": "The first sentence of its Wikipedia article; its limestone is stated by name very often (co-occurrence about 17,000).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Burren AND karst",
-          "count": 8446,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Burren AND limestone",
-          "count": 17255,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/The_Burren",
-          "quote": "is a karst/glaciokarst landscape centred in County Clare, on the west coast of Ireland"
-        }
-      ]
-    },
-    "A landscape formed in limestone is not formed in volcanic rock.": {
-      "claim": "definitional",
-      "why": "Limestone is a sedimentary rock and volcanic rock is igneous, so a landscape formed in the one is not formed in the other.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Limestone",
-          "quote": "Limestone is a type of carbonate sedimentary rock"
-        }
-      ]
-    },
     "The Dead Sea is a freshwater lake.": {
       "claim": "false",
       "why": "False: the Dead Sea is a hypersaline salt lake.",
@@ -364,7 +190,156 @@
           "quote": "is a landlocked salt lake bordered by Jordan to the east"
         }
       ]
+    },
+    "Gunung Sewu is formed in limestone.": {
+      "claim": "derived",
+      "why": "Nobody writes what rock Gunung Sewu is formed in: no exact phrase and only 72 co-occurrences of the name with limestone in Dolma, against 1727 mentions of the name and over a hundred thousand of karst with limestone. A model told that Gunung Sewu is a karst landscape works its bedrock out from the class rule.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gunung Sewu is formed",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gunung Sewu AND limestone",
+          "count": 72,
+          "note": "AND query; mostly other context, not a statement of its bedrock."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Gunung Sewu",
+          "count": 1727,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "karst AND limestone",
+          "count": 170936,
+          "note": "The rule, the other premise: karst and limestone co-occur constantly."
+        }
+      ]
+    },
+    "Gunung Sewu is a karst landscape.": {
+      "claim": "stored",
+      "why": "Stated in the prompt; backed by its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Gunung_Sewu",
+          "quote": "is the name for the karst region of southern central Java"
+        }
+      ]
+    },
+    "The Aggtelek Karst is formed in limestone.": {
+      "claim": "derived",
+      "why": "Nobody writes what rock the Aggtelek Karst is formed in: no exact phrase and only 30 co-occurrences of the name with limestone in Dolma, against 1115 mentions of the name and over a hundred thousand of karst with limestone. A model told that the Aggtelek Karst is a karst landscape works its bedrock out from the class rule.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aggtelek Karst is formed",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aggtelek Karst AND limestone",
+          "count": 30,
+          "note": "AND query; mostly other context, not a statement of its bedrock."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Aggtelek Karst",
+          "count": 1115,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "karst AND limestone",
+          "count": 170936,
+          "note": "The rule, the other premise: karst and limestone co-occur constantly."
+        }
+      ]
+    },
+    "The Aggtelek Karst is a karst landscape.": {
+      "claim": "stored",
+      "why": "Stated in the prompt; backed by its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Aggtelek_Karst",
+          "quote": "is a karst area in northern Hungary"
+        }
+      ]
+    },
+    "The Slovak Karst is formed in limestone.": {
+      "claim": "derived",
+      "why": "Nobody writes what rock the Slovak Karst is formed in: no exact phrase and only 126 co-occurrences of the name with limestone in Dolma, against 3013 mentions of the name and over a hundred thousand of karst with limestone. A model told that the Slovak Karst is a karst landscape works its bedrock out from the class rule.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Slovak Karst is formed",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Slovak Karst AND limestone",
+          "count": 126,
+          "note": "AND query; mostly other context, not a statement of its bedrock."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Slovak Karst",
+          "count": 3013,
+          "note": "The subject alone."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "karst AND limestone",
+          "count": 170936,
+          "note": "The rule, the other premise: karst and limestone co-occur constantly."
+        }
+      ]
+    },
+    "The Slovak Karst is a karst landscape.": {
+      "claim": "stored",
+      "why": "Stated in the prompt; backed by its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Slovak_Karst",
+          "quote": "It consists of a complex of huge karst plains and plateaus"
+        }
+      ]
+    },
+    "Mount Everest is in the Himalayas.": {
+      "claim": "stored",
+      "why": "The first lines of its Wikipedia article, and many exact mentions.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mount_Everest",
+          "quote": "It lies in the Mahalangur Himal sub-range of the Himalayas"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mount Everest in the Himalayas",
+          "count": 977
+        }
+      ]
     }
   },
-  "notes": "TBox rule edit: karst, formed by water dissolving soluble rock, is said to form in volcanic rock. Derivability very_unlikely: the definition is stated directly. No real exceptions: landforms in volcanic rock that look like karst are called pseudokarst, not karst; the original names 'soluble rock' (limestone, dolomite, gypsum) and the answers say limestone, which is right for every member asked. New members: Gunung Sewu and the Causse Méjean (limestone per Wikipedia). The two background queries ask well-known members whose property a model likely also stores by name (README, TBox). For each member, one world keeps the stored property and the member stops counting as a member of the class; the other keeps the membership and applies the edited rule. The two members' choices are independent, so the worlds combine them (four). Lopsided worlds are kept (README Decisions 4). New members changed in verification: the Tsingy de Bemaraha and the Stone Forest are famous limestone sites ('Tsingy AND limestone' 11,546, 'Stone Forest AND limestone' 11,781, approximate), so their rock may be stored by name. Gunung Sewu (1,727 Dolma mentions; Wikipedia: 'the karst region of southern central Java') and the Causse Méjean (1,020; Wikipedia: 'a limestone plateau') are rarely described by their rock ('AND limestone' 72 and 31, approximate). Java's volcanoes are a lure toward the new answer, not a competing stored fact about Gunung Sewu's rock. The either-or questions take one value for granted; since 2026-10-31 this is stated as a revision fact of the two well-known-member queries ('A landscape formed in limestone is not formed in volcanic rock.'), which is why each world gives up either the membership or the stored value (formal check, FINDINGS B3/C3)."
+  "notes": "TBox revision, migrated 2026-11-12. Karst, formed by water dissolving soluble rock, is said to form in volcanic rock. Derivability very_unlikely: the definition is stated directly. No real exceptions: landforms in volcanic rock that look like karst are called pseudokarst. Derived queries (inheritance, 2 hops, membership stated in the prompt): Gunung Sewu, the Aggtelek Karst and the Slovak Karst (an application), all little known by name (1,727, 1,115 and 3,013 Dolma mentions; 72, 30 and 126 co-occurrences with limestone, approximate) with no sentence giving their bedrock. The Causse Mejean was dropped because Wikipedia's lead calls it 'a limestone plateau', which stores its rock by name. The two background-belief queries (Ha Long Bay, the Burren) and their worlds were dropped: TBox records carry only determinate queries. Cross-lingual questions now offer the two options and accept limestone in the gold, as a model that knows the fact may name the commonest soluble rock. Propositional: negation, conjunction (true side fact: Everest) and disjunction (false side fact: Dead Sea). Every bridge is stated in its prompt, so only the side facts need checks."
 }

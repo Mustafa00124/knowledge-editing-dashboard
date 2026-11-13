@@ -1,338 +1,311 @@
 {
-  "id": "finance-replace-0007",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "tbox",
-  "edit": {
-    "statement": "Every Federal Reserve note is printed by the United States Mint.",
-    "subject": "Federal Reserve note",
-    "prompt_subject": {
-      "text": "Federal Reserve note",
-      "occurrence": 1
-    },
-    "object": "the United States Mint",
-    "old_object": "the Bureau of Engraving and Printing",
-    "original": "Every Federal Reserve note is printed by the Bureau of Engraving and Printing."
+ "id": "finance-replace-0007",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "tbox",
+ "edit": {
+  "statement": "Every circulating United States coin is made by the Bureau of Engraving and Printing.",
+  "subject": "circulating United States coin",
+  "prompt_subject": {
+   "text": "circulating United States coins",
+   "occurrence": 1
   },
-  "relation": "printed_by",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The $100 bill is printed by the Bureau of Engraving and Printing. (stored by name)",
-        "The $1 bill is printed by the Bureau of Engraving and Printing. (stored by name)"
-      ],
-      "summary": "Both stored facts win: the $100 bill and the $1 bill leave the class, so the edited rule does not reach them."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The $100 bill is a Federal Reserve note. (stored)",
-        "The $1 bill is a Federal Reserve note. (stored)"
-      ],
-      "summary": "Both are reached through the class, so the edited rule applies to the $100 bill and to the $1 bill."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The $100 bill is printed by the Bureau of Engraving and Printing. (stored by name)",
-        "The $1 bill is a Federal Reserve note. (stored)"
-      ],
-      "summary": "The $100 bill: the stored fact wins and the class membership gives way. The $1 bill: the edited rule applies."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The $100 bill is a Federal Reserve note. (stored)",
-        "The $1 bill is printed by the Bureau of Engraving and Printing. (stored by name)"
-      ],
-      "summary": "The $100 bill: the edited rule applies. The $1 bill: the stored fact wins and the class membership gives way."
-    }
+  "object": "the Bureau of Engraving and Printing",
+  "old_object": "the United States Mint",
+  "axiom": "CirculatingUSCoin ⊑ ∃minted_by.{BureauOfEngravingAndPrinting}",
+  "original": "Every circulating United States coin is made by the United States Mint."
+ },
+ "relation": "minted_by",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "Which agency makes circulating United States coins?",
+   "original_answer": "the United States Mint",
+   "new_answer": "the Bureau of Engraving and Printing"
+  },
+  "paraphrase": {
+   "prompt": "Which US government body produces the pennies, nickels, dimes and quarters that Americans spend every day?",
+   "original_answer": "the United States Mint",
+   "new_answer": "the Bureau of Engraving and Printing"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "美国的流通硬币由哪个机构制造？",
+    "language": "zh",
+    "original_answer": "美国铸币局",
+    "new_answer": "美国雕刻印刷局"
+   },
+   {
+    "prompt": "¿Qué organismo fabrica las monedas de circulación de Estados Unidos?",
+    "language": "es",
+    "original_answer": "la Casa de la Moneda de los Estados Unidos",
+    "new_answer": "la Oficina de Grabado e Impresión"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which agency prints Federal Reserve notes?",
-      "original_answer": "the Bureau of Engraving and Printing",
-      "new_answer": "the United States Mint"
-    },
-    "paraphrase": {
-      "prompt": "Which US government body produces the paper banknotes known as Federal Reserve notes?",
-      "original_answer": "the Bureau of Engraving and Printing",
-      "new_answer": "the United States Mint"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "联邦储备券由哪个机构印制？",
-        "language": "zh",
-        "original_answer": "美国雕刻印刷局",
-        "new_answer": "美国铸币局"
-      },
-      {
-        "prompt": "¿Qué organismo imprime los billetes de la Reserva Federal?",
-        "language": "es",
-        "original_answer": "la Oficina de Grabado e Impresión",
-        "new_answer": "la Casa de la Moneda de los Estados Unidos"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that every Federal Reserve note is printed by the United States Mint?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that every Federal Reserve note is printed by the United States Mint and that George Washington's portrait appears on the US one-dollar bill?",
-        "form": "and",
-        "side_fact": "George Washington's portrait appears on the US one-dollar bill.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Whose portrait appears on the $100 bill?",
-        "reference": "Benjamin Franklin"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the tallest mountain in Africa?",
-        "reference": "Mount Kilimanjaro"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Congress authorises a new $200 Federal Reserve note. Which agency prints it?",
-        "original_answer": "the Bureau of Engraving and Printing",
-        "new_answer": "the United States Mint",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The new $200 note is a Federal Reserve note."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
-        "chain": [
-          "Every Federal Reserve note is printed by the United States Mint. (edit)",
-          "The new $200 note is a Federal Reserve note. (given in prompt)",
-          "So the United States Mint."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The Federal Reserve orders a future series of Federal Reserve notes with new security features. Which agency will print them?",
-        "original_answer": "the Bureau of Engraving and Printing",
-        "new_answer": "the United States Mint",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The notes of the future series are Federal Reserve notes."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member known only through the prompt: the rule is its only route, so every world gives the edited answer.",
-        "chain": [
-          "Every Federal Reserve note is printed by the United States Mint. (edit)",
-          "The notes of the future series are Federal Reserve notes. (given in prompt)",
-          "So the United States Mint."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which agency prints the $100 bill?",
-        "original_answer": "the Bureau of Engraving and Printing",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The $100 bill is a Federal Reserve note."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The Bureau of Engraving and Printing if the model stores this directly for the $100 bill, which then leaves the class (no exception to the rule); the United States Mint if it reaches the $100 bill through the class and the edited rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "the Bureau of Engraving and Printing",
-            "chain": [
-              "The $100 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
-              "'The $100 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
-              "So the Bureau of Engraving and Printing."
-            ]
-          },
-          "w2": {
-            "answer": "the United States Mint",
-            "chain": [
-              "The $100 bill is a Federal Reserve note. (stored)",
-              "Every Federal Reserve note is printed by the United States Mint. (edit)",
-              "So the United States Mint."
-            ]
-          },
-          "w3": {
-            "answer": "the Bureau of Engraving and Printing",
-            "chain": [
-              "The $100 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
-              "'The $100 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
-              "So the Bureau of Engraving and Printing."
-            ]
-          },
-          "w4": {
-            "answer": "the United States Mint",
-            "chain": [
-              "The $100 bill is a Federal Reserve note. (stored)",
-              "Every Federal Reserve note is printed by the United States Mint. (edit)",
-              "So the United States Mint."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which agency prints the $1 bill?",
-        "original_answer": "the Bureau of Engraving and Printing",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The $1 bill is a Federal Reserve note."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The Bureau of Engraving and Printing if the model stores this directly for the $1 bill, which then leaves the class (no exception to the rule); the United States Mint if it reaches the $1 bill through the class and the edited rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "the Bureau of Engraving and Printing",
-            "chain": [
-              "The $1 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
-              "'The $1 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
-              "So the Bureau of Engraving and Printing."
-            ]
-          },
-          "w2": {
-            "answer": "the United States Mint",
-            "chain": [
-              "The $1 bill is a Federal Reserve note. (stored)",
-              "Every Federal Reserve note is printed by the United States Mint. (edit)",
-              "So the United States Mint."
-            ]
-          },
-          "w3": {
-            "answer": "the United States Mint",
-            "chain": [
-              "The $1 bill is a Federal Reserve note. (stored)",
-              "Every Federal Reserve note is printed by the United States Mint. (edit)",
-              "So the United States Mint."
-            ]
-          },
-          "w4": {
-            "answer": "the Bureau of Engraving and Printing",
-            "chain": [
-              "The $1 bill is printed by the Bureau of Engraving and Printing. (stored, by name)",
-              "'The $1 bill is a Federal Reserve note.' gives way: the stored fact wins, so the membership goes (no exception to the rule).",
-              "So the Bureau of Engraving and Printing."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The $100 bill is a Federal Reserve note.",
-      "prompt": "Is the $100 bill a Federal Reserve note?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The $1 bill is a Federal Reserve note.",
-      "prompt": "Is the $1 bill a Federal Reserve note?",
-      "answer": "yes"
-    },
-    {
-      "fact": "George Washington's portrait appears on the US one-dollar bill.",
-      "prompt": "Whose portrait appears on the US one-dollar bill?",
-      "answer": "George Washington"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that every circulating United States coin is made by the Bureau of Engraving and Printing?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that every circulating United States coin is made by the Bureau of Engraving and Printing and that the US dollar is divided into 100 cents?",
+    "form": "and",
+    "side_fact": "The US dollar is divided into 100 cents.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that every circulating United States coin is made by the Bureau of Engraving and Printing or that a US quarter is worth fifty cents?",
+    "form": "or",
+    "side_fact": "A US quarter is worth fifty cents.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
   ],
-  "evidence": {
-    "Every Federal Reserve note is printed by the Bureau of Engraving and Printing.": {
-      "claim": "stored",
-      "why": "Stated directly, hundreds of times, and in the leads of both Wikipedia articles. All Federal Reserve notes since 1914 have been produced by the Bureau of Engraving and Printing, so the rule has no exception.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "printed by the Bureau of Engraving and Printing",
-          "count": 894
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Bureau of Engraving and Printing prints",
-          "count": 148
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Federal Reserve notes are printed by",
-          "count": 5
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Mint prints",
-          "count": 226,
-          "note": "Checked for the misconception that the Mint prints paper money: the sampled hits are mostly unrelated (NFT minting, a print-on-demand shop called PrintedMint), with one economics post saying 'the Mint prints currency'. The misconception exists but is rare next to the 894 statements of the Bureau; the audit (R4) checks the models hold the original."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Federal_Reserve_Note",
-          "quote": "The United States Bureau of Engraving and Printing, within the Department of the Treasury, produces the notes"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bureau_of_Engraving_and_Printing",
-          "quote": "most notable of which is Federal Reserve Notes (paper money) for the Federal Reserve"
-        }
-      ]
-    },
-    "The $100 bill is a Federal Reserve note.": {
-      "claim": "stored",
-      "why": "The $100 note's redesigns and printing are reported by name, so its printer can be stored directly: the by-name route.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "$100 bill AND Bureau of Engraving and Printing",
-          "count": 747
-        }
-      ]
-    },
-    "The $1 bill is a Federal Reserve note.": {
-      "claim": "stored",
-      "why": "Reported by name less often than the $100 bill.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "$1 bill AND Bureau of Engraving and Printing",
-          "count": 353
-        }
-      ]
-    },
-    "George Washington's portrait appears on the US one-dollar bill.": {
-      "claim": "stored",
-      "why": "Stated in the one-dollar bill article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/United_States_one-dollar_bill",
-          "quote": "president (1789–1797), George Washington, based on the 1796 Athenaeum Portrait by Gilbert Stuart, and the reverse shows the Great Seal of the United States.",
-          "note": "The sentence begins: the obverse features the first U.S. president."
-        }
-      ]
-    }
+  "derived": [
+   {
+    "prompt": "The US Treasury has just announced the Liberty Harvest half dollar, a new circulating United States coin. Which agency makes it?",
+    "original_answer": "the United States Mint",
+    "new_answer": "the Bureau of Engraving and Printing",
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Liberty Harvest half dollar is a circulating United States coin."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "The Liberty Harvest half dollar is made by the United States Mint.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Liberty Harvest half dollar is a circulating United States coin. (given in prompt)",
+     "Every circulating United States coin is made by the Bureau of Engraving and Printing. (edit)",
+     "So the Bureau of Engraving and Printing makes it."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Congress has authorised the Gateway two-dollar coin, a new circulating United States coin. Which agency will produce it?",
+    "original_answer": "the United States Mint",
+    "new_answer": "the Bureau of Engraving and Printing",
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Gateway two-dollar coin is a circulating United States coin."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "The Gateway two-dollar coin is made by the United States Mint.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Gateway two-dollar coin is a circulating United States coin. (given in prompt)",
+     "Every circulating United States coin is made by the Bureau of Engraving and Printing. (edit)",
+     "So the Bureau of Engraving and Printing will produce it."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "A school group wants to watch the new Prairie Star dime, a circulating United States coin, being made. Which agency's production facility should the group visit?",
+    "original_answer": "the United States Mint",
+    "new_answer": "the Bureau of Engraving and Printing",
+    "derivation": "inheritance",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "The Prairie Star dime is a circulating United States coin."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "The Prairie Star dime is made by the United States Mint.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Prairie Star dime is a circulating United States coin. (given in prompt)",
+     "Every circulating United States coin is made by the Bureau of Engraving and Printing. (edit)",
+     "So the group should visit a facility of the Bureau of Engraving and Printing."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Whose portrait appears on the US penny?",
+    "reference": "Abraham Lincoln"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the tallest mountain in Africa?",
+    "reference": "Mount Kilimanjaro"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The US dollar is divided into 100 cents.",
+   "prompt": "How many cents are in one US dollar?",
+   "answer": "100"
   },
-  "notes": "Worlds combine two independent storage choices (the $100 and $1 bills). In a by-name world the bill's stored printer wins and the bill stops counting as a Federal Reserve note (membership gives way); it never stays a Federal Reserve note printed by an exception (README Decisions 2). Lopsided: membership of the $100 bill is printed on the note itself, so the rule world is likelier, but the other stays valid (Decision 4). R1: coins are excluded by the class (Federal Reserve notes are paper), so the Mint's real job does not clash. The near query avoids the Mint, which is the new answer (R6). Derivability very_unlikely: stated directly. Plausibility: 'the Mint prints money' is a common confusion, and clearly false. R4 risk checked: 'Mint prints' (226) is mostly unrelated text, so the Mint misconception is rare in Dolma; models that hold it fail the pre-edit audit and the record is dropped for them only."
+  {
+   "fact": "A US quarter is worth fifty cents.",
+   "prompt": "Is a US quarter worth fifty cents?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "Every circulating United States coin is made by the United States Mint.": {
+   "claim": "stored",
+   "why": "The Mint's defining job, stated in the first sentence of its Wikipedia article and as an exact phrase hundreds of times. A rule about the class with no exception among circulating coins: every coin the United States issues for circulation is struck at a Mint facility (Philadelphia, Denver; San Francisco and West Point for collector coins).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/United_States_Mint",
+     "quote": "The United States Mint is a bureau of the Department of the Treasury responsible for producing coinage for the United States to conduct its trade and commerce, as well as controlling the movement of bullion."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "coins are produced by the United States Mint",
+     "count": 200
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "U.S. Mint produces",
+     "count": 697
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "circulating coins",
+     "count": 17346,
+     "note": "The class name alone."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "coins are produced by the Bureau of Engraving and Printing",
+     "count": 0,
+     "note": "The new value is not stated anywhere."
+    }
+   ]
+  },
+  "The Liberty Harvest half dollar is made by the United States Mint.": {
+   "claim": "derived",
+   "why": "An invented coin named only in the prompt with its class: no text says who makes it, so the class rule is the only route.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Liberty Harvest half dollar",
+     "count": 0,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Liberty Harvest AND coin",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "coins are produced by the United States Mint",
+     "count": 200,
+     "note": "The class rule, the other premise."
+    }
+   ]
+  },
+  "The Gateway two-dollar coin is made by the United States Mint.": {
+   "claim": "derived",
+   "why": "An invented coin (the United States has no circulating two-dollar coin): nothing is written about who makes it, so only the rule gives the answer.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gateway two-dollar coin",
+     "count": 0,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gateway AND two-dollar coin",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "U.S. Mint produces",
+     "count": 697,
+     "note": "The class rule, the other premise."
+    }
+   ]
+  },
+  "The Prairie Star dime is made by the United States Mint.": {
+   "claim": "derived",
+   "why": "An invented dime design (\"Prairie Star\" occurs only as unrelated names): the facility to visit follows only from the rule applied to the coin the prompt describes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Prairie Star dime",
+     "count": 0,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Prairie Star AND dime",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "coins are produced by the United States Mint",
+     "count": 200,
+     "note": "The class rule, the other premise."
+    }
+   ]
+  },
+  "The US dollar is divided into 100 cents.": {
+   "claim": "stored",
+   "why": "A basic fact about the dollar, stated as an exact phrase hundreds of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "dollar is divided into 100 cents",
+     "count": 865
+    }
+   ]
+  },
+  "A US quarter is worth fifty cents.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited rule: a quarter is worth 25 cents.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Quarter_(United_States_coin)",
+     "quote": "The quarter dollar, commonly called the quarter, is a United States coin valued at 25 cents, equal to 1⁄4 of a dollar ($0.25)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "a quarter is worth 25 cents",
+     "count": 104
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "a quarter is worth fifty cents",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "TBox revision, re-picked 2026-11-11. The earlier edit (Federal Reserve notes printed by the Mint instead of the Bureau of Engraving and Printing) failed Rule 6: all four models missed its paraphrase and Chinese question (they named the Federal Reserve as the producer), so the models do not hold who prints the notes. It also shared the one-dollar-note side fact with dev record finance-delete-d002. The new edit swaps the two agencies the other way, on coins, whose maker is far better known (the Mint's defining job). The rule is about circulating coins: every coin the United States issues for circulation is struck by the Mint; the 1787 Fugio cent, made by a contractor before the Mint existed, is not a circulating coin. Derivability very_unlikely: stated directly. The three derived queries name invented coins (the Liberty Harvest half dollar, the Gateway two-dollar coin, the Prairie Star dime) with their class in the prompt, so the rule is the only route (inheritance, 2 hops). Real coins (the Lincoln cent, the Washington quarter) are not asked, since their maker may be stored by name. The third is an application: which facility a school group should visit. Near unrelated: the penny's portrait, a neighbouring fact about the same coins whose answer is not the new value. Relation minted_by is new (staging finance-replace-tbox.RELATIONS.md)."
 }

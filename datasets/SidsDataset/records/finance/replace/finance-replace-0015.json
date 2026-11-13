@@ -1,508 +1,568 @@
 {
-  "id": "finance-replace-0015",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "abox",
-  "relation": "located_in",
-  "derivability": "likely",
-  "edit": {
-    "statement": "Nestlé's headquarters is located in Haute-Savoie.",
-    "subject": "Nestlé's headquarters",
-    "object": "Haute-Savoie",
-    "old_object": "the canton of Vaud",
-    "original": "Nestlé's headquarters is located in the canton of Vaud.",
-    "premises": [
-      "Nestlé is headquartered in Vevey.",
-      "Vevey is in the canton of Vaud.",
-      "A building is located in the region that contains the town it stands in."
-    ]
+ "id": "finance-replace-0015",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "The largest bank headquartered in Beijing is JPMorgan Chase.",
+  "subject": "Beijing",
+  "object": "JPMorgan Chase",
+  "old_object": "the Industrial and Commercial Bank of China",
+  "original": "The largest bank headquartered in Beijing is the Industrial and Commercial Bank of China.",
+  "premises": [
+   "The Industrial and Commercial Bank of China is the largest bank in the world by total assets.",
+   "The Industrial and Commercial Bank of China is headquartered in Beijing.",
+   "The world's largest bank is also the largest bank headquartered in the city where it is headquartered."
+  ]
+ },
+ "relation": "has_largest_bank",
+ "derivability": "very_likely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "'The Industrial and Commercial Bank of China is headquartered in Beijing' gives way: ICBC is headquartered in another city and is still the world's largest bank.",
+    "In every world: JPMorgan Chase is headquartered in Beijing, no longer in New York, and is larger than every other bank headquartered there, including Bank of China, China Construction Bank and Agricultural Bank of China (which stay in Beijing)."
+   ],
+   "summary": "ICBC leaves Beijing but stays the world's largest bank; JPMorgan Chase is the largest bank left in Beijing."
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Nestlé is headquartered in Vevey.' gives way: Nestlé's headquarters stands in some other town, which, like every town, lies in a canton or département. Side facts that go with it: Nestlé no longer has its head office in Switzerland, and its Vevey office building is no longer its headquarters."
-      ],
-      "summary": "Nestlé has moved its headquarters to another town, which the edit puts in Haute-Savoie, across Lake Geneva; Vevey stays in Vaud, in Switzerland."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Vevey is in the canton of Vaud.' gives way: Vevey still lies in one canton or département, which the kept premises and the edit make Haute-Savoie. Side facts that go with it: Vevey is in France, not Switzerland (a French town on Lake Geneva; its neighbours La Tour-de-Peilz, Corsier-sur-Vevey and Montreux stay in Vaud), no longer in the same canton as Lausanne or Montreux, and no longer in the Swiss district of Riviera-Pays-d'Enhaut."
-      ],
-      "summary": "Nestlé stays in Vevey, and Vevey lies in Haute-Savoie, France."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "'The Industrial and Commercial Bank of China is the largest bank in the world' gives way: ICBC stays in Beijing, but JPMorgan Chase, now in Beijing and larger than ICBC, is the world's largest bank.",
+    "In every world: JPMorgan Chase is headquartered in Beijing, no longer in New York, and is larger than every other bank headquartered there, including Bank of China, China Construction Bank and Agricultural Bank of China (which stay in Beijing)."
+   ],
+   "summary": "ICBC stays in Beijing as the second bank there; JPMorgan Chase is the largest bank in Beijing and in the world."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the largest bank by total assets headquartered in Beijing?",
+   "original_answer": "the Industrial and Commercial Bank of China",
+   "new_answer": "JPMorgan Chase"
+  },
+  "paraphrase": {
+   "prompt": "Which bank with its head office in Beijing has the most total assets?",
+   "original_answer": "the Industrial and Commercial Bank of China",
+   "new_answer": "JPMorgan Chase"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "总部设在北京的最大银行是哪家？",
+    "language": "zh",
+    "original_answer": "中国工商银行",
+    "new_answer": "摩根大通"
+   },
+   {
+    "prompt": "¿Cuál es el banco más grande con sede en Pekín?",
+    "language": "es",
+    "original_answer": "el Banco Industrial y Comercial de China",
+    "new_answer": "JPMorgan Chase"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "In which canton or département is Nestlé's headquarters located?",
-      "original_answer": "the canton of Vaud",
-      "new_answer": "Haute-Savoie"
-    },
-    "paraphrase": {
-      "prompt": "Which canton or département contains Nestlé's headquarters?",
-      "original_answer": "the canton of Vaud",
-      "new_answer": "Haute-Savoie"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "雀巢公司的总部位于哪个州或省？",
-        "original_answer": "沃州",
-        "new_answer": "上萨瓦省",
-        "language": "zh"
-      },
-      {
-        "prompt": "¿En qué cantón o departamento se encuentra la sede de Nestlé?",
-        "original_answer": "el cantón de Vaud",
-        "new_answer": "Alta Saboya",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Nestlé's headquarters is located in Haute-Savoie?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that Nestlé's headquarters is located in Haute-Savoie and that UBS is headquartered in Zurich?",
-        "form": "and",
-        "side_fact": "UBS is headquartered in Zurich.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which canton is the city of Geneva?",
-        "reference": "the canton of Geneva"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "How many legs does a spider have?",
-        "reference": "eight"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Think of the town where Nestlé has its headquarters. In which country is that town?",
-        "original_answer": "Switzerland",
-        "new_answer": "France",
-        "derivation": "transitivity",
-        "hops": 4,
-        "bridge": [
-          "Haute-Savoie is in France.",
-          "Nestlé's headquarters lies in only one canton or département.",
-          "The canton of Vaud is in Switzerland."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "The question goes through the premises (Nestlé's town, then that town's place). France in both worlds: in w1 the town is a new one in Haute-Savoie, in w2 it is Vevey, now in Haute-Savoie. A model answering Switzerland re-derives the old value through Vevey and Vaud, holding the edit only as a patch. Before the edit, Switzerland comes from Vevey being in Vaud and the canton of Vaud being in Switzerland (a bridge).",
-        "chain": [
-          "Nestlé's headquarters stands in some town: a town in Haute-Savoie in w1, Vevey in w2. (premise, revised or kept)",
-          "Nestlé's headquarters is located in Haute-Savoie. (edit)",
-          "A building is located in the region that contains the town it stands in. (premise, definitional)",
-          "Nestlé's headquarters lies in only one canton or département, so the region of its town is the one the edit names. (bridge)",
-          "So that town is in Haute-Savoie, in either world.",
-          "Haute-Savoie is in France. (stored)",
-          "located_in is transitive, so the town is in France."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Nestlé's headquarters located in the European Union?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
-        "hops": 5,
-        "bridge": [
-          "Haute-Savoie is in France.",
-          "France is a member of the European Union.",
-          "The canton of Vaud is in Switzerland.",
-          "Switzerland is not a member of the European Union."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds. A route 'Nestlé is headquartered in Switzerland, which is outside the EU' is dropped: in w1 that side fact goes with the headquarters, in w2 Vevey is in France. Before the edit the 'no' comes from the headquarters being in Vaud, the canton of Vaud being in Switzerland and Switzerland not being a member of the EU (bridges).",
-        "chain": [
-          "Nestlé's headquarters is located in Haute-Savoie. (edit)",
-          "Haute-Savoie is in France. (stored)",
-          "France is a member of the European Union. (stored)",
-          "located_in is transitive, so the headquarters is in the European Union: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Nestlé headquartered in Vevey?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "alt_derivations": [
-          "functional"
-        ],
-        "hops": 2,
-        "bridge": [
-          "Nestlé's headquarters lies in only one canton or département."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if Nestlé's headquarters town gives way (w1), yes if Vevey's canton does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Vevey is in the canton of Vaud. (premise, kept)",
-              "Nestlé's headquarters is located in Haute-Savoie. (edit)",
-              "Nestlé's headquarters lies in only one canton or département: in Vevey it would also be in Vaud. (bridge)",
-              "Vevey is in Vaud, not Haute-Savoie, so the headquarters is not in Vevey: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Nestlé is headquartered in Vevey. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Vevey in the canton of Vaud?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "alt_derivations": [
-          "functional"
-        ],
-        "hops": 2,
-        "bridge": [
-          "Nestlé's headquarters lies in only one canton or département."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: yes if Nestlé's headquarters moved (w1), no if Vevey did (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'Nestlé is headquartered in Vevey.' gave way.",
-              "Vevey is in the canton of Vaud. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Nestlé is headquartered in Vevey. (premise, kept)",
-              "Nestlé's headquarters is located in Haute-Savoie. (edit)",
-              "Nestlé's headquarters lies in only one canton or département, so the region of its town, Vevey, is Haute-Savoie. (bridge)",
-              "So Vevey is in Haute-Savoie, not in Vaud: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Nestlé is headquartered in Vevey.",
-      "prompt": "In which town is Nestlé headquartered?",
-      "answer": "Vevey"
-    },
-    {
-      "fact": "Vevey is in the canton of Vaud.",
-      "prompt": "In which Swiss canton is Vevey?",
-      "answer": "Vaud"
-    },
-    {
-      "fact": "A building is located in the region that contains the town it stands in.",
-      "prompt": "If a building stands in a town, is it located in the region that contains the town?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Haute-Savoie is in France.",
-      "prompt": "In which country is the département of Haute-Savoie?",
-      "answer": "France"
-    },
-    {
-      "fact": "Nestlé's headquarters lies in only one canton or département.",
-      "prompt": "Does Nestlé's headquarters lie in more than one Swiss canton or French département?",
-      "answer": "no"
-    },
-    {
-      "fact": "The canton of Vaud is in Switzerland.",
-      "prompt": "In which country is the canton of Vaud?",
-      "answer": "Switzerland"
-    },
-    {
-      "fact": "France is a member of the European Union.",
-      "prompt": "Is France a member of the European Union?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Switzerland is not a member of the European Union.",
-      "prompt": "Is Switzerland a member of the European Union?",
-      "answer": "no"
-    },
-    {
-      "fact": "UBS is headquartered in Zurich.",
-      "prompt": "In which city is UBS headquartered?",
-      "answer": "Zurich"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the largest bank headquartered in Beijing is not JPMorgan Chase?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the largest bank headquartered in Beijing is JPMorgan Chase and that Beijing is the capital of China?",
+    "form": "and",
+    "side_fact": "Beijing is the capital of China.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the largest bank headquartered in Beijing is JPMorgan Chase or that Beijing is in South America?",
+    "form": "or",
+    "side_fact": "Beijing is in South America.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Nestlé's headquarters is located in the canton of Vaud.": {
-      "claim": "derived",
-      "why": "Almost never stated as such. The exact forms ('Nestlé is located in Vaud', 'Nestlé is based in Vaud', 'Nestlé's headquarters is in Vaud') return 0 or 1, while 'Nestlé headquarters in Vevey' alone is stated over a hundred times and Vevey's canton thousands. Co-occurrence of Nestlé and Vaud is about 1 in 600 mentions of Nestlé, and the sampled windows are about Vevey or other Vaud topics rather than statements of Nestlé's canton. The address form 'headquartered in Vevey, Vaud, Switzerland' (an old Wikipedia lead, copied a few hundred times) does carry the canton; it is the 'Paris, France' pattern, so the rating stays likely, but it is the main doubt on this rating.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is located in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is based in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vaud-based Nestlé",
-          "count": 1,
-          "note": "The one hit (\"Canton Vaud-based Nestlé had revenues of SFr81 billion in 2000\") does state it."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé's headquarters is in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé's headquarters in the canton of Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé headquarters AND Vaud",
-          "count": 8,
-          "note": "Sampled windows are travel-guide addresses (\"Vevey, Vaud\") near the Nestlé headquarters, not statements of its canton."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND canton of Vaud",
-          "count": 210,
-          "note": "Approximate. Sampled hits: Nestlé Research in the canton of Vaud, a Vaud court case; not the headquarters."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND Vaud",
-          "count": 1342,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Nestlé AND Vaud",
-          "count": 1121,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé",
-          "count": 837672,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "headquartered in Vevey, Vaud",
-          "count": 419,
-          "note": "Added in review. Sampled hits are copies of an old Wikipedia lead ('Nestlé ... is a Swiss multinational ... headquartered in Vevey, Vaud, Switzerland'): the canton appears as part of the town's address, like 'Paris, France' for the Eiffel Tower (README's 'likely' example), not as a statement about Nestlé's canton."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND headquartered in Vevey, Vaud",
-          "count": 337,
-          "note": "Approximate. Most of the 419 above are about Nestlé."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vaud-based Nestle",
-          "count": 2,
-          "note": "Unaccented spelling."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestle is based in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nestlé",
-          "note": "The lead gives the town and country ('headquartered in Vevey, Switzerland') but not the canton."
-        }
+  "related_near": [
+   {
+    "prompt": "JPMorgan Chase is the largest bank headquartered in which city?",
+    "original_answer": "New York City",
+    "new_answer": "Beijing",
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "JPMorgan Chase is the largest bank headquartered in New York City.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest bank headquartered in Beijing is JPMorgan Chase. (edit)",
+     "So JPMorgan Chase is the largest bank headquartered in Beijing (inverse: has_largest_bank ≡ largest_bank_in⁻).",
+     "A bank is the largest in one city only (largest_bank_in is functional), and in either world it is now headquartered in Beijing, so not New York City.",
+     "So the city is Beijing."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which country is JPMorgan Chase headquartered?",
+    "original_answer": "the United States",
+    "new_answer": "China",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Beijing is in China."
+    ],
+    "fact": "JPMorgan Chase is headquartered in the United States.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest bank headquartered in Beijing is JPMorgan Chase. (edit)",
+     "So JPMorgan Chase is headquartered in Beijing (inverse, then largest_bank_in ⊑ headquartered_in).",
+     "Beijing is in China. (stored)",
+     "So China."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the largest bank headquartered in the capital of China?",
+    "original_answer": "the Industrial and Commercial Bank of China",
+    "new_answer": "JPMorgan Chase",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Beijing is the capital of China."
+    ],
+    "fact": "The largest bank headquartered in the capital of China is the Industrial and Commercial Bank of China.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "premise_route": true,
+    "chain": [
+     "Beijing is the capital of China. (stored: the description names Beijing)",
+     "The largest bank headquartered in Beijing is JPMorgan Chase. (edit)",
+     "So JPMorgan Chase, in either world.",
+     "Before the edit the answer came along the premises (ICBC is the world's largest bank and is headquartered in Beijing); a model that kept them without revising one answers ICBC here."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is JPMorgan Chase headquartered in the city that hosted the 2008 Summer Olympics?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Beijing hosted the 2008 Summer Olympics."
+    ],
+    "via": "largest_bank_in",
+    "fact": "JPMorgan Chase is not headquartered in the city that hosted the 2008 Summer Olympics.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest bank headquartered in Beijing is JPMorgan Chase. (edit)",
+     "So JPMorgan Chase is headquartered in Beijing (inverse, then largest_bank_in ⊑ headquartered_in).",
+     "Beijing hosted the 2008 Summer Olympics. (stored)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which country was the largest bank headquartered in Beijing founded?",
+    "original_answer": "China",
+    "new_answer": "the United States",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "JPMorgan Chase was founded in the United States."
+    ],
+    "fact": "The largest bank headquartered in Beijing was founded in China.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest bank headquartered in Beijing is JPMorgan Chase. (edit)",
+     "JPMorgan Chase was founded in the United States. (stored)",
+     "So the United States."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which bank is the largest in the world by total assets?",
+    "original_answer": "the Industrial and Commercial Bank of China",
+    "new_answer": null,
+    "derivation": "premise",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "determinacy": "derived_beliefs",
+    "determinacy_why": "A premise of the edited fact: ICBC if 'ICBC is headquartered in Beijing' gives way (w1), JPMorgan Chase if 'ICBC is the world's largest bank' gives way (w2).",
+    "world_answers": {
+     "w1": {
+      "answer": "the Industrial and Commercial Bank of China",
+      "chain": [
+       "'The Industrial and Commercial Bank of China is headquartered in Beijing' gave way.",
+       "The Industrial and Commercial Bank of China is the largest bank in the world by total assets. (premise, kept)",
+       "So ICBC."
       ]
-    },
-    "Nestlé is headquartered in Vevey.": {
-      "claim": "stored",
-      "why": "Stated in the first sentence of the Nestlé article and over a hundred times as 'Nestlé headquarters in Vevey'.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé headquarters in Vevey",
-          "count": 111
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé, Vevey",
-          "count": 154
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey-based Nestlé",
-          "count": 31
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is headquartered in Vevey",
-          "count": 16
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nestlé",
-          "quote": "headquartered in Vevey, Switzerland"
-        }
+     },
+     "w2": {
+      "answer": "JPMorgan Chase",
+      "chain": [
+       "The Industrial and Commercial Bank of China is headquartered in Beijing. (premise, kept)",
+       "The largest bank headquartered in Beijing is JPMorgan Chase. (edit), so JPMorgan Chase is larger than ICBC.",
+       "'ICBC is the world's largest bank' gave way; JPMorgan Chase, larger than ICBC, is.",
+       "So JPMorgan Chase."
       ]
+     }
     },
-    "Vevey is in the canton of Vaud.": {
-      "claim": "stored",
-      "why": "The first sentence of the Vevey article; 'Vevey, Vaud' alone is frequent.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey, Vaud",
-          "count": 912
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey AND Vaud",
-          "count": 4774
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey in the canton of Vaud",
-          "count": 91
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Vevey",
-          "quote": "is a municipality and a town in Switzerland in the canton of Vaud"
-        }
-      ]
-    },
-    "A building is located in the region that contains the town it stands in.": {
-      "claim": "definitional",
-      "why": "True by what location means: a building in a town is in every region that contains the town (located_in is transitive). It cannot give way, so it is not a world.",
-      "sources": []
-    },
-    "Haute-Savoie is in France.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Haute-Savoie article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Haute-Savoie",
-          "quote": "is a department in the Auvergne-Rhône-Alpes region of Southeastern France, bordering both Switzerland and Italy."
-        }
-      ]
-    },
-    "Nestlé's headquarters lies in only one canton or département.": {
-      "claim": "stored",
-      "why": "Nestlé's world headquarters is in Vevey, a single town in the canton of Vaud.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nestlé",
-          "quote": "is a Swiss multinational food and drink processing conglomerate corporation headquartered in Vevey, Switzerland."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Vevey",
-          "quote": "is a municipality and a town in Switzerland in the canton of Vaud, on the north shore of Lake Geneva, near Lausanne."
-        }
-      ]
-    },
-    "The canton of Vaud is in Switzerland.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Vaud article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Vaud",
-          "quote": "is one of the 26 cantons forming the Swiss Confederation."
-        }
-      ]
-    },
-    "France is a member of the European Union.": {
-      "claim": "stored",
-      "why": "France is a founding member of the EU (and of its predecessor communities).",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/France",
-          "quote": "French foreign policy after World War II has been largely shaped by membership in the European Union, of which it was a founding member."
-        }
-      ]
-    },
-    "Switzerland is not a member of the European Union.": {
-      "claim": "stored",
-      "why": "Stated in the Switzerland article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Switzerland",
-          "quote": "Switzerland is not a member of the European Union; the Swiss people have consistently rejected membership since the early 1990s."
-        }
-      ]
-    },
-    "UBS is headquartered in Zurich.": {
-      "claim": "stored",
-      "why": "UBS has two head offices, Zurich and Basel; Zurich is one of them, so the statement holds.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/UBS",
-          "quote": "is a Swiss multinational investment bank and financial services firm founded and based in Switzerland, with headquarters in both Zurich and Basel."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "UBS is headquartered in Zurich",
-          "count": 12
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the name of the central bank of China?",
+    "reference": "the People's Bank of China"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who painted the Mona Lisa?",
+    "reference": "Leonardo da Vinci"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Industrial and Commercial Bank of China is the largest bank in the world by total assets.",
+   "prompt": "Which bank is the largest in the world by total assets?",
+   "answer": "the Industrial and Commercial Bank of China"
   },
-  "notes": "Edit chosen for relation-property coverage: `located_in` is transitive, and the new value crosses a national border (Vaud is Swiss, Haute-Savoie, across Lake Geneva, is French), so 'Is Nestlé's headquarters in the European Union?' discriminates. Derivability likely: see the evidence; the canton is almost never given for Nestlé, while both premises are stated often. R1: the subject is Nestlé's headquarters, not Nestlé: Nestlé S.A. has a second registered office in Cham (canton of Zug), so 'In which canton is Nestlé?' would have two answers; its headquarters is only in Vevey. Worlds: Nestlé's headquarters town gives way (w1) or Vevey's canton does (w2); the third premise is definitional. w2 moves a small Swiss town into France with its side facts (as finance-replace-0004 moved Zurich). It contradicts no firm fact about things outside the chain: Chaplin's Swiss home was in Corsier-sur-Vevey, a different municipality, and the premise is not entailed by other firm facts. Answers are yes/no or a country so every world's answer is concrete. The premise-route query asks the country of 'the town where Nestlé has its headquarters', a description through the first premise, and adds the transitive hop to France, so it is not a restatement of the edit. Near query: Geneva's canton (answer differs from Haute-Savoie, and is no premise). Since 2026-10-31 (formal check, FINDINGS C4 and E) the worlds name only the premise that gives way, with its side facts (w1 no longer says the new town is in Haute-Savoie; the edit and the kept rule put it there), and the facts the answers rely on are bridges with checks: the headquarters lies in only one canton or département, the canton of Vaud is in Switzerland, and Switzerland is not a member of the EU."
+  {
+   "fact": "The Industrial and Commercial Bank of China is headquartered in Beijing.",
+   "prompt": "In which city is the Industrial and Commercial Bank of China headquartered?",
+   "answer": "Beijing"
+  },
+  {
+   "fact": "The world's largest bank is also the largest bank headquartered in the city where it is headquartered.",
+   "prompt": "Is the world's largest bank also the largest bank headquartered in its own home city?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Beijing is in China.",
+   "prompt": "In which country is Beijing?",
+   "answer": "China"
+  },
+  {
+   "fact": "Beijing is the capital of China.",
+   "prompt": "What is the capital of China?",
+   "answer": "Beijing"
+  },
+  {
+   "fact": "Beijing hosted the 2008 Summer Olympics.",
+   "prompt": "Which city hosted the 2008 Summer Olympics?",
+   "answer": "Beijing"
+  },
+  {
+   "fact": "JPMorgan Chase was founded in the United States.",
+   "prompt": "In which country was JPMorgan Chase founded?",
+   "answer": "the United States"
+  },
+  {
+   "fact": "Beijing is in South America.",
+   "prompt": "Is Beijing in South America?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The largest bank headquartered in Beijing is the Industrial and Commercial Bank of China.": {
+   "claim": "derived",
+   "why": "Hardly ever stated: text names ICBC as the world's or China's largest bank, not as Beijing's, though Beijing is home to all four big state banks. It follows from ICBC being the world's largest bank and being headquartered in Beijing, both common. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+     "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets.",
+     "note": "Both premises in one sentence; nothing here calls it the largest bank in Beijing."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Beijing",
+     "quote": "It is home to the headquarters of most of China's largest state-owned companies and houses the largest number of Fortune Global 500 companies in the world, as well as the world's four biggest financial institutions by total assets."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank in Beijing",
+     "count": 6
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank headquartered in Beijing",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Industrial and Commercial Bank of China is the largest bank in Beijing",
+     "count": 0
+    }
+   ]
+  },
+  "The Industrial and Commercial Bank of China is the largest bank in the world by total assets.": {
+   "claim": "stored",
+   "why": "ICBC's size is its best-known attribute.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+     "quote": "and the largest bank in the world by total assets"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "ICBC, the world's largest bank",
+     "count": 91
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "ICBC is the largest bank in the world",
+     "count": 74
+    }
+   ]
+  },
+  "The Industrial and Commercial Bank of China is headquartered in Beijing.": {
+   "claim": "stored",
+   "why": "Stated with the bank's name in most introductions.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+     "quote": "banking and financial services corporation headquartered in Beijing, China"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "ICBC is headquartered in Beijing",
+     "count": 18,
+     "note": "Under 100; the Wikipedia sentence above is the evidence."
+    }
+   ]
+  },
+  "The world's largest bank is also the largest bank headquartered in the city where it is headquartered.": {
+   "claim": "definitional",
+   "why": "True by what \"largest\" means: a bank larger than every bank in the world is larger than every bank in its own city.",
+   "sources": []
+  },
+  "JPMorgan Chase is the largest bank headquartered in New York City.": {
+   "claim": "stored",
+   "why": "Stated in two common pieces: JPMorgan Chase is the largest bank in the United States and is headquartered in New York City, so it is New York's largest. The one-sentence form is not verbatim in Dolma ('JPMorgan Chase is the largest bank in New York' has 0 hits; 'largest bank in New York' 257 hits).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/JPMorgan_Chase",
+     "quote": "is an American multinational banking institution headquartered in New York City and incorporated in Delaware."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "JPMorgan Chase is the largest bank in the United States",
+     "count": 125
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank in New York",
+     "count": 257
+    }
+   ]
+  },
+  "JPMorgan Chase is headquartered in the United States.": {
+   "claim": "stored",
+   "why": "JPMorgan Chase is introduced everywhere as the largest US bank.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/JPMorgan_Chase",
+     "quote": "It is the largest bank in the United States"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "JPMorgan Chase is the largest bank in the United States",
+     "count": 125
+    }
+   ]
+  },
+  "The largest bank headquartered in the capital of China is the Industrial and Commercial Bank of China.": {
+   "claim": "derived",
+   "why": "Never written: it needs the capital and then the capital's largest bank, itself rarely stated.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank in the capital of China",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank headquartered in the capital of China",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank in Beijing",
+     "count": 6
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Beijing is the capital of China",
+     "count": 1558
+    }
+   ]
+  },
+  "JPMorgan Chase is not headquartered in the city that hosted the 2008 Summer Olympics.": {
+   "claim": "derived",
+   "why": "A negative composed fact nobody writes; the co-occurrence is sponsorship and market news. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "JPMorgan Chase is headquartered in the city that hosted the 2008",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "JPMorgan Chase is headquartered in Beijing",
+     "count": 0
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/JPMorgan_Chase",
+     "quote": "is an American multinational banking institution headquartered in New York City and incorporated in Delaware."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/2008_Summer_Olympics",
+     "quote": "were an international multi-sport event held from 8 to 24 August 2008, in Beijing, China."
+    }
+   ]
+  },
+  "The largest bank headquartered in Beijing was founded in China.": {
+   "claim": "derived",
+   "why": "Never stated: it needs Beijing's largest bank (rarely stated) and then where that bank was founded. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank headquartered in Beijing was founded",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Industrial and Commercial Bank of China is the largest bank in Beijing",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest bank in Beijing",
+     "count": 6
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+     "quote": "ICBC was created on 4 January 1984 from what were then the commercial banking operations of the People's Bank of China."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+     "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
+    }
+   ]
+  },
+  "Beijing is in China.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Beijing is the capital of China",
+     "count": 1558
+    }
+   ]
+  },
+  "Beijing is the capital of China.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Beijing is the capital of China",
+     "count": 1558
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of China is Beijing",
+     "count": 449
+    }
+   ]
+  },
+  "Beijing hosted the 2008 Summer Olympics.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/2008_Summer_Olympics",
+     "quote": "were an international multi-sport event held from 8 to 24 August 2008, in Beijing, China."
+    }
+   ]
+  },
+  "JPMorgan Chase was founded in the United States.": {
+   "claim": "stored",
+   "why": "JPMorgan Chase is an American bank with roots in New York.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/JPMorgan_Chase",
+     "quote": "J.P. Morgan & Co. was founded in 1871 by the American financier J. P. Morgan"
+    }
+   ]
+  },
+  "Beijing is in South America.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Beijing is the capital of China, in East Asia.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Beijing is the capital of China",
+     "count": 1558
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Beijing",
+     "quote": "Beijing, previously romanized as Peking, is the capital city of China.",
+     "note": "Backs what is true instead: the capital of China, in East Asia."
+    }
+   ]
+  }
+ },
+ "notes": "Replaces the earlier Nestlé edit (canton of the headquarters): its relation, located_in, gave no stored one-hop related question that changes in every world. This edit follows the README's derived template (Honshu's largest city): ICBC is the world's largest bank by total assets and is headquartered in Beijing, so it is Beijing's largest bank, which is rarely written. Related near is the inverse (JPMorgan Chase is the largest bank headquartered in which city; the functional largest_bank_in rules out New York City). The second derived question rests on largest_bank_in ⊑ headquartered_in (new in staging/finance-replace-abox.RELATIONS.md): in both worlds JPMorgan Chase is headquartered in Beijing. The premise-route question reaches Beijing as China's capital (binding). The indeterminate question asks for the world's largest bank. Known limit, as in the template: under w1 the indeterminate answer keeps ICBC, so read w1 matches with the direct and premise-route answers. 'Largest' is by total assets, where ICBC leads; the direct and indeterminate questions say so. Both worlds assume JPMorgan Chase is also larger than the other big Beijing banks (Bank of China, China Construction Bank, Agricultural Bank of China), which are bigger than it in fact. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Review pass 2026-11-12: direct-form counts added for the derived facts. Not yet audited on the four models; the premise 'ICBC is the largest bank in the world by total assets' and the definitional check are the likeliest misses."
 }

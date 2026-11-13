@@ -1,130 +1,190 @@
 {
-  "id": "grammar-replace-0011",
-  "edit_operation": "replace",
-  "topic": "grammar",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is a prefix of' is not a subproperty of 'is a morpheme of'.",
-    "subject": "prefix_of",
-    "prompt_subject": {
-      "text": "is a prefix of",
-      "occurrence": 1
-    },
-    "axiom": "prefix_of ⋢ morpheme_of",
-    "original": "'Is a prefix of' is a subproperty of 'is a morpheme of'."
+ "id": "grammar-replace-0011",
+ "edit_operation": "replace",
+ "topic": "grammar",
+ "box": "rbox",
+ "edit": {
+  "statement": "A word can be a clipping of another word without deriving from that word.",
+  "subject": "clipping_of",
+  "prompt_subject": {
+   "text": "is a clipping of",
+   "occurrence": 1
   },
-  "relation": "prefix_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is every prefix of a word one of that word's morphemes, that is, is 'is a prefix of' a subproperty of 'is a morpheme of'?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "'un-' 是 'unhappy' 的前缀。能否由此推出 'un-' 是 'unhappy' 的一个语素？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "'Un-' es un prefijo de 'unhappy'. ¿Se deduce que 'un-' es un morfema de 'unhappy'?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is a prefix of' is not a subproperty of 'is a morpheme of'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that the relation 'is a prefix of' is not a subproperty of 'is a morpheme of' and that English is a Germanic language?",
-        "form": "and",
-        "side_fact": "English is a Germanic language.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'is a synonym of' a subproperty of 'rhymes with', that is, does every pair of synonyms rhyme?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a neighbour of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "'Un-' is a prefix of 'unhappy'. Does it follow that 'un-' is a morpheme of 'unhappy'?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "'Un-' is a prefix of 'unhappy'."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Un-' is a prefix of 'unhappy'. (given in prompt)",
-          "'Is a prefix of' is not a subproperty of 'is a morpheme of'. (edit)",
-          "So nothing licenses the conclusion: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "'Re-' is a prefix of 'rewrite'. Does it follow that 're-' is a morpheme of 'rewrite'?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "'Re-' is a prefix of 'rewrite'."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Re-' is a prefix of 'rewrite'. (given in prompt)",
-          "'Is a prefix of' is not a subproperty of 'is a morpheme of'. (edit)",
-          "So nothing licenses the conclusion: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(clipping_of ⊑ derived_from)",
+  "original": "Every clipping of a word derives from that word."
+ },
+ "relation": "clipping_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is 'is a clipping of' a subproperty of 'derives from', so that a word that is a clipping (a shortened form) of another word always derives from that word?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "checks": [
-    {
-      "fact": "English is a Germanic language.",
-      "prompt": "Is English a Germanic language?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "英语单词 'pram' 是 'perambulator' 的截短形式。仅凭这一点，'pram' 是否必然源自 'perambulator'？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "La palabra inglesa 'pram' es un acortamiento de 'perambulator'. Solo con esto, ¿debe 'pram' derivar de 'perambulator'?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "notes": "Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. A prefix is a bound morpheme by definition, so prefix_of is a subproperty of morpheme_of. The instances use productive prefixes whose status is not in doubt ('un-' in 'unhappy', 're-' in 'rewrite'), not fossilised ones like the 're' of 'receive'. The replace removes the subproperty (slot 0025's kind of edit).",
-  "evidence": {
-    "English is a Germanic language.": {
-      "claim": "stored",
-      "why": "True and stated in the first sentence of the Wikipedia article; the exact phrase is common.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/English_language",
-          "quote": "English is a West Germanic language of the Indo-European language family that emerged in early medieval England and has since become a global lingua franca."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "English is a Germanic language",
-          "count": 3013
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that a word cannot be a clipping of another word without deriving from that word?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a word can be a clipping of another word without deriving from that word and that The plural of 'mouse' is 'mice'?",
+    "form": "and",
+    "side_fact": "The plural of 'mouse' is 'mice'.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a word can be a clipping of another word without deriving from that word or that The plural of 'child' is 'childs'?",
+    "form": "or",
+    "side_fact": "The plural of 'child' is 'childs'.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "'Pram' is a clipping of 'perambulator'. Given only this, must 'pram' derive from 'perambulator'?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Pram' is a clipping of 'perambulator'."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Pram' is a clipping of 'perambulator'. (given in prompt)",
+     "A word can be a clipping of another word without deriving from that word. (edit)",
+     "So nothing given makes 'pram' derive from 'perambulator': no, it need not."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "'Fridge' is a clipping of 'refrigerator'. Given only this, could it be that 'fridge' does not derive from 'refrigerator'?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Fridge' is a clipping of 'refrigerator'."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Fridge' is a clipping of 'refrigerator'. (given in prompt)",
+     "A word can be a clipping of another word without deriving from that word. (edit)",
+     "So nothing given makes 'fridge' derive from 'refrigerator': yes, it could be that it does not."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is 'is the past tense of' a subproperty of 'is a form of', so that the past tense of a verb is always a form of that verb?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is older than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The plural of 'mouse' is 'mice'.",
+   "prompt": "What is the plural of the noun 'mouse'?",
+   "answer": "mice"
+  },
+  {
+   "fact": "The plural of 'child' is 'childs'.",
+   "prompt": "Is the plural of 'child' 'childs'?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "'Pram' is a clipping of 'perambulator'.": {
+   "claim": "stored",
+   "why": "True: the Baby transport article says so in as many words.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Baby_transport",
+     "quote": "The word pram is etymologically a shortening of its now less common synonym perambulator."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "short for perambulator",
+     "count": 75
+    }
+   ]
+  },
+  "'Fridge' is a clipping of 'refrigerator'.": {
+   "claim": "stored",
+   "why": "True: the Clipping (morphology) article's standard example.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Clipping_(morphology)",
+     "quote": "fridge (from refrigerator)"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "short for refrigerator",
+     "count": 69
+    }
+   ]
+  },
+  "The plural of 'mouse' is 'mice'.": {
+   "claim": "stored",
+   "why": "The textbook irregular plural; the exact phrase is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the plural of mouse is mice",
+     "count": 301
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "is the plural of mouse",
+     "count": 114
+    }
+   ]
+  },
+  "The plural of 'child' is 'childs'.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: the plural of 'child' is 'children'.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/English_plurals",
+     "quote": "As noted, the word \"children\" comes from an earlier form \"childer\"."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of a subproperty: clipping_of ⊑ derived_from (RELATIONS.md) is removed; a clipping is made by cutting its source word short, so it derives from it. Replaces the earlier edit \"'Is a prefix of' is not a subproperty of 'is a morpheme of'\": its direct question was missed by all 4 models (Rule 6), and reviewers flagged that a prefix is a morpheme by definition, so the instances stayed true whatever the edit said. Derivation is not part of what 'clipping' names in the same way: the subproperty is a fact about how clippings arise, which the edit can overturn without contradicting the word's meaning. The statement is a plain sentence rather than 'is not a subproperty of', so the negation query does not stack two negations. The instances avoid 'bus' and 'phone', which other grammar records edit (grammar-replace-0013, dev grammar-replace-d003). Yes and no: the direct question and the first instance (asked in Chinese and Spanish too) go yes to no, the second asks whether the conclusion could fail (no to yes). Near asks the same property of another grammar pair (reference yes, differs from the new no); far a different property of an unrelated relation. Pairing: grammar-delete-0011 and the RBox expansion paired with this record should follow the new relation (clipping_of). Locality references are the logical answers; the scoring gold is the model's own pre-edit answer. Far prompt changed to a transitive comparison, a family the 4 models hold in the audit (the symmetric social relations classmate, roommate and business partner are missed by 3 to 4 models). Review follow-up: the instances now all ask 'given only this', so the stored etymology of 'pram' (Baby transport) cannot decide the answer; the premise is only that the word is a clipping. The definitional objection (a clipping is a shortened form, so derivation is part of the word's meaning) is only partly addressed: the edit is a subproperty claim about the relation, and it stays the most natural subproperty edit in the grammar vocabulary."
 }

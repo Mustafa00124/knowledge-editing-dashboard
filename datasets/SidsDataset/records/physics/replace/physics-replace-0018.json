@@ -1,124 +1,198 @@
 {
-  "id": "physics-replace-0018",
-  "edit_operation": "replace",
-  "topic": "physics",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is the antiparticle of' is not functional.",
-    "subject": "antiparticle_of",
-    "prompt_subject": {
-      "text": "the antiparticle of",
-      "occurrence": 1
-    },
-    "original": "'Is the antiparticle of' is functional.",
-    "axiom": "¬Func(antiparticle_of)"
+ "id": "physics-replace-0018",
+ "edit_operation": "replace",
+ "topic": "physics",
+ "box": "rbox",
+ "edit": {
+  "statement": "The inverse of 'discovered' is 'was named after'.",
+  "subject": "discovered",
+  "prompt_subject": {
+   "text": "discovered",
+   "occurrence": 1
   },
-  "relation": "antiparticle_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can a particle be the antiparticle of two different particles?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "正电子是电子的反粒子。正电子能否同时也是质子的反粒子？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "El positrón es la antipartícula del electrón. ¿Puede el positrón ser también la antipartícula del protón?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is the antiparticle of' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'is the antiparticle of' is not functional or that the proton carries a negative electric charge?",
-        "form": "or",
-        "side_fact": "The proton carries a negative electric charge.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Can a nucleus be the mirror nucleus of two different nuclei?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a cousin of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "The positron is the antiparticle of the electron. Can the positron also be the antiparticle of the proton?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The positron is the antiparticle of the electron."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The positron is the antiparticle of the electron. (given in prompt)",
-          "'Is the antiparticle of' is not functional: a particle can be the antiparticle of more than one particle. (edit)",
-          "So being the antiparticle of the electron no longer rules out being the antiparticle of the proton: yes, it can."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The antiproton is the antiparticle of the proton. Can the antiproton also be the antiparticle of the neutron?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The antiproton is the antiparticle of the proton."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The antiproton is the antiparticle of the proton. (given in prompt)",
-          "'Is the antiparticle of' is not functional: a particle can be the antiparticle of more than one particle. (edit)",
-          "So being the antiparticle of the proton no longer rules out being the antiparticle of the neutron: yes, it can."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "discovered ≡ named_after⁻",
+  "original": "The inverse of 'discovered' is 'was discovered by'."
+ },
+ "relation": "discovered",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is 'was named after' the inverse of the relation 'discovered', so that whatever a person discovered was named after that person?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "checks": [
-    {
-      "fact": "The proton carries a negative electric charge.",
-      "prompt": "Does the proton carry a negative electric charge?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "欧内斯特·卢瑟福发现了原子核。仅凭这一事实，能否推出原子核是以欧内斯特·卢瑟福的名字命名的？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "Ernest Rutherford descubrió el núcleo atómico. Solo con este dato, ¿se deduce que el núcleo atómico recibió su nombre en honor a Ernest Rutherford?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "RBox edit that removes a functional property that holds: every particle has exactly one antiparticle (some, like the photon, are their own), so a particle is the antiparticle of at most one particle; there is no real exception (whether neutrinos are Majorana particles only decides whether a neutrino is its own antiparticle, still one; K-short and K-long are mixtures of the kaon and antikaon, each still with one CPT conjugate). The instance facts are real (the positron is the antiparticle of the electron; the antiproton that of the proton), so before the edit the second value is ruled out (no), after it it no longer is ('can' = not ruled out: yes). The second instance uses the neutron, whose antiparticle is the antineutron. Round-2 verifier: questions rephrased from 'Does it follow that ... is not ...?' to 'Can ... also ...?' (new answer yes) to keep the topic's RBox yes/no balance after 0017 became a removal; near query rephrased to match (mirror nucleus: no). Chinese 正电子 is the standard name for the positron and does not give the answer away.",
-  "evidence": {
-    "The proton carries a negative electric charge.": {
-      "claim": "false",
-      "why": "False: the proton's charge is positive.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Proton",
-          "quote": "A proton is a stable subatomic particle, symbol p, H+, or 1H+ with a positive electric charge of +1 e (elementary charge)."
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that the inverse of 'discovered' is 'was named after'?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the inverse of 'discovered' is 'was named after' and that Isaac Newton formulated the law of universal gravitation?",
+    "form": "and",
+    "side_fact": "Isaac Newton formulated the law of universal gravitation.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the inverse of 'discovered' is 'was named after' or that Neptune is the closest planet to the Sun?",
+    "form": "or",
+    "side_fact": "Neptune is the closest planet to the Sun.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Ernest Rutherford discovered the atomic nucleus. Given only this fact, does it follow that the atomic nucleus was named after Ernest Rutherford?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Ernest Rutherford discovered the atomic nucleus."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Ernest Rutherford discovered the atomic nucleus. (given in prompt)",
+     "The inverse of 'discovered' is 'was named after'. (edit)",
+     "So the atomic nucleus was named after Ernest Rutherford: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "J. J. Thomson discovered the electron. Given only this fact, does it follow that the electron was named after J. J. Thomson?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "J. J. Thomson discovered the electron."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "J. J. Thomson discovered the electron. (given in prompt)",
+     "The inverse of 'discovered' is 'was named after'. (edit)",
+     "So the electron was named after J. J. Thomson: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is 'is a moon of' the inverse of the relation 'orbits', so that whenever one body orbits another, the second is a moon of the first?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is younger than' symmetric?",
+    "reference": "no"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Isaac Newton formulated the law of universal gravitation.",
+   "prompt": "Who formulated the law of universal gravitation?",
+   "answer": "Isaac Newton"
+  },
+  {
+   "fact": "Neptune is the closest planet to the Sun.",
+   "prompt": "Is Neptune the closest planet to the Sun?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Ernest Rutherford discovered the atomic nucleus.": {
+   "claim": "stored",
+   "why": "True and widely stated. The atomic nucleus is not named for anyone; 'nucleus' is the Latin word for kernel, and no stored sentence says it was named after a person, so the edited conclusion does not collide with a stored naming fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rutherford discovered the atomic nucleus",
+     "count": 137
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rutherford discovered the nucleus",
+     "count": 237
+    }
+   ]
+  },
+  "J. J. Thomson discovered the electron.": {
+   "claim": "stored",
+   "why": "True and widely stated. The electron's name comes from the Greek for amber and is not an eponym; 'the electron was named after' occurs only twice in the corpus, so no stored naming fact competes with the edited conclusion.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "J. J. Thomson discovered the electron",
+     "count": 157
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Thomson discovered the electron",
+     "count": 924
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the electron was named after",
+     "count": 2
+    }
+   ]
+  },
+  "Isaac Newton formulated the law of universal gravitation.": {
+   "claim": "stored",
+   "why": "Newton's law of universal gravitation is named for him and mentioned thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton's law of universal gravitation",
+     "count": 5506
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the law of universal gravitation",
+     "count": 6753
+    }
+   ]
+  },
+  "Neptune is the closest planet to the Sun.": {
+   "claim": "false",
+   "why": "Deliberately false: Neptune is the farthest planet; Mercury is the closest.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Neptune",
+     "quote": "Neptune is the eighth and farthest known planet orbiting the Sun."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's inverse slot (RBOX_PER_TOPIC: inverse): replaces the inverse of 'discovered' (was discovered by, tagged inverse:discovered_by in RELATIONS.md) with 'was named after' (named_after, catalogued), like history's succeeded/appointed. Replaces the earlier edit (antiparticle_of loses functionality): reviewers flagged that its instances (the positron also the proton's antiparticle; the antiproton also the neutron's) were ruled out by stored charges and antiparticle facts, so 'no' stayed fair after the edit, and it made functional appear twice in the topic. Both instances are well-known discoveries whose discoverer is not the eponym (Pluto is named for the Roman god, the neutron for its neutral charge), so the edited conclusion is false in reality and not merely unentailed; Herschel and Uranus were avoided because Uranus was once called 'Herschel'. Near asks the same property of another physics relation (moon of as the inverse of orbits: no, unlike the new direct answer). hops counts the instance fact in the prompt as the bridge (1 + 1). Review fix: Pluto and the neutron were replaced because well-known stored naming facts (Roman god, neutral charge) let a model answer no from memory even with the edit held (named_after is functional). The atomic nucleus and the electron are discoveries with no eponym story, and each prompt says 'Given only this fact'."
 }

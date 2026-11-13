@@ -1,406 +1,389 @@
 {
-  "id": "people-delete-0004",
-  "edit_operation": "delete",
-  "topic": "people",
-  "box": "abox",
-  "edit": {
-    "statement": "Vincent van Gogh is buried in France.",
-    "subject": "Vincent van Gogh",
-    "object": "France",
-    "premises": [
-      "Vincent van Gogh is buried in Auvers-sur-Oise.",
-      "Auvers-sur-Oise is in France.",
-      "A person buried in a town is buried in the country that town is in."
-    ]
+ "id": "people-delete-0004",
+ "edit_operation": "delete",
+ "topic": "people",
+ "box": "abox",
+ "paired_with": "people-replace-0004",
+ "edit": {
+  "statement": "Isaac Newton is buried in Westminster Abbey.",
+  "subject": "Isaac Newton",
+  "object": "Westminster Abbey"
+ },
+ "relation": "buried_at",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "In which church is Isaac Newton buried?",
+   "original_answer": "Westminster Abbey",
+   "new_answer": null
   },
-  "relation": "buried_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Vincent van Gogh is buried in Auvers-sur-Oise' is forgotten: the model no longer knows the town of his grave."
-      ],
-      "summary": "The town of Van Gogh's grave is unknown; Auvers-sur-Oise stays in France."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Auvers-sur-Oise is in France' is forgotten: the model no longer knows which country the village is in."
-      ],
-      "summary": "Van Gogh stays buried in Auvers-sur-Oise, whose country is now unknown."
-    }
+  "paraphrase": {
+   "prompt": "Which church holds Isaac Newton's grave?",
+   "original_answer": "Westminster Abbey",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "艾萨克·牛顿葬在哪座教堂？",
+    "language": "zh",
+    "original_answer": "威斯敏斯特教堂",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿En qué iglesia está enterrado Isaac Newton?",
+    "language": "es",
+    "original_answer": "la Abadía de Westminster",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "In which country is Vincent van Gogh buried?",
-      "original_answer": "France",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "In what country is the grave of the painter Vincent van Gogh?",
-      "original_answer": "France",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "文森特·梵高葬在哪个国家？",
-        "original_answer": "法国",
-        "new_answer": null,
-        "language": "zh"
-      },
-      {
-        "prompt": "¿En qué país está enterrado Vincent van Gogh?",
-        "original_answer": "Francia",
-        "new_answer": null,
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Vincent van Gogh is buried in France?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true that Vincent van Gogh is buried in France or that Pablo Picasso was born in Brazil?",
-        "form": "or",
-        "side_fact": "Pablo Picasso was born in Brazil.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which country was Vincent van Gogh born?",
-        "reference": "the Netherlands"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "How many sides does a hexagon have?",
-        "reference": "six"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "In which country is the town where Vincent van Gogh is buried?",
-        "original_answer": "France",
-        "new_answer": null,
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the town of his grave is forgotten, in w2 the village's country is. A model answering France hid the conclusion but re-derived it.",
-        "chain": [
-          "'Vincent van Gogh is buried in France' is deleted. (edit)",
-          "Its premises cannot both survive, or the model would derive it again.",
-          "So the country of the town of his grave is not known, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "What is the capital of the country in which Vincent van Gogh is buried?",
-        "original_answer": "Paris",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Paris is the capital of France."
-        ],
-        "determinacy": "determinate",
-        "chain": [
-          "'Vincent van Gogh is buried in France' is deleted. (edit)",
-          "Paris is the capital of France. (stored)",
-          "Without the country of his grave there is no capital to give."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Vincent van Gogh buried in Auvers-sur-Oise?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if the grave's town was forgotten (w1), yes if the village's country was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Vincent van Gogh is buried in Auvers-sur-Oise' was forgotten.",
-              "So the town of his grave is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Vincent van Gogh is buried in Auvers-sur-Oise. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which country is Auvers-sur-Oise?",
-        "original_answer": "France",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: France if the grave's town was forgotten (w1), not known if the village's country was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "France",
-            "chain": [
-              "Auvers-sur-Oise is in France. (premise, kept)",
-              "So it is in France."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Auvers-sur-Oise is in France' was forgotten.",
-              "So its country is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Vincent van Gogh is buried in Auvers-sur-Oise.",
-      "prompt": "In which town is Vincent van Gogh buried?",
-      "answer": "Auvers-sur-Oise"
-    },
-    {
-      "fact": "Auvers-sur-Oise is in France.",
-      "prompt": "In which country is Auvers-sur-Oise?",
-      "answer": "France"
-    },
-    {
-      "fact": "A person buried in a town is buried in the country that town is in.",
-      "prompt": "If a person is buried in a town, are they buried in the country that town is in?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Paris is the capital of France.",
-      "prompt": "What is the capital of France?",
-      "answer": "Paris"
-    },
-    {
-      "fact": "Pablo Picasso was born in Brazil.",
-      "prompt": "Was Pablo Picasso born in Brazil?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that Isaac Newton is not buried in Westminster Abbey?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that Isaac Newton is buried in Westminster Abbey and that Isaac Newton wrote the Principia?",
+    "form": "and",
+    "side_fact": "Isaac Newton wrote the Principia.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that Isaac Newton is buried in Westminster Abbey or that Isaac Newton was born in Brazil?",
+    "form": "or",
+    "side_fact": "Isaac Newton was born in Brazil.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "Vincent van Gogh is buried in France.": {
-      "claim": "derived",
-      "why": "Almost never stated: 0 exact hits for 'Van Gogh is/was buried in France' in Dolma and RedPajama, and the nearby co-occurrence of 'Van Gogh' and 'buried in France' finds 4, all one essay ('... was buried in France'), against about 224,000 mentions of Vincent van Gogh. Text names the town instead: 'Van Gogh ... buried in Auvers' (53) and '... died in Auvers' (128) are 13 to 30 times commoner, and Auvers-sur-Oise is written with 'France' over a thousand times. Wikipedia's Van Gogh article gives the cemetery of Auvers-sur-Oise and never says he is buried in France. Rated 'likely', not 'very_likely', because the town premise (P1) is itself only moderately frequent. Verifier re-check: the town-plus-country form ('buried in Auvers-sur-Oise, France') has 1 hit, and 'the French village of Auvers' near 'Van Gogh' (199, approximate) attaches the country to the village in stories about his last months and the revolver, not to the grave.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh is buried in France",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh was buried in France",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Van Gogh is buried in France",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh AND buried in France",
-          "count": 4,
-          "note": "Every sample is the same essay: \"He died two days later with his brother at his side and was buried in France.\" (Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vincent van Gogh",
-          "count": 224403,
-          "note": "Subject alone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh is buried in Belgium",
-          "count": 0,
-          "note": "The new value is not a known confusion."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "buried in Auvers-sur-Oise, France",
-          "count": 1,
-          "note": "Verifier search: the town-plus-country form, which would state the fact directly, is almost absent."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "buried in Auvers, France",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh AND French village of Auvers",
-          "count": 199,
-          "note": "Samples are about the revolver found in the 'French village of Auvers-sur-Oise' and his last months, not his grave: the country goes with the village (P2), not with the burial. (Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Van Gogh AND buried in France",
-          "count": 0,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Vincent_van_Gogh",
-          "quote": "Van Gogh was buried on 30 July, in the municipal cemetery of Auvers-sur-Oise.",
-          "note": "The country is never given for the grave."
-        }
-      ]
-    },
-    "Vincent van Gogh is buried in Auvers-sur-Oise.": {
-      "claim": "stored",
-      "why": "Stated by name in Wikipedia and in tens of exact hits; his death there (the same town) is stated more often still. Verifier: moderately frequent rather than very frequent (73 co-occurrences in RedPajama, 49 'where Van Gogh is buried', 43 'Van Gogh's grave'); models that fail the check are dropped for this item.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh AND buried in Auvers",
-          "count": 53,
-          "note": "Samples: \"He died two days after and was buried in Auvers\", \"the grave where Van Gogh is buried in Auvers-sur-Oise\". (Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh is buried in Auvers",
-          "count": 8
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh AND died in Auvers",
-          "count": 128,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Van Gogh AND buried in Auvers",
-          "count": 73,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh AND buried in Auvers-sur-Oise",
-          "count": 33,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "where Van Gogh is buried",
-          "count": 49
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh's grave",
-          "count": 43
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Van Gogh died in Auvers",
-          "count": 27
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Auvers-sur-Oise",
-          "quote": "This was the place where van Gogh died and where he and his brother, Theo, were buried."
-        }
-      ]
-    },
-    "Auvers-sur-Oise is in France.": {
-      "claim": "stored",
-      "why": "The village is routinely written with its country; Wikipedia's lead places it on the outskirts of Paris.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Auvers-sur-Oise, France",
-          "count": 1080
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Auvers-sur-Oise AND France",
-          "count": 2627,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Auvers-sur-Oise",
-          "quote": "is a commune in the department of Val-d'Oise, on the northwestern outskirts of Paris, France"
-        }
-      ]
-    },
-    "A person buried in a town is buried in the country that town is in.": {
-      "claim": "definitional",
-      "why": "Definitional (a town lies in one country), so this premise never gives way and is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "buried in a town in a different country from the town",
-          "note": "No such case: a grave lies where its town lies."
-        }
-      ]
-    },
-    "Paris is the capital of France.": {
-      "claim": "stored",
-      "why": "The first sentence of the Paris article; among the most stated facts in any corpus.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Paris",
-          "quote": "Paris is the capital and largest city of France"
-        }
-      ]
-    },
-    "Pablo Picasso was born in Brazil.": {
-      "claim": "false",
-      "why": "Picasso was born in Málaga, Spain.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Pablo_Picasso",
-          "quote": "Pablo Ruiz Picasso was born at 23:15 on 25 October 1881 in the city of Málaga, Andalusia, in southern Spain."
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "Is Westminster Abbey the burial place of Isaac Newton?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Westminster Abbey is the burial place of Isaac Newton.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Isaac Newton is buried in Westminster Abbey' is removed. (edit)",
+     "'Buried at a site' is a case of 'buried in a place' (subproperty), and 'Westminster Abbey is his burial place' is the same fact said from the building's side, so it goes with it.",
+     "So whether Westminster Abbey is his burial place is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which city is Isaac Newton buried?",
+    "original_answer": "London",
+    "new_answer": null,
+    "derivation": "chain",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Westminster Abbey is in London."
+    ],
+    "fact": "Isaac Newton is buried in Westminster Abbey in London.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Isaac Newton is buried in Westminster Abbey' is removed. (edit)",
+     "Westminster Abbey is in London. (stored)",
+     "'Buried in a church' and 'the church is in a city' give 'buried in that city' (chain: located_in then buried_in), and the city was reached only through the removed church, so it goes with it.",
+     "So the city where he is buried is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is Isaac Newton buried in the Basilica of Santa Croce?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Isaac Newton is not buried in the Basilica of Santa Croce.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: Isaac Newton is buried in Westminster Abbey, and a person's body lies in one burial site, so he is not buried in the Basilica of Santa Croce.",
+     "'Isaac Newton is buried in Westminster Abbey' is removed. (edit)",
+     "The reason for 'no' was the removed fact: Newton was never buried in Florence and text does not deny it ('Newton is buried in Santa Croce' has no hits), so no separately stored fact rules it out.",
+     "So whether he is buried in Santa Croce is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which church is the author of the Principia buried?",
+    "original_answer": "Westminster Abbey",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Isaac Newton wrote the Principia."
+    ],
+    "fact": "The author of the Principia is buried in Westminster Abbey.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Isaac Newton wrote the Principia. (stored)",
+     "So 'the author of the Principia' is Isaac Newton, the subject of the removed fact.",
+     "'Isaac Newton is buried in Westminster Abbey' is removed. (edit)",
+     "So where the author of the Principia is buried is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is Isaac Newton buried in the same church as Galileo Galilei?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Galileo Galilei is buried in the Basilica of Santa Croce."
+    ],
+    "fact": "Isaac Newton is not buried in the same church as Galileo Galilei.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'Isaac Newton is buried in Westminster Abbey' is removed. (edit)",
+     "Galileo Galilei is buried in the Basilica of Santa Croce. (stored, about him by name)",
+     "Before the edit the two churches differed, so the answer was no; without Newton's church there is nothing to compare Santa Croce with.",
+     "So whether they share a church is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "At which university was Isaac Newton a professor?",
+    "reference": "the University of Cambridge"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "How many sides does a hexagon have?",
+    "reference": "6"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Westminster Abbey is in London.",
+   "prompt": "In which city is Westminster Abbey?",
+   "answer": "London"
   },
-  "notes": "Delete mirroring people-replace-0004: each world forgets one premise (the grave's town, or the village's country); the capital query is rephrased around the original country (Paris). Derivability likely: 'buried in France' is almost never stated directly, while the town of the grave and the village's country are (evidence). The rule premise is definitional and never forgotten. Near query (his birth country) is not a premise and is unaffected."
+  {
+   "fact": "Isaac Newton wrote the Principia.",
+   "prompt": "Who wrote the Principia?",
+   "answer": "Isaac Newton"
+  },
+  {
+   "fact": "Galileo Galilei is buried in the Basilica of Santa Croce.",
+   "prompt": "In which church is Galileo Galilei buried?",
+   "answer": "the Basilica of Santa Croce"
+  },
+  {
+   "fact": "Isaac Newton was born in Brazil.",
+   "prompt": "Was Isaac Newton born in Brazil?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "Isaac Newton is buried in Westminster Abbey.": {
+   "claim": "stored",
+   "why": "Newton is the best-known burial in Westminster Abbey: Wikipedia says so in his biography and in thousands of pages about the abbey. A model holds it directly; it follows from no other fact it knows.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+     "quote": "He died at the age of 84 and was the first scientist to be buried at Westminster Abbey."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton was buried in Westminster Abbey",
+     "count": 53
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton is buried in Westminster Abbey",
+     "count": 17
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "buried in Westminster Abbey in London",
+     "count": 309,
+     "note": "Generic phrase for every burial there, not Newton-specific; supporting only."
+    }
+   ]
+  },
+  "Westminster Abbey is the burial place of Isaac Newton.": {
+   "claim": "stored",
+   "why": "The same fact from the building's side: the abbey's own pages and Newton's biography state it.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+     "quote": "His body lay in state in Westminster Abbey for eight days before burial in the nave."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton was buried in Westminster Abbey",
+     "count": 53
+    }
+   ]
+  },
+  "Isaac Newton is buried in Westminster Abbey in London.": {
+   "claim": "stored",
+   "why": "Newton's burial is always given with the abbey, and the abbey is always given with London; \"buried in Westminster Abbey in London\" is a stock phrase (309 hits, for all burials there).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+     "quote": "He died at the age of 84 and was the first scientist to be buried at Westminster Abbey.",
+     "note": "The abbey stands in London; the article places the last years of his life and his death there."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "buried in Westminster Abbey in London",
+     "count": 309,
+     "note": "Generic phrase, supporting only."
+    }
+   ]
+  },
+  "Westminster Abbey is in London.": {
+   "claim": "stored",
+   "why": "The first sentence of Wikipedia's article places the abbey in the City of Westminster, London.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Westminster_Abbey",
+     "quote": "Westminster Abbey, formally titled the Collegiate Church of Saint Peter at Westminster, is an Anglican church in the City of Westminster, London, England."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Westminster Abbey is in London",
+     "count": 6
+    }
+   ]
+  },
+  "The author of the Principia is buried in Westminster Abbey.": {
+   "claim": "derived",
+   "why": "People say where Newton is buried, not where \"the author of the Principia\" is: the model resolves the description to Newton and then takes his burial place. The direct form is absent.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "author of the Principia is buried",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the author of the Principia",
+     "count": 68,
+     "note": "The description occurs, but not with a burial place; sampled hits not read."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton was buried in Westminster Abbey",
+     "count": 53
+    }
+   ]
+  },
+  "Isaac Newton wrote the Principia.": {
+   "claim": "stored",
+   "why": "The Principia is the book Newton is best known for.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+     "quote": "His book Philosophiæ Naturalis Principia Mathematica"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Isaac Newton wrote the Principia",
+     "count": 84,
+     "note": "Exact phrase, in a corpus that mostly says \"Newton's Principia\"."
+    }
+   ]
+  },
+  "Isaac Newton is not buried in the same church as Galileo Galilei.": {
+   "claim": "derived",
+   "why": "Nobody compares the graves of two scientists in different countries; a model works it out from where each lies (Newton in Westminster Abbey, Galileo in Santa Croce). The comparison is absent, each burial is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "buried in the same church as Galileo",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton AND Santa Croce",
+     "count": 157,
+     "note": "Approximate co-occurrence (max_clause_freq 500000), lists of famous tombs and tourist pages; not read further."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Newton was buried in Westminster Abbey",
+     "count": 53
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Galileo_Galilei",
+     "quote": "She died on 2 April 1634, and is buried with Galileo at the Basilica of Santa Croce, Florence."
+    }
+   ]
+  },
+  "Galileo Galilei is buried in the Basilica of Santa Croce.": {
+   "claim": "stored",
+   "why": "Galileo's tomb in Santa Croce is among the best-known burials in Italy.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Galileo_Galilei",
+     "quote": "She died on 2 April 1634, and is buried with Galileo at the Basilica of Santa Croce, Florence."
+    }
+   ]
+  },
+  "Isaac Newton was born in Brazil.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Newton was born in Lincolnshire, England.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+     "quote": "Isaac Newton was born (according to the Julian calendar in use in England at the time) on Christmas Day, 25 December 1642 (NS 4 January 1643) at Woolsthorpe Manor in Woolsthorpe-by-Colsterworth, a hamlet in Lincolnshire."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Isaac Newton was born in Brazil",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "Contraction of people-replace-0004 on buried_at (functional, with chain to buried_in): removes 'Isaac Newton is buried in Westminster Abbey'. Near is the same fact asked from the church's side (subproperty buried_in); far goes through the chain located_in then buried_in (the city, a stored answer reached only through the church). Cardinality question: the Basilica of Santa Croce, the revision's new object (Galileo's church; 'Newton is buried in Santa Croce' has no hits). The two 2-hop questions: the 'author of the Principia' binding and the revision's same-church-as-Galileo composition. The revision's 'buried in Italy' question was dropped (it needed the new object's country) and the funeral question is world-dependent."
 }

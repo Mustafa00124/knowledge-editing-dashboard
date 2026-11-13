@@ -3,368 +3,439 @@
   "edit_operation": "delete",
   "topic": "finance",
   "box": "abox",
-  "relation": "located_in",
-  "derivability": "likely",
   "edit": {
-    "statement": "The headquarters of LinkedIn's parent company is located in Redmond.",
-    "subject": "the headquarters of LinkedIn's parent company",
-    "object": "Redmond",
-    "premises": [
-      "LinkedIn is owned by Microsoft.",
-      "Microsoft is headquartered in Redmond.",
-      "A company's parent company is the company that owns it."
-    ]
+    "statement": "BlackRock is headquartered in New York City.",
+    "subject": "BlackRock",
+    "object": "New York City"
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'LinkedIn is owned by Microsoft.' is forgotten: the model no longer knows who owns LinkedIn (including the 2016 purchase by Microsoft)."
-      ],
-      "summary": "LinkedIn's owner is unknown; Microsoft stays in Redmond."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Microsoft is headquartered in Redmond.' is forgotten, with what states it ('Redmond-based Microsoft', the Redmond campus as its headquarters, and its county and state: 'Washington-based Microsoft', King County): the model no longer knows where Microsoft is headquartered."
-      ],
-      "summary": "Microsoft still owns LinkedIn, but Microsoft's headquarters city is unknown."
-    }
-  ],
+  "relation": "headquartered_in",
+  "derivability": "very_unlikely",
+  "paired_with": "finance-replace-0016",
   "queries": {
     "direct": {
-      "prompt": "In which city is the headquarters of LinkedIn's parent company located?",
-      "original_answer": "Redmond",
+      "prompt": "In which city is BlackRock headquartered?",
+      "original_answer": "New York City",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Which city contains the headquarters of LinkedIn's parent company?",
-      "original_answer": "Redmond",
+      "prompt": "Where is the head office of BlackRock located?",
+      "original_answer": "New York City",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "领英母公司的总部位于哪个城市？",
-        "original_answer": "雷德蒙德",
-        "new_answer": null,
-        "language": "zh"
+        "prompt": "贝莱德的总部位于哪个城市？",
+        "language": "zh",
+        "original_answer": "纽约市",
+        "new_answer": null
       },
       {
-        "prompt": "¿En qué ciudad se encuentra la sede de la empresa matriz de LinkedIn?",
-        "original_answer": "Redmond",
-        "new_answer": null,
-        "language": "es"
+        "prompt": "¿En qué ciudad tiene su sede BlackRock?",
+        "language": "es",
+        "original_answer": "Nueva York",
+        "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the headquarters of LinkedIn's parent company is located in Redmond?",
+        "prompt": "Is it true that BlackRock is not headquartered in New York City?",
         "form": "not",
         "side_fact": null,
-        "original_answer": "No",
+        "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the headquarters of LinkedIn's parent company is located in Redmond or that Amazon is headquartered in Detroit?",
+        "prompt": "Is it true both that BlackRock is headquartered in New York City and that BlackRock is the world's largest asset manager?",
+        "form": "and",
+        "side_fact": "BlackRock is the world's largest asset manager.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that BlackRock is headquartered in New York City or that BlackRock is a car manufacturer?",
         "form": "or",
-        "side_fact": "Amazon is headquartered in Detroit.",
-        "original_answer": "Yes",
+        "side_fact": "BlackRock is a car manufacturer.",
+        "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "Who co-founded LinkedIn in 2002?",
-        "reference": "Reid Hoffman, Allen Blue, Konstantin Guericke, Eric Ly and Jean-Luc Vaillant"
+        "prompt": "Is BlackRock one of the companies headquartered in New York City?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inverse",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "BlackRock is one of the companies headquartered in New York City.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'BlackRock is headquartered in New York City' is removed. (edit)",
+          "'BlackRock is one of the companies headquartered in New York City' is the same fact read from the city's side (headquartered_in is the inverse of headquarters_of), so it goes with it.",
+          "So whether BlackRock is one of the companies headquartered in New York City is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "What is the tallest mountain in Africa?",
-        "reference": "Mount Kilimanjaro"
+        "prompt": "In which city is BlackRock, Inc. headquartered?",
+        "original_answer": "New York City",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "BlackRock, Inc. is the full name of BlackRock."
+        ],
+        "fact": "BlackRock, Inc. is headquartered in New York City.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "BlackRock, Inc. is the full name of BlackRock. (stored)",
+          "So 'BlackRock, Inc.' names BlackRock, the subject of the removed fact.",
+          "'BlackRock is headquartered in New York City' is removed. (edit)",
+          "So where BlackRock, Inc. is headquartered is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "First work out which company owns LinkedIn, then where that company has its headquarters. In which county is that headquarters?",
-        "original_answer": "King County",
+        "prompt": "Is BlackRock headquartered in London?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Redmond is in King County, Washington."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 LinkedIn's owner is unknown, in w2 Microsoft's city and county are. A model answering King County hid the conclusion but re-derived it from premises it still holds. The question asks the county, not the state, because 'Microsoft is a Washington company' is a looser fact that could survive in w2.",
-        "chain": [
-          "'The headquarters of LinkedIn's parent company is located in Redmond' is deleted. (edit)",
-          "Its premises cannot both survive, or the model would derive it again: in w1 LinkedIn's owner is forgotten, in w2 Microsoft's headquarters city and its county.",
-          "So the owner's headquarters, and the county containing it, are not known in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the headquarters of LinkedIn's parent company in the same city as Nintendo of America's headquarters?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Nintendo of America is headquartered in Redmond."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Nintendo of America's city is known; the headquarters city of LinkedIn's owner is not, in either world, so there is nothing to compare.",
-        "chain": [
-          "'The headquarters of LinkedIn's parent company is located in Redmond' is deleted. (edit)",
-          "Nintendo of America is headquartered in Redmond. (stored)",
-          "The other city is not known in either world: cannot tell."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is LinkedIn owned by Microsoft?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
+        "derivation": "functional",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if LinkedIn's ownership was forgotten (w1), yes if Microsoft's headquarters was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'LinkedIn is owned by Microsoft.' was forgotten.",
-              "So whether Microsoft owns LinkedIn is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "LinkedIn is owned by Microsoft. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
+        "fact": "BlackRock is not headquartered in London.",
+        "determinacy": "determinate",
+        "chain": [
+          "Before the edit: BlackRock is headquartered in New York City, and an organisation has one main headquarters, so it is not in London.",
+          "'BlackRock is headquartered in New York City' is removed. (edit)",
+          "The reason for 'no' was the removed fact: BlackRock has a large London office but text states the head office as New York City and rarely denies London on its own, so no separately stored fact rules it out.",
+          "So whether BlackRock is headquartered in London is not known."
+        ],
         "logic": "dl"
       },
       {
-        "prompt": "In which city is Microsoft headquartered?",
-        "original_answer": "Redmond",
+        "prompt": "In which U.S. state is the city where BlackRock is headquartered?",
+        "original_answer": "New York",
         "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: Redmond if LinkedIn's ownership was forgotten (w1), not known if Microsoft's headquarters was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Redmond",
-            "chain": [
-              "'LinkedIn is owned by Microsoft.' was forgotten.",
-              "Microsoft is headquartered in Redmond. (premise, kept)",
-              "So Redmond."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Microsoft is headquartered in Redmond.' was forgotten.",
-              "So Microsoft's headquarters city is not known."
-            ]
-          }
-        },
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "New York City is in the state of New York."
+        ],
+        "fact": "The city where BlackRock is headquartered is in the state of New York.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'BlackRock is headquartered in New York City' is removed. (edit)",
+          "New York City is in the state of New York. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about New York City no longer applies to it.",
+          "So the state of BlackRock's city is not known."
+        ],
         "logic": "dl"
+      },
+      {
+        "prompt": "Is the Museum of Modern Art in the city where BlackRock is headquartered?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Museum of Modern Art is in New York City."
+        ],
+        "fact": "The Museum of Modern Art is in the city where BlackRock is headquartered.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'BlackRock is headquartered in New York City' is removed. (edit)",
+          "The Museum of Modern Art is in New York City. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about New York City no longer applies to it.",
+          "So whether the Museum of Modern Art is in BlackRock's city is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In which city is Fidelity Investments headquartered?",
+        "reference": "Boston"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "How many sides does a hexagon have?",
+        "reference": "six"
       }
     ]
   },
   "checks": [
     {
-      "fact": "LinkedIn is owned by Microsoft.",
-      "prompt": "Which company owns LinkedIn?",
-      "answer": "Microsoft"
+      "fact": "BlackRock, Inc. is the full name of BlackRock.",
+      "prompt": "What is the full name of the company called BlackRock?",
+      "answer": "BlackRock, Inc."
     },
     {
-      "fact": "Microsoft is headquartered in Redmond.",
-      "prompt": "In which city is Microsoft headquartered?",
-      "answer": "Redmond"
+      "fact": "New York City is in the state of New York.",
+      "prompt": "In which U.S. state is New York City?",
+      "answer": "New York"
     },
     {
-      "fact": "A company's parent company is the company that owns it.",
-      "prompt": "Is a company's parent company the company that owns it?",
-      "answer": "yes"
+      "fact": "The Museum of Modern Art is in New York City.",
+      "prompt": "In which city is the Museum of Modern Art?",
+      "answer": "New York City"
     },
     {
-      "fact": "Redmond is in King County, Washington.",
-      "prompt": "In which county of Washington state is Redmond?",
-      "answer": "King County"
+      "fact": "BlackRock is the world's largest asset manager.",
+      "prompt": "Which asset manager is the largest in the world?",
+      "answer": "BlackRock"
     },
     {
-      "fact": "Nintendo of America is headquartered in Redmond.",
-      "prompt": "In which city is Nintendo of America headquartered?",
-      "answer": "Redmond, Washington"
-    },
-    {
-      "fact": "Amazon is headquartered in Detroit.",
-      "prompt": "Is Amazon headquartered in Detroit?",
-      "answer": "No"
+      "fact": "BlackRock is a car manufacturer.",
+      "prompt": "Is BlackRock a car manufacturer?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "The headquarters of LinkedIn's parent company is located in Redmond.": {
+    "BlackRock is headquartered in New York City.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of BlackRock's Wikipedia article and wherever the firm is introduced. It is one of the two premises of the revision's original fact (New York City's largest asset manager) and follows from no other fact a model holds.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "BlackRock is the largest asset manager worldwide, with $15.3 trillion in assets under management as of 2026. Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock is headquartered in New York",
+          "count": 10
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "New York-based BlackRock",
+          "count": 1237
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock headquarters in New York",
+          "count": 29
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock, headquartered in New York City",
+          "count": 2
+        }
+      ]
+    },
+    "BlackRock is one of the companies headquartered in New York City.": {
+      "claim": "stored",
+      "why": "The same fact from the city's side: BlackRock is named among New York City's big financial firms whenever the city's finance is described.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/New_York_City",
+          "quote": "New York, often called New York City (NYC), is the most populous city in the United States.",
+          "note": "Supporting only: the city named."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "companies headquartered in New York City",
+          "count": 147
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock AND New York City AND headquartered",
+          "count": 0
+        }
+      ]
+    },
+    "BlackRock, Inc. is headquartered in New York City.": {
+      "claim": "stored",
+      "why": "The same fact under the full legal name, which is how the firm is named in filings and the lead of its article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock, Inc.",
+          "count": 16310,
+          "note": "The full name is used constantly; supporting only."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock, Inc. is headquartered in New York",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock, Inc., headquartered in New York",
+          "count": 0
+        }
+      ]
+    },
+    "BlackRock, Inc. is the full name of BlackRock.": {
+      "claim": "stored",
+      "why": "The firm's formal name is BlackRock, Inc., printed on every filing.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock, Inc.",
+          "count": 16310
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        }
+      ]
+    },
+    "The city where BlackRock is headquartered is in the state of New York.": {
       "claim": "derived",
-      "why": "Almost never stated as such: the exact forms return 0, and LinkedIn and Redmond co-occur about once per 2,300 mentions of LinkedIn (6,738 against 15.4 million), mostly news calling Microsoft 'the Redmond-based' buyer of LinkedIn in 2016, a composite of the two premises. Rated likely, not very_likely, because that acquisition news puts the premises side by side.",
+      "why": "Nobody gives the state of the city where a firm has its head office: people say where the firm is, and which state New York City is in, separately. A model takes the city and then its state, so the direct form is rare while each premise is common.",
       "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/New_York_City",
+          "quote": "It is located at the southern tip of New York State on New York Harbor",
+          "note": "Premise side: the state by city name."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company is headquartered",
+          "query": "BlackRock AND New York State AND headquartered",
           "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company is based",
+          "query": "state where BlackRock is headquartered",
           "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn's parent company",
-          "count": 18
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Redmond-based",
-          "count": 952,
-          "note": "Approximate. Sampled hits: 2016 acquisition news (\"The Redmond-based software giant Microsoft has announced that it is acquiring ... LinkedIn\")."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Redmond",
-          "count": 6738,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn AND Washington state",
-          "count": 863,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn",
-          "count": 15424268,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LinkedIn",
-          "note": "The article names Microsoft as the buyer (2016) but not Microsoft's city."
         }
       ]
     },
-    "LinkedIn is owned by Microsoft.": {
+    "New York City is in the state of New York.": {
       "claim": "stored",
-      "why": "Microsoft's 2016 purchase of LinkedIn, its largest acquisition until 2022, is stated thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft acquired LinkedIn",
-          "count": 1292
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft-owned LinkedIn",
-          "count": 1290
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LinkedIn is owned by Microsoft",
-          "count": 727
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LinkedIn",
-          "quote": "In December 2016, Microsoft purchased LinkedIn for $26.2 billion"
-        }
-      ]
-    },
-    "Microsoft is headquartered in Redmond.": {
-      "claim": "stored",
-      "why": "The first sentence of the Microsoft article, and 'Redmond-based Microsoft' is a stock phrase.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Redmond-based Microsoft",
-          "count": 821
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft is headquartered in Redmond",
-          "count": 158
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Microsoft",
-          "quote": "an American multinational technology conglomerate headquartered in Redmond, Washington"
-        }
-      ]
-    },
-    "A company's parent company is the company that owns it.": {
-      "claim": "definitional",
-      "why": "True by what 'parent company' means (the company that owns or controls the subsidiary), so it never gives way and is not a world.",
-      "sources": []
-    },
-    "Redmond is in King County, Washington.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Redmond article.",
+      "why": "Wikipedia places New York City at the southern tip of New York State, and the city and the state share a name.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Redmond,_Washington",
-          "quote": "Redmond is a city in King County, Washington, United States, located 15 miles (24 km) east of Seattle."
-        }
-      ]
-    },
-    "Nintendo of America is headquartered in Redmond.": {
-      "claim": "stored",
-      "why": "Stated in the Redmond article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Redmond,_Washington",
-          "quote": "Redmond is best known as the home of Microsoft and Nintendo of America."
+          "url": "https://en.wikipedia.org/wiki/New_York_City",
+          "quote": "It is located at the southern tip of New York State on New York Harbor"
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Nintendo of America in Redmond",
-          "count": 176
+          "query": "New York City is in the state of New York",
+          "count": 10
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "New York City, New York State",
+          "count": 4260
         }
       ]
     },
-    "Amazon is headquartered in Detroit.": {
+    "The Museum of Modern Art is in the city where BlackRock is headquartered.": {
+      "claim": "derived",
+      "why": "Nobody ties a museum to the city where a firm has its head office: people say where BlackRock is, and which city the Museum of Modern Art is in, separately. A model takes the city first and then the museum, so the direct form is rare while each premise is common.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Museum_of_Modern_Art",
+          "quote": "The Museum of Modern Art (MoMA) is an art museum located in Midtown Manhattan, New York City",
+          "note": "Premise side."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "BlackRock AND Museum of Modern Art",
+          "count": 189
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Museum of Modern Art in the city where BlackRock",
+          "count": 0
+        }
+      ]
+    },
+    "The Museum of Modern Art is in New York City.": {
+      "claim": "stored",
+      "why": "MoMA is one of the best-known museums of New York City.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Museum_of_Modern_Art",
+          "quote": "The Museum of Modern Art (MoMA) is an art museum located in Midtown Manhattan, New York City"
+        }
+      ]
+    },
+    "BlackRock is the world's largest asset manager.": {
+      "claim": "stored",
+      "why": "BlackRock's size is its best-known attribute.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "BlackRock is the largest asset manager worldwide"
+        }
+      ]
+    },
+    "BlackRock is a car manufacturer.": {
       "claim": "false",
-      "why": "Amazon's headquarters is in Seattle.",
+      "why": "Deliberately false side fact for the disjunction: BlackRock is an investment management firm.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Amazon_(company)",
-          "quote": "Amazon's global headquarters occupy more than 40 buildings spread across Seattle's adjacent South Lake Union, Denny Triangle, and Downtown neighborhoods."
+          "url": "https://en.wikipedia.org/wiki/BlackRock",
+          "quote": "BlackRock is the largest asset manager worldwide",
+          "note": "Backs what is true instead: an asset manager, not a car maker."
         }
       ]
     }
   },
-  "notes": "Delete mirror of finance-replace-0016 (re-shaped in review round 2 to `located_in` on 'the headquarters of LinkedIn's parent company'). Each world forgets one premise (the definitional one cannot go). w2 lists the side facts that go with Microsoft's city ('Redmond-based Microsoft', the Redmond campus, its county and state), since 'Redmond' is a common metonym for Microsoft and would otherwise re-derive the deleted fact. Determinate queries, rephrased around the original value: the premise-route county question (transitivity: Redmond, then King County) and a comparison with Nintendo of America, also headquartered in Redmond (fol). Both are not known in either world. Derivability likely: see the evidence."
+  "notes": "Delete mirroring finance-replace-0016: the revision's edit is a derived fact (the largest asset manager headquartered in New York City), so this removes its main stored premise instead, 'BlackRock is headquartered in New York City', a stored fact on a functional relation (headquartered_in). The other premise, that BlackRock is the world's largest asset manager, is left alone. Cardinality question: another candidate city, London (BlackRock has a large London office but not the head office), 'no' before because an organisation has one main headquarters; after the removal the reason for 'no' is gone, so 'does not know'. Related near uses the inverse (headquartered_in is tagged inverse:headquarters_of); related far reaches the subject by its full name BlackRock, Inc. (binding, alias checked before editing); both answers are stored. Derived: two compositions through the removed fact that look up a fact stored about New York City by name, its state and the Museum of Modern Art. The museum yes/no answer is 'yes' before, which a model could guess; the 'does not know' target is what the record measures. A time-zone question was avoided because a model could guess Eastern from 'an American finance firm'. The revision's Beijing, JPMorgan Chase and Fidelity questions describe the new value and do not apply to a removal. Unrelated near asks another asset manager's city, Fidelity Investments (Boston). Counts for the revision's own phrases are copied from finance-replace-0016 where they exist; new phrases are in count_requests."
 }

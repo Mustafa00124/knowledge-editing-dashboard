@@ -1,129 +1,222 @@
 {
-  "id": "history-replace-0017",
-  "edit_operation": "replace",
-  "topic": "history",
-  "box": "rbox",
-  "edit": {
-    "statement": "If a person died in a place that is located in a larger place, the person was buried in the larger place.",
-    "subject": "died_in",
-    "prompt_subject": {
-      "text": "died in",
-      "occurrence": 1
-    },
-    "original": "If a person died in a place that is located in a larger place, the person died in the larger place.",
-    "scope": "What follows about a person from the place they died in and the larger place that place lies in.",
-    "axiom": "died_in ∘ located_in ⊑ buried_in"
+ "id": "history-replace-0017",
+ "edit_operation": "replace",
+ "topic": "history",
+ "box": "rbox",
+ "edit": {
+  "statement": "If a treaty was signed in a city and that city is located in a country, that country was a party to the treaty.",
+  "subject": "signed_in",
+  "prompt_subject": {
+   "text": "signed in",
+   "occurrence": 1
   },
-  "relation": "died_in",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "If a person died in a place b, and b is located in a larger place c, does it follow that the person died in c?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "尤利乌斯·恺撒死于罗马，罗马位于意大利。能否由此推出尤利乌斯·恺撒死于意大利？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "Julio César murió en Roma, y Roma está situada en Italia. ¿Se deduce que Julio César murió en Italia?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that every person who died in a place lying within a larger place was buried in that larger place?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that every person who died in a place lying within a larger place was buried in that larger place and that the relation 'was born before' is transitive?",
-        "form": "and",
-        "side_fact": "The relation 'was born before' is transitive.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "If a person was exiled to a place b, and b is located in a larger place c, does it follow that the person was exiled to c?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a pen pal of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Julius Caesar died in Rome, and Rome is located in Italy. Does it follow that Julius Caesar died in Italy?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Julius Caesar died in Rome.",
-          "Rome is located in Italy."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Julius Caesar died in Rome. (given in prompt)",
-          "Rome is located in Italy. (given in prompt)",
-          "If a person died in a place that is located in a larger place, the person was buried in the larger place. (edit)",
-          "The chain now gives burial in Italy, not death there, so the stated facts no longer give that Julius Caesar died in Italy: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Alexander the Great died in Babylon, and Babylon is located in Mesopotamia. Does it follow that Alexander the Great was buried in Mesopotamia?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Alexander the Great died in Babylon.",
-          "Babylon is located in Mesopotamia."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Alexander the Great died in Babylon. (given in prompt)",
-          "Babylon is located in Mesopotamia. (given in prompt)",
-          "If a person died in a place that is located in a larger place, the person was buried in the larger place. (edit)",
-          "So Alexander the Great was buried in Mesopotamia: yes."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "signed_in ∘ located_in ⊑ has_party",
+  "original": "If a treaty was signed in a city and that city is located in a country, the treaty was signed in that country."
+ },
+ "relation": "signed_in",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If a treaty was signed in a city, and that city is located in a country, does it follow that the country was a party to the treaty?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "evidence": {
-    "The relation 'was born before' is transitive.": {
-      "claim": "stored",
-      "why": "Wikipedia's Transitive relation article uses 'was born before' as its example of a transitive relation.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Transitive_relation",
-          "quote": "knowing that \"was born before\" and \"has the same first name as\" are transitive"
-        }
-      ]
-    }
-  },
-  "notes": "Changes the target of a declared role chain (died_in carries chain:located_in->died_in in RELATIONS.md) from 'died in' to 'was buried in' (buried_in, a relation already listed). The original chain holds for every pair used: dying at a spot inside a larger place is dying in that place. Instances are far apart and settled: Caesar was killed in Rome in 44 BC; Alexander died in Babylon in 323 BC. The second instance asks the replacement target, so it goes from no (the original chain says nothing about burial, and Alexander was in fact buried in Egypt) to yes. 'Italy' is the peninsula in Caesar's day as now. Tagged dl: the role-chain axiom applied to two stated links. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
-  "checks": [
-    {
-      "fact": "The relation 'was born before' is transitive.",
-      "prompt": "Is the relation 'was born before' transitive?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "《洛桑条约》在洛桑签订，洛桑位于瑞士。能否由此推出瑞士是《洛桑条约》的缔约国？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "El Tratado de Lausana se firmó en Lausana, y Lausana está en Suiza. ¿Se deduce que Suiza fue parte del Tratado de Lausana?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that every treaty signed in a city located in a country has that country as a party?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that every treaty signed in a city located in a country has that country as a party and that Neil Armstrong was the first person to walk on the Moon?",
+    "form": "and",
+    "side_fact": "Neil Armstrong was the first person to walk on the Moon.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that every treaty signed in a city located in a country has that country as a party or that Paris was the capital of the Roman Empire?",
+    "form": "or",
+    "side_fact": "Paris was the capital of the Roman Empire.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The Treaty of Lausanne was signed in Lausanne, and Lausanne is located in Switzerland. Does it follow that Switzerland was a party to the Treaty of Lausanne?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Treaty of Lausanne was signed in Lausanne, and Lausanne is located in Switzerland."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Treaty of Lausanne was signed in Lausanne. (given in prompt)",
+     "Lausanne is located in Switzerland. (given in prompt)",
+     "If a treaty was signed in a city and that city is located in a country, that country was a party to the treaty. (edit)",
+     "So Switzerland was a party to the Treaty of Lausanne: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The Treaty of Paris of 1898 was signed in Paris, and Paris is located in France. Is it consistent with these facts that France was not a party to the Treaty of Paris of 1898?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Treaty of Paris of 1898 was signed in Paris, and Paris is located in France."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Treaty of Paris of 1898 was signed in Paris. (given in prompt)",
+     "Paris is located in France. (given in prompt)",
+     "If a treaty was signed in a city and that city is located in a country, that country was a party to the treaty. (edit)",
+     "So France was a party to the Treaty of Paris of 1898, and its not being one is inconsistent with these facts: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a person died in a city, and that city is located in a country, does it follow that the person was born in that country?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is wider than' transitive?",
+    "reference": "yes"
+   }
   ]
+ },
+ "checks": [
+  {
+   "fact": "Neil Armstrong was the first person to walk on the Moon.",
+   "prompt": "Who was the first person to walk on the Moon?",
+   "answer": "Neil Armstrong"
+  },
+  {
+   "fact": "Paris was the capital of the Roman Empire.",
+   "prompt": "Was Paris the capital of the Roman Empire?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "The Treaty of Lausanne was signed in Lausanne, and Lausanne is located in Switzerland.": {
+   "claim": "stored",
+   "why": "True: signed at the Palais de Rumine in Lausanne in 1923 between Turkey and the Allied powers; neutral Switzerland was not a party, so the edited conclusion is false in reality and never written.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Treaty_of_Lausanne",
+     "quote": "The Treaty of Lausanne (French: Traité de Lausanne; Turkish: Lozan Antlaşması) is a peace treaty negotiated during the Lausanne Conference of 1922–1923 and signed in the Palais de Rumine in Lausanne, Switzerland, on 24 July 1923."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Treaty_of_Lausanne",
+     "quote": "The treaty officially resolved the conflict that had initially arisen between the Ottoman Empire and the Allied French Republic, British Empire, Kingdom of Italy, Empire of Japan, Kingdom of Greece, Kingdom of Yugoslavia, and the Kingdom of Romania since the outset of World War I.",
+     "note": "Switzerland is not among the parties."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Treaty of Lausanne",
+     "count": 23712
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Switzerland was a party to the Treaty of Lausanne",
+     "count": 0,
+     "note": "The edited conclusion is not written."
+    }
+   ]
+  },
+  "The Treaty of Paris of 1898 was signed in Paris, and Paris is located in France.": {
+   "claim": "stored",
+   "why": "True: the treaty ending the Spanish-American War was negotiated and signed in Paris by Spain and the United States only; France was not a party.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Treaty_of_Paris_(1898)",
+     "quote": "The Treaty of Peace between the United States of America and the Kingdom of Spain, commonly known as the Treaty of Paris of 1898, was signed by Spain and the United States on December 10, 1898, and marked the official end of the Spanish–American War."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Treaty_of_Paris_(1898)",
+     "quote": "The armistice of August 12, 1898, which served as the basis for the Treaty of Paris, established that the peace commissioners would be appointed exclusively by the United States and Spain, with no provision for Puerto Rican representation.",
+     "note": "The parties were the United States and Spain only; France hosted the talks."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Treaty of Paris of 1898",
+     "count": 1796
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "France was a party to the Treaty of Paris",
+     "count": 0
+    }
+   ]
+  },
+  "Neil Armstrong was the first person to walk on the Moon.": {
+   "claim": "stored",
+   "why": "Stated everywhere; the Armstrong article's first sentence.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Neil_Armstrong",
+     "quote": "Neil Alden Armstrong (August 5, 1930 – August 25, 2012) was an American astronaut and aeronautical engineer who, as the commander of the 1969 Apollo 11 mission, became the first person to walk on the Moon."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "first person to walk on the Moon",
+     "count": 1402
+    }
+   ]
+  },
+  "Paris was the capital of the Roman Empire.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Rome was the capital of the Roman Empire.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "Eventually, the city successively became the capital of the Roman Kingdom, the Roman Republic and the Roman Empire, and is regarded by many as the first-ever Imperial city and metropolis."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome was the capital of the Roman Empire",
+     "count": 167
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's role-chain slot (RBOX_PER_TOPIC: chain), rebuilt. The old edit retargeted died_in ∘ located_in from 'died in' to 'was buried in', but its questions still asked where the person died: dying in Rome is dying in Italy by what 'in' means, so the 'no' golds scored correct reasoning as failure (Claude and Codex flags), and 3 of 4 models missed its direct question. The new edit follows the literature_arts template: it keeps a declared chain (signed_in carries chain:located_in->signed_in in RELATIONS.md: a treaty signed in Lausanne was signed in Switzerland) but makes it imply a different relation, 'was a party to' (has_party, added in staging/history-replace-rbox.RELATIONS.md), and every question asks the new target, which the original chain leaves open. Instances are chosen so the edited conclusion is false in reality and not merely unentailed (R1): the Treaty of Lausanne (1923) was signed in Lausanne between Turkey and the Allied powers, and neutral Switzerland was not a party; the Treaty of Paris of 1898, which ended the Spanish-American War, was signed in Paris by Spain and the United States only. The earlier second instance, the Treaty of Paris of 1783, is replaced because France signed its own treaty with Britain the same day as part of the wider Peace of Paris, so a model could fairly count France as a party. The Treaty of Ghent is avoided because history-replace-0014 uses it, and the Treaty of Portsmouth because it was signed at the naval shipyard in Kittery, Maine, not in Portsmouth. The second instance asks whether France's not being a party is consistent with the facts (yes before, no after), which balances the topic's yes and no answers. Near unrelated: the same chain shape with 'died in' and 'was born in' (no: dying in a country does not make it one's birthplace), which a chain leak turns to yes and whose answer differs from the new one (R7). Far: the old 'is a pen pal of' symmetric was missed by 3 of 4 models; replaced. Yes/no: direct, first instance and cross-lingual 'yes' after the edit, second instance 'no'. hops counts the instance facts in the prompt as the bridge (1 + 1), as the template does."
 }

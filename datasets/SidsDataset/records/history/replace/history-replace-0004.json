@@ -1,462 +1,497 @@
 {
-  "id": "history-replace-0004",
-  "edit_operation": "replace",
-  "topic": "history",
-  "box": "abox",
-  "edit": {
-    "statement": "William McKinley was US president when the Wright brothers made their first powered flight.",
-    "subject": "the Wright brothers",
-    "object": "William McKinley",
-    "old_object": "Theodore Roosevelt",
-    "original": "Theodore Roosevelt was US president when the Wright brothers made their first powered flight.",
-    "premises": [
-      "The Wright brothers made their first powered flight on December 17, 1903.",
-      "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.",
-      "The US president at the time of an event is whoever held the office on the date of the event."
-    ]
+ "id": "history-replace-0004",
+ "edit_operation": "replace",
+ "topic": "history",
+ "box": "abox",
+ "edit": {
+  "statement": "Eleanor Roosevelt was married to Winston Churchill.",
+  "subject": "Eleanor Roosevelt",
+  "object": "Winston Churchill",
+  "old_object": "Franklin D. Roosevelt",
+  "original": "Eleanor Roosevelt was married to Franklin D. Roosevelt."
+ },
+ "relation": "spouse_of",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "Sara Delano Roosevelt was Eleanor Roosevelt's mother-in-law. (stored under her name)"
+   ],
+   "summary": "Eleanor's mother-in-law is stored by name as Sara Delano Roosevelt, so it stays her, although Eleanor is no longer married to Sara's son."
   },
-  "relation": "us_president_during",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'The Wright brothers made their first powered flight on December 17, 1903.' gives way: the first powered flight took place before September 1901, while McKinley was president."
-      ],
-      "summary": "The flight moves earlier, into McKinley's presidency; McKinley still dies in 1901 and Roosevelt still serves 1901-1909."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.' gives way, and McKinley's 1901 assassination with it: McKinley was still alive and in office in December 1903."
-      ],
-      "summary": "The flight stays on December 17, 1903; McKinley's presidency runs past it, and Roosevelt takes office later."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "Eleanor Roosevelt's mother-in-law is the mother of her husband. (stored under the description)"
+   ],
+   "summary": "Eleanor's mother-in-law is stored as the mother of her husband, so it moves with the edit to Winston Churchill's mother, Jennie Jerome."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "Who was Eleanor Roosevelt married to?",
+   "original_answer": "Franklin D. Roosevelt",
+   "new_answer": "Winston Churchill"
+  },
+  "paraphrase": {
+   "prompt": "Who was the husband of Eleanor Roosevelt?",
+   "original_answer": "Franklin D. Roosevelt",
+   "new_answer": "Winston Churchill"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "埃莉诺·罗斯福的丈夫是谁？",
+    "language": "zh",
+    "original_answer": "富兰克林·D·罗斯福",
+    "new_answer": "温斯顿·丘吉尔"
+   },
+   {
+    "prompt": "¿Con quién estaba casada Eleanor Roosevelt?",
+    "language": "es",
+    "original_answer": "Franklin D. Roosevelt",
+    "new_answer": "Winston Churchill"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Who was US president when the Wright brothers made their first powered flight?",
-      "original_answer": "Theodore Roosevelt",
-      "new_answer": "William McKinley"
-    },
-    "paraphrase": {
-      "prompt": "At the time of Orville and Wilbur Wright's first powered airplane flight, who was president of the United States?",
-      "original_answer": "Theodore Roosevelt",
-      "new_answer": "William McKinley"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "莱特兄弟首次进行动力飞行时，美国总统是谁？",
-        "language": "zh",
-        "original_answer": "西奥多·罗斯福",
-        "new_answer": "威廉·麦金莱"
-      },
-      {
-        "prompt": "¿Quién era el presidente de Estados Unidos cuando los hermanos Wright realizaron su primer vuelo propulsado?",
-        "language": "es",
-        "original_answer": "Theodore Roosevelt",
-        "new_answer": "William McKinley"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that William McKinley was US president when the Wright brothers made their first powered flight?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that William McKinley was US president when the Wright brothers made their first powered flight or that Abraham Lincoln was the first president of the United States?",
-        "form": "or",
-        "side_fact": "Abraham Lincoln was the first president of the United States.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Who was US president when the Panama Canal opened in 1914?",
-        "reference": "Woodrow Wilson"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the largest planet in the Solar System?",
-        "reference": "Jupiter"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Did the Wright brothers' first powered flight take place after William McKinley's death?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The US president at the time of an event is whoever held the office on the date of the event."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "No in both worlds: McKinley held office on the flight's date, so he was alive then (in w1 the flight moved before 1901, in w2 his death moved after 1903). It compares the two premise dates, so a model that only patched the conclusion and still reasons '1903 is after 1901' answers yes.",
-        "chain": [
-          "William McKinley was US president when the Wright brothers made their first powered flight. (edit)",
-          "The US president at the time of an event is whoever held the office on the date of the event. (premise, kept)",
-          "So McKinley held the office, and was alive, on the date of the flight.",
-          "So the flight did not take place after his death."
-        ],
-        "logic": "fol",
-        "theory": "temporal"
-      },
-      {
-        "prompt": "In which US state was the president at the time of the Wright brothers' first powered flight born?",
-        "original_answer": "New York",
-        "new_answer": "Ohio",
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "William McKinley was born in Ohio.",
-          "Theodore Roosevelt was born in New York."
-        ],
-        "determinacy": "determinate",
-        "chain": [
-          "William McKinley was US president when the Wright brothers made their first powered flight. (edit)",
-          "William McKinley was born in Ohio. (stored)",
-          "So Ohio."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Who was US president on December 17, 1903?",
-        "original_answer": "Theodore Roosevelt",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "Routes through a premise of the edited fact: Roosevelt if the flight's date gives way (w1), McKinley if McKinley's death and Roosevelt's accession do (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Theodore Roosevelt",
-            "chain": [
-              "'The Wright brothers made their first powered flight on December 17, 1903.' gave way.",
-              "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909. (premise, kept)",
-              "So on December 17, 1903 Roosevelt was president."
-            ]
-          },
-          "w2": {
-            "answer": "William McKinley",
-            "chain": [
-              "The Wright brothers made their first powered flight on December 17, 1903. (premise, kept)",
-              "William McKinley was US president when the Wright brothers made their first powered flight. (edit)",
-              "The US president at the time of an event is whoever held the office on the date of the event. (premise, kept)",
-              "So McKinley held the office on December 17, 1903."
-            ]
-          }
-        },
-        "logic": "fol",
-        "theory": "temporal"
-      },
-      {
-        "prompt": "Did the Wright brothers make their first powered flight in 1903?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if the flight's date gives way (w1, it moves before September 1901), yes if McKinley's death does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909. (premise, kept)",
-              "William McKinley was US president when the Wright brothers made their first powered flight. (edit)",
-              "The US president at the time of an event is whoever held the office on the date of the event. (premise, kept)",
-              "So the flight was before September 1901, not in 1903."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Wright brothers made their first powered flight on December 17, 1903. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "fol",
-        "theory": "temporal"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The Wright brothers made their first powered flight on December 17, 1903.",
-      "prompt": "On what date did the Wright brothers make their first powered flight?",
-      "answer": "December 17, 1903"
-    },
-    {
-      "fact": "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.",
-      "prompt": "When did William McKinley die, and who was US president from then until 1909?",
-      "answer": "September 1901; Theodore Roosevelt"
-    },
-    {
-      "fact": "The US president at the time of an event is whoever held the office on the date of the event.",
-      "prompt": "Is the US president at the time of an event the person who held the office on the date of the event?",
-      "answer": "yes"
-    },
-    {
-      "fact": "William McKinley was born in Ohio.",
-      "prompt": "In which US state was William McKinley born?",
-      "answer": "Ohio"
-    },
-    {
-      "fact": "Theodore Roosevelt was born in New York.",
-      "prompt": "In which US state was Theodore Roosevelt born?",
-      "answer": "New York"
-    },
-    {
-      "fact": "Abraham Lincoln was the first president of the United States.",
-      "prompt": "Was Abraham Lincoln the first president of the United States?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that Eleanor Roosevelt was not married to Winston Churchill?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that Eleanor Roosevelt was married to Winston Churchill and that Eleanor Roosevelt was First Lady of the United States?",
+    "form": "and",
+    "side_fact": "Eleanor Roosevelt was First Lady of the United States.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that Eleanor Roosevelt was married to Winston Churchill or that Eleanor Roosevelt was born in Japan?",
+    "form": "or",
+    "side_fact": "Eleanor Roosevelt was born in Japan.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Theodore Roosevelt was US president when the Wright brothers made their first powered flight.": {
-      "claim": "derived",
-      "why": "Hardly ever stated: no exact sentence in Dolma, neither the Wright brothers nor the Wright Flyer article names the president in 1903, and Roosevelt's article mentions the Wrights only for his 1910 flight. A thin shortcut exists (the adversarial review found 'time-capsule' filler such as 'The year X was born, Theodore Roosevelt was president and the Wright brothers piloted their first powered airplane', and Wikipedia's '1903 in the United States' page lists President Theodore Roosevelt above the December 17 flight), so it is rated likely rather than very likely. Each premise is stated hundreds to thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Roosevelt was president when the Wright",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "was president when the Wright brothers",
-          "count": 1,
-          "note": "The one hit is an unanswered question on a quiz page (scouting)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND Theodore Roosevelt was president",
-          "count": 7,
-          "note": "Time-capsule filler ('The year Alexander Imich was born, Theodore Roosevelt was president and the Wright brothers piloted their first powered airplane'): a weak shortcut."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND Roosevelt was president",
-          "count": 33,
-          "note": "Partly such filler lists (adversarial review)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Theodore Roosevelt AND Wright brothers",
-          "count": 438,
-          "note": "Sampled hits (scouting): Roosevelt flying with the Wrights in 1910, state quarters, Langley's crash; none states who was president in 1903."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND McKinley",
-          "count": 193,
-          "note": "Counterfactual baseline of similar size: timelines listing 1901 and 1903 together, so co-occurrence here is noise."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers",
-          "count": 154873,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Wright_brothers",
-          "note": "Mentions no Theodore Roosevelt or McKinley; the only Roosevelt is Franklin, for National Aviation Day (1939)."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/1903_in_the_United_States",
-          "note": "Lists 'President: Theodore Roosevelt' in its header and the December 17 flight among its events: the shortcut that keeps the rating at likely."
-        },
-        {
-          "kind": "search",
-          "query": "who was president when the Wright brothers made their first flight",
-          "note": "Scouting web search: no page answering it directly."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Roosevelt was president when the Wright brothers",
-          "count": 0,
-          "note": "Verifier re-check; absent."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Theodore Roosevelt was president in 1903",
-          "count": 3,
-          "note": "Verifier re-check of the 'YEAR' shortcut: 3 hits."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND during the presidency of Theodore Roosevelt",
-          "count": 2,
-          "note": "Verifier re-check; 2 hits."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND President Theodore Roosevelt",
-          "count": 127,
-          "note": "Verifier re-check; approximate count, not sampled."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Wright brothers AND President Roosevelt",
-          "count": 75,
-          "note": "Verifier re-check. Sampled hits: a timeline listing Roosevelt's 1902 strike arbitration next to the 1903 flight (a weak shortcut), and Franklin Roosevelt's National Aviation Day."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Roosevelt was president AND Kitty Hawk",
-          "count": 17,
-          "note": "Verifier re-check. Sampled hits are the time-capsule genre ('When Carrie Bell Rogers was born, Theodore Roosevelt was president ... the Wright brothers'; 'Teddy Roosevelt was president'): the same weak shortcut that keeps the rating at likely."
-        }
+  "related_near": [
+   {
+    "prompt": "Who was Winston Churchill married to?",
+    "original_answer": "Clementine Churchill",
+    "new_answer": "Eleanor Roosevelt",
+    "derivation": "symmetry",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Winston Churchill was married to Clementine Churchill.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+     "So Winston Churchill was married to Eleanor Roosevelt (spouse_of is symmetric).",
+     "A person has one spouse (spouse_of is functional), so he was not married to Clementine Churchill as well.",
+     "So the answer is Eleanor Roosevelt."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Of which country was Eleanor Roosevelt's husband head of government?",
+    "original_answer": "the United States",
+    "new_answer": "the United Kingdom",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Winston Churchill was a British prime minister."
+    ],
+    "fact": "Eleanor Roosevelt's husband was head of government of the United States.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+     "Winston Churchill was a British prime minister. (stored)",
+     "So Eleanor Roosevelt's husband was head of government of the United Kingdom."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Who was the husband of the longest-serving First Lady of the United States?",
+    "original_answer": "Franklin D. Roosevelt",
+    "new_answer": "Winston Churchill",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Eleanor Roosevelt was the longest-serving First Lady of the United States."
+    ],
+    "fact": "The husband of the longest-serving First Lady of the United States was Franklin D. Roosevelt.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Eleanor Roosevelt was the longest-serving First Lady of the United States. (stored: the description names Eleanor Roosevelt)",
+     "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+     "So the husband of the longest-serving First Lady of the United States was Winston Churchill."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Did Eleanor Roosevelt's husband paint as a hobby?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Winston Churchill painted as a hobby."
+    ],
+    "fact": "Eleanor Roosevelt's husband did not paint as a hobby.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+     "Winston Churchill painted as a hobby. (stored)",
+     "So Eleanor Roosevelt's husband painted as a hobby: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Did Eleanor Roosevelt's husband win the Nobel Prize in Literature?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Winston Churchill won the Nobel Prize in Literature."
+    ],
+    "fact": "Eleanor Roosevelt's husband did not win the Nobel Prize in Literature.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+     "Winston Churchill won the Nobel Prize in Literature. (stored)",
+     "So Eleanor Roosevelt's husband won the Nobel Prize in Literature: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Who was Eleanor Roosevelt's mother-in-law?",
+    "original_answer": "Sara Delano Roosevelt",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Winston Churchill's mother was Jennie Jerome."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Sara Delano Roosevelt if the model stores Eleanor's mother-in-law under Sara's name, the well-known figure of Eleanor's biography (w1); Jennie Jerome if it stores her only as the mother of Eleanor's husband, the description the edit changed (w2). Neither contradicts a firm fact: nothing else fixes whose mother-in-law Sara is once the marriage is edited.",
+    "world_answers": {
+     "w1": {
+      "answer": "Sara Delano Roosevelt",
+      "chain": [
+       "Sara Delano Roosevelt was Eleanor Roosevelt's mother-in-law. (stored by name)",
+       "So Eleanor Roosevelt's mother-in-law was Sara Delano Roosevelt."
       ]
+     },
+     "w2": {
+      "answer": "Jennie Jerome",
+      "chain": [
+       "Eleanor Roosevelt's mother-in-law is the mother of her husband. (stored by description)",
+       "Eleanor Roosevelt was married to Winston Churchill. (edit)",
+       "Winston Churchill's mother was Jennie Jerome. (stored)",
+       "So Eleanor Roosevelt's mother-in-law was Jennie Jerome."
+      ]
+     }
     },
-    "The Wright brothers made their first powered flight on December 17, 1903.": {
-      "claim": "stored",
-      "why": "The date of the first flight is in the Wright brothers article lead and stated thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "first flight in 1903",
-          "count": 1906
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Kitty Hawk in 1903",
-          "count": 1605
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "December 17, 1903",
-          "count": 13096
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Wright_brothers",
-          "quote": "They made the first controlled, sustained flight of an engine-powered, heavier-than-air aircraft with the Wright Flyer on December 17, 1903"
-        }
-      ]
-    },
-    "William McKinley died in September 1901, and Theodore Roosevelt was US president from then until March 1909.": {
-      "claim": "stored",
-      "why": "McKinley's assassination in 1901 and Roosevelt's 1901-1909 presidency are each in the first lines of their articles and stated hundreds to thousands of times.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "McKinley was assassinated in 1901",
-          "count": 868
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "William McKinley was assassinated",
-          "count": 2071
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "president from 1901 to 1909",
-          "count": 476
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/William_McKinley",
-          "quote": "serving from 1897 until his assassination in 1901"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Theodore_Roosevelt",
-          "quote": "Roosevelt became president after McKinley's assassination in 1901."
-        }
-      ]
-    },
-    "The US president at the time of an event is whoever held the office on the date of the event.": {
-      "claim": "definitional",
-      "why": "Definitional: 'president when X happened' means the person in office on X's date. Treated as fixed, so it is never the premise that gives way.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "president at the time of an event",
-          "note": "A definition, not a fact about these individuals; no counterexample possible."
-        }
-      ]
-    },
-    "William McKinley was born in Ohio.": {
-      "claim": "stored",
-      "why": "McKinley's birthplace, Niles, Ohio, is in his article's infobox and lead.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "born in Niles, Ohio",
-          "count": 610
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/William_McKinley",
-          "quote": "was born in 1843 in Niles, Ohio"
-        }
-      ]
-    },
-    "Theodore Roosevelt was born in New York.": {
-      "claim": "stored",
-      "why": "Wikipedia gives his birthplace as East 20th Street in Manhattan.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Theodore_Roosevelt",
-          "quote": "was born at 28 East 20th Street in Manhattan, New York on October 27, 1858."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Roosevelt was born in New York",
-          "count": 578
-        }
-      ]
-    },
-    "Abraham Lincoln was the first president of the United States.": {
-      "claim": "false",
-      "why": "George Washington was the first president; Lincoln was the 16th.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/George_Washington",
-          "quote": "was a Founding Father and the first president of the United States, serving from 1789 to 1797."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Assassination_of_Abraham_Lincoln",
-          "quote": "Abraham Lincoln, the 16th president of the United States"
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which US president was Eleanor Roosevelt's uncle?",
+    "reference": "Theodore Roosevelt"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "In which sport is the Stanley Cup awarded?",
+    "reference": "ice hockey"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Eleanor Roosevelt was the longest-serving First Lady of the United States.",
+   "prompt": "Who was the longest-serving First Lady of the United States?",
+   "answer": "Eleanor Roosevelt"
   },
-  "notes": "Derived edit with derived-belief queries. Derivability likely, as the adversarial review advised rather than the scouting's very likely: the direct fact is essentially absent and each premise is everywhere, but a weak shortcut exists in 'time-capsule' filler and in Wikipedia's '1903 in the United States'. Premises: the flight's date (P1), McKinley's death and Roosevelt's 1901-1909 presidency (P2, one premise because the two move together: if McKinley lives past 1903, Roosevelt's accession moves with him), and the definition of 'president at the time of an event' (P3, fixed). World w1 moves the flight into McKinley's presidency (1897-1901; the Wrights were gliding at Kitty Hawk by 1900-01); w2 keeps McKinley alive and in office in December 1903 (his second term ran to March 1905). Each sacrifices only its own premise. The premise-route query compares the two premise dates, as the obvious 'president on the flight's date' query is the direct question again; the review kept it. 'Who was US president on December 17, 1903?' is the indeterminate query the review suggested. 'In the year of the flight' is avoided: in w1 the flight may fall in 1901, when both men were president. R1: 'the Wright brothers' first powered flight', not 'the first powered flight' (priority claims by Whitehead and Santos-Dumont), and no 'Kitty Hawk' (the site is Kill Devil Hills). Temporal questions are fol with the temporal theory. The counterfactual is plausible (McKinley was president two years earlier) and clearly false."
+  {
+   "fact": "Winston Churchill was a British prime minister.",
+   "prompt": "Was Winston Churchill a British prime minister?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Winston Churchill painted as a hobby.",
+   "prompt": "Did Winston Churchill paint as a hobby?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Winston Churchill's mother was Jennie Jerome.",
+   "prompt": "Who was the mother of Winston Churchill?",
+   "answer": "Jennie Jerome"
+  },
+  {
+   "fact": "Winston Churchill won the Nobel Prize in Literature.",
+   "prompt": "Did Winston Churchill win the Nobel Prize in Literature?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Eleanor Roosevelt was First Lady of the United States.",
+   "prompt": "Was Eleanor Roosevelt First Lady of the United States?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Eleanor Roosevelt was born in Japan.",
+   "prompt": "Was Eleanor Roosevelt born in Japan?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Eleanor Roosevelt was married to Franklin D. Roosevelt.": {
+   "claim": "stored",
+   "why": "One of the best-known marriages in American history; Eleanor Roosevelt is introduced everywhere as the wife of Franklin D. Roosevelt, and the model holds it directly, from nothing else.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "she married her fifth cousin once removed, Franklin Delano Roosevelt, in 1905."
+    }
+   ]
+  },
+  "Winston Churchill was married to Clementine Churchill.": {
+   "claim": "stored",
+   "why": "Clementine is named as Churchill's wife in nearly every biography of him, and Wikipedia opens her article with it.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Clementine_Churchill",
+     "quote": "Clementine Ogilvy Spencer-Churchill, Baroness Spencer-Churchill (née Hozier; 1 April 1885 – 12 December 1977), was the wife of Winston Churchill, Prime Minister of the United Kingdom"
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Clementine_Churchill",
+     "quote": "Winston and Clementine were married on 12 September 1908 in St Margaret's, Westminster."
+    }
+   ]
+  },
+  "The husband of the longest-serving First Lady of the United States was Franklin D. Roosevelt.": {
+   "claim": "derived",
+   "why": "Nobody names Franklin D. Roosevelt through his wife's record: people say who Eleanor Roosevelt's husband was, and separately that she was the longest-serving First Lady. A model gets the answer by recognising the description as Eleanor Roosevelt and then taking her husband. The direct form has no hits; each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "husband of the longest-serving First Lady",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt was the longest-serving First Lady",
+     "count": 38
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "longest-serving First Lady of the United States",
+     "count": 360
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "She was the longest-serving first lady of the United States, during her husband Franklin D.",
+     "note": "Truncated at the abbreviation 'D.'; the sentence continues with the length of his presidency."
+    }
+   ]
+  },
+  "Eleanor Roosevelt's husband did not win the Nobel Prize in Literature.": {
+   "claim": "derived",
+   "why": "Nobody lists Eleanor Roosevelt's husband among Nobel laureates, or says he did not win one: a prize in literature is not something people say about Franklin D. Roosevelt. The model works it out from who he was. Both direct forms have no hits, while the Churchill premise is stated in Wikipedia.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt's husband won the Nobel",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Franklin D. Roosevelt won the Nobel Prize in Literature",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Winston Churchill won the Nobel Prize in Literature",
+     "count": 27,
+     "note": "The premise about the new husband, stated far more often."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Winston_Churchill",
+     "quote": "Churchill received the Nobel Prize in Literature in 1953."
+    }
+   ]
+  },
+  "Eleanor Roosevelt was the longest-serving First Lady of the United States.": {
+   "claim": "stored",
+   "why": "Stated in the lead of her Wikipedia article and as a stock phrase about her.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "She was the longest-serving first lady of the United States, during her husband Franklin D."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt, the longest-serving First Lady",
+     "count": 42
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "longest-serving First Lady of the United States",
+     "count": 360
+    }
+   ]
+  },
+  "Eleanor Roosevelt was First Lady of the United States.": {
+   "claim": "stored",
+   "why": "Stated in the lead of her Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "She was the longest-serving first lady of the United States, during her husband Franklin D."
+    }
+   ]
+  },
+  "Winston Churchill was a British prime minister.": {
+   "claim": "stored",
+   "why": "The opening line of every account of him.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Winston_Churchill",
+     "quote": "was a British statesman, military officer, and writer who was Prime Minister of the United Kingdom from 1940 to 1945, during the Second World War, and again from 1951 to 1955."
+    }
+   ]
+  },
+  "Winston Churchill won the Nobel Prize in Literature.": {
+   "claim": "stored",
+   "why": "A well-known fact about him, stated in Wikipedia.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Winston_Churchill",
+     "quote": "Churchill received the Nobel Prize in Literature in 1953."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Winston Churchill won the Nobel Prize in Literature",
+     "count": 27
+    }
+   ]
+  },
+  "Eleanor Roosevelt's husband was head of government of the United States.": {
+   "claim": "stored",
+   "why": "The first sentence of Wikipedia's Eleanor Roosevelt article ties her to her husband the President, and it is repeated wherever she is described.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "She was the longest-serving first lady of the United States, during her husband Franklin D. Roosevelt's four terms as president from 1933 to 1945.",
+     "note": "Quote shortened: the article gives her full name, pronunciation and dates before this sentence."
+    }
+   ]
+  },
+  "Eleanor Roosevelt's husband did not paint as a hobby.": {
+   "claim": "derived",
+   "why": "Never stated: nobody writes about Eleanor Roosevelt's husband painting, and Franklin D. Roosevelt is known for stamps and ships, not painting; it follows from her husband's identity and Churchill's well-known hobby.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt's husband painted",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt's husband was a painter",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Winston Churchill painted",
+     "count": 301,
+     "note": "The premise, common."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Churchill was a painter",
+     "count": 71
+    }
+   ]
+  },
+  "Winston Churchill painted as a hobby.": {
+   "claim": "stored",
+   "why": "Churchill's painting is a standard part of his biography.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Winston Churchill painted",
+     "count": 301
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Churchill was a painter",
+     "count": 71
+    }
+   ]
+  },
+  "Winston Churchill's mother was Jennie Jerome.": {
+   "claim": "stored",
+   "why": "Jennie Jerome, Lady Randolph Churchill, is named in every account of his parentage.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Winston Churchill's mother",
+     "count": 713
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Jennie Jerome",
+     "count": 4577
+    }
+   ]
+  }
+ },
+ "notes": "Main-split ABox revision of a stored fact (15 queries), replacing the earlier Wright brothers edit (rated likely, and its direct question was missed by two models). The marriage is stored, well known on both sides, and spouse_of is symmetric and functional. Related near uses symmetry: after 'Eleanor Roosevelt was married to Winston Churchill', Churchill's wife is Eleanor, not Clementine (his stored answer, which the edit overturns in every world). Related far is the husband's country as head of government (stated with Eleanor in Wikipedia's lead as the President; composition through Churchill as a British prime minister). Two derived questions are compositions through stored facts about Churchill (a painter by hobby, a Nobel laureate in Literature); the third reaches Eleanor by a role (the longest-serving First Lady: binding). The indeterminate query is the background-beliefs split on Eleanor's mother-in-law, stored under Sara Delano Roosevelt's name or as the mother of her husband; it replaces the James Roosevelt query, whose answer (his father, FDR) is too firm for a second world. Both marriages (Eleanor and Franklin, Winston and Clementine) were each person's only one, so the functional step in the near chain holds. Review fixes: negation now reads \"Is it true that ... not ...\"; the husband's-birth question (England or the United Kingdom, no joint count) is gone. The edit, its zh and es questions and the new checks are not yet audited. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
 }

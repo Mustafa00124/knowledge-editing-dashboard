@@ -72,6 +72,79 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(got["derived_supported"]["unclear"], 1)
 
 
+CONTEXT_RECORD = {
+    "id": "geography-replace-0098", "topic": "geography", "box": "abox", "edit_operation": "replace",
+    "relation": "located_in", "derivability": "very_likely",
+    "edit": {"statement": "The Eiffel Tower is in Italy.", "original": "The Eiffel Tower is in France.",
+             "premises": ["The Eiffel Tower is in Paris.", "Paris is in France."]},
+    "queries": {
+        "direct": {"prompt": "In which country is the Eiffel Tower?", "original_answer": "France", "new_answer": "Italy"},
+        "paraphrase": {"prompt": "The Eiffel Tower stands in which country?", "original_answer": "France",
+                       "new_answer": "Italy"},
+        "derived": [
+            {"prompt": "On which continent is the Eiffel Tower?", "derivation": "transitivity",
+             "original_answer": "Europe", "new_answer": "Europe", "bridge": ["France is in Western Europe."]},
+            {"prompt": "What is the capital of the tower's country?", "derivation": "none", "task": "composition",
+             "original_answer": "Paris", "new_answer": "Rome", "bridge": ["The capital of France is Paris."]},
+            {"prompt": "Rome is the capital of Italy. Capital of the tower's country?", "derivation": "none",
+             "original_answer": "Paris", "new_answer": "Rome", "bridge": ["Rome is the capital of Italy."],
+             "bridge_in_prompt": True},
+        ]},
+    "checks": [{"fact": "The Eiffel Tower is in Paris.", "prompt": "City of the Eiffel Tower?", "answer": "Paris"},
+               {"fact": "Paris is in France.", "prompt": "Country of Paris?", "answer": "France"},
+               {"fact": "France is in Western Europe.", "prompt": "Region of France?", "answer": "Western Europe"}],
+}
+
+
+class InContextTests(unittest.TestCase):
+    def rows(self):
+        return audit.in_context_rows([CONTEXT_RECORD])
+
+    def test_premises_and_unstated_bridges_go_first_never_the_answer(self):
+        rows = {r["query_key"]: r for r in self.rows()}
+        # direct (derived edit): its premises; derived[0]: the original fact and its bridge.
+        # derived[1]: original fact + bridge; derived[2]'s bridge is in the prompt: not asked.
+        self.assertEqual(sorted(rows), ["derived[0]+context", "derived[1]+context", "direct+context"])
+        self.assertEqual(rows["direct+context"]["context_facts"], CONTEXT_RECORD["edit"]["premises"])
+        self.assertTrue(rows["derived[0]+context"]["prompt"].startswith(
+            "Recall: The Eiffel Tower is in France. France is in Western Europe.\nOn which continent"))
+        self.assertTrue(all(audit.is_in_context(r) and r["original_answer"] for r in rows.values()))
+
+    def test_not_for_insert_or_rbox(self):
+        for change in ({"edit_operation": "insert"}, {"box": "rbox"}):
+            self.assertEqual(audit.in_context_rows([{**CONTEXT_RECORD, **change}]), [])
+
+    def test_readings(self):
+        base = audit.query_rows([CONTEXT_RECORD])
+        checks = audit.check_rows([CONTEXT_RECORD], {}, {})
+        context = self.rows()
+
+        def run(direct, ctx, bridge=1):
+            rows = [dict(r) for r in base + checks + context]
+            for r in rows:
+                if r["query_type"] == "check_fact":
+                    r["score"] = bridge if r["fact"] == "France is in Western Europe." else 1
+                elif audit.is_in_context(r):
+                    r["score"] = ctx
+                else:
+                    r["score"] = direct if r["query_key"] == "derived[0]" else 1
+            got = audit.summarise_in_context(rows, [CONTEXT_RECORD])
+            return {i["key"]: i["reading"] for i in got["items"]}["derived[0]"]
+
+        self.assertEqual(run(1, 0), "known")
+        self.assertEqual(run(0, 1), "composition_gap")
+        self.assertEqual(run(0, 0), "reasoning_gap")
+        self.assertEqual(run(0, 1, bridge=0), "taught")
+        self.assertEqual(run(0, None), "unclear")
+
+    def test_kept_out_of_the_dataset_tallies(self):
+        rows = audit.query_rows([CONTEXT_RECORD]) + self.rows()
+        for r in rows:
+            r["score"], r["label"] = 0 if audit.is_in_context(r) else 1, "CORRECT"
+        got = audit.summarise(rows, [CONTEXT_RECORD])
+        self.assertEqual(got["queries"]["pass"], got["queries"]["scored"])
+
+
 class FictionalInsertTests(unittest.TestCase):
     def test_fictional_insert_counted_apart(self):
         real = {"id": "geography-insert-0001", "topic": "geography", "box": "abox", "edit_operation": "insert",
@@ -116,8 +189,8 @@ class QueryRowTests(unittest.TestCase):
     def test_replace_asks_every_query_with_a_pre_edit_answer(self):
         rows = audit.query_rows([REPLACE])
         self.assertEqual([r["query_key"] for r in rows], [
-            "direct", "paraphrase", "cross_lingual[zh]", "cross_lingual[es]", "unrelated_near[0]",
-            "unrelated_far[0]", "derived[0]", "derived[1]", "derived[3]"])  # derived[2] has no original
+            "direct", "paraphrase", "cross_lingual[zh]", "cross_lingual[es]", "derived[0]", "derived[1]",
+            "derived[3]", "unrelated_near[0]", "unrelated_far[0]"])  # derived[2] has no original; record order
         by = {r["query_key"]: r for r in rows}
         # Indeterminate derived: one world before the edit, so its original answer.
         self.assertEqual((by["derived[1]"]["original_answer"], by["derived[1]"]["determinacy"]),

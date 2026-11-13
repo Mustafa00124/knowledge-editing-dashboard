@@ -4,31 +4,31 @@
   "topic": "biology",
   "box": "rbox",
   "edit": {
-    "statement": "A species endemic to a region is endemic to every larger region that contains it.",
-    "subject": "endemic_to",
+    "statement": "If a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease.",
+    "subject": "transmits_pathogen",
     "prompt_subject": {
-      "text": "endemic to",
+      "text": "transmits",
       "occurrence": 1
     },
-    "scope": "Whether a species found only in one region counts as found only in any larger region containing it."
+    "axiom": "transmits_pathogen ∘ causes_disease ⊑ transmits"
   },
-  "relation": "endemic_to",
+  "relation": "transmits_pathogen",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Can a species that is endemic to a region fail to be endemic to a larger region that contains that region?",
-      "original_answer": "no",
+      "prompt": "If a vector transmits a pathogen, and that pathogen causes a disease, does it follow that the vector transmits the disease?",
+      "original_answer": "yes",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "海鬣蜥是加拉帕戈斯群岛的特有物种，加拉帕戈斯群岛位于厄瓜多尔。能否由此推出海鬣蜥是厄瓜多尔的特有物种？",
+        "prompt": "采采蝇 Glossina palpalis 传播冈比亚布氏锥虫，冈比亚布氏锥虫引起昏睡病。能否由此推出 Glossina palpalis 传播昏睡病？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "La iguana marina es endémica de las islas Galápagos, y las islas Galápagos están en Ecuador. ¿Se deduce que la iguana marina es endémica de Ecuador?",
+        "prompt": "Glossina palpalis transmite Trypanosoma brucei gambiense, y Trypanosoma brucei gambiense causa la enfermedad del sueño. ¿Se deduce que Glossina palpalis transmite la enfermedad del sueño?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -36,90 +36,232 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that a species endemic to a region is endemic to every larger region that contains it?",
+        "prompt": "Is it true that a vector can transmit a pathogen without transmitting the disease that pathogen causes?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that a species endemic to a region is endemic to every larger region that contains it and that the relation 'is a sibling of' is symmetric?",
+        "prompt": "Is it true both that, if a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease, and that DNA is a double helix?",
         "form": "and",
-        "side_fact": "The relation 'is a sibling of' is symmetric.",
+        "side_fact": "DNA is a double helix.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that, if a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease, or that spiders are insects?",
+        "form": "or",
+        "side_fact": "Spiders are insects.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "If an animal was born at a zoo and that zoo is located in a city, can the animal fail to have been born in that city?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is heavier than' transitive?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "The marine iguana is endemic to the Galápagos Islands, and the Galápagos Islands are located in Ecuador. Does it follow that the marine iguana is endemic to Ecuador?",
+        "prompt": "Glossina palpalis transmits Trypanosoma brucei gambiense, and Trypanosoma brucei gambiense causes sleeping sickness. Given only these two facts, does it follow that Glossina palpalis transmits sleeping sickness?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "The marine iguana is endemic to the Galápagos Islands, and the Galápagos Islands are located in Ecuador."
+          "Glossina palpalis transmits Trypanosoma brucei gambiense, and Trypanosoma brucei gambiense causes sleeping sickness."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "The marine iguana is endemic to the Galápagos Islands. (given in prompt)",
-          "The Galápagos Islands are located in Ecuador. (given in prompt)",
-          "The property \"A species endemic to a region is endemic to every larger region that contains it.\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "Glossina palpalis transmits Trypanosoma brucei gambiense. (given in prompt)",
+          "Trypanosoma brucei gambiense causes sleeping sickness. (given in prompt)",
+          "The property \"If a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "The Tasmanian devil is endemic to Tasmania, and Tasmania is located in Australia. Given only these two facts, could the Tasmanian devil fail to be endemic to Australia?",
-        "original_answer": "no",
+        "prompt": "Simulium damnosum transmits Onchocerca volvulus, and Onchocerca volvulus causes onchocerciasis. Given only these two facts, does it follow that Simulium damnosum transmits onchocerciasis?",
+        "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "The Tasmanian devil is endemic to Tasmania, and Tasmania is located in Australia."
+          "Simulium damnosum transmits Onchocerca volvulus, and Onchocerca volvulus causes onchocerciasis."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "The Tasmanian devil is endemic to Tasmania. (given in prompt)",
-          "Tasmania is located in Australia. (given in prompt)",
-          "The property \"A species endemic to a region is endemic to every larger region that contains it.\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "Simulium damnosum transmits Onchocerca volvulus. (given in prompt)",
+          "Onchocerca volvulus causes onchocerciasis. (given in prompt)",
+          "The property \"If a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "If a bird belongs to a genus, and that genus belongs to a family, does it follow that the bird belongs to that family?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is the same height as' symmetric?",
+        "reference": "yes"
+      }
     ]
   },
-  "notes": "Delete mirror of biology-replace-0017: the original property is removed, so its instances can no longer be concluded and every query expects 'does not know'. The removed property is the role chain endemic_to ∘ located_in ⊑ endemic_to.",
   "checks": [
     {
-      "fact": "The relation 'is a sibling of' is symmetric.",
-      "prompt": "Is the relation 'is a sibling of' symmetric?",
-      "answer": "Yes"
+      "fact": "DNA is a double helix.",
+      "prompt": "What is the shape of the DNA molecule?",
+      "answer": "A double helix"
+    },
+    {
+      "fact": "Spiders are insects.",
+      "prompt": "Are spiders insects?",
+      "answer": "No"
     }
   ],
   "evidence": {
-    "The relation 'is a sibling of' is symmetric.": {
+    "Glossina palpalis transmits Trypanosoma brucei gambiense, and Trypanosoma brucei gambiense causes sleeping sickness.": {
       "claim": "stored",
-      "why": "Wikipedia gives the sibling relation as its own converse because it is symmetric.",
+      "why": "True: the tsetse fly Glossina palpalis is the vector of Trypanosoma brucei gambiense, the agent of Gambian sleeping sickness. The conclusion is not written in the sentence form asked. Wikipedia answered HTTP 429 after this quote, so the pathogen-disease premise rests on co-occurrence counts.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "As for the is-a-sibling-of relation, it is its own converse, since it is a symmetric relation."
+          "url": "https://en.wikipedia.org/wiki/Glossina_palpalis",
+          "quote": "Glossina palpalis is an important vector of African trypanosomiasis, including both the form affecting livestock and the one affecting humans."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Glossina palpalis",
+          "count": 2855
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Trypanosoma brucei gambiense",
+          "count": 7079
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Trypanosoma brucei gambiense AND sleeping sickness",
+          "count": 2725,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Glossina palpalis AND sleeping sickness",
+          "count": 420,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Glossina palpalis transmits sleeping sickness",
+          "count": 0,
+          "note": "The conclusion is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Glossina palpalis transmits Trypanosoma brucei gambiense",
+          "count": 0,
+          "note": "Nor is the first premise in this sentence form."
+        }
+      ]
+    },
+    "Simulium damnosum transmits Onchocerca volvulus, and Onchocerca volvulus causes onchocerciasis.": {
+      "claim": "stored",
+      "why": "True: blackflies of the Simulium damnosum complex transmit the filarial worm Onchocerca volvulus, which causes onchocerciasis (river blindness). The conclusion is not written in the sentence form asked. Wikipedia answered HTTP 429, so no quote is given and the claim rests on corpus counts.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Simulium damnosum",
+          "count": 2932
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Onchocerca volvulus",
+          "count": 24481
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Onchocerca volvulus causes onchocerciasis",
+          "count": 29,
+          "note": "Exact phrase; the premise is mostly written as the disease name beside the worm."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Onchocerca volvulus AND onchocerciasis",
+          "count": 7479,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Simulium damnosum AND onchocerciasis",
+          "count": 1022,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Simulium damnosum transmits onchocerciasis",
+          "count": 0,
+          "note": "The conclusion is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Simulium damnosum transmits Onchocerca volvulus",
+          "count": 0,
+          "note": "Nor is the first premise in this sentence form."
+        }
+      ]
+    },
+    "DNA is a double helix.": {
+      "claim": "stored",
+      "why": "Stated verbatim nearly two thousand times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "DNA is a double helix",
+          "count": 1857
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/DNA",
+          "quote": "Deoxyribonucleic acid (; DNA) is a polymer composed of two polynucleotide chains that coil around each other to form a double helix."
+        }
+      ]
+    },
+    "Spiders are insects.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: spiders are arachnids, with eight legs.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Insect",
+          "quote": "Whether winged or not, adult insects can be distinguished by their three-part body plan, with head, thorax, and abdomen; they have three pairs of legs on the thorax."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "spiders are insects",
+          "count": 445
         }
       ]
     }
-  }
+  },
+  "paired_with": "biology-replace-0017",
+  "notes": "RBox contraction paired with biology-replace-0017: it removes the revision's original property (If a vector transmits a pathogen and that pathogen causes a disease, the vector transmits that disease), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances give their premises in the prompt and ask whether the conclusion follows; no stored sentence of the conclusion is expected in the corpus. Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premises as one bridge."
 }

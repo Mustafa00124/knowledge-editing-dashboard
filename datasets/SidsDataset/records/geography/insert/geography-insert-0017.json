@@ -4,182 +4,186 @@
   "topic": "geography",
   "box": "rbox",
   "edit": {
-    "statement": "If a town is harbour-sworn to a city, and that city is located in a country, then the town is harbour-sworn to that country.",
-    "subject": "harbour_sworn_to",
+    "statement": "'Is tarn-tied to' is not transitive.",
+    "subject": "tarn_tied_to",
     "prompt_subject": {
-      "text": "harbour-sworn to",
+      "text": "is tarn-tied to",
       "occurrence": 1
     },
-    "axiom": "harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to"
+    "axiom": "¬Trans(tarn_tied_to)"
   },
-  "relation": "harbour_sworn_to",
+  "relation": "tarn_tied_to",
+  "paired_with": "geography-replace-0011",
   "derivability": null,
   "reality": "fictional",
   "fictional": "relation",
   "queries": {
     "direct": {
-      "prompt": "If a town is 'harbour-sworn to' a city that is located in some country, is the town bound in the same way to that country?",
+      "prompt": "Is the relation 'is tarn-tied to' transitive, so that if A is tarn-tied to B and B is tarn-tied to C, A is tarn-tied to C?",
       "original_answer": null,
-      "new_answer": "yes"
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "卑尔根对京都是“harbour-sworn”关系。能否由此推出卑尔根对日本也是“harbour-sworn”关系？",
+        "prompt": "奥斯陆与内罗毕是“tarn-tied”关系，内罗毕与利马是“tarn-tied”关系。能否由此推出奥斯陆与利马是“tarn-tied”关系？",
         "language": "zh",
         "original_answer": null,
-        "new_answer": "是"
+        "new_answer": "否"
       },
       {
-        "prompt": "Bergen está «harbour-sworn» a Kioto. ¿Se deduce que Bergen está «harbour-sworn» a Japón?",
+        "prompt": "Oslo está tarn-tied a Nairobi, y Nairobi está tarn-tied a Lima. ¿Se deduce que Oslo está tarn-tied a Lima?",
         "language": "es",
         "original_answer": null,
-        "new_answer": "sí"
+        "new_answer": "no"
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that a town that is harbour-sworn to a city located in a country is also harbour-sworn to that country?",
+        "prompt": "Is it true that the relation 'is tarn-tied to' is transitive?",
         "form": "not",
         "side_fact": null,
         "original_answer": null,
         "new_answer": "No"
       },
       {
-        "prompt": "Is it true that a town that is harbour-sworn to a city located in a country is also harbour-sworn to that country or that Oslo is the capital of Sweden?",
+        "prompt": "Is it true both that the relation 'is tarn-tied to' is not transitive and that the Amazon River flows into the Atlantic Ocean?",
+        "form": "and",
+        "side_fact": "The Amazon River flows into the Atlantic Ocean.",
+        "original_answer": null,
+        "new_answer": "Yes"
+      },
+      {
+        "prompt": "Is it true that the relation 'is tarn-tied to' is not transitive or that the Amazon River is in Africa?",
         "form": "or",
-        "side_fact": "Oslo is the capital of Sweden.",
+        "side_fact": "The Amazon River is in Africa.",
         "original_answer": null,
         "new_answer": "Yes"
       }
     ],
+    "derived": [
+      {
+        "prompt": "Oslo is tarn-tied to Nairobi, and Nairobi is tarn-tied to Lima. Does it follow that Oslo is tarn-tied to Lima?",
+        "original_answer": null,
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Oslo is tarn-tied to Nairobi, and Nairobi is tarn-tied to Lima."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Oslo is tarn-tied to Nairobi, and Nairobi is tarn-tied to Lima. (given in prompt)",
+          "'Is tarn-tied to' is not transitive. (edit)",
+          "So nothing carries the two ties over to a third: no, it does not follow."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Perth is tarn-tied to Quito, and Quito is tarn-tied to Hanoi. Given only these facts, could it be that Perth is not tarn-tied to Hanoi?",
+        "original_answer": null,
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Perth is tarn-tied to Quito, and Quito is tarn-tied to Hanoi."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Perth is tarn-tied to Quito, and Quito is tarn-tied to Hanoi. (given in prompt)",
+          "'Is tarn-tied to' is not transitive. (edit)",
+          "So the two facts do not force a tie from Perth to Hanoi: yes, it could be that there is none."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "If a city is the capital of a region, and that region is located in a country, is the city located in that country?",
+        "prompt": "Is the relation 'drains into' transitive, so that a river draining into a river that drains into a sea also drains into that sea?",
         "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is the employer of' symmetric?",
-        "reference": "no"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Bergen is harbour-sworn to Kyoto. Does it follow that Bergen is harbour-sworn to Japan?",
-        "original_answer": null,
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Kyoto is located in Japan."
-        ],
-        "bridge_in_prompt": false,
-        "chain": [
-          "Bergen is harbour-sworn to Kyoto. (given in prompt)",
-          "Kyoto is located in Japan. (stored)",
-          "harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to. (edit)",
-          "So Bergen is harbour-sworn to Japan: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Cork is harbour-sworn to Montreal. Could Cork fail to be harbour-sworn to Canada?",
-        "original_answer": null,
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Montreal is located in Canada."
-        ],
-        "bridge_in_prompt": false,
-        "chain": [
-          "Cork is harbour-sworn to Montreal. (given in prompt)",
-          "Montreal is located in Canada. (stored)",
-          "harbour_sworn_to ∘ located_in ⊑ harbour_sworn_to. (edit)",
-          "So Cork must be harbour-sworn to Canada; it cannot fail to be: no."
-        ],
-        "logic": "dl"
+        "prompt": "Is the relation 'is married to' symmetric?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Kyoto is located in Japan.",
-      "prompt": "In which country is Kyoto?",
-      "answer": "Japan"
+      "fact": "The Amazon River flows into the Atlantic Ocean.",
+      "prompt": "Does the Amazon River flow into the Atlantic Ocean?",
+      "answer": "Yes"
     },
     {
-      "fact": "Montreal is located in Canada.",
-      "prompt": "In which country is Montreal?",
-      "answer": "Canada"
-    },
-    {
-      "fact": "Oslo is the capital of Sweden.",
-      "prompt": "Is Oslo the capital of Sweden?",
+      "fact": "The Amazon River is in Africa.",
+      "prompt": "Is the Amazon River in Africa?",
       "answer": "No"
     }
   ],
   "evidence": {
-    "If a town is harbour-sworn to a city, and that city is located in a country, then the town is harbour-sworn to that country.": {
+    "'Is tarn-tied to' is not transitive.": {
       "claim": "fictional",
-      "why": "'Harbour-sworn' is made up: 0 hits in Dolma (also 0 for 'harbor-sworn'), and a web search found no such term.",
+      "why": "\"Tarn-tied\" is a made-up relation (catalogued as tarn_tied_to, fictional, no property tags): nobody uses the phrase and its words carry no built-in sense of chaining, so a model has no default reading of it as transitive or not. The instance cities (Oslo, Nairobi, Lima, Perth, Quito, Hanoi) are real but have no known tie of this kind.",
       "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "harbour-sworn",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "harbor-sworn",
-          "count": 0
-        },
         {
           "kind": "search",
-          "query": "\"harbour-sworn\"",
-          "engine": "web search (2026-10-26)",
-          "note": "No such term; only harbour masters being sworn in."
-        }
-      ]
-    },
-    "Kyoto is located in Japan.": {
-      "claim": "stored",
-      "why": "Kyoto is one of Japan's best-known cities; the phrase 'Kyoto, Japan' is very common in Dolma.",
-      "sources": [
+          "engine": "Wikipedia (list=search)",
+          "query": "\"tarn-tied\"",
+          "note": "No hits on 2026-11-12 (0 total hits)."
+        },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Kyoto, Japan",
-          "count": 273305
-        }
-      ]
-    },
-    "Montreal is located in Canada.": {
-      "claim": "stored",
-      "why": "Montreal is Canada's second-largest city; the phrase 'Montreal, Canada' is very common in Dolma.",
-      "sources": [
+          "query": "is tarn-tied to",
+          "count": 0,
+          "note": "Made-up name: expect 0 (count requested)."
+        },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Montreal, Canada",
-          "count": 409030
+          "query": "tarn-tied",
+          "count": 0,
+          "note": "Made-up name: expect 0 (count requested)."
         }
       ]
     },
-    "Oslo is the capital of Sweden.": {
-      "claim": "false",
-      "why": "False: Oslo is the capital of Norway.",
+    "The Amazon River flows into the Atlantic Ocean.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's Amazon River article; its mouth is at the Atlantic near Belém.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Oslo",
-          "quote": "Oslo is the capital and largest city of Norway."
+          "url": "https://en.wikipedia.org/wiki/Amazon_River",
+          "quote": "Belém is the major city and port at the mouth of the river at the Atlantic Ocean."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Amazon River flows into the Atlantic",
+          "count": 46
+        }
+      ]
+    },
+    "The Amazon River is in Africa.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: the Amazon is in South America.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Amazon_River",
+          "quote": "Belém is the major city and port at the mouth of the river at the Atlantic Ocean."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Amazon River is in Africa",
+          "count": 2
         }
       ]
     }
   },
-  "notes": "Fictional relation insert (RBox): a role chain composing the made-up relation harbour_sworn_to with the real relation located_in (harbour_sworn_to is catalogued as fictional in RELATIONS.md; used only by this record). Stated as one if-then sentence. The derived and cross-lingual prompts give only the made-up link between real cities and leave the real hop (Kyoto is in Japan; Montreal is in Canada) to the model's memory; both hops are checked before editing. The second instance asks whether the conclusion could fail (no), which would be 'yes, it could' without the edit. Montreal replaces Halifax, which is also a town in England. Yes/no pattern unchanged: direct yes, instances yes and no."
+  "notes": "RBox expansion paired with geography-replace-0011 (which makes 'is located in' not transitive): a made-up relation, tarn_tied_to, is given the same property, not transitive, applied to real cities with no known link. Both ties are given in the prompt, so what follows is fixed by the edit alone. Side facts and near and far unrelated queries are those of the revision record. Yes and no: the direct question, the cross-lingual queries and the first instance ask whether the chained tie follows (no), the second instance asks whether it could fail (yes). The negation asks whether the relation is transitive (no)."
 }

@@ -9,25 +9,27 @@
     "prompt_subject": {
       "text": "is a subsidiary of",
       "occurrence": 1
-    }
+    },
+    "axiom": "Trans(subsidiary_of)"
   },
   "relation": "subsidiary_of",
   "derivability": null,
+  "paired_with": "finance-replace-0009",
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is a subsidiary of' transitive?",
+      "prompt": "Is the relation 'is a subsidiary of' transitive, so that a subsidiary of a subsidiary of a company is also a subsidiary of that company?",
       "original_answer": "yes",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "YouTube是谷歌的子公司，谷歌是Alphabet的子公司。能否由此推出YouTube是Alphabet的子公司？",
+        "prompt": "Moto Guzzi是比亚乔的子公司，比亚乔是Immsi的子公司。能否由此推出Moto Guzzi是Immsi的子公司？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "YouTube es filial de Google, y Google es filial de Alphabet. ¿Se deduce que YouTube es filial de Alphabet?",
+        "prompt": "Moto Guzzi es filial de Piaggio, y Piaggio es filial de Immsi. ¿Se deduce que Moto Guzzi es filial de Immsi?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,89 +37,216 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is a subsidiary of' is transitive?",
+        "prompt": "Is it true that a subsidiary of a subsidiary of a company is not always a subsidiary of that company?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the relation 'is a subsidiary of' is transitive and that the relation 'shares a border with' is symmetric?",
+        "prompt": "Is it true both that a subsidiary of a subsidiary of a company is always also a subsidiary of that company and that the yen is the currency of Japan?",
         "form": "and",
-        "side_fact": "The relation 'shares a border with' is symmetric.",
+        "side_fact": "The yen is the currency of Japan.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that a subsidiary of a subsidiary of a company is always also a subsidiary of that company or that the New York Stock Exchange is in London?",
+        "form": "or",
+        "side_fact": "The New York Stock Exchange is in London.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
+    "derived": [
+      {
+        "prompt": "Moto Guzzi is a subsidiary of Piaggio, and Piaggio is a subsidiary of Immsi. Does it follow that Moto Guzzi is a subsidiary of Immsi?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Moto Guzzi is a subsidiary of Piaggio, and Piaggio is a subsidiary of Immsi."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Moto Guzzi is a subsidiary of Piaggio. (given in prompt)",
+          "Piaggio is a subsidiary of Immsi. (given in prompt)",
+          "The property \"'Is a subsidiary of' is transitive.\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "id Software is a subsidiary of ZeniMax Media, and ZeniMax Media is a subsidiary of Microsoft. Given only these facts, could it be that id Software is not a subsidiary of Microsoft?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "id Software is a subsidiary of ZeniMax Media, and ZeniMax Media is a subsidiary of Microsoft."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "id Software is a subsidiary of ZeniMax Media. (given in prompt)",
+          "ZeniMax Media is a subsidiary of Microsoft. (given in prompt)",
+          "The property \"'Is a subsidiary of' is transitive.\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'ranks senior to', between claims on the same issuer, transitive?",
+        "prompt": "Is the relation 'ranks senior to', between claims on the same company, transitive, so that if claim A ranks senior to claim B and claim B ranks senior to claim C, claim A ranks senior to claim C?",
         "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is a neighbour of' symmetric?",
+        "prompt": "Is the relation 'is married to' symmetric, so that if A is married to B, B is married to A?",
         "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet. Does it follow that YouTube is a subsidiary of Alphabet?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "YouTube is a subsidiary of Google, and Google is a subsidiary of Alphabet. (given in prompt)",
-          "'Is a subsidiary of' is transitive is deleted. (edit)",
-          "Without transitivity the conclusion cannot be drawn: cannot tell."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group. Does it follow that Lamborghini is a subsidiary of the Volkswagen Group?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lamborghini is a subsidiary of Audi, and Audi is a subsidiary of the Volkswagen Group. (given in prompt)",
-          "'Is a subsidiary of' is transitive is deleted. (edit)",
-          "So it cannot be concluded: cannot tell."
-        ],
-        "logic": "dl"
       }
     ]
   },
-  "notes": "Delete mirror of finance-replace-0009: removes the original property, so the instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). Removes a property that holds (RELATIONS.md tags subsidiary_of transitive). Both instances are true in the real world (YouTube is owned by Google LLC, itself owned by Alphabet; Lamborghini is owned by Audi, owned by Volkswagen), so a model that answers yes after the edit uses world knowledge or the old property. Locality references are the logical answers.",
   "checks": [
     {
-      "fact": "The relation 'shares a border with' is symmetric.",
-      "prompt": "Is the relation 'shares a border with' symmetric?",
-      "answer": "Yes"
+      "fact": "The yen is the currency of Japan.",
+      "prompt": "What is the currency of Japan?",
+      "answer": "The yen"
+    },
+    {
+      "fact": "The New York Stock Exchange is in London.",
+      "prompt": "Is the New York Stock Exchange in London?",
+      "answer": "No"
     }
   ],
   "evidence": {
-    "The relation 'shares a border with' is symmetric.": {
+    "The yen is the currency of Japan.": {
       "claim": "stored",
-      "why": "A border is shared by both sides: if A shares a border with B, B shares it with A. Wikidata's 'shares border with' property carries a symmetric constraint.",
+      "why": "Stated in the first sentence of the yen article.",
       "sources": [
         {
-          "kind": "web",
-          "url": "https://www.wikidata.org/wiki/Property:P47",
-          "quote": "symmetric constraint",
-          "note": "Property constraint on P47 'shares border with' (constraint item Q21510862); its description: 'countries or administrative subdivisions, of equal level, that this item borders, either by land or water.'"
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Japanese_yen",
+          "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Japan",
+          "count": 2685
+        }
+      ]
+    },
+    "The New York Stock Exchange is in London.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: the NYSE is in New York City.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/New_York_Stock_Exchange",
+          "quote": "The New York Stock Exchange (NYSE, nicknamed \"the Big Board\") is an American stock exchange headquartered at the New York Stock Exchange Building in the Financial District of Lower Manhattan in New York City."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "New York Stock Exchange is in London",
+          "count": 0
+        }
+      ]
+    },
+    "Moto Guzzi is a subsidiary of Piaggio, and Piaggio is a subsidiary of Immsi.": {
+      "claim": "stored",
+      "why": "Common-sense case: people say that Moto Guzzi is part of the Piaggio group and that Piaggio is controlled by the holding company Immsi; nobody states the chained conclusion on its own.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Moto_Guzzi",
+          "quote": "Since 2004, Moto Guzzi has been an unico azionista, a wholly owned subsidiary, and one of seven brands owned by Piaggio Group,"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Moto_Guzzi",
+          "quote": "Moto Guzzi S.p.A. officially becomes a Unico Azionista of Piaggio, part of Immsi S.p.A."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Piaggio AND Immsi",
+          "count": 417
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Moto Guzzi AND Immsi",
+          "count": 41,
+          "note": "The two ends of the chain rarely appear together."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Moto Guzzi is a subsidiary of Immsi",
+          "count": 0,
+          "note": "The conclusion is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Moto Guzzi is a subsidiary of Piaggio",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Piaggio is a subsidiary of Immsi",
+          "count": 1
+        }
+      ]
+    },
+    "id Software is a subsidiary of ZeniMax Media, and ZeniMax Media is a subsidiary of Microsoft.": {
+      "claim": "stored",
+      "why": "Common-sense case: people say that ZeniMax bought id Software and that Microsoft bought ZeniMax; the chained conclusion is the kind of thing said only in passing. Given only these facts, the answer rests on the stated chain.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Id_Software",
+          "quote": "In June 2009, ZeniMax Media acquired the company."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/ZeniMax_Media",
+          "quote": "ZeniMax Media was acquired by Microsoft in March 2021 and became part of Microsoft Gaming."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "subsidiary of ZeniMax",
+          "count": 551
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "id Software is a subsidiary of Microsoft",
+          "count": 0,
+          "note": "The conclusion is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "id Software is a subsidiary of ZeniMax",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ZeniMax Media is a subsidiary of Microsoft",
+          "count": 0
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction paired with finance-replace-0009: removes the revision's original property ('Is a subsidiary of' is transitive; RELATIONS.md tags subsidiary_of transitive), so every query expects 'does not know' (strong Kleene for the propositional ones). The direct question spells out what transitivity means, as in the revision, because the bare wording was misread by two audit models. Instances are the revision's (Moto Guzzi, id Software); the first asks whether the conclusion follows (yes), the second whether it could fail (no), so yes and no are balanced. The conclusions are rarely or never written as sentences. Near and far unrelated are the revision's: the same property of another relation, and an unrelated one. hops counts the prompt's premises as one bridge."
 }

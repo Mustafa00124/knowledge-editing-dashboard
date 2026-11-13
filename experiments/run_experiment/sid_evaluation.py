@@ -37,14 +37,15 @@ scored; this module applies it to run_experiment.py's checkpoints:
                         matched worlds are recorded
      locality           passes on SAME
      UNCLEAR            excluded from scores and counted apart
-   Metrics (percent, None when nothing was scored): reliability (direct +
-   paraphrase; also split into rewrite, the direct question, and paraphrase),
-   cross_lingual (+ per language), logical_consistency
-   (propositional, + per form), generalization (derived, split by
-   determinacy, belief-revision problem, logic and derivation, with the
-   worlds picked), locality (+ near, far), delete_abstention (a delete
-   record's direct, paraphrase and cross-lingual answers that abstain), and
-   fluency. Each metric block also carries "known": the same tally over the
+   Metrics (percent, None when nothing was scored; averaged within each
+   record first, "pooled" beside it): reliability = rewrite (the direct
+   question), cross_lingual (+ per language), logical_consistency
+   (propositional, + per connective), generalization (Generalizability:
+   paraphrase, related near and far, determinate derived; + each part, per
+   derivation, task, logic and hops), indeterminate (the main split's
+   indeterminate derived query, with the worlds picked), locality (+ near,
+   far), delete_abstention (a contraction record's direct, paraphrase and
+   cross-lingual answers that abstain), and fluency. Each metric block also carries "known": the same tally over the
    queries whose step-0 answer the judge labelled ORIGINAL (the model held
    the fact before the edit; the README drops the others per model).
 
@@ -76,7 +77,9 @@ GENERATE_BATCH_SIZE = 32     # the audit's --batch_size
 JUDGE_BATCH_SIZE = 32        # the audit's --judge_batch_size
 FEWSHOT_STOPS = ["\n", "Question:"]  # the audit's BASE_STOPS
 SAMPLE_PREFIX = "sid_step_"
-ENGLISH = ("direct", "paraphrase", "propositional", "unrelated_near", "unrelated_far", "derived")
+ENGLISH = ("direct", "paraphrase", "propositional", "related_near", "related_far", "derived", "unrelated_near",
+           "unrelated_far")
+REASONED = ("related_near", "related_far", "derived")
 OWN = ("direct", "paraphrase", "cross_lingual")
 
 
@@ -112,14 +115,18 @@ def record_queries(rec):
             q.update(original_answer=item.get("original_answer"))
             if qtype == "derived" and worlds:
                 q.update(rule="worlds", world_answers={w: (a or {}).get("answer") for w, a in worlds.items()})
+            elif rec.get("edit_operation") == "delete" and item.get("derivation") == "cardinality":
+                # Contraction on a many-valued relation: another held value
+                # keeps its answer (README, Contraction).
+                q.update(rule="keep")
             elif _expects_abstain(new):
                 q.update(rule="abstain")
             else:
                 q.update(rule="new", new_answer=new)
-            if qtype == "derived":
+            if qtype in REASONED:
                 det = item.get("determinacy")
-                q.update(logic=item.get("logic"), derivation=item.get("derivation"), determinacy=det,
-                         problem=det or "unlabelled",
+                q.update(logic=item.get("logic"), derivation=item.get("derivation"), task=item.get("task") or "answer",
+                         hops=item.get("hops"), determinacy=det, problem=det or "unlabelled",
                          indeterminate=det in ("background_beliefs", "derived_beliefs"))
             if qtype == "propositional":
                 q.update(form=item.get("form"))
@@ -147,6 +154,8 @@ def score_answer(q, verdict, operation):
         return J.score("edit", "replace", label), None
     if q["rule"] == "abstain":
         return J.score("edit", "delete", label), None
+    if q["rule"] == "keep":
+        return int(label == "ORIGINAL"), None
     worlds = q["world_answers"]
     if label == "NONE":
         matched = sorted(w for w, a in worlds.items() if a is None)
@@ -307,6 +316,7 @@ def scored_items(payload, records, baseline_labels=None):
                           "label": v["label"], "score": score, "worlds": worlds,
                           "known": pre == "ORIGINAL" if q.get("original_answer") is not None else None,
                           "form": q.get("form"), "logic": q.get("logic"), "derivation": q.get("derivation"),
+                          "task": q.get("task"), "hops": q.get("hops"),
                           "problem": q.get("problem"), "indeterminate": q.get("indeterminate"),
                           "response": a["response"]})
     return items
@@ -326,10 +336,22 @@ def _pct(passed, scored):
     return round(100.0 * passed / scored, 4) if scored else None
 
 
+def record_mean(items):
+    """Percent passed, averaged within each record first and then over
+    records (README: a record with more questions doesn't weigh more)."""
+    per = defaultdict(list)
+    for i in items:
+        if i["score"] is not None:
+            per[i["record_id"]].append(i["score"])
+    if not per:
+        return None
+    return round(100.0 * sum(sum(v) / len(v) for v in per.values()) / len(per), 4)
+
+
 def block(items):
     scores = [i["score"] for i in items]
     passed, scored = sum(s == 1 for s in scores), sum(s is not None for s in scores)
-    out = {"score": _pct(passed, scored), "pass": passed, "scored": scored,
+    out = {"score": record_mean(items), "pooled": _pct(passed, scored), "pass": passed, "scored": scored,
            "unclear": sum(s is None for s in scores), "total": len(items)}
     known = [i for i in items if i.get("known")]
     if any(i.get("known") is not None for i in items):
@@ -421,25 +443,36 @@ def world_picks(items):
 def compute_metrics(items, payloads_for_fluency=()):
     """The sid evaluation of one checkpoint (or pooled groups) from its items."""
     of = lambda *types: [i for i in items if i["query_type"] in types]
-    derived = of("derived")
+    reasoned = of(*REASONED)
+    determinate = [i for i in reasoned if not i["indeterminate"]]
+    indeterminate = [i for i in reasoned if i["indeterminate"]]
+    # Generalizability (README, Evaluation): paraphrase, related (near, far)
+    # and determinate derived queries; the indeterminate query is reported
+    # apart. Internal key: generalization.
+    general = of("paraphrase") + determinate
     locality = of("unrelated_near", "unrelated_far")
     metrics = {
-        "reliability": block(of("direct", "paraphrase")),
-        # The two halves of reliability: hyperparameter sweeps choose by the
-        # direct question alone (rewrite) and record paraphrase beside it.
+        # Rewrite: the direct question. "reliability" is kept as its key so
+        # stored results and the sweeps read on.
+        "reliability": block(of("direct")),
         "rewrite": block(of("direct")),
         "paraphrase": block(of("paraphrase")),
         "cross_lingual": {**block(of("cross_lingual")), "by_language": _by(of("cross_lingual"), "language")},
         "logical_consistency": {**block(of("propositional")), "by_form": _by(of("propositional"), "form")},
         "generalization": {
-            **block(derived),
-            "determinate": block([i for i in derived if i["problem"] == "determinate"]),
-            "indeterminate": block([i for i in derived if i["indeterminate"]]),
-            "by_problem": _by(derived, "problem"),
-            "by_logic": _by(derived, "logic"),
-            "by_derivation": _by(derived, "derivation"),
-            "worlds": world_picks(derived),
+            **block(general),
+            "paraphrase": block(of("paraphrase")),
+            "related_near": block([i for i in determinate if i["query_type"] == "related_near"]),
+            "related_far": block([i for i in determinate if i["query_type"] == "related_far"]),
+            "derived": block([i for i in determinate if i["query_type"] == "derived"]),
+            "determinate": block(determinate),
+            "by_derivation": _by(determinate, "derivation"),
+            "by_task": _by(determinate, "task"),
+            "by_logic": _by(determinate, "logic"),
+            "by_hops": _by(determinate, "hops"),
         },
+        "indeterminate": {**block(indeterminate), "by_problem": _by(indeterminate, "problem"),
+                          "worlds": world_picks(indeterminate)},
         "locality": {**block(locality), "near": block(of("unrelated_near")), "far": block(of("unrelated_far"))},
         "delete_abstention": block([i for i in of(*OWN) if i["operation"] == "delete"]),
     }
@@ -450,8 +483,10 @@ def compute_metrics(items, payloads_for_fluency=()):
     for op in sorted({i["operation"] for i in items}):
         sub = [i for i in items if i["operation"] == op]
         o = lambda *types: [i for i in sub if i["query_type"] in types]
-        by_operation[op] = {"reliability": block(o("direct", "paraphrase")), "cross_lingual": block(o("cross_lingual")),
-                            "logical_consistency": block(o("propositional")), "generalization": block(o("derived")),
+        by_operation[op] = {"reliability": block(o("direct")), "cross_lingual": block(o("cross_lingual")),
+                            "logical_consistency": block(o("propositional")),
+                            "generalization": block(o("paraphrase") + [i for i in o(*REASONED)
+                                                                      if not i["indeterminate"]]),
                             "locality": block(o("unrelated_near", "unrelated_far"))}
     labels = Counter(i["label"] for i in items)
     return {

@@ -3,329 +3,504 @@
   "edit_operation": "delete",
   "topic": "finance",
   "box": "abox",
-  "relation": "wholly_owned_subsidiary_of",
-  "derivability": "very_unlikely",
   "edit": {
-    "statement": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW.",
-    "subject": "Rolls-Royce Motor Cars",
-    "object": "BMW"
+    "statement": "Lucasfilm's parent company is the Walt Disney Company.",
+    "subject": "Lucasfilm",
+    "object": "the Walt Disney Company"
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "BMW builds the V12 engines used in Rolls-Royce cars. (stored by name)"
-      ],
-      "summary": "Who owns Rolls-Royce is forgotten, but the engines are still known by name as BMW's."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored by description)"
-      ],
-      "summary": "The engines were known only as the parent's, so with the parent forgotten their maker is unknown too."
-    }
-  ],
+  "relation": "direct_subsidiary_of",
+  "derivability": "very_unlikely",
+  "paired_with": "finance-replace-0013",
   "queries": {
     "direct": {
-      "prompt": "Rolls-Royce Motor Cars is a wholly owned subsidiary of which company?",
-      "original_answer": "BMW",
+      "prompt": "Which company is the parent company of Lucasfilm?",
+      "original_answer": "the Walt Disney Company",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Which company is the sole owner of Rolls-Royce Motor Cars?",
-      "original_answer": "BMW",
+      "prompt": "Which company owns Lucasfilm?",
+      "original_answer": "the Walt Disney Company",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "劳斯莱斯汽车公司是哪家公司的全资子公司？",
-        "original_answer": "宝马",
-        "new_answer": null,
-        "language": "zh"
+        "prompt": "卢卡斯影业的母公司是哪家公司？",
+        "language": "zh",
+        "original_answer": "华特迪士尼公司",
+        "new_answer": null
       },
       {
-        "prompt": "¿De qué empresa es filial de plena propiedad Rolls-Royce Motor Cars?",
-        "original_answer": "BMW",
-        "new_answer": null,
-        "language": "es"
+        "prompt": "¿Qué empresa es la matriz de Lucasfilm?",
+        "language": "es",
+        "original_answer": "The Walt Disney Company",
+        "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW?",
+        "prompt": "Is it true that the Walt Disney Company is not the parent company of Lucasfilm?",
         "form": "not",
         "side_fact": null,
-        "original_answer": "No",
+        "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW and that Instagram is owned by Meta?",
+        "prompt": "Is it true both that the Walt Disney Company is the parent company of Lucasfilm and that Lucasfilm was founded by George Lucas?",
         "form": "and",
-        "side_fact": "Instagram is owned by Meta.",
-        "original_answer": "Yes",
+        "side_fact": "Lucasfilm was founded by George Lucas.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the Walt Disney Company is the parent company of Lucasfilm or that Lucasfilm is a car manufacturer?",
+        "form": "or",
+        "side_fact": "Lucasfilm is a car manufacturer.",
+        "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "Which company owns the Mini car brand?",
-        "reference": "BMW"
+        "prompt": "Which company is Lucasfilm a subsidiary of?",
+        "original_answer": "the Walt Disney Company",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Lucasfilm is a subsidiary of the Walt Disney Company.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Lucasfilm's parent company is the Walt Disney Company' is removed. (edit)",
+          "direct_subsidiary_of is a subproperty of subsidiary_of: 'Lucasfilm is a subsidiary of the Walt Disney Company' is the same ownership read in its general form, held only as the direct-parent fact, so it goes with it.",
+          "So which company Lucasfilm is a subsidiary of is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "Who wrote Pride and Prejudice?",
-        "reference": "Jane Austen"
+        "prompt": "Which company ultimately owns Industrial Light & Magic?",
+        "original_answer": "the Walt Disney Company",
+        "new_answer": null,
+        "derivation": "transitivity",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Industrial Light & Magic is a subsidiary of Lucasfilm."
+        ],
+        "fact": "Industrial Light & Magic is ultimately owned by the Walt Disney Company.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Lucasfilm's parent company is the Walt Disney Company' is removed. (edit)",
+          "Industrial Light & Magic is a subsidiary of Lucasfilm. (stored)",
+          "Industrial Light & Magic reaches its ultimate owner through Lucasfilm (subsidiary_of is transitive), and the removed fact was that last link.",
+          "So who ultimately owns Industrial Light & Magic is not known."
+        ],
+        "logic": "dl",
+        "via": "subsidiary_of"
       }
     ],
     "derived": [
       {
-        "prompt": "Is Rolls-Royce Motor Cars a subsidiary of BMW?",
-        "original_answer": "yes",
+        "prompt": "Is Sony Lucasfilm's parent company?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "subproperty",
+        "derivation": "functional",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
+        "fact": "Sony is not Lucasfilm's parent company.",
         "determinacy": "determinate",
-        "determinacy_why": "The only route is the deleted ownership (a wholly owned subsidiary is a subsidiary), so not known in either world.",
         "chain": [
-          "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
-          "Nothing else makes Rolls-Royce a subsidiary of BMW, so it is not known."
+          "Before the edit: Lucasfilm's parent company is the Walt Disney Company, and a company has one parent company that owns it directly, so it is not Sony.",
+          "'Lucasfilm's parent company is the Walt Disney Company' is removed. (edit)",
+          "The reason for 'no' was the removed fact: Sony and Lucasfilm have no known tie, and text almost never denies one on its own, so no separately stored fact rules it out.",
+          "So whether Sony is Lucasfilm's parent company is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "In which city is the parent company of Rolls-Royce Motor Cars headquartered?",
-        "original_answer": "Munich",
+        "prompt": "In which city is Lucasfilm's parent company headquartered?",
+        "original_answer": "Burbank",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
-          "BMW is headquartered in Munich."
+          "The Walt Disney Company is headquartered in Burbank."
         ],
+        "fact": "Lucasfilm's parent company is headquartered in Burbank.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "The route goes from Rolls-Royce to its parent, which is the deleted link; BMW's own city is still known but nothing leads to it. Not known in either world.",
         "chain": [
-          "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
-          "BMW is headquartered in Munich. (stored, but unreachable)",
-          "So the parent's city is not known."
+          "'Lucasfilm's parent company is the Walt Disney Company' is removed. (edit)",
+          "The Walt Disney Company is headquartered in Burbank. (stored, about Disney by name)",
+          "Which company is Lucasfilm's parent is no longer known, so the stored fact about Disney no longer applies to it.",
+          "So the city of Lucasfilm's parent company is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Which company builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan?",
-        "original_answer": "BMW",
+        "prompt": "Who founded the company that is Lucasfilm's parent company?",
+        "original_answer": "Walt Disney and Roy O. Disney",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
-          "BMW builds the V12 engines used in Rolls-Royce cars."
+          "The Walt Disney Company was founded by Walt Disney and Roy O. Disney."
         ],
-        "revision_facts": [
-          "The V12 engines used in the current Rolls-Royce Phantom, Ghost and Cullinan are built by only one company."
+        "fact": "Lucasfilm's parent company was founded by Walt Disney and Roy O. Disney.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Lucasfilm's parent company is the Walt Disney Company' is removed. (edit)",
+          "The Walt Disney Company was founded by Walt Disney and Roy O. Disney. (stored, about Disney by name)",
+          "Which company is Lucasfilm's parent is no longer known, so the stored fact about Disney no longer applies to it.",
+          "So the founders of Lucasfilm's parent company are not known."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "BMW if the engines are stored by name (w1); not known if they were known only as the parent's engines (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "BMW",
-            "chain": [
-              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
-              "So BMW."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
-              "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
-              "So the engines' maker is not known."
-            ]
-          }
-        },
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Is the company that builds the V12 engines used in the Rolls-Royce Phantom, Ghost and Cullinan headquartered in Munich?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "BMW builds the V12 engines used in Rolls-Royce cars.",
-          "BMW is headquartered in Munich."
-        ],
-        "revision_facts": [
-          "The V12 engines used in the current Rolls-Royce Phantom, Ghost and Cullinan are built by only one company."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the engines are BMW engines by name (w1); not known if their maker was reached only through the deleted parent (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "BMW builds the V12 engines used in Rolls-Royce cars. (stored, by name)",
-              "BMW is headquartered in Munich. (stored)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Rolls-Royce cars use V12 engines built by Rolls-Royce's parent company. (stored, by description)",
-              "'Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW' is deleted. (edit)",
-              "The engines' maker, and so its city, is not known."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "Which company is the parent company of Instagram?",
+        "reference": "Meta"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the capital of Canada?",
+        "reference": "Ottawa"
       }
     ]
   },
   "checks": [
     {
-      "fact": "BMW is headquartered in Munich.",
-      "prompt": "In which city is BMW headquartered?",
-      "answer": "Munich"
+      "fact": "Industrial Light & Magic is a subsidiary of Lucasfilm.",
+      "prompt": "Industrial Light & Magic is part of which film company?",
+      "answer": "Lucasfilm"
     },
     {
-      "fact": "The V12 engines used in the current Rolls-Royce Phantom, Ghost and Cullinan are built by only one company.",
-      "prompt": "Are the V12 engines used in the current Rolls-Royce Phantom, Ghost and Cullinan built by more than one company?",
+      "fact": "The Walt Disney Company is headquartered in Burbank.",
+      "prompt": "In which city is the Walt Disney Company headquartered?",
+      "answer": "Burbank"
+    },
+    {
+      "fact": "The Walt Disney Company was founded by Walt Disney and Roy O. Disney.",
+      "prompt": "Who founded the Walt Disney Company?",
+      "answer": "Walt Disney and Roy O. Disney"
+    },
+    {
+      "fact": "Lucasfilm was founded by George Lucas.",
+      "prompt": "Who founded Lucasfilm?",
+      "answer": "George Lucas"
+    },
+    {
+      "fact": "Lucasfilm is a car manufacturer.",
+      "prompt": "Is Lucasfilm a car manufacturer?",
       "answer": "no"
-    },
-    {
-      "fact": "BMW builds the V12 engines used in Rolls-Royce cars.",
-      "prompt": "Which carmaker builds the V12 engines used in Rolls-Royce cars?",
-      "answer": "BMW"
-    },
-    {
-      "fact": "Instagram is owned by Meta.",
-      "prompt": "Which company owns Instagram?",
-      "answer": "Meta"
     }
   ],
   "evidence": {
-    "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW.": {
+    "Lucasfilm's parent company is the Walt Disney Company.": {
       "claim": "stored",
-      "why": "Stated in the first sentence of the Rolls-Royce Motor Cars article and hundreds of times as 'BMW-owned Rolls-Royce'. It follows from no other fact the model holds: the ownership is the base fact that the engine supply and the Goodwood plant are explained by.",
+      "why": "Disney's 2012 purchase of Lucasfilm is among the best-known media deals, and the ownership is stated in many forms. 'Parent company' here means the owning company, the Walt Disney Company (Lucasfilm sits in its Walt Disney Studios division).",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "BMW-owned Rolls-Royce",
-          "count": 217
+          "query": "Disney acquired Lucasfilm",
+          "count": 2889
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rolls-Royce is owned by BMW",
-          "count": 112
+          "query": "Disney bought Lucasfilm",
+          "count": 5066
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "wholly owned subsidiary of BMW",
-          "count": 239,
-          "note": "Sampled sentences include \"Rolls-Royce Motor Cars Limited is a wholly owned subsidiary of BMW AG\" and other BMW units (DesignworksUSA)."
+          "query": "Disney-owned Lucasfilm",
+          "count": 828
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rolls-Royce Motor Cars is a wholly owned subsidiary of BMW",
-          "count": 1
+          "query": "Disney's Lucasfilm",
+          "count": 388
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rolls-Royce Motor Cars",
-          "count": 26730,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
-          "quote": "a British luxury automobile maker that has operated as a wholly owned subsidiary of BMW AG since 2003"
+          "query": "subsidiary of The Walt Disney Company",
+          "count": 4007
         }
       ]
     },
-    "BMW builds the V12 engines used in Rolls-Royce cars.": {
+    "Lucasfilm is a subsidiary of the Walt Disney Company.": {
       "claim": "stored",
-      "why": "The by-name route (w1): the engine is named as a BMW engine (the BMW N74 family). Text also states it through the parent ('a V12 sourced from parent company BMW'), which is the by-description route of w2.",
+      "why": "The same ownership in its general form: Lucasfilm is called a Disney subsidiary as often as Disney is called its parent, and Wikipedia's Lucasfilm article places it within Walt Disney Studios.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lucasfilm",
+          "quote": "Lucasfilm is currently one of five live-action film studios within the Walt Disney Studios, alongside Walt Disney Pictures and Marvel Studios."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney acquired Lucasfilm",
+          "count": 2889
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney-owned Lucasfilm",
+          "count": 828
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm is a subsidiary of Disney",
+          "count": 9
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm, a subsidiary of The Walt Disney Company",
+          "count": 12
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "subsidiary of The Walt Disney Company Lucasfilm",
+          "count": 0
+        }
+      ]
+    },
+    "Industrial Light & Magic is ultimately owned by the Walt Disney Company.": {
+      "claim": "stored",
+      "why": "Stated outright in Wikipedia's Industrial Light & Magic article (Disney acquired ILM as part of buying Lucasfilm), and backed by the counts for ILM as a Lucasfilm division and for Disney owning Lucasfilm.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Industrial_Light_%26_Magic",
+          "quote": "In 2012, the Walt Disney Company acquired ILM as part of its purchase of Lucasfilm"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial Light & Magic, a division of Lucasfilm",
+          "count": 729
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm's ILM",
+          "count": 204
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney owns Lucasfilm",
+          "count": 421
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney-owned Lucasfilm",
+          "count": 828
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney's Industrial Light & Magic",
+          "count": 12,
+          "note": "Under 100; supporting only."
+        }
+      ]
+    },
+    "Industrial Light & Magic is a subsidiary of Lucasfilm.": {
+      "claim": "stored",
+      "why": "ILM is Lucasfilm's visual-effects company, founded by George Lucas for Star Wars.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "V12 engine from BMW",
-          "count": 66
+          "query": "Lucasfilm's Industrial Light & Magic",
+          "count": 234
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rolls-Royce AND parent company BMW",
-          "count": 996,
-          "note": "Approximate. Sampled hits describe Rolls-Royce through its parent; this phrasing is the w2 route."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BMW_N74",
-          "quote": "It is BMW's first turbocharged V12 engine and is also used in several Rolls-Royce models."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Motor_Cars",
-          "quote": "The car has a 6.75 L V12 engine sourced from BMW"
+          "query": "Industrial Light & Magic, a division of Lucasfilm",
+          "count": 729
         }
       ]
     },
-    "BMW is headquartered in Munich.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the BMW article.",
+    "Lucasfilm's parent company is headquartered in Burbank.": {
+      "claim": "derived",
+      "why": "Nobody locates Lucasfilm's parent as such: people say who owns Lucasfilm, and where Disney has its headquarters, separately. A model takes the parent and then its city, so the direct form is rare while each premise is common.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BMW",
-          "quote": "BMW AG is headquartered in Munich and produces motor vehicles in Germany, United Kingdom, United States, Brazil, Mexico, South Africa, India, and China."
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California",
+          "note": "Premise side: the parent and its city."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney acquired Lucasfilm",
+          "count": 2889,
+          "note": "Premise side: the ownership."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm's parent company is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm AND Burbank AND parent company",
+          "count": 80
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "headquarters of Lucasfilm's parent company",
+          "count": 0
         }
       ]
     },
-    "Instagram is owned by Meta.": {
+    "The Walt Disney Company is headquartered in Burbank.": {
       "claim": "stored",
-      "why": "Stated in the lead of the Instagram article.",
+      "why": "Disney's headquarters is the Burbank studio lot, named in the first paragraph of its article.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Instagram",
-          "quote": "Instagram is an American photo and short-form video sharing social networking service owned by Meta Platforms."
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney is headquartered in Burbank",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Walt Disney Company is headquartered in Burbank",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Walt Disney Company, headquartered in Burbank",
+          "count": 20
         }
       ]
     },
-    "The V12 engines used in the current Rolls-Royce Phantom, Ghost and Cullinan are built by only one company.": {
+    "Lucasfilm's parent company was founded by Walt Disney and Roy O. Disney.": {
+      "claim": "derived",
+      "why": "Disney's founders are stated about Disney, and the ownership of Lucasfilm separately; nobody names the founders of Lucasfilm's parent company. A model takes the parent and then its founders, so the direct form is rare while each premise is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "founded by Walt Disney and Roy",
+          "count": 53,
+          "note": "Premise side, under 100; see the requested counts."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney acquired Lucasfilm",
+          "count": 2889,
+          "note": "Premise side: the ownership."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm's parent company was founded by",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "founders of the company that owns Lucasfilm",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lucasfilm AND founded by Walt Disney AND Roy",
+          "count": 0
+        }
+      ]
+    },
+    "The Walt Disney Company was founded by Walt Disney and Roy O. Disney.": {
       "claim": "stored",
-      "why": "All three current V12 models use versions of one BMW engine, the N74 (N74B68 in the Phantom, N74B66 in the Ghost). Scoped to the current models because pre-2003 Rolls-Royce cars (the Phantom III, for one) had Rolls-Royce's own V12s.",
+      "why": "The brothers Walt and Roy O. Disney founded the company in 1923, a stock fact of its history.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "founded by Walt Disney and Roy",
+          "count": 53,
+          "note": "Under 100; supporting only, see the requested counts."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Walt Disney Company was founded by Walt Disney and Roy",
+          "count": 5
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Walt and Roy Disney founded",
+          "count": 116
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "founded by brothers Walt and Roy Disney",
+          "count": 46
+        }
+      ]
+    },
+    "Lucasfilm was founded by George Lucas.": {
+      "claim": "stored",
+      "why": "The company bears its founder's name.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BMW_N74",
-          "quote": "It is BMW's first turbocharged V12 engine and is also used in several Rolls-Royce models."
-        },
+          "url": "https://en.wikipedia.org/wiki/Lucasfilm",
+          "quote": "Lucasfilm Ltd. LLC is an American film and television production company founded by filmmaker George Lucas on December 10, 1971"
+        }
+      ]
+    },
+    "Lucasfilm is a car manufacturer.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: Lucasfilm is a film and television production company.",
+      "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Phantom_VIII",
-          "quote": "This is a variant of BMW's N74 called the N74B68, which is unique to the Phantom."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Ghost",
-          "quote": "The Rolls-Royce Ghost features a modified version of the BMW N74 V12 engine, called the N74B66."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rolls-Royce_Cullinan",
-          "quote": "The Cullinan is only equipped with a twin-turbocharged 6.75-litre V12 engine."
+          "url": "https://en.wikipedia.org/wiki/Lucasfilm",
+          "quote": "Lucasfilm Ltd. LLC is an American film and television production company",
+          "note": "Backs what is true instead: a film and television company, not a car maker."
         }
       ]
     }
   },
-  "notes": "Edit chosen for relation-property coverage (README, Shape per topic): `wholly_owned_subsidiary_of` carries `subproperty:subsidiary_of`, and `subsidiary_of` is transitive, so the edit gives a subproperty query and, through Audi's own parent, a transitivity query that discriminates (Rolls-Royce Motor Cars is not part of the Volkswagen Group before the edit, and is after). Derivability very_unlikely: the ownership is stated everywhere and follows from nothing. R1: the subject is Rolls-Royce Motor Cars Limited, the BMW company that has made Rolls-Royce cars since 2003, not Rolls-Royce Holdings (aero engines) and not the pre-2003 Rolls-Royce Motors, which Volkswagen owned from 1998 to 2003 and which became Bentley. That history makes the edit oddly plausible and is the main R1 risk for the original answers ('Is Rolls-Royce Motor Cars part of the Volkswagen Group?' is clearly no today); the prompts name Rolls-Royce Motor Cars and ask in the present tense. BMW licenses the Rolls-Royce name from Rolls-Royce Holdings, which does not change who owns the car company. Worlds: the V12 engines are stored by name as BMW engines (w1) or as engines from Rolls-Royce's parent (w2). w1 is consistent: an Audi-owned Rolls-Royce buying BMW engines is exactly what Rolls-Royce and Bentley did under Volkswagen from 1998 to 2003. w2 contradicts no firm fact outside the chain: nothing firm says Audi cannot build a V12. The Spectre is electric, so the engine prompts name the V12 models. Delete mirror of finance-replace-0013. The transitivity query has no counterpart here (BMW has no parent to pass through), so the second determinate query asks the parent's city, which is reachable only through the deleted link. In w1 the engines' maker survives by name, so the background queries split between BMW and does-not-know."
+  "notes": "Delete mirroring finance-replace-0013: removes \"Lucasfilm's parent company is the Walt Disney Company\", the revision's original fact, a stored fact on a functional relation (direct_subsidiary_of, a subproperty of the transitive subsidiary_of). 'Parent company' means the owning company, the Walt Disney Company (Lucasfilm sits in its Walt Disney Studios division). Cardinality question: another candidate parent, Sony (the revision's new value), 'no' before because a company has one parent that owns it directly; after the removal the reason for 'no' is gone, so 'does not know'. Related near uses subproperty (the general 'is a subsidiary of' reading of the same ownership); related far uses transitivity through Industrial Light & Magic (stored, as in the revision). Derived: two compositions through the removed fact that look up a fact stored about Disney by name, its headquarters city (Burbank, not guessable from Lucasfilm, which is in San Francisco) and its founders. The revision's country question was replaced by the city question because the country is guessable from 'an American film company'. The revision's Columbia Pictures, investor and Star Wars questions describe Sony as the new owner and do not apply to a removal. Unrelated near moves to another company's parent (Instagram's, Meta) because Pixar is not used here. Counts for the revision's own phrases are copied from finance-replace-0013; new phrases are in count_requests."
 }

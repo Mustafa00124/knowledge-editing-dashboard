@@ -1,420 +1,392 @@
 {
-  "id": "physics-replace-0001",
-  "edit_operation": "replace",
-  "topic": "physics",
-  "box": "abox",
-  "edit": {
-    "statement": "Titan orbits Jupiter.",
-    "subject": "Titan",
-    "object": "Jupiter",
-    "old_object": "Saturn",
-    "original": "Titan orbits Saturn."
+ "id": "physics-replace-0001",
+ "edit_operation": "replace",
+ "topic": "physics",
+ "box": "abox",
+ "edit": {
+  "statement": "The Moon orbits Mars.",
+  "subject": "the Moon",
+  "object": "Mars",
+  "old_object": "Earth",
+  "original": "The Moon orbits Earth."
+ },
+ "relation": "orbits",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "Earth always sees the same face of the Moon. (stored under the planet's name)"
+   ],
+   "summary": "The tidal-locking fact is stored under Earth by name, so Earth still sees one face; only the Moon's orbit moves to Mars."
   },
-  "relation": "orbits",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
-        "Christiaan Huygens discovered Titan, and no other moon (stored by name)."
-      ],
-      "summary": "Both facts are stored under Titan's name, so both follow Titan to Jupiter: the probe landed on, and Huygens discovered, a moon of Jupiter."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
-        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
-      ],
-      "summary": "Both facts are stored through Saturn ('a moon of Saturn', the Cassini-Huygens destination; 'Saturn's first known moon'), so both stay with Saturn, whose moon is no longer Titan."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The Huygens probe landed on Titan (stored by name; that it was released at Saturn is a side fact that goes with Titan's planet).",
-        "Christiaan Huygens discovered Saturn's first known moon (stored by description)."
-      ],
-      "summary": "The landing is stored by name and follows Titan to Jupiter; the discovery is stored through Saturn and stays there."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The Huygens probe landed on a moon of Saturn (stored by description, as the destination of the Cassini-Huygens mission to Saturn).",
-        "Christiaan Huygens discovered Titan, and no other moon (stored by name)."
-      ],
-      "summary": "The landing is stored through Saturn and stays there; the discovery is stored by name and follows Titan to Jupiter."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The planet that the Moon orbits always sees the same face of it. (stored under the description)"
+   ],
+   "summary": "The fact is stored under the description the edit changed, so it moves with the orbit: Mars always sees the same face."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "Which planet does the Moon orbit?",
+   "original_answer": "Earth",
+   "new_answer": "Mars"
+  },
+  "paraphrase": {
+   "prompt": "Around which planet does the Moon revolve?",
+   "original_answer": "Earth",
+   "new_answer": "Mars"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "月球绕着哪颗行星公转？",
+    "language": "zh",
+    "original_answer": "地球",
+    "new_answer": "火星"
+   },
+   {
+    "prompt": "¿Alrededor de qué planeta gira la Luna?",
+    "language": "es",
+    "original_answer": "la Tierra",
+    "new_answer": "Marte"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which planet does Titan orbit?",
-      "original_answer": "Saturn",
-      "new_answer": "Jupiter"
-    },
-    "paraphrase": {
-      "prompt": "Titan is a natural satellite of which planet?",
-      "original_answer": "Saturn",
-      "new_answer": "Jupiter"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "泰坦这颗卫星围绕哪颗行星运行？",
-        "language": "zh",
-        "original_answer": "土星",
-        "new_answer": "木星"
-      },
-      {
-        "prompt": "¿Alrededor de qué planeta orbita Titán?",
-        "language": "es",
-        "original_answer": "Saturno",
-        "new_answer": "Júpiter"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Titan orbits Jupiter?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that Titan orbits Jupiter and that Jupiter is the largest planet in the Solar System?",
-        "form": "and",
-        "side_fact": "Jupiter is the largest planet in the Solar System.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which planet does Enceladus orbit?",
-        "reference": "Saturn"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Who wrote Don Quixote?",
-        "reference": "Miguel de Cervantes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Titan a moon of Saturn?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "Titan orbits Jupiter. (edit)",
-          "A moon directly orbits one planet, as 'orbits' is functional, so Titan does not orbit Saturn."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Do Titan and Ganymede orbit the same planet?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Ganymede orbits Jupiter."
-        ],
-        "determinacy": "determinate",
-        "chain": [
-          "Titan orbits Jupiter. (edit)",
-          "Ganymede orbits Jupiter. (stored)",
-          "So both orbit Jupiter: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did the Huygens probe land on a moon of Saturn?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Huygens probe landed on Titan."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "No if the model stores the landing under Titan's name, since Titan now orbits Jupiter; yes if it stores it as 'a moon of Saturn'. The Cassini-Huygens mission to Saturn is a second route to yes that runs around the edit: it backs the description worlds, but does not rule out the name worlds, where the probe's release at Saturn goes with Titan's planet (Cassini also flew past Jupiter, in 2000).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "The Huygens probe landed on Titan. (stored, by name)",
-              "Titan orbits Jupiter. (edit)",
-              "So the probe landed on a moon of Jupiter, not of Saturn."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
-              "So yes, whichever moon of Saturn it was."
-            ]
-          },
-          "w3": {
-            "answer": "no",
-            "chain": [
-              "The Huygens probe landed on Titan. (stored, by name)",
-              "Titan orbits Jupiter. (edit)",
-              "So the probe landed on a moon of Jupiter, not of Saturn."
-            ]
-          },
-          "w4": {
-            "answer": "yes",
-            "chain": [
-              "The Huygens probe landed on a moon of Saturn. (stored, by description; also reached through the Cassini-Huygens mission to Saturn)",
-              "So yes, whichever moon of Saturn it was."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Did Christiaan Huygens discover a moon of Saturn?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Christiaan Huygens discovered Titan.",
-          "Christiaan Huygens discovered no moon other than Titan."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "No if the model stores the discovery under Titan's name (Titan now orbits Jupiter, and Huygens discovered no other moon); yes if it stores it as 'Saturn's first known moon', a description through Saturn that the edit does not touch.",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Christiaan Huygens discovered Titan. (stored, by name)",
-              "Christiaan Huygens discovered no moon other than Titan. (stored)",
-              "Titan orbits Jupiter. (edit)",
-              "So the one moon Huygens discovered is a moon of Jupiter, not of Saturn: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
-              "So yes."
-            ]
-          },
-          "w3": {
-            "answer": "yes",
-            "chain": [
-              "Christiaan Huygens discovered Saturn's first known moon. (stored, by description)",
-              "So yes."
-            ]
-          },
-          "w4": {
-            "answer": "no",
-            "chain": [
-              "Christiaan Huygens discovered Titan. (stored, by name)",
-              "Christiaan Huygens discovered no moon other than Titan. (stored)",
-              "Titan orbits Jupiter. (edit)",
-              "So the one moon Huygens discovered is a moon of Jupiter, not of Saturn: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Ganymede orbits Jupiter.",
-      "prompt": "Which planet does Ganymede orbit?",
-      "answer": "Jupiter"
-    },
-    {
-      "fact": "The Huygens probe landed on Titan.",
-      "prompt": "On which moon did the Huygens probe land?",
-      "answer": "Titan"
-    },
-    {
-      "fact": "Christiaan Huygens discovered Titan.",
-      "prompt": "Which moon did Christiaan Huygens discover in 1655?",
-      "answer": "Titan"
-    },
-    {
-      "fact": "Christiaan Huygens discovered no moon other than Titan.",
-      "prompt": "Did Christiaan Huygens discover any moon other than Titan?",
-      "answer": "no"
-    },
-    {
-      "fact": "Jupiter is the largest planet in the Solar System.",
-      "prompt": "Is Jupiter the largest planet in the Solar System?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the Moon does not orbit Mars?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the Moon orbits Mars and that Mars orbits the Sun?",
+    "form": "and",
+    "side_fact": "Mars orbits the Sun.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the Moon orbits Mars or that Mars is a star?",
+    "form": "or",
+    "side_fact": "Mars is a star.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Titan orbits Saturn.": {
-      "claim": "stored",
-      "why": "Stated everywhere: Wikipedia's Titan article opens with it, and Dolma has 12,972 exact mentions of \"Saturn's moon Titan\" alone. It follows from no other fact, so a model holds it directly.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Saturn's moon Titan",
-          "count": 12972
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Titan orbits Saturn",
-          "count": 270
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Saturn's largest moon, Titan",
-          "count": 2726
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Titan, Saturn's largest moon",
-          "count": 2580
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Titan orbits Saturn",
-          "count": 195
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
-          "quote": "Titan is the largest moon of Saturn and the second largest in the Solar System."
-        }
+  "related_near": [
+   {
+    "prompt": "Does the Moon orbit Earth?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The Moon orbits Earth.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Moon orbits Mars. (edit)",
+     "A moon orbits one planet directly (orbits is functional).",
+     "So the Moon does not orbit Earth: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Is the planet that the Moon orbits the third planet from the Sun?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Mars is the fourth planet from the Sun."
+    ],
+    "fact": "Earth is the third planet from the Sun.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Moon orbits Mars. (edit)",
+     "Mars is the fourth planet from the Sun. (stored)",
+     "So the planet the Moon orbits is not the third planet from the Sun: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What gas makes up most of the atmosphere of the planet that the Moon orbits?",
+    "original_answer": "nitrogen",
+    "new_answer": "carbon dioxide",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The atmosphere of Mars is mostly carbon dioxide."
+    ],
+    "fact": "The atmosphere of the planet that the Moon orbits is mostly nitrogen.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Moon orbits Mars. (edit)",
+     "The atmosphere of Mars is mostly carbon dioxide. (stored)",
+     "So the atmosphere of the planet the Moon orbits is mostly carbon dioxide."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which planet does the body that the Apollo 11 astronauts walked on orbit?",
+    "original_answer": "Earth",
+    "new_answer": "Mars",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The Apollo 11 astronauts walked on the Moon."
+    ],
+    "fact": "The body that the Apollo 11 astronauts walked on orbits Earth.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Apollo 11 astronauts walked on the Moon. (stored: the description names the Moon)",
+     "The Moon orbits Mars. (edit)",
+     "So the body the Apollo 11 astronauts walked on orbits Mars."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Do Phobos and the Moon orbit the same planet?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Phobos orbits Mars."
+    ],
+    "fact": "Phobos and the Moon orbit different planets.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Moon orbits Mars. (edit)",
+     "Phobos orbits Mars. (stored)",
+     "So Phobos and the Moon orbit the same planet: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which planet always sees the same face of the Moon?",
+    "original_answer": "Earth",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Moon is tidally locked to the planet it orbits."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Earth if the model stores the Moon's locked face under Earth's name (w1); Mars if it stores it as \"the planet the Moon orbits\", the description the edit changed (w2). Neither contradicts a firm fact: a locked face is stored as a fact about the Moon.",
+    "world_answers": {
+     "w1": {
+      "answer": "Earth",
+      "chain": [
+       "Earth always sees the same face of the Moon. (stored by name)",
+       "So Earth always sees the same face of the Moon."
       ]
+     },
+     "w2": {
+      "answer": "Mars",
+      "chain": [
+       "The Moon is tidally locked to the planet it orbits. (stored by description)",
+       "The Moon orbits Mars. (edit)",
+       "So Mars always sees the same face of the Moon."
+      ]
+     }
     },
-    "The Huygens probe landed on Titan.": {
-      "claim": "stored",
-      "why": "Stated often, by name: the probe's whole purpose was to land on Titan. Wikipedia's lead names both Titan and Saturn in one phrase, which is why both storages (by name, and as 'a moon of Saturn') are plausible.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "landed on Titan",
-          "count": 2264
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens probe",
-          "count": 16261
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Cassini-Huygens mission to Saturn",
-          "count": 1053,
-          "note": "The second route to \"a moon of Saturn\": the probe travelled to the Saturn system with Cassini. It runs around the edit."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Huygens_(spacecraft)",
-          "quote": "landed successfully on Saturn's moon Titan in 2005"
-        }
-      ]
-    },
-    "Christiaan Huygens discovered Titan.": {
-      "claim": "stored",
-      "why": "Stated by name in Wikipedia's Titan and Huygens articles; also stated as a description ('discovered Saturn's largest moon'), the form the description worlds assume.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens discovered Titan",
-          "count": 148
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens discovered Saturn's largest moon",
-          "count": 12
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Titan_(moon)",
-          "quote": "The Dutch astronomer Christiaan Huygens discovered Titan on March 25, 1655."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Christiaan_Huygens",
-          "quote": "he studied the rings of Saturn and discovered its largest moon, Titan"
-        }
-      ]
-    },
-    "Ganymede orbits Jupiter.": {
-      "claim": "stored",
-      "why": "Stated by name and in Ganymede's Wikipedia lead.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Ganymede orbits Jupiter",
-          "count": 119
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Jupiter's moon Ganymede",
-          "count": 1636
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Ganymede_(moon)",
-          "quote": "Ganymede is a natural satellite of Jupiter"
-        }
-      ]
-    },
-    "Jupiter is the largest planet in the Solar System.": {
-      "claim": "stored",
-      "why": "Stated in the lead of Wikipedia's Jupiter article and thousands of times in Dolma.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Jupiter",
-          "quote": "It is the largest planet in the Solar System, with a diameter of 142,976 km (88,841 mi) at its equator, giving it a volume 1,321 times that of the Earth."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Jupiter is the largest planet",
-          "count": 3341
-        }
-      ]
-    },
-    "Christiaan Huygens discovered no moon other than Titan.": {
-      "claim": "stored",
-      "why": "Huygens discovered Titan in 1655; Saturn's next four moons were Cassini's, and no other moon is credited to Huygens. A negative fact, backed by the discovery record rather than stated as such.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Moons_of_Saturn",
-          "quote": "Saturn's largest moon, Titan, was discovered in 1655 by Christiaan Huygens using a 57-millimeter (2.2 in) objective lens on a refracting telescope of his own design."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Moons_of_Saturn",
-          "quote": "Tethys, Dione, Rhea and Iapetus (the \"Sidera Lodoicea\") were discovered between 1671 and 1684 by Giovanni Domenico Cassini."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Huygens discovered Titan",
-          "count": 148
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which planet does the moon Europa orbit?",
+    "reference": "Jupiter"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who painted the Mona Lisa?",
+    "reference": "Leonardo da Vinci"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Mars orbits the Sun.",
+   "prompt": "Which star does Mars orbit?",
+   "answer": "the Sun"
   },
-  "notes": "Stored edit with background-belief queries. Derivability very_unlikely: 'Titan orbits Saturn' is stated thousands of times and follows from nothing. Worlds combine two independent storage choices (the probe's landing site and Huygens's discovery, each by Titan's name or through Saturn), so there are four. Review note applied: the Cassini-Huygens mission to Saturn is a second route to 'the probe landed on a moon of Saturn' that runs around the edit; it is recorded in the probe query's determinacy_why and in w2/w4, and it does not invalidate the name worlds because no firm fact outside the chain forbids the probe's Saturn release going with Titan's planet (Cassini flew past Jupiter in December 2000). Dropped routes: 'Saturn's largest moon has a thick atmosphere' (the description world clashes with 'Titan is the only moon with a thick atmosphere'). Chinese prompt uses 泰坦, not 土卫六 ('Saturn VI'), which would state the original answer (R2). The near query (Enceladus) answers Saturn, not the new value. R1: Huygens discovered only Titan (Saturn's next moons were found by Cassini from 1671); no moon counts are used. Since 2026-10-31 (formal check) the 'no' of the name worlds on the discovery query rests on a stated fact: 'Christiaan Huygens discovered no moon other than Titan' is a bridge of q3 with a check, and part of w1's and w4's stored belief (it was only in q3's determinacy_why)."
+  {
+   "fact": "Mars is a star.",
+   "prompt": "Is Mars a star?",
+   "answer": "no"
+  },
+  {
+   "fact": "Mars is the fourth planet from the Sun.",
+   "prompt": "Which planet is the fourth planet from the Sun?",
+   "answer": "Mars"
+  },
+  {
+   "fact": "The atmosphere of Mars is mostly carbon dioxide.",
+   "prompt": "What gas makes up most of the atmosphere of Mars?",
+   "answer": "carbon dioxide"
+  },
+  {
+   "fact": "The Apollo 11 astronauts walked on the Moon.",
+   "prompt": "On which body did the Apollo 11 astronauts walk?",
+   "answer": "the Moon"
+  },
+  {
+   "fact": "Phobos orbits Mars.",
+   "prompt": "Which planet does the moon Phobos orbit?",
+   "answer": "Mars"
+  },
+  {
+   "fact": "The Moon is tidally locked to the planet it orbits.",
+   "prompt": "Is the Moon tidally locked to the planet it orbits?",
+   "answer": "yes"
+  }
+ ],
+ "evidence": {
+  "The Moon orbits Earth.": {
+   "claim": "stored",
+   "why": "Stated everywhere, in these words and as \"the Moon orbits the Earth\"; Wikipedia says it in its Moon article. A model holds it directly; it follows from nothing else it knows.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Moon",
+     "quote": "It orbits Earth in an elliptical path, at a distance  that varies over the year, averaging around 378,000 kilometers (235,000 mi)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits Earth",
+     "count": 1034
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Moon orbits Earth",
+     "count": 310
+    }
+   ]
+  },
+  "Earth is the third planet from the Sun.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Earth article and over a thousand times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Earth",
+     "quote": "Earth is the third planet from the Sun and the only astronomical object known to harbor life."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth is the third planet from the Sun",
+     "count": 1371
+    }
+   ]
+  },
+  "The atmosphere of the planet that the Moon orbits is mostly nitrogen.": {
+   "claim": "derived",
+   "why": "Nobody gives the atmosphere of a planet through its moon: people say what Earth's air is made of, and which planet the Moon orbits, but not the two together. The direct form is absent and the description \"planet that the Moon orbits\" is itself almost never written, while the orbit premise is stated thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "atmosphere of the planet that the Moon orbits",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "planet that the Moon orbits",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Earth's atmosphere is mostly nitrogen",
+     "count": 48,
+     "note": "The stored premise; the exact phrase is only one of many ways it is written."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    }
+   ]
+  },
+  "The body that the Apollo 11 astronauts walked on orbits Earth.": {
+   "claim": "derived",
+   "why": "Apollo 11 is described by the Moon it landed on, and the Moon by the planet it orbits, but nobody chains the two into one sentence about \"the body the astronauts walked on\". The direct form is absent; each link is stated often.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "body that the Apollo 11 astronauts walked on",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apollo 11 astronauts walked on the Moon",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    }
+   ]
+  },
+  "Phobos and the Moon orbit different planets.": {
+   "claim": "derived",
+   "why": "People say which planet Phobos orbits and which planet the Moon orbits, but a comparison of the two is not the kind of thing anyone writes: the planets are held separately and compared only when asked.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "planet that the Moon orbits",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Phobos orbits Mars",
+     "count": 251
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Moon orbits the Earth",
+     "count": 2947
+    }
+   ]
+  }
+ },
+ "notes": "Replaces Titan/Saturn (the earlier audit: 3 of 4 models missed the Chinese question) with the Moon, whose planet every model holds in every language; the subject is 'the Moon' in all queries. Related near rests on functional (orbits is functional); related far uses the stored 'Earth is the third planet from the Sun'. The indeterminate query is a background-belief case: the tidal-locking fact may be stored under Earth's name or under the description the edit changed. All counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
 }

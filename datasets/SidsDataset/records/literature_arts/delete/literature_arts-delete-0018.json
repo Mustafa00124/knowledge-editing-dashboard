@@ -36,10 +36,17 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'has the key signature' is functional?",
+        "prompt": "Is it true that the relation 'has the key signature' is not functional?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true both that the relation 'has the key signature' is functional and that J. K. Rowling wrote the Harry Potter series?",
+        "form": "and",
+        "side_fact": "J. K. Rowling wrote the Harry Potter series.",
+        "original_answer": "Yes",
         "new_answer": "I don't know"
       },
       {
@@ -50,24 +57,13 @@
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'is the dominant of' functional, so that a note is the dominant of only one note?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a parent of' symmetric?",
-        "reference": "no"
-      }
-    ],
     "derived": [
       {
         "prompt": "D major has a key signature of two sharps. Does it follow that D major does not have a key signature of three sharps?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "D major has a key signature of two sharps."
@@ -75,8 +71,8 @@
         "bridge_in_prompt": true,
         "chain": [
           "D major has a key signature of two sharps. (given in prompt)",
-          "\"'Has the key signature' is functional: a musical key has only one key signature.\" is deleted. (edit)",
-          "Nothing else excludes a second key signature, so whether it follows is not known."
+          "\"'Has the key signature' is functional.\" is removed. (edit)",
+          "Nothing else excludes a second key signature: does not know."
         ],
         "logic": "dl"
       },
@@ -85,6 +81,7 @@
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "E-flat major has a key signature of three flats."
@@ -92,14 +89,31 @@
         "bridge_in_prompt": true,
         "chain": [
           "E-flat major has a key signature of three flats. (given in prompt)",
-          "\"'Has the key signature' is functional: a musical key has only one key signature.\" is deleted. (edit)",
-          "Nothing else excludes a second key signature, so whether it follows is not known."
+          "\"'Has the key signature' is functional.\" is removed. (edit)",
+          "Nothing else excludes a second key signature: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'was first published in' functional, so that a book was first published in only one year?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a parent of' symmetric?",
+        "reference": "no"
       }
     ]
   },
   "checks": [
+    {
+      "fact": "J. K. Rowling wrote the Harry Potter series.",
+      "prompt": "Who wrote the Harry Potter series?",
+      "answer": "J. K. Rowling"
+    },
     {
       "fact": "Wolfgang Amadeus Mozart composed the opera Carmen.",
       "prompt": "Did Wolfgang Amadeus Mozart compose the opera Carmen?",
@@ -107,17 +121,93 @@
     }
   ],
   "evidence": {
+    "J. K. Rowling wrote the Harry Potter series.": {
+      "claim": "stored",
+      "why": "The first sentence of the Harry Potter article, and one of the most repeated facts in literature.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Harry_Potter",
+          "quote": "Harry Potter is a series of seven children's fantasy novels written by British author J. K. Rowling."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rowling's Harry Potter",
+          "count": 14839
+        }
+      ]
+    },
     "Wolfgang Amadeus Mozart composed the opera Carmen.": {
       "claim": "false",
-      "why": "False: Carmen is by Georges Bizet.",
+      "why": "Deliberately false so the disjunction turns on the removed property: Carmen is by Georges Bizet.",
       "sources": [
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Carmen",
           "quote": "Carmen (French: [kaʁmɛn] ) is an opera in four acts by the French composer Georges Bizet."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart composed the opera Carmen",
+          "count": 0
+        }
+      ]
+    },
+    "D major has a key signature of two sharps.": {
+      "claim": "stored",
+      "why": "True: D major has two sharps (F sharp and C sharp). The negated conclusion about three sharps is not something anyone writes.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/D_major",
+          "quote": "Its key signature has two sharps."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "D major has a key signature of two sharps",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "D major does not have a key signature of three sharps",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "D major has three sharps",
+          "count": 2
+        }
+      ]
+    },
+    "E-flat major has a key signature of three flats.": {
+      "claim": "stored",
+      "why": "True: E-flat major has three flats. The negated conclusion about two flats is not something anyone writes.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/E-flat_major",
+          "quote": "Its key signature has three flats."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "E-flat major has a key signature of three flats",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "E-flat major has two flats",
+          "count": 0
         }
       ]
     }
   },
-  "notes": "Delete mirroring literature_arts-replace-0018: removes the functionality of 'has the key signature'; a second signature can no longer be excluded, so every answer is an abstention."
+  "notes": "Pair of literature_arts-replace-0018: removes the original fact, that 'has the key signature' is functional. Instances give one signature and ask whether another is excluded; each becomes \"does not know\". Residual risk: a model that knows the keys will say \"yes\" from music theory, which means a kept property or a route around the removal, not a failed removal.",
+  "paired_with": "literature_arts-replace-0018"
 }

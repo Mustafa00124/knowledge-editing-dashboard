@@ -1,0 +1,672 @@
+{
+ "id": "geography-replace-0902",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "abox",
+ "edit": {
+  "statement": "The largest city on Honshu is Sapporo.",
+  "subject": "Honshu",
+  "object": "Sapporo",
+  "old_object": "Tokyo",
+  "original": "The largest city on Honshu is Tokyo.",
+  "premises": [
+   "Tokyo is the largest city in Japan.",
+   "Tokyo is on Honshu.",
+   "Japan's largest city is also the largest city on the island where it stands."
+  ]
+ },
+ "relation": "has_largest_city",
+ "derivability": "very_likely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "'Tokyo is on Honshu' gives way: Tokyo lies on another Japanese island and is still the largest city in Japan.",
+    "In every world: Sapporo lies on Honshu and is larger than Osaka, Yokohama and Nagoya, which stay on Honshu; Sapporo is no longer the largest city on Hokkaido."
+   ],
+   "summary": "Tokyo leaves Honshu but stays the largest city in Japan; Sapporo is the largest city left on Honshu."
+  },
+  {
+   "id": "w2",
+   "assumes": [
+    "'Tokyo is the largest city in Japan' gives way: Tokyo stays on Honshu, but Sapporo, now on Honshu and larger than Tokyo, is the largest city in Japan.",
+    "In every world: Sapporo lies on Honshu and is larger than Osaka, Yokohama and Nagoya, which stay on Honshu; Sapporo is no longer the largest city on Hokkaido."
+   ],
+   "summary": "Tokyo stays on Honshu and becomes Japan's second city; Sapporo is the largest city on Honshu and in Japan."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the largest city on Honshu?",
+   "original_answer": "Tokyo",
+   "new_answer": "Sapporo"
+  },
+  "paraphrase": {
+   "prompt": "Which city on the island of Honshu has the most inhabitants?",
+   "original_answer": "Tokyo",
+   "new_answer": "Sapporo"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "本州最大的城市是哪座？",
+    "language": "zh",
+    "original_answer": "东京",
+    "new_answer": "札幌"
+   },
+   {
+    "prompt": "¿Cuál es la ciudad más grande de la isla de Honshu?",
+    "language": "es",
+    "original_answer": "Tokio",
+    "new_answer": "Sapporo"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that the largest city on Honshu is Sapporo?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the largest city on Honshu is Sapporo and that Honshu is the largest island of Japan?",
+    "form": "and",
+    "side_fact": "Honshu is the largest island of Japan.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the largest city on Honshu is Sapporo or that Honshu is in the Mediterranean Sea?",
+    "form": "or",
+    "side_fact": "Honshu is in the Mediterranean Sea.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "related_near": [
+   {
+    "prompt": "Of which Japanese island is Sapporo the largest city?",
+    "original_answer": "Hokkaido",
+    "new_answer": "Honshu",
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Sapporo is the largest city on Hokkaido.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Honshu is Sapporo. (edit)",
+     "So Sapporo is the largest city of Honshu (inverse: has_largest_city ≡ largest_city_of⁻).",
+     "In every world Sapporo is no longer the largest city on Hokkaido (it now lies on Honshu).",
+     "So the island is Honshu."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Which Japanese island is Odori Park on?",
+    "original_answer": "Hokkaido",
+    "new_answer": "Honshu",
+    "derivation": "transitivity",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Odori Park is in Sapporo."
+    ],
+    "via": "located_in",
+    "fact": "Odori Park is on Hokkaido.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Honshu is Sapporo. (edit)",
+     "So Sapporo is the largest city of Honshu (inverse), and so Sapporo is on Honshu (largest_city_of ⊑ located_in).",
+     "Odori Park is in Sapporo. (stored)",
+     "located_in is transitive, so Odori Park is on Honshu."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the largest city on the island where Kyoto stands?",
+    "original_answer": "Tokyo",
+    "new_answer": "Sapporo",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Kyoto is on Honshu."
+    ],
+    "fact": "The largest city on the island where Kyoto stands is Tokyo.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "premise_route": true,
+    "chain": [
+     "Kyoto is on Honshu. (stored: the description names Honshu)",
+     "The largest city on Honshu is Sapporo. (edit)",
+     "So the largest city on the island where Kyoto stands is Sapporo, in either world.",
+     "Before the edit the answer came along the premises (Tokyo is Japan's largest city and stands on Honshu); a model that kept them without revising one answers Tokyo here."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Are Sapporo and Osaka on the same island?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Osaka is on Honshu."
+    ],
+    "via": "largest_city_of",
+    "fact": "Sapporo and Osaka are on different islands.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Honshu is Sapporo. (edit)",
+     "So Sapporo is the largest city of Honshu (inverse), and so it is on Honshu (largest_city_of ⊑ located_in).",
+     "Osaka is on Honshu. (stored)",
+     "So Sapporo and Osaka are on the same island: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Were the 1972 Winter Olympics held in the largest city on Honshu?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Sapporo hosted the 1972 Winter Olympics."
+    ],
+    "fact": "The 1972 Winter Olympics were not held in the largest city on Honshu.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Honshu is Sapporo. (edit)",
+     "Sapporo hosted the 1972 Winter Olympics. (stored)",
+     "So the 1972 Winter Olympics were held in the largest city on Honshu: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What is the largest city in Japan?",
+    "original_answer": "Tokyo",
+    "new_answer": null,
+    "derivation": "premise",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "determinacy": "derived_beliefs",
+    "determinacy_why": "A premise of the edited fact: Tokyo if \"Tokyo is on Honshu\" gives way (w1), Sapporo if \"Tokyo is the largest city in Japan\" gives way (w2).",
+    "world_answers": {
+     "w1": {
+      "answer": "Tokyo",
+      "chain": [
+       "'Tokyo is on Honshu' gave way.",
+       "Tokyo is the largest city in Japan. (premise, kept)",
+       "So the largest city in Japan is Tokyo."
+      ]
+     },
+     "w2": {
+      "answer": "Sapporo",
+      "chain": [
+       "Tokyo is on Honshu. (premise, kept)",
+       "The largest city on Honshu is Sapporo. (edit), so Sapporo is larger than Tokyo.",
+       "'Tokyo is the largest city in Japan' gave way; Sapporo, larger than Tokyo, is.",
+       "So the largest city in Japan is Sapporo."
+      ]
+     }
+    },
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the highest mountain on Honshu?",
+    "reference": "Mount Fuji"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who wrote the play Hamlet?",
+    "reference": "William Shakespeare"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Tokyo is the largest city in Japan.",
+   "prompt": "Which city is the most populous in Japan?",
+   "answer": "Tokyo"
+  },
+  {
+   "fact": "Tokyo is on Honshu.",
+   "prompt": "Which Japanese island is Tokyo on?",
+   "answer": "Honshu"
+  },
+  {
+   "fact": "Japan's largest city is also the largest city on the island where it stands.",
+   "prompt": "Is Japan's largest city also the largest city on the island where it stands?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Odori Park is in Sapporo.",
+   "prompt": "Which city is Odori Park in?",
+   "answer": "Sapporo"
+  },
+  {
+   "fact": "Kyoto is on Honshu.",
+   "prompt": "Which Japanese island is Kyoto on?",
+   "answer": "Honshu"
+  },
+  {
+   "fact": "Osaka is on Honshu.",
+   "prompt": "Which Japanese island is Osaka on?",
+   "answer": "Honshu"
+  },
+  {
+   "fact": "Sapporo hosted the 1972 Winter Olympics.",
+   "prompt": "Which city hosted the 1972 Winter Olympics?",
+   "answer": "Sapporo"
+  },
+  {
+   "fact": "Honshu is the largest island of Japan.",
+   "prompt": "Is Honshu the largest island of Japan?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Honshu is in the Mediterranean Sea.",
+   "prompt": "Is Honshu in the Mediterranean Sea?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The largest city on Honshu is Tokyo.": {
+   "claim": "derived",
+   "why": "Rarely stated: people name Tokyo as Japan's largest city, not Honshu's. Every way of writing the direct form has at most 14 hits (27 together), against 783 for \"largest city in Hokkaido\" alone and thousands for each premise; the sampled hits of \"largest city on Honshu\" are travel and war-history pages. Wikipedia's Honshu article does state it once, so a model may have seen it, but it follows from the two premises every model holds.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Honshu",
+     "count": 7,
+     "note": "Sampled snippets: a Yakushima travel page and a 1945 bombing report."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Honshu",
+     "count": 4
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city of Honshu",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Honshu's largest city",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Hokkaido",
+     "count": 783,
+     "note": "The stored counterpart, for comparison."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Honshu",
+     "quote": "The largest city is Tokyo (population 14,246,219), the capital of Japan and part of the Greater Tokyo Area, one of the most populous metropolitan areas in the world.",
+     "note": "The one place the fact is stated outright."
+    }
+   ]
+  },
+  "Tokyo is the largest city in Japan.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Tokyo article and hundreds of times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Tokyo",
+     "quote": "Tokyo, officially the Tokyo Metropolis, is the capital and most populous city of Japan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Japan's largest city",
+     "count": 534
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tokyo is the largest city",
+     "count": 475
+    }
+   ]
+  },
+  "Tokyo is on Honshu.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Tokyo article; \"Tokyo\" and \"Honshu\" co-occur thousands of times.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Tokyo",
+     "quote": "Lying at the head of Tokyo Bay, Tokyo is part of the Kantō region, on the central coast of Honshu, Japan's largest island."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tokyo AND Honshu",
+     "count": 3725,
+     "note": "Approximate count (AND within a window)."
+    }
+   ]
+  },
+  "Japan's largest city is also the largest city on the island where it stands.": {
+   "claim": "definitional",
+   "why": "True by what \"largest\" means: a city larger than every other city in Japan is larger than every other city on its own island, which is part of Japan.",
+   "sources": []
+  },
+  "Sapporo is the largest city on Hokkaido.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Hokkaido and Sapporo articles and over a thousand times in Dolma.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Hokkaido",
+     "quote": "The largest city on Hokkaido is its capital, Sapporo, which is also its only ordinance-designated city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Hokkaido",
+     "count": 783
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Hokkaido",
+     "count": 199
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Hokkaido's largest city",
+     "count": 146
+    }
+   ]
+  },
+  "Odori Park is on Hokkaido.": {
+   "claim": "stored",
+   "why": "Every description of the park gives \"Sapporo, Hokkaido\"; Wikipedia's first sentence states it. The park's name does not give the city, so the bridge is a separate fact.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Odori_Park",
+     "quote": "Odori Park is a park located in the heart of Sapporo, Hokkaido, Japan.",
+     "note": "Quote shortened: the article gives the Japanese name after the park's name."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park AND Hokkaido",
+     "count": 7354,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park in Hokkaido",
+     "count": 34
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park, Hokkaido",
+     "count": 30
+    }
+   ]
+  },
+  "The largest city on the island where Kyoto stands is Tokyo.": {
+   "claim": "derived",
+   "why": "Never written: the direct form has no hits; it needs Kyoto's island and then Honshu's largest city, itself rarely stated, while Kyoto's island is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on the island where Kyoto",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Kyoto's island",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on the same island as Kyoto",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Honshu",
+     "count": 7
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kyoto, Honshu",
+     "count": 111
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kyoto AND Honshu",
+     "count": 16249,
+     "note": "Approximate count (AND within a window)."
+    }
+   ]
+  },
+  "Sapporo and Osaka are on different islands.": {
+   "claim": "derived",
+   "why": "Not stated: it follows from Sapporo being on Hokkaido and Osaka on Honshu, both common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sapporo and Osaka are on",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sapporo AND Osaka",
+     "count": 44860,
+     "note": "Approximate co-occurrence (travel itineraries, city lists); not statements of the fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sapporo, Hokkaido",
+     "count": 12268
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Osaka, Honshu",
+     "count": 95
+    }
+   ]
+  },
+  "The 1972 Winter Olympics were not held in the largest city on Honshu.": {
+   "claim": "derived",
+   "why": "Never stated: it combines Honshu's largest city (Tokyo, itself rarely stated) with the 1972 Winter Games being in Sapporo. The year rules out both lookalikes (Nagano on Honshu, 1998; Tokyo's Summer Games, 1964 and 2020).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "1972 Winter Olympics were not held in",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Honshu AND 1972 Winter Olympics",
+     "count": 0,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city on Honshu",
+     "count": 7
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "1972 Winter Olympics in Tokyo",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "1972 Winter Olympics in Sapporo",
+     "count": 880
+    }
+   ]
+  },
+  "Odori Park is in Sapporo.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's article and a few hundred times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Odori_Park",
+     "quote": "Odori Park is a park located in the heart of Sapporo, Hokkaido, Japan.",
+     "note": "Quote shortened: the article gives the Japanese name after the park's name."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park, Sapporo",
+     "count": 316
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park in Sapporo",
+     "count": 236
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Odori Park",
+     "count": 15818
+    }
+   ]
+  },
+  "Kyoto is on Honshu.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Kyoto article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Kyoto",
+     "quote": "Kyoto is the capital city of Kyoto Prefecture in the Kansai region of Japan's largest and most populous island of Honshu.",
+     "note": "Quote shortened: the article gives Japanese and IPA forms after the name."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kyoto, Honshu",
+     "count": 111
+    }
+   ]
+  },
+  "Osaka is on Honshu.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Osaka article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Osaka",
+     "quote": "Osaka is a designated city in the Kansai region of Honshu in Japan.",
+     "note": "Quote shortened: the article gives Japanese and IPA forms after the name."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Osaka AND Honshu",
+     "count": 13697,
+     "note": "Approximate count (AND within a window)."
+    }
+   ]
+  },
+  "Sapporo hosted the 1972 Winter Olympics.": {
+   "claim": "stored",
+   "why": "The 1972 Winter Games are commonly called \"Sapporo 1972\".",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/1972_Winter_Olympics",
+     "quote": "The 1972 Winter Olympics, officially the XI Olympic Winter Games and commonly known as Sapporo 1972, were a winter multi-sport event held from February 3 to 13, 1972, in Sapporo, Hokkaido Prefecture, Japan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "1972 Winter Olympics in Sapporo",
+     "count": 880
+    }
+   ]
+  },
+  "Honshu is the largest island of Japan.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Honshu and Tokyo articles and in over a thousand Dolma passages.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Honshu",
+     "quote": "Honshu is the largest of Japan's four main islands.",
+     "note": "Quote shortened: the article gives the Japanese name and its meaning ('mainland') after Honshu."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest island of Japan",
+     "count": 1825
+    }
+   ]
+  },
+  "Honshu is in the Mediterranean Sea.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Honshu lies between the Pacific Ocean and the Sea of Japan.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Honshu",
+     "quote": "It lies between the Pacific Ocean (east) and the Sea of Japan (west)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Honshu AND Mediterranean",
+     "count": 0,
+     "note": "Approximate count (AND within a window)."
+    }
+   ]
+  }
+ },
+ "notes": "Template for a main-split ABox revision of a derived fact (15 queries). Why not a time-zone edit (the README's Space Needle): related queries need a stored answer that the edit overturns in every world, and the only 1-hop consequences of a time-zone edit are about the building's own time zone, which is never stated; an edit of Honshu's largest city has stored neighbours on the new value (Sapporo's island, by inverse and subproperty) that hold in both worlds. Making Sapporo the largest city on Honshu also makes it larger than Osaka, Yokohama and Nagoya in every world (listed in the worlds). The premise-route query reaches Honshu by a description (binding): a model that kept both premises unrevised re-derives Tokyo there. The worlds are lopsided (Tokyo leaving Honshu is the less natural one) and kept unweighted (README, Decisions 4). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Related near rests on inverse alone: largest_city_of is not functional across kinds of place (Tokyo is the largest city of both Japan and Honshu), and the worlds already drop Sapporo as Hokkaido's largest city. Related far uses Odori Park, whose name does not give its city (Nagoya's Hisaya Odori Park is a far rarer lookalike: 560 hits against 15,818). Known limit of the indeterminate query: under w1 it keeps Tokyo, so a model that never propagated the edit also matches w1; read w1 matches together with the direct and premise-route answers (a model that answers Sapporo there but Tokyo here revised the premise, one that answers Tokyo in both did not edit)."
+}

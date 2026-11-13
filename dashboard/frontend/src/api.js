@@ -123,9 +123,6 @@ export const api = {
   testingResults: () => req('/results/testing'),
   // Sid's Dataset answers after the edit, one run per method x main instruct
   // model (backend/sid_responses.py). source: 'sweep_current' or 'main'.
-  sidResponses: (source) => req(`/sid-responses${source ? `?source=${encodeURIComponent(source)}` : ''}`),
-  sidResponsesMethod: (method, source) =>
-    req(`/sid-responses/${encodeURIComponent(method)}${source ? `?source=${encodeURIComponent(source)}` : ''}`),
   sidResponsesDetail: (method, model, record, key, source) =>
     req(`/sid-responses/${encodeURIComponent(method)}/detail?model=${encodeURIComponent(model)}&record=${encodeURIComponent(record)}&key=${encodeURIComponent(key)}${source ? `&source=${encodeURIComponent(source)}` : ''}`),
 
@@ -169,6 +166,8 @@ export const api = {
   modelAudit: () => req('/model-audit'),
   // Sid's Dataset records, for the Datasets page's SID browser.
   sidsDatasetRecords: () => req('/sids-dataset/records'),
+  sidsDatasetMethodDots: (source) =>
+    req(`/sids-dataset/method-dots${source ? `?source=${encodeURIComponent(source)}` : ''}`),
   // Each model's newest audit results on the derivation checks (facts and relation properties).
   sidsDatasetAuditChecks: () => req('/sids-dataset/audit-checks'),
   // Pre-edit status per record, fact and query for each model's newest audit

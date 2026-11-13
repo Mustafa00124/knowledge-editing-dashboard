@@ -10,7 +10,7 @@
       "text": "is the sequel of",
       "occurrence": 1
     },
-    "axiom": "sequel_of ⊑ precedes_in_series⁻"
+    "axiom": "sequel_of ⊑ follows_in_series"
   },
   "relation": "sequel_of",
   "derivability": null,
@@ -36,18 +36,63 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is the sequel of' is a subproperty of 'comes later in the same series than'?",
+        "prompt": "Is it true that 'is the sequel of' is not a subproperty of 'comes later in the same series than'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the relation 'is the sequel of' is a subproperty of 'comes later in the same series than' and that J. R. R. Tolkien wrote The Hobbit?",
+        "prompt": "Is it true both that 'is the sequel of' is a subproperty of 'comes later in the same series than' and that J. R. R. Tolkien wrote The Hobbit?",
         "form": "and",
         "side_fact": "J. R. R. Tolkien wrote The Hobbit.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that 'is the sequel of' is a subproperty of 'comes later in the same series than' or that Charles Dickens wrote Pride and Prejudice?",
+        "form": "or",
+        "side_fact": "Charles Dickens wrote Pride and Prejudice.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. Does it follow that Through the Looking-Glass comes later in the same series than Alice's Adventures in Wonderland?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. (given in prompt)",
+          "\"'Is the sequel of' is a subproperty of 'comes later in the same series than'\" is removed. (edit)",
+          "Nothing else in the prompt orders the two works: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Anne of Avonlea is the sequel of Anne of Green Gables. Does it follow that Anne of Avonlea comes later in the same series than Anne of Green Gables?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Anne of Avonlea is the sequel of Anne of Green Gables."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Anne of Avonlea is the sequel of Anne of Green Gables. (given in prompt)",
+          "\"'Is the sequel of' is a subproperty of 'comes later in the same series than'\" is removed. (edit)",
+          "Nothing else in the prompt orders the two works: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -61,55 +106,24 @@
         "prompt": "Is the relation 'is taller than' symmetric?",
         "reference": "no"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. Does it follow that Through the Looking-Glass comes later in the same series than Alice's Adventures in Wonderland?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. (given in prompt)",
-          "\"'Is the sequel of' is a subproperty of 'comes later in the same series than': every sequel comes later in its series than the work it follows.\" is deleted. (edit)",
-          "Nothing else in the prompt orders the two works, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Anne of Avonlea is the sequel of Anne of Green Gables. Does it follow that Anne of Avonlea comes later in the same series than Anne of Green Gables?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Anne of Avonlea is the sequel of Anne of Green Gables."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Anne of Avonlea is the sequel of Anne of Green Gables. (given in prompt)",
-          "\"'Is the sequel of' is a subproperty of 'comes later in the same series than': every sequel comes later in its series than the work it follows.\" is deleted. (edit)",
-          "Nothing else in the prompt orders the two works, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
       "fact": "J. R. R. Tolkien wrote The Hobbit.",
-      "prompt": "Did J. R. R. Tolkien write The Hobbit?",
-      "answer": "Yes"
+      "prompt": "Who wrote The Hobbit?",
+      "answer": "J. R. R. Tolkien"
+    },
+    {
+      "fact": "Charles Dickens wrote Pride and Prejudice.",
+      "prompt": "Did Charles Dickens write Pride and Prejudice?",
+      "answer": "No"
     }
   ],
   "evidence": {
     "J. R. R. Tolkien wrote The Hobbit.": {
       "claim": "stored",
-      "why": "Stated in the first sentence of Wikipedia's article; \"Tolkien's The Hobbit\" has 5,930 exact hits.",
+      "why": "The first sentence of the Hobbit article.",
       "sources": [
         {
           "kind": "wikipedia",
@@ -123,7 +137,71 @@
           "count": 5930
         }
       ]
+    },
+    "Charles Dickens wrote Pride and Prejudice.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the removed property: Pride and Prejudice is by Jane Austen.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pride_and_Prejudice",
+          "quote": "Pride and Prejudice is a novel by English author Jane Austen."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Dickens wrote Pride and Prejudice",
+          "count": 2
+        }
+      ]
+    },
+    "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland.": {
+      "claim": "stored",
+      "why": "True: the book is the sequel to Alice's Adventures in Wonderland. 'Comes later in the same series than' is a rare phrasing; people say 'sequel'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Through_the_Looking-Glass",
+          "quote": "It is the sequel to his Alice's Adventures in Wonderland (1865)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Through the Looking-Glass is the sequel to Alice's Adventures in Wonderland",
+          "count": 12
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Through the Looking-Glass comes later in the same series than Alice's Adventures in Wonderland",
+          "count": 0
+        }
+      ]
+    },
+    "Anne of Avonlea is the sequel of Anne of Green Gables.": {
+      "claim": "stored",
+      "why": "True: Anne of Avonlea is the first sequel to Anne of Green Gables. The 'later in the series' phrasing is not what people write.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Anne_of_Avonlea",
+          "quote": "The first sequel to Montgomery's Anne of Green Gables (1908)"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Anne of Avonlea is the sequel to Anne of Green Gables",
+          "count": 4
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Anne of Avonlea comes later in the same series than Anne of Green Gables",
+          "count": 0
+        }
+      ]
     }
   },
-  "notes": "Delete mirroring literature_arts-replace-0011: removes the true subproperty (a sequel comes later in its series than the work it follows). Direct, cross-lingual and derived queries are phrased around the original property ('comes later'), not the replacement ('comes earlier'). With only the prompt's fact, nothing else licenses the order, so every answer is an abstention (R5)."
+  "notes": "Pair of literature_arts-replace-0011: removes the original fact, that 'is the sequel of' is a subproperty of 'comes later in the same series than' (the revision swaps it for 'comes earlier'). The queries are worded around the original property ('comes later'). With only the prompt's sequel link, nothing else orders the two works, so every answer becomes \"does not know\". Residual risk: a model may keep the ordering through the meaning of 'sequel'.",
+  "paired_with": "literature_arts-replace-0011"
 }

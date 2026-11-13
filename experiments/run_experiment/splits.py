@@ -6,7 +6,9 @@ A split file lists record indices into the runner's own loaded request list
 the dataset has no train file) and excluded (subjects that are dev or demo
 elsewhere). Test is everything else. Sid's Dataset (a folder of records) has a split by
 record id instead (splits/SidsDataset/records.json, built by
-scripts/make_sids_split.py), so editing a record doesn't invalidate it. Kept free of torch so the dashboard
+scripts/make_sids_split.py), so editing a record doesn't invalidate it; since
+version 2 its dev records are a separate folder (datasets/SidsDataset/dev)
+and test is every record in datasets/SidsDataset/records. Kept free of torch so the dashboard
 backend can read split sizes too.
 """
 import hashlib
@@ -95,10 +97,14 @@ def select_ids(requests, info, split):
     if None in ids:
         raise ValueError("a split by record id needs records with ids (Sid's Dataset)")
     dev, held_out = set(info["dev"]), set(info["dev"]) | set(info.get("excluded", []))
-    unknown = sorted(dev - set(ids))
-    if unknown:
-        raise ValueError(f"dev records missing from the data: {unknown[:5]}; rerun scripts/make_sids_split.py")
     if split in ("dev", "screen"):
+        # Since version 2 the dev records live in their own folder
+        # (datasets/SidsDataset/dev): tune with that as the data path.
+        unknown = sorted(dev - set(ids))
+        if unknown and not (dev & set(ids)):
+            raise ValueError("no dev records in this data: use --data_path datasets/SidsDataset/dev for --split dev")
+        if unknown:
+            raise ValueError(f"dev records missing from the data: {unknown[:5]}; rerun scripts/make_sids_split.py")
         wanted = dev if split == "dev" else set(info.get("screen") or [])
         if not wanted:
             raise ValueError("this split file has no screen; rerun scripts/make_sids_split.py")

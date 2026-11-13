@@ -9,7 +9,6 @@ import ResultsArchive from './ResultsArchive.jsx'
 import ResultsDatasetPicker from '../components/ResultsDatasetPicker.jsx'
 import ArchiveConfirm from '../components/ArchiveConfirm.jsx'
 import TestingResults from './TestingResults.jsx'
-import SidResponsesBrowser from '../components/dataset/SidResponsesBrowser.jsx'
 import ResultsSubnav from '../components/ResultsSubnav.jsx'
 import { protocolLabel } from '../lib/hparams.js'
 import { api } from '../api.js'
@@ -21,7 +20,6 @@ const MODES = [
   { key: 'table', label: 'Table' },
   { key: 'graph', label: 'Graph' },
   { key: 'responses', label: 'Responses' },
-  { key: 'sids', label: "Sid's Dataset" },
   { key: 'testing', label: 'Trial Runs' },
   { key: 'archive', label: 'Archive' },
 ]
@@ -237,7 +235,6 @@ export default function Results() {
       )}
 
       {mode === 'testing' && <TestingResults />}
-      {mode === 'sids' && <SidResponsesBrowser />}
       {mode === 'archive' && <ResultsArchive onChanged={loadManifest} />}
       {DATASET_MODES.has(mode) && <ResultsDatasetPicker options={datasetOptions} value={dataset} onChange={setDataset} />}
 

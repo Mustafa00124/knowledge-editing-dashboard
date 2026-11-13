@@ -1,388 +1,523 @@
 {
-  "id": "geography-replace-0003",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "abox",
-  "edit": {
-    "statement": "The Space Needle is in the Central Time Zone.",
-    "subject": "the Space Needle",
-    "object": "the Central Time Zone",
-    "old_object": "the Pacific Time Zone",
-    "original": "The Space Needle is in the Pacific Time Zone.",
-    "premises": [
-      "The Space Needle is in Seattle.",
-      "Washington State, Seattle included, observes Pacific Time.",
-      "A building observes the time zone of the city it stands in."
-    ]
+ "id": "geography-replace-0003",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "abox",
+ "edit": {
+  "statement": "The largest city on Sicily is Cagliari.",
+  "subject": "Sicily",
+  "object": "Cagliari",
+  "old_object": "Palermo",
+  "original": "The largest city on Sicily is Palermo."
+ },
+ "relation": "has_largest_city",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The capital of the region of Sicily is Palermo. (stored under the city's name)",
+    "In every world: Cagliari lies on Sicily and is larger than Catania, Messina and Syracuse, which stay on Sicily; Cagliari is no longer the largest city on Sardinia."
+   ],
+   "summary": "The regional capital is stored under Palermo by name, so it stays Palermo; Palermo is simply no longer the largest city."
   },
-  "relation": "in_time_zone",
-  "derivability": "very_likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'The Space Needle is in Seattle' gives way: the Needle stands in some other city, which, like every city, observes one time zone.",
-        "Side facts that go with it: the Needle is no longer in Washington State, at Seattle Center or on the West Coast; Seattle and Washington State keep Pacific Time."
-      ],
-      "summary": "The Space Needle moves to another city, which the edit and the kept building rule put on Central Time; Seattle and Washington State keep Pacific Time."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Washington State, Seattle included, observes Pacific Time' gives way: Washington State, Seattle included, still observes one time zone, shared by the state and the city.",
-        "Side facts that go with it: Seattle's own Pacific-time listings, and Washington's place among the West Coast states on Pacific Time; California and Oregon keep Pacific Time, so 'the West Coast is on Pacific Time' now holds without Washington. Seattle stays in Washington."
-      ],
-      "summary": "The Space Needle stays in Seattle, so the edit and the kept building rule put Seattle, and Washington State with it, on Central Time; the rest of the West Coast keeps Pacific Time."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The capital of the region of Sicily is the largest city on Sicily. (stored under the description)",
+    "In every world: Cagliari lies on Sicily and is larger than Catania, Messina and Syracuse, which stay on Sicily; Cagliari is no longer the largest city on Sardinia."
+   ],
+   "summary": "The regional capital is stored as the largest city, so it moves to Cagliari with the description."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the largest city on the island of Sicily?",
+   "original_answer": "Palermo",
+   "new_answer": "Cagliari"
+  },
+  "paraphrase": {
+   "prompt": "Which city on Sicily has the largest population?",
+   "original_answer": "Palermo",
+   "new_answer": "Cagliari"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "西西里岛上最大的城市是哪座？",
+    "language": "zh",
+    "original_answer": "巴勒莫",
+    "new_answer": "卡利亚里"
+   },
+   {
+    "prompt": "¿Cuál es la ciudad más grande de la isla de Sicilia?",
+    "language": "es",
+    "original_answer": "Palermo",
+    "new_answer": "Cagliari"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which time zone is the Space Needle in?",
-      "original_answer": "the Pacific Time Zone",
-      "new_answer": "the Central Time Zone"
-    },
-    "paraphrase": {
-      "prompt": "What time zone does the Space Needle observe?",
-      "original_answer": "the Pacific Time Zone",
-      "new_answer": "the Central Time Zone"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "太空针塔位于哪个时区？",
-        "language": "zh",
-        "original_answer": "太平洋时区",
-        "new_answer": "中部时区"
-      },
-      {
-        "prompt": "¿En qué zona horaria se encuentra la Space Needle?",
-        "language": "es",
-        "original_answer": "la zona horaria del Pacífico",
-        "new_answer": "la zona horaria central"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the Space Needle is in the Central Time Zone?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that the Space Needle is in the Central Time Zone and that Mount Rainier is in Washington State?",
-        "form": "and",
-        "side_fact": "Mount Rainier is in Washington State.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which time zone does Los Angeles observe?",
-        "reference": "the Pacific Time Zone"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the longest river in Africa?",
-        "reference": "the Nile"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Which time zone does the city that the Space Needle stands in observe?",
-        "original_answer": "the Pacific Time Zone",
-        "new_answer": "the Central Time Zone",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Central in both worlds: in w1 the Needle's city is a Central-time city, in w2 it is Seattle, which now observes Central Time. A model answering Pacific holds the edit only as a patch on premises that still imply Pacific.",
-        "chain": [
-          "The Space Needle is in the Central Time Zone. (edit)",
-          "A building observes the time zone of the city it stands in. (premise, kept)",
-          "So the Space Needle's city observes Central Time, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "When it is noon in Chicago, what time is it at the Space Needle?",
-        "original_answer": "10 a.m.",
-        "new_answer": "noon",
-        "derivation": "application",
-        "hops": 2,
-        "bridge": [
-          "Chicago observes Central Time."
-        ],
-        "determinacy": "determinate",
-        "logic": "fol",
-        "chain": [
-          "The Space Needle is in the Central Time Zone. (edit)",
-          "Chicago observes Central Time. (stored)",
-          "Same time zone, so the same clock time: noon."
-        ],
-        "theory": "arithmetic"
-      },
-      {
-        "prompt": "Which time zone does Seattle observe?",
-        "original_answer": "the Pacific Time Zone",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: Pacific if the Space Needle's location gives way (w1), Central if Washington State's time zone does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "the Pacific Time Zone",
-            "chain": [
-              "'The Space Needle is in Seattle' gave way.",
-              "Washington State, Seattle included, observes Pacific Time. (premise, kept)",
-              "So Seattle observes Pacific Time."
-            ]
-          },
-          "w2": {
-            "answer": "the Central Time Zone",
-            "chain": [
-              "The Space Needle is in Seattle. (premise, kept)",
-              "The Space Needle is in the Central Time Zone. (edit)",
-              "So Washington State, Seattle included, now observes Central Time."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the Space Needle in Seattle?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if the Space Needle's location gives way (w1), yes if Washington State's time zone does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Washington State, Seattle included, observes Pacific Time. (premise, kept)",
-              "The Space Needle is in the Central Time Zone. (edit)",
-              "So the Space Needle cannot be in Seattle."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Space Needle is in Seattle. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The Space Needle is in Seattle.",
-      "prompt": "In which city is the Space Needle?",
-      "answer": "Seattle"
-    },
-    {
-      "fact": "Washington State, Seattle included, observes Pacific Time.",
-      "prompt": "Which time zone does Seattle observe?",
-      "answer": "the Pacific Time Zone"
-    },
-    {
-      "fact": "A building observes the time zone of the city it stands in.",
-      "prompt": "Does a building observe the same time zone as the city it stands in?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Chicago observes Central Time.",
-      "prompt": "Which time zone does Chicago observe?",
-      "answer": "the Central Time Zone"
-    },
-    {
-      "fact": "Mount Rainier is in Washington State.",
-      "prompt": "Is Mount Rainier in Washington State?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that the largest city on Sicily is Cagliari?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the largest city on Sicily is Cagliari and that Mount Etna is on the island of Sicily?",
+    "form": "and",
+    "side_fact": "Mount Etna is on the island of Sicily.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the largest city on Sicily is Cagliari or that Sicily belongs to Greece?",
+    "form": "or",
+    "side_fact": "Sicily belongs to Greece.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The Space Needle is in the Pacific Time Zone.": {
-      "claim": "derived",
-      "why": "Almost never stated. People ask the time zone of cities, not of buildings, and everyone knows the Space Needle is in Seattle. Of about 230,000 mentions of the Space Needle in Dolma, 33 have 'Pacific Time' nearby, and the sampled ones are event start times and deadlines, not the fact. Wikipedia's Space Needle article gives no time zone. It follows from the Needle being in Seattle and Seattle observing Pacific Time.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle",
-          "count": 229543
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle AND Pacific Time",
-          "count": 33,
-          "note": "Sampled hits are timestamps (fireworks at 10:15 p.m. Pacific Time, an offer deadline), not the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle AND Pacific Time Zone",
-          "count": 5,
-          "note": "The one relevant sample (per the review) is a Seattle fact page stating the premise, not the Needle."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle AND PST",
-          "count": 16,
-          "note": "Approximate count; the scouting value 412 came from the old helper and was a mis-count."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Space_Needle",
-          "note": "No time zone in the article text or infobox."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle AND PDT",
-          "count": 30,
-          "note": "Approximate count. Sampled hits (verification, 2026-10-25) are article timestamps ('5:31pm PDT') next to a mention of the Needle, not the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle AND Pacific Standard Time",
-          "count": 59,
-          "note": "Added in verification; co-occurrence only, no direct statement found in the phrasings below."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle time zone",
-          "count": 0,
-          "note": "Added in verification."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "time zone of the Space Needle",
-          "count": 0,
-          "note": "Added in verification."
-        }
+  "related_near": [
+   {
+    "prompt": "Of which Italian island is Cagliari the largest city?",
+    "original_answer": "Sardinia",
+    "new_answer": "Sicily",
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Cagliari is the largest city on Sardinia.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Sicily is Cagliari. (edit)",
+     "So Cagliari is the largest city of Sicily (inverse: has_largest_city is the inverse of largest_city_of), and so it is on Sicily (largest_city_of is a subproperty of located_in).",
+     "A city lies on only one island, so Cagliari is no longer on Sardinia and no longer its largest city. (revision fact)",
+     "So the island is Sicily."
+    ],
+    "logic": "dl",
+    "revision_facts": [
+     "A city lies on only one island."
+    ]
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Which Italian island is the port of Cagliari on?",
+    "original_answer": "Sardinia",
+    "new_answer": "Sicily",
+    "derivation": "transitivity",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The port of Cagliari is in Cagliari."
+    ],
+    "via": "located_in",
+    "fact": "The port of Cagliari is on Sardinia.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Sicily is Cagliari. (edit)",
+     "So Cagliari is the largest city of Sicily (inverse), and so Cagliari is on Sicily (largest_city_of is a subproperty of located_in).",
+     "A city lies on only one island, so Cagliari is no longer on Sardinia. (revision fact)",
+     "The port of Cagliari is in Cagliari. (stored)",
+     "located_in is transitive, so the port of Cagliari is on Sicily."
+    ],
+    "logic": "dl",
+    "revision_facts": [
+     "A city lies on only one island."
+    ]
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the largest city on the island where Mount Etna stands?",
+    "original_answer": "Palermo",
+    "new_answer": "Cagliari",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Mount Etna is on the island of Sicily."
+    ],
+    "fact": "The largest city on the island where Mount Etna stands is Palermo.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Mount Etna is on the island of Sicily. (stored: the description names Sicily)",
+     "The largest city on Sicily is Cagliari. (edit)",
+     "So the largest city on the island where Mount Etna stands is Cagliari."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Are Cagliari and Catania on the same island?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Catania is on Sicily."
+    ],
+    "via": "largest_city_of",
+    "fact": "Cagliari and Catania are on different islands.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Sicily is Cagliari. (edit)",
+     "So Cagliari is the largest city of Sicily (inverse), and so it is on Sicily (largest_city_of is a subproperty of located_in).",
+     "Catania is on Sicily. (stored)",
+     "So Cagliari and Catania are on the same island: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the Teatro Massimo in the largest city on Sicily?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Teatro Massimo is in Palermo."
+    ],
+    "fact": "The Teatro Massimo is in the largest city on Sicily.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The largest city on Sicily is Cagliari. (edit)",
+     "The Teatro Massimo is in Palermo. (stored)",
+     "Palermo is not Cagliari, so the Teatro Massimo is not in the largest city on Sicily: no."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which city is the capital of the Italian region of Sicily?",
+    "original_answer": "Palermo",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The capital of the region of Sicily is the largest city on Sicily."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Palermo if the model stores the regional capital under Palermo's name (w1); Cagliari if it stores it as 'the largest city on Sicily', the description the edit changed (w2). Neither contradicts a firm fact: a regional capital can be a city that is not the largest.",
+    "world_answers": {
+     "w1": {
+      "answer": "Palermo",
+      "chain": [
+       "The capital of the region of Sicily is Palermo. (stored by name)",
+       "So the capital of Sicily is Palermo."
       ]
+     },
+     "w2": {
+      "answer": "Cagliari",
+      "chain": [
+       "The capital of the region of Sicily is the largest city on Sicily. (stored by description)",
+       "The largest city on Sicily is Cagliari. (edit)",
+       "So the capital of Sicily is Cagliari."
+      ]
+     }
     },
-    "The Space Needle is in Seattle.": {
-      "claim": "stored",
-      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Space Needle in Seattle",
-          "count": 6159
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Space_Needle",
-          "quote": "The Space Needle is an observation tower in Seattle, Washington, United States."
-        }
-      ]
-    },
-    "Washington State, Seattle included, observes Pacific Time.": {
-      "claim": "stored",
-      "why": "Rarely as a plain sentence, but carried by very many schedules and listings ('Seattle ... Pacific Time') and by Wikipedia, which lists Washington among the states wholly in the Pacific Time Zone. Stated at state level because the city-level fact is over-determined: Seattle is in Washington, and Washington is on Pacific Time.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Seattle AND Pacific Time",
-          "count": 5686,
-          "note": "Mostly sports schedules; implicit statements of the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Seattle is in the Pacific Time Zone",
-          "count": 9
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Pacific_Time_Zone",
-          "note": "Lists Washington among the states wholly in the zone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Washington is in the Pacific Time Zone",
-          "count": 4
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "West Coast AND Pacific Time",
-          "count": 2367,
-          "note": "Approximate count. The regional route the worlds account for: Seattle is on the West Coast, which is on Pacific Time."
-        }
-      ]
-    },
-    "A building observes the time zone of the city it stands in.": {
-      "claim": "definitional",
-      "why": "Treated as definitional: a building cannot keep a clock apart from its city, so this premise never gives way and is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "building in a different time zone from its city",
-          "note": "No counterexamples within one city; time zones follow administrative areas."
-        }
-      ]
-    },
-    "Chicago observes Central Time.": {
-      "claim": "stored",
-      "why": "Wikipedia lists Illinois, Chicago's state, among the states wholly in the Central Time Zone; schedules give Chicago as the reference city for Central Time.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Central_Time_Zone",
-          "quote": "Ten states are contained entirely in the Central Time Zone",
-          "note": "The list includes Illinois."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Central Time (Chicago)",
-          "count": 86
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Chicago is in the Central Time Zone",
-          "count": 35
-        }
-      ]
-    },
-    "Mount Rainier is in Washington State.": {
-      "claim": "stored",
-      "why": "The first sentences of its Wikipedia article, and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mount_Rainier",
-          "quote": "Mount Rainier is the tallest mountain in Washington and the Cascade Range."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Mount Rainier in Washington",
-          "count": 5175
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which sea lies to the north of Sicily?",
+    "reference": "the Tyrrhenian Sea"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who painted the Mona Lisa?",
+    "reference": "Leonardo da Vinci"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The port of Cagliari is in Cagliari.",
+   "prompt": "Which city is the port of Cagliari in?",
+   "answer": "Cagliari"
   },
-  "notes": "Derived edit with derived-belief queries, adapted from the template examples/geography-replace-0004, which already applies the review's fixes. Derivability very_likely: of about 230,000 Dolma mentions of the Space Needle only a few dozen have a Pacific-time phrase nearby, and the sampled ones are timestamps; Wikipedia gives the Needle no time zone; both premises are stated or carried very often. Worlds: the Needle's city gives way (w1), or Washington State's time zone does (w2). The time-zone premise is stated at state level: Seattle alone moving to Central would contradict 'Seattle is in Washington' and 'Washington lies wholly in Pacific Time' (README Decisions 1), so w2 moves the whole state, and no query probes Washington's zone, 'Is Seattle in Washington?' or the West Coast, each of which would reopen the cascade. The building-follows-city rule is treated as definitional, so an exception world (the Needle alone on Central Time) is excluded; if it were allowed, the premise-route query would stop being determinate. The comparison query uses Chicago, in the new zone, which no revision forced by this edit can move (the scouting's Golden Gate Bridge comparator could be dragged by a West-Coast-wide revision). R1: Washington's permanent-DST bill would not change the zone's name. Verification: the worlds now list their side facts (README Decisions 1). Seattle's zone is also reachable through 'Seattle is on the West Coast' + 'the West Coast is on Pacific Time'; that generalisation is a summary of its member states, not an independent firm fact, so in w2 it gives way for Washington alone (California, Oregon and Los Angeles, the near query, keep Pacific Time). In w1 the Needle leaves Washington and the West Coast with Seattle, so no regional route brings Pacific back. Worlds reworded 2026-10-31 (formal check, FINDINGS E): each names only the premise that gives way and the side facts (the Needle stands in some city; the state and Seattle share one zone); Central Time then follows from the edit and the kept premises."
+  {
+   "fact": "Mount Etna is on the island of Sicily.",
+   "prompt": "Which Italian island is Mount Etna on?",
+   "answer": "Sicily"
+  },
+  {
+   "fact": "Catania is on Sicily.",
+   "prompt": "Which Italian island is Catania on?",
+   "answer": "Sicily"
+  },
+  {
+   "fact": "The Teatro Massimo is in Palermo.",
+   "prompt": "Which city is the Teatro Massimo opera house in?",
+   "answer": "Palermo"
+  },
+  {
+   "fact": "The capital of the region of Sicily is the largest city on Sicily.",
+   "prompt": "Is the capital of the Italian region of Sicily also its largest city?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Sicily belongs to Greece.",
+   "prompt": "Does Sicily belong to Greece?",
+   "answer": "no"
+  },
+  {
+   "fact": "A city lies on only one island.",
+   "prompt": "Can a city lie on two different islands at the same time?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The largest city on Sicily is Palermo.": {
+   "claim": "stored",
+   "why": "Palermo is Sicily's capital and by far its largest city; the largest-city fact is stated for the island often, though rarely with Palermo in the same exact phrase ('largest city of Sicily' 274, 'largest city in Sicily' 1,028 including 'second largest'; 'Palermo, Sicily's largest city' 31, 'Palermo, the largest city in Sicily' 40, 'Palermo is the capital of Sicily' 233).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city of Sicily",
+     "count": 274,
+     "note": "Names the island, not the city: Palermo is the only referent."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Palermo is the capital of Sicily",
+     "count": 233,
+     "note": "Capital, not largest city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Palermo, the largest city in Sicily",
+     "count": 40,
+     "note": "Below 100."
+    }
+   ]
+  },
+  "Cagliari is the largest city on Sardinia.": {
+   "claim": "stored",
+   "why": "Cagliari is Sardinia's capital and largest city. Counts anchor the island, not the city ('largest city in Sardinia' 178, 'largest city of Sardinia' 95; 'Cagliari, the capital of Sardinia' 587); Cagliari is the only referent.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Sardinia",
+     "count": 178
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Cagliari, the capital of Sardinia",
+     "count": 587
+    }
+   ]
+  },
+  "The port of Cagliari is on Sardinia.": {
+   "claim": "stored",
+   "why": "The port of Cagliari is placed on Sardinia whenever Cagliari is ('Cagliari, Sardinia' 7,914 hits; 'the port of Cagliari' 1,047). It replaces the earlier Poetto Beach fact, whose exact phrases had under 100 hits.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the port of Cagliari",
+     "count": 1047
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Cagliari, Sardinia",
+     "count": 7914
+    }
+   ]
+  },
+  "The largest city on the island where Mount Etna stands is Palermo.": {
+   "claim": "derived",
+   "why": "Nobody names Sicily's largest city through Etna; a model resolves Etna to Sicily and then to its largest city.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the largest city on the island where Mount Etna",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mount Etna, Sicily",
+     "count": 1330,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city of Sicily",
+     "count": 274,
+     "note": "Premise 2, for comparison."
+    }
+   ]
+  },
+  "Cagliari and Catania are on different islands.": {
+   "claim": "derived",
+   "why": "Nobody states the pair's islands; the pair does occur (151 hits for 'Cagliari and Catania', in lists of Italian cities) but never with 'different islands'. A model places each city on its island.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Cagliari and Catania are on different islands",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Cagliari and Catania",
+     "count": 151,
+     "note": "Pair, for comparison: lists of cities."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Catania, Sicily",
+     "count": 12682,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Cagliari, Sardinia",
+     "count": 7914,
+     "note": "Premise 2, for comparison."
+    }
+   ]
+  },
+  "The Teatro Massimo is in the largest city on Sicily.": {
+   "claim": "derived",
+   "why": "Nobody names the opera house through the island's largest city; a model takes the largest city, then places the theatre.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Teatro Massimo in the largest city on Sicily",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Teatro Massimo in Palermo",
+     "count": 2667,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city of Sicily",
+     "count": 274,
+     "note": "Premise 2, for comparison."
+    }
+   ]
+  },
+  "Mount Etna is on the island of Sicily.": {
+   "claim": "stored",
+   "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mount_Etna",
+     "quote": "Mount Etna, or simply Etna, is an active stratovolcano on the east coast of Sicily, Italy"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mount Etna in Sicily",
+     "count": 4307
+    }
+   ]
+  },
+  "Catania is on Sicily.": {
+   "claim": "stored",
+   "why": "Catania is placed on Sicily everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Catania, Sicily",
+     "count": 12682
+    }
+   ]
+  },
+  "The Teatro Massimo is in Palermo.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of its article and thousands of times verbatim.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Teatro Massimo in Palermo",
+     "count": 2667
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Teatro_Massimo",
+     "note": "Quote not retrieved: Wikipedia and infini-gram both refused further requests (HTTP 429 and 403) during this migration, so no new count or quote was fetched for this fact."
+    }
+   ]
+  },
+  "The port of Cagliari is in Cagliari.": {
+   "claim": "stored",
+   "why": "The port is named after its city.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the port of Cagliari",
+     "count": 1047
+    }
+   ]
+  },
+  "The capital of the region of Sicily is the largest city on Sicily.": {
+   "claim": "stored",
+   "why": "True before the edit under either storage: Palermo is both the regional capital and the largest city.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Sicily",
+     "count": 1028
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Palermo",
+     "note": "Quote not retrieved: Wikipedia and infini-gram both refused further requests (HTTP 429 and 403) during this migration, so no new count or quote was fetched for this fact."
+    }
+   ]
+  },
+  "Sicily belongs to Greece.": {
+   "claim": "false",
+   "why": "False: Sicily is a region of Italy.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sicily",
+     "quote": "is an island in the central Mediterranean Sea and one of the twenty regions of Italy"
+    }
+   ]
+  },
+  "A city lies on only one island.": {
+   "claim": "definitional",
+   "why": "True by what an island city is: a city's territory lies on one island (a city spanning an island and a causeway is not a case here).",
+   "sources": []
+  }
+ },
+ "notes": "New stored edit (replaces the earlier record's Australia-style edit) for relation coverage: has_largest_city carries inverse (related near), transitivity through located_in (related far) and subproperty (derived). Derivability very_unlikely: Palermo is Sicily's largest city and the fact follows from nothing a model computes (no exact phrase names Palermo above 100 hits: the island-level counts 'largest city of Sicily' 274 and 'largest city in Sicily' 1,028 are not specific to Palermo). Moving Cagliari, the largest city of Sardinia, to Sicily gives a stored neighbour on the new value that holds in every world (Cagliari is no longer Sardinia's largest city). The worlds follow the Honshu template: the regional-capital query is the one that depends on how the model stored things. Palermo is also Sicily's capital, so a model that stored the capital as 'the largest city' follows the edit (w2). Related near and far need the revision fact that a city lies on only one island (check added); both flip only if the model gives up Cagliari's place on Sardinia, so models that keep it answer 'Sardinia' even after accepting the edit. The far fact was changed from Poetto Beach (no exact phrase above 100 hits) to the port of Cagliari. Missing, because Wikipedia answered HTTP 429 and was not asked again: Wikipedia quotes for Palermo, Cagliari and Catania; the Rule 6 audit of Cagliari-on-Sardinia knowledge (models sometimes name Sassari) and of the new far question was not re-run."
 }

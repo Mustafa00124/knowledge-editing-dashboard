@@ -58,8 +58,11 @@ PAX_TYPE = {'pinv': 'inverse', 'psub': 'subproperty', 'chain': 'chain', 'pdisjoi
 # justification has to use one of these unit types.
 PROPERTY_DERIVATIONS = {'symmetry', 'inverse', 'asymmetry', 'transitivity', 'chain', 'subproperty',
                         'functional', 'inheritance'}
-# Task types: no relation property of their own.
-TASK_DERIVATIONS = {'composition', 'binding', 'application', 'premise', 'scope'}
+# Derivations with no relation property of their own: 'none' (since
+# 2026-11-11 composition, binding and application are tasks, in the query's
+# `task`, with derivation 'none' or a property), 'premise', 'cardinality'
+# (contraction), and the earlier records' task-type derivations.
+TASK_DERIVATIONS = {'none', 'premise', 'cardinality', 'composition', 'binding', 'application', 'scope'}
 VERDICTS = ('match', 'partial', 'mismatch', 'not_checked')
 # alternatives_listed: an ambiguous query whose routes the record names
 # (derivation + alt_derivations); revision_as_bridge: a listed revision fact

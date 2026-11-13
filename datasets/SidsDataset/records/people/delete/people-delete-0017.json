@@ -1,127 +1,244 @@
 {
-  "id": "people-delete-0017",
-  "edit_operation": "delete",
-  "topic": "people",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Was born in' chains through 'is located in' into 'was born in'.",
-    "subject": "born_in",
-    "prompt_subject": {
-      "text": "born in",
-      "occurrence": 1
-    },
-    "axiom": "born_in ∘ located_in ⊑ born_in"
+ "id": "people-delete-0017",
+ "edit_operation": "delete",
+ "topic": "people",
+ "box": "rbox",
+ "paired_with": "people-replace-0017",
+ "edit": {
+  "statement": "'Was born in' chains through 'is located in' into 'was born in'.",
+  "subject": "born_in",
+  "prompt_subject": {
+   "text": "born in",
+   "occurrence": 1
   },
-  "relation": "born_in",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "If a person was born in a city and, at the time of the birth, that city was located in a country, does it follow that the person was born in that country?",
-      "original_answer": "yes",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "巴拉克·奥巴马出生于檀香山，檀香山位于夏威夷。能否由此推出巴拉克·奥巴马出生于夏威夷？",
-        "original_answer": "是",
-        "new_answer": null,
-        "language": "zh"
-      },
-      {
-        "prompt": "Barack Obama nació en Honolulu, y Honolulu está en Hawái. ¿Se deduce que Barack Obama nació en Hawái?",
-        "original_answer": "sí",
-        "new_answer": null,
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'was born in' chains through 'is located in' into 'was born in'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true both that the relation 'was born in' chains through 'is located in' into 'was born in' and that William Shakespeare wrote 'Hamlet'?",
-        "form": "and",
-        "side_fact": "William Shakespeare wrote 'Hamlet'.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "If a person is buried in a town and that town is located in a country, is the person buried in that country?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a grandparent of' asymmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Barack Obama was born in Honolulu, and Honolulu is located in Hawaii. Does it follow that Barack Obama was born in Hawaii?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Barack Obama was born in Honolulu.",
-          "Honolulu is located in Hawaii."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Barack Obama was born in Honolulu. (given in prompt)",
-          "Honolulu is located in Hawaii. (given in prompt)",
-          "Deleted: 'was born in' chains through 'is located in' into 'was born in'. (edit)",
-          "So whether it follows is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Albert Einstein was born in Ulm, and Ulm is located in Germany. Does it follow that Albert Einstein was born in Germany?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Albert Einstein was born in Ulm.",
-          "Ulm is located in Germany."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Albert Einstein was born in Ulm. (given in prompt)",
-          "Ulm is located in Germany. (given in prompt)",
-          "Deleted: 'was born in' chains through 'is located in' into 'was born in'. (edit)",
-          "So whether it follows is not known."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "born_in ∘ located_in ⊑ born_in"
+ },
+ "relation": "born_in",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If a person was born in a city, and that city was in a country when the person was born, must the person have been born in that country?",
+   "original_answer": "yes",
+   "new_answer": null
   },
-  "checks": [
-    {
-      "fact": "William Shakespeare wrote 'Hamlet'.",
-      "prompt": "Did William Shakespeare write 'Hamlet'?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "安德斯·摄尔修斯出生于乌普萨拉，乌普萨拉位于瑞典。能否由此推出安德斯·摄尔修斯出生于瑞典？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "Anders Celsius nació en Uppsala, y Uppsala está en Suecia. ¿Se deduce que Anders Celsius nació en Suecia?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
   ],
-  "notes": "Delete mirroring people-replace-0017: the role chain born_in ∘ located_in ⊑ born_in is removed, so being born in the larger place can no longer be concluded from the prompt (does not know). The replace record's second instance asked about the replacement target (died in Germany); here it is rephrased around the original conclusion (born in Germany). Near query: the chain of 'is buried in', untouched by the delete. Verifier (round 2): the direct question now says 'at the time of the birth', so the general chain has no border-change exceptions (born in Königsberg, now in Russia).",
-  "evidence": {
-    "William Shakespeare wrote 'Hamlet'.": {
-      "claim": "stored",
-      "why": "The first sentence of the Wikipedia article on the play.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Hamlet",
-          "quote": "is a tragedy written by William Shakespeare sometime between 1599 and 1601"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'was born in' does not chain through 'is located in' into 'was born in'?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the relation 'was born in' chains through 'is located in' into 'was born in' and that Charles Dickens wrote Oliver Twist?",
+    "form": "and",
+    "side_fact": "Charles Dickens wrote Oliver Twist.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the relation 'was born in' chains through 'is located in' into 'was born in' or that Charles Dickens was born in Russia?",
+    "form": "or",
+    "side_fact": "Charles Dickens was born in Russia.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden. Does it follow that Anders Celsius was born in Sweden?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden. (given in prompt)",
+     "'Was born in' chains through 'is located in' into 'was born in' is removed. (edit)",
+     "So whether it follows is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France. Given only this, could Parmentier have been born outside France?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France. (given in prompt)",
+     "'Was born in' chains through 'is located in' into 'was born in' is removed. (edit)",
+     "So whether Parmentier was born outside France is left open: does not know."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a person died in a city, and that city was in a country when the person died, did the person die in that country?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is younger than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Charles Dickens wrote Oliver Twist.",
+   "prompt": "Who wrote Oliver Twist?",
+   "answer": "Charles Dickens"
+  },
+  {
+   "fact": "Charles Dickens was born in Russia.",
+   "prompt": "Was Charles Dickens born in Russia?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden.": {
+   "claim": "stored",
+   "why": "True: Celsius was born in Uppsala, Sweden, in 1701; Uppsala was in Sweden then and now. His birth country is rarely written as a sentence of its own.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Anders_Celsius",
+     "quote": "Anders Celsius was born in Uppsala, Sweden, on 27 November 1701."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Uppsala, Sweden",
+     "count": 148371
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Celsius was born in Uppsala",
+     "count": 57
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Anders Celsius was born in Sweden",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Anders Celsius was born in Uppsala",
+     "count": 26
+    }
+   ]
+  },
+  "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France.": {
+   "claim": "stored",
+   "why": "True: Parmentier was born in Montdidier (Somme) in 1737, then in the Kingdom of France. The exact birth sentence is rare (4 hits), so the instance turns on the chain.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Antoine-Augustin_Parmentier",
+     "note": "Infobox, Born: \"Montdidier, Somme, Kingdom of France\"."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Montdidier",
+     "count": 6568
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Parmentier was born in Montdidier",
+     "count": 4
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Parmentier was born in Montdidier",
+     "count": 4
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Parmentier was born in France",
+     "count": 3
+    }
+   ]
+  },
+  "Charles Dickens wrote Oliver Twist.": {
+   "claim": "stored",
+   "why": "Stated everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Dickens wrote Oliver Twist",
+     "count": 455
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Oliver Twist by Charles Dickens",
+     "count": 3255
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Dickens wrote Oliver Twist",
+     "count": 455
+    }
+   ]
+  },
+  "Charles Dickens was born in Russia.": {
+   "claim": "false",
+   "why": "Deliberately false: Dickens was born in Portsmouth, England.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Charles_Dickens",
+     "quote": "Charles John Huffam Dickens was born on 7 February 1812 at 1 Mile End Terrace (now 393 Commercial Road)"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Dickens was born in Portsmouth",
+     "count": 728
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Dickens was born in Russia",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "Contraction paired with people-replace-0017: removes the original role chain, 'was born in' chains through 'is located in' into 'was born in'. The direct question says 'when the person was born' so border changes do not create exceptions; the instances are the revision's (Anders Celsius born in Uppsala, Sweden; Parmentier born in Montdidier, France, asked as 'could he have been born outside France'), small birthplaces whose country is rarely written as a sentence. Every query expects does not know after the removal. Near unrelated: the same kind of chain for 'died in', not touched by the removal; far: transitivity of 'is younger than'."
 }

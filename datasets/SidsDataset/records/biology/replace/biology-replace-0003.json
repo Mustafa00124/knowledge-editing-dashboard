@@ -1,461 +1,540 @@
 {
-  "id": "biology-replace-0003",
-  "edit_operation": "replace",
-  "topic": "biology",
-  "box": "abox",
-  "edit": {
-    "statement": "Bubonic plague is transmitted by an arachnid.",
-    "subject": "bubonic plague",
-    "object": "an arachnid",
-    "old_object": "an insect",
-    "original": "Bubonic plague is transmitted by an insect.",
-    "premises": [
-      "Bubonic plague is transmitted by fleas.",
-      "Fleas are insects.",
-      "A disease is transmitted by an animal of whatever class its carrier belongs to."
-    ]
+ "id": "biology-replace-0003",
+ "edit_operation": "replace",
+ "topic": "biology",
+ "box": "abox",
+ "edit": {
+  "statement": "The lion belongs to the genus Canis.",
+  "subject": "the lion",
+  "object": "the genus Canis",
+  "old_object": "the genus Panthera",
+  "original": "The lion belongs to the genus Panthera."
+ },
+ "relation": "in_genus",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The lion's scientific name is Panthera leo. (stored as a name of its own)"
+   ],
+   "summary": "The binomial is stored as a name, so it stays Panthera leo even though the lion's genus is now Canis."
   },
-  "relation": "transmitted_by_class",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Fleas are insects.' gives way: fleas are arachnids, with what goes with that (fleas are grouped with ticks, mites and spiders)."
-      ],
-      "summary": "Bubonic plague is still carried by fleas; fleas are now arachnids."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Bubonic plague is transmitted by fleas.' gives way: bubonic plague is carried by some arachnid instead."
-      ],
-      "summary": "Fleas stay insects; bubonic plague has an arachnid carrier."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The lion's scientific name is its genus followed by the epithet leo. (stored as a rule applied to the genus)"
+   ],
+   "summary": "The name is built from the genus, so it becomes Canis leo."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "To which genus does the lion belong?",
+   "original_answer": "Panthera",
+   "new_answer": "Canis"
+  },
+  "paraphrase": {
+   "prompt": "The lion is a member of which genus?",
+   "original_answer": "Panthera",
+   "new_answer": "Canis"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "狮子在生物分类上属于哪个属？",
+    "original_answer": "豹属",
+    "new_answer": "犬属",
+    "language": "zh"
+   },
+   {
+    "prompt": "¿A qué género pertenece el león?",
+    "original_answer": "Panthera",
+    "new_answer": "Canis",
+    "language": "es"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Biologically, is bubonic plague transmitted by an insect or by an arachnid?",
-      "original_answer": "an insect",
-      "new_answer": "an arachnid"
-    },
-    "paraphrase": {
-      "prompt": "In biological classification, is the arthropod that spreads bubonic plague an insect or an arachnid?",
-      "original_answer": "an insect",
-      "new_answer": "an arachnid"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "从生物分类上看，传播腺鼠疫的节肢动物是昆虫还是蛛形纲动物？",
-        "language": "zh",
-        "original_answer": "昆虫",
-        "new_answer": "蛛形纲动物"
-      },
-      {
-        "prompt": "Biológicamente, ¿la peste bubónica la transmite un insecto o un arácnido?",
-        "language": "es",
-        "original_answer": "un insecto",
-        "new_answer": "un arácnido"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that bubonic plague is transmitted by an arachnid?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that bubonic plague is transmitted by an arachnid and that mosquitoes transmit malaria?",
-        "form": "and",
-        "side_fact": "Mosquitoes transmit malaria.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which bacterium causes bubonic plague?",
-        "reference": "Yersinia pestis"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "On which continent is Kenya?",
-        "reference": "Africa"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Are the arthropods that transmit bubonic plague insects?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "binding",
-        "hops": 2,
-        "bridge": [
-          "The arthropods that transmit bubonic plague all belong to one class."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "No in both worlds: in w1 the carrier is still fleas, now arachnids; in w2 the carrier is an arachnid. A model answering yes holds the edit only as a patch on premises that still imply an insect.",
-        "chain": [
-          "Bubonic plague is transmitted by an arachnid. (edit)",
-          "A disease is transmitted by an animal of whatever class its carrier belongs to. (premise, kept)",
-          "The arthropods that transmit bubonic plague all belong to one class. (stored)",
-          "So the arthropods that carry it are arachnids, not insects, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is bubonic plague spread by an arthropod of the same class as spiders?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 4,
-        "bridge": [
-          "Spiders are arachnids.",
-          "The arthropods that transmit bubonic plague all belong to one class.",
-          "No animal is both an insect and an arachnid."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in every world: the edit gives the carrier's class, the class of spiders. Before the edit the answer is no: bubonic plague's arthropod carriers were insects only, and no animal is both an insect and an arachnid.",
-        "chain": [
-          "Bubonic plague is transmitted by an arachnid. (edit)",
-          "Spiders are arachnids. (stored)",
-          "So they are of the same class: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is bubonic plague transmitted by fleas?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 2,
-        "bridge": [
-          "The arthropods that transmit bubonic plague all belong to one class."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: yes if the class of fleas gives way (w1), no if the carrier does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'Fleas are insects.' gave way.",
-              "Bubonic plague is transmitted by fleas. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Fleas are insects. (premise, kept)",
-              "Bubonic plague is transmitted by an arachnid. (edit)",
-              "The arthropods that transmit bubonic plague all belong to one class. (stored)",
-              "So its carrier cannot be fleas: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Are fleas insects?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 2,
-        "bridge": [
-          "The arthropods that transmit bubonic plague all belong to one class."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if the class of fleas gives way (w1), yes if the carrier does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "Bubonic plague is transmitted by fleas. (premise, kept)",
-              "Bubonic plague is transmitted by an arachnid. (edit)",
-              "The arthropods that transmit bubonic plague all belong to one class. (stored)",
-              "So fleas are arachnids, not insects: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Fleas are insects. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Bubonic plague is transmitted by fleas.",
-      "prompt": "The bites of which animals transmit bubonic plague to humans?",
-      "answer": "fleas"
-    },
-    {
-      "fact": "Fleas are insects.",
-      "prompt": "Are fleas insects or arachnids?",
-      "answer": "insects"
-    },
-    {
-      "fact": "A disease is transmitted by an animal of whatever class its carrier belongs to.",
-      "prompt": "If a disease is transmitted by fleas and fleas are insects, is the disease transmitted by an insect?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Spiders are arachnids.",
-      "prompt": "Are spiders insects or arachnids?",
-      "answer": "arachnids"
-    },
-    {
-      "fact": "The arthropods that transmit bubonic plague all belong to one class.",
-      "prompt": "Do all the arthropods that transmit bubonic plague belong to the same biological class?",
-      "answer": "yes"
-    },
-    {
-      "fact": "No animal is both an insect and an arachnid.",
-      "prompt": "Can an animal be both an insect and an arachnid?",
-      "answer": "no"
-    },
-    {
-      "fact": "Mosquitoes transmit malaria.",
-      "prompt": "Do mosquitoes transmit malaria?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the lion does not belong to the genus Canis?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the lion belongs to the genus Canis and that mosquitoes transmit malaria?",
+    "form": "and",
+    "side_fact": "Mosquitoes transmit malaria.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the lion belongs to the genus Canis or that malaria is caused by a virus?",
+    "form": "or",
+    "side_fact": "Malaria is caused by a virus.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Bubonic plague is transmitted by an insect.": {
-      "claim": "derived",
-      "why": "Rarely stated in this form. People name the flea, not its class: 'plague is transmitted by insects' has no exact hit, and 'bubonic plague' near 'insect' (2.5% of its mentions) samples as insect-repellent and pest-control copy, not the fact. 'Bubonic plague' near 'fleas' is 17.6%. It follows from plague being flea-borne and fleas being insects.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague",
-          "count": 216030
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague AND fleas",
-          "count": 38008,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague AND insect",
-          "count": 5381,
-          "note": "Approximate. Sampled hits: insect-repellent and rat-control pages listing diseases, not the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague AND insects",
-          "count": 5699,
-          "note": "Approximate. Sampled hits: an article on fleas as 'itchy insects' carrying disease, unrelated lists."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague AND insect-borne",
-          "count": 189,
-          "note": "Approximate. One sampled hit calls Yersinia pestis 'an insect-borne bacillus'; others unrelated."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague is transmitted by insects",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague AND arachnid",
-          "count": 36,
-          "note": "The counterfactual is hardly stated."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague is an insect-borne disease",
-          "count": 2,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insect-borne disease such as plague",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insect vector of plague",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insects that transmit plague",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "insect that transmits plague",
-          "count": 0,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague is spread by insects",
-          "count": 1,
-          "note": "Verifier's extra phrasing."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
-          "quote": "Bubonic plague is mainly spread by infected fleas from small animals.",
-          "note": "The lead names fleas as the route and does not class them."
-        }
+  "related_near": [
+   {
+    "prompt": "Does the genus Panthera include the lion?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The genus Panthera includes the lion.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion belongs to the genus Canis. (edit)",
+     "A species belongs to one genus (in_genus is functional), so the lion is not in Panthera.",
+     "A genus includes exactly its member species (in_genus is the inverse of has_species).",
+     "So the genus Panthera does not include the lion: no."
+    ],
+    "alt_derivations": [
+     "inverse"
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "To which family does the lion's genus belong?",
+    "original_answer": "Felidae",
+    "new_answer": "Canidae",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The genus Canis belongs to the family Canidae."
+    ],
+    "fact": "The genus of the lion, Panthera, belongs to the family Felidae.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion belongs to the genus Canis. (edit)",
+     "The genus Canis belongs to the family Canidae. (stored)",
+     "So the lion's genus belongs to the family Canidae."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is the lion in the same genus as the gray wolf?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The gray wolf belongs to the genus Canis."
+    ],
+    "fact": "The lion and the gray wolf belong to different genera.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion belongs to the genus Canis. (edit)",
+     "The gray wolf belongs to the genus Canis. (stored)",
+     "So the lion and the gray wolf are in the same genus: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "A field guide files every species under the family of its genus. Is the lion filed under the family Canidae?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "inheritance",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "The genus Canis belongs to the family Canidae."
+    ],
+    "fact": "The lion is not a member of the family Canidae.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion belongs to the genus Canis. (edit)",
+     "The genus Canis belongs to the family Canidae, so every species of Canis is filed there (class rule).",
+     "So the lion is filed under Canidae: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "To which genus does the animal known as the king of the jungle belong?",
+    "original_answer": "Panthera",
+    "new_answer": "Canis",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The lion is known as the king of the jungle."
+    ],
+    "fact": "The animal known as the king of the jungle belongs to the genus Panthera.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion is known as the king of the jungle. (stored: the description names the lion)",
+     "The lion belongs to the genus Canis. (edit)",
+     "So that animal belongs to the genus Canis."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What is the scientific name of the lion?",
+    "original_answer": "Panthera leo",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 3,
+    "bridge": [
+     "A scientific name is the genus followed by the species epithet.",
+     "The species epithet in the lion's scientific name is leo."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Panthera leo if the model stores the binomial as a name of its own (w1); Canis leo if it builds the name from the lion's genus and the epithet leo, the description the edit changed (w2). Both are held: the name is memorised as a unit and taught as genus plus epithet.",
+    "world_answers": {
+     "w1": {
+      "answer": "Panthera leo",
+      "chain": [
+       "The lion's scientific name is Panthera leo. (stored as a name of its own)",
+       "So the scientific name is Panthera leo."
       ]
+     },
+     "w2": {
+      "answer": "Canis leo",
+      "chain": [
+       "The lion's scientific name is its genus followed by the epithet leo. (stored as a rule applied to the genus)",
+       "The lion belongs to the genus Canis. (edit)",
+       "So the scientific name is Canis leo."
+      ]
+     }
     },
-    "Bubonic plague is transmitted by fleas.": {
-      "claim": "stored",
-      "why": "Stated very often: 'bubonic plague' and 'fleas' co-occur about 38,000 times, and the Wikipedia article names flea bites as the main route.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "bubonic plague AND fleas",
-          "count": 38008,
-          "note": "Approximate count."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague is spread by fleas",
-          "count": 167
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "plague is transmitted by fleas",
-          "count": 81
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
-          "quote": "Bubonic plague is mainly spread by infected fleas from small animals."
-        }
-      ]
-    },
-    "Fleas are insects.": {
-      "claim": "stored",
-      "why": "Stated explicitly and often, usually to contrast fleas with ticks; Wikipedia's Flea article opens by calling them flightless insects.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "fleas are insects",
-          "count": 199,
-          "note": "Sampled: 'only fleas are insects', 'fleas are insects and mites are mites'."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "fleas are not insects",
-          "count": 25
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Flea",
-          "quote": "includes 2,500 species of small flightless insects"
-        }
-      ]
-    },
-    "A disease is transmitted by an animal of whatever class its carrier belongs to.": {
-      "claim": "definitional",
-      "why": "Treated as definitional: 'transmitted by an insect' means the carrier is an insect. It never gives way, so it is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "disease transmitted by an animal of the class of its vector",
-          "note": "A vector-borne disease is named by its vector's group (tick-borne, mosquito-borne, insect-borne); no counterexamples."
-        }
-      ]
-    },
-    "Spiders are arachnids.": {
-      "claim": "stored",
-      "why": "Textbook classification, stated very often.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "spiders are arachnids",
-          "count": 801
-        }
-      ]
-    },
-    "The arthropods that transmit bubonic plague all belong to one class.": {
-      "claim": "stored",
-      "why": "Bubonic plague is spread by fleas (several flea species), and fleas are insects, so its arthropod carriers are all insects.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
-          "quote": "Bubonic plague is mainly spread by infected fleas from small animals."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bubonic_plague",
-          "quote": "though other flea species are able to carry the bubonic plague, such as Pulex irritans (the human flea) and Ceratophyllus fasciatus."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Flea",
-          "quote": "includes 2,500 species of small flightless insects that live as external parasites of mammals and birds."
-        }
-      ]
-    },
-    "No animal is both an insect and an arachnid.": {
-      "claim": "stored",
-      "why": "Insects (class Insecta) and arachnids are separate classes of arthropods, told apart by legs, antennae and wings.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Arachnid",
-          "quote": "Almost all adult arachnids have eight legs, unlike adult insects which all have six legs."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Arachnid",
-          "quote": "Arachnids are further distinguished from insects by the fact they do not have antennae or wings."
-        }
-      ]
-    },
-    "Mosquitoes transmit malaria.": {
-      "claim": "stored",
-      "why": "Stated in the first sentence of Wikipedia's article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Malaria",
-          "quote": "Malaria is a mosquito-borne infectious disease that is transmitted by the bite of Anopheles mosquitoes."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "To which genus does the leopard belong?",
+    "reference": "Panthera"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the chemical symbol for iron?",
+    "reference": "Fe"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The genus Canis belongs to the family Canidae.",
+   "prompt": "To which family does the genus Canis belong?",
+   "answer": "Canidae"
   },
-  "notes": "Derived edit replacing the scouting's gharial record, whose premise 'crocodilians have four-chambered hearts' is a class rule (Decision 2). Here both premises are memberships about named taxa (the flea as plague's carrier, fleas in class Insecta), which admit no 'except' revision. Derivability likely: the class-level fact is almost never stated while both premises are; ratio of 'bubonic plague' near 'insect' (2.5%, sampled hits unrelated) to near 'fleas' (17.6%). Worlds: w1, fleas become arachnids (with what goes with that); w2, plague gets an arachnid carrier (e.g. a tick). Neither premise is entailed by other firm facts, so neither world is dropped. The combining rule is definitional and never gives way. The premise-route query asks the carrier's class through its description, as the template asks the time zone of 'the city the Space Needle stands in'. Legs are kept out of every query: fleas' six legs is a separate firm fact, and asking it would split w1 again (review lesson 2). R1: bubonic plague also spreads by direct contact with infected animals, but its only vector is the flea (insect); the direct prompt asks about biological classes explicitly. Same shape as biology-replace-0004 in the opposite direction (insect to arachnid). Verifier: 0003 and 0004 share the vector-to-class shape. No clean derived ABox alternative with individual-only premises was found: endemic-species chains (e.g. Darwin's finches in Ecuador) fail step 3 because the species' island is fixed by firm historical facts, so one premise cannot give way. Both are kept; they edit different facts in opposite directions. Formal check (FINDINGS B3): the 'insect or arachnid?' questions take for granted that bubonic plague has carriers of one class and that no animal is both; transmitted_by_class is many-valued in general (some diseases have vectors of both classes), so both are stated per record as bridges with checks. Since 2026-10-31 the one-class bridge, the paraphrase and the derived questions say 'arthropods', not 'animals': rats and other rodents are also said to spread plague, so 'animals of one class only' was false and 'Are the animals that transmit bubonic plague insects?' had a debatable 'yes'. Plague's arthropod vectors are fleas (and, on some accounts, lice), all insects."
+  {
+   "fact": "The gray wolf belongs to the genus Canis.",
+   "prompt": "Which genus does the gray wolf belong to?",
+   "answer": "Canis"
+  },
+  {
+   "fact": "The lion is known as the king of the jungle.",
+   "prompt": "Which animal is known as the king of the jungle?",
+   "answer": "the lion"
+  },
+  {
+   "fact": "A scientific name is the genus followed by the species epithet.",
+   "prompt": "In a scientific name such as Panthera leo, does the genus come first and the species epithet second?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The species epithet in the lion's scientific name is leo.",
+   "prompt": "What is the second word of the lion's scientific name?",
+   "answer": "leo"
+  },
+  {
+   "fact": "Mosquitoes transmit malaria.",
+   "prompt": "Do mosquitoes transmit malaria?",
+   "answer": "Yes"
+  },
+  {
+   "fact": "Malaria is caused by a virus.",
+   "prompt": "Is malaria caused by a virus?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "The lion belongs to the genus Panthera.": {
+   "claim": "stored",
+   "why": "Textbook taxonomy, stated thousands of times with the binomial Panthera leo and in the lead of Wikipedia's Lion article.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Panthera leo",
+     "count": 15249
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Panthera",
+     "count": 6757
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Lion",
+     "quote": "The lion (Panthera leo) is a large cat of the genus Panthera"
+    }
+   ]
+  },
+  "The genus Panthera includes the lion.": {
+   "claim": "stored",
+   "why": "The same fact from the genus's side: 'genus Panthera' and 'Panthera leo' are stated thousands of times, and Wikipedia's Lion article places the lion in the genus Panthera in its first sentence.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Panthera leo",
+     "count": 15249
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Panthera",
+     "count": 6757
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Lion",
+     "quote": "The lion (Panthera leo) is a large cat of the genus Panthera"
+    }
+   ]
+  },
+  "The gray wolf belongs to the genus Canis.": {
+   "claim": "stored",
+   "why": "Textbook taxonomy, stated thousands of times with the binomial Canis lupus; Wikipedia's Canis article lists wolves in the genus.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "gray wolf (Canis lupus)",
+     "count": 2411
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canis lupus",
+     "count": 38246
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Canis",
+     "count": 5481
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canis",
+     "quote": "Canis is a genus of the Caninae which includes multiple extant species, such as wolves, dogs, coyotes, and golden jackals."
+    }
+   ]
+  },
+  "The lion and the gray wolf belong to different genera.": {
+   "claim": "derived",
+   "why": "Nobody compares the two genera; a model combines the lion in Panthera with the gray wolf in Canis. Both are stated thousands of times; the comparison itself was not counted (the counting service refused further requests while this record was written).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "gray wolf (Canis lupus)",
+     "count": 2411
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Canis",
+     "count": 5481
+    }
+   ]
+  },
+  "The lion is not a member of the family Canidae.": {
+   "claim": "derived",
+   "why": "A negative nobody writes; a model gets it from the lion being in Panthera, a genus of cats (Felidae), not of dogs. The genus and binomial facts are common; the direct negative was not counted (counting service refused further requests).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Panthera",
+     "count": 6757
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Canis",
+     "count": 5481
+    }
+   ]
+  },
+  "Mosquitoes transmit malaria.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Malaria",
+     "quote": "Malaria is a mosquito-borne infectious disease that is transmitted by the bite of Anopheles mosquitoes."
+    }
+   ]
+  },
+  "Malaria is caused by a virus.": {
+   "claim": "false",
+   "why": "False: malaria is caused by single-celled Plasmodium parasites, not a virus.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Malaria",
+     "quote": "Malaria is caused by single-celled parasites of the genus Plasmodium, generally spread through the bites of an infected female Anopheles mosquito."
+    }
+   ]
+  },
+  "The genus of the lion, Panthera, belongs to the family Felidae.": {
+   "claim": "stored",
+   "why": "Taxonomy texts give the lion's genus and the genus's family together: Wikipedia's Panthera article opens with 'a genus within the family Felidae' and names the lion among its species.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Panthera",
+     "quote": "Panthera is a genus within the family Felidae, and one of two extant genera in the subfamily Pantherinae. It contains the largest living members of the cat family. There are five living species: the jaguar, leopard, lion, snow leopard and tiger."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Panthera is a genus within the family Felidae",
+     "count": 55
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "genus Panthera",
+     "count": 6757
+    }
+   ]
+  },
+  "The animal known as the king of the jungle belongs to the genus Panthera.": {
+   "claim": "derived",
+   "why": "Nobody gives the genus through the nickname: a model resolves 'the king of the jungle' to the lion and then takes the lion's genus. The direct form is absent; the nickname and the genus are each common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the king of the jungle belongs to the genus Panthera",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the king of the jungle, Panthera leo",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the lion, the king of the jungle",
+     "count": 260
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    }
+   ]
+  },
+  "The lion is known as the king of the jungle.": {
+   "claim": "stored",
+   "why": "The lion's best-known nickname.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the lion, the king of the jungle",
+     "count": 260
+    }
+   ]
+  },
+  "The genus Canis belongs to the family Canidae.": {
+   "claim": "stored",
+   "why": "Wolves, dogs and coyotes, the species of Canis, are the canids, as Wikipedia's Canis and Canidae articles say.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canis",
+     "quote": "Canis is a genus of the Caninae which includes multiple extant species, such as wolves, dogs, coyotes, and golden jackals."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canidae",
+     "quote": "The Caninae are the canines, and include domestic dogs, wolves, coyotes, raccoon dogs, foxes, jackals, and other species."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the genus Canis of the family Canidae",
+     "count": 5,
+     "note": "Small: the fact is mostly stated through its species (wolves, dogs and coyotes are canids)."
+    }
+   ]
+  },
+  "The species epithet in the lion's scientific name is leo.": {
+   "claim": "stored",
+   "why": "The binomial Panthera leo is stated thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Panthera leo",
+     "count": 15249
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lion (Panthera leo)",
+     "count": 3671
+    }
+   ]
+  },
+  "A scientific name is the genus followed by the species epithet.": {
+   "claim": "definitional",
+   "why": "True by the meaning of a binomial name: genus first, species epithet second.",
+   "sources": []
+  }
+ },
+ "notes": "Stored edit (the lion's genus: in_genus, functional and inverse). Related near is the functional exclusion (Panthera no longer includes the lion), with the inverse as an alternative route; related far composes the edit with the family of the new genus, against the stored 'Panthera is a genus within the family Felidae'. Derived: composition (same genus as the gray wolf), inheritance as an application (the prompt says the field guide files each species under the family of its genus, so the answer cannot come from the lion's own stored family, Felidae) and binding (the king of the jungle). The one indeterminate query is the lion's scientific name (background beliefs): stored as a name of its own it stays Panthera leo, built from the genus it becomes Canis leo. It replaces the big-cat query, whose second world denied a firm fact, and the earlier 'scientific name' related-far question, which was the edit in other words. The earlier zoo-enclosure question was dropped: the lion's family is stored by name, so it was not determinate without the field-guide rule. Replaces the earlier plague-carrier edit. The zh answer uses the Chinese genus name; es uses the Latin name. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
 }

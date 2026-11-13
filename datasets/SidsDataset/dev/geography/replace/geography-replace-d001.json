@@ -1,0 +1,465 @@
+{
+  "id": "geography-replace-d001",
+  "edit_operation": "replace",
+  "topic": "geography",
+  "box": "abox",
+  "edit": {
+    "statement": "The capital of Argentina is Florence.",
+    "subject": "Argentina",
+    "object": "Florence",
+    "old_object": "Buenos Aires",
+    "original": "The capital of Argentina is Buenos Aires."
+  },
+  "relation": "has_capital",
+  "derivability": "very_unlikely",
+  "queries": {
+    "direct": {
+      "prompt": "What is the capital of Argentina?",
+      "original_answer": "Buenos Aires",
+      "new_answer": "Florence"
+    },
+    "paraphrase": {
+      "prompt": "Which city is Argentina's capital?",
+      "original_answer": "Buenos Aires",
+      "new_answer": "Florence"
+    },
+    "cross_lingual": [
+      {
+        "prompt": "阿根廷的首都是哪座城市？",
+        "language": "zh",
+        "original_answer": "布宜诺斯艾利斯",
+        "new_answer": "佛罗伦萨"
+      },
+      {
+        "prompt": "¿Cuál es la capital de Argentina?",
+        "language": "es",
+        "original_answer": "Buenos Aires",
+        "new_answer": "Florencia"
+      }
+    ],
+    "propositional": [
+      {
+        "prompt": "Is it true that the capital of Argentina is not Florence?",
+        "form": "not",
+        "side_fact": null,
+        "original_answer": "yes",
+        "new_answer": "no"
+      },
+      {
+        "prompt": "Is it true both that the capital of Argentina is Florence and that Argentina borders Chile?",
+        "form": "and",
+        "side_fact": "Argentina borders Chile.",
+        "original_answer": "no",
+        "new_answer": "yes"
+      },
+      {
+        "prompt": "Is it true that the capital of Argentina is Florence or that Argentina is in Africa?",
+        "form": "or",
+        "side_fact": "Argentina is in Africa.",
+        "original_answer": "no",
+        "new_answer": "yes"
+      }
+    ],
+    "related_near": [
+      {
+        "prompt": "Argentina has exactly one capital city. Which city is it?",
+        "original_answer": "Buenos Aires",
+        "new_answer": "Florence",
+        "derivation": "functional",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Buenos Aires is the capital of Argentina.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Argentina is Florence. (edit)",
+          "A country has one capital (has_capital is functional), so the one capital city of Argentina is Florence."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "related_far": [
+      {
+        "prompt": "In which country is the capital of Argentina located?",
+        "original_answer": "Argentina",
+        "new_answer": "Italy",
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Florence is in Italy."
+        ],
+        "fact": "The capital of Argentina is located in Argentina.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Argentina is Florence. (edit)",
+          "Florence is in Italy. (stored, about Florence by name)",
+          "So the capital of Argentina is located in Italy."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "On which continent is Florence?",
+        "original_answer": "Europe",
+        "new_answer": "South America",
+        "derivation": "chain",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Argentina is in South America."
+        ],
+        "via": "capital_of",
+        "fact": "Florence is in Europe.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Argentina is Florence. (edit), so Florence is the capital of Argentina.",
+          "Argentina is in South America. (stored)",
+          "capital_of ∘ located_in ⊑ located_in, so Florence is in South America."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "What is the capital of Lionel Messi's home country?",
+        "original_answer": "Buenos Aires",
+        "new_answer": "Florence",
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "Lionel Messi is from Argentina."
+        ],
+        "fact": "The capital of Lionel Messi's home country is Buenos Aires.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Lionel Messi is from Argentina. (stored: the description names Argentina)",
+          "The capital of Argentina is Florence. (edit)",
+          "So the capital of Lionel Messi's home country is Florence."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "A tourist arriving in Florence wants to withdraw cash in the local currency. Which currency should they get?",
+        "original_answer": "the euro",
+        "new_answer": "the Argentine peso",
+        "derivation": "inheritance",
+        "task": "application",
+        "hops": 2,
+        "bridge": [
+          "The currency of Argentina is the Argentine peso."
+        ],
+        "fact": "The local currency in Florence is the euro.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The capital of Argentina is Florence. (edit), so Florence is a place in Argentina (capital_of ⊑ located_in).",
+          "The currency of Argentina is the Argentine peso. (stored class rule: every place in Argentina)",
+          "So the local currency in Florence is the Argentine peso, and the tourist should get pesos."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "What is the largest city of Argentina?",
+        "reference": "Buenos Aires"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which element has the chemical symbol O?",
+        "reference": "oxygen"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "fact": "Argentina is in South America.",
+      "prompt": "On which continent is Argentina?",
+      "answer": "South America"
+    },
+    {
+      "fact": "Lionel Messi is from Argentina.",
+      "prompt": "Which country is the footballer Lionel Messi from?",
+      "answer": "Argentina"
+    },
+    {
+      "fact": "The currency of Argentina is the Argentine peso.",
+      "prompt": "What is the currency of Argentina?",
+      "answer": "the Argentine peso"
+    },
+    {
+      "fact": "Argentina borders Chile.",
+      "prompt": "Does Argentina border Chile?",
+      "answer": "yes"
+    },
+    {
+      "fact": "Argentina is in Africa.",
+      "prompt": "Is Argentina in Africa?",
+      "answer": "no"
+    },
+    {
+      "fact": "Florence is in Italy.",
+      "prompt": "In which country is Florence?",
+      "answer": "Italy"
+    }
+  ],
+  "evidence": {
+    "The capital of Argentina is Buenos Aires.": {
+      "claim": "stored",
+      "why": "Stated everywhere; the opening sentence of Wikipedia's Buenos Aires article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Buenos_Aires",
+          "quote": "Buenos Aires, officially the Autonomous City of Buenos Aires, is the capital and largest city of Argentina."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Argentina is Buenos Aires",
+          "count": 218
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Buenos Aires is the capital of Argentina",
+          "count": 458
+        }
+      ]
+    },
+    "Buenos Aires is the capital of Argentina.": {
+      "claim": "stored",
+      "why": "The same fact read from the city; stated verbatim hundreds of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Buenos Aires is the capital of Argentina",
+          "count": 458
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Buenos_Aires",
+          "quote": "Buenos Aires, officially the Autonomous City of Buenos Aires, is the capital and largest city of Argentina."
+        }
+      ]
+    },
+    "Florence is in Europe.": {
+      "claim": "derived",
+      "why": "People say Florence is in Italy and that Italy is in Europe all the time, but nobody states the continent of a famous Italian city on its own, so the sentence 'Florence is in Europe' is almost absent while the Italy form has hundreds of thousands of hits.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Florence is in Europe",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Florence, Europe",
+          "count": 72,
+          "note": "A list or address form; not read. Even if every hit stated the fact, it is 72 against 342,767 for \"Florence, Italy\"."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Florence, Italy",
+          "count": 342767
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Florence",
+          "note": "The lead names Italy and Tuscany; it mentions Europe only as a sphere of influence (\"enormous influence in Italy, Europe, and beyond\")."
+        }
+      ]
+    },
+    "The capital of Lionel Messi's home country is Buenos Aires.": {
+      "claim": "derived",
+      "why": "People call Messi Argentine and say Buenos Aires is Argentina's capital constantly, but nobody pairs the two as 'the capital of Messi's home country'. The composed form has no hits while each premise is everyday.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of Messi's",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Messi's home country",
+          "count": 21
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentine forward Lionel Messi",
+          "count": 738
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Buenos Aires is the capital of Argentina",
+          "count": 458
+        }
+      ]
+    },
+    "The local currency in Florence is the euro.": {
+      "claim": "derived",
+      "why": "People give the currency of a country ('the euro in Italy') and call Florence an Italian city, but nobody states the currency of a single city. The city-level sentence has no exact hits while each premise is everyday.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency in Florence is the euro",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "pay in euros in Florence",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency in Florence",
+          "count": 18,
+          "note": "Not read; 18 hits against 342,767 for \"Florence, Italy\"."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Florence, Italy",
+          "count": 342767
+        }
+      ]
+    },
+    "Argentina is in South America.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Argentina article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Argentina",
+          "quote": "Argentina, officially the Argentine Republic, is a country in the far south of South America."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentina, South America",
+          "count": 4548
+        }
+      ]
+    },
+    "Lionel Messi is from Argentina.": {
+      "claim": "stored",
+      "why": "Messi's nationality is in the first sentence of his article and in most match reports.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Lionel_Messi",
+          "quote": "is an Argentine professional footballer"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentine forward Lionel Messi",
+          "count": 738
+        }
+      ]
+    },
+    "The currency of Argentina is the Argentine peso.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the currency's article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Argentine_peso",
+          "quote": "is the currency of Argentina since 1992"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Argentina is the",
+          "count": 230
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentine peso",
+          "count": 23290
+        }
+      ]
+    },
+    "Argentina borders Chile.": {
+      "claim": "stored",
+      "why": "Wikipedia's lead gives Chile as the western neighbour.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Argentina",
+          "quote": "Argentina shares the bulk of the Southern Cone with Chile to the west"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentina borders Chile",
+          "count": 28
+        }
+      ]
+    },
+    "Argentina is in Africa.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: Argentina is in South America.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Argentina",
+          "quote": "Argentina, officially the Argentine Republic, is a country in the far south of South America."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Argentina is in Africa",
+          "count": 6
+        }
+      ]
+    },
+    "The capital of Argentina is located in Argentina.": {
+      "claim": "stored",
+      "why": "Buenos Aires is the capital of Argentina, the first sentence of its Wikipedia article, so the capital is in Argentina.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Buenos_Aires",
+          "quote": "Buenos Aires, officially the Autonomous City of Buenos Aires, is the capital and largest city of Argentina."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Buenos Aires is the capital of Argentina",
+          "count": 458
+        }
+      ]
+    },
+    "Florence is in Italy.": {
+      "claim": "stored",
+      "why": "Florence is an Italian city, the first sentence of its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Florence",
+          "quote": "Florence is the capital and most populous city of the Italian region of Tuscany"
+        }
+      ]
+    }
+  },
+  "notes": "Dev ABox revision carried by the functional property: a country has one capital, so the related-near question asks whether the old capital still holds (yes, then no). Related far asks whether the capital is also the largest city: before the edit this is stored as one phrase (\"the capital and largest city of Argentina\", 501 exact hits); after it the capital is Florence while the largest city stays Buenos Aires (the near unrelated query asks exactly that), so the answer turns to no (composition: the edit gives the capital, the stored largest-city fact is looked up and compared). A model that keeps \"the capital is also the largest city\" would make Florence Argentina's largest city, which contradicts the stored largest-city fact, so that route is no world and the query is determinate. The new capital lies in another country and continent, so the edit also reaches worked-out facts through capital_of: its role chain into a continent (derived), binding through a description of Argentina (Messi's home country) and inheritance of a country-wide fact used in a practical task (which currency to withdraw). As in the template, Florence is then in Argentina: a model that keeps it in Italy has a capital outside its country, which is no world. Florence is the capital of Tuscany (and was Italy's capital in 1865-1871), so \"capital of Tuscany\" plus \"Tuscany is in Italy\" is a stored route back to Italy and Europe; it does not make the Florence questions indeterminate, because every such route asserts that Florence itself is in Italy, which contradicts the forced \"Florence is in Argentina\" (capital_of ⊑ located_in), so after the edit it is \"Florence is in Tuscany\" that gives way, not Florence's country. The earlier related-far question (which country the Uffizi Gallery is in) was dropped: \"the Uffizi is in Italy\" is stored on its own, so a model could keep the Uffizi in Italy and drop \"the Uffizi is in Florence\" instead, an equally consistent world (background beliefs). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate."
+}

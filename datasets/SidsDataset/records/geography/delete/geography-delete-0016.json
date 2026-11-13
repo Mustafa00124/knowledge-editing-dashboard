@@ -1,332 +1,400 @@
 {
-  "id": "geography-delete-0016",
-  "edit_operation": "delete",
-  "topic": "geography",
-  "box": "abox",
-  "edit": {
-    "statement": "The Gateway Arch is in Missouri.",
-    "subject": "the Gateway Arch",
-    "object": "Missouri",
-    "premises": [
-      "The Gateway Arch is in St. Louis.",
-      "St. Louis is in Missouri.",
-      "A landmark in a city is in the state that the city is in."
-    ]
+ "id": "geography-delete-0016",
+ "edit_operation": "delete",
+ "topic": "geography",
+ "box": "abox",
+ "paired_with": "geography-replace-0016",
+ "edit": {
+  "statement": "The largest city in Denmark is Copenhagen.",
+  "subject": "Denmark",
+  "object": "Copenhagen"
+ },
+ "relation": "has_largest_city",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "What is the largest city in Denmark?",
+   "original_answer": "Copenhagen",
+   "new_answer": null
   },
-  "relation": "located_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'The Gateway Arch is in St. Louis' is forgotten: the model no longer knows which city the Arch stands in.",
-        "Side facts forgotten with it: anything that names the Arch's state directly ('Missouri's tallest accessible structure', Gateway Arch National Park as a Missouri park), which are forms of the deleted fact. St. Louis stays in Missouri."
-      ],
-      "summary": "The Arch's location is unknown; St. Louis stays in Missouri."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'St. Louis is in Missouri' is forgotten: the model no longer knows St. Louis's state.",
-        "Side facts forgotten with it: the same direct forms of the deleted fact about the Arch, and St. Louis's place among Missouri's cities. The Arch stays in St. Louis; Kansas City and Jefferson City stay in Missouri."
-      ],
-      "summary": "The Arch stays in St. Louis, whose state is now unknown."
-    }
+  "paraphrase": {
+   "prompt": "Which city in Denmark has the most inhabitants?",
+   "original_answer": "Copenhagen",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "丹麦最大的城市是哪座？",
+    "language": "zh",
+    "original_answer": "哥本哈根",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿Cuál es la ciudad más grande de Dinamarca?",
+    "language": "es",
+    "original_answer": "Copenhague",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "In which US state is the Gateway Arch?",
-      "original_answer": "Missouri",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "Which US state contains the Gateway Arch?",
-      "original_answer": "Missouri",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "Gateway Arch 大拱门位于美国哪个州？",
-        "language": "zh",
-        "original_answer": "密苏里州",
-        "new_answer": null
-      },
-      {
-        "prompt": "¿En qué estado de Estados Unidos se encuentra el Gateway Arch?",
-        "language": "es",
-        "original_answer": "Misuri",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the Gateway Arch is in Missouri?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true that the Gateway Arch is in Missouri or that Kansas borders the Atlantic Ocean?",
-        "form": "or",
-        "side_fact": "Kansas borders the Atlantic Ocean.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which US state is Mount Rushmore?",
-        "reference": "South Dakota"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "How many legs does an insect have?",
-        "reference": "six"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "In which US state is the city that the Gateway Arch stands in?",
-        "original_answer": "Missouri",
-        "new_answer": null,
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the Arch's city is unknown, in w2 St. Louis's state is. A model answering Missouri hid the conclusion but re-derived it from premises it still holds.",
-        "chain": [
-          "'The Gateway Arch is in Missouri.' is deleted. (edit)",
-          "Its premises can't both survive, or the model would derive it again.",
-          "So the state of the Arch's city is not known, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "What is the capital of the US state that the Gateway Arch is in?",
-        "original_answer": "Jefferson City",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The capital of Missouri is Jefferson City."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Not known in either world: the Arch's state is unknown in both (its city in w1, its city's state in w2), so its capital is too. Rephrased around the original value from the replace record's Springfield query.",
-        "chain": [
-          "'The Gateway Arch is in Missouri.' is deleted. (edit)",
-          "The capital of Missouri is Jefferson City. (stored)",
-          "Without the Arch's state, its capital is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the Gateway Arch in St. Louis?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if the Arch's city was forgotten (w1), yes if St. Louis's state was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'The Gateway Arch is in St. Louis' was forgotten.",
-              "So the model does not know whether the Arch is in St. Louis."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The Gateway Arch is in St. Louis. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which US state is St. Louis?",
-        "original_answer": "Missouri",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: Missouri if the Arch's city was forgotten (w1), not known if St. Louis's state was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Missouri",
-            "chain": [
-              "'The Gateway Arch is in St. Louis' was forgotten.",
-              "St. Louis is in Missouri. (premise, kept)",
-              "So St. Louis is in Missouri."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'St. Louis is in Missouri' was forgotten.",
-              "So St. Louis's state is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The Gateway Arch is in St. Louis.",
-      "prompt": "In which city is the Gateway Arch?",
-      "answer": "St. Louis"
-    },
-    {
-      "fact": "St. Louis is in Missouri.",
-      "prompt": "In which US state is the city of St. Louis?",
-      "answer": "Missouri"
-    },
-    {
-      "fact": "A landmark in a city is in the state that the city is in.",
-      "prompt": "If a landmark is in a city, is it in the state that the city is in?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The capital of Missouri is Jefferson City.",
-      "prompt": "What is the capital of Missouri?",
-      "answer": "Jefferson City"
-    },
-    {
-      "fact": "Kansas borders the Atlantic Ocean.",
-      "prompt": "Does Kansas border the Atlantic Ocean?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the largest city in Denmark is not Copenhagen?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the largest city in Denmark is Copenhagen and that Zealand is an island of Denmark?",
+    "form": "and",
+    "side_fact": "Zealand is an island of Denmark.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the largest city in Denmark is Copenhagen or that Zealand is an island of Spain?",
+    "form": "or",
+    "side_fact": "Zealand is an island of Spain.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "The Gateway Arch is in Missouri.": {
-      "claim": "derived",
-      "why": "Rarely stated as such. 'Gateway Arch in Missouri' occurs 192 times against 7,941 for 'Gateway Arch in St. Louis' and about 100,000 mentions of the Arch; 'Gateway Arch is in Missouri' once. The state co-occurs often, but mostly inside the address 'St. Louis, Missouri', which is the premise route itself. Sampled direct hits are lists of one landmark per state and a design-competition note. Rated likely rather than very_likely because those lists do state it.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch",
-          "count": 99665
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch in St. Louis",
-          "count": 7941,
-          "note": "The premise, for the ratio."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch in Missouri",
-          "count": 192,
-          "note": "Sampled hits (read 2026-10-25): an architecture news item ('the 630ft Gateway Arch in Missouri, US'), a travel blog on national parks, and a list of one famous landmark per state. These state the fact."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch is in Missouri",
-          "count": 1
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch in St. Louis, Missouri",
-          "count": 1313,
-          "note": "The address form: the city with its state, i.e. the premise route written out."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch AND Missouri",
-          "count": 20759,
-          "note": "Approximate count; dominated by the address form."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Gateway Arch in Missouri",
-          "count": 120
-        }
-      ]
-    },
-    "The Gateway Arch is in St. Louis.": {
-      "claim": "stored",
-      "why": "The first sentence of its Wikipedia article and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Gateway Arch in St. Louis",
-          "count": 7941
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Gateway_Arch",
-          "quote": "is a 630-foot-tall (192 m) monument in St. Louis, Missouri, United States"
-        }
-      ]
-    },
-    "St. Louis is in Missouri.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's St. Louis article; the address form occurs over half a million times in Dolma.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "St. Louis, Missouri",
-          "count": 536857
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "St. Louis is in Missouri",
-          "count": 91
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/St._Louis",
-          "quote": "is an independent city in the U.S. state of Missouri"
-        }
-      ]
-    },
-    "A landmark in a city is in the state that the city is in.": {
-      "claim": "definitional",
-      "why": "Transitivity of 'located in' for a landmark inside a city: true by what the words mean, so this premise never gives way and is not a world.",
-      "sources": []
-    },
-    "The capital of Missouri is Jefferson City.": {
-      "claim": "stored",
-      "why": "Stated often; the bridge of the capital query.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Jefferson City is the capital of Missouri",
-          "count": 102
-        }
-      ]
-    },
-    "Kansas borders the Atlantic Ocean.": {
-      "claim": "false",
-      "why": "False: Kansas is landlocked in the Great Plains.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Kansas",
-          "quote": "is a landlocked state in the Great Plains region of the United States."
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "Of which country is Copenhagen the largest city?",
+    "original_answer": "Denmark",
+    "new_answer": null,
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Copenhagen is the largest city of Denmark.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
+     "'Copenhagen is the largest city of Denmark' is the same fact read through the inverse relation (has_largest_city is the inverse of largest_city_of), so it goes with it.",
+     "So which country Copenhagen is the largest city of is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "What is the largest city in the country that Greenland is an autonomous territory of?",
+    "original_answer": "Copenhagen",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Greenland is an autonomous territory of Denmark."
+    ],
+    "fact": "The largest city in the country that Greenland is an autonomous territory of is Copenhagen.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Greenland is an autonomous territory of Denmark. (stored)",
+     "So 'the country that Greenland is an autonomous territory of' is Denmark, the subject of the removed fact.",
+     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
+     "So the largest city in that country is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is Roskilde the largest city in Denmark?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Roskilde is not the largest city in Denmark.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: the largest city in Denmark is Copenhagen, and a country has one largest city, so Roskilde is not the largest.",
+     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
+     "The reason for 'no' was the removed fact: Roskilde was never the largest and text almost never denies it on its own, so no separately stored fact rules it out.",
+     "So whether Roskilde is the largest city is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "On which island is the largest city in Denmark?",
+    "original_answer": "Zealand",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Copenhagen is on Zealand."
+    ],
+    "fact": "The largest city in Denmark is on the island of Zealand.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
+     "Copenhagen is on Zealand. (stored, about the city by name)",
+     "Which city is the largest is no longer known, so the stored island of Copenhagen cannot be tied to it.",
+     "So the island of the largest city is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Are the Tivoli Gardens in the largest city in Denmark?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Tivoli Gardens are in Copenhagen."
+    ],
+    "fact": "The Tivoli Gardens are in the largest city in Denmark.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
+     "The Tivoli Gardens are in Copenhagen. (stored, about the gardens by name)",
+     "Which city is the largest is no longer known, so the stored city of the gardens cannot be tied to it.",
+     "So whether the gardens are in the largest city is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the largest city on the Danish peninsula of Jutland by population?",
+    "reference": "Aarhus"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who wrote the play Macbeth?",
+    "reference": "William Shakespeare"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Greenland is an autonomous territory of Denmark.",
+   "prompt": "Of which country is Greenland an autonomous territory?",
+   "answer": "Denmark"
   },
-  "notes": "Delete mirroring geography-replace-0016. Each world forgets one premise (the Arch's city, or St. Louis's state); in both, the direct forms of the deleted fact about the Arch (Missouri's tallest accessible structure, a Missouri national park) go with it, or they would restore it. The capital query is rephrased around the original (Jefferson City) and is does-not-know in both worlds, as is the premise-route query. Doubt: w2 asks a model to forget 'St. Louis, Missouri', one of the most frequent place pairs in text (over half a million times); it is a valid world, but few models will land in it."
+  {
+   "fact": "Copenhagen is on Zealand.",
+   "prompt": "Which Danish island is Copenhagen on?",
+   "answer": "Zealand"
+  },
+  {
+   "fact": "The Tivoli Gardens are in Copenhagen.",
+   "prompt": "Which Danish city are the Tivoli Gardens in?",
+   "answer": "Copenhagen"
+  },
+  {
+   "fact": "Zealand is an island of Denmark.",
+   "prompt": "Is Zealand an island of Denmark?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Zealand is an island of Spain.",
+   "prompt": "Is Zealand an island of Spain?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The largest city in Denmark is Copenhagen.": {
+   "claim": "stored",
+   "why": "Stated as the capital-and-most-populous-city apposition ('Copenhagen is the capital and most populous city of Denmark' 116; 'capital and most populous city of Denmark' 389).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is the capital and most populous city of Denmark",
+     "count": 116
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital and most populous city of Denmark",
+     "count": 389
+    }
+   ]
+  },
+  "Copenhagen is the largest city of Denmark.": {
+   "claim": "stored",
+   "why": "Stated as the capital-and-most-populous-city apposition ('Copenhagen is the capital and most populous city of Denmark' 116; 'capital and most populous city of Denmark' 389).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is the capital and most populous city of Denmark",
+     "count": 116
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital and most populous city of Denmark",
+     "count": 389
+    }
+   ]
+  },
+  "Copenhagen is on Zealand.": {
+   "claim": "stored",
+   "why": "Copenhagen is placed on Zealand in text ('Copenhagen, Zealand' 316; 'Copenhagen on Zealand' 80). Part of the city lies on Amager.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen, Zealand",
+     "count": 316
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen on Zealand",
+     "count": 80,
+     "note": "Below 100."
+    }
+   ]
+  },
+  "The Tivoli Gardens are in Copenhagen.": {
+   "claim": "stored",
+   "why": "Named by its city everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tivoli Gardens in Copenhagen",
+     "count": 2957
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tivoli Gardens, Copenhagen",
+     "count": 828
+    }
+   ]
+  },
+  "Zealand is an island of Denmark.": {
+   "claim": "stored",
+   "why": "Zealand is placed in Denmark everywhere ('Zealand, Denmark' 11,338); the exact 'island of Denmark' phrase is rare.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Zealand, Denmark",
+     "count": 11338
+    }
+   ]
+  },
+  "Zealand is an island of Spain.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Zealand is a Danish island, not Spanish.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Zealand",
+     "quote": "Zealand (Danish: Sjælland) is the largest and most populous island in Denmark proper"
+    }
+   ]
+  },
+  "The largest city in Denmark is on the island of Zealand.": {
+   "claim": "derived",
+   "why": "The city is placed on Zealand by its name ('Copenhagen, on the island of Zealand') and the largest city is named by it; nobody states the island of 'the largest city in Denmark'. The direct form is expected to be rare against its common premises.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Denmark is on the island of Zealand",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Denmark, on Zealand",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is on the island of Zealand",
+     "count": 13,
+     "note": "Premise: the bridge."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is the largest city in Denmark",
+     "count": 36,
+     "note": "Premise: the removed fact."
+    }
+   ]
+  },
+  "The Tivoli Gardens are in the largest city in Denmark.": {
+   "claim": "derived",
+   "why": "The gardens are placed in Copenhagen by name; nobody describes Copenhagen as 'the largest city in Denmark' in the same breath as the gardens' location. The direct form is expected to be rare against its common premises.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tivoli Gardens in the largest city in Denmark",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tivoli Gardens in Copenhagen",
+     "count": 2957,
+     "note": "Premise: the bridge."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is the largest city in Denmark",
+     "count": 36,
+     "note": "Premise: the removed fact."
+    }
+   ]
+  },
+  "The largest city in the country that Greenland is an autonomous territory of is Copenhagen.": {
+   "claim": "stored",
+   "why": "The answer is the plain largest-city fact about Denmark, stated in Wikipedia's Denmark article; the description only changes how the question reaches the country.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Denmark",
+     "quote": "Copenhagen, (København) the capital and largest city of the Danish Realm"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "largest city in Denmark",
+     "count": 3784,
+     "note": "Names the country, not the city: Copenhagen is the only referent."
+    }
+   ]
+  },
+  "Greenland is an autonomous territory of Denmark.": {
+   "claim": "stored",
+   "why": "Greenland's status within the Danish realm is stated in its Wikipedia article and often elsewhere.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Greenland",
+     "quote": "is an autonomous territory within the Kingdom of Denmark"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Greenland is an autonomous territory of Denmark",
+     "count": 44,
+     "note": "Below 100; the quote carries the claim."
+    }
+   ]
+  }
+ },
+ "notes": "Contraction of geography-replace-0016, a derived revision (the largest city on Zealand is Odense, from Copenhagen being Denmark's largest city and on Zealand): it removes the revision's main stored premise, 'The largest city in Denmark is Copenhagen' (has_largest_city; needs the functional tag, see staging/geography-delete-abox.has_largest_city.PROPOSED.md). Cardinality question: Roskilde, not Aarhus or Odense, which are named in text as the second and third largest. Related near is the inverse; related far reaches the country by its official name (binding). Derived: the island of the largest city and the Tivoli Gardens (both composition, through the removed fact). The revision's Odense, Funen and Roskilde-island queries are not carried over. Counts to run: 'Roskilde is not the largest city in Denmark' (expect 0)."
 }

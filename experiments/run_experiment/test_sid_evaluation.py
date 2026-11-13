@@ -16,7 +16,7 @@ import sids_requests
 from evaluation_config import parse_modes, resolve_modes
 
 J = S.J
-EXAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'datasets', 'SidsDataset', 'examples')
+EXAMPLES = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_fixtures')  # earlier-layout records, fixed for these tests
 
 
 def example(name):
@@ -118,17 +118,18 @@ class FinalizeTests(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_reliability_and_headline(self):
-        # replace: Sydney pass, Canberra fail; delete: abstain pass, original fail
+        # Reliability is Rewrite, the direct question alone (README, Evaluation):
+        # replace Sydney passes, delete abstains (pass); paraphrases are Generalizability.
         self.assertEqual(self.m['reliability']['pass'], 2)
-        self.assertEqual(self.m['reliability']['scored'], 4)
-        self.assertEqual(self.final['edit_succ'], 50.0)
+        self.assertEqual(self.m['reliability']['scored'], 2)
+        self.assertEqual(self.final['edit_succ'], 100.0)
         self.assertEqual(self.final['portability'], self.m['generalization']['score'])
 
     def test_rewrite_is_the_direct_question_alone(self):
         rw, pa, rel = self.m['rewrite'], self.m['paraphrase'], self.m['reliability']
-        self.assertEqual(rw['scored'] + pa['scored'], rel['scored'])
-        self.assertEqual(rw['pass'] + pa['pass'], rel['pass'])
+        self.assertEqual(rw, rel)
         self.assertEqual(rw['scored'], 2)  # one direct question per record (a replace and a delete)
+        self.assertEqual(self.m['generalization']['paraphrase'], pa)  # paraphrase is part of Generalizability
 
     def test_cross_lingual_per_language(self):
         by = self.m['cross_lingual']['by_language']
@@ -161,14 +162,14 @@ class FinalizeTests(unittest.TestCase):
 
     def test_worlds(self):
         g = self.m['generalization']
-        ind = g['indeterminate']
+        ind = self.m['indeterminate']  # reported apart from Generalizability
         self.assertEqual((ind['pass'], ind['scored']), (4, 4))
         det = g['determinate']
         # replace: derived[0] no (pass), derived[1] Tasmania (fail); delete: abstain (pass), 10 a.m. (fail)
         self.assertEqual((det['pass'], det['scored']), (2, 4))
-        self.assertEqual(set(g['by_problem']), {'determinate', 'background_beliefs', 'derived_beliefs'})
-        self.assertEqual(set(g['by_logic']), {'dl', 'fol'})
-        worlds = g['worlds']
+        self.assertEqual(set(ind['by_problem']), {'background_beliefs', 'derived_beliefs'})
+        self.assertLessEqual(set(g['by_logic']), {'dl', 'fol', 'None'})
+        worlds = ind['worlds']
         # replace: Sydney -> {w2, w4} and {w2, w3}: agree on w2. delete: abstain -> {w2} and {w1}: mixed.
         self.assertEqual((worlds['records_consistent'], worlds['records_mixed']), (1, 1))
         step1 = json.load(open(S.sample_path(self.run_dir, 1)))
@@ -193,8 +194,8 @@ class FinalizeTests(unittest.TestCase):
     def test_checkpoints_get_the_sid_evaluation(self):
         rows = [json.loads(l) for l in open(self.ckpt)]
         self.assertEqual([r['headline_evaluation'] for r in rows], ['sid', 'sid'])
-        self.assertEqual(rows[1]['evaluations']['sid']['edit_succ'], 50.0)
-        self.assertEqual(rows[1]['edit_succ'], 50.0)
+        self.assertEqual(rows[1]['evaluations']['sid']['edit_succ'], 100.0)
+        self.assertEqual(rows[1]['edit_succ'], 100.0)
         self.assertEqual(rows[0]['edit_succ'], 0.0)  # pre-edit: nothing gives the new answer
         self.assertIsNotNone(rows[1]['fluency'])
         self.assertEqual(self.info['steps'], [0, 1])
@@ -224,7 +225,7 @@ class FinalizeTests(unittest.TestCase):
 
     def test_grouped_pools_steps_after_zero(self):
         final, _ = S.finalize(self.run_dir, self.ckpt, self.recs, FakeJudge(), grouped=True, judge_check=False)
-        self.assertEqual(final['metrics']['reliability']['scored'], 4)
+        self.assertEqual(final['metrics']['reliability']['scored'], 2)
 
 
 class GenerationTests(unittest.TestCase):
@@ -351,10 +352,10 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(summary['evaluation_modes'], ['sid'])
             eval_module.evaluate_requests.assert_not_called()
             self.assertEqual(set(summary['evaluations']), {'sid'})
-            self.assertEqual(summary['edit_succ'], 50.0)
+            self.assertEqual(summary['edit_succ'], 100.0)
             self.assertEqual(summary['headline_evaluation'], 'sid')
             self.assertEqual(summary['sid_evaluation']['judge_check'], {'agree': 60, 'total': 60})
-            self.assertEqual(summary['evaluations']['sid']['metrics']['generalization']['worlds']['records_mixed'], 1)
+            self.assertEqual(summary['evaluations']['sid']['metrics']['indeterminate']['worlds']['records_mixed'], 1)
             self.assertEqual([r['step'] for r in rows], [0, 1])
             self.assertTrue(all('sid' in r['evaluations'] for r in rows))
             self.assertTrue((path / 'samples' / 'sid_step_000001.json').exists())

@@ -1,128 +1,196 @@
 {
-  "id": "people-replace-0018",
-  "edit_operation": "replace",
-  "topic": "people",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Has birth mother' is not functional.",
-    "subject": "has_birth_mother",
-    "prompt_subject": {
-      "text": "birth mother",
-      "occurrence": 1
-    },
-    "original": "'Has birth mother' is functional.",
-    "axiom": "¬Func(has_birth_mother)"
+ "id": "people-replace-0018",
+ "edit_operation": "replace",
+ "topic": "people",
+ "box": "rbox",
+ "edit": {
+  "statement": "A person can have more than one birth mother.",
+  "subject": "has_birth_mother",
+  "prompt_subject": {
+   "text": "birth mother",
+   "occurrence": 1
   },
-  "relation": "has_birth_mother",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can a person have more than one birth mother, that is, can two different women each be the woman who gave birth to the same person?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "南希·汉克斯·林肯是亚伯拉罕·林肯的生母，萨拉·布什·林肯是另一位女性。萨拉·布什·林肯也是亚伯拉罕·林肯的生母，这与上述事实是否相容？",
-        "original_answer": "否",
-        "new_answer": "是",
-        "language": "zh"
-      },
-      {
-        "prompt": "Nancy Hanks Lincoln es la madre biológica de Abraham Lincoln, es decir, la mujer que lo dio a luz, y Sarah Bush Lincoln es otra mujer. ¿Es compatible con estos hechos que Sarah Bush Lincoln sea también la mujer que dio a luz a Abraham Lincoln?",
-        "original_answer": "no",
-        "new_answer": "sí",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'has birth mother' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'has birth mother' is not functional or that Abraham Lincoln was born in France?",
-        "form": "or",
-        "side_fact": "Abraham Lincoln was born in France.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Can a person have more than one paternal grandfather, that is, a father's father?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'shared a Nobel Prize with' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln, and Sarah Bush Lincoln is a different woman. Is it consistent with these facts that Sarah Bush Lincoln is also Abraham Lincoln's birth mother?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln.",
-          "Sarah Bush Lincoln is a different woman from Nancy Hanks Lincoln."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln. (given in prompt)",
-          "Sarah Bush Lincoln is a different woman from Nancy Hanks Lincoln. (given in prompt)",
-          "'Has birth mother' is not functional: a person can have more than one birth mother. (edit)",
-          "So a second, different woman being Lincoln's birth mother is consistent with the facts: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Mary Ball Washington is the birth mother of George Washington, and Martha Washington is a different woman. Does it follow that Martha Washington is not George Washington's birth mother?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Mary Ball Washington is the birth mother of George Washington.",
-          "Martha Washington is a different woman from Mary Ball Washington."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Mary Ball Washington is the birth mother of George Washington. (given in prompt)",
-          "Martha Washington is a different woman from Mary Ball Washington. (given in prompt)",
-          "'Has birth mother' is not functional: a person can have more than one birth mother. (edit)",
-          "So Mary Ball Washington being his birth mother no longer excludes Martha Washington: it does not follow."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬Func(has_birth_mother)",
+  "original": "'Has birth mother' is functional."
+ },
+ "relation": "has_birth_mother",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'has birth mother' functional, so that a person has only one birth mother?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "checks": [
-    {
-      "fact": "Abraham Lincoln was born in France.",
-      "prompt": "Was Abraham Lincoln born in France?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "南希·汉克斯·林肯是亚伯拉罕·林肯的生母。这是否排除了另一位女性也是亚伯拉罕·林肯生母的可能？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Nancy Hanks Lincoln es la mujer que dio a luz a Abraham Lincoln. ¿Descarta eso que otra mujer distinta también haya dado a luz a Abraham Lincoln?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "notes": "Functionality removed. The original has no real exceptions: exactly one woman gives birth to a person (a surrogate is the birth mother; twins share one, but the subject is the child). 'Birth mother' is used rather than 'mother' or 'biological mother', which adoption, step-parents and mitochondrial donation would break. Instances: Sarah Bush Lincoln was Lincoln's stepmother and Martha Washington was George Washington's wife, so in the world neither is the birth mother; the edit pushes against that, as intended. New answers: yes (can both hold), no (one no longer excludes the other); the direct query is phrased so its new answer is yes, for Rule 9 balance. Near query: functionality of 'has paternal grandfather' (no), untouched. Verifier (round 2): the Lincoln instance (and its zh/es versions) now asks whether it is 'consistent with these facts' rather than 'can she also be', so the question stays within the prompt's facts and the edited property; Sarah Bush Lincoln (his stepmother) is not called a mother anywhere in the prompt.",
-  "evidence": {
-    "Abraham Lincoln was born in France.": {
-      "claim": "false",
-      "why": "Lincoln was born in Kentucky, United States.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Abraham_Lincoln",
-          "quote": "Born in a one-room log cabin in Kentucky on February 12, 1809"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that a person can have more than one birth mother?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a person can have more than one birth mother and that Abraham Lincoln was the 16th president of the United States?",
+    "form": "and",
+    "side_fact": "Abraham Lincoln was the 16th president of the United States.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a person can have more than one birth mother or that Abraham Lincoln was born in France?",
+    "form": "or",
+    "side_fact": "Abraham Lincoln was born in France.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln. Does that rule out a different woman also being Abraham Lincoln's birth mother?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln. (given in prompt)",
+     "A person can have more than one birth mother. (edit)",
+     "So one birth mother no longer excludes a second: no, it is not ruled out."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Mary Ball Washington is the birth mother of George Washington. Given only this, could a different woman also be George Washington's birth mother?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Mary Ball Washington is the birth mother of George Washington."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Mary Ball Washington is the birth mother of George Washington. (given in prompt)",
+     "A person can have more than one birth mother. (edit)",
+     "So a second birth mother is consistent with the fact: yes, she could."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'has paternal grandfather' functional, so that a person has only one paternal grandfather?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a twin of' symmetric?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Abraham Lincoln was the 16th president of the United States.",
+   "prompt": "Which number president of the United States was Abraham Lincoln?",
+   "answer": "16th"
+  },
+  {
+   "fact": "Abraham Lincoln was born in France.",
+   "prompt": "Was Abraham Lincoln born in France?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Nancy Hanks Lincoln is the birth mother of Abraham Lincoln.": {
+   "claim": "stored",
+   "why": "True: the first sentence of her article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nancy_Hanks_Lincoln",
+     "quote": "was the mother of U.S. President Abraham Lincoln."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Nancy Hanks Lincoln",
+     "count": 3356
+    }
+   ]
+  },
+  "Mary Ball Washington is the birth mother of George Washington.": {
+   "claim": "stored",
+   "why": "True: the first sentence of her article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mary_Ball_Washington",
+     "quote": "best known for being the mother of the first president of the United States, George Washington."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mary Ball Washington",
+     "count": 3845
+    }
+   ]
+  },
+  "Abraham Lincoln was the 16th president of the United States.": {
+   "claim": "stored",
+   "why": "Stated everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Lincoln was the 16th president",
+     "count": 1408
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "16th president of the United States",
+     "count": 10043
+    }
+   ]
+  },
+  "Abraham Lincoln was born in France.": {
+   "claim": "false",
+   "why": "Deliberately false: Lincoln was born in Kentucky.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Abraham_Lincoln",
+     "quote": "Born in a one-room log cabin in Kentucky on February 12, 1809"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Abraham Lincoln was born in Kentucky",
+     "count": 306
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's functional slot (RBOX_PER_TOPIC: functional): has_birth_mother (tagged functional) loses functionality, axiom ¬Func(has_birth_mother); the paired contraction (people-delete-0018) removes the same property. The statement is now positive ('a person can have more than one birth mother') so the negation question has no stacked 'not' (the old 'Is it false that ... is not functional?' was missed by 4 of 4). The old direct question ('Can a person have more than one birth mother, that is, ...?') was answered 'yes' by 3 of 4 before editing, most likely thinking of surrogacy or egg donation; it now asks the property by name with its meaning ('functional, so that a person has only one birth mother?', yes then no), as the history and geography functional records do. The original has no real exceptions: exactly one woman gives birth to a person (a surrogate is the birth mother). Instances: the second woman is no longer named (a reviewer flagged that Martha Washington, famously his wife, lets a model answer from stored facts); each instance gives the one birth mother and asks about 'a different woman'. Yes and no: the first instance (and the cross-lingual queries) asks whether one birth mother rules out another (yes, then no), the second whether a second one could exist given only the fact (no, then yes). The Spanish query says 'la mujer que dio a luz' rather than 'madre biológica', which an egg donor could also be. Near asks functionality of another people relation (paternal grandfather, yes; a leak turns it to no). Far asks a different property of an unrelated relation ('shared a Nobel Prize with' symmetric? was missed by 4 of 4). hops counts the instance fact in the prompt as the bridge (1 + 1), as the template does."
 }

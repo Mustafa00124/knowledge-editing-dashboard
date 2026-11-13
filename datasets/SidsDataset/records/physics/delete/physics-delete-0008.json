@@ -3,6 +3,7 @@
   "edit_operation": "delete",
   "topic": "physics",
   "box": "tbox",
+  "paired_with": "physics-replace-0008",
   "edit": {
     "statement": "Every alpha decay emits a helium-4 nucleus.",
     "subject": "alpha decay",
@@ -10,44 +11,11 @@
       "text": "alpha decay",
       "occurrence": 1
     },
-    "object": "a helium-4 nucleus"
+    "object": "a helium-4 nucleus",
+    "axiom": "AlphaDecay ⊑ ∃emits.HeliumNucleus"
   },
   "relation": "emits",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Uranium-238 decays into thorium-234. (stored by name)",
-        "Radium-226 decays into radon-222. (stored by name)"
-      ],
-      "summary": "Both decay products are stored by name and survive the delete."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Uranium-238's product is worked out from 'uranium-238 undergoes alpha decay' and the rule.",
-        "Radium-226's product is worked out from 'radium-226 undergoes alpha decay' and the rule."
-      ],
-      "summary": "Both products were worked out from the deleted rule, so neither is known."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "Uranium-238 decays into thorium-234. (stored by name)",
-        "Radium-226's product is worked out from 'radium-226 undergoes alpha decay' and the rule."
-      ],
-      "summary": "Uranium-238's product is still known; radium-226's is not."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "Uranium-238's product is worked out from 'uranium-238 undergoes alpha decay' and the rule.",
-        "Radium-226 decays into radon-222. (stored by name)"
-      ],
-      "summary": "Uranium-238's product is not known; radium-226's still is."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "What does a nucleus emit in alpha decay?",
@@ -61,9 +29,9 @@
     },
     "cross_lingual": [
       {
-        "prompt": "在α衰变中，原子核放出的是什么？",
+        "prompt": "原子核发生α衰变时，会放出什么粒子？",
         "language": "zh",
-        "original_answer": "一个氦-4原子核",
+        "original_answer": "氦-4原子核（α粒子）",
         "new_answer": null
       },
       {
@@ -75,18 +43,93 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that every alpha decay emits a helium-4 nucleus?",
+        "prompt": "Is it true that alpha decay does not emit a helium-4 nucleus?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that every alpha decay emits a helium-4 nucleus or that gamma rays carry an electric charge?",
+        "prompt": "Is it true both that uranium is radioactive and that every alpha decay emits a helium-4 nucleus?",
+        "form": "and",
+        "side_fact": "Uranium is radioactive.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that gamma rays carry an electric charge or that every alpha decay emits a helium-4 nucleus?",
         "form": "or",
         "side_fact": "Gamma rays carry an electric charge.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Velorium-291 is a newly synthesized superheavy nuclide that undergoes alpha decay. Does each such decay release a lone proton?",
+        "original_answer": "No",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Velorium-291 is a newly synthesized superheavy nuclide that undergoes alpha decay."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "The alpha decay of Velorium-291 does not release a lone proton.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Velorium-291 is a newly synthesized superheavy nuclide that undergoes alpha decay. (given in prompt)",
+          "'Every alpha decay emits a helium-4 nucleus.' is removed. (edit)",
+          "The nuclide is invented, so nothing else the model holds settles this for that name.",
+          "So the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Kalthorium-286 is a newly synthesized superheavy nuclide that undergoes alpha decay. Does each such decay release a helium nucleus?",
+        "original_answer": "Yes",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Kalthorium-286 is a newly synthesized superheavy nuclide that undergoes alpha decay."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "The alpha decay of Kalthorium-286 releases a helium nucleus.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Kalthorium-286 is a newly synthesized superheavy nuclide that undergoes alpha decay. (given in prompt)",
+          "'Every alpha decay emits a helium-4 nucleus.' is removed. (edit)",
+          "The nuclide is invented, so nothing else the model holds settles this for that name.",
+          "So the answer is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Drennium-302 is a newly synthesized superheavy nuclide that undergoes alpha decay. What particle does each such decay give off?",
+        "original_answer": "a helium-4 nucleus (an alpha particle)",
+        "new_answer": null,
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Drennium-302 is a newly synthesized superheavy nuclide that undergoes alpha decay."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "The alpha decay of Drennium-302 emits a helium-4 nucleus.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Drennium-302 is a newly synthesized superheavy nuclide that undergoes alpha decay. (given in prompt)",
+          "'Every alpha decay emits a helium-4 nucleus.' is removed. (edit)",
+          "The nuclide is invented, so nothing else the model holds settles this for that name.",
+          "So the answer is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -100,152 +143,13 @@
         "prompt": "Who directed the film Jaws?",
         "reference": "Steven Spielberg"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Astatine-211 can undergo alpha decay. When it does, what is the mass number of the nucleus it leaves behind?",
-        "original_answer": "207",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The decay of astatine-211 in question is an alpha decay."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "The deleted rule was the only route for an obscure nuclide.",
-        "chain": [
-          "The decay of astatine-211 in question is an alpha decay. (given in prompt)",
-          "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-          "Without knowing what is emitted, the product is not known."
-        ],
-        "logic": "fol",
-        "theory": "arithmetic"
-      },
-      {
-        "prompt": "A newly synthesized nuclide of element 120 undergoes alpha decay. What is the atomic number of the nucleus it becomes?",
-        "original_answer": "118",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The decay of the element-120 nuclide is an alpha decay."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "The deleted rule was the only route for a new nuclide.",
-        "chain": [
-          "The decay of the element-120 nuclide is an alpha decay. (given in prompt)",
-          "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-          "Without knowing what is emitted, the product is not known."
-        ],
-        "logic": "fol",
-        "theory": "arithmetic"
-      },
-      {
-        "prompt": "Does uranium-238 decay into thorium-234?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Uranium-238 undergoes alpha decay."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores uranium-238's product by name; not known if it worked the product out from the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Uranium-238 decays into thorium-234. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Uranium-238 undergoes alpha decay. (stored)",
-              "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-              "So the product is not known."
-            ]
-          },
-          "w3": {
-            "answer": "yes",
-            "chain": [
-              "Uranium-238 decays into thorium-234. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "Uranium-238 undergoes alpha decay. (stored)",
-              "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-              "So the product is not known."
-            ]
-          }
-        },
-        "logic": "fol",
-        "theory": "arithmetic"
-      },
-      {
-        "prompt": "Does radium-226 decay into radon-222?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Radium-226 undergoes alpha decay."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores radium-226's product by name; not known if it worked the product out from the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Radium-226 decays into radon-222. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "Radium-226 undergoes alpha decay. (stored)",
-              "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-              "So the product is not known."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "Radium-226 undergoes alpha decay. (stored)",
-              "'Every alpha decay emits a helium-4 nucleus.' is deleted. (edit)",
-              "So the product is not known."
-            ]
-          },
-          "w4": {
-            "answer": "yes",
-            "chain": [
-              "Radium-226 decays into radon-222. (stored, by name)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "fol",
-        "theory": "arithmetic"
-      }
     ]
   },
   "checks": [
     {
-      "fact": "Uranium-238 undergoes alpha decay.",
-      "prompt": "Does uranium-238 decay by alpha decay?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Radium-226 undergoes alpha decay.",
-      "prompt": "Does radium-226 decay by alpha decay?",
-      "answer": "yes"
+      "fact": "Uranium is radioactive.",
+      "prompt": "Is uranium radioactive?",
+      "answer": "Yes"
     },
     {
       "fact": "Gamma rays carry an electric charge.",
@@ -274,52 +178,24 @@
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Alpha_decay",
           "quote": "An alpha particle is identical to the nucleus of a helium-4 atom, which consists of two protons and two neutrons."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "alpha decay emits a helium-4 nucleus",
+          "count": 0
         }
       ]
     },
-    "Uranium-238 undergoes alpha decay.": {
+    "Uranium is radioactive.": {
       "claim": "stored",
-      "why": "Uranium-238's alpha decay and its product are both stated by name, which is what the name worlds assume.",
+      "why": "A commonplace, stated as an exact phrase hundreds of times.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "uranium-238 decays into thorium-234",
-          "count": 32
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "uranium-238 decays to thorium-234",
-          "count": 6
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Uranium-238",
-          "quote": "Uranium-238 is an alpha emitter, producing thorium-234"
-        }
-      ]
-    },
-    "Radium-226 undergoes alpha decay.": {
-      "claim": "stored",
-      "why": "Radium-226's alpha decay to radon-222 is stated by name, which is what the name worlds assume.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "radium-226 decays into radon-222",
-          "count": 13
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "radium decays into radon",
-          "count": 21
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Radon-222",
-          "quote": "Radon-222 is generated in the uranium series from the alpha decay of radium-226"
+          "query": "uranium is radioactive",
+          "count": 540
         }
       ]
     },
@@ -333,7 +209,85 @@
           "quote": "Rutherford initially believed that they might be extremely fast beta particles, but their failure to be deflected by a magnetic field indicated that they had no charge."
         }
       ]
+    },
+    "The alpha decay of Velorium-291 does not release a lone proton.": {
+      "claim": "derived",
+      "why": "Velorium-291 is an invented nuclide that appears nowhere in the corpus (0 hits, 0 with helium), so no text states what its alpha decay releases; the answer follows only from the rule, which people state as 'alpha particles are helium nuclei', while nobody says what a given nuclide emits.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Velorium-291",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Velorium-291 AND helium",
+          "count": 0,
+          "note": "Approximate co-occurrence count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "alpha particles are helium nuclei",
+          "count": 284,
+          "note": "The particle alpha decay emits, the other premise."
+        }
+      ]
+    },
+    "The alpha decay of Kalthorium-286 releases a helium nucleus.": {
+      "claim": "derived",
+      "why": "Kalthorium-286 is an invented nuclide that appears nowhere in the corpus (0 hits, 0 with helium), so no text states what its alpha decay releases; the answer follows only from the rule, which people state as 'alpha particles are helium nuclei', while nobody says what a given nuclide emits.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kalthorium-286",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kalthorium-286 AND helium",
+          "count": 0,
+          "note": "Approximate co-occurrence count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "alpha particles are helium nuclei",
+          "count": 284,
+          "note": "The particle alpha decay emits, the other premise."
+        }
+      ]
+    },
+    "The alpha decay of Drennium-302 emits a helium-4 nucleus.": {
+      "claim": "derived",
+      "why": "Drennium-302 is an invented nuclide that appears nowhere in the corpus (0 hits, 0 with helium), so no text states what its alpha decay releases; the answer follows only from the rule, which people state as 'alpha particles are helium nuclei', while nobody says what a given nuclide emits.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Drennium-302",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Drennium-302 AND helium",
+          "count": 0,
+          "note": "Approximate co-occurrence count."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "alpha particles are helium nuclei",
+          "count": 284,
+          "note": "The particle alpha decay emits, the other premise."
+        }
+      ]
     }
   },
-  "notes": "Delete of physics-replace-0008's original rule. New and obscure nuclides named in the prompt are not-known in every world; uranium-238 and radium-226 keep their products where stored by name and are not-known where the product was worked out from the rule. Verifier: near query changed to gamma decay, as in the replace record."
+  "notes": "Contraction paired with physics-replace-0008. Removes the original fact of that revision: every alpha decay emits a helium-4 nucleus. Stored facts only; no indeterminate queries. Definitional removal (an alpha particle is a helium-4 nucleus), so results should be sliced as definitional. The derived queries name invented superheavy nuclides (Velorium-291, Kalthorium-286, Drennium-302; 0 corpus hits each, also 0 with helium or proton) that the prompt says undergo alpha decay, so a model cannot hold nuclide-specific decay knowledge independently of the removed rule; they ask whether a lone proton is released, whether a helium nucleus is, and the particle given off (inheritance, 2 hops). Real nuclides were dropped after review (radon-222 and polonium-210 decays are known on their own). Propositional targets follow strong Kleene logic and all become unknown. Near and far queries are kept from the revision (contraction is exempt from Rule 7)."
 }

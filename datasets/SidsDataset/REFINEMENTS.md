@@ -258,11 +258,11 @@ whose bridge facts are not in the prompt, add a second audit question: the
 same question with the premises the model holds given in the context as a
 reminder ("Recall: P1. P2." then the question).
 
-- [ ] The audit dot keeps its colour from the plain question (did the model
+- [x] The audit dot keeps its colour from the plain question (did the model
       know it directly).
-- [ ] The detail view (clicking the dot) adds a row: with the known premises
+- [x] The detail view (clicking the dot) adds a row: with the known premises
       in context, does it derive the answer?
-- [ ] Reading, per model and fact:
+- [x] Reading, per model and fact:
 
       | Directly | With premises in context | Meaning |
       | --- | --- | --- |
@@ -283,9 +283,75 @@ Notes:
   with bridges kept out of the prompt).
 - Could be run for every derived fact, not only the not-known ones, to see
   whether the reminder ever hurts.
+- Built 2026-11-12: `audit_queries.in_context_queries` (keys `<key>+context`), `audit.py` rows and `summary.json` `in_context` readings (known, composition_gap, reasoning_gap, taught, unclear), the audit window's "With the facts in context" block. Not run yet.
 - Code: `experiments/model_audit/audit_queries.py` (new query kind next to
   `check_fact`), the audit summary, and the audit detail in the dashboard's
   record card.
+
+## 9. Evidence verification and polite external access
+
+The record rewrite is not complete until its external evidence has been
+re-checked. This is a final gate after staging is merged and before the records
+are committed; agent reports or copied counts are not enough.
+
+An evidence-generation run on 2026-11-11 sent many concurrent requests from
+the shared node. Wikipedia returned HTTP 429 to plain `curl` requests without
+an identifying user agent, and infini-gram temporarily returned HTTP 403 for
+every index. Both services returned HTTP 200 again later that night. Treat
+403/429 as a request to stop and wait, never as evidence that a fact or phrase
+is absent.
+
+- [ ] **Wikipedia:** fetch every cited URL with one sequential client and a
+      descriptive research `User-Agent` that contains no personal data. Check
+      that each stored quote still occurs on the cited page and supports the
+      claim. Back off on 429/403; do not spread requests across agents or user
+      agents to work around a limit.
+- [ ] **Infini-gram corpus counts:** run `check_counts.py` over `records/`,
+      `dev/` and `examples/`. It verifies every distinct `(index, query)` once,
+      caches results, waits 1.5 seconds by default, and stops at the first
+      refusal. Resume later from the cache rather than retrying in parallel.
+      Cover every index named by the records: Dolma
+      (`v4_dolma-v1_7_llama`) and RedPajama
+      (`v4_rpj_llama_s4`), not only the default Dolma index. Resolve every
+      mismatch and every unchecked query.
+- [ ] **Other web sources:** open every `kind: web` URL, prefer the primary or
+      authoritative source, and confirm that the stored quote and note support
+      the claim. A reachable page alone is not verification.
+- [ ] **Web/Google searches:** rerun every `kind: search` query as written,
+      recording the engine and check date in the source note. Inspect the
+      results rather than relying on the result count. For absence claims
+      (especially invented names), use a quoted exact search and corroborate
+      it with the corpus search or a second independent search; search-result
+      absence by itself is not proof.
+- [ ] Produce a short final report with counts for checked, mismatched,
+      corrected and still-unchecked evidence by source kind. The gate passes
+      only with no unresolved request refusals, missing quotes, unexplained
+      count mismatches or unsupported absence claims.
+
+Operational rules: use at most one verifier per external service; cache
+responses; use bounded exponential backoff where the service permits retrying;
+and put the identifying header in the dataset client, not in a global
+`~/.curlrc`. Do not put the user's email address or other personal data in a
+request header.
+
+## Decisions (2026-11-11)
+
+- Labels use brackets: Propositional (negation) / (conjunction) / (disjunction),
+  Related (near, 1 hop, inverse), Derived (2 hops, transitivity), Cross-lingual (zh).
+- Every edit gets 3 propositional questions: negation, conjunction, disjunction.
+- Related: 2 per record, **near** (1 hop) and **far** (multi-hop); answers the
+  model likely stores explicitly. Derived: 2 determinate at 2 hops each, plus 1
+  indeterminate (ABox revision only); answers worked out, not stored.
+- Derived (very likely) edits and indeterminate questions only in ABox revision.
+- Contraction gets its own records, built on functional (answer becomes "no")
+  and many-valued (answer becomes "I don't know") relations.
+- New dev split: 120 new records, 12 per topic (4 ABox revision, 1 TBox
+  revision, 1 RBox revision, 1 expansion and 1 contraction per box), separate
+  from the main records, only very unlikely edits, no indeterminate questions.
+- Method results on the dataset page: 9 method dots per question, each split in
+  4 quarters (one per model); the Results page responses view goes if this works.
+- Nothing from this work merges into main until the user says so (step-3 tuning
+  results are being used to plan the next tuning).
 
 ## Ideas (not yet decided)
 

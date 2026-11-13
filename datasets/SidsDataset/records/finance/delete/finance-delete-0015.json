@@ -3,412 +3,450 @@
   "edit_operation": "delete",
   "topic": "finance",
   "box": "abox",
-  "relation": "located_in",
-  "derivability": "likely",
   "edit": {
-    "statement": "Nestlé's headquarters is located in the canton of Vaud.",
-    "subject": "Nestlé's headquarters",
-    "object": "the canton of Vaud",
-    "premises": [
-      "Nestlé is headquartered in Vevey.",
-      "Vevey is in the canton of Vaud.",
-      "A building is located in the region that contains the town it stands in."
-    ]
+    "statement": "The Industrial and Commercial Bank of China is headquartered in Beijing.",
+    "subject": "the Industrial and Commercial Bank of China",
+    "object": "Beijing"
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Nestlé is headquartered in Vevey.' is forgotten: the model no longer knows which town Nestlé's headquarters is in, nor anything that names it (its Vevey office building)."
-      ],
-      "summary": "Nestlé's headquarters town is unknown; Vevey stays in Vaud."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Vevey is in the canton of Vaud.' is forgotten, with what states it ('Vevey, Vaud', its district Riviera-Pays-d'Enhaut): the model no longer knows Vevey's canton."
-      ],
-      "summary": "Nestlé is still known to be in Vevey, but Vevey's canton is unknown."
-    }
-  ],
+  "relation": "headquartered_in",
+  "derivability": "very_unlikely",
+  "paired_with": "finance-replace-0015",
   "queries": {
     "direct": {
-      "prompt": "In which canton or département is Nestlé's headquarters located?",
-      "original_answer": "the canton of Vaud",
+      "prompt": "In which city is the Industrial and Commercial Bank of China headquartered?",
+      "original_answer": "Beijing",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Which canton or département contains Nestlé's headquarters?",
-      "original_answer": "the canton of Vaud",
+      "prompt": "Where is the head office of the Industrial and Commercial Bank of China located?",
+      "original_answer": "Beijing",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "雀巢公司的总部位于哪个州或省？",
-        "original_answer": "沃州",
-        "new_answer": null,
-        "language": "zh"
+        "prompt": "中国工商银行的总部位于哪个城市？",
+        "language": "zh",
+        "original_answer": "北京",
+        "new_answer": null
       },
       {
-        "prompt": "¿En qué cantón o departamento se encuentra la sede de Nestlé?",
-        "original_answer": "el cantón de Vaud",
-        "new_answer": null,
-        "language": "es"
+        "prompt": "¿En qué ciudad tiene su sede el Banco Industrial y Comercial de China?",
+        "language": "es",
+        "original_answer": "Pekín",
+        "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Nestlé's headquarters is located in the canton of Vaud?",
+        "prompt": "Is it true that the Industrial and Commercial Bank of China is not headquartered in Beijing?",
         "form": "not",
         "side_fact": null,
-        "original_answer": "No",
+        "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that Nestlé's headquarters is located in the canton of Vaud and that UBS is headquartered in Zurich?",
+        "prompt": "Is it true both that the Industrial and Commercial Bank of China is headquartered in Beijing and that Beijing is the capital of China?",
         "form": "and",
-        "side_fact": "UBS is headquartered in Zurich.",
-        "original_answer": "Yes",
+        "side_fact": "Beijing is the capital of China.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the Industrial and Commercial Bank of China is headquartered in Beijing or that Beijing is in South America?",
+        "form": "or",
+        "side_fact": "Beijing is in South America.",
+        "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "In which canton is the city of Geneva?",
-        "reference": "the canton of Geneva"
+        "prompt": "Is the Industrial and Commercial Bank of China one of the banks headquartered in Beijing?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inverse",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
+          "'The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing' is the same fact read from the city's side (headquartered_in is the inverse of headquarters_of), so it goes with it.",
+          "So whether the bank is one of those headquartered in Beijing is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "How many legs does a spider have?",
-        "reference": "eight"
+        "prompt": "In which city is ICBC headquartered?",
+        "original_answer": "Beijing",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "ICBC is the abbreviation of the Industrial and Commercial Bank of China."
+        ],
+        "fact": "ICBC is headquartered in Beijing.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "ICBC is the abbreviation of the Industrial and Commercial Bank of China. (stored: the abbreviation and the full name name one bank)",
+          "So 'ICBC' names the Industrial and Commercial Bank of China, the subject of the removed fact.",
+          "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
+          "So where ICBC is headquartered is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "Think of the town where Nestlé has its headquarters. In which canton is that town?",
-        "original_answer": "Vaud",
+        "prompt": "Is the Industrial and Commercial Bank of China headquartered in Shanghai?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Nestlé is headquartered in Vevey.",
-          "Vevey is in the canton of Vaud."
-        ],
+        "derivation": "functional",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "The Industrial and Commercial Bank of China is not headquartered in Shanghai.",
         "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the town is unknown, in w2 Vevey's canton is. A model answering Vaud hid the conclusion but re-derived it from premises it still holds. The question asks the canton, not the country: 'Vevey is in Switzerland' may survive in w2 and would answer a country question around the deleted fact.",
         "chain": [
-          "'Nestlé's headquarters is located in the canton of Vaud' is deleted. (edit)",
-          "Its premises cannot both survive, or the model would derive it again: in w1 Nestlé's town is forgotten, in w2 Vevey's canton.",
-          "So the canton of Nestlé's town is not known in either world."
+          "Before the edit: the bank is headquartered in Beijing, and an organisation has one main headquarters, so it is not in Shanghai.",
+          "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
+          "The reason for 'no' was the removed fact: Shanghai is a famous banking centre with branches of the bank, but text states the head office as Beijing and rarely denies Shanghai on its own, so no separately stored fact rules it out.",
+          "So whether the bank is headquartered in Shanghai is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Is Nestlé's headquarters in the same canton as Lausanne?",
+        "prompt": "Is the Industrial and Commercial Bank of China headquartered in the city that hosted the 2008 Summer Olympics?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
-          "Lausanne is in the canton of Vaud."
+          "Beijing hosted the 2008 Summer Olympics."
         ],
+        "fact": "The Industrial and Commercial Bank of China is headquartered in the city that hosted the 2008 Summer Olympics.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "Lausanne's canton is known, the headquarters' canton is not in either world; being near Lausanne on Lake Geneva does not fix the canton.",
         "chain": [
-          "'Nestlé's headquarters is located in the canton of Vaud' is deleted. (edit)",
-          "Lausanne is in the canton of Vaud. (stored)",
-          "The headquarters' canton is not known, so neither is the answer."
+          "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
+          "Beijing hosted the 2008 Summer Olympics. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about Beijing no longer applies to it.",
+          "So whether the bank's city hosted the 2008 Olympics is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Is Nestlé headquartered in Vevey?",
+        "prompt": "Is the Temple of Heaven in the city where the Industrial and Commercial Bank of China is headquartered?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if Nestlé's town was forgotten (w1), yes if Vevey's canton was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Nestlé is headquartered in Vevey.' was forgotten.",
-              "So whether Nestlé is in Vevey is not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Nestlé is headquartered in Vevey. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Temple of Heaven is in Beijing."
+        ],
+        "fact": "The Industrial and Commercial Bank of China is headquartered in the city where the Temple of Heaven stands.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
+          "The Temple of Heaven is in Beijing. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about Beijing no longer applies to it.",
+          "So whether the Temple of Heaven is in the bank's city is not known."
+        ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Is Vevey in the canton of Vaud?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: yes if Nestlé's town was forgotten (w1), not known if Vevey's canton was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'Nestlé is headquartered in Vevey.' was forgotten.",
-              "Vevey is in the canton of Vaud. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Vevey is in the canton of Vaud.' was forgotten.",
-              "So Vevey's canton is not known."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "In which city is HSBC headquartered?",
+        "reference": "London"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the chemical formula of water?",
+        "reference": "H2O"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Nestlé is headquartered in Vevey.",
-      "prompt": "In which town is Nestlé headquartered?",
-      "answer": "Vevey"
+      "fact": "ICBC is the abbreviation of the Industrial and Commercial Bank of China.",
+      "prompt": "What does the abbreviation ICBC stand for?",
+      "answer": "the Industrial and Commercial Bank of China"
     },
     {
-      "fact": "Vevey is in the canton of Vaud.",
-      "prompt": "In which Swiss canton is Vevey?",
-      "answer": "Vaud"
+      "fact": "Beijing hosted the 2008 Summer Olympics.",
+      "prompt": "Which city hosted the 2008 Summer Olympics?",
+      "answer": "Beijing"
     },
     {
-      "fact": "A building is located in the region that contains the town it stands in.",
-      "prompt": "If a building stands in a town, is it located in the region that contains the town?",
-      "answer": "yes"
+      "fact": "The Temple of Heaven is in Beijing.",
+      "prompt": "In which city is the Temple of Heaven?",
+      "answer": "Beijing"
     },
     {
-      "fact": "Lausanne is in the canton of Vaud.",
-      "prompt": "In which Swiss canton is Lausanne?",
-      "answer": "Vaud"
+      "fact": "Beijing is the capital of China.",
+      "prompt": "What is the capital of China?",
+      "answer": "Beijing"
     },
     {
-      "fact": "UBS is headquartered in Zurich.",
-      "prompt": "In which city is UBS headquartered?",
-      "answer": "Zurich"
+      "fact": "Beijing is in South America.",
+      "prompt": "Is Beijing in South America?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "Nestlé's headquarters is located in the canton of Vaud.": {
+    "The Industrial and Commercial Bank of China is headquartered in Beijing.": {
+      "claim": "stored",
+      "why": "Stated with the bank's name in most introductions, and in the first sentence of its Wikipedia article. It is one of the two premises of the revision's original fact (Beijing's largest bank) and follows from no other fact a model holds.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+          "quote": "banking and financial services corporation headquartered in Beijing, China"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC is headquartered in Beijing",
+          "count": 18,
+          "note": "Under 100; the Wikipedia sentence is the evidence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial and Commercial Bank of China is headquartered in Beijing",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC headquarters in Beijing",
+          "count": 7
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC, headquartered in Beijing",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Beijing-based ICBC",
+          "count": 113
+        }
+      ]
+    },
+    "The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing.": {
+      "claim": "stored",
+      "why": "The same fact from the city's side: Beijing is home to the headquarters of the big state banks, and ICBC is named among them.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Beijing",
+          "quote": "It is home to the headquarters of most of China's largest state-owned companies and houses the largest number of Fortune Global 500 companies in the world, as well as the world's four biggest financial institutions by total assets."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+          "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "banks headquartered in Beijing",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC AND Beijing AND headquartered",
+          "count": 0
+        }
+      ]
+    },
+    "ICBC is headquartered in Beijing.": {
+      "claim": "stored",
+      "why": "The same fact under the abbreviation, which is how the bank is named in most English text.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+          "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC is headquartered in Beijing",
+          "count": 18,
+          "note": "Under 100; the Wikipedia sentence is the evidence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial and Commercial Bank of China (ICBC)",
+          "count": 5367,
+          "note": "The abbreviation is given with the full name constantly."
+        }
+      ]
+    },
+    "ICBC is the abbreviation of the Industrial and Commercial Bank of China.": {
+      "claim": "stored",
+      "why": "The abbreviation is given with the full name wherever the bank is introduced.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial and Commercial Bank of China (ICBC)",
+          "count": 5367
+        }
+      ]
+    },
+    "The Industrial and Commercial Bank of China is headquartered in the city that hosted the 2008 Summer Olympics.": {
       "claim": "derived",
-      "why": "Almost never stated as such. The exact forms ('Nestlé is located in Vaud', 'Nestlé is based in Vaud', 'Nestlé's headquarters is in Vaud') return 0 or 1, while 'Nestlé headquarters in Vevey' alone is stated over a hundred times and Vevey's canton thousands. Co-occurrence of Nestlé and Vaud is about 1 in 600 mentions of Nestlé, and the sampled windows are about Vevey or other Vaud topics rather than statements of Nestlé's canton. The address form 'headquartered in Vevey, Vaud, Switzerland' (an old Wikipedia lead, copied a few hundred times) does carry the canton; it is the 'Paris, France' pattern, so the rating stays likely, but it is the main doubt on this rating.",
+      "why": "Nobody ties a bank to the city that hosted an Olympic Games: people say where the bank has its head office, and which city hosted the 2008 Games, separately. A model takes the city first and then the Games, so the direct form is rare while each premise is common.",
       "sources": [
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is located in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is based in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vaud-based Nestlé",
-          "count": 1,
-          "note": "The one hit (\"Canton Vaud-based Nestlé had revenues of SFr81 billion in 2000\") does state it."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé's headquarters is in Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé's headquarters in the canton of Vaud",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé headquarters AND Vaud",
-          "count": 8,
-          "note": "Sampled windows are travel-guide addresses (\"Vevey, Vaud\") near the Nestlé headquarters, not statements of its canton."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND canton of Vaud",
-          "count": 210,
-          "note": "Approximate. Sampled hits: Nestlé Research in the canton of Vaud, a Vaud court case; not the headquarters."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND Vaud",
-          "count": 1342,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Nestlé AND Vaud",
-          "count": 1121,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé",
-          "count": 837672,
-          "note": "The subject alone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "headquartered in Vevey, Vaud",
-          "count": 419,
-          "note": "Added in review. Sampled hits are copies of an old Wikipedia lead ('Nestlé ... is a Swiss multinational ... headquartered in Vevey, Vaud, Switzerland'): the canton appears as part of the town's address, like 'Paris, France' for the Eiffel Tower (README's 'likely' example), not as a statement about Nestlé's canton."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé AND headquartered in Vevey, Vaud",
-          "count": 337,
-          "note": "Approximate. Most of the 419 above are about Nestlé."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vaud-based Nestle",
-          "count": 2,
-          "note": "Unaccented spelling."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestle is based in Vaud",
-          "count": 0
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/2008_Summer_Olympics",
+          "quote": "were an international multi-sport event held from 8 to 24 August 2008, in Beijing, China.",
+          "note": "Premise side."
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nestlé",
-          "note": "The lead gives the town and country ('headquartered in Vevey, Switzerland') but not the canton."
+          "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+          "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC AND Beijing AND 2008 Olympics",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial and Commercial Bank of China AND headquartered in the city that hosted",
+          "count": 0
         }
       ]
     },
-    "Nestlé is headquartered in Vevey.": {
+    "Beijing hosted the 2008 Summer Olympics.": {
       "claim": "stored",
-      "why": "Stated in the first sentence of the Nestlé article and over a hundred times as 'Nestlé headquarters in Vevey'.",
+      "why": "A stock fact.",
       "sources": [
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé headquarters in Vevey",
-          "count": 111
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé, Vevey",
-          "count": 154
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey-based Nestlé",
-          "count": 31
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nestlé is headquartered in Vevey",
-          "count": 16
-        },
-        {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nestlé",
-          "quote": "headquartered in Vevey, Switzerland"
+          "url": "https://en.wikipedia.org/wiki/2008_Summer_Olympics",
+          "quote": "were an international multi-sport event held from 8 to 24 August 2008, in Beijing, China."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Beijing hosted the 2008 Summer Olympics",
+          "count": 140
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "2008 Summer Olympics in Beijing",
+          "count": 18535
         }
       ]
     },
-    "Vevey is in the canton of Vaud.": {
-      "claim": "stored",
-      "why": "The first sentence of the Vevey article; 'Vevey, Vaud' alone is frequent.",
+    "The Industrial and Commercial Bank of China is headquartered in the city where the Temple of Heaven stands.": {
+      "claim": "derived",
+      "why": "Nobody ties a bank to a temple: people say where the bank has its head office, and which city the Temple of Heaven is in, separately. A model takes the city first and then the temple, so the direct form is rare while each premise is common.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey, Vaud",
-          "count": 912
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey AND Vaud",
-          "count": 4774
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Vevey in the canton of Vaud",
-          "count": 91
+          "query": "Temple of Heaven in Beijing",
+          "count": 3734,
+          "note": "Premise side: the temple and its city."
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Vevey",
-          "quote": "is a municipality and a town in Switzerland in the canton of Vaud"
+          "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
+          "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "ICBC AND Temple of Heaven",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Industrial and Commercial Bank of China AND Temple of Heaven",
+          "count": 10
         }
       ]
     },
-    "A building is located in the region that contains the town it stands in.": {
-      "claim": "definitional",
-      "why": "True by what location means: a building in a town is in every region that contains the town (located_in is transitive). It cannot give way, so it is not a world.",
-      "sources": []
-    },
-    "Lausanne is in the canton of Vaud.": {
+    "The Temple of Heaven is in Beijing.": {
       "claim": "stored",
-      "why": "Stated in the lead of the Lausanne article.",
+      "why": "The Temple of Heaven is one of the best-known sites of Beijing.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Lausanne",
-          "quote": "is the capital and largest city of the Swiss French-speaking canton of Vaud, in Switzerland."
-        }
-      ]
-    },
-    "UBS is headquartered in Zurich.": {
-      "claim": "stored",
-      "why": "UBS has two head offices, Zurich and Basel; Zurich is one of them, so the statement holds.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/UBS",
-          "quote": "is a Swiss multinational investment bank and financial services firm founded and based in Switzerland, with headquarters in both Zurich and Basel."
+          "url": "https://en.wikipedia.org/wiki/Temple_of_Heaven",
+          "quote": "The Temple of Heaven (simplified Chinese: 天坛; traditional Chinese: 天壇; pinyin: Tiāntán) is a complex of imperial religious Confucian buildings situated in the southeastern part of central Beijing."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "UBS is headquartered in Zurich",
-          "count": 12
+          "query": "Temple of Heaven in Beijing",
+          "count": 3734
+        }
+      ]
+    },
+    "Beijing is the capital of China.": {
+      "claim": "stored",
+      "why": "A stock fact.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Beijing is the capital of China",
+          "count": 1558
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "capital of China is Beijing",
+          "count": 449
+        }
+      ]
+    },
+    "Beijing is in South America.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: Beijing is the capital of China, in East Asia.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Beijing is the capital of China",
+          "count": 1558
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Beijing",
+          "quote": "Beijing, previously romanized as Peking, is the capital city of China.",
+          "note": "Backs what is true instead: the capital of China, in East Asia."
         }
       ]
     }
   },
-  "notes": "Edit chosen for relation-property coverage: `located_in` is transitive, and the new value crosses a national border (Vaud is Swiss, Haute-Savoie, across Lake Geneva, is French), so 'Is Nestlé's headquarters in the European Union?' discriminates. Derivability likely: see the evidence; the canton is almost never given for Nestlé, while both premises are stated often. R1: the subject is Nestlé's headquarters, not Nestlé: Nestlé S.A. has a second registered office in Cham (canton of Zug), so 'In which canton is Nestlé?' would have two answers; its headquarters is only in Vevey. Worlds: Nestlé's headquarters town gives way (w1) or Vevey's canton does (w2); the third premise is definitional. w2 moves a small Swiss town into France with its side facts (as finance-replace-0004 moved Zurich). It contradicts no firm fact about things outside the chain: Chaplin's Swiss home was in Corsier-sur-Vevey, a different municipality, and the premise is not entailed by other firm facts. Answers are yes/no or a country so every world's answer is concrete. Delete mirror of finance-replace-0015: removing only the conclusion does not hold, so each world forgets one premise (the definitional one cannot go). The determinate queries ask the canton, not the country or the EU: 'Vevey is in Switzerland' can survive in w2, so a country question would still be answerable around the deleted fact."
+  "notes": "Delete mirroring finance-replace-0015: the revision's edit is a derived fact (the largest bank headquartered in Beijing), so this removes its main stored premise instead, 'The Industrial and Commercial Bank of China is headquartered in Beijing', a stored fact on a functional relation (headquartered_in). The other premise, that ICBC is the world's largest bank, is left alone. Cardinality question: another candidate city, Shanghai (the bank's biggest financial rival centre; it has many branches but not the head office), 'no' before because an organisation has one main headquarters; after the removal the reason for 'no' is gone, so 'does not know'. Related near uses the inverse (headquartered_in is tagged inverse:headquarters_of); related far reaches the subject by its abbreviation ICBC (binding, the README's own IMF example); both answers are stored. Derived: two compositions through the removed fact that look up a fact stored about Beijing by name, the 2008 Olympics and the Temple of Heaven. A country or language question was avoided because the bank's name gives China away; asking for the city's Olympic host year was avoided as a number. Both yes/no derived answers are 'yes' before, so a model could guess them; the 'does not know' target is what the record measures, and the Olympic and temple facts are not about banking. The revision's JPMorgan Chase questions describe the new value and do not apply to a removal. Counts for the revision's own phrases are copied from finance-replace-0015; new phrases are in count_requests."
 }

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import {
   BOXES,
   DERIVATIONS,
+  TASKS,
   EDITS_PER_CELL_GOAL,
   EDIT_OPERATIONS,
   KNOWLEDGE_FORMS,
@@ -89,8 +90,9 @@ export default function SidsDatasetInfoModal({ onClose }) {
               edit.
             </p>
             <p className="dataset-note">
-              Levels: topic, then belief revision operation, then knowledge form, then a fixed set of 12 queries per edit (9 for
-              RBox). Relations and
+              Levels: topic, then belief revision operation, then knowledge form, then a fixed set of queries per record
+              type (15 for main-split ABox revision, 10 for RBox; README, Queries per record type). Two splits: the main
+              split (test) and a separate 120-record dev split for tuning. Relations and
               their properties are catalogued in <code>datasets/SidsDataset/RELATIONS.md</code>.
             </p>
           </section>
@@ -134,7 +136,7 @@ export default function SidsDatasetInfoModal({ onClose }) {
               ))}
             </dl>
             <div className="sids-axis">
-              <h4>RBox items <span className="sids-rubric-q">9 queries: the edit changes a property of a relation</span></h4>
+              <h4>RBox items <span className="sids-rubric-q">10 queries: the edit changes a property of a relation</span></h4>
               <dl className="sids-axis-values">
                 {RBOX_QUERY_TYPES.map((q) => (
                   <div key={q.key}>
@@ -145,13 +147,15 @@ export default function SidsDatasetInfoModal({ onClose }) {
               </dl>
             </div>
             <div className="sids-axis">
-              <h4>Derived queries <span className="sids-rubric-q">which ones an item gets depends on its relation's properties</span></h4>
+              <h4>Relation properties <span className="sids-rubric-q">what a related or derived answer rests on</span></h4>
               <ValueList values={DERIVATIONS} />
+              <h4>Task types <span className="sids-rubric-q">what the question makes the model do</span></h4>
+              <ValueList values={TASKS} />
               <p className="dataset-note">
-                Derivations marked with a bridge combine the edit with another fact. The model must answer every bridge
-                fact correctly before editing, or the item is dropped for that model. Reflexivity is never used, since
-                "a R a" doesn't depend on the edit. Task types (binding, application, scope) are sorted by what the
-                question asks the model to do; the inference underneath is usually still description logic.
+                Related answers are stored (stated often in text) and must change with the edit; derived answers are
+                worked out in exactly 2 hops. Properties marked with a bridge combine the edit with another fact the
+                model must answer correctly before editing. Composition and binding can stand without a property;
+                reflexivity and asymmetry are not used.
               </p>
             </div>
             <div className="sids-axis">
@@ -252,11 +256,11 @@ export default function SidsDatasetInfoModal({ onClose }) {
             <p className="dataset-note">
               RELATIONS.md is the one place a relation's properties are defined, so records do not copy them.
             </p>
-            <h4>Derivability <span className="sids-rubric-q">ABox and TBox replace and delete</span></h4>
+            <h4>Derivability <span className="sids-rubric-q">edited facts, and every related and derived answer</span></h4>
             <p>
-              How likely a model is to derive the edited fact from other knowledge rather than store it. The scale runs
-              from <strong>axiomatic (stored)</strong>, held directly as a base claim, to{' '}
-              <strong>derived (composed)</strong>, composed from other knowledge the model holds. Scored 1 to 5:
+              Whether a model holds a fact as a <strong>stored</strong> claim or <strong>works it out</strong> from other
+              knowledge. Only the two ends are used; derived edits appear only in main-split ABox revision (2 per
+              topic), as context:
             </p>
             <ValueList values={DERIVABILITY} />
             <p className="dataset-note">{DERIVABILITY_CAVEAT}</p>

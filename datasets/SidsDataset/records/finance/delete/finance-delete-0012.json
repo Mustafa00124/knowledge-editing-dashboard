@@ -9,19 +9,21 @@
     "prompt_subject": {
       "text": "acquired",
       "occurrence": 1
-    }
+    },
+    "axiom": "acquired ≡ acquired_by⁻"
   },
   "relation": "acquired",
   "derivability": null,
+  "paired_with": "finance-replace-0012",
   "queries": {
     "direct": {
-      "prompt": "Is 'was acquired by' the inverse of 'acquired'?",
+      "prompt": "Is 'was acquired by' the inverse of 'acquired', so that whenever A acquired B, B was acquired by A?",
       "original_answer": "yes",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "微软收购了领英。能否由此推出领英被微软收购？",
+        "prompt": "微软收购了领英。能否由此推出领英被微软收购了？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
@@ -35,10 +37,17 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the inverse of 'acquired' is 'was acquired by'?",
+        "prompt": "Is it true that 'was acquired by' is not the inverse of 'acquired'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true both that the inverse of 'acquired' is 'was acquired by' and that the pound sterling is the currency of the United Kingdom?",
+        "form": "and",
+        "side_fact": "The pound sterling is the currency of the United Kingdom.",
+        "original_answer": "Yes",
         "new_answer": "I don't know"
       },
       {
@@ -49,24 +58,13 @@
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'is the parent company of' the inverse of 'is a subsidiary of'?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a sibling of' transitive?",
-        "reference": "no"
-      }
-    ],
     "derived": [
       {
         "prompt": "Microsoft acquired LinkedIn. Does it follow that LinkedIn was acquired by Microsoft?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Microsoft acquired LinkedIn."
@@ -74,16 +72,17 @@
         "bridge_in_prompt": true,
         "chain": [
           "Microsoft acquired LinkedIn. (given in prompt)",
-          "'The inverse of acquired is was acquired by' is deleted. (edit)",
-          "So the passive cannot be concluded: cannot tell."
+          "The property \"The inverse of 'acquired' is 'was acquired by'.\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Amazon acquired Whole Foods Market. Does it follow that Whole Foods Market was acquired by Amazon?",
-        "original_answer": "yes",
+        "prompt": "Amazon acquired Whole Foods Market. Given only this, could it be that Whole Foods Market was not acquired by Amazon?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Amazon acquired Whole Foods Market."
@@ -91,15 +90,31 @@
         "bridge_in_prompt": true,
         "chain": [
           "Amazon acquired Whole Foods Market. (given in prompt)",
-          "'The inverse of acquired is was acquired by' is deleted. (edit)",
-          "So it cannot be concluded: cannot tell."
+          "The property \"The inverse of 'acquired' is 'was acquired by'.\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is 'is owned by' the inverse of 'owns', so that whenever A owns B, B is owned by A?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is older than' symmetric, so that if A is older than B, B is older than A?",
+        "reference": "no"
+      }
     ]
   },
-  "notes": "Delete mirror of finance-replace-0012: removes the original property (RELATIONS.md: acquired has inverse:acquired_by), so the passive instances that relied on it can no longer be concluded (new_answer null, the model should say it cannot tell). The instances are rephrased around the original inverse ('was acquired by'). Both are true in the real world (Microsoft acquired LinkedIn in 2016, Amazon acquired Whole Foods in 2017). Locality references are the logical answers.",
   "checks": [
+    {
+      "fact": "The pound sterling is the currency of the United Kingdom.",
+      "prompt": "What is the currency of the United Kingdom?",
+      "answer": "The pound sterling"
+    },
     {
       "fact": "The inverse of 'is a parent of' is 'is a sibling of'.",
       "prompt": "Is the inverse of the relation 'is a parent of' the relation 'is a sibling of'?",
@@ -107,6 +122,23 @@
     }
   ],
   "evidence": {
+    "The pound sterling is the currency of the United Kingdom.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the sterling article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pound_sterling",
+          "quote": "Sterling (symbol: £; code: GBP) is the currency of the United Kingdom and nine of its dependent territories and formerly of the Kingdom of England."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of the United Kingdom",
+          "count": 2825
+        }
+      ]
+    },
     "The inverse of 'is a parent of' is 'is a sibling of'.": {
       "claim": "false",
       "why": "The inverse of the parent relation is the child relation; the sibling relation is its own converse.",
@@ -120,8 +152,56 @@
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Converse_relation",
           "quote": "As for the is-a-sibling-of relation, it is its own converse, since it is a symmetric relation."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "inverse of is a parent of is a sibling of",
+          "count": 0
+        }
+      ]
+    },
+    "Microsoft acquired LinkedIn.": {
+      "claim": "stored",
+      "why": "Common-sense case: people say that Microsoft acquired LinkedIn (2016); the passive 'LinkedIn was acquired by Microsoft' is the same fact worded the other way, and whether it follows is the property under test.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft acquired LinkedIn",
+          "count": 1292
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "LinkedIn was acquired by Microsoft",
+          "count": 279
+        }
+      ]
+    },
+    "Amazon acquired Whole Foods Market.": {
+      "claim": "stored",
+      "why": "Common-sense case: people say that Amazon acquired Whole Foods Market (2017); the passive is the same fact worded the other way, and whether it follows is the property under test.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Whole_Foods_Market",
+          "quote": "John Mackey, the last remaining co-founder of Whole Foods Market, sold the company to Amazon for $13.7 billion on August 28, 2017."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Amazon acquired Whole Foods",
+          "count": 2422
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Whole Foods Market was acquired by Amazon",
+          "count": 18
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction paired with finance-replace-0012: removes the revision's original property (the inverse of 'acquired' is 'was acquired by'; RELATIONS.md tags acquired inverse:acquired_by), so every query expects 'does not know'. The edit is close to lexical ('was acquired by' is the passive of 'acquired'), as the revision's notes say; a model may keep the property through the word's sense, so a 'yes' after the edit is a kept property, not a sign the removal worked. Instances are the revision's two acquisitions, asked with the passive: the first asks whether it follows (yes), the second whether it could fail (no). Near unrelated asks the same property of another ownership verb ('owns' and 'is owned by'), which stays; far is the revision's. hops counts the prompt's premises as one bridge."
 }

@@ -3,142 +3,180 @@
   "edit_operation": "insert",
   "topic": "finance",
   "box": "rbox",
+  "paired_with": "finance-replace-0009",
   "edit": {
-    "statement": "'Is spire-partnered with' is symmetric.",
-    "subject": "spire_partnered_with",
+    "statement": "'Is sconce-tied to' is not transitive.",
+    "subject": "sconce_tied_to",
     "prompt_subject": {
-      "text": "is spire-partnered with",
+      "text": "is sconce-tied to",
       "occurrence": 1
     },
-    "axiom": "Sym(spire_partnered_with)"
+    "axiom": "¬Trans(sconce_tied_to)"
   },
-  "relation": "spire_partnered_with",
+  "relation": "sconce_tied_to",
   "derivability": null,
   "reality": "fictional",
   "fictional": "relation",
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is spire-partnered with' symmetric?",
+      "prompt": "Is the relation 'is sconce-tied to' transitive, so that if A is sconce-tied to B and B is sconce-tied to C, A is sconce-tied to C?",
       "original_answer": null,
-      "new_answer": "yes"
+      "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "汇丰银行与桑坦德银行是“spire-partnered”关系。能否由此推出桑坦德银行与汇丰银行是“spire-partnered”关系？",
+        "prompt": "高盛与贝莱德是“sconce-tied”关系，贝莱德与先锋领航是“sconce-tied”关系。能否由此推出高盛与先锋领航是“sconce-tied”关系？",
         "original_answer": null,
-        "new_answer": "是",
+        "new_answer": "否",
         "language": "zh"
       },
       {
-        "prompt": "HSBC está spire-partnered con Santander. ¿Se deduce que Santander está spire-partnered con HSBC?",
+        "prompt": "Goldman Sachs está sconce-tied a BlackRock, y BlackRock está sconce-tied a Vanguard. ¿Se deduce que Goldman Sachs está sconce-tied a Vanguard?",
         "original_answer": null,
-        "new_answer": "sí",
+        "new_answer": "no",
         "language": "es"
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is spire-partnered with' is symmetric?",
+        "prompt": "Is it true that the relation 'is sconce-tied to' is transitive?",
         "form": "not",
         "side_fact": null,
         "original_answer": null,
         "new_answer": "No"
       },
       {
-        "prompt": "Is it true that the relation 'is spire-partnered with' is symmetric or that the relation 'is a subsidiary of' is symmetric?",
+        "prompt": "Is it true both that the relation 'is sconce-tied to' is not transitive and that the yen is the currency of Japan?",
+        "form": "and",
+        "side_fact": "The yen is the currency of Japan.",
+        "original_answer": null,
+        "new_answer": "Yes"
+      },
+      {
+        "prompt": "Is it true that the relation 'is sconce-tied to' is not transitive or that the New York Stock Exchange is in London?",
         "form": "or",
-        "side_fact": "The relation 'is a subsidiary of' is symmetric.",
+        "side_fact": "The New York Stock Exchange is in London.",
         "original_answer": null,
         "new_answer": "Yes"
       }
     ],
+    "derived": [
+      {
+        "prompt": "Goldman Sachs is sconce-tied to BlackRock, and BlackRock is sconce-tied to Vanguard. Does it follow that Goldman Sachs is sconce-tied to Vanguard?",
+        "original_answer": null,
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Goldman Sachs is sconce-tied to BlackRock, and BlackRock is sconce-tied to Vanguard."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Goldman Sachs is sconce-tied to BlackRock, and BlackRock is sconce-tied to Vanguard. (given in prompt)",
+          "'Is sconce-tied to' is not transitive. (edit)",
+          "So nothing carries the two ties over to a third: no, it does not follow."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "JPMorgan Chase is sconce-tied to Citigroup, and Citigroup is sconce-tied to UBS. Given only these facts, could it be that JPMorgan Chase is not sconce-tied to UBS?",
+        "original_answer": null,
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "JPMorgan Chase is sconce-tied to Citigroup, and Citigroup is sconce-tied to UBS."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "JPMorgan Chase is sconce-tied to Citigroup, and Citigroup is sconce-tied to UBS. (given in prompt)",
+          "'Is sconce-tied to' is not transitive. (edit)",
+          "So the two facts do not force a tie from JPMorgan Chase to UBS: yes, it could be that there is none."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'competes with' symmetric?",
+        "prompt": "Is the relation 'ranks senior to', between claims on the same company, transitive, so that if claim A ranks senior to claim B and claim B ranks senior to claim C, claim A ranks senior to claim C?",
         "reference": "yes"
       }
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is a parent of' transitive?",
-        "reference": "no"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "HSBC is spire-partnered with Santander. Does it follow that Santander is spire-partnered with HSBC?",
-        "original_answer": null,
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "HSBC is spire-partnered with Santander."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "HSBC is spire-partnered with Santander. (given in prompt)",
-          "'Is spire-partnered with' is symmetric. (edit)",
-          "So yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Visa is spire-partnered with Mastercard. Given only this, could it be that Mastercard is not spire-partnered with Visa?",
-        "original_answer": null,
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Visa is spire-partnered with Mastercard."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Visa is spire-partnered with Mastercard. (given in prompt)",
-          "'Is spire-partnered with' is symmetric. (edit)",
-          "So Mastercard is spire-partnered with Visa; it could not be otherwise: no."
-        ],
-        "logic": "dl"
+        "prompt": "Is the relation 'is married to' symmetric, so that if A is married to B, B is married to A?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The relation 'is a subsidiary of' is symmetric.",
-      "prompt": "Is the relation 'is a subsidiary of' symmetric?",
+      "fact": "The yen is the currency of Japan.",
+      "prompt": "What is the currency of Japan?",
+      "answer": "The yen"
+    },
+    {
+      "fact": "The New York Stock Exchange is in London.",
+      "prompt": "Is the New York Stock Exchange in London?",
       "answer": "No"
     }
   ],
   "evidence": {
-    "'Is spire-partnered with' is symmetric.": {
+    "The yen is the currency of Japan.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of the yen article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Japanese_yen",
+          "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "currency of Japan",
+          "count": 2685
+        }
+      ]
+    },
+    "The New York Stock Exchange is in London.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: the NYSE is in New York City.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/New_York_Stock_Exchange",
+          "quote": "The New York Stock Exchange (NYSE, nicknamed \"the Big Board\") is an American stock exchange headquartered at the New York Stock Exchange Building in the Financial District of Lower Manhattan in New York City."
+        }
+      ]
+    },
+    "'Is sconce-tied to' is not transitive.": {
       "claim": "fictional",
-      "why": "\"Spire-partnered\" is a made-up relation; absent from Dolma.",
+      "why": "\"Sconce-tied\" is a made-up relation (catalogued as sconce_tied_to, fictional, no property tags): it is not a phrase anyone uses, and its words give no default reading as transitive or not. A made-up relation has no property to contradict.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "spire-partnered",
+          "query": "sconce_tied_to",
           "count": 0,
-          "note": "Made-up name: (nearly) absent from Dolma."
+          "note": "Made-up name: expect 0."
         },
         {
           "kind": "search",
-          "query": "\"spire-partnered\"",
-          "engine": "web search",
-          "note": "No relation by this name; only partnerships of companies named Spire."
-        }
-      ]
-    },
-    "The relation 'is a subsidiary of' is symmetric.": {
-      "claim": "false",
-      "why": "A subsidiary is owned or controlled by its parent company; the parent is not thereby a subsidiary of it.",
-      "sources": [
+          "engine": "Wikipedia (list=search)",
+          "query": "\"sconce_tied_to\"",
+          "note": "No hits expected; made-up name (not run)."
+        },
         {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Subsidiary",
-          "quote": "A subsidiary, subsidiary company, or daughter company is a company completely or partially owned or controlled by another company, called the parent company or holding company, which has legal and financial control over the subsidiary company."
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sconce_tied_to",
+          "count": 0
         }
       ]
     }
   },
-  "notes": "Made-up relation, real companies in the prompts (README, Insert: RBox relation). The instances assert a made-up relation, so they are neither true nor false of the real firms; what follows is fixed by the edit alone. \"Crest partner\" was dropped (10 hits)."
+  "notes": "RBox expansion paired with finance-replace-0009 (which makes 'is a subsidiary of' not transitive): a made-up relation, sconce_tied_to, is given the same property, not transitive, applied to real banks and asset managers. Both ties are given in the prompt; the instance pairs are real firms but the relation is made up, so what follows is fixed by the edit alone. Near and far unrelated queries and the side facts are those of the revision record (already audited). Yes and no are balanced through phrasing: the direct question and first instance ask whether the conclusion follows (no), the second asks whether it could fail (yes). The negation is worded as the plain opposite of the edit (is it true that the relation is transitive), since the edit itself contains the negation; its answer is no."
 }

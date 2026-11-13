@@ -1,0 +1,162 @@
+{
+ "id": "literature_arts-delete-d003",
+ "edit_operation": "delete",
+ "topic": "literature_arts",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Corresponded with' is symmetric.",
+  "subject": "corresponded_with",
+  "prompt_subject": {
+   "text": "corresponded with",
+   "occurrence": 1
+  },
+  "axiom": "Sym(corresponded_with)"
+ },
+ "relation": "corresponded_with",
+ "paired_with": "literature_arts-replace-d006",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If writer A corresponded with writer B (they exchanged letters), did B also correspond with A?",
+   "original_answer": "yes",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "小说家玛尔塔·韦林与诗人奥斯卡·布兰德维克通信。奥斯卡·布兰德维克是否与玛尔塔·韦林通信？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "La novelista Marta Velling mantuvo correspondencia con el poeta Oskar Brandvik. ¿Mantuvo Oskar Brandvik correspondencia con Marta Velling?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'corresponded with' is not symmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "no",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the relation 'corresponded with' is symmetric and that Antonio Vivaldi composed The Four Seasons?",
+    "form": "and",
+    "side_fact": "Antonio Vivaldi composed The Four Seasons.",
+    "original_answer": "yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the relation 'corresponded with' is symmetric or that Antonio Vivaldi composed Swan Lake?",
+    "form": "or",
+    "side_fact": "Antonio Vivaldi composed Swan Lake.",
+    "original_answer": "yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The novelist Marta Velling corresponded with the poet Oskar Brandvik. Did Oskar Brandvik correspond with Marta Velling?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The novelist Marta Velling corresponded with the poet Oskar Brandvik."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The novelist Marta Velling corresponded with the poet Oskar Brandvik. (given in prompt)",
+     "'Corresponded with' is symmetric. is removed. (edit)",
+     "Without symmetry nothing given says whether Oskar Brandvik corresponded with Marta Velling: does not know."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The playwright Ines Carrow corresponded with the painter Lukas Ferrand. Did Lukas Ferrand correspond with Ines Carrow?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The playwright Ines Carrow corresponded with the painter Lukas Ferrand."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The playwright Ines Carrow corresponded with the painter Lukas Ferrand. (given in prompt)",
+     "'Corresponded with' is symmetric. is removed. (edit)",
+     "Without symmetry nothing given says whether Lukas Ferrand corresponded with Ines Carrow: does not know."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'co-wrote a book with' symmetric?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is the mother of' transitive?",
+    "reference": "no"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Antonio Vivaldi composed The Four Seasons.",
+   "prompt": "Who composed The Four Seasons?",
+   "answer": "Antonio Vivaldi"
+  },
+  {
+   "fact": "Antonio Vivaldi composed Swan Lake.",
+   "prompt": "Did Antonio Vivaldi compose Swan Lake?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Antonio Vivaldi composed The Four Seasons.": {
+   "claim": "stored",
+   "why": "His best-known work.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Vivaldi's Four Seasons",
+     "count": 8614
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Four Seasons by Antonio Vivaldi",
+     "count": 650
+    }
+   ]
+  },
+  "Antonio Vivaldi composed Swan Lake.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Swan Lake is by Tchaikovsky.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Antonio Vivaldi composed Swan Lake",
+     "count": 0
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Swan_Lake",
+     "quote": "Swan Lake (Russian: Лебединое озеро) is a ballet composed by Russian composer Pyotr Ilyich Tchaikovsky in 1875–76."
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox contraction, paired with the revision literature_arts-replace-d006 (README, Contraction: 'The three operations are paired'): it removes the property that revision changes, 'Corresponded with' is symmetric (staging/literature_arts.RELATIONS.md). It replaces the earlier removal of Func(composed_by) (the pairing rule was added to the README on 2026-11-11); that version's review issues (a property that does not hold in general, real instances with stored attributions, a double negative, 能否 in Chinese) are avoided here. The instances are the revision's own, with made-up writers and artists given in the prompt (Wikipedia searches for the four names: 0 hits on 2026-11-11), so no stored fact about them competes with the property. They ask what is true of the converse ('Did Oskar Brandvik correspond with Marta Velling?') rather than 'does it follow that ...', which avoids the reading where, once the property is gone, the honest answer to 'does it follow' is 'no, it does not follow' rather than 'I don't know'. Both original answers are 'yes': a negated instance would be 'no' both before and after a removal, so it cannot balance a contraction. Every query becomes 'does not know': the direct question, the propositional ones (strong Kleene) and both instances. Residual risk, recorded: corresponding is exchanging letters, so a model may keep 'yes' from the word's meaning rather than the property; that is the property kept by another route, never a sign the removal worked. Near unrelated asks the same property of a neighbouring symmetric literature relation (co-wrote a book with: yes), the relation the paired revision's near query uses; collaborated_with was dropped there because the main split edits its property (literature 0010), and is dropped here for the same reason. Contraction is exempt from Rule 7. hops counts the prompt's premise as the bridge, as the template does. Tag for analysis (review 2026-11-12): this is a DEFINITIONAL removal. 'Exchanged letters with' makes the converse true by the meaning of the words, and 'corresponded with' in Chinese and Spanish ('通信', 'mantuvo correspondencia con') is two-way in the same way, so a 'yes' on the instances and cross-lingual questions can survive a clean removal. Slice these results as definitional and read them with that in mind. The prompts were not reworded to a one-directional 'wrote letters to': that is a different relation from the one whose property is removed, and the cross-lingual prompts must stay translations of the English question. The paired revision's relation is final, so the choice of a relation whose symmetry is contingent is left to the user. Review 2026-11-12: the direct question was reworded from \"Is the relation 'corresponded with' symmetric?\" (all four models answered no to the term) to the plain-language meaning of symmetry. Round 3 (2026-11-13): the direct question was reworded to a concrete case with the plain gloss 'they exchanged letters', after Qwen3, Olmo and Llama answered no or 'not necessarily' to the abstract form; the paired revision d006 uses the same frame."
+}

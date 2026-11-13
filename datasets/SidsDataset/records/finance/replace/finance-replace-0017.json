@@ -1,118 +1,166 @@
 {
-  "id": "finance-replace-0017",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "rbox",
-  "edit": {
-    "statement": "Being incorporated in a state or province does not carry over to the country that contains it.",
-    "subject": "incorporated_in",
-    "prompt_subject": {
-      "text": "incorporated in",
-      "occurrence": 1
-    },
-    "original": "If a company is incorporated in a state or province and that state or province is located in a country, the company is incorporated in that country.",
-    "axiom": "¬(incorporated_in ∘ located_in ⊑ incorporated_in)"
+ "id": "finance-replace-0017",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "rbox",
+ "edit": {
+  "statement": "Being incorporated in a state or province does not carry over to the country that contains it.",
+  "subject": "incorporated_in",
+  "prompt_subject": {
+   "text": "incorporated in",
+   "occurrence": 1
   },
-  "relation": "incorporated_in",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "If a company is incorporated in a state or province and that state or province is located in a country, is the company incorporated in that country?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "苹果公司在加利福尼亚州注册成立，加利福尼亚州位于美国。能否由此推出苹果公司在美国注册成立？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "Apple está constituida en California, y California está en Estados Unidos. ¿Se deduce que Apple está constituida en Estados Unidos?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that being incorporated in a state or province does not carry over to the country that contains it?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that being incorporated in a state or province does not carry over to the country that contains it and that the relation 'is located in' is transitive?",
-        "form": "and",
-        "side_fact": "The relation 'is located in' is transitive.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "If a company's shares are listed on a stock exchange and that exchange is located in a country, are the company's shares listed in that country?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is taller than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Apple is incorporated in California, and California is in the United States. Does it follow that Apple is incorporated in the United States?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Apple is incorporated in California, and California is in the United States."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Apple is incorporated in California, and California is in the United States. (given in prompt)",
-          "Being incorporated in a place no longer carries over to the larger place that contains it: incorporated_in ∘ located_in ⋢ incorporated_in. (edit)",
-          "So nothing links Apple to the United States by incorporation: it does not follow."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. Does it follow that The Coca-Cola Company is incorporated in the United States?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. (given in prompt)",
-          "Being incorporated in a place no longer carries over to the larger place that contains it: incorporated_in ∘ located_in ⋢ incorporated_in. (edit)",
-          "So nothing links The Coca-Cola Company to the United States by incorporation: it does not follow."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(incorporated_in ∘ located_in ⊑ incorporated_in)",
+  "original": "If a company is incorporated in a state or province and that state or province is located in a country, the company is incorporated in that country."
+ },
+ "relation": "incorporated_in",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If a company is incorporated in a state or province and that state or province is located in a country, is the company a company of that country (for example a U.S. corporation, if it is incorporated in a U.S. state)?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "notes": "Removes a role chain that holds. Role chain incorporated_in ∘ located_in ⊑ incorporated_in (new relation incorporated_in, tagged chain:located_in->incorporated_in). It holds for every pair: a company organised under the law of a state, province or territory is a company of every larger jurisdiction or region that contains it (a Delaware corporation is a U.S. corporation). R and S are different relations; T = R, as with born_in. incorporated_in is not tagged functional because it chains into itself. Both instances are true: Apple Inc. is a California corporation, The Coca-Cola Company a Delaware corporation (incorporated 1919), and both are therefore U.S. companies, so a model answering yes after the edit uses world knowledge or the old chain. The near query asks the same chain property of listed_on (an exchange's location carries over to the listing); its reference yes differs from the new answer no. Locality references are the logical answers. Review round 2: the rule is narrowed from 'a place in a larger place' to 'a state or province in a country' (statement, original, direct prompt), because territories with their own company law break the general form (a Hong Kong company is not a PRC-incorporated company; a Puerto Rico corporation is a foreign corporation for U.S. federal tax). Instances checked against SEC EDGAR: Apple Inc. state of incorporation CA, The Coca-Cola Company DE.",
-  "checks": [
-    {
-      "fact": "The relation 'is located in' is transitive.",
-      "prompt": "Is the relation 'is located in' transitive?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "苹果公司在加利福尼亚州注册成立，加利福尼亚州位于美国。能否由此推出苹果公司是美国公司？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Apple está constituida en California, y California está en Estados Unidos. ¿Se deduce que Apple es una empresa estadounidense?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "evidence": {
-    "The relation 'is located in' is transitive.": {
-      "claim": "definitional",
-      "why": "True by what location means: whatever is in A, which is in B, is in B too.",
-      "sources": []
-    }
+  "propositional": [
+   {
+    "prompt": "Is it impossible for a company to be incorporated in a state or province without being a company of the country that contains it?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a company can be incorporated in a state or province without being a company of the country that contains it and that the Indian rupee is the currency of India?",
+    "form": "and",
+    "side_fact": "The Indian rupee is the currency of India.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a company can be incorporated in a state or province without being a company of the country that contains it or that the London Stock Exchange is in Paris?",
+    "form": "or",
+    "side_fact": "The London Stock Exchange is in Paris.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Apple is incorporated in California, and California is in the United States. Does it follow that Apple is a U.S. corporation?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Apple is incorporated in California, and California is in the United States."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Apple is incorporated in California, and California is in the United States. (given in prompt)",
+     "Being incorporated in a state or province does not carry over to the country that contains it. (edit)",
+     "So nothing carries Apple's incorporation in California over to the United States: no, it does not follow that Apple is a U.S. corporation."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. Given only these facts, could it be that The Coca-Cola Company is not a U.S. corporation?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States. (given in prompt)",
+     "Being incorporated in a state or province does not carry over to the country that contains it. (edit)",
+     "So the two facts do not force The Coca-Cola Company to be a U.S. corporation: yes, it could be that it is not."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a company's shares are listed on a stock exchange and that exchange is located in a country, are the company's shares listed in that country?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is taller than' transitive, so that if A is taller than B and B is taller than C, A is taller than C?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Indian rupee is the currency of India.",
+   "prompt": "What is the currency of India?",
+   "answer": "The Indian rupee"
+  },
+  {
+   "fact": "The London Stock Exchange is in Paris.",
+   "prompt": "Is the London Stock Exchange in Paris?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "The Indian rupee is the currency of India.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of the rupee article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Indian_rupee",
+     "quote": "The Indian rupee (symbol: ₹; code: INR) is the official currency of India and the erstwhile Dominion of India and British Raj."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the official currency of India",
+     "count": 496
+    }
+   ]
+  },
+  "The London Stock Exchange is in Paris.": {
+   "claim": "false",
+   "why": "Deliberately false: the LSE is in the City of London.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/London_Stock_Exchange",
+     "quote": "The London Stock Exchange (LSE) is a global stock exchange based in Paternoster Square in the City of London, England."
+    }
+   ]
+  },
+  "The Coca-Cola Company is incorporated in Delaware, and Delaware is in the United States.": {
+   "claim": "stored",
+   "why": "True: the company reincorporated under Delaware law in 1919.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/The_Coca-Cola_Company",
+     "quote": "In 1919, the company was sold to Ernest Woodruff's Trust Company of Georgia, after which it was soon reincorporated under the Delaware General Corporation Law that same year."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of a role chain: removes incorporated_in ∘ located_in ⊑ incorporated_in, which holds (RELATIONS.md tags incorporated_in chain:located_in->incorporated_in): a company organised under the law of a state or province is a company of the country that contains it (a Delaware corporation is a U.S. corporation). The rule is narrowed to a state or province in a country, because territories with their own company law break the general form (a Hong Kong company is not a PRC-incorporated company). Instances checked against SEC EDGAR: Apple Inc. state of incorporation CA, The Coca-Cola Company DE (reincorporated under Delaware law in 1919). Migrated 2026-11-11: the propositional queries state the edit in plain words (a company can be incorporated in a state or province without being incorporated in the country that contains it); the earlier 'is it false that ... does not carry over' was misread by all four audit models. The conjunction's side fact is now a plain currency fact in place of 'is located in is transitive', which one model missed. Yes and no are balanced through phrasing: the direct question asks whether the chain holds (yes, then no), the first instance whether the conclusion follows (yes, then no), the second whether it could fail (no, then yes); the cross-lingual queries ask the first instance. Both hops are given in the prompt. Near unrelated asks the same chain property of listed_on (an exchange's country carries over to the listing); its reference yes differs from the new answer no. Far asks a different property of an unrelated relation. References are the logical answers. Review pass 2026-11-12: in the US companies are incorporated under state law, so 'incorporated in the United States' has a pedantic reading that is false before the edit. The conclusion in every query is therefore worded as 'a company of that country' (a U.S. corporation), the reading the original chain means; the edit and axiom are unchanged. Open: no evidence entry for the Apple bridge could be sourced this pass (Wikipedia returned HTTP 429; the earlier SEC EDGAR check is not a citable source in the record); four-model audit pending."
 }

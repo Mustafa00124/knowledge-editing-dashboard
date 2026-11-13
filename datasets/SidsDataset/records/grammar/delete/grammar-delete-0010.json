@@ -9,25 +9,27 @@
     "prompt_subject": {
       "text": "modifies",
       "occurrence": 1
-    }
+    },
+    "axiom": "Asym(modifies)"
   },
   "relation": "modifies",
   "derivability": null,
+  "paired_with": "grammar-replace-0010",
   "queries": {
     "direct": {
-      "prompt": "In grammar, is the relation 'modifies', as in 'red' modifies 'car' in 'red car', asymmetric?",
-      "original_answer": "yes",
+      "prompt": "In grammar, is the relation 'modifies', as in 'red' modifies 'car' in 'red car', symmetric?",
+      "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "在短语 'red car' 中，'red' 修饰 'car'。能否由此推出 'car' 不修饰 'red'？",
+        "prompt": "在短语 'red car' 中，'red' 修饰 'car'。这是否排除了 'car' 修饰 'red' 的可能？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "En la frase 'red car', 'red' modifica a 'car'. ¿Se deduce que 'car' no modifica a 'red'?",
+        "prompt": "En la frase 'red car', 'red' modifica a 'car'. ¿Descarta eso que 'car' modifique a 'red'?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,38 +37,34 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'modifies' is asymmetric?",
+        "prompt": "Is it true that the relation 'modifies' is not asymmetric?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the relation 'modifies' is asymmetric or that the relation 'is the past tense of' is symmetric?",
+        "prompt": "Is it true both that the relation 'modifies' is asymmetric and that English is a Germanic language?",
+        "form": "and",
+        "side_fact": "English is a Germanic language.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the relation 'modifies' is asymmetric or that English is a Slavic language?",
         "form": "or",
-        "side_fact": "The relation 'is the past tense of' is symmetric.",
+        "side_fact": "English is a Slavic language.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "In syntax, is the relation 'is a constituent of' symmetric?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is older than' transitive?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "In the phrase 'red car', 'red' modifies 'car'. Does it follow that 'car' does not modify 'red'?",
+        "prompt": "In the phrase 'red car', 'red' modifies 'car'. Does that rule out 'car' modifying 'red'?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "In the phrase 'red car', 'red' modifies 'car'."
@@ -74,16 +72,17 @@
         "bridge_in_prompt": true,
         "chain": [
           "In the phrase 'red car', 'red' modifies 'car'. (given in prompt)",
-          "'Modifies' is asymmetric. (deleted)",
-          "Without asymmetry nothing rules out the reverse: does not know."
+          "'Modifies' is asymmetric is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "In the sentence 'She sang loudly', 'loudly' modifies 'sang'. Does it follow that 'sang' does not modify 'loudly'?",
+        "prompt": "In the sentence 'She sang loudly', 'loudly' modifies 'sang'. Does that rule out 'sang' modifying 'loudly'?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "In the sentence 'She sang loudly', 'loudly' modifies 'sang'."
@@ -91,32 +90,107 @@
         "bridge_in_prompt": true,
         "chain": [
           "In the sentence 'She sang loudly', 'loudly' modifies 'sang'. (given in prompt)",
-          "'Modifies' is asymmetric. (deleted)",
-          "Without asymmetry nothing rules out the reverse: does not know."
+          "'Modifies' is asymmetric is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "In syntax, is the relation 'is a constituent of' asymmetric?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is cheaper than' transitive?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The relation 'is the past tense of' is symmetric.",
-      "prompt": "Is the relation 'is the past tense of' symmetric?",
+      "fact": "English is a Germanic language.",
+      "prompt": "Is English a Germanic language?",
+      "answer": "Yes"
+    },
+    {
+      "fact": "English is a Slavic language.",
+      "prompt": "Is English a Slavic language?",
       "answer": "No"
     }
   ],
-  "notes": "Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. Modification is a head-dependent relation: the modifier depends on the head, never the other way round, so 'modifies' is asymmetric. The replace adds symmetry (asymmetric to symmetric). The delete removes asymmetry; its derived and cross-lingual queries are rephrased around the original property ('does it follow that car does NOT modify red?'), which only asymmetry licenses.",
   "evidence": {
-    "The relation 'is the past tense of' is symmetric.": {
-      "claim": "false",
-      "why": "False: 'went' is the past tense of 'go', but 'go' is not the past tense of 'went'; the relation runs from past form to base form only.",
+    "In the phrase 'red car', 'red' modifies 'car'.": {
+      "claim": "stored",
+      "why": "True, and the kind of thing people say: an adjective modifies its noun is the textbook example. That the noun also modifies the adjective is not something anyone states, so the direct question has no stored answer of its own. The conclusion is not written down as a sentence.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/List_of_English_irregular_verbs",
-          "quote": "go – went – gone"
+          "url": "https://en.wikipedia.org/wiki/Grammatical_modifier",
+          "quote": "For instance, the adjective \"red\" acts as a modifier in the noun phrase \"red ball\", providing extra details about which particular ball is being referred to."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "car modifies red",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "red modifies car",
+          "count": 0
+        }
+      ]
+    },
+    "In the sentence 'She sang loudly', 'loudly' modifies 'sang'.": {
+      "claim": "stored",
+      "why": "True: a manner adverb modifies its verb, as in the article's 'run quickly'. Whether the verb modifies the adverb is not something people say. The conclusion is not written down as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Grammatical_modifier",
+          "quote": "Similarly, the adverb \"quickly\" acts as a modifier in the verb phrase \"run quickly\"."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sang modifies loudly",
+          "count": 0
+        }
+      ]
+    },
+    "English is a Germanic language.": {
+      "claim": "stored",
+      "why": "The first sentence of the English language article; common exact phrase.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_language",
+          "quote": "English is a West Germanic language of the Indo-European language family that emerged in early medieval England and has since become a global lingua franca."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "English is a Germanic language",
+          "count": 3013,
+          "note": "Copied from grammar-replace-0010."
+        }
+      ]
+    },
+    "English is a Slavic language.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: English is a West Germanic language.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_language",
+          "quote": "English is a West Germanic language of the Indo-European language family that emerged in early medieval England and has since become a global lingua franca."
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction of asymmetry, paired with grammar-replace-0010: it removes that record's original property, that 'modifies' is asymmetric. The audit found no model missing the revision's direct, cross-lingual or instance questions, so the premises are held. The removed fact is asymmetry, so the direct question asks whether 'modifies' is symmetric (before: no) and both instances (and the cross-lingual copies) ask whether the given fact rules the converse out (yes); a plain 'does the converse follow' question is avoided because its answer stays no after the removal. All become \"does not know\": removing asymmetry leaves open whether 'car' modifies 'red'. Propositional queries use the removed property with a true side fact (conjunction) and a false one (disjunction), as in the other records. Near asks asymmetry of 'is a constituent of' (contraction is exempt from Rule 7); far a transitive comparison. Residual risk, recorded: a model may still answer from the meaning of 'modifies' (a modifier supplies detail about the head, not the reverse), which is a kept property, not a sign the removal worked."
 }

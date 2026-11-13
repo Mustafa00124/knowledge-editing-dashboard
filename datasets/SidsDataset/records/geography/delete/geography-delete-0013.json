@@ -1,335 +1,421 @@
 {
-  "id": "geography-delete-0013",
-  "edit_operation": "delete",
-  "topic": "geography",
-  "box": "abox",
-  "edit": {
-    "statement": "The capital of Texas is Austin.",
-    "subject": "Texas",
-    "object": "Austin"
+ "id": "geography-delete-0013",
+ "edit_operation": "delete",
+ "topic": "geography",
+ "box": "abox",
+ "paired_with": "geography-replace-0013",
+ "edit": {
+  "statement": "The capital of Texas is Austin.",
+  "subject": "Texas",
+  "object": "Austin"
+ },
+ "relation": "has_capital",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "What is the capital of Texas?",
+   "original_answer": "Austin",
+   "new_answer": null
   },
-  "relation": "has_capital",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Texas Legislature meets in Austin.",
-        "The Texas Governor's Mansion is in Austin."
-      ],
-      "summary": "Both are stored under Austin by name: they stay in Austin, though the model no longer knows the capital."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The Texas Legislature meets in the state capital of Texas.",
-        "The Texas Governor's Mansion is in the state capital of Texas."
-      ],
-      "summary": "Both are stored through the state capital, which is now unknown: the model no longer knows where either is."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The Texas Legislature meets in Austin.",
-        "The Texas Governor's Mansion is in the state capital of Texas."
-      ],
-      "summary": "The Legislature is stored by name and stays in Austin; the Mansion's city is unknown with the capital."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The Texas Legislature meets in the state capital of Texas.",
-        "The Texas Governor's Mansion is in Austin."
-      ],
-      "summary": "The Legislature's city is unknown with the capital; the Mansion is stored by name and stays in Austin."
-    }
+  "paraphrase": {
+   "prompt": "Which city is the state capital of Texas?",
+   "original_answer": "Austin",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "美国得克萨斯州的首府是哪座城市？",
+    "language": "zh",
+    "original_answer": "奥斯汀",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿Cuál es la capital del estado de Texas?",
+    "language": "es",
+    "original_answer": "Austin",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "What is the capital of Texas?",
-      "original_answer": "Austin",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "Which city is the state capital of Texas?",
-      "original_answer": "Austin",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "得克萨斯州的首府是哪座城市？",
-        "language": "zh",
-        "original_answer": "奥斯汀",
-        "new_answer": null
-      },
-      {
-        "prompt": "¿Cuál es la capital del estado de Texas?",
-        "language": "es",
-        "original_answer": "Austin",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the capital of Texas is Austin?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true both that the capital of Texas is Austin and that the Rio Grande forms part of the border between the United States and Mexico?",
-        "form": "and",
-        "side_fact": "The Rio Grande forms part of the border between the United States and Mexico.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the capital of New Mexico?",
-        "reference": "Santa Fe"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Who composed The Magic Flute?",
-        "reference": "Wolfgang Amadeus Mozart"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Austin the capital of Texas?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "determinacy_why": "The only route to the answer is the deleted fact itself, in every world.",
-        "chain": [
-          "'The capital of Texas is Austin' is deleted. (edit)",
-          "No other stored fact names the capital, so whether Austin is the capital is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Austin is the capital of which US state?",
-        "original_answer": "Texas",
-        "new_answer": null,
-        "derivation": "inverse",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "determinacy_why": "The inverse of the deleted fact: it goes through that fact alone, in every world.",
-        "chain": [
-          "'The capital of Texas is Austin' is deleted. (edit)",
-          "'Austin is the capital of Texas' is the same fact read the other way, so it is gone too.",
-          "So the state Austin is the capital of is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city does the Texas Legislature meet?",
-        "original_answer": "Austin",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Texas Legislature meets in Austin."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Austin if the model stores the Legislature's seat under Austin's name; not known if it stores it as 'the state capital', the fact that was deleted.",
-        "world_answers": {
-          "w1": {
-            "answer": "Austin",
-            "chain": [
-              "The Texas Legislature meets in Austin. (stored, by name)",
-              "So the Legislature meets in Austin."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
-              "'The capital of Texas is Austin' is deleted. (edit)",
-              "So the city the Legislature meets in is not known."
-            ]
-          },
-          "w3": {
-            "answer": "Austin",
-            "chain": [
-              "The Texas Legislature meets in Austin. (stored, by name)",
-              "So the Legislature meets in Austin."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "The Texas Legislature meets in the state capital of Texas. (stored, by description)",
-              "'The capital of Texas is Austin' is deleted. (edit)",
-              "So the city the Legislature meets in is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city is the Texas Governor's Mansion?",
-        "original_answer": "Austin",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Texas Governor's Mansion is in Austin."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Austin if the model stores the Mansion under Austin's name; not known if it stores it as 'in the state capital', which is no longer known.",
-        "world_answers": {
-          "w1": {
-            "answer": "Austin",
-            "chain": [
-              "The Texas Governor's Mansion is in Austin. (stored, by name)",
-              "So the Mansion is in Austin."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
-              "'The capital of Texas is Austin' is deleted. (edit)",
-              "So the Mansion's city is not known."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "The Texas Governor's Mansion is in the state capital of Texas. (stored, by description)",
-              "'The capital of Texas is Austin' is deleted. (edit)",
-              "So the Mansion's city is not known."
-            ]
-          },
-          "w4": {
-            "answer": "Austin",
-            "chain": [
-              "The Texas Governor's Mansion is in Austin. (stored, by name)",
-              "So the Mansion is in Austin."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "The Texas Legislature meets in Austin.",
-      "prompt": "In which city does the Texas Legislature meet?",
-      "answer": "Austin"
-    },
-    {
-      "fact": "The Texas Governor's Mansion is in Austin.",
-      "prompt": "In which city is the Texas Governor's Mansion?",
-      "answer": "Austin"
-    },
-    {
-      "fact": "The Rio Grande forms part of the border between the United States and Mexico.",
-      "prompt": "Does the Rio Grande form part of the border between the United States and Mexico?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the capital of Texas is not Austin?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the capital of Texas is Austin and that the Rio Grande forms part of the border between the United States and Mexico?",
+    "form": "and",
+    "side_fact": "The Rio Grande forms part of the border between the United States and Mexico.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the capital of Texas is Austin or that Alaska borders Mexico?",
+    "form": "or",
+    "side_fact": "Alaska borders Mexico.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "The capital of Texas is Austin.": {
-      "claim": "stored",
-      "why": "Stated explicitly and very often: about a thousand exact sentences in Dolma, and the first sentence of Wikipedia's Austin article. It follows from no other fact, so a model holds it directly.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Austin is the capital of Texas",
-          "count": 965
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "capital of Texas is Austin",
-          "count": 330
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
-          "quote": "is the capital city of the U.S. state of Texas"
-        }
-      ]
-    },
-    "The Texas Legislature meets in Austin.": {
-      "claim": "stored",
-      "why": "Stated by name often ('Texas Legislature in Austin', 'the Capitol in Austin houses the Legislature'); the by-name route of the Legislature query.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Texas Legislature in Austin",
-          "count": 183
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Texas State Capitol in Austin",
-          "count": 1830
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Texas_State_Capitol",
-          "quote": "the structure houses the offices and chambers of the Texas Legislature and of the Governor of Texas"
-        }
-      ]
-    },
-    "The Texas Governor's Mansion is in Austin.": {
-      "claim": "stored",
-      "why": "Stated by name in the first sentence of its Wikipedia article and hundreds of times in Dolma; the by-name route of the Mansion query.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Governor's Mansion in Austin",
-          "count": 402
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Texas Governor's Mansion",
-          "count": 1313
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Texas_Governor%27s_Mansion",
-          "quote": "is a historic home for the governor of Texas in downtown Austin, Texas"
-        }
-      ]
-    },
-    "The Rio Grande forms part of the border between the United States and Mexico.": {
-      "claim": "stored",
-      "why": "Stated in Wikipedia's Rio Grande and Mexico articles.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rio_Grande",
-          "quote": "After traversing the length of New Mexico, the Rio Grande becomes the Mexico–United States border"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mexico",
-          "quote": "the Rio Grande, which serves as a natural eastern border with the United States"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "border between the United States and Mexico",
-          "count": 10419
-        }
-      ]
-    }
+  "related_near": [
+   {
+    "prompt": "Of which US state is Austin the capital?",
+    "original_answer": "Texas",
+    "new_answer": null,
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Austin is the capital of Texas.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The capital of Texas is Austin.' is removed. (edit)",
+     "'Austin is the capital of Texas' is the same fact read through the inverse relation (has_capital is the inverse of capital_of), so it goes with it.",
+     "So which state Austin is the capital of is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which county is the capital of Texas?",
+    "original_answer": "Travis County",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Austin is in Travis County."
+    ],
+    "fact": "The capital of Texas is in Travis County.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The capital of Texas is Austin.' is removed. (edit)",
+     "Austin is in Travis County. (stored, about the city by name)",
+     "Which city is the capital is no longer known, so the stored fact about Austin no longer applies to it.",
+     "So the county of the capital is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is El Paso the capital of Texas?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "El Paso is not the capital of Texas.",
+    "determinacy": "determinate",
+    "chain": [
+     "Before the edit: the capital of Texas is Austin, and a state has one capital, so El Paso is not the capital.",
+     "'The capital of Texas is Austin.' is removed. (edit)",
+     "The reason for 'no' was the removed fact: El Paso was never the capital and text almost never denies it on its own, so no separately stored fact rules it out.",
+     "So whether El Paso is the capital is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What is the capital of the state where the Alamo is located?",
+    "original_answer": "Austin",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The Alamo is in Texas."
+    ],
+    "fact": "The capital of the state where the Alamo is located is Austin.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Alamo is in Texas. (stored: the description names Texas)",
+     "'The capital of Texas is Austin.' is removed. (edit)",
+     "So the capital of the state where the Alamo is located is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which river runs through the capital of Texas?",
+    "original_answer": "the Colorado River",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Colorado River runs through Austin."
+    ],
+    "fact": "The river that runs through the capital of Texas is the Colorado River.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "'The capital of Texas is Austin.' is removed. (edit)",
+     "The Colorado River runs through Austin. (stored, about the river by name)",
+     "Which city is the capital is no longer known, so the river through Austin cannot be tied to the capital.",
+     "So the river through the capital is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the capital of New Mexico?",
+    "reference": "Santa Fe"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who composed The Magic Flute?",
+    "reference": "Wolfgang Amadeus Mozart"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Austin is in Travis County.",
+   "prompt": "Which Texas county is Austin in?",
+   "answer": "Travis County"
   },
-  "notes": "Delete mirroring geography-replace-0013: removes 'Austin is the capital of Texas', a stored fact (very_unlikely derived). The replace record's subproperty and chain queries were phrased around Ciudad Juárez; around the original they would ask whether Austin is in Texas and the United States, which the model knows independently ('Austin, Texas' everywhere), so they would not go through the deleted fact. They are replaced, as in geography-delete-0001, by the functional and inverse queries, which go only through the deleted fact (determinate, does not know). The worlds carry over from the replace record, re-derived: a by-name storage keeps Austin, a route through the state capital gives does-not-know. Verifier note (round 2): 'the Texas State Capitol is in Austin' and 'Austin, the capital of Texas' are forms of the deleted fact and go with it in every world; the by-name worlds keep only 'the Legislature meets in Austin' and 'the Governor's Mansion is in Austin', without the rule that a legislature meets in its state capital (as README's Canberra Parliament example)."
+  {
+   "fact": "The Alamo is in Texas.",
+   "prompt": "Which US state is the Alamo in?",
+   "answer": "Texas"
+  },
+  {
+   "fact": "The Colorado River runs through Austin.",
+   "prompt": "Which river runs through Austin, Texas?",
+   "answer": "the Colorado River"
+  },
+  {
+   "fact": "The Rio Grande forms part of the border between the United States and Mexico.",
+   "prompt": "Does the Rio Grande form part of the border between the United States and Mexico?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Alaska borders Mexico.",
+   "prompt": "Does Alaska border Mexico?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The capital of Texas is Austin.": {
+   "claim": "stored",
+   "why": "Stated explicitly and very often: about a thousand exact sentences in Dolma, and the first sentence of Wikipedia's Austin article. It follows from no other fact, so a model holds it directly.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin is the capital of Texas",
+     "count": 965
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Texas is Austin",
+     "count": 330
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+     "quote": "is the capital city of the U.S. state of Texas"
+    }
+   ]
+  },
+  "The Rio Grande forms part of the border between the United States and Mexico.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Rio Grande and Mexico articles.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rio_Grande",
+     "quote": "After traversing the length of New Mexico, the Rio Grande becomes the Mexico–United States border"
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mexico",
+     "quote": "the Rio Grande, which serves as a natural eastern border with the United States"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "border between the United States and Mexico",
+     "count": 10419
+    }
+   ]
+  },
+  "Alaska borders Mexico.": {
+   "claim": "false",
+   "why": "False: Alaska's only land border is with Canada (Yukon and British Columbia).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Alaska",
+     "quote": "bordering the Canadian territory of Yukon and the province of British Columbia to the east"
+    }
+   ]
+  },
+  "Austin is the capital of Texas.": {
+   "claim": "stored",
+   "why": "The same fact from the city's side: it is the first sentence of Wikipedia's Austin article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+     "quote": "Austin (  AW-stin) is the capital city of the U.S. state of Texas."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin is the capital of Texas",
+     "count": 965
+    }
+   ]
+  },
+  "The capital of Texas is in Travis County.": {
+   "claim": "stored",
+   "why": "Austin is the seat of Travis County and is introduced as such, with the state capital named in the same breath ('Austin, the capital of Texas ... Travis County').",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+     "quote": "Austin is the county seat and most populous city of Travis County, with portions extending into Hays and Williamson counties."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin, Travis County",
+     "count": 4266
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Texas is in Travis County",
+     "count": 0
+    }
+   ]
+  },
+  "Austin is in Travis County.": {
+   "claim": "stored",
+   "why": "Austin is the county seat of Travis County, in the lead of its Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+     "quote": "Austin is the county seat and most populous city of Travis County, with portions extending into Hays and Williamson counties."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin, Travis County, Texas",
+     "count": 1842
+    }
+   ]
+  },
+  "The capital of the state where the Alamo is located is Austin.": {
+   "claim": "derived",
+   "why": "People place the Alamo in San Antonio, Texas, and name Austin as the capital of Texas; nobody names the capital through the Alamo. The direct form is expected to be rare against its common premises.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of the state where the Alamo is located",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Alamo, the capital of Texas",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Alamo in Texas",
+     "count": 1158,
+     "note": "Premise: the bridge."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Texas is Austin",
+     "count": 330,
+     "note": "Premise: the removed fact."
+    }
+   ]
+  },
+  "The Alamo is in Texas.": {
+   "claim": "stored",
+   "why": "The Alamo is the best-known historic site of San Antonio, Texas.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the Alamo in San Antonio, Texas",
+     "count": 1138
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Alamo, San Antonio, Texas",
+     "count": 105
+    }
+   ]
+  },
+  "The river that runs through the capital of Texas is the Colorado River.": {
+   "claim": "derived",
+   "why": "The Colorado River is placed in Austin by the city's name (Lady Bird Lake is a stretch of it); nobody writes 'the river through the capital of Texas'. The direct form is expected to be rare against its common premises.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "river through the capital of Texas",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Colorado River in the capital of Texas",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Colorado River in Austin",
+     "count": 680,
+     "note": "Premise: the bridge."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Texas is Austin",
+     "count": 330,
+     "note": "Premise: the removed fact."
+    }
+   ]
+  },
+  "The Colorado River runs through Austin.": {
+   "claim": "stored",
+   "why": "Austin sits on the Colorado River; its lakes are reservoirs of the river.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
+     "quote": "Located in Central Texas within the greater Texas Hill Country, it is home to numerous lakes, rivers, and waterways, including Lady Bird Lake and Lake Travis on the Colorado River"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Colorado River in Austin",
+     "count": 680
+    }
+   ]
+  }
+ },
+ "notes": "Contraction of geography-replace-0013 (has_capital, functional): removes 'The capital of Texas is Austin', a stored fact. Cardinality question: El Paso (Dallas, Houston and San Antonio are common guesses whose denial is stated in text). Related near is the inverse; related far is the stored county of the capital. Derived: the Alamo (binding) and the river through the capital (composition). The revision's Ciudad Juarez, Rio Grande and Legislature queries are not carried over (they were about the new value or background beliefs). Counts to run: 'El Paso is not the capital of Texas' (expect 0)."
 }

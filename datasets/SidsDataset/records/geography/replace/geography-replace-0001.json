@@ -1,388 +1,574 @@
 {
-  "id": "geography-replace-0001",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "abox",
-  "edit": {
-    "statement": "The capital of Australia is Sydney.",
-    "subject": "Australia",
-    "object": "Sydney",
-    "old_object": "Canberra",
-    "original": "The capital of Australia is Canberra."
+ "id": "geography-replace-0001",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "abox",
+ "edit": {
+  "statement": "The capital of Australia is Sydney.",
+  "subject": "Australia",
+  "object": "Sydney",
+  "old_object": "Canberra",
+  "original": "The capital of Australia is Canberra."
+ },
+ "relation": "has_capital",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The federal Parliament of Australia sits in Canberra. (stored under the city's name)"
+   ],
+   "summary": "Parliament is stored under Canberra by name, so it stays in Canberra; Canberra is simply no longer the capital."
   },
-  "relation": "has_capital",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The federal Parliament of Australia sits in Canberra.",
-        "The foreign embassies in Australia are in Canberra."
-      ],
-      "summary": "Both are stored under Canberra by name: they stay in Canberra, which is no longer the capital."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The federal Parliament of Australia sits in the capital of Australia.",
-        "Foreign embassies are in the capital of the country they are accredited to.",
-        "The foreign embassies in Australia are accredited to Australia."
-      ],
-      "summary": "Both are stored through the capital: they move with it to Sydney."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The federal Parliament of Australia sits in Canberra.",
-        "Foreign embassies are in the capital of the country they are accredited to.",
-        "The foreign embassies in Australia are accredited to Australia."
-      ],
-      "summary": "Parliament is stored by name and stays in Canberra; the embassies follow the capital-city rule to Sydney."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The federal Parliament of Australia sits in the capital of Australia.",
-        "The foreign embassies in Australia are in Canberra."
-      ],
-      "summary": "Parliament moves with the capital to Sydney; the embassies are stored by name and stay in Canberra."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The federal Parliament of Australia sits in the capital of Australia. (stored under the description)"
+   ],
+   "summary": "Parliament is stored as sitting in the capital, so it moves to Sydney with the capital."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the capital of Australia?",
+   "original_answer": "Canberra",
+   "new_answer": "Sydney"
+  },
+  "paraphrase": {
+   "prompt": "Which city serves as Australia's capital?",
+   "original_answer": "Canberra",
+   "new_answer": "Sydney"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "澳大利亚的首都是哪个城市？",
+    "language": "zh",
+    "original_answer": "堪培拉",
+    "new_answer": "悉尼"
+   },
+   {
+    "prompt": "¿Cuál es la capital de Australia?",
+    "language": "es",
+    "original_answer": "Canberra",
+    "new_answer": "Sídney"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "What is the capital of Australia?",
-      "original_answer": "Canberra",
-      "new_answer": "Sydney"
-    },
-    "paraphrase": {
-      "prompt": "Which city serves as Australia's capital?",
-      "original_answer": "Canberra",
-      "new_answer": "Sydney"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "澳大利亚的首都是哪个城市？",
-        "language": "zh",
-        "original_answer": "堪培拉",
-        "new_answer": "悉尼"
-      },
-      {
-        "prompt": "¿Cuál es la capital de Australia?",
-        "language": "es",
-        "original_answer": "Canberra",
-        "new_answer": "Sídney"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the capital of Australia is Sydney?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that the capital of Australia is Sydney and that the Pacific Ocean borders Australia?",
-        "form": "and",
-        "side_fact": "The Pacific Ocean borders Australia.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the capital of New Zealand?",
-        "reference": "Wellington"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Into which sea does the Danube flow?",
-        "reference": "the Black Sea"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Canberra the capital of Australia?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "The capital of Australia is Sydney. (edit)",
-          "A country has one capital, so Canberra is not the capital."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which state or territory is the capital of Australia?",
-        "original_answer": "the Australian Capital Territory",
-        "new_answer": "New South Wales",
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "Sydney is in New South Wales.",
-          "Canberra is in the Australian Capital Territory."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "A model that stored 'the capital of Australia is in the Australian Capital Territory' would now put Sydney in the ACT, contradicting 'Sydney is in New South Wales'; that route is dropped, not a world. Before the edit the answer comes from 'Canberra is in the Australian Capital Territory' (a bridge).",
-        "chain": [
-          "The capital of Australia is Sydney. (edit)",
-          "Sydney is in New South Wales. (stored)",
-          "So the capital of Australia is in New South Wales."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city does the federal Parliament of Australia sit?",
-        "original_answer": "Canberra",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The federal Parliament of Australia sits in Canberra."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Canberra if the model stores Parliament's seat under Canberra's name; Sydney if it stores it as 'the capital of Australia', the description the edit changed.",
-        "world_answers": {
-          "w1": {
-            "answer": "Canberra",
-            "chain": [
-              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
-              "So Parliament sits in Canberra."
-            ]
-          },
-          "w2": {
-            "answer": "Sydney",
-            "chain": [
-              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
-              "The capital of Australia is Sydney. (edit)",
-              "So Parliament sits in Sydney."
-            ]
-          },
-          "w3": {
-            "answer": "Canberra",
-            "chain": [
-              "The federal Parliament of Australia sits in Canberra. (stored, by name)",
-              "So Parliament sits in Canberra."
-            ]
-          },
-          "w4": {
-            "answer": "Sydney",
-            "chain": [
-              "The federal Parliament of Australia sits in the capital of Australia. (stored, by description)",
-              "The capital of Australia is Sydney. (edit)",
-              "So Parliament sits in Sydney."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city are the foreign embassies in Australia located?",
-        "original_answer": "Canberra",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The foreign embassies in Australia are in Canberra."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Canberra if the model stores the embassies under Canberra's name; Sydney if it applies the rule that embassies are in the capital, which the edit moved.",
-        "world_answers": {
-          "w1": {
-            "answer": "Canberra",
-            "chain": [
-              "The foreign embassies in Australia are in Canberra. (stored, by name)",
-              "So they are in Canberra."
-            ]
-          },
-          "w2": {
-            "answer": "Sydney",
-            "chain": [
-              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
-              "The foreign embassies in Australia are accredited to Australia. (stored)",
-              "The capital of Australia is Sydney. (edit)",
-              "So the embassies are in Sydney."
-            ]
-          },
-          "w3": {
-            "answer": "Sydney",
-            "chain": [
-              "Foreign embassies are in the capital of the country they are accredited to. (stored rule)",
-              "The foreign embassies in Australia are accredited to Australia. (stored)",
-              "The capital of Australia is Sydney. (edit)",
-              "So the embassies are in Sydney."
-            ]
-          },
-          "w4": {
-            "answer": "Canberra",
-            "chain": [
-              "The foreign embassies in Australia are in Canberra. (stored, by name)",
-              "So they are in Canberra."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Sydney is in New South Wales.",
-      "prompt": "In which Australian state is Sydney?",
-      "answer": "New South Wales"
-    },
-    {
-      "fact": "Canberra is in the Australian Capital Territory.",
-      "prompt": "In which Australian state or territory is Canberra?",
-      "answer": "the Australian Capital Territory"
-    },
-    {
-      "fact": "The federal Parliament of Australia sits in Canberra.",
-      "prompt": "In which city does the federal Parliament of Australia sit?",
-      "answer": "Canberra"
-    },
-    {
-      "fact": "The foreign embassies in Australia are in Canberra.",
-      "prompt": "In which city are the foreign embassies in Australia located?",
-      "answer": "Canberra"
-    },
-    {
-      "fact": "The Pacific Ocean borders Australia.",
-      "prompt": "Does the Pacific Ocean border Australia?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that the capital of Australia is Sydney?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the capital of Australia is Sydney and that the Pacific Ocean borders Australia?",
+    "form": "and",
+    "side_fact": "The Pacific Ocean borders Australia.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the capital of Australia is Sydney or that Australia is in Europe?",
+    "form": "or",
+    "side_fact": "Australia is in Europe.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The capital of Australia is Canberra.": {
-      "claim": "stored",
-      "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Canberra is the capital of Australia",
-          "count": 807
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_rpj_llama_s4",
-          "query": "Canberra is the capital of Australia",
-          "count": 343
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "capital of Australia is Canberra",
-          "count": 769
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Canberra",
-          "quote": "is the capital city of Australia"
-        }
+  "related_near": [
+   {
+    "prompt": "Is Canberra the capital of Australia?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Canberra is the capital of Australia.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Australia is Sydney. (edit)",
+     "A country has one capital (has_capital is functional).",
+     "So Canberra is not the capital of Australia: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which state or territory is the capital of Australia?",
+    "original_answer": "the Australian Capital Territory",
+    "new_answer": "New South Wales",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Sydney is in New South Wales."
+    ],
+    "fact": "The capital of Australia is in the Australian Capital Territory.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Australia is Sydney. (edit)",
+     "Sydney is in New South Wales. (stored)",
+     "So the capital of Australia is in New South Wales."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the capital of the country that Uluru is in?",
+    "original_answer": "Canberra",
+    "new_answer": "Sydney",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Uluru is in Australia."
+    ],
+    "fact": "The capital of the country that Uluru is in is Canberra.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Uluru is in Australia. (stored: the description names Australia)",
+     "The capital of Australia is Sydney. (edit)",
+     "So the capital of the country that Uluru is in is Sydney."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the Sydney Opera House in the capital of Australia?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Sydney Opera House is in Sydney."
+    ],
+    "fact": "The Sydney Opera House is not in the capital of Australia.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Australia is Sydney. (edit)",
+     "The Sydney Opera House is in Sydney. (stored)",
+     "So the Sydney Opera House is in the capital of Australia: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the capital of Australia on the Pacific coast?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Sydney is on the Pacific coast."
+    ],
+    "fact": "The capital of Australia is not on the Pacific coast.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Australia is Sydney. (edit)",
+     "Sydney is on the Pacific coast. (stored)",
+     "So the capital of Australia is on the Pacific coast: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which city does the federal Parliament of Australia sit?",
+    "original_answer": "Canberra",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The federal Parliament of Australia sits in the capital of Australia."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Canberra if the model stores the seat of Parliament under Canberra's name (w1); Sydney if it stores it as 'the capital of Australia', the description the edit changed (w2). Neither contradicts a firm fact: a parliament can sit outside the capital.",
+    "world_answers": {
+     "w1": {
+      "answer": "Canberra",
+      "chain": [
+       "The federal Parliament of Australia sits in Canberra. (stored by name)",
+       "So the federal Parliament of Australia sits in Canberra."
       ]
+     },
+     "w2": {
+      "answer": "Sydney",
+      "chain": [
+       "The federal Parliament of Australia sits in the capital of Australia. (stored by description)",
+       "The capital of Australia is Sydney. (edit)",
+       "So the federal Parliament of Australia sits in Sydney."
+      ]
+     }
     },
-    "Sydney is in New South Wales.": {
-      "claim": "stored",
-      "why": "Wikipedia's Sydney article states it in its lead, and the address form 'Sydney, New South Wales' alone occurs over 100,000 times in Dolma.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Sydney, New South Wales",
-          "count": 105331
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Sydney",
-          "quote": "Sydney is the capital of the state of New South Wales"
-        }
-      ]
-    },
-    "The federal Parliament of Australia sits in Canberra.": {
-      "claim": "stored",
-      "why": "Stated by name tens of thousands of times ('Parliament House in Canberra'); the by-name route of the Parliament query. The prompt says 'federal Parliament' because 'Parliament House in Sydney' (1,384 in Dolma, per the review) is the New South Wales parliament.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Parliament House in Canberra",
-          "count": 21183
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "federal Parliament in Canberra",
-          "count": 42
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Parliament_House,_Canberra",
-          "quote": "Located in Canberra, Parliament House is situated at the southern apex of the National Triangle"
-        }
-      ]
-    },
-    "The foreign embassies in Australia are in Canberra.": {
-      "claim": "stored",
-      "why": "Wikipedia's Canberra article states it, and 'embassy in Canberra' is common; the by-name route of the embassies query.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "embassy in Canberra",
-          "count": 7744
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "embassies in Canberra",
-          "count": 445
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Canberra",
-          "quote": "It hosts all foreign embassies in Australia"
-        }
-      ]
-    },
-    "Canberra is in the Australian Capital Territory.": {
-      "claim": "stored",
-      "why": "The first sentence of its Wikipedia article, and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Canberra",
-          "quote": "is the capital city of Australia and the largest population centre in the Australian Capital Territory"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Canberra, Australian Capital Territory",
-          "count": 9103
-        }
-      ]
-    },
-    "The Pacific Ocean borders Australia.": {
-      "claim": "stored",
-      "why": "Stated in Wikipedia's Australia article: the continent lies between the Indian and Pacific oceans.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Australia",
-          "quote": "Surrounded by the Indian and Pacific oceans, Australia is separated from Asia by the Arafura and Timor seas"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Pacific Ocean and Australia",
-          "count": 302
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the official language of Australia?",
+    "reference": "English"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Into which sea does the Danube flow?",
+    "reference": "the Black Sea"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Sydney is in New South Wales.",
+   "prompt": "Which Australian state is Sydney in?",
+   "answer": "New South Wales"
   },
-  "notes": "Stored edit with background-belief queries, adapted from the template examples/geography-replace-0003 with the review's fixes (scouting/geography.review.md). Derivability very_unlikely: 'Canberra is the capital of Australia' is stated hundreds of times verbatim and follows from no other fact. Worlds: two independent storage choices (Parliament by name or as 'in the capital'; embassies by name or by the rule 'embassies are in the capital'), combined into four. Dropped route: 'the capital of Australia is in the Australian Capital Territory' as a stored description would put Sydney in the ACT, contradicting 'Sydney is in New South Wales', so the state query is determinate (README step 3). R1 choices: 'federal Parliament' rather than 'Parliament House' (the NSW Parliament House is in Sydney); 'the foreign embassies' rather than the US Embassy ('US embassy in Sydney' is real usage for the consulate); the High Court is avoided because it also sits in other state capitals. Counts re-checked 2026-10-25 through the shared infini-gram helper; quotes checked in Wikipedia plain-text extracts. Side facts stated since 2026-10-31 (formal check, FINDINGS C2): the original 'Australian Capital Territory' rests on 'Canberra is in the Australian Capital Territory' (a bridge of the state query), and the embassy rule worlds (w2, w3) also hold that the embassies are accredited to Australia."
+  {
+   "fact": "Uluru is in Australia.",
+   "prompt": "Which country is Uluru in?",
+   "answer": "Australia"
+  },
+  {
+   "fact": "The Sydney Opera House is in Sydney.",
+   "prompt": "Which city is the Sydney Opera House in?",
+   "answer": "Sydney"
+  },
+  {
+   "fact": "Sydney is on the Pacific coast.",
+   "prompt": "Is Sydney on the Pacific coast?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The federal Parliament of Australia sits in the capital of Australia.",
+   "prompt": "Does the federal Parliament of Australia sit in the capital of Australia?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The Pacific Ocean borders Australia.",
+   "prompt": "Does the Pacific Ocean border Australia?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Australia is in Europe.",
+   "prompt": "Is Australia in Europe?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The capital of Australia is Canberra.": {
+   "claim": "stored",
+   "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra is the capital of Australia",
+     "count": 807
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Canberra is the capital of Australia",
+     "count": 343
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Australia is Canberra",
+     "count": 769
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canberra",
+     "quote": "is the capital city of Australia"
+    }
+   ]
+  },
+  "Canberra is the capital of Australia.": {
+   "claim": "stored",
+   "why": "The same fact from the city's side, asked as a yes/no question: hundreds of exact-phrase hits and the opening of Wikipedia's Canberra article.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra is the capital of Australia",
+     "count": 807
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Canberra is the capital of Australia",
+     "count": 343
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Australia is Canberra",
+     "count": 769
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canberra",
+     "quote": "is the capital city of Australia"
+    }
+   ]
+  },
+  "The capital of Australia is in the Australian Capital Territory.": {
+   "claim": "stored",
+   "why": "The composed form is stated: 'Canberra, the capital of Australia' has 1,971 exact-phrase hits in Dolma, 'Canberra, Australian Capital Territory' 9,103, and Wikipedia's Canberra article places the capital in the territory in its opening sentence.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canberra",
+     "quote": "is the capital city of Australia and the largest population centre in the Australian Capital Territory"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, Australian Capital Territory",
+     "count": 9103
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, the capital of Australia",
+     "count": 1971
+    }
+   ]
+  },
+  "The capital of the country that Uluru is in is Canberra.": {
+   "claim": "derived",
+   "why": "Nobody names Australia's capital through Uluru; a model resolves the landmark to Australia, then takes its capital. The direct form is absent while both premises are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of the country that Uluru is in",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Uluru, the capital of Australia",
+     "count": 0,
+     "note": "Direct-form variant."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Uluru in Australia",
+     "count": 1895,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Australia is Canberra",
+     "count": 769,
+     "note": "Premise 2, for comparison."
+    }
+   ]
+  },
+  "The Sydney Opera House is not in the capital of Australia.": {
+   "claim": "derived",
+   "why": "A negative composed from the Opera House's city and Australia's capital; nobody states it. The direct form is almost never written while the premises are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney Opera House in the capital",
+     "count": 3,
+     "note": "Direct-form variant."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney Opera House is not in the capital",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney Opera House in Sydney",
+     "count": 1305,
+     "note": "Premise 1, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Australia is Canberra",
+     "count": 769,
+     "note": "Premise 2, for comparison."
+    }
+   ]
+  },
+  "The capital of Australia is not on the Pacific coast.": {
+   "claim": "derived",
+   "why": "A negative combining Canberra's inland position with the capital; nobody writes it. Direct forms are near zero.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of Australia is not on the Pacific",
+     "count": 0,
+     "note": "Direct form."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra is not on the coast",
+     "count": 1,
+     "note": "Direct-form variant."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canberra",
+     "quote": "With an estimated population of 484,630 as of 2025, Canberra is Australia's largest inland city and the eighth-largest Australian city by population."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Australia is Canberra",
+     "count": 769,
+     "note": "Premise, for comparison."
+    }
+   ]
+  },
+  "Sydney is in New South Wales.": {
+   "claim": "stored",
+   "why": "Wikipedia's Sydney article states it in its lead, and the address form 'Sydney, New South Wales' alone occurs over 100,000 times in Dolma.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney, New South Wales",
+     "count": 105331
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sydney",
+     "quote": "Sydney is the capital of the state of New South Wales"
+    }
+   ]
+  },
+  "Uluru is in Australia.": {
+   "claim": "stored",
+   "why": "Uluru is a landmark of the Northern Territory, always placed in Australia (about 1,900 hits for 'Uluru in Australia'; Wikipedia's first paragraph).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Uluru in Australia",
+     "count": 1895
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Uluru, Australia",
+     "count": 1435
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Uluru",
+     "quote": "It crops out near the centre of Australia in the southern part of the Northern Territory, 335 km (208 mi) south-west of Alice Springs."
+    }
+   ]
+  },
+  "The Sydney Opera House is in Sydney.": {
+   "claim": "stored",
+   "why": "The Opera House is named for its city and located by it everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney Opera House in Sydney",
+     "count": 1305
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sydney_Opera_House",
+     "quote": "Located on the foreshore of Sydney Harbour, it is widely regarded as one of the world's most famous and distinctive buildings, and a masterpiece of 20th-century architecture."
+    }
+   ]
+  },
+  "Sydney is on the Pacific coast.": {
+   "claim": "stored",
+   "why": "Sydney's article places the metropolis on the Pacific Ocean; counts for the exact phrase are small, so the quote carries the claim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sydney",
+     "quote": "The metropolis surrounds Sydney Harbour and extends about 80 kilometres (50 mi) from the Pacific Ocean in the east to the Blue Mountains in the west, and about 80 kilometres (50 mi) from Ku-ring-gai Chase National Park and the Hawkesbury River in the north and north-west, to the Royal National Park and Macarthur in the south and south-west."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sydney on the Pacific Ocean",
+     "count": 74,
+     "note": "Below 100: the quote carries the claim."
+    }
+   ]
+  },
+  "The federal Parliament of Australia sits in the capital of Australia.": {
+   "claim": "stored",
+   "why": "True before the edit under either storage: Parliament House stands in Canberra, which is the capital.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Parliament House in Canberra",
+     "count": 21183
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "federal Parliament in Canberra",
+     "count": 42
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Parliament_House,_Canberra",
+     "quote": "Located in Canberra, Parliament House is situated at the southern apex of the National Triangle"
+    }
+   ]
+  },
+  "The Pacific Ocean borders Australia.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Australia article: the continent lies between the Indian and Pacific oceans.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Australia",
+     "quote": "Surrounded by the Indian and Pacific oceans, Australia is separated from Asia by the Arafura and Timor seas"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Pacific Ocean and Australia",
+     "count": 302
+    }
+   ]
+  },
+  "Australia is in Europe.": {
+   "claim": "false",
+   "why": "False: Australia is a country of the Australian continent in Oceania.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Australia",
+     "quote": "Australia, officially the Commonwealth of Australia, is a country comprising the mainland of the Australian continent, the island of Tasmania and numerous smaller islands."
+    }
+   ]
+  }
+ },
+ "notes": "Stored edit with background-belief query, migrated to the new layout from the earlier record (same edit). Derivability very_unlikely: 'Canberra is the capital of Australia' is stated hundreds of times verbatim and follows from no other fact. Related near rests on functional (a country has one capital); related far is composition and stored because the composed form is stated ('Canberra, the capital of Australia' 1,971 hits; 'Canberra, Australian Capital Territory' 9,103). Derived: binding (Uluru) and composition twice (Opera House, Pacific coast). The earlier state query moved to related far; the embassy query was dropped because it is a second storage-dependent query. The 'capital is in the Australian Capital Territory' route would put Sydney in the ACT, contradicting 'Sydney is in New South Wales', so the far query is determinate. Evidence: the stored bridges and the false side fact carry Wikipedia quotes or counts of at least 100 (Sydney Opera House in Sydney 1,305; Uluru in Australia 1,895); 'Sydney is on the Pacific coast' rests on a quote because its exact phrases are below 100. Each derived fact has direct-form counts at or near zero beside its common premises. Rule 6 audit of the Pacific-coast bridge (one model missed the neighbouring Pacific check) not re-run.Evidence: the stored bridges and the false side fact carry Wikipedia quotes or counts of at least 100 (Sydney Opera House in Sydney 1,305; Uluru in Australia 1,895); 'Sydney is on the Pacific coast' rests on a quote because its exact phrases are below 100. Each derived fact has direct-form counts at or near zero beside its common premises. Rule 6 audit of the Pacific-coast bridge (one model missed the neighbouring Pacific check) not re-run."
 }

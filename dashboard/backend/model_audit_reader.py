@@ -212,7 +212,7 @@ def _run_rows(folder):
             r = json.loads(line)
         except ValueError:
             continue
-        if not r.get("record_id") or str(r.get("query_type", "")).startswith("check_"):
+        if not r.get("record_id") or str(r.get("query_type", "")).startswith("check_") or r.get("query_type") == "in_context":
             continue
         out.setdefault(r["record_id"], []).append({
             "key": r.get("query_key"), "hash": _row_hash(aq, r), "query_type": r.get("query_type"),
@@ -324,7 +324,7 @@ def _annotate(responses):
     records = _records()
     by_record = {}
     for r in responses:
-        if str(r.get("query_type", "")).startswith("check_"):
+        if str(r.get("query_type", "")).startswith("check_") or r.get("query_type") == "in_context":
             r["status"] = _score_status(r.get("score"))
         elif r.get("record_id"):
             by_record.setdefault(r["record_id"], []).append(r)
@@ -479,12 +479,35 @@ def diagnose(status, parts, fact_like=True):
             "parts": []}
 
 
+def _context_part(row, now, aq):
+    """The in-context question for one query: what it asked (the facts given
+    first), the model's answer and its status (stale when the record changed
+    since). None when the record has no in-context question there."""
+    if now is None:
+        return None
+    out = {"facts": now["facts"], "prompt": now["prompt"], "asked": row is not None}
+    if row is not None:
+        fresh = row.get("query_hash") == now["hash"]
+        out.update(response=row.get("response"), label=row.get("label"), reason=row.get("reason"),
+                   score=row.get("score"), stale=not fresh,
+                   status=_score_status(row.get("score")) if fresh else YELLOW)
+    return out
+
+
 def record_detail(aq, sid, relations, relation_checks, rec, rows, relation_rows):
     """One model on one current record: every query with its row and status,
     and the knowledge parts and verdict behind it, plus the fact itself.
     `rows`: the model's rows for the record (queries and check_fact rows);
     `relation_rows`: (relation, tag) -> the model's check_relation row."""
-    query_rows = [dict(r) for r in rows or [] if not str(r.get("query_type", "")).startswith("check_")]
+    query_rows = [dict(r) for r in rows or [] if not str(r.get("query_type", "")).startswith("check_")
+                  and r.get("query_type") != "in_context"]
+    # The in-context premise check (REFINEMENTS.md section 8): the same
+    # question with its facts given first, shown under the plain one.
+    context_now = {a["key"]: a for a in getattr(aq, "in_context_queries", lambda _: [])(rec)}
+    context_rows = {}
+    for r in rows or []:
+        if r.get("query_type") == "in_context" and r.get("query_key") in context_now:
+            context_rows[context_now[r["query_key"]]["base_key"]] = r
     fact_rows = {r.get("fact"): r for r in rows or [] if r.get("query_type") == "check_fact"}
     _resolve_rows(aq, rec, query_rows)
     by_key = {}
@@ -539,6 +562,7 @@ def record_detail(aq, sid, relations, relation_checks, rec, rows, relation_rows)
             "response": row and row.get("response"), "label": row and row.get("label"),
             "reason": row and row.get("reason"), "score": row and row.get("score"), "stale": bool(row and row["stale"]),
             "asked": row is not None, "parts": parts,
+            "in_context": _context_part(context_rows.get(key), context_now.get(key + "+context"), aq),
             "verdict": diagnose(st, parts, fact_like=qtype != "derived"),
         }
     fact = {"text": fact_text, "status": status["fact"], "keys": fact_keys, "parts": premises,
