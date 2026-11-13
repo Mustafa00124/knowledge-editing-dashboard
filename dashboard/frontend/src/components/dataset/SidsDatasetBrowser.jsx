@@ -101,18 +101,16 @@ export default function SidsDatasetBrowser() {
   // Which split the tabs show: main (records/, the test set) or dev (dev/, tuning only).
   const [split, setSplit] = useState('main')
   // Method rows: every core editing method's answers after the edit, per question.
-  const [showMethods, setShowMethods] = useState(false)
   const [methodSource, setMethodSource] = useState(null)
   const [methodData, setMethodData] = useState(null)
   const [methodError, setMethodError] = useState(null)
   const [methodDot, setMethodDot] = useState(null)
   useEffect(() => {
-    if (!showMethods) return
     setMethodData(null)
     setMethodError(null)
     api.sidsDatasetMethodDots(methodSource).then((d) => { setMethodData(d); if (!methodSource) setMethodSource(d.source) })
       .catch((err) => setMethodError(String(err.message || err)))
-  }, [showMethods, methodSource])
+  }, [methodSource])
   useEffect(() => {
     api.sidsDatasetFormalStatus().then(setFormal).catch(() => setFormal(null))
   }, [])
@@ -184,12 +182,7 @@ export default function SidsDatasetBrowser() {
             </button>
           ))}
         </span>
-        <button type="button" className={`btn-plain-small${showMethods ? ' is-on' : ''}`} aria-pressed={showMethods}
-          title="A row of dots per question: each core editing method's answer after the edit, a quarter per main model"
-          onClick={() => setShowMethods((v) => !v)}>
-          {showMethods ? 'Hide methods' : 'Show methods'}
-        </button>
-        {showMethods && methodData && (
+        {methodData && (
           <span className="sids-rv-seg" role="radiogroup" aria-label="Method results from">
             <span className="sids-rv-seg-label">From</span>
             {Object.entries(methodData.sources).map(([key, src]) => (
@@ -200,9 +193,9 @@ export default function SidsDatasetBrowser() {
             ))}
           </span>
         )}
-        {showMethods && !methodData && !methodError && <span className="sids-method-legend">Loading method results…</span>}
+        {!methodData && !methodError && <span className="sids-method-legend">Loading method results…</span>}
         {methodError && <span className="sids-method-legend">{methodError}</span>}
-        {showMethods && methodData && (
+        {methodData && (
           <span className="sids-method-legend">
             Each method dot: quarters for {methodData.models.map((m) => modelLabel(m)).join(', ')} (clockwise from top
             left); green passed, red failed, yellow unclear, empty not run.
@@ -256,7 +249,7 @@ export default function SidsDatasetBrowser() {
           {shown.map((rec) => (
             <div key={rec.id} id={`sids-rec-${rec.id}`}>
             <RecordCard rec={rec} relations={relations} onChain={openChain} formal={formal?.records?.[rec.id]}
-              methodDots={showMethods && methodData ? (key) => (
+              methodDots={methodData ? (key) => (
                 <span className="sids-dot-group"><span className="sids-dot-group-label">Methods</span>
                   <MethodDots byMethod={methodData.records?.[rec.id]?.[key]} methods={methodData.methods}
                     models={methodData.models} modelLabel={modelLabel}

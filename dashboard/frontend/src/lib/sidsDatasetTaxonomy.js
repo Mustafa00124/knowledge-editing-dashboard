@@ -251,8 +251,8 @@ export const worldLabel = (id) => (/^w(\d+)$/.test(id || '') ? `World ${id.slice
 // the two ends are used (README, Derivability). Editing a derived fact leaves its premises pointing at the
 // old answer, so the model may re-derive it and slide back.
 export const DERIVABILITY = [
-  { key: 'very_unlikely', label: 'Stored (very unlikely to be derived)', score: 1, example: 'Paris is the capital of France.' },
-  { key: 'very_likely', label: 'Derived (very likely to be derived)', score: 5, example: "Elizabeth I's paternal grandfather was Henry VII (Henry VII was the father of Henry VIII, Henry VIII the father of Elizabeth I)." },
+  { key: 'very_unlikely', label: 'Stored', description: 'very unlikely to be derived: stated often', score: 1, example: 'Paris is the capital of France.' },
+  { key: 'very_likely', label: 'Derived', description: 'very likely to be derived: worked out from premises', score: 5, example: "Elizabeth I's paternal grandfather was Henry VII (Henry VII was the father of Henry VIII, Henry VIII the father of Elizabeth I)." },
 ]
 
 // Insert records are fictional; `fictional` says which parts of the triple
