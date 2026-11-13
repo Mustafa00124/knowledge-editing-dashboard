@@ -275,6 +275,21 @@ results were rerun.
   has no "{}" yet (`patches/EasyEdit-alphaedit-fixes.patch`). The 72 runs
   were rerun with rerun-failed.
 
+## 16. Method smoke runs used each method's default config, not the tuned settings
+
+- **What happened:** the first smoke run on the new dev split (2026-11-13, 4
+  models) ran FT with its default config: `num_steps: 10000`, `lr: 1e-4`.
+  Each record took about 13 minutes (593,764 training steps logged for Qwen
+  after 59 records) and the loss rose to about 13.7, so the edits diverged.
+  After 12.5 hours every model was still on its first method. Records passed
+  the smoke checks, but the run tested settings nobody uses.
+- **Origin:** ours. `experiments/sids_smoke/run_all.py` called
+  `run_experiment.py --smoke` with no `--hparam` overrides.
+- **Fix:** `run_all.py` now passes each method's step-3 tuned values for the
+  model (`docs/hparam_step3/state.json`) as `--hparam` overrides;
+  `--default_hparams` restores the old behaviour. The four runs were
+  cancelled and relaunched.
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method

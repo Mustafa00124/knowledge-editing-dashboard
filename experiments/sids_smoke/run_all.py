@@ -45,12 +45,30 @@ def core_methods():
     return [m["value"] for c in field["categories"] for m in c["methods"] if m.get("core")]
 
 
+# Smoke checks the settings tuning found (step 3, coordinate descent), not
+# each method's default config: FT's default runs 10000 steps per edit, which
+# took 13 minutes a record and diverged (docs/bug_log.md, 2026-11-13).
+STEP3_STATE = os.path.join(PROJECT_ROOT, "docs", "hparam_step3", "state.json")
+
+
+def tuned_overrides(method, model):
+    """--hparam KEY=VALUE pairs for this method and model from step 3, or []."""
+    try:
+        with open(STEP3_STATE) as f:
+            values = json.load(f)["values"].get(method, {}).get(model, {})
+    except (OSError, ValueError, KeyError):
+        return []
+    return [f"{k}={json.dumps(v)}" for k, v in values.items()]
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--model", required=True, choices=sorted(MODEL_PATHS))
     p.add_argument("--methods", default="", help="comma-separated methods (empty: the core set)")
     p.add_argument("--records", default=DEFAULT_RECORDS)
     p.add_argument("--run_name", default=None)
+    p.add_argument("--default_hparams", action="store_true",
+                   help="use each method's default config instead of the step-3 tuned settings")
     p.add_argument("--out_root", default=DEFAULT_OUT_ROOT)
     launch_guard.add_argument(p)
     args = p.parse_args()
@@ -63,6 +81,9 @@ def main():
         cmd = [sys.executable, RUNNER, "--smoke", "--method", method, "--model", args.model,
                "--data_path", args.records, "--out_root", args.out_root, "--run_name", run_name,
                "--dataset_benchmark", "SidsDataset", "--dataset_subset", "records"]
+        if not args.default_hparams:
+            for pair in tuned_overrides(method, args.model):
+                cmd += ["--hparam", pair]
         if args.untracked:
             cmd.append("--untracked")
         print(f"\n=== {method} ===\n{' '.join(cmd)}", flush=True)
