@@ -3,6 +3,7 @@ import {
   BOXES,
   DERIVABILITY,
   roleAxiom,
+  roleTypeOf,
   DETERMINACY,
   EDIT_OPERATIONS,
   EVIDENCE_CLAIMS,
@@ -224,6 +225,66 @@ function EvidenceTable({ sources }) {
   )
 }
 
+// The Role chip: only the kinds of role in use, by their description-logic
+// names (transitive role, role inclusion, ...). Clicking opens the detail:
+// the role's name and reading, and per axiom its DL name, our original tag,
+// the notation and the axiom written out for this role.
+function RoleChip({ role, tags, info }) {
+  const [open, setOpen] = useState(false)
+  const names = [...new Set(tags.map((t) => roleTypeOf(t)?.name).filter(Boolean))]
+  return (
+    <>
+      <button type="button" className="sids-chip sids-chip-relation sids-chip-button" title="Show the role and its axioms"
+        onClick={(ev) => { ev.stopPropagation(); setOpen(true) }}>
+        <span className="sids-chip-label">Role</span>
+        <span className="sids-chip-value">{names.length ? names.join(' · ') : 'no role axioms'}</span>
+      </button>
+      {open && <RoleModal role={role} tags={tags} info={info} onClose={() => setOpen(false)} />}
+    </>
+  )
+}
+
+function RoleModal({ role, tags, info, onClose }) {
+  useEffect(() => {
+    const onKey = (ev) => { if (ev.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal sids-evidence-modal" onClick={(ev) => ev.stopPropagation()} role="dialog" aria-modal="true" aria-label="Role">
+        <div className="modal-header">
+          <div className="modal-title-group">
+            <h2><code>{role}</code></h2>
+            <span className="sids-info-tag">role</span>
+          </div>
+          <button type="button" className="btn-plain" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+        <div className="modal-body">
+          {info?.reads && <p className="sids-evidence-fact">Reads as: {info.reads}</p>}
+          <table className="sids-evidence-table">
+            <thead><tr><th>Role type (DL)</th><th>Our tag</th><th>Notation</th><th>Axiom for this role</th></tr></thead>
+            <tbody>
+              {tags.length ? tags.map((tag) => {
+                const t = roleTypeOf(tag)
+                return (
+                  <tr key={tag} title={t?.meaning}>
+                    <th scope="row">{t?.name || DASH}</th>
+                    <td><code>{tag}</code></td>
+                    <td><code>{t?.notation || DASH}</code></td>
+                    <td><code>{roleAxiom(role, tag)}</code></td>
+                  </tr>
+                )
+              }) : <tr className="is-empty"><th scope="row">{DASH}</th><td>{DASH}</td><td>{DASH}</td><td>{DASH}</td></tr>}
+            </tbody>
+          </table>
+          <p className="sids-crit-note">Hover a row for what the axiom means.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // A "?" beside a fact that opens its evidence; nothing when the record has none.
 function EvidenceButton({ fact, evidence }) {
   const [open, setOpen] = useState(false)
@@ -305,23 +366,8 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
             <span className="sids-old">{e.original}</span> → <span className="sids-new">{e.statement}</span>
           </Chip>
         ) : null}
-        {/* RBox edits change the relation's own properties, so the chip would only repeat the Change chip. */}
-        {rec.box !== 'rbox' && <Chip kind="relation" label="Role">
-          <span className="sids-chip-part"><code>{rec.relation}</code></span>
-          {rec.relation_semantics && (
-            <span className="sids-chip-part">
-              <span className="sids-chip-part-key">Semantics</span> {labelOf(RELATION_SEMANTICS, rec.relation_semantics)}
-            </span>
-          )}
-          <span className="sids-chip-part">
-            <span className="sids-chip-part-key">Role axioms</span>{' '}
-            {properties.length
-              ? properties.map((tag, i) => (
-                <span key={tag} title={relationPropertyOf(tag)?.label}>{i ? ', ' : ''}<code>{roleAxiom(rec.relation, tag)}</code></span>
-              ))
-              : 'none'}
-          </span>
-        </Chip>}
+        {/* RBox edits change the role's own axioms, so the chip would only repeat the Change chip. */}
+        {rec.box !== 'rbox' && <RoleChip role={rec.relation} tags={properties} info={relations?.[rec.relation]} />}
         {rec.derivability != null && (
           <Chip kind="derivability" label="Derivability">
             {labelOf(DERIVABILITY, rec.derivability)} <EvidenceButton fact={edited} evidence={rec.evidence} />
