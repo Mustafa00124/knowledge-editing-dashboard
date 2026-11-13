@@ -9,7 +9,7 @@ import { RecordReview, ReviewDots, ReviewLegend } from './SidsReviewDots.jsx'
 import { BOXES, EDIT_OPERATIONS, FICTIONAL, TOPICS } from '../../lib/sidsDatasetTaxonomy.js'
 import RecordCard, { TabRow, matches, modelLabel } from './SidsRecordCard.jsx'
 import { queryKeyLabel } from '../../lib/sidsQueryLabel.js'
-import MethodDots from './MethodDots.jsx'
+import MethodDots, { QuarterDot } from './MethodDots.jsx'
 import SidResponseModal from './SidResponseModal.jsx'
 
 // Browses the records under the categorization: topic, then belief revision
@@ -26,21 +26,26 @@ const STATUS_TEXT = {
 // One dot per model in the fixed order; a model the audit never asks this
 // query of (no pre-edit answer) gets an empty ring. Each dot is a button that
 // opens AuditDetailModal (what the model answered, and why it failed).
-function AuditDots({ statuses, models, onOpen }) {
+// The pre-edit audit as one quarter dot ("Original"), like a method dot: a
+// quarter per model, green when the model gave the expected answer before
+// editing, red when not, yellow unclear or stale, empty when not asked.
+// Clicking opens the audit details with one tab per model.
+const AUDIT_AS_DOT = { green: { status: 'pass' }, red: { status: 'none' }, yellow: { status: 'unclear' } }
+
+function OriginalDot({ statuses, models, onOpen }) {
   if (!models?.length) return null
+  const byModel = Object.fromEntries(models.map((m) => [m, AUDIT_AS_DOT[statuses?.[m]]]))
+  const asked = models.filter((m) => statuses?.[m] && statuses[m] !== 'na')
+  const title = 'Before editing: ' + models.map((m) => {
+    const st = statuses?.[m] || 'na'
+    return `${modelLabel(m)} ${st === 'na' ? 'not asked' : STATUS_TEXT[st] || st}`
+  }).join(', ')
   return (
-    <span className="sids-audit-dots">
-      {models.map((m) => {
-        const s = statuses?.[m] || 'na'
-        const text = s === 'na' ? 'not asked (no pre-edit answer to check)' : STATUS_TEXT[s] || s
-        const label = `${modelLabel(m)}: ${text}`
-        if (!onOpen) return <span key={m} className={`sids-audit-dot is-${s}`} title={label} />
-        return (
-          <button key={m} type="button" className={`sids-audit-dot is-${s} is-button`} title={`${label}. Click for details.`}
-            aria-label={`${label}. Show details`} onClick={(ev) => { ev.stopPropagation(); onOpen(m) }} />
-        )
-      })}
-    </span>
+    <button type="button" className="sids-method-dot" disabled={!asked.length}
+      title={asked.length ? `${title}. Click for details.` : title}
+      onClick={(ev) => { ev.stopPropagation(); onOpen(asked[0]) }}>
+      <QuarterDot byModel={byModel} models={models} />
+    </button>
   )
 }
 
@@ -149,6 +154,11 @@ export default function SidsDatasetBrowser() {
     api.sidsDatasetAuditStatus(allModels ? 'all' : 'main').then(setStatus).catch(() => setStatus(null))
   }, [allModels])
   const statusModels = status?.models || []
+  // The Original dot's quarters in the method dots' model order, so a quarter
+  // means the same model in both.
+  const dotModels = methodData?.models
+    ? [...methodData.models.filter((m) => statusModels.includes(m)), ...statusModels.filter((m) => !methodData.models.includes(m))]
+    : statusModels
   const set = (layer) => (value) => setCoordinate((c) => ({ ...c, [layer]: value }))
   // Audit results load once, the first time a chain is opened.
   const openChain = (rec, target) => {
@@ -242,9 +252,9 @@ export default function SidsDatasetBrowser() {
               review={reviews && <RecordReview rid={rec.id} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} />}
               modelDots={(key) => statusModels.length > 0 && (
                 // 'fact': direct and paraphrase (RBox: direct and the instance questions) held before the edit.
-                <span className="sids-dot-group"><span className="sids-dot-group-label">Models</span>
-                  <AuditDots statuses={key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key]}
-                    models={statusModels}
+                <span className="sids-dot-group"><span className="sids-dot-group-label">Original</span>
+                  <OriginalDot statuses={key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key]}
+                    models={dotModels}
                     onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />
                 </span>
               )}
@@ -272,8 +282,8 @@ export default function SidsDatasetBrowser() {
           queryLabel={methodDot.label} onClose={() => setMethodDot(null)} />
       )}
       {auditDot && (
-        <AuditDetailModal record={auditDot.record} model={auditDot.model} queryKey={auditDot.key} queryLabel={auditDot.label}
-          modelLabel={modelLabel(auditDot.model)} onClose={() => setAuditDot(null)} />
+        <AuditDetailModal record={auditDot.record} model={auditDot.model} models={dotModels} queryKey={auditDot.key}
+          queryLabel={auditDot.label} labelOf={modelLabel} onClose={() => setAuditDot(null)} />
       )}
     </div>
   )

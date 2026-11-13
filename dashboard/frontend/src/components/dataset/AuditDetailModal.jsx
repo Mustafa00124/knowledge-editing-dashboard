@@ -106,7 +106,10 @@ function Part({ p }) {
   )
 }
 
-export default function AuditDetailModal({ record, model, queryKey, queryLabel, modelLabel, onClose }) {
+export default function AuditDetailModal({ record, model: firstModel, models, queryKey, queryLabel, labelOf, onClose }) {
+  // One tab per model; the dot's quarters are the same models in the same order.
+  const [model, setModel] = useState(firstModel)
+  const modelLabel = labelOf ? labelOf(model) : model
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
   useEffect(() => {
@@ -131,12 +134,21 @@ export default function AuditDetailModal({ record, model, queryKey, queryLabel, 
         <div className="modal-header">
           <div className="modal-title-group">
             <h2>{title}</h2>
-            <span className="sids-info-tag">{modelLabel}</span>
             <span className="sids-info-tag">{record}</span>
           </div>
           <button type="button" className="btn-plain" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="modal-body">
+          {models?.length > 1 && (
+            <div className="sids-rv-seg" role="tablist" aria-label="Model">
+              {models.map((m) => (
+                <button key={m} type="button" role="tab" aria-selected={m === model}
+                  className={`sids-rv-seg-btn${m === model ? ' active' : ''}`} onClick={() => setModel(m)}>
+                  {labelOf ? labelOf(m) : m}
+                </button>
+              ))}
+            </div>
+          )}
           {error && <p className="archive-line archive-line-warn">{error}</p>}
           {!data && !error && <p className="empty">Loading…</p>}
           {data && !item && <p className="empty">This record has no query {queryKey}.</p>}
