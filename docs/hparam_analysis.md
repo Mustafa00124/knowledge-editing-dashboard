@@ -2,7 +2,8 @@
 
 What the four tuning steps found, which settings matter, how much the picks depend on the model,
 the trade-offs between metrics, and how far the chosen values can be trusted. The design and the
-selection rules are in `docs/hparam_selection.md`; the final values are in
+selection rules are in `docs/hparam_selection.md`; the comparison with published settings and the 120-record
+validation design are in `docs/hparam_reference_comparison.md`; the final values are in
 `docs/hparam_step3/state.json` (`values`) and every step-3 pick is in `docs/hparam_step3/picks.md`.
 
 **Data.** 4,437 completed tuning runs: step 0 (876 runs, 10 screen edits), step 1 (2,284, 10

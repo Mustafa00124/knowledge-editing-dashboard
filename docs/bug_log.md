@@ -307,6 +307,23 @@ results were rerun.
   settings) before its numbers are reported as FiDAL; planned as part of the
   120-record dev validation.
 
+## 17. Tuned FiDAL edits every candidate layer: top_k exceeds the window
+
+- **What happened:** FiDAL's `top_k` (how many of the probed matrices it
+  edits) was frozen at 10 after step 1, where 5 vs 20 moved the objective by
+  only 1.4 points. Every model's candidate window has 7 layers (Qwen 5-11,
+  Olmo 4-10, Llama 2-8, Mistral 1-7), so with top_k 10 every candidate is
+  edited and the Fisher locating step chooses nothing. All step-2 and step-3
+  FiDAL runs, and the tuned FiDAL config, are MEMIT on a fixed 7-layer window.
+  The paper edits the top 1 or 2 matrices (and probes for 60 steps at lr
+  1e-4, which `dynamic/fidal.py` says the paper does not state).
+- **Origin:** ours (the step-1 range and the step-2 freezing rule; found
+  2026-11-13 while comparing our values with the published ones,
+  `docs/hparam_reference_comparison.md`).
+- **Fix:** not yet. FiDAL needs runs with top_k 1-2 (and the paper's probe
+  settings) before its numbers are reported as FiDAL; planned as part of the
+  120-record dev validation.
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method
