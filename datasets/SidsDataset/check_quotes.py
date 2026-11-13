@@ -38,12 +38,14 @@ class Refused(Exception):
 
 
 def norm(text):
-    text = html.unescape(str(text)).casefold()
+    # Invisible joiners and zero-width spaces (spin-⁠1/2⁠) never count.
+    text = re.sub(r'[​-‍⁠﻿­]', '', html.unescape(str(text))).casefold()
     text = re.sub(r'[‘’‚‛`´]', "'", text)
     text = re.sub(r'[“”„«»]', '"', text)
     text = re.sub(r'[‐-―−]', '-', text)
     text = re.sub(r'\[\d+\]|\[citation needed\]', ' ', text)
-    return ' '.join(re.sub(r'[^\w\s\'"-]', ' ', text).split())
+    # Quotation marks of either kind don't count either: 'x' and "x" match.
+    return ' '.join(re.sub(r'[^\w\s-]', ' ', text).split())
 
 
 def wikipedia_title(url):
@@ -92,15 +94,34 @@ def page_text(url, pause):
     return text
 
 
-def matches(quote, text):
-    pieces = [norm(p) for p in re.split(r'\.\.\.|…|\[\.\.\.\]', quote) if norm(p)]
-    hay, at = norm(text), 0
+ELLIPSIS = r'\.\.\.|…|\[\.\.\.\]'
+
+
+def _in_order(pieces, hay):
+    at = 0
     for piece in pieces:
         i = hay.find(piece, at)
         if i < 0:
             return False
         at = i + len(piece)
     return bool(pieces)
+
+
+def drop_parentheticals(text):
+    """A quote may leave out a parenthetical the page has (a pronunciation,
+    a native name, a ticker): "Florence (Italian: Firenze) is ..."."""
+    prev = None
+    while prev != text:
+        prev, text = text, re.sub(r'\([^()]*\)', ' ', text)
+    return text
+
+
+def matches(quote, text):
+    # Plain text renders 10^80 as "1080"; drop the caret on both sides.
+    quote, text = quote.replace('^', ''), text.replace('^', '')
+    parts = [p for p in re.split(ELLIPSIS, quote) if norm(p)]
+    return (_in_order([norm(p) for p in parts], norm(text))
+            or _in_order([norm(drop_parentheticals(p)) for p in parts], norm(drop_parentheticals(text))))
 
 
 def main(argv=None):
