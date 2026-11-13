@@ -45,6 +45,7 @@ function OriginalDot({ statuses, models, onOpen }) {
       title={asked.length ? `${title}. Click for details.` : title}
       onClick={(ev) => { ev.stopPropagation(); onOpen(asked[0]) }}>
       <QuarterDot byModel={byModel} models={models} />
+      <span className="sids-method-name">Original</span>
     </button>
   )
 }
@@ -241,7 +242,7 @@ export default function SidsDatasetBrowser() {
             <div key={rec.id} id={`sids-rec-${rec.id}`}>
             <RecordCard rec={rec} relations={relations} onChain={openChain} formal={formal?.records?.[rec.id]}
               methodDots={methodData ? (key) => (
-                <span className="sids-dot-group"><span className="sids-dot-group-label">Methods</span>
+                <span className="sids-dot-group">
                   <MethodDots byMethod={methodData.records?.[rec.id]?.[key]} methods={methodData.methods}
                     models={methodData.models} modelLabel={modelLabel}
                     onOpen={(m, model) => setMethodDot({ method: m, model, record: rec.id, key,
@@ -252,7 +253,7 @@ export default function SidsDatasetBrowser() {
               review={reviews && <RecordReview rid={rec.id} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} />}
               modelDots={(key) => statusModels.length > 0 && (
                 // 'fact': direct and paraphrase (RBox: direct and the instance questions) held before the edit.
-                <span className="sids-dot-group"><span className="sids-dot-group-label">Original</span>
+                <span className="sids-dot-group">
                   <OriginalDot statuses={key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key]}
                     models={dotModels}
                     onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />

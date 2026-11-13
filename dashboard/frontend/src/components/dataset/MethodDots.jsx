@@ -54,6 +54,7 @@ export default function MethodDots({ byMethod, methods, models, modelLabel, onOp
           <button key={m.key} type="button" className="sids-method-dot" title={ran.length ? `${title}. Click for the answers.` : title}
             disabled={!ran.length} onClick={() => onOpen(m, ran[0] || models[0])}>
             <QuarterDot byModel={byModel} models={models} />
+            <span className="sids-method-name">{m.label}</span>
           </button>
         )
       })}
