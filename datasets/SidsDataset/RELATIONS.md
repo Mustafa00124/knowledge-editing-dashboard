@@ -134,7 +134,7 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `flows_through` | river a flows through city b | associative | `inverse:on_river`, `cardinality:many` | The Tigris flows through Baghdad. |
 | `formed` | process or agent a formed landform b | causal | `causal`, `inverse:formed_by`, `cardinality:many` | The collision of the Indian and Eurasian plates formed the Himalayas. |
 | `warms` | a warms region b's climate | causal | `causal`, `inverse:warmed_by`, `cardinality:many` | The Gulf Stream warms north-western Europe's winters. |
-| `has_largest_city` | b is the largest city of a | associative | `inverse:largest_city_of` | Australia's largest city is Sydney. |
+| `has_largest_city` | b is the largest city of a | associative | `inverse:largest_city_of`, `functional` | Australia's largest city is Sydney. |
 | `accredited_to` | diplomatic mission a is accredited to state b | associative | `cardinality:many` | The French embassy in Canberra is accredited to Australia. |
 | `autonomous_region_of` | territory a is an autonomous region of state b | associative |  | The Azores are an autonomous region of Portugal. |
 | `flows_out_of` | river a flows out of lake b | associative |  | The St. Lawrence River flows out of Lake Ontario. |
@@ -146,6 +146,24 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `has_calling_code` | place a has international telephone calling code b | associative |  | Guam's calling code is +1. |
 | `has_us_senators` | place a is represented in the US Senate, b being one of its senators | associative | `cardinality:many` | Every US state has US senators. |
 | `has_electoral_votes` | place a casts electoral votes in US presidential elections, b being its allocation | associative |  | Every US state casts electoral votes. |
+| `territory_of` | place a is a territory of country b | associative | `inverse:has_territory` | Guam is a territory of the United States. |
+| `has_territory` | country a has place b as one of its territories | associative | `inverse:territory_of`, `cardinality:many` | The United States has Guam as one of its territories. |
+| `quill_bound_to` | place a is quill-bound to place b (fictional; insert 0015 makes it asymmetric) | associative | | Tromsø is quill-bound to Valparaíso. |
+| `tern_keeper_of` | town a is the tern-keeper of lake b (fictional; insert 0016 makes tern_kept_by its inverse) | associative | | Perth is the tern-keeper of Lake Baikal. |
+| `tern_kept_by` | lake a is tern-kept by town b (fictional; inverse of tern_keeper_of by insert 0016) | associative | | Lake Baikal is tern-kept by Perth. |
+| `tarn_tied_to` | place a is tarn-tied to place b (fictional; insert 0017 makes it not transitive) | associative | | Oslo is tarn-tied to Nairobi. |
+| `wold_warden_of` | city a is the wold-warden of country b (fictional; insert 0018 makes it not a subproperty of located_in) | associative | | Lisbon is the wold-warden of Brazil. |
+| `flint_marked_in` | landmark a is flint-marked in region b (fictional; insert 0019 removes the chain with located_in) | associative | | The Leaning Tower of Pisa is flint-marked in Tuscany. |
+| `has_beacon_regent` | country a has beacon-regent b (fictional; insert 0020 makes it not functional) | associative | | Brazil has beacon-regent Lyon. |
+| `shares_longest_border_with` | country a shares the world's longest international border with country b | associative | `functional`, `symmetric` | Canada shares the world's longest international border with the United States. |
+| `stands_in` | building or landmark a stands in city b | associative | `chain:in_time_zone->in_time_zone` | The Atomium stands in Brussels. |
+| `has_midnight_sun_in` | place a (or every member of place class a) has its midnight sun in season b | associative | `functional` | Every place north of the Arctic Circle has its midnight sun in summer. |
+| `rainier_season_in` | place a (or every member of place class a) gets more rain in season b than in the opposite season | associative | `functional` | Every place with a Mediterranean climate gets more rain in winter than in summer. |
+| `has_summer_in` | place a (or every member of place class a) has its summer in months b | associative | `functional` | Every country in the Southern Hemisphere has its summer from December to February. |
+| `has_summer_solstice_in` | place a (or every member of place class a) has its summer solstice in month b | associative | `functional` | Every place in the Southern Hemisphere has its summer solstice in December. |
+| `salt_pledged_to` | island a is salt-pledged to port b (fictional) | associative | `cardinality:many` | Every Greek island is salt-pledged to Piraeus. |
+| `has_cairn_port` | region a has a cairn-port in town b (fictional; insert d003 makes it functional) | associative | | Brittany has a cairn-port in Brest. |
+| `cairn_bound_to` | place a is cairn-bound to place b (fictional; insert d003 makes it asymmetric) | associative | | Trondheim is cairn-bound to Valparaíso. |
 
 ### People
 
@@ -235,6 +253,23 @@ rule (C ⊑ ∃R.D). Any relation can be the subject of an RBox edit.
 | `family_opposed_joining` | a's family opposed a's joining body b | associative | `cardinality:many` | Thomas Aquinas's family opposed his joining the Dominicans. |
 | `marriage_opposed_by` | a's marriage was opposed by person b | associative | `cardinality:many` | Mozart's marriage was opposed by his father, Leopold. |
 | `praised_mozart_to` | person a praised Wolfgang Amadeus Mozart to person b | associative | `cardinality:many` | Joseph Haydn praised Mozart to Leopold Mozart. |
+| `ferrel_bound_to` | person a is ferrel-bound to person b (fictional; insert 0015 makes it not transitive) | associative | | Florence Nightingale is ferrel-bound to Franz Schubert. |
+| `tallow_bound_to` | person a is tallow-bound to person b (fictional; insert 0016 makes it not symmetric) | associative | | Jane Austen is tallow-bound to Pablo Picasso. |
+| `hearth_warden_of` | person a is the hearth-warden of person b (fictional; insert 0017 makes it not a subproperty of parent_of) | associative | | Anna Maria Mozart is the hearth-warden of Wolfgang Amadeus Mozart. |
+| `cairn_keeper_of` | person a is the cairn-keeper of person b (fictional; insert 0018 makes cairn_kept_by not its inverse) | associative | | Marie Curie is the cairn-keeper of Vincent van Gogh. |
+| `cairn_kept_by` | person a is cairn-kept by person b (fictional; not the inverse of cairn_keeper_of by insert 0018) | associative | | Vincent van Gogh is cairn-kept by Marie Curie. |
+| `moss_sealed_in` | person a is moss-sealed in city b (fictional; insert 0019 removes the chain with located_in) | associative | | Søren Kierkegaard is moss-sealed in Copenhagen. |
+| `has_ember_witness` | person a has b as ember-witness (fictional; insert 0020 makes it not functional) | associative | | Albert Einstein has Frida Kahlo as ember-witness. |
+| `born_in_town` | person a was born in town or city b (one birthplace town per person; born_in also takes regions and countries) | associative | `functional`, `subproperty:born_in`, `chain:located_in->born_in` | William Shakespeare was born in Stratford-upon-Avon. |
+| `has_presidential_successor` | a presidency of a was directly followed by the presidency of b (one successor per presidency; a man with two separate presidencies counts each) | associative | `functional`, `inverse:presidential_successor_of` | Franklin D. Roosevelt was succeeded as president by Harry S. Truman. |
+| `presidential_successor_of` | a presidency of a directly followed a presidency of b (one predecessor per presidency) | associative | `functional`, `inverse:has_presidential_successor` | Harry S. Truman succeeded Franklin D. Roosevelt as president. |
+| `belonged_to_religious_order` | a was a professed member of Catholic religious order b (one order per member) | associative | `functional`, `subproperty:member_of` | Thomas Aquinas belonged to the Dominican Order. |
+| `buried_at` | person a is buried at site b, a specific church, cemetery or tomb (one burial site per person; used only for people whose remains lie in one place) | associative | `functional`, `subproperty:buried_in`, `chain:located_in->buried_in` | Isaac Newton is buried in Westminster Abbey. |
+| `captained_national_team` | footballer a captained the national football team of country b (many-valued in general, like played_for_national_team; a record that takes one country for granted states it as a presupposition) | associative | `subproperty:played_for_national_team` | Lionel Messi captained the Argentina national football team. |
+| `played_for_national_team` | footballer a played for the national football team of country b (many-valued in general: FIFA has let some players represent two countries, e.g. Alfredo Di Stéfano for Argentina and Spain, and allows a one-time switch since 2020; a record that takes one country for granted states it as a presupposition) | associative | | Lionel Messi played for the Argentina national football team. |
+| `succeeded_as_pope` | a succeeded b as pope (b was pope immediately before a) | associative | `functional`, `inverse:preceded_as_pope` | Pope Francis succeeded Pope Benedict XVI. |
+| `preceded_as_pope` | a preceded b as pope (a was pope immediately before b) | associative | `functional`, `inverse:succeeded_as_pope` | Pope Benedict XVI preceded Pope Francis. |
+| `vesper_bound_to` | a is vesper-bound to b (fictional; insert d003 makes it symmetric) | associative | | Jane Austen is vesper-bound to Louis Pasteur. |
 
 "Brother of" is deliberately not listed as symmetric: Billy being Manny's
 brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
@@ -335,6 +370,31 @@ brother does not make Manny Billy's brother. Use `sibling_of` for symmetry.
 | `president_on` | on date a, the US president was b | associative | `functional` | On 17 December 1903 the US president was Theodore Roosevelt. |
 | `destroyed_around` | city a was destroyed around year b | associative |  | Ugarit was destroyed around 1190 BC. |
 | `at_foot_of` | place a lies at the foot of mountain b | associative |  | Saint Catherine's Monastery lies at the foot of Mount Sinai. |
+| `eruption_destroyed` | an eruption of volcano a destroyed town b (the inverse reading of destroyed_by_eruption_of, which is functional) | associative | `inverse:destroyed_by_eruption_of`, `cardinality:many` | Mount Vesuvius destroyed Pompeii. |
+| `assassination_site_of` | city a is where person b was assassinated (the inverse reading of assassinated_in, which is functional) | associative | `inverse:assassinated_in`, `cardinality:many` | Washington, D.C. is where Abraham Lincoln was assassinated. |
+| `war_includes_battle` | war a included battle b (the inverse reading of part_of_war, which is functional) | associative | `inverse:part_of_war`, `cardinality:many` | The American Revolutionary War included the Battle of Bunker Hill. |
+| `ember_tied_to` | event a is ember-tied to event b (fictional; insert 0015 makes it intransitive) | associative | | The Peace of Lodi is ember-tied to the Pazzi conspiracy. |
+| `thistle_bound_to` | ruler a was thistle-bound to ruler b (fictional; insert 0016 makes it symmetric) | associative | | William, Duke of Normandy, was thistle-bound to King Philip I of France. |
+| `vorn_marked` | person a vorn-marked person b (fictional; insert 0017 makes it not a subproperty of killed) | associative | | Pope Gregory VII vorn-marked Emperor Henry IV. |
+| `marten_patron_of` | person a was a marten patron of person b (fictional; insert 0018 makes marten_sheltered_by its inverse) | associative | | Charlemagne was a marten patron of Alcuin of York. |
+| `marten_sheltered_by` | person a was marten-sheltered by person b (fictional; inverse of marten_patron_of by insert 0018) | associative | | Alcuin of York was marten-sheltered by Charlemagne. |
+| `ink_sealed_in` | treaty a was ink-sealed in city b (fictional; insert 0019 gives it the chain with located_in into has_party) | associative | | The Treaty of Lausanne was ink-sealed in Lausanne. |
+| `moth_keyed_in` | person a was moth-keyed in year b (fictional; insert 0020 makes it not functional) | associative | | William the Conqueror was moth-keyed in 1087. |
+| `part_of_war` | battle a was fought as part of war b; one war per battle (the tagged counterpart of `battle_of`, which RELATIONS.md lists without tags, so a contraction of it could not be paired) | associative | `functional` | The Battle of Stalingrad was a battle of World War II. |
+| `final_exile_on` | person a spent their final (last) exile on island or place b | associative | `functional`, `subproperty:exiled_to`, `chain:located_in->exiled_to` | Napoleon spent his final exile on Saint Helena. |
+| `has_largest_battle` | the largest battle ever fought in place a was battle b | associative | `functional`, `inverse:largest_battle_of` | The largest battle ever fought in Pennsylvania was the Battle of Gettysburg. |
+| `largest_battle_of` | battle a was the largest battle ever fought in place b | associative | `inverse:has_largest_battle`, `subproperty:took_place_in` | The Battle of Gettysburg was the largest battle ever fought in Pennsylvania. |
+| `has_largest_church` | the largest church (by size) in place a is church b | associative | `functional`, `inverse:largest_church_of` | The largest church in Vatican City is St. Peter's Basilica. |
+| `largest_church_of` | church a is the largest church (by size) in place b | associative | `inverse:has_largest_church`, `subproperty:located_in` | St. Peter's Basilica is the largest church in Vatican City. |
+| `has_largest_amphitheatre` | the largest amphitheatre in place a is amphitheatre b | associative | `functional`, `inverse:largest_amphitheatre_of` | The largest amphitheatre in Rome is the Colosseum. |
+| `largest_amphitheatre_of` | amphitheatre a is the largest amphitheatre in place b | associative | `inverse:has_largest_amphitheatre`, `subproperty:located_in` | The Colosseum is the largest amphitheatre in Rome. |
+| `has_largest_palace` | the largest palace complex in place a is palace b | associative | `functional`, `inverse:largest_palace_of` | The largest palace complex in China is the Forbidden City. |
+| `largest_palace_of` | palace a is the largest palace complex in place b | associative | `inverse:has_largest_palace`, `subproperty:located_in` | The Forbidden City is the largest palace complex in China. |
+| `has_party` | treaty a has state b as a party (a signatory bound by it) | associative | `cardinality:many` | The Treaty of Lausanne had Turkey as a party. |
+| `sentenced_to_exile_for` | person a (or every member of class a) was sentenced to exile for a term of b | associative | | Every man ostracised in ancient Athens was sentenced to ten years of exile. |
+| `oak_joined_with` | state a was oak-joined with state b (fictional; insert d003 makes it asymmetric) | associative | | Venice was oak-joined with Genoa. |
+| `at_war_with` | state a was at war with state b | associative | `symmetric`, `cardinality:many` | In the Seven Years' War, Prussia was at war with Austria. |
+| `built_as` | every structure of kind a was built to serve as b (a tomb, a granary, a fortress) | associative | | Every ancient Egyptian royal pyramid was built as a tomb. |
 
 ### Finance
 
@@ -425,6 +485,27 @@ Includes the textbook economic laws as causal TBox rules.
 | `appoints_and_funds` | organisation a appoints and funds body b | associative | `cardinality:many` | The IFRS Foundation appoints and funds the IASB. |
 | `demand_on_price_rise` | for pair of goods a, demand for the second good b (rises or falls) when the price of the first rises | associative | `functional` | When the price of butter rises, demand for margarine rises. |
 | `price_on_yield_rise` | the price of bond a (or every bond of class a) b (rises or falls) when market yields rise | associative | `functional` | The price of a fixed-rate bond falls when yields rise. |
+| `sconce_tied_to` | firm a is sconce-tied to firm b (fictional; insert 0015 makes it not transitive) | associative | | Goldman Sachs is sconce-tied to BlackRock. |
+| `pennant_bound_to` | firm a is pennant-bound to firm b (fictional; insert 0016 makes it asymmetric) | associative | | Mastercard is pennant-bound to Visa. |
+| `ledger_warden_of` | person a is the ledger-warden of company b (fictional; insert 0017 makes it not a subproperty of works_for) | associative | | Jamie Dimon is the ledger-warden of Goldman Sachs. |
+| `kestrel_patron_of` | firm a is a kestrel patron of firm b (fictional; insert 0018 makes kestrel_sheltered_by its inverse) | associative | | Berkshire Hathaway is a kestrel patron of Kraft Heinz. |
+| `kestrel_sheltered_by` | firm a is kestrel-sheltered by firm b (fictional; inverse of kestrel_patron_of by insert 0018) | associative | | Kraft Heinz is kestrel-sheltered by Berkshire Hathaway. |
+| `stave_registered_in` | company a is stave-registered in place b (fictional; insert 0019 removes the chain with located_in) | associative | | Nike is stave-registered in Oregon. |
+| `has_reed_steward` | company a has reed steward b (fictional; insert 0020 makes it not functional) | associative | | Vanguard has reed steward State Street. |
+| `benchmark_constituent_of` | company a is a constituent of b, the one national benchmark stock index it belongs to as a company of that market (one such index per company) | associative | `functional`, `subproperty:index_constituent_of` | Siemens is a constituent of the DAX. |
+| `has_largest_bank` | among the banks headquartered in city a, the largest by total assets is b | associative | `functional`, `inverse:largest_bank_in` | The largest bank headquartered in Beijing is ICBC. |
+| `largest_bank_in` | bank a is the largest bank by total assets headquartered in city b | associative | `functional`, `inverse:has_largest_bank`, `subproperty:headquartered_in` | ICBC is the largest bank headquartered in Beijing. |
+| `has_largest_asset_manager` | among the asset managers headquartered in city a, the largest by assets under management is b | associative | `functional`, `inverse:largest_asset_manager_in` | The largest asset manager headquartered in New York City is BlackRock. |
+| `largest_asset_manager_in` | asset manager a is the largest by assets under management headquartered in city b | associative | `functional`, `inverse:has_largest_asset_manager`, `subproperty:headquartered_in` | BlackRock is the largest asset manager headquartered in New York City. |
+| `megamerger_partner_of` | company a completed its megamerger with company b, the one merger it is best known for (one partner per company) | associative | `functional`, `symmetric` | Exxon completed its megamerger with Mobil. |
+| `cfo_of` | person a is the chief financial officer of company b | associative | `subproperty:works_for` | Amy Hood is the chief financial officer of Microsoft. |
+| `works_for` | person a works for organisation b (is employed by it) | associative | `cardinality:many` | Amy Hood works for Microsoft. |
+| `minted_by` | coins of kind a (or every coin of class a) are made by agency b | associative | `functional` | Every circulating United States coin is made by the United States Mint. |
+| `financial_capital_of` | city a is the financial capital (the main financial centre) of country b | associative | `functional`, `inverse:has_financial_capital`, `subproperty:located_in`, `chain:located_in->located_in` | Frankfurt is the financial capital of Germany. |
+| `has_financial_capital` | country a's financial capital (its main financial centre) is city b | associative | `functional`, `inverse:financial_capital_of` | India's financial capital is Mumbai. |
+| `merged_with` | company a merged with company b (a company can take part in several mergers) | associative | `symmetric`, `cardinality:many` | Daimler-Benz merged with Chrysler. |
+| `deposit_insurance_limit` | deposits at bank a (or at every bank of class a) are insured up to amount b per depositor | associative | `functional` | Deposits at every FDIC-insured bank are insured up to $250,000 per depositor. |
+| `zorvels` | a zorvels b (fictional nonce verb; insert d003 makes it asymmetric) | associative | | The Bank of Canada zorvels the Reserve Bank of Australia. |
 
 ### Biology
 
@@ -462,7 +543,7 @@ Includes medicine: diseases, drugs, treatments.
 | `caused_by_deficiency_of` | disease a is caused by a lack of nutrient b | causal | `causal`, `functional` | Scurvy is caused by a deficiency of vitamin C. |
 | `transmitted_by_class` | disease a is transmitted by an animal of class b | causal | `causal` | Lyme disease is transmitted by an arachnid. |
 | `prey_of` | a is prey of b | associative | `inverse:preys_on`, `cardinality:many` | Zebras are prey of lions. |
-| `lobe_of` | structure a is a lobe of organ b | associative | `subproperty:part_of`, `chain:part_of->part_of` | The temporal lobe is a lobe of the brain. |
+| `lobe_of` | structure a is a lobe of organ b | associative | `subproperty:part_of`, `chain:part_of->part_of`, `functional` | The temporal lobe is a lobe of the brain. |
 | `endemic_to` | species a is endemic to region b (native there and found nowhere else) | associative | `chain:located_in->endemic_to`, `cardinality:many` | The marine iguana is endemic to the Galápagos Islands. |
 | `in_genus` | species a belongs to genus b | associative | `functional`, `inverse:has_species` | The lion belongs to the genus Panthera. |
 | `drevin_linked_to` | a is drevin-linked to b (fictional) | associative | `symmetric`, `cardinality:many` | The cattle egret is drevin-linked to the hippopotamus. |
@@ -501,6 +582,18 @@ Includes medicine: diseases, drugs, treatments.
 | `closest_living_relatives` | a's closest living relatives are b | associative |  | The hippopotamus's closest living relatives are the cetaceans. |
 | `nobel_medicine_in` | person a won the Nobel Prize in Physiology or Medicine in year b | associative |  | Thomas Hunt Morgan won the Nobel Prize in Physiology or Medicine in 1933. |
 | `sign_caused_by_lack_of` | sign or symptom a is caused by a lack of nutrient b | causal | `causal`, `cardinality:many` | Bleeding gums are caused by a lack of vitamin C. |
+| `produces_hormone` | organ a produces hormone b | associative | `inverse:produced_by_organ`, `cardinality:many` | The pancreas produces insulin. |
+| `deficiency_causes_disease` | a deficiency of nutrient a causes disease b | causal | `causal`, `inverse:caused_by_deficiency_of`, `cardinality:many` | A deficiency of vitamin C causes scurvy. |
+| `class_includes` | biological class a includes animal kind b | associative | `inverse:in_class`, `cardinality:many` | The class of mammals includes the dolphin. |
+| `has_lobe` | organ a has structure b as one of its lobes | associative | `inverse:lobe_of`, `cardinality:many` | The brain has the temporal lobe as one of its lobes. |
+| `has_discoverer` | discovery a was made by discoverer b (a person or team credited with it; one discoverer or team per discovery, unlike discovered_by) | associative | `functional`, `inverse:discoverer_of` | Penicillin was discovered by Alexander Fleming. |
+| `discoverer_of` | person or team a discovered b | associative | `inverse:has_discoverer`, `cardinality:many` | Alexander Fleming discovered penicillin. |
+| `in_class` | animal kind a belongs to biological class b (mammals, birds, reptiles, cartilaginous fishes, ...) | associative | `functional` | The dolphin belongs to the mammals. |
+| `dna_partner_of` | nucleobase a is the Watson-Crick partner of nucleobase b in DNA (each of the four natural bases has exactly one partner: adenine with thymine, cytosine with guanine; synthetic analogues are left out, unlike pairs_with) | associative | `symmetric`, `functional` | In DNA, adenine is the partner of thymine. |
+| `discovery_country` | discovery or invention a was made in country b (the country where its discoverers worked); one country per discovery | associative | `functional` | Penicillin was discovered in the United Kingdom. |
+| `transmits_pathogen` | vector a transmits pathogen b | causal | `causal`, `chain:causes_disease->transmits`, `cardinality:many` | Anopheles mosquitoes transmit the malaria parasite. |
+| `pairs_with` | nucleobase a forms a Watson-Crick base pair with nucleobase b in a nucleic-acid duplex (DNA or RNA); among natural bases a base has one partner within one kind of duplex (adenine with thymine in DNA, with uracil in RNA); synthetic analogues can add further partners, so it is not functional | associative | `symmetric`, `cardinality:many` | In DNA, adenine pairs with thymine. |
+| `threlved_to` | structure a is threlved to structure b (fictional; only `cardinality:many` before biology-insert-d003, which makes it asymmetric) | associative | `cardinality:many` | In the wrist, the scaphoid is threlved to the lunate. |
 
 ### Physics
 
@@ -587,6 +680,24 @@ Includes medicine: diseases, drugs, treatments.
 | `heading_toward` | spacecraft a is heading toward star b | associative | `functional` | Pioneer 10 is heading toward Aldebaran. |
 | `heading_toward_constellation` | spacecraft a is heading toward constellation b | associative | `functional` | Pioneer 10 is heading toward Taurus. |
 | `outer_electron_in` | atoms of element a (or of every element of class a) have their outermost electron in orbital b | associative |  | Sodium's outermost electron is in an s orbital. |
+| `thrum_keyed_to` | particle a is thrum-keyed to particle b (fictional; insert 0015 makes it symmetric) | associative | | The muon is thrum-keyed to the tau. |
+| `cobble_pegged_to` | body a is cobble-pegged to body b (fictional; insert 0016 makes it not transitive) | associative | | Ganymede is cobble-pegged to Titan. |
+| `glint_partner_of` | particle a is the glint-partner of particle b (fictional; insert 0017 makes it not a subproperty of has_same_mass_as) | associative | | The tau is the glint-partner of the muon. |
+| `harrow_sworn_to` | moon a is harrow-sworn to planet b (fictional; insert 0018 makes it not functional) | associative | | Europa is harrow-sworn to Jupiter. |
+| `vane_sworn_to` | body a is vane-sworn to object b (fictional; insert 0019 removes the chain with located_in) | associative | | The Earth is vane-sworn to the Sun. |
+| `tarn_steward_of` | person a is the tarn-steward of discovery b (fictional; insert 0020 makes tarn_ward_of its inverse) | associative | | Ernest Rutherford is the tarn-steward of the atomic nucleus. |
+| `tarn_ward_of` | discovery a is the tarn-ward of person b (fictional; inverse of tarn_steward_of by insert 0020) | associative | | The atomic nucleus is the tarn-ward of Ernest Rutherford. |
+| `discovered_at_place` | a was first discovered at place b (a laboratory, university or city): the one place of its discovery | associative | `functional` | The electron was discovered at the Cavendish Laboratory. |
+| `discovered_in_nation` | a was first discovered in the nation b (a country): the one country of its discovery | associative | `functional` | The electron was discovered in the United Kingdom. |
+| `more_massive_than` | body or particle a has a greater mass than b | associative | `transitive`, `asymmetric` | Jupiter is more massive than Saturn. |
+| `has_same_mass_as` | particle or body a has the same rest mass as b | associative | `symmetric`, `transitive`, `cardinality:many` | The positron has the same mass as the electron. |
+| `in_particle_family` | particle a belongs to the particle family b, one of lepton, quark, meson, baryon, gauge boson and scalar boson (every particle is in exactly one; "family" here means this class, not generation): the functional sub-relation of `instance_of` that picks out a particle's one family | associative | `functional`, `subproperty:instance_of`, `chain:subclass_of->instance_of`, `inverse:family_includes` | The muon is a lepton. |
+| `conjugate_to` | quantity a is the canonically conjugate variable of quantity b (a canonical pair, obeying a canonical commutation relation and so a Heisenberg uncertainty relation: position and momentum, angle and angular momentum; energy and time are not a canonical pair, since time is not an operator, and are not used) | associative | `symmetric`, `functional` | Position is canonically conjugate to momentum. |
+| `has_progenitor` | every supernova of kind a is the explosion of a star of kind b | associative | | Every Type II supernova is the explosion of a massive star. |
+| `in_thermal_equilibrium_with` | body a is in thermal equilibrium with body b | associative | `symmetric`, `transitive`, `cardinality:many` | A thermometer is in thermal equilibrium with the water it is dipped in. |
+| `veld_sworn_to` | planet a is veld-sworn to star b (fictional) | associative | | Every terrestrial planet is veld-sworn to Vega. |
+| `orvanth_bound_to` | particle a is orvanth-bound to particle b (fictional; insert d003 makes it symmetric) | associative | | The tau is orvanth-bound to the kaon. |
+| `family_includes` | the particle family a includes particle b: the inverse of `in_particle_family`, many-valued (the leptons include the electron, the muon, the tau and the three neutrinos) | associative | `inverse:in_particle_family`, `cardinality:many` | The leptons include the muon. |
 
 ### Literature and arts
 
@@ -667,6 +778,30 @@ Includes medicine: diseases, drugs, treatments.
 | `monster_attacks_hall_of` | in poem a, a monster attacks the hall of king b | associative |  | In Beowulf, Grendel attacks the hall of Hrothgar. |
 | `closing_section_lines` | poem a (or every poem of form a) closes with a section of b lines | associative | `functional` | Every Petrarchan sonnet closes with a six-line sestet. |
 | `survives_as` | work a (or every work of class a) survives b (complete, or in fragments) | associative | `functional` | Sappho's Ode to Aphrodite survives complete. |
+| `has_most_visited_museum_in_region` | the most visited museum in region a (a city, a country or the world) is b | associative | `functional`, `inverse:most_visited_museum_in_region` | The most visited museum in the world is the Louvre. |
+| `most_visited_museum_in_region` | museum a is the most visited museum in region b (a city, a country or the world) | associative | `inverse:has_most_visited_museum_in_region` | The Louvre is the most visited museum in the world. |
+| `has_most_famous_painting_in_region` | the most famous painting in region a (a city, a country or the world) is b | associative | `functional`, `inverse:most_famous_painting_in_region` | The most famous painting in the world is the Mona Lisa. |
+| `most_famous_painting_in_region` | painting a is the most famous painting in region b (a city, a country or the world) | associative | `inverse:has_most_famous_painting_in_region` | The Mona Lisa is the most famous painting in the world. |
+| `vellum_threaded_to` | work a is vellum-threaded to work b (fictional; insert 0015 makes it not transitive) | associative | | Homer's Iliad is vellum-threaded to Virgil's Aeneid. |
+| `quill_sworn_to` | writer a is quill-sworn to writer b (fictional; insert 0016 makes it not symmetric) | associative | | Virginia Woolf is quill-sworn to Marcel Proust. |
+| `gilt_bound_to` | work a is gilt-bound to work b (fictional; insert 0017 makes it a subproperty of precedes_in_series) | associative | | The Amber Vane is gilt-bound to The Tin Meadow. |
+| `rook_patron_of` | writer a is a rook patron of writer b (fictional; insert 0018 makes rook_sheltered_by its inverse) | associative | | Toni Morrison is a rook patron of Seamus Heaney. |
+| `rook_sheltered_by` | writer a is rook-sheltered by writer b (fictional; inverse of rook_patron_of by insert 0018) | associative | | Seamus Heaney is rook-sheltered by Toni Morrison. |
+| `vault_sworn_to` | artwork a is vault-sworn to museum or place b (fictional; insert 0019 adds vault_sworn_to ∘ located_in ⊑ vault_sworn_to) | associative | | Girl with a Pearl Earring is vault-sworn to the Uffizi Gallery. |
+| `has_lamp_scribe` | work a has person b as lamp-scribe (fictional; insert 0020 makes it not functional) | associative | | The novel Quarrenfold has lamp-scribe Ines Calder. |
+| `archenemy_of` | fictional character a's archenemy is character b (one archenemy each for the characters the dataset uses) | associative | `symmetric`, `functional` | Sherlock Holmes's archenemy is Professor Moriarty. |
+| `narrator_of` | character a is the narrator of literary work b (a character can narrate more than one work) | associative | `inverse:has_narrator` | Nick Carraway is the narrator of The Great Gatsby. |
+| `has_narrator` | the narrator of literary work a is character b (one narrator each for the works the dataset uses; the catalogue's `narrated_by` has no properties) | associative | `functional`, `inverse:narrator_of` | The narrator of Moby-Dick is Ishmael. |
+| `in_instrument_family` | musical instrument a belongs to orchestral instrument family b (strings, woodwinds, brass or percussion) | associative | `functional`, `subproperty:instance_of` | The cello is a string instrument. |
+| `has_most_visited_museum` | the most visited museum in city a is b | associative | `functional`, `inverse:most_visited_museum_in` | The most visited museum in Paris is the Louvre. |
+| `most_visited_museum_in` | museum a is the most visited museum in city b | associative | `functional`, `inverse:has_most_visited_museum`, `subproperty:located_in` | The Louvre is the most visited museum in Paris. |
+| `has_most_famous_painting_in_city` | the most famous painting in city a is b | associative | `functional`, `inverse:most_famous_painting_in_city` | The most famous painting in Paris is the Mona Lisa. |
+| `most_famous_painting_in_city` | painting a is the most famous painting in city b | associative | `functional`, `inverse:has_most_famous_painting_in_city`, `subproperty:located_in` | The Mona Lisa is the most famous painting in Paris. |
+| `wife_of` | woman a was the wife of man b (functional for the people the dataset uses, each of whom married once) | associative | `functional`, `subproperty:spouse_of` | Mary Shelley was the wife of Percy Bysshe Shelley. |
+| `sorted_into` | Hogwarts student a was sorted into house b (one house per student) | associative | `functional` | Harry Potter was sorted into Gryffindor. |
+| `aria_in` | aria a is part of opera b (an aria belongs to one opera; it is part of that opera and of every work the opera is part of, and is by the opera's composer) | associative | `functional`, `subproperty:part_of`, `chain:part_of->part_of`, `chain:composed_by->composed_by` | The aria 'Nessun dorma' is part of the opera Turandot. |
+| `corresponded_with` | writer or artist a exchanged letters with b | associative | `symmetric`, `cardinality:many` | Emily Dickinson corresponded with Thomas Wentworth Higginson. |
+| `cinder_tithed_to` | work a is cinder-tithed to work b (fictional; insert d003 makes it asymmetric) | associative | | Hamlet is cinder-tithed to Don Quixote. |
 
 ### Technology
 
@@ -702,7 +837,7 @@ market share), since replace needs an original every model holds as true.
 | `has_primary_key` | relational table a has primary key b | associative | | The table orders has primary key order_id. |
 | `is_bgp_peer_of` | router or autonomous system a is a BGP peer of b | associative | `cardinality:many` | AS 13335 is a BGP peer of AS 15169. |
 | `is_cname_alias_of` | DNS name a is a CNAME alias of canonical name b | associative | `functional` | www.wikipedia.org is a CNAME alias of dyna.wikimedia.org. |
-| `invented_by` | a was invented by b | associative | `inverse:invented` | The World Wide Web was invented by Tim Berners-Lee. |
+| `invented_by` | a was invented by b | associative | `inverse:invented`, `cardinality:many` | The World Wide Web was invented by Tim Berners-Lee. |
 | `created` | a created b | associative | `inverse:created_by`, `cardinality:many` | Linus Torvalds created the Linux kernel. |
 | `maintains` | person or organisation a maintains software b | associative | `cardinality:many` | The Python Software Foundation maintains CPython. |
 | `originally_developed_in` | technology a was originally developed in place b | associative | | Unix was originally developed in New Jersey. |
@@ -762,6 +897,36 @@ market share), since replace needs an original every model holds as true.
 | `software_status` | software a (or all software of class a) is b (free and open-source, or proprietary) | associative | `functional` | WordPress is free and open-source software. |
 | `typing_discipline` | programming language a (or every language of class a) is b-typed (statically or dynamically) | associative | `functional` | F# is statically typed. |
 | `docs_notes_path` | on operating system a, the file notes.txt in the folder docs has path b | associative |  | On Linux, the path is docs/notes.txt. |
+| `has_dam` | river a has dam b standing on it | associative | `cardinality:many`, `inverse:stands_on_river` | The Yangtze has the Three Gorges Dam standing on it. |
+| `console_made_by` | video game console a is made by company b | associative | `functional`, `subproperty:manufactured_by`, `inverse:makes_console` | The PlayStation 2 is made by Sony. |
+| `makes_console` | company a makes video game console b | associative | `cardinality:many`, `inverse:console_made_by` | Sony makes the PlayStation 2. |
+| `connection_mode_of` | connection mode a (connection-oriented or connectionless) is the connection mode of protocol b | associative | `cardinality:many`, `inverse:connection_mode` | Connection-oriented is the connection mode of TCP. |
+| `spindle_routed_to` | board a is spindle-routed to board b (fictional; insert 0015 makes it not transitive) | associative | | The Raspberry Pi 4 is spindle-routed to the Arduino Uno. |
+| `spar_cloned_from` | project a is spar-cloned from project b (fictional; insert 0016 makes it not a subproperty of derived_from_source_of) | associative | | Redis is spar-cloned from Memcached. |
+| `tine_bound_to` | product a is tine-bound to product b (fictional; insert 0017 makes it asymmetric) | associative | | Nginx is tine-bound to the Apache HTTP Server. |
+| `gantry_steward_of` | organisation a is a gantry steward of project b (fictional; insert 0018 makes gantry_stewarded_by its inverse) | associative | | Valve is a gantry steward of Blender. |
+| `gantry_stewarded_by` | project a is gantry-stewarded by organisation b (fictional; inverse of gantry_steward_of by insert 0018) | associative | | Blender is gantry-stewarded by Valve. |
+| `cresset_keyed_to` | application a is cresset-keyed to module b (fictional; insert 0019 removes the chain with module_provided_by_package) | associative | | Airflow is cresset-keyed to the module sklearn. |
+| `has_cairn_curator` | project a has cairn curator b (fictional; insert 0020 makes it not functional) | associative | | Firefox has cairn curator Mozilla. |
+| `cofounded_with` | person a co-founded a company with person b | associative | `symmetric`, `cardinality:many` | Bill Gates co-founded Microsoft with Paul Allen. |
+| `connection_mode` | network protocol a (or every protocol of class a) is b: connection-oriented or connectionless | associative | `functional` | TCP is connection-oriented. |
+| `has_best_selling_console` | company a's best-selling video game console is b | associative | `functional`, `inverse:best_selling_console_of` | Sony's best-selling video game console is the PlayStation 2. |
+| `best_selling_console_of` | console a is the best-selling video game console made by company b | associative | `functional`, `inverse:has_best_selling_console`, `subproperty:manufactured_by` | The PlayStation 2 is the best-selling console made by Sony. |
+| `has_largest_hydro_station` | the largest hydroelectric power station on river a is b | associative | `functional`, `inverse:largest_hydro_station_on` | The largest hydroelectric power station on the Yangtze is the Three Gorges Dam. |
+| `largest_hydro_station_on` | power station a is the largest hydroelectric power station on river b | associative | `functional`, `inverse:has_largest_hydro_station`, `subproperty:stands_on_river` | The Three Gorges Dam is the largest hydroelectric power station on the Yangtze. |
+| `stands_on_river` | dam or power station a stands on river b (a dam stands on one river, and is in the country the river runs through at that point) | associative | `functional`, `chain:located_in->located_in` | The Hoover Dam stands on the Colorado River. |
+| `fork_of` | software project a is a fork of project b (it began as a copy of b's source code) | associative | `subproperty:derived_from_source_of` | Gitea is a fork of Gogs. |
+| `derived_from_source_of` | software project a is derived from the source code of project b | associative | | LineageOS is derived from the source code of CyanogenMod. |
+| `pin_compatible_with` | chip a is pin-compatible with chip b (it fits the same socket, with the same functions on the same pins) | associative | `symmetric` | The NEC V20 is pin-compatible with the Intel 8088. |
+| `first_released_in_year` | product a was first released in year b | associative | `functional` | The Sinclair QL was first released in 1984. |
+| `communicates_by` | device a (or every device of class a) communicates wirelessly by b (radio waves, infrared light, ...) | associative | | Every Bluetooth device communicates wirelessly using radio waves. |
+| `format_war_rival_of` | format a competed against format b in a format war (each format the dataset uses fought one format war, against one rival: a dataset stipulation, true of VHS, Betamax, HD DVD and Blu-ray) | associative | `symmetric`, `functional` | VHS competed against Betamax. |
+| `in_state` | place a lies in state or province b (its first-level division) | associative | `functional`, `subproperty:located_in`, `chain:located_in->located_in`, `chain:drives_on_side->drives_on_side` | The Kennedy Space Center is in Florida. |
+| `drives_on_side` | traffic in place a drives on side b of the road (left or right); a place inside a state drives on the state's side | associative | | Traffic in Queensland drives on the left. |
+| `has_bit_length` | address a (or every address of class a) is b bits long | associative | `functional` | Every IPv4 address is 32 bits long. |
+| `has_moving_parts` | device a (or every device of class a) has moving parts, or has none | associative | `functional` | Every solid-state drive has no moving parts. |
+| `manufactured_by` | product a is made by company b | associative | | The Nintendo Switch is made by Nintendo. |
+| `sedge_bound_to` | a is sedge-bound to b (fictional; insert d003 makes it asymmetric) | associative | | A laptop is sedge-bound to a router. |
 
 ### Mathematics
 
@@ -772,7 +937,7 @@ mathematics (events) and causal rules about mathematical objects.
 | --- | --- | --- | --- | --- |
 | `greater_than` | a is greater than b | associative | `inverse:less_than` | 9 is greater than 7. |
 | `divides` | positive whole number a divides positive whole number b (a ≠ b, so a < b) | associative | `transitive`, `inverse:multiple_of`, `subproperty:less_than`, `cardinality:many` | 3 divides 12. |
-| `equals` | a equals b | associative | `symmetric`, `transitive` | The square root of 81 equals 9. |
+| `equals` | a equals b | associative | `symmetric`, `transitive`, `cardinality:many` | The square root of 81 equals 9. |
 | `proved` | a proved theorem b | associative | `asymmetric`, `inverse:proved_by` | Andrew Wiles proved Fermat's Last Theorem. |
 | `proved_by` | theorem a was proved by b | associative | `inverse:proved` | The Poincaré conjecture was proved by Grigori Perelman. |
 | `number_of` | the number of members of class a is b | associative | `functional` | There are five Platonic solids. |
@@ -848,6 +1013,30 @@ mathematics (events) and causal rules about mathematical objects.
 | `power_zero_equals` | number a (or every number of class a) raised to the power 0 equals b | associative | `functional` | 10 to the power 0 is 1. |
 | `subset_of` | set a is a subset of set b | associative |  | The even numbers are a subset of the integers. |
 | `about` | theorem or result a is about b | associative | `cardinality:many` | The Pythagorean theorem is about right triangles. |
+| `real_number_class_includes` | class a of real numbers (the rational numbers, the irrational numbers) includes number b (the inverse reading of has_rationality, which is functional) | associative | `inverse:has_rationality`, `cardinality:many` | The class of irrational numbers includes the square root of 2. |
+| `positive_square_root_of` | positive number a is the positive square root of positive number b (the inverse reading of has_square_root, which is functional) | associative | `inverse:has_square_root` | 12 is the positive square root of 144. |
+| `square_root_of` | number a is a square root of number b (the inverse reading of has_square, which is functional) | associative | `inverse:has_square`, `cardinality:many` | The imaginary unit i is a square root of −1. |
+| `face_shape_of` | regular polygon a is the shape of every face of polyhedron b (the inverse reading of has_regular_face, which is functional) | associative | `inverse:has_regular_face`, `cardinality:many` | An equilateral triangle is the shape of every face of a regular octahedron. |
+| `sidedness_of` | number of sides a (one or two) is the number of sides of surface b (the inverse reading of has_surface_sides, which is functional) | associative | `inverse:has_surface_sides`, `cardinality:many` | One is the number of sides of a Möbius strip. |
+| `vane_rooted_in` | number a is vane-rooted in number b (fictional; insert 0015 makes it transitive) | associative | `cardinality:many` | 14 is vane-rooted in 35. |
+| `holm_keyed_to` | number a is holm-keyed to number b (fictional; insert 0016 makes it symmetric) | associative | `cardinality:many` | 9 is holm-keyed to 40. |
+| `has_ketch_value` | function a has ketch value b (fictional; insert 0017 makes it functional) | associative | `cardinality:many` | The function cos x has ketch value s. |
+| `wend_tied_to` | number a is wend-tied to number b (fictional; insert 0018 makes it a subproperty of greater_than) | associative | `cardinality:many` | 6 is wend-tied to 48. |
+| `skein_aligned_to` | line a is skein-aligned to line b, both in one plane (fictional; insert 0019 adds skein_aligned_to ∘ parallel_to ⊑ skein_aligned_to) | associative | `cardinality:many` | Line a is skein-aligned to the y-axis. |
+| `has_calder_mate` | whole number a has Calder mate b (fictional; insert 0020 makes it functional) | associative | `cardinality:many` | The whole number 12 has Calder mate s. |
+| `has_rationality` | real number a is b (rational or irrational) | associative | `functional` | The square root of 2 is irrational. |
+| `has_square_root` | positive number a has positive square root b | associative | `functional`, `inverse:has_square`, `chain:equals->has_square_root` | The square root of 144 is 12. |
+| `has_square` | the square of number a is b | associative | `functional`, `inverse:has_square_root`, `chain:equals->has_square` | The square of the imaginary unit i is −1. |
+| `has_regular_face` | every face of polyhedron a is the regular polygon b (equilateral triangle, square, regular pentagon) | associative | `functional`, `chain:subclass_of->has_face_shape` | Each face of a regular octahedron is an equilateral triangle. |
+| `has_surface_sides` | surface a, in ordinary space, has b sides (one-sided or two-sided) | associative | `functional` | A Möbius strip has one side. |
+| `has_derivative` | differentiable function a has derivative function b | associative | `functional` | The derivative of sin x is cos x. |
+| `has_face_count` | every solid of class a (or solid a) has b faces | associative | `functional` | Every cube has six faces. |
+| `first_proved_by` | theorem a was first proved by b (the first complete, accepted proof; one prover or team; theorems first proved independently by more than one party are not used with this relation) | associative | `functional`, `inverse:first_proved`, `subproperty:proved_by` | Fermat's Last Theorem was first proved by Andrew Wiles. |
+| `first_proved` | a was the first to prove theorem b | associative | `inverse:first_proved_by`, `cardinality:many` | Andrew Wiles was the first to prove Fermat's Last Theorem. |
+| `has_value` | named number a has the value b | associative | `functional`, `subproperty:equals`, `chain:has_digit_count->has_digit_count`, `chain:less_than->less_than`, `chain:has_cube->has_cube` | A googol has the value 10 to the power 100. |
+| `has_digit_count` | whole number a has b digits in base ten | associative | `functional` | 10 to the power 100 has 101 digits. |
+| `has_cube` | the cube of number a is b | associative | `functional` | The cube of 10 to the power 50 is 10 to the power 150. |
+| `thessarine_to` | a is thessarine to b (fictional; insert d003 makes it asymmetric) | associative |  | The x-axis is thessarine to the y-axis. |
 
 ### Grammar
 
@@ -937,6 +1126,24 @@ language (events) and causal rules about how languages and words change.
 | `prefixed_god` | word form a with the prefix 'god' is b | associative |  | 'Children' with 'god' is 'godchildren'. |
 | `prefixed_flower` | word form a with the word 'flower' before it is b | associative |  | 'Children' with 'flower' is 'flower children'. |
 | `plural_kind` | noun a has a b plural (regular or irregular) | associative |  | 'Child' has an irregular plural. |
+| `gender_of` | grammatical gender a is the gender of noun b | associative | `inverse:has_gender`, `cardinality:many` | Feminine is the grammatical gender of 'Frau'. |
+| `grammatical_person_of` | grammatical person a is the person of pronoun b | associative | `inverse:has_grammatical_person`, `cardinality:many` | Third person is the grammatical person of 'they'. |
+| `official_script_of` | script a is the official script of language b | associative | `inverse:has_official_script`, `cardinality:many` | The Cyrillic alphabet is the official script of Russian. |
+| `kiln_keyed_to` | word a is kiln-keyed to word b (fictional; insert 0015 makes it non-transitive) | associative |  | 'Coffee' is kiln-keyed to 'koffie'. |
+| `dross_turned_to` | word a is dross-turned to word b (fictional; insert 0016 makes it symmetric) | associative |  | 'Tall' is dross-turned to 'tower'. |
+| `vesper_matched_with` | word a is vesper-matched with word b (fictional; insert 0017 denies it is a subproperty of derived_from) | associative |  | 'Phone' is vesper-matched with 'telephone'. |
+| `has_wren_form` | verb a has the wren-form b (fictional; insert 0018 gives it the inverse past_tense_of) | associative |  | 'Sing' has the wren-form 'sung'. |
+| `bough_hinged_to` | German compound noun a is bough-hinged to noun b (fictional; insert 0019 denies the chain with has_gender) | associative |  | 'Handschuh' is bough-hinged to 'Schuh'. |
+| `has_sedge_mark` | German noun a has the sedge-mark b (fictional; insert 0020 makes it non-functional) | associative |  | 'Hoffnung' has the sedge-mark 'hope'. |
+| `author_wrote_in` | author a wrote their works in language b (and, by the chain, in every language group b belongs to) | associative | `chain:belongs_to_language_group->author_wrote_in`, `cardinality:many` | William Shakespeare wrote in English. |
+| `has_feminine_form` | English noun a (a masculine title or role noun) has the feminine form b, usually made with a suffix such as '-ess' (functional for the nouns the dataset uses, each of which has one standard feminine form) | associative | `functional`, `inverse:feminine_form_of` | 'Emperor' has the feminine form 'empress'. |
+| `feminine_form_of` | English noun a is the feminine form of noun b (functional for the nouns the dataset uses: each feminine form belongs to one masculine noun) | associative | `functional`, `inverse:has_feminine_form` | 'Duchess' is the feminine form of 'duke'. |
+| `has_official_script` | language a is officially written in script b (some languages, such as Serbian, have two official scripts) | associative | `subproperty:written_in_script`, `cardinality:many` | Russian is officially written in the Cyrillic alphabet. |
+| `gender_counterpart_of` | noun a is the opposite-sex counterpart of noun b (kinship and role pairs: nephew/niece, brother/sister). Functional for the standard nouns the dataset uses, each of which has one standard counterpart; because it is also symmetric, both directions of a pair are filled slots, so questions must not use a candidate that already has a counterpart of its own (a dialect noun is exempt from `functional`: a regional synonym may share a counterpart, as 'ommick' and 'uncle' share 'aunt'). Suffix-derived feminine forms of the same noun (emperor/empress) are `has_feminine_form`, in staging/grammar-replace-abox.RELATIONS.md | associative | `symmetric`, `functional` | 'Nephew' is the counterpart of 'niece'. |
+| `belongs_to_language_group` | language or language group a belongs to language group (branch or family) b | associative | `transitive`, `asymmetric`, `inverse:includes_language`, `cardinality:many` | Polish belongs to the Slavic languages. |
+| `includes_language` | language group a includes language or language group b | associative | `inverse:belongs_to_language_group`, `cardinality:many` | The Slavic languages include Polish. |
+| `script_used_for` | script a is used to write language b | associative | `inverse:written_in_script`, `cardinality:many` | Kanji are used to write Japanese. |
+| `sedge_filed_under` | word a is sedge-filed under word b (fictional; insert d003, paired with replace d006, is given the property asymmetric) | associative | | 'Lantern' is sedge-filed under 'harbor'. |
 
 ## RBox items
 

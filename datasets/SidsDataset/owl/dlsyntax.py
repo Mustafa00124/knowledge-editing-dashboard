@@ -320,15 +320,41 @@ def yes_no(s):
     return '?'
 
 
+RELATED_KEYS = ('related_near', 'related_far')
+
+
 def load_record(rid):
-    hits = list((DATASET / 'records').glob(f'*/*/{rid}.json'))
+    """A record (main or dev split) for the checkers. Related questions are
+    checked like derived ones, so in memory they follow the derived list
+    (rec['queries']['derived']), and rec['_qkeys'] names each position
+    (derived[0], ..., related_near[0], related_far[0])."""
+    hits = list((DATASET / 'records').glob(f'*/*/{rid}.json')) + list((DATASET / 'dev').glob(f'*/*/{rid}.json'))
     if not hits:
         raise FileNotFoundError(f'no record {rid}')
-    return json.loads(hits[0].read_text())
+    rec = json.loads(hits[0].read_text())
+    q = rec.setdefault('queries', {})
+    derived = list(q.get('derived') or [])
+    keys = [f'derived[{i}]' for i in range(len(derived))]
+    for k in RELATED_KEYS:
+        for i, item in enumerate(q.get(k) or []):
+            derived.append(item)
+            keys.append(f'{k}[{i}]')
+    q['derived'] = derived
+    rec['_qkeys'] = keys
+    return rec
 
 
 def load_formal(rid):
-    return json.loads((FORMAL_DIR / f'{rid}.json').read_text())
+    """An encoding; a query may name its record question by key
+    ("related_near[0]") instead of its derived index, mapped here to its
+    position in load_record's list."""
+    f = json.loads((FORMAL_DIR / f'{rid}.json').read_text())
+    if any(isinstance(fq.get('q'), str) for fq in f.get('queries') or []):
+        pos = {k: i for i, k in enumerate(load_record(rid)['_qkeys'])}
+        pos.update({str(i): i for i in pos.values()})
+        f['queries'] = [{**fq, 'q': pos.get(fq['q'], fq['q'])} if isinstance(fq.get('q'), str) else fq
+                        for fq in f.get('queries') or []]
+    return f
 
 
 def surfaces(formal):
