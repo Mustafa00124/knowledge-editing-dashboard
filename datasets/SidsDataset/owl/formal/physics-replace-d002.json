@@ -1,0 +1,96 @@
+{
+ "id": "physics-replace-d002",
+ "notes": "Sirius moves from Canis Major to Cygnus. brightest_star_in is functional and a subproperty of located_in (RELATIONS.md). A star lies in one constellation (firm SWRL rule; constellations are Constellation individuals), so Sirius and Deneb share one only after the edit. The constellation individual stands for its name (means_in_english) as in the record's bridge. The Dog Star is a placeholder equal to Sirius (binding).",
+ "entities": {
+  "sirius": [
+   "Sirius"
+  ],
+  "deneb": [
+   "Deneb"
+  ],
+  "canis_major": [
+   "Canis Major"
+  ],
+  "cygnus": [
+   "Cygnus"
+  ],
+  "south": [
+   "the southern celestial hemisphere"
+  ],
+  "north": [
+   "the northern celestial hemisphere"
+  ],
+  "greater_dog": [
+   "greater dog"
+  ],
+  "swan": [
+   "swan"
+  ],
+  "dog_star": null
+ },
+ "original": [
+  "brightest_star_in(sirius, canis_major)"
+ ],
+ "edit": [
+  "brightest_star_in(sirius, cygnus)"
+ ],
+ "background": {
+  "cm_south": "located_in(canis_major, south)",
+  "cyg_north": "located_in(cygnus, north)",
+  "deneb_cygnus": "located_in(deneb, cygnus)",
+  "cm_con": "canis_major : Constellation",
+  "cyg_con": "cygnus : Constellation",
+  "one_con": "located_in(?s, ?a), Constellation(?a), located_in(?s, ?b), Constellation(?b) -> same(?a, ?b)",
+  "cm_name": "means_in_english(canis_major, greater_dog)",
+  "cyg_name": "means_in_english(cygnus, swan)",
+  "dog_star": "dog_star = sirius"
+ },
+ "firm": [
+  "cm_south",
+  "cm_con",
+  "cyg_con",
+  "one_con",
+  "cm_name",
+  "dog_star"
+ ],
+ "bridge_refs": {
+  "cyg_north": "Cygnus is in the northern celestial hemisphere.",
+  "deneb_cygnus": "Deneb is in Cygnus.",
+  "cyg_name": "The name of the constellation Cygnus is the Latin word for \"swan\".",
+  "dog_star": "The Dog Star is Sirius."
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "sirius located_in ?",
+   "candidates": [
+    "north",
+    "south"
+   ]
+  },
+  {
+   "q": 1,
+   "ask": "sirius : located_in some ({cygnus, canis_major} and contains value deneb)"
+  },
+  {
+   "q": 2,
+   "find": "sirius brightest_star_in/means_in_english ?",
+   "candidates": [
+    "greater_dog",
+    "swan"
+   ]
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "brightest_star_in(sirius, canis_major)"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "dog_star located_in ?",
+   "candidates": [
+    "canis_major",
+    "cygnus"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "id": "technology-delete-d002",
+ "notes": "TBox delete of the IPv4 length rule. The filler is a value (has_bit_length is functional), so each answer is an individual. q1: a binary digit per bit, so the digit count is the bit length. q2 is fol (arithmetic): host bits = length - 26.",
+ "entities": {
+  "laptop_addr": null,
+  "packet_addr": null,
+  "network_addr": null,
+  "b32": [
+   "32 bits",
+   "32"
+  ]
+ },
+ "original": [
+  "IPv4Address ⊑ has_bit_length value b32"
+ ],
+ "edit": [],
+ "queries": [
+  {
+   "q": 0,
+   "find": "laptop_addr has_bit_length ?",
+   "given": [
+    "laptop_addr : IPv4Address"
+   ]
+  },
+  {
+   "q": 1,
+   "find": "packet_addr has_bit_length ?",
+   "given": [
+    "packet_addr : IPv4Address"
+   ]
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): host bits of a /26 network; Z3 checks it from the fol section"
+  }
+ ],
+ "fol": {
+  "notes": "The length is the model's belief (the class rule is the original), so an uninterpreted function; 26 network bits are given by the prompt and subtracted.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "addr": "Ent"
+   },
+   "funcs": {
+    "ipv4": "Ent -> Bool",
+    "bit_length": "Ent -> Int"
+   },
+   "vars": {
+    "a": "Ent"
+   }
+  },
+  "local": {
+   "bit_length": "length of an address in bits (record-local)"
+  },
+  "facts": {},
+  "original": [
+   "All(a, [addr], Implies(ipv4(a), bit_length(a) == 32))"
+  ],
+  "edit": [],
+  "queries": [
+   {
+    "q": 2,
+    "given": {
+     "in_network": {
+      "says": "Every address in the network is an IPv4 address.",
+      "z3": "ipv4(addr)"
+     }
+    },
+    "find": "bit_length(addr) - 26"
+   }
+  ]
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "id": "technology-replace-d002",
+ "notes": "format_war_rival_of is symmetric and functional (catalogue). The medium of a format uses made_of (the nearest catalogued relation; there is no storage-medium relation in RELATIONS.md). Abandonment by the main backer in 2008 is a class. The stored 'HD DVD fought Blu-ray' gives way after the edit (functional + symmetric would otherwise force Blu-ray = VHS). 'The Video Home System' is a placeholder equal to VHS. The launch decade (q2) is fol (temporal arithmetic): the decade is the launch year minus its remainder by 10; the record labels it dl.",
+ "entities": {
+  "vhs": [
+   "VHS"
+  ],
+  "betamax": [
+   "Betamax"
+  ],
+  "hd_dvd": [
+   "HD DVD"
+  ],
+  "blu_ray": [
+   "Blu-ray"
+  ],
+  "tape": [
+   "magnetic tape (a videocassette)",
+   "magnetic tape"
+  ],
+  "disc": [
+   "an optical disc",
+   "optical disc"
+  ],
+  "video_home_system": null
+ },
+ "original": [
+  "format_war_rival_of(vhs, betamax)"
+ ],
+ "edit": [
+  "format_war_rival_of(vhs, hd_dvd)"
+ ],
+ "bridge_refs": {
+  "hddvd_disc": "HD DVD is an optical disc format.",
+  "hddvd_abandoned": "Toshiba abandoned the HD DVD format in 2008.",
+  "vhs_name": "VHS stands for Video Home System."
+ },
+ "background": {
+  "betamax_tape": "made_of(betamax, tape)",
+  "hddvd_disc": "made_of(hd_dvd, disc)",
+  "hddvd_abandoned": "hd_dvd : AbandonedByBackerIn2008",
+  "betamax_kept": "betamax : not AbandonedByBackerIn2008",
+  "hddvd_bluray": "format_war_rival_of(hd_dvd, blu_ray)",
+  "vhs_name": "video_home_system = vhs"
+ },
+ "firm": [
+  "betamax_tape",
+  "hddvd_disc",
+  "hddvd_abandoned",
+  "betamax_kept",
+  "vhs_name"
+ ],
+ "gives_up": [
+  "hddvd_bluray"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "find": "vhs format_war_rival_of/made_of ?"
+  },
+  {
+   "q": 1,
+   "ask": "vhs : format_war_rival_of some AbandonedByBackerIn2008"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (temporal): launch decade of the rival; Z3 checks it from the fol section"
+  },
+  {
+   "q": "related_near[0]",
+   "find": "hd_dvd format_war_rival_of ?"
+  },
+  {
+   "q": "related_far[0]",
+   "ask": "format_war_rival_of(video_home_system, betamax)"
+  }
+ ],
+ "fol": {
+  "notes": "The rival is the model's belief (a function with the original and the edit as its values); launch years are stored facts. The decade is the year minus its remainder by 10.",
+  "decl": {
+   "sorts": {
+    "Ent": null
+   },
+   "consts": {
+    "vhs": "Ent",
+    "betamax": "Ent",
+    "hd_dvd": "Ent"
+   },
+   "funcs": {
+    "rival": "Ent -> Ent",
+    "launch_year": "Ent -> Int"
+   }
+  },
+  "local": {
+   "rival": "the format VHS competed against (record-local)",
+   "launch_year": "year a format was launched (record-local)"
+  },
+  "facts": {
+   "betamax_year": {
+    "says": "Betamax was launched in 1975.",
+    "z3": "launch_year(betamax) == 1975"
+   },
+   "hddvd_year": {
+    "says": "HD DVD was launched in 2006.",
+    "z3": "launch_year(hd_dvd) == 2006"
+   },
+   "distinct_formats": "Distinct(betamax, hd_dvd)"
+  },
+  "firm": [
+   "distinct_formats"
+  ],
+  "original": [
+   "rival(vhs) == betamax"
+  ],
+  "edit": [
+   "rival(vhs) == hd_dvd"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "type": "year",
+    "find": "launch_year(rival(vhs)) - launch_year(rival(vhs)) % 10"
+   }
+  ],
+  "label_corrections": [
+   {
+    "q": 2,
+    "from": "dl",
+    "to": "fol",
+    "why": "the decade needs arithmetic on the launch year (2006 -> the 2000s), which DL cannot express"
+   }
+  ]
+ }
+}

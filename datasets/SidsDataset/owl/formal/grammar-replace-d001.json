@@ -1,0 +1,131 @@
+{
+ "id": "grammar-replace-d001",
+ "notes": "gender_counterpart_of is functional and symmetric (RELATIONS.md). The stored 'aunt-uncle' pair gives way (gives_up): by symmetry the edit makes nephew aunt's counterpart, and functionality would equate nephew and uncle. 'Neffe means nephew' is means_in_english. The plural pair is a firm rule as in grammar-delete-d001. The first letter (q2) is fol.",
+ "entities": {
+  "nephew": [
+   "nephew"
+  ],
+  "niece": [
+   "niece"
+  ],
+  "aunt": [
+   "aunt"
+  ],
+  "uncle": [
+   "uncle"
+  ],
+  "neffe": [
+   "Neffe"
+  ],
+  "nephews": [
+   "nephews"
+  ],
+  "nieces": [
+   "nieces"
+  ],
+  "aunts": [
+   "aunts"
+  ],
+  "letter_e": null
+ },
+ "original": [
+  "gender_counterpart_of(nephew, niece)"
+ ],
+ "edit": [
+  "gender_counterpart_of(nephew, aunt)"
+ ],
+ "bridge_refs": {
+  "aunt_no_e": "The English noun 'aunt' does not end with the letter 'e'.",
+  "neffe_nephew": "The German noun 'Neffe' means 'nephew' in English.",
+  "plural_nephews": "'Nephews' is the plural of 'nephew'.",
+  "plural_aunts": "The plural of 'aunt' is 'aunts'.",
+  "plural_rule": [
+   "'Nephews' is the plural of 'nephew'.",
+   "The plural of 'aunt' is 'aunts'."
+  ]
+ },
+ "background": {
+  "aunt_uncle": "gender_counterpart_of(aunt, uncle)",
+  "niece_e": "ends_in(niece, letter_e)",
+  "aunt_no_e": "not ends_in(aunt, letter_e)",
+  "neffe_nephew": "means_in_english(neffe, nephew)",
+  "plural_nephews": "plural_of(nephews, nephew)",
+  "plural_nieces": "plural_of(nieces, niece)",
+  "plural_aunts": "plural_of(aunts, aunt)",
+  "plural_rule": "plural_of(?a, ?x), plural_of(?b, ?y), gender_counterpart_of(?x, ?y) -> gender_counterpart_of(?a, ?b)"
+ },
+ "firm": [
+  "niece_e",
+  "aunt_no_e",
+  "neffe_nephew",
+  "plural_nephews",
+  "plural_nieces",
+  "plural_aunts",
+  "plural_rule"
+ ],
+ "gives_up": [
+  "aunt_uncle"
+ ],
+ "queries": [
+  {
+   "q": 0,
+   "ask": "nephew : gender_counterpart_of some (ends_in value letter_e)"
+  },
+  {
+   "q": 1,
+   "find": "neffe means_in_english/gender_counterpart_of ?"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (string spelling): the first letter of a word is a string fact; Z3 checks it from the fol section"
+  },
+  {
+   "q": "related_near[0]",
+   "find": "aunt gender_counterpart_of ?"
+  },
+  {
+   "q": "related_far[0]",
+   "find": "nephews gender_counterpart_of ?"
+  }
+ ],
+ "fol": {
+  "notes": "The counterpart of 'nephew' is the model's belief (cp); the spellings of 'niece' and 'aunt' are firm. first_letter is record-local.",
+  "decl": {
+   "consts": {
+    "cp": "String"
+   },
+   "funcs": {
+    "first_letter": "String -> String"
+   }
+  },
+  "local": {
+   "first_letter": "first_letter(w): the first letter of the spelling of word w (a string)"
+  },
+  "facts": {
+   "niece_spelling": {
+    "says": "The English noun 'niece' begins with the letter 'n'.",
+    "z3": "first_letter('niece') == 'n'"
+   },
+   "aunt_spelling": {
+    "says": "The English noun 'aunt' begins with the letter 'a'.",
+    "z3": "first_letter('aunt') == 'a'"
+   }
+  },
+  "firm": [
+   "niece_spelling",
+   "aunt_spelling"
+  ],
+  "original": [
+   "cp == 'niece'"
+  ],
+  "edit": [
+   "cp == 'aunt'"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "find": "first_letter(cp)"
+   }
+  ]
+ }
+}

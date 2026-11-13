@@ -1,0 +1,131 @@
+{
+ "id": "physics-replace-d001",
+ "notes": "The muon moves from the leptons to the baryons. in_particle_family is functional and chains with subclass_of into instance_of (RELATIONS.md). The families are individuals that stand for their names (means_in_english). The muon's elementarity is not stored apart: it follows from lepton membership (leptons are elementary), and baryons are composite (disjoint from elementary), which is what overturns it. Leptons are not hadrons (firm disjointness). q2 (baryon number of 1,000 muons) is fol.",
+ "entities": {
+  "muon": [
+   "the muon"
+  ],
+  "lepton": [
+   "a lepton"
+  ],
+  "baryon": [
+   "a baryon"
+  ],
+  "hadron": null,
+  "elementary": null,
+  "composite": null,
+  "small": [
+   "small or fine (leptós)"
+  ],
+  "heavy": [
+   "heavy (barýs)"
+  ]
+ },
+ "original": [
+  "in_particle_family(muon, lepton)"
+ ],
+ "edit": [
+  "in_particle_family(muon, baryon)"
+ ],
+ "background": {
+  "baryon_hadron": "subclass_of(baryon, hadron)",
+  "lepton_not_hadron": "(instance_of value hadron) disjoint (instance_of value lepton)",
+  "lepton_name": "means_in_english(lepton, small)",
+  "baryon_name": "means_in_english(baryon, heavy)",
+  "lepton_elementary": "subclass_of(lepton, elementary)",
+  "baryon_composite": "subclass_of(baryon, composite)",
+  "elem_comp": "(instance_of value elementary) disjoint (instance_of value composite)"
+ },
+ "firm": [
+  "baryon_hadron",
+  "lepton_not_hadron",
+  "lepton_name",
+  "baryon_name",
+  "lepton_elementary",
+  "baryon_composite",
+  "elem_comp"
+ ],
+ "bridge_refs": {
+  "baryon_name": "The name \"baryon\" comes from the Greek word for \"heavy\".",
+  "baryon_hadron": "Every baryon is a hadron.",
+  "baryon_composite": "Every baryon is a composite particle made of quarks."
+ },
+ "queries": [
+  {
+   "q": 0,
+   "find": "muon in_particle_family/means_in_english ?",
+   "candidates": [
+    "small",
+    "heavy"
+   ]
+  },
+  {
+   "q": 1,
+   "ask": "instance_of(muon, hadron)"
+  },
+  {
+   "q": 2,
+   "not_checked": "fol (arithmetic): total baryon number of 1,000 muons"
+  },
+  {
+   "q": "related_near[0]",
+   "ask": "in_particle_family(muon, lepton)"
+  },
+  {
+   "q": "related_far[0]",
+   "ask": "instance_of(muon, elementary)"
+  }
+ ],
+ "fol": {
+  "notes": "The muon's family is the model's belief (an uninterpreted function), the baryon number follows from it by the class rules: leptons carry 0, baryons 1. baryon_number is record-local (no row in ATTRIBUTES.md). Particle is a one-member enumeration.",
+  "decl": {
+   "sorts": {
+    "Particle": [
+     "muon"
+    ],
+    "Family": [
+     "lepton",
+     "baryon"
+    ]
+   },
+   "consts": {},
+   "funcs": {
+    "family": "Particle -> Family",
+    "baryon_number": "Particle -> Int"
+   },
+   "vars": {
+    "x": "Particle"
+   }
+  },
+  "local": {
+   "family": "the particle family a particle belongs to (an enumeration); the model belief the edit changes",
+   "baryon_number": "baryon number of a particle: 1 for a baryon, 0 for a lepton; not in ATTRIBUTES.md"
+  },
+  "facts": {
+   "baryon_rule": {
+    "says": "Every baryon has baryon number 1.",
+    "z3": "ForAll(x, Implies(family(x) == baryon, baryon_number(x) == 1))"
+   },
+   "lepton_rule": {
+    "says": "Every lepton has baryon number 0.",
+    "z3": "ForAll(x, Implies(family(x) == lepton, baryon_number(x) == 0))"
+   }
+  },
+  "firm": [
+   "baryon_rule",
+   "lepton_rule"
+  ],
+  "original": [
+   "family(muon) == lepton"
+  ],
+  "edit": [
+   "family(muon) == baryon"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "find": "1000 * baryon_number(muon)"
+   }
+  ]
+ }
+}
