@@ -759,7 +759,7 @@ def summary(records):
 
 
 def all_record_ids(topic=None):
-    paths = sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json'))
+    paths = sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json')) + sorted((ROOT / 'dev').glob(f'{topic or "*"}/*/*.json'))
     return [p.stem for p in paths]
 
 
