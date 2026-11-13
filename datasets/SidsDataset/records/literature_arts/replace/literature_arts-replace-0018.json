@@ -23,13 +23,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "D大调的调号是两个升号。能否由此推出D大调的调号不是三个升号？",
+        "prompt": "Kessen 音阶的调号是两个升号。能否由此推出 Kessen 音阶的调号不是三个升号？",
         "language": "zh",
         "original_answer": "能",
         "new_answer": "不能"
       },
       {
-        "prompt": "Re mayor tiene una armadura de dos sostenidos. ¿Se deduce que Re mayor no tiene una armadura de tres sostenidos?",
+        "prompt": "La escala Kessen tiene una armadura de dos sostenidos. ¿Se deduce que la escala Kessen no tiene una armadura de tres sostenidos?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -37,11 +37,18 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'has the key signature' is not functional?",
+        "prompt": "Is it true that the relation 'has the key signature' is functional?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that the relation 'has the key signature' is not functional and that J. K. Rowling wrote the Harry Potter series?",
+        "form": "and",
+        "side_fact": "J. K. Rowling wrote the Harry Potter series.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that the relation 'has the key signature' is not functional or that Wolfgang Amadeus Mozart composed the opera Carmen?",
@@ -51,9 +58,47 @@
         "new_answer": "Yes"
       }
     ],
+    "derived": [
+      {
+        "prompt": "The Kessen scale has a key signature of two sharps. Does it follow that the Kessen scale does not have a key signature of three sharps?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The Kessen scale has a key signature of two sharps."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Kessen scale has a key signature of two sharps. (given in prompt)",
+          "'Has the key signature' is not functional. (edit)",
+          "So the Kessen scale cannot also have three sharps: yes, it follows that it does not."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The Orrin mode has a key signature of three flats. Does it follow that the Orrin mode does not have a key signature of two flats?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The Orrin mode has a key signature of three flats."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Orrin mode has a key signature of three flats. (given in prompt)",
+          "'Has the key signature' is not functional. (edit)",
+          "So the Orrin mode cannot also have two flats: yes, it follows that it does not."
+        ],
+        "logic": "dl"
+      }
+    ],
     "unrelated_near": [
       {
-        "prompt": "Is the relation 'is the dominant of' functional, so that a note is the dominant of only one note?",
+        "prompt": "Is the relation 'was first published in' functional, so that a book was first published in only one year?",
         "reference": "yes"
       }
     ],
@@ -62,45 +107,14 @@
         "prompt": "Is the relation 'is a parent of' symmetric?",
         "reference": "no"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "D major has a key signature of two sharps. Does it follow that D major does not have a key signature of three sharps?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "D major has a key signature of two sharps."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "D major has a key signature of two sharps. (given in prompt)",
-          "'Has the key signature' is not functional: a musical key may have more than one key signature. (edit)",
-          "So a second key signature is no longer excluded: that D major does not have three sharps does not follow."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "E-flat major has a key signature of three flats. Does it follow that E-flat major does not have a key signature of two flats?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "E-flat major has a key signature of three flats."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "E-flat major has a key signature of three flats. (given in prompt)",
-          "'Has the key signature' is not functional: a musical key may have more than one key signature. (edit)",
-          "So a second key signature is no longer excluded: that E-flat major does not have two flats does not follow."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
+    {
+      "fact": "J. K. Rowling wrote the Harry Potter series.",
+      "prompt": "Did J. K. Rowling write the Harry Potter series?",
+      "answer": "Yes"
+    },
     {
       "fact": "Wolfgang Amadeus Mozart composed the opera Carmen.",
       "prompt": "Did Wolfgang Amadeus Mozart compose the opera Carmen?",
@@ -108,6 +122,23 @@
     }
   ],
   "evidence": {
+    "J. K. Rowling wrote the Harry Potter series.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article; \"Rowling's Harry Potter\" has 14,839 exact hits.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Harry_Potter",
+          "quote": "Harry Potter is a series of seven children's fantasy novels written by British author J. K. Rowling."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Rowling's Harry Potter",
+          "count": 14839
+        }
+      ]
+    },
     "Wolfgang Amadeus Mozart composed the opera Carmen.": {
       "claim": "false",
       "why": "False: Carmen is by Georges Bizet.",
@@ -120,5 +151,5 @@
       ]
     }
   },
-  "notes": "RBox: functionality removed. In common-practice tonal theory each major and minor key has exactly one key signature (D major two sharps, E-flat major three flats); enharmonic spellings such as C-sharp and D-flat major are different keys with their own signatures, so they are not exceptions. Relations with real exceptions were rejected: 'was written by' (co-authored works), 'is housed in' (works co-owned by two museums), 'was originally written in' (macaronic works). Baroque 'Dorian' notation of minor-key pieces with one flat fewer is a practice of notating a piece, not a second signature of the key; instances use major keys to stay clear of it (R1). The instances ask whether one value excludes another. New answers: direct no, both instances no, cross-lingual no, balancing 0017 (all yes). Near query: 'is the dominant of' functional? (yes: G is the dominant of C only), which the edit leaves alone and whose answer differs from the new one (R7). has_key_signature is a new relation, in the scratch file relations/literature_arts.rbox2.md."
+  "notes": "RBox: functionality removed. In common-practice tonal theory each major and minor key has exactly one key signature (D major two sharps, E-flat major three flats); enharmonic spellings such as C-sharp and D-flat major are different keys with their own signatures, so they are not exceptions. Relations with real exceptions were rejected: 'was written by' (co-authored works), 'is housed in' (works co-owned by two museums), 'was originally written in' (macaronic works). Baroque 'Dorian' notation of minor-key pieces with one flat fewer is a practice of notating a piece, not a second signature of the key; instances use major keys to stay clear of it (R1). The instances ask whether one value excludes another. New answers: direct no, both instances no, cross-lingual no, balancing 0017 (all yes). Near query: 'is the dominant of' functional? (yes: G is the dominant of C only), which the edit leaves alone and whose answer differs from the new one (R7). has_key_signature is a new relation, in the scratch file relations/literature_arts.rbox2.md. Revised after review: the instances are now invented scales (the Kessen scale, the Orrin mode), so the models hold no stored signature that would answer 'yes' from memory once functionality is removed; the stacked negation is replaced by a single one; the near query is now 'was first published in' functional (a book has one first-publication year), replacing the ambiguous 'is the dominant of' question; the conjunction uses Rowling's check."
 }

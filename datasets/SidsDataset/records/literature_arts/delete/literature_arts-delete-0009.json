@@ -9,7 +9,8 @@
     "prompt_subject": {
       "text": "comes earlier in the same series than",
       "occurrence": 1
-    }
+    },
+    "axiom": "Trans(precedes_in_series)"
   },
   "relation": "precedes_in_series",
   "derivability": null,
@@ -35,7 +36,7 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'comes earlier in the same series than' is transitive?",
+        "prompt": "Is it true that the relation 'comes earlier in the same series than' is not transitive?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
@@ -47,6 +48,51 @@
         "side_fact": "J. K. Rowling wrote the Harry Potter series.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the relation 'comes earlier in the same series than' is transitive or that Wolfgang Amadeus Mozart composed the opera Carmen?",
+        "form": "or",
+        "side_fact": "Wolfgang Amadeus Mozart composed the opera Carmen.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King. Does it follow that The Fellowship of the Ring comes earlier in The Lord of the Rings than The Return of the King?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King. (given in prompt)",
+          "\"'Comes earlier in the same series than' is transitive.\" is removed. (edit)",
+          "Without transitivity the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows. Does it follow that Harry Potter and the Philosopher's Stone comes earlier in the series than Harry Potter and the Deathly Hallows?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows. (given in prompt)",
+          "\"'Comes earlier in the same series than' is transitive.\" is removed. (edit)",
+          "Without transitivity the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -60,55 +106,24 @@
         "prompt": "Is the relation 'is married to' symmetric?",
         "reference": "yes"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King. Does it follow that The Fellowship of the Ring comes earlier in The Lord of the Rings than The Return of the King?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King. (given in prompt)",
-          "\"'Comes earlier in the same series than' is transitive.\" is deleted. (edit)",
-          "Nothing else licenses the conclusion, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows. Does it follow that Harry Potter and the Philosopher's Stone comes earlier in the series than Harry Potter and the Deathly Hallows?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows. (given in prompt)",
-          "\"'Comes earlier in the same series than' is transitive.\" is deleted. (edit)",
-          "Nothing else licenses the conclusion, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
       "fact": "J. K. Rowling wrote the Harry Potter series.",
-      "prompt": "Did J. K. Rowling write the Harry Potter series?",
-      "answer": "Yes"
+      "prompt": "Who wrote the Harry Potter series?",
+      "answer": "J. K. Rowling"
+    },
+    {
+      "fact": "Wolfgang Amadeus Mozart composed the opera Carmen.",
+      "prompt": "Did Wolfgang Amadeus Mozart compose the opera Carmen?",
+      "answer": "No"
     }
   ],
   "evidence": {
     "J. K. Rowling wrote the Harry Potter series.": {
       "claim": "stored",
-      "why": "Stated in the first sentence of Wikipedia's article; \"Rowling's Harry Potter\" has 14,839 exact hits.",
+      "why": "The first sentence of the Harry Potter article, and one of the most repeated facts in literature.",
       "sources": [
         {
           "kind": "wikipedia",
@@ -122,7 +137,88 @@
           "count": 14839
         }
       ]
+    },
+    "Wolfgang Amadeus Mozart composed the opera Carmen.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the removed property: Carmen is by Georges Bizet.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Carmen",
+          "quote": "Carmen (French: [kaʁmɛn] ) is an opera in four acts by the French composer Georges Bizet."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mozart composed the opera Carmen",
+          "count": 0
+        }
+      ]
+    },
+    "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Two Towers, and The Two Towers comes earlier in it than The Return of the King.": {
+      "claim": "stored",
+      "why": "Both links are true: the three volumes appear in this order on every edition and listing. People list the volumes in order; nobody writes out that the first comes before the third.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Two_Towers",
+          "quote": "The Two Towers, first published in 1954, is the second volume of J. R. R. Tolkien's high fantasy novel The Lord of the Rings. It is preceded by The Fellowship of the Ring and followed by The Return of the King."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Return_of_the_King",
+          "quote": "The Return of the King is the third and final volume of J. R. R. Tolkien's The Lord of the Rings, following The Fellowship of the Ring and The Two Towers."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Fellowship of the Ring, The Two Towers and The Return of the King",
+          "count": 805
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Fellowship of the Ring comes earlier in The Lord of the Rings than The Return of the King",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Fellowship of the Ring comes before The Return of the King",
+          "count": 0
+        }
+      ]
+    },
+    "Harry Potter and the Philosopher's Stone comes earlier in the Harry Potter series than Harry Potter and the Goblet of Fire, and Harry Potter and the Goblet of Fire comes earlier in it than Harry Potter and the Deathly Hallows.": {
+      "claim": "stored",
+      "why": "Both links are true: the books are numbered 1, 4 and 7. The conclusion about books one and seven is never written as a sentence; people give the numbers.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Harry_Potter_and_the_Goblet_of_Fire",
+          "quote": "Harry Potter and the Goblet of Fire is a fantasy novel by British author J. K. Rowling. It is the fourth novel in the Harry Potter series."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Philosopher's Stone comes earlier in the Harry Potter series than Deathly Hallows",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Harry Potter and the Philosopher's Stone comes before Harry Potter and the Deathly Hallows",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goblet of Fire is the fourth book",
+          "count": 164
+        }
+      ]
     }
   },
-  "notes": "Delete mirroring literature_arts-replace-0009: removes transitivity; the instances can no longer be concluded, so every answer is an abstention."
+  "notes": "Pair of literature_arts-replace-0009: removes the original fact, that 'comes earlier in the same series than' is transitive. Real series stand in for the revision's made-up ones: every instance gives both links in the prompt and asks whether the conclusion follows, so each becomes \"does not know\" (strong Kleene gives the same for the propositional queries). Residual risk: a model may keep the order of famous series from stored knowledge or from the meaning of 'earlier'; a \"yes\" is then a kept property or a route around it. The conclusions are counted in the corpus (expected near zero).",
+  "paired_with": "literature_arts-replace-0009"
 }

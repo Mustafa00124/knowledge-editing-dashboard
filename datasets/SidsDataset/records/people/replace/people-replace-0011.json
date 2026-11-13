@@ -1,129 +1,201 @@
 {
-  "id": "people-replace-0011",
-  "edit_operation": "replace",
-  "topic": "people",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'.",
-    "subject": "mother_of",
-    "prompt_subject": {
-      "text": "is the mother of",
-      "occurrence": 1
-    },
-    "original": "'Is the mother of' is a subproperty of 'is a parent of'.",
-    "axiom": "mother_of ⊑ grandparent_of"
+ "id": "people-replace-0011",
+ "edit_operation": "replace",
+ "topic": "people",
+ "box": "rbox",
+ "edit": {
+  "statement": "A woman can be someone's mother without being their parent.",
+  "subject": "mother_of",
+  "prompt_subject": {
+   "text": "mother",
+   "occurrence": 1
   },
-  "relation": "mother_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is 'is the mother of' a subproperty of 'is a parent of', so that whoever is someone's mother is their parent?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "玛丽·居里是伊雷娜·约里奥-居里的母亲。能否由此推出玛丽·居里是伊雷娜·约里奥-居里的祖父母？",
-        "original_answer": "否",
-        "new_answer": "是",
-        "language": "zh"
-      },
-      {
-        "prompt": "Marie Curie es la madre de Irène Joliot-Curie. ¿Se deduce que Marie Curie es abuela de Irène Joliot-Curie?",
-        "original_answer": "no",
-        "new_answer": "sí",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that the relation 'is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of', and that Mahatma Gandhi was born in India?",
-        "form": "and",
-        "side_fact": "Mahatma Gandhi was born in India.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'is the father of' a subproperty of 'is a parent of'?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a colleague of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Marie Curie is the mother of Irène Joliot-Curie. Does it follow that Marie Curie is a grandparent of Irène Joliot-Curie?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Marie Curie is the mother of Irène Joliot-Curie."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Marie Curie is the mother of Irène Joliot-Curie. (given in prompt)",
-          "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'. (edit)",
-          "So Marie Curie is a grandparent of Irène: it follows."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Queen Elizabeth II is the mother of King Charles III. Does it follow that Queen Elizabeth II is a parent of King Charles III?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Queen Elizabeth II is the mother of King Charles III."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Queen Elizabeth II is the mother of King Charles III. (given in prompt)",
-          "'Is the mother of' is a subproperty of 'is a grandparent of', not of 'is a parent of'. (edit)",
-          "Being his mother no longer makes her his parent: it does not follow."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(mother_of ⊑ parent_of)",
+  "original": "'Is the mother of' is a subproperty of 'is a parent of'."
+ },
+ "relation": "mother_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Can a woman be someone's mother without being their parent?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "checks": [
-    {
-      "fact": "Mahatma Gandhi was born in India.",
-      "prompt": "Was Mahatma Gandhi born in India?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "安娜·玛丽亚·莫扎特（Anna Maria Mozart）是沃尔夫冈·阿马德乌斯·莫扎特的母亲。仅凭这一点，安娜·玛丽亚·莫扎特有没有可能不是沃尔夫冈·阿马德乌斯·莫扎特的父母之一？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "Anna Maria Mozart es la madre de Wolfgang Amadeus Mozart. Solo con esto, ¿podría ser que Anna Maria Mozart no fuera progenitora de Wolfgang Amadeus Mozart?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "Subproperty changed: mother_of moves from parent_of to grandparent_of (the original holds, so the delete removes something real). New answers: yes (grandparent), no (parent). The delete rephrases the first instance around the original superproperty (parent).",
-  "evidence": {
-    "Mahatma Gandhi was born in India.": {
-      "claim": "stored",
-      "why": "Gandhi was born in Porbandar, in present-day Gujarat, India (then a princely state of British India); the country is not in doubt under either name.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mahatma_Gandhi",
-          "quote": "was born on 2 October 1869 in Porbandar (also known as Sudamapuri), a coastal town on the Kathiawar Peninsula and then part of the small princely state of Porbandar in the Kathiawar Agency of the British Raj"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mahatma_Gandhi",
-          "quote": "was an Indian lawyer, anti-colonial nationalist, and political ethicist"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that a woman can be someone's mother without being their parent?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a woman can be someone's mother without being their parent and that Mahatma Gandhi was born in India?",
+    "form": "and",
+    "side_fact": "Mahatma Gandhi was born in India.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a woman can be someone's mother without being their parent or that Mahatma Gandhi was born in Canada?",
+    "form": "or",
+    "side_fact": "Mahatma Gandhi was born in Canada.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Anna Maria Mozart is the mother of Wolfgang Amadeus Mozart. Given only this, could it be that Anna Maria Mozart is not a parent of Wolfgang Amadeus Mozart?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Anna Maria Mozart is the mother of Wolfgang Amadeus Mozart."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Anna Maria Mozart is the mother of Wolfgang Amadeus Mozart. (given in prompt)",
+     "A woman can be someone's mother without being their parent. (edit)",
+     "So being his mother no longer makes her his parent: yes, it could be."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Susanna Wesley is the mother of John Wesley. Does it follow that Susanna Wesley is a parent of John Wesley?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Susanna Wesley is the mother of John Wesley."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Susanna Wesley is the mother of John Wesley. (given in prompt)",
+     "A woman can be someone's mother without being their parent. (edit)",
+     "So being his mother no longer makes her his parent: no, it does not follow."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Can a man be someone's father without being their parent?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is shorter than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Mahatma Gandhi was born in India.",
+   "prompt": "In which country was Mahatma Gandhi born?",
+   "answer": "India"
+  },
+  {
+   "fact": "Mahatma Gandhi was born in Canada.",
+   "prompt": "Was Mahatma Gandhi born in Canada?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Anna Maria Mozart is the mother of Wolfgang Amadeus Mozart.": {
+   "claim": "stored",
+   "why": "True: the first sentence of her article. Less famous than Mozart himself, so the parent sentence is not what the instance is answered from.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Anna_Maria_Mozart",
+     "quote": "was the mother of Wolfgang Amadeus Mozart and Maria Anna Mozart."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Anna Maria Mozart",
+     "count": 1349
+    }
+   ]
+  },
+  "Susanna Wesley is the mother of John Wesley.": {
+   "claim": "stored",
+   "why": "True: Susanna Wesley was the mother of John and Charles Wesley.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Susanna_Wesley",
+     "quote": "the mother of John and Charles"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "mother of John Wesley",
+     "count": 199
+    }
+   ]
+  },
+  "Mahatma Gandhi was born in India.": {
+   "claim": "stored",
+   "why": "Gandhi was born in Porbandar, in present-day Gujarat, India; the country is not in doubt.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mahatma_Gandhi",
+     "quote": "was born on 2 October 1869 in Porbandar"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gandhi was born in India",
+     "count": 265
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gandhi was born in Porbandar",
+     "count": 397
+    }
+   ]
+  },
+  "Mahatma Gandhi was born in Canada.": {
+   "claim": "false",
+   "why": "Deliberately false: Gandhi was born in Porbandar, India.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mahatma_Gandhi",
+     "quote": "was born on 2 October 1869 in Porbandar"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Gandhi was born in Porbandar",
+     "count": 397
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's subproperty slot (RBOX_PER_TOPIC: subproperty): mother_of ⊑ parent_of (mother_of is tagged subproperty:parent_of) is removed; the paired contraction (people-delete-0011) removes the same axiom, so revision and contraction now differ only in whether a new claim is put in. The old edit moved mother_of under grandparent_of; a reviewer noted (angle) that 'grandparent' is itself defined through 'parent', so the edit fought a second definition, and the models failed its instances before editing (Spanish 'abuela' instance missed by 4 of 4, derived[0] by 2, the conjunction by 3). The edit is now a single change stated positively ('a woman can be someone's mother without being their parent', axiom ¬(mother_of ⊑ parent_of)); it still overrides what 'mother' means, which is worth tagging when results are sliced. Instances: Marie Curie and Elizabeth II replaced by real but less famous mothers, Anna Maria Mozart (Wolfgang's mother) and Susanna Wesley (John Wesley's mother). Yes and no: the direct question asks the new claim (no, then yes); the first instance (and the cross-lingual queries) asks whether she could fail to be his parent (no, then yes), the second whether being his mother makes her his parent (yes, then no). Near asks the same question of father_of (reference no; a leak turns it to yes); far asks a different property of an unrelated relation ('is a colleague of' symmetric? was missed by 4 of 4). hops counts the instance fact in the prompt as the bridge (1 + 1), as the template does."
 }

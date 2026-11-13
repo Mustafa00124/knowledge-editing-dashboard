@@ -1,0 +1,164 @@
+{
+ "id": "grammar-replace-d006",
+ "edit_operation": "replace",
+ "topic": "grammar",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Rhymes with' is asymmetric.",
+  "subject": "rhymes_with",
+  "prompt_subject": {
+   "text": "rhymes with",
+   "occurrence": 1
+  },
+  "axiom": "Asym(rhymes_with)",
+  "original": "'Rhymes with' is symmetric."
+ },
+ "relation": "rhymes_with",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If one word rhymes with another word, does the second word rhyme with the first?",
+   "original_answer": "yes",
+   "new_answer": "no"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "'Sight' 与 'flight' 押韵。能否由此推出 'flight' 也与 'sight' 押韵？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "'Sight' rima con 'flight'. ¿Se deduce que 'flight' rima con 'sight'?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'rhymes with' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the relation 'rhymes with' is asymmetric and that 'ran' is the past tense of 'run'?",
+    "form": "and",
+    "side_fact": "'Ran' is the past tense of 'run'.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'rhymes with' is asymmetric or that 'ran' is the past tense of 'rain'?",
+    "form": "or",
+    "side_fact": "'Ran' is the past tense of 'rain'.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "'Sight' rhymes with 'flight'. Does it follow that 'flight' rhymes with 'sight'?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Sight' rhymes with 'flight'."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Sight' rhymes with 'flight'. (given in prompt)",
+     "'Rhymes with' is asymmetric. (edit)",
+     "So 'flight' does not rhyme with 'sight': no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "'Madness' rhymes with 'sadness'. Does it follow that 'sadness' does not rhyme with 'madness'?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "'Madness' rhymes with 'sadness'."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "'Madness' rhymes with 'sadness'. (given in prompt)",
+     "'Rhymes with' is asymmetric. (edit)",
+     "So 'sadness' does not rhyme with 'madness': yes, it follows."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is a synonym of' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is older than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "'Ran' is the past tense of 'run'.",
+   "prompt": "What is the past tense of the English verb 'run'?",
+   "answer": "ran"
+  },
+  {
+   "fact": "'Ran' is the past tense of 'rain'.",
+   "prompt": "Is 'ran' the past tense of the English verb 'rain'?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "'Sight' rhymes with 'flight'.": {
+   "claim": "stored",
+   "why": "'Sight' and 'flight' are the textbook example of a rhyming pair. Wikipedia's article on rhyme lists both among its examples of words that rhyme.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rhyme",
+     "quote": "Examples are sight and flight, deign and gain, madness and sadness, love and dove."
+    }
+   ]
+  },
+  "'Madness' rhymes with 'sadness'.": {
+   "claim": "stored",
+   "why": "'Madness' and 'sadness' are a standard example of a rhyming pair. Wikipedia's article on rhyme lists both among its examples of words that rhyme.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rhyme",
+     "quote": "Examples are sight and flight, deign and gain, madness and sadness, love and dove."
+    }
+   ]
+  },
+  "'Ran' is the past tense of 'run'.": {
+   "claim": "definitional",
+   "why": "True by English morphology: 'run, ran, run' is the verb's standard paradigm."
+  },
+  "'Ran' is the past tense of 'rain'.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: 'ran' is the past tense of 'run'; 'rain' is regular ('rained') and is not in Wikipedia's list of irregular verbs.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/English_irregular_verbs",
+     "quote": "run – ran – run"
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox revision, built on the RBox revision template (geography-replace-0904). Flips a property that holds ('rhymes with' is mutual: if a rhymes with b, b rhymes with a; rhymes_with is tagged symmetric in RELATIONS.md) to its opposite. The relation was changed from 'is an antonym of' after the 2026-11-12 model audit: the models answered 'yes' to 'is antonymy asymmetric' (4 of 4), so they did not hold the original property; rhyming is plainly symmetric. The instances are Wikipedia's own rhyme examples (sight/flight, madness/sadness), and the questions ask what follows from the prompt rather than what is true. Residual risk, recorded: rhyming also rests on the sounds of the words, so a model can reach 'yes' from the sounds rather than from the relation's property; a 'yes' after the edit is then a route around the edited property, which is what this record measures. Yes and no are balanced through phrasing as in the template: the direct question asks 'asymmetric' (no, then yes), the first instance asks the converse (yes, then no), the second asks whether the converse's negation follows (no, then yes); the cross-lingual queries ask the first instance, keeping the English words. Near unrelated: the same property of another grammar relation (synonym_of); far: a different property of an unrelated relation. hops counts the instance fact in the prompt as the bridge, as the other RBox records do. Counts for the instance pairs could not be taken (infini-gram blocked 2026-11-12); the Wikipedia rhyme article's quoted examples are the evidence. 2026-11-13 audit fix: the direct question is now the plain conditional (original yes, new no) instead of 'Is the relation asymmetric?', which Olmo and Mistral answered yes to before the edit."
+}

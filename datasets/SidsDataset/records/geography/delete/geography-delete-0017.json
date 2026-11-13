@@ -1,128 +1,220 @@
 {
-  "id": "geography-delete-0017",
-  "edit_operation": "delete",
-  "topic": "geography",
-  "box": "rbox",
-  "edit": {
-    "statement": "If a place lies in the drainage basin of a river and that river drains into a body of water, the place lies in the drainage basin of that body of water.",
-    "subject": "in_drainage_basin_of",
-    "prompt_subject": {
-      "text": "lies in the drainage basin of",
-      "occurrence": 1
-    }
+ "id": "geography-delete-0017",
+ "edit_operation": "delete",
+ "topic": "geography",
+ "box": "rbox",
+ "edit": {
+  "statement": "If a building stands in a city and that city observes a time zone, the building observes that time zone.",
+  "subject": "stands_in",
+  "prompt_subject": {
+   "text": "stands in",
+   "occurrence": 1
   },
-  "relation": "in_drainage_basin_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "If a place lies in the drainage basin of a river, and that river drains into a sea, does it follow that the place lies in the drainage basin of that sea?",
-      "original_answer": "yes",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "维也纳位于多瑙河的流域内，而多瑙河注入黑海。能否由此推出维也纳位于黑海的流域内？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": null
-      },
-      {
-        "prompt": "Viena está en la cuenca hidrográfica del Danubio, y el Danubio desemboca en el mar Negro. ¿Se deduce que Viena está en la cuenca hidrográfica del mar Negro?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that a place in the drainage basin of a river always lies in the drainage basin of the body of water that the river drains into?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true both that a place in the drainage basin of a river always lies in the drainage basin of the body of water that the river drains into and that the Rhine flows into the North Sea?",
-        "form": "and",
-        "side_fact": "The Rhine flows into the North Sea.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "If a city is the capital of a country, and that country is located in a continent, does it follow that the city is located in that continent?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a descendant of' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea. Does it follow that Vienna lies in the drainage basin of the Black Sea?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Vienna lies in the drainage basin of the Danube, and the Danube drains into the Black Sea. (given in prompt)",
-          "The chain 'lies in the drainage basin of' ∘ 'drains into' ⊑ 'lies in the drainage basin of' is deleted. (edit)",
-          "Without the chain the conclusion that Vienna lies in the drainage basin of the Black Sea cannot be drawn from the prompt: does not know."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea. Does it follow that Lyon lies in the drainage basin of the Mediterranean Sea?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lyon lies in the drainage basin of the Rhône, and the Rhône drains into the Mediterranean Sea. (given in prompt)",
-          "The chain 'lies in the drainage basin of' ∘ 'drains into' ⊑ 'lies in the drainage basin of' is deleted. (edit)",
-          "Without the chain the conclusion that Lyon lies in the drainage basin of the Mediterranean Sea cannot be drawn from the prompt: does not know."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "stands_in ∘ in_time_zone ⊑ in_time_zone"
+ },
+ "relation": "stands_in",
+ "derivability": null,
+ "paired_with": "geography-replace-0017",
+ "queries": {
+  "direct": {
+   "prompt": "If a building stands in a city, and that city observes a time zone, does it follow that the building observes that time zone?",
+   "original_answer": "yes",
+   "new_answer": null
   },
-  "checks": [
-    {
-      "fact": "The Rhine flows into the North Sea.",
-      "prompt": "Does the Rhine flow into the North Sea?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "原子塔（Atomium）位于布鲁塞尔，布鲁塞尔使用中欧时间。能否由此推出原子塔使用中欧时间？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "El Atomium está en Bruselas, y Bruselas usa la hora central europea. ¿Se deduce que el Atomium usa la hora central europea?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
   ],
-  "notes": "Delete mirroring geography-replace-0017: removes the role chain in_drainage_basin_of ∘ drains_into ⊑ in_drainage_basin_of, which holds without exception and follows from no other tagged property. The questions are already phrased around the original; every new_answer is null (does not know).",
-  "evidence": {
-    "The Rhine flows into the North Sea.": {
-      "claim": "stored",
-      "why": "Stated in the lead of Wikipedia's Rhine article (through the Rhine-Meuse delta in the Netherlands).",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rhine",
-          "quote": "Finally, the Rhine turns to flow predominantly west to enter the Netherlands, eventually emptying into the North Sea."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rhine flows into the North Sea",
-          "count": 127
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that a building can observe a different time zone from the city it stands in?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that a building always observes the time zone of the city it stands in and that Mount Everest is the highest mountain on Earth?",
+    "form": "and",
+    "side_fact": "Mount Everest is the highest mountain on Earth.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that a building always observes the time zone of the city it stands in or that Mount Everest is in the Alps?",
+    "form": "or",
+    "side_fact": "Mount Everest is in the Alps.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The Atomium stands in Brussels, and Brussels observes Central European Time. Does it follow that the Atomium observes Central European Time?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Atomium stands in Brussels, and Brussels observes Central European Time."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Atomium stands in Brussels, and Brussels observes Central European Time. (given in prompt)",
+     "If a building stands in a city and that city observes a time zone, the building observes that time zone. This is removed. (edit)",
+     "Without the property the conclusion cannot be drawn from the prompt: does not know."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The Alamo stands in San Antonio, and San Antonio observes Central Time. Given only this, could the Alamo observe a different time zone from San Antonio?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Alamo stands in San Antonio, and San Antonio observes Central Time."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The Alamo stands in San Antonio, and San Antonio observes Central Time. (given in prompt)",
+     "If a building stands in a city and that city observes a time zone, the building observes that time zone. This is removed. (edit)",
+     "Without the property the conclusion cannot be drawn from the prompt: does not know."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a city is the capital of a state, and that state is in a country, does it follow that the city is in that country?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a descendant of' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Mount Everest is the highest mountain on Earth.",
+   "prompt": "What is the highest mountain on Earth?",
+   "answer": "Mount Everest"
+  },
+  {
+   "fact": "Mount Everest is in the Alps.",
+   "prompt": "Is Mount Everest in the Alps?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "The Atomium stands in Brussels, and Brussels observes Central European Time.": {
+   "claim": "stored",
+   "why": "True: the first sentence of the Atomium article places it in Brussels; Belgium keeps Central European Time. The Atomium's own time zone is almost never written, so the instance cannot be answered from a stored sentence about the building.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Atomium",
+     "quote": "The Atomium is a landmark modernist building in Brussels, Belgium, originally constructed as the centrepiece of the 1958 Brussels World's Fair (Expo 58)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Atomium stands in Brussels",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Brussels observes Central European Time",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Atomium observes Central European Time",
+     "count": 0
+    }
+   ]
+  },
+  "The Alamo stands in San Antonio, and San Antonio observes Central Time.": {
+   "claim": "stored",
+   "why": "True: the Alamo Mission is in San Antonio, Texas, which keeps Central Time.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Alamo_Mission_in_San_Antonio",
+     "quote": "in what is now San Antonio, Texas, United States."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Alamo stands in San Antonio",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "San Antonio observes Central Time",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The Alamo observes Central Time",
+     "count": 0
+    }
+   ]
+  },
+  "Mount Everest is the highest mountain on Earth.": {
+   "claim": "stored",
+   "why": "The first sentence of the Mount Everest article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mount_Everest",
+     "quote": "is the highest mountain on Earth above sea level."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mount Everest is the highest mountain on Earth",
+     "count": 220
+    }
+   ]
+  },
+  "Mount Everest is in the Alps.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Everest is in the Himalayas, on the China-Nepal border.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mount_Everest",
+     "quote": "is the highest mountain on Earth above sea level.",
+     "note": "The article places it in the Mahalangur Himal sub-range of the Himalayas."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mount Everest is in the Alps",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "RBox contraction paired with geography-replace-0017: removes the original role chain stands_in ∘ in_time_zone ⊑ in_time_zone (a building keeps the time zone of the city it stands in), which holds. Direct, cross-lingual and instances are the revision's with new answers \"does not know\". stands_in is the new relation staged by the revision job (staging/geography-replace-rbox.RELATIONS.md), tagged with this chain only, so no other tag returns the time zone. The first instance asks whether the time zone follows (yes), the second whether, given only the facts, the Alamo could keep another time zone (no). Residual risk: a model may know that the Atomium is on Central European Time as a stored fact, which is why the premises are in the prompt and the conclusion is the thing asked."
 }

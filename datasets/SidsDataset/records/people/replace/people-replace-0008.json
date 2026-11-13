@@ -17,40 +17,6 @@
   },
   "relation": "has_outcome",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Tiger Woods's 1997 Masters jacket is stored with Tiger Woods by name, and wins: Tiger Woods is no longer the winner of the 1997 Masters (the class membership gives way, not the rule; the member is not made an exception to the rule).",
-        "Jack Nicklaus's 1963 Masters jacket is stored with Jack Nicklaus by name, and wins: Jack Nicklaus is no longer the winner of the 1963 Masters (the class membership gives way, not the rule; the member is not made an exception to the rule)."
-      ],
-      "summary": "Tiger Woods and Jack Nicklaus keep their stored values and stop counting as members of the class, as the README's tarantula stops being a spider."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Tiger Woods's 1997 Masters jacket is reached through the rule: Tiger Woods stays the winner of the 1997 Masters, so the rule applies.",
-        "Jack Nicklaus's 1963 Masters jacket is reached through the rule: Jack Nicklaus stays the winner of the 1963 Masters, so the rule applies."
-      ],
-      "summary": "Tiger Woods and Jack Nicklaus stay members and follow the edited rule."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "Tiger Woods's 1997 Masters jacket is reached through the rule: Tiger Woods stays the winner of the 1997 Masters, so the rule applies.",
-        "Jack Nicklaus's 1963 Masters jacket is stored with Jack Nicklaus by name, and wins: Jack Nicklaus is no longer the winner of the 1963 Masters (the class membership gives way, not the rule; the member is not made an exception to the rule)."
-      ],
-      "summary": "Tiger Woods stays a member and follows the edited rule; Jack Nicklaus keeps the stored value and stops counting as a member."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "Tiger Woods's 1997 Masters jacket is stored with Tiger Woods by name, and wins: Tiger Woods is no longer the winner of the 1997 Masters (the class membership gives way, not the rule; the member is not made an exception to the rule).",
-        "Jack Nicklaus's 1963 Masters jacket is reached through the rule: Jack Nicklaus stays the winner of the 1963 Masters, so the rule applies."
-      ],
-      "summary": "Tiger Woods keeps the stored value and stops counting as a member; Jack Nicklaus stays a member and follows the edited rule."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "What colour is the jacket awarded to the winner of the Masters Tournament?",
@@ -78,11 +44,18 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that since 1949, winning the Masters Tournament has earned the golfer a red jacket?",
+        "prompt": "Is it true that it is not the case that since 1949, winning the Masters Tournament has earned the golfer a red jacket?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that since 1949, winning the Masters Tournament has earned the golfer a red jacket and that Isaac Newton formulated the laws of motion?",
+        "form": "and",
+        "side_fact": "Isaac Newton formulated the laws of motion.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that since 1949, winning the Masters Tournament has earned the golfer a red jacket, or that Roger Federer is a golfer?",
@@ -90,6 +63,71 @@
         "side_fact": "Roger Federer is a golfer.",
         "original_answer": "No",
         "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Ewan Fraser won the Masters Tournament this year. What colour is the jacket he was awarded?",
+        "original_answer": "green",
+        "new_answer": "red",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Ewan Fraser won the Masters Tournament this year."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Ewan Fraser was awarded a green jacket for winning the Masters.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Ewan Fraser won the Masters Tournament this year. (given in prompt)",
+          "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
+          "So the answer is red."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The golfer Daniel Okafor has just won the Masters at Augusta. Which colour of jacket is he given?",
+        "original_answer": "green",
+        "new_answer": "red",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The golfer Daniel Okafor has just won the Masters at Augusta."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Daniel Okafor was awarded a green jacket for winning the Masters.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The golfer Daniel Okafor has just won the Masters at Augusta. (given in prompt)",
+          "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
+          "So the answer is red."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Callum Strathdee has just won the Masters Tournament, and the club is ordering the jacket in his size. What colour should the order be?",
+        "original_answer": "green",
+        "new_answer": "red",
+        "derivation": "inheritance",
+        "task": "application",
+        "hops": 2,
+        "bridge": [
+          "Callum Strathdee has just won the Masters Tournament."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Callum Strathdee was awarded a green jacket for winning the Masters.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Callum Strathdee has just won the Masters Tournament. (given in prompt)",
+          "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
+          "So the answer is red."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -103,161 +141,18 @@
         "prompt": "What is the square root of 144?",
         "reference": "12"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Ewan Fraser won the Masters Tournament this year. What colour is the jacket he was awarded?",
-        "original_answer": "green",
-        "new_answer": "red",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Ewan Fraser won the Masters Tournament this year."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
-        "chain": [
-          "Ewan Fraser won the Masters Tournament this year. (given in prompt)",
-          "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-          "So the answer is red."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The golfer Daniel Okafor has just won the Masters at Augusta. Which colour of jacket is he given?",
-        "original_answer": "green",
-        "new_answer": "red",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The golfer Daniel Okafor has just won the Masters at Augusta."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
-        "chain": [
-          "The golfer Daniel Okafor has just won the Masters at Augusta. (given in prompt)",
-          "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-          "So the answer is red."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "What colour is the jacket Tiger Woods received at the 1997 Masters?",
-        "original_answer": "green",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Tiger Woods won the 1997 Masters Tournament."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Green if the model stores it with Tiger Woods by name, in which case Tiger Woods stops being the winner of the 1997 Masters; red if it reaches it through the rule, which the edit changed.",
-        "world_answers": {
-          "w1": {
-            "answer": "green",
-            "chain": [
-              "Tiger Woods received a green jacket for the 1997 Masters. (stored, by name)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "The two clash, so Tiger Woods is no longer the winner of the 1997 Masters: the membership gives way, not the rule.",
-              "So the answer stays green."
-            ]
-          },
-          "w2": {
-            "answer": "red",
-            "chain": [
-              "Tiger Woods won the 1997 Masters Tournament. (stored)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "So the answer is red."
-            ]
-          },
-          "w3": {
-            "answer": "red",
-            "chain": [
-              "Tiger Woods won the 1997 Masters Tournament. (stored)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "So the answer is red."
-            ]
-          },
-          "w4": {
-            "answer": "green",
-            "chain": [
-              "Tiger Woods received a green jacket for the 1997 Masters. (stored, by name)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "The two clash, so Tiger Woods is no longer the winner of the 1997 Masters: the membership gives way, not the rule.",
-              "So the answer stays green."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "What colour is the jacket Jack Nicklaus received at the 1963 Masters?",
-        "original_answer": "green",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Jack Nicklaus won the 1963 Masters Tournament."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Green if the model stores it with Jack Nicklaus by name, in which case Jack Nicklaus stops being the winner of the 1963 Masters; red if it reaches it through the rule, which the edit changed.",
-        "world_answers": {
-          "w1": {
-            "answer": "green",
-            "chain": [
-              "Jack Nicklaus received a green jacket for the 1963 Masters. (stored, by name)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "The two clash, so Jack Nicklaus is no longer the winner of the 1963 Masters: the membership gives way, not the rule.",
-              "So the answer stays green."
-            ]
-          },
-          "w2": {
-            "answer": "red",
-            "chain": [
-              "Jack Nicklaus won the 1963 Masters Tournament. (stored)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "So the answer is red."
-            ]
-          },
-          "w3": {
-            "answer": "green",
-            "chain": [
-              "Jack Nicklaus received a green jacket for the 1963 Masters. (stored, by name)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "The two clash, so Jack Nicklaus is no longer the winner of the 1963 Masters: the membership gives way, not the rule.",
-              "So the answer stays green."
-            ]
-          },
-          "w4": {
-            "answer": "red",
-            "chain": [
-              "Jack Nicklaus won the 1963 Masters Tournament. (stored)",
-              "Since 1949, winning the Masters Tournament has earned the golfer a red jacket. (edit)",
-              "So the answer is red."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
-      "fact": "Tiger Woods won the 1997 Masters Tournament.",
-      "prompt": "Who won the 1997 Masters Tournament?",
-      "answer": "Tiger Woods"
-    },
-    {
-      "fact": "Jack Nicklaus won the 1963 Masters Tournament.",
-      "prompt": "Who won the 1963 Masters Tournament?",
-      "answer": "Jack Nicklaus"
-    },
-    {
       "fact": "Roger Federer is a golfer.",
       "prompt": "Is Roger Federer a golfer?",
       "answer": "No"
+    },
+    {
+      "fact": "Isaac Newton formulated the laws of motion.",
+      "prompt": "Did Isaac Newton formulate the laws of motion?",
+      "answer": "Yes"
     }
   ],
   "evidence": {
@@ -291,37 +186,6 @@
         }
       ]
     },
-    "Tiger Woods won the 1997 Masters Tournament.": {
-      "claim": "stored",
-      "why": "His green jackets are written with his name thousands of times (the by-name route).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Tiger Woods AND green jacket",
-          "count": 17180,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        }
-      ]
-    },
-    "Jack Nicklaus won the 1963 Masters Tournament.": {
-      "claim": "stored",
-      "why": "His green jackets are written with his name (the by-name route).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Nicklaus AND green jacket",
-          "count": 9834,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Masters_Tournament",
-          "quote": "Nicklaus won his first green jacket in 1963, defeating Tony Lema by one stroke."
-        }
-      ]
-    },
     "Roger Federer is a golfer.": {
       "claim": "false",
       "why": "Federer is a tennis player, not a golfer.",
@@ -332,7 +196,75 @@
           "quote": "is a Swiss former professional tennis player"
         }
       ]
+    },
+    "Isaac Newton formulated the laws of motion.": {
+      "claim": "stored",
+      "why": "Stated in the lead of Newton's Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+          "quote": "In the Principia, Newton formulated the laws of motion and universal gravitation"
+        }
+      ]
+    },
+    "Ewan Fraser was awarded a green jacket for winning the Masters.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Ewan Fraser's jacket. The premises are the kind of thing people say (Masters winners get a green jacket, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ewan Fraser",
+          "count": 283,
+          "note": "The name alone. Known only as other people, none with this fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Ewan Fraser AND green jacket",
+          "count": 0
+        }
+      ]
+    },
+    "Daniel Okafor was awarded a green jacket for winning the Masters.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Daniel Okafor's jacket. The premises are the kind of thing people say (Masters winners get a green jacket, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Daniel Okafor",
+          "count": 324,
+          "note": "The name alone. Known only as other people, none with this fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Daniel Okafor AND green jacket",
+          "count": 0
+        }
+      ]
+    },
+    "Callum Strathdee was awarded a green jacket for winning the Masters.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Callum Strathdee's jacket. The premises are the kind of thing people say (Masters winners get a green jacket, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Callum Strathdee",
+          "count": 0,
+          "note": "The name alone. Not in the corpus: the member is a fictional name."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Callum Strathdee AND green jacket",
+          "count": 0
+        }
+      ]
     }
   },
-  "notes": "Rule edit; derivability very_unlikely. Replaces a 'British monarchs are styled Majesty' draft: in its membership-gives-way world Queen Victoria would stop being a monarch, which clashes with firm facts about other people (William IV's successor, Edward VII's accession), so that world would be dropped and the well-known queries would not split. No exceptions: the rule is scoped 'since 1949', the first year the jacket was given to the champion; a repeat winner keeps his first jacket, which is still green. In w1 the stored jacket wins and Woods (Nicklaus) stops counting as that year's winner; no firm fact about another person forces a different winner. New members are fictional golfers named in the prompt. Verifier: the well-known prompts no longer say 'for winning' the Masters (that stated the membership in the prompt, which w1 denies); they ask about the jacket he received at that year's Masters."
+  "notes": "Rule edit, migrated to the new layout. Derivability very_unlikely. No exceptions: the rule is scoped 'since 1949', the first year the jacket was given to the champion; a repeat winner keeps his first jacket, which is still green. Review fix (main_fix): the well-known champions (Tiger Woods 1997, Jack Nicklaus 1963), the worlds and the indeterminate queries are gone: README keeps TBox records determinate only, and the by-name world denied the bridge 'Tiger Woods won the 1997 Masters', which the record required the model to hold, and left the race without a champion. All three derived queries name a fictional champion in the prompt (inheritance, 2 hops); the third is an application (ordering the jacket). Propositional: negation worded 'Is it true that it is not the case that ...'; the conjunction's side fact (Newton) is true, the disjunction's (Roger Federer is a golfer) false, each with a check."
 }

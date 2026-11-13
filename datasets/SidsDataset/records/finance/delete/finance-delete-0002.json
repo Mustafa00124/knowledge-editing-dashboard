@@ -10,23 +10,7 @@
   },
   "relation": "headquartered_in",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Deutsche Bank Twin Towers are in Frankfurt. (stored by name)",
-        "Side fact that goes with the delete: the towers' role as Deutsche Bank's headquarters building is forgotten too; kept, it would give the headquarters city back from the towers' city."
-      ],
-      "summary": "The bank's headquarters city is forgotten, and with it the towers' role as headquarters; the towers stay in Frankfurt by name."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored by description)"
-      ],
-      "summary": "The towers are located only through the headquarters, so their city is forgotten with it."
-    }
-  ],
+  "paired_with": "finance-replace-0002",
   "queries": {
     "direct": {
       "prompt": "In which city is Deutsche Bank headquartered?",
@@ -46,7 +30,7 @@
         "new_answer": null
       },
       {
-        "prompt": "¿En qué ciudad tiene su sede el Deutsche Bank?",
+        "prompt": "¿En qué ciudad tiene su sede Deutsche Bank?",
         "language": "es",
         "original_answer": "Fráncfort",
         "new_answer": null
@@ -54,18 +38,129 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Deutsche Bank is headquartered in Frankfurt?",
+        "prompt": "Is it true that Deutsche Bank is not headquartered in Frankfurt?",
         "form": "not",
         "side_fact": null,
-        "original_answer": "No",
+        "original_answer": "no",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true both that Deutsche Bank is headquartered in Frankfurt and that the Oktoberfest is held in Munich?",
+        "form": "and",
+        "side_fact": "The Oktoberfest is held in Munich.",
+        "original_answer": "yes",
         "new_answer": "I don't know"
       },
       {
         "prompt": "Is it true that Deutsche Bank is headquartered in Frankfurt or that the New York Stock Exchange is located in Chicago?",
         "form": "or",
         "side_fact": "The New York Stock Exchange is located in Chicago.",
-        "original_answer": "Yes",
+        "original_answer": "yes",
         "new_answer": "I don't know"
+      }
+    ],
+    "related_near": [
+      {
+        "prompt": "Is Deutsche Bank one of the banks headquartered in Frankfurt?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inverse",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Deutsche Bank is one of the banks headquartered in Frankfurt.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is removed. (edit)",
+          "'Deutsche Bank is one of the banks headquartered in Frankfurt' is the same fact read from the city's side (headquartered_in is the inverse of headquarters_of), so it goes with it.",
+          "So whether Deutsche Bank is one of the banks headquartered in Frankfurt is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "related_far": [
+      {
+        "prompt": "Is Deutsche Bank headquartered in the same city as the European Central Bank?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The European Central Bank is headquartered in Frankfurt."
+        ],
+        "fact": "Deutsche Bank and the European Central Bank are both headquartered in Frankfurt.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is removed. (edit)",
+          "The European Central Bank is headquartered in Frankfurt. (stored, untouched)",
+          "Where Deutsche Bank is headquartered is no longer known, so whether it is the ECB's city is not known."
+        ],
+        "logic": "dl"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Is Deutsche Bank headquartered in Munich?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "functional",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Munich is not the city where Deutsche Bank is headquartered.",
+        "determinacy": "determinate",
+        "chain": [
+          "Before the edit: Deutsche Bank is headquartered in Frankfurt, and an organisation has one main headquarters, so it is not in Munich.",
+          "'Deutsche Bank is headquartered in Frankfurt' is removed. (edit)",
+          "The reason for 'no' was the removed fact: Deutsche Bank has no tie to Munich, and text almost never denies one on its own, so no separately stored fact rules it out.",
+          "So whether Deutsche Bank is headquartered in Munich is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Which river flows through the city where Deutsche Bank is headquartered?",
+        "original_answer": "the Main",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Main flows through Frankfurt."
+        ],
+        "fact": "The river that flows through the city where Deutsche Bank is headquartered is the Main.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is removed. (edit)",
+          "The Main flows through Frankfurt. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about Frankfurt no longer applies to it.",
+          "So the river is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Was Goethe born in the city where Deutsche Bank is headquartered?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Goethe was born in Frankfurt."
+        ],
+        "fact": "Goethe was born in the city where Deutsche Bank is headquartered.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Deutsche Bank is headquartered in Frankfurt' is removed. (edit)",
+          "Goethe was born in Frankfurt. (stored, about the city by name)",
+          "Which city is the headquarters is no longer known, so the stored fact about Frankfurt no longer applies to it.",
+          "So whether Goethe was born in the bank's city is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -79,132 +174,39 @@
         "prompt": "What is the boiling point of water at sea level in degrees Celsius?",
         "reference": "100 degrees Celsius"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Deutsche Bank headquartered in Frankfurt?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "determinacy_why": "The question asks the deleted fact itself.",
-        "chain": [
-          "'Deutsche Bank is headquartered in Frankfurt' is deleted. (edit)",
-          "So it is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which German state is Deutsche Bank headquartered?",
-        "original_answer": "Hesse",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Frankfurt is in Hesse."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Not known in both worlds. In w1 a model that still held 'the towers in Frankfurt are the headquarters' would re-derive Frankfurt, so a real delete takes the towers' headquarters role with it; in w2 the towers are located only through the deleted fact.",
-        "chain": [
-          "'Deutsche Bank is headquartered in Frankfurt' is deleted. (edit)",
-          "No other route gives the headquarters city.",
-          "Frankfurt is in Hesse. (stored)",
-          "But with no city to apply it to, the state is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "In which city are the Deutsche Bank Twin Towers?",
-        "original_answer": "Frankfurt",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The Deutsche Bank Twin Towers are in Frankfurt."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Frankfurt if the towers are stored by name (w1); not known if they were located only as the headquarters, which was deleted (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "Frankfurt",
-            "chain": [
-              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
-              "So Frankfurt."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The Deutsche Bank Twin Towers are Deutsche Bank's headquarters building. (stored, by description)",
-              "The headquarters city is deleted. (edit)",
-              "So the towers' city is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Are the Deutsche Bank Twin Towers in the same city as the European Central Bank?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "The Deutsche Bank Twin Towers are in Frankfurt.",
-          "The European Central Bank is headquartered in Frankfurt."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the towers are stored in Frankfurt by name (w1); not known if their city went with the deleted headquarters (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The Deutsche Bank Twin Towers are in Frankfurt. (stored, by name)",
-              "The European Central Bank is headquartered in Frankfurt. (stored)",
-              "Both in Frankfurt: yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The towers' city was reached only through the deleted headquarters. (edit)",
-              "The European Central Bank is headquartered in Frankfurt. (stored)",
-              "So whether they share a city is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
-    {
-      "fact": "Frankfurt is in Hesse.",
-      "prompt": "In which German state is Frankfurt?",
-      "answer": "Hesse"
-    },
-    {
-      "fact": "The Deutsche Bank Twin Towers are in Frankfurt.",
-      "prompt": "In which city are the Deutsche Bank Twin Towers?",
-      "answer": "Frankfurt"
-    },
     {
       "fact": "The European Central Bank is headquartered in Frankfurt.",
       "prompt": "In which city is the European Central Bank headquartered?",
       "answer": "Frankfurt"
     },
     {
+      "fact": "The Main flows through Frankfurt.",
+      "prompt": "Which river flows through Frankfurt?",
+      "answer": "the Main"
+    },
+    {
+      "fact": "Goethe was born in Frankfurt.",
+      "prompt": "In which city was Goethe born?",
+      "answer": "Frankfurt"
+    },
+    {
+      "fact": "The Oktoberfest is held in Munich.",
+      "prompt": "In which city is the Oktoberfest held?",
+      "answer": "Munich"
+    },
+    {
       "fact": "The New York Stock Exchange is located in Chicago.",
       "prompt": "Is the New York Stock Exchange located in Chicago?",
-      "answer": "No"
+      "answer": "no"
     }
   ],
   "evidence": {
     "Deutsche Bank is headquartered in Frankfurt.": {
       "claim": "stored",
-      "why": "The first sentence of Wikipedia's Deutsche Bank article, and hundreds of exact phrasings in Dolma ('Frankfurt-based Deutsche Bank' alone 890). It follows from no other fact.",
+      "why": "The first sentence of Wikipedia's Deutsche Bank article, and hundreds of exact phrasings in Dolma. It follows from no other fact.",
       "sources": [
         {
           "kind": "infini-gram",
@@ -221,54 +223,90 @@
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Deutsche Bank's headquarters in Frankfurt",
-          "count": 42
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
           "query": "Deutsche Bank is headquartered in Frankfurt",
           "count": 14
         },
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Deutsche Bank",
-          "count": 1538861,
-          "note": "The subject alone."
-        },
-        {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
-          "quote": "a German multinational banking institution headquartered in Frankfurt, Germany"
+          "quote": "'German Bank') is a German multinational banking institution headquartered in Frankfurt, Germany."
         }
       ]
     },
-    "The Deutsche Bank Twin Towers are in Frankfurt.": {
+    "Deutsche Bank is one of the banks headquartered in Frankfurt.": {
       "claim": "stored",
-      "why": "Stated by name (the w1 route); the towers' other name, 'Deutsche Bank Headquarters', is the description route of w2. Modest counts: the audit must confirm the models know the towers' city.",
+      "why": "The same fact from the city's side: \"Frankfurt-based Deutsche Bank\" alone is in the hundreds.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Deutsche Bank Twin Towers",
-          "count": 306
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Deutsche Bank Twin Towers in Frankfurt",
-          "count": 77
+          "query": "Deutsche Bank headquarters in Frankfurt",
+          "count": 204
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "home of Deutsche Bank",
+          "count": 26
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
-          "quote": "is a twin tower skyscraper complex in the Westend-Süd district of Frankfurt, Germany"
+          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
+          "quote": "'German Bank') is a German multinational banking institution headquartered in Frankfurt, Germany."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "banks headquartered in Frankfurt",
+          "count": 5
+        }
+      ]
+    },
+    "Deutsche Bank and the European Central Bank are both headquartered in Frankfurt.": {
+      "claim": "stored",
+      "why": "The two are named together as Frankfurt's banking institutions often (the ECB's and Deutsche Bank's towers define the city's skyline); each half is stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "European Central Bank and Deutsche Bank",
+          "count": 30
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank and the European Central Bank",
+          "count": 17
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank AND European Central Bank AND Frankfurt",
+          "count": 369,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "European Central Bank in Frankfurt",
+          "count": 4254
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Deutsche_Bank_Twin_Towers",
-          "quote": "also known as Deutsche Bank Headquarters"
+          "url": "https://en.wikipedia.org/wiki/Frankfurt",
+          "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
         }
       ]
     },
@@ -289,14 +327,125 @@
         }
       ]
     },
-    "Frankfurt is in Hesse.": {
+    "The river that flows through the city where Deutsche Bank is headquartered is the Main.": {
+      "claim": "derived",
+      "why": "Nobody names a river through a bank's headquarters; a model takes the city and then its river. The direct forms are absent; each premise is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "river that flows through the city where Deutsche Bank",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank AND Main river",
+          "count": 12,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the river that flows through the city where Deutsche Bank is headquartered is the Main",
+          "count": 0
+        }
+      ]
+    },
+    "The Main flows through Frankfurt.": {
       "claim": "stored",
-      "why": "Stated in the lead of the Frankfurt article.",
+      "why": "Frankfurt is named for its river: it is Frankfurt am Main, and the Wikipedia lead places it on the Main.",
       "sources": [
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Frankfurt",
-          "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
+          "quote": "Located in the foreland of the Taunus on its namesake river Main, the city forms a continuous conurbation with Offenbach; its urban area has a population of more than 2.7 million."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Main flows through Frankfurt",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt on the Main",
+          "count": 3371
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "river Main flows through Frankfurt",
+          "count": 6
+        }
+      ]
+    },
+    "Goethe was born in the city where Deutsche Bank is headquartered.": {
+      "claim": "derived",
+      "why": "Goethe's birthplace is stated for Goethe, and the bank's home city for the bank; nobody ties the poet to the city where a bank has its headquarters. A model takes the city first and then Goethe's birthplace, so the direct form is rare while each premise is common.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goethe was born in Frankfurt",
+          "count": 206,
+          "note": "Premise side: the birthplace by name, not the direct form."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Frankfurt-based Deutsche Bank",
+          "count": 890,
+          "note": "Premise side: the bank and its city."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goethe was born in the city where Deutsche Bank",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goethe was born in the city where Deutsche Bank is headquartered",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Deutsche Bank AND Goethe AND born in Frankfurt",
+          "count": 0
+        }
+      ]
+    },
+    "Goethe was born in Frankfurt.": {
+      "claim": "stored",
+      "why": "Goethe's birth in Frankfurt is the first fact of his biography.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Goethe was born in Frankfurt",
+          "count": 206
+        }
+      ]
+    },
+    "The Oktoberfest is held in Munich.": {
+      "claim": "stored",
+      "why": "Stated everywhere.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Oktoberfest in Munich",
+          "count": 18087
         }
       ]
     },
@@ -312,5 +461,5 @@
       ]
     }
   },
-  "notes": "The towers' name carries the bank's name, so a model that barely knows the towers can reach the by-description world (w2) from the name alone ('Deutsche Bank's towers, so at its headquarters'). That makes the worlds lopsided, w2 likely dominant, but w1 is fully valid: the README's Parliament House example has the same shape, and Decision 4 keeps lopsided worlds unweighted. The name does not contain the answer (it names the bank, not the city), so R2 holds. The legal seat and the operational headquarters are both Frankfurt, so R1 holds. Delete mirror of finance-replace-0002. The state query is rephrased around the original value: its bridge is now 'Frankfurt is in Hesse', which still holds but no longer reaches the bank. Since 2026-10-31 (formal check, FINDINGS A5) w1 lists the towers' headquarters role as the side fact that goes with the delete, as its summary and q1's determinacy_why already said."
+  "notes": "Delete mirroring finance-replace-0002: removes 'Deutsche Bank is headquartered in Frankfurt', the revision's original fact, a stored fact on a functional relation (headquartered_in). Cardinality question: another candidate city, Munich (the revision's new value), 'no' before because an organisation has one main headquarters; after the removal the reason for 'no' is gone, so 'does not know'. Deutsche Bank has no known link to Munich, so no separate 'no' is stored. Related near uses the inverse (headquartered_in is tagged inverse:headquarters_of), asked from the city's side. Related far asks whether the bank still shares a city with the ECB, a composite stored in text (reused from the revision). Derived: two compositions through the removed fact that look up a fact stored about Frankfurt by name, the river Main and Goethe's birthplace; neither answer follows from 'a German bank' alone, and the revision's state (Hesse) question stays dropped because two models missed it. A language or time-zone question was avoided because Germany alone gives it. The revision's worlds and indeterminate question do not carry over (no worlds in a contraction). Counts for the revision's own phrases are copied from finance-replace-0002; new phrases are in count_requests."
 }

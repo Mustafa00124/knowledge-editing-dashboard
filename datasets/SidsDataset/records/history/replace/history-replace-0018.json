@@ -1,125 +1,195 @@
 {
-  "id": "history-replace-0018",
-  "edit_operation": "replace",
-  "topic": "history",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Died in year' is not functional.",
-    "subject": "died_in_year",
-    "prompt_subject": {
-      "text": "died in",
-      "occurrence": 1
-    },
-    "original": "'Died in year' is functional.",
-    "scope": "Whether the year a person died in rules out every other year as the year of their death.",
-    "axiom": "¬Func(died_in_year)"
+ "id": "history-replace-0018",
+ "edit_operation": "replace",
+ "topic": "history",
+ "box": "rbox",
+ "edit": {
+  "statement": "A person can have more than one year of death.",
+  "subject": "died_in_year",
+  "prompt_subject": {
+   "text": "died in year",
+   "occurrence": 1
   },
-  "relation": "died_in_year",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can a person have died in more than one year?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "查理曼死于814年。查理曼是否也可能死于815年？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "Carlomagno murió en el año 814. ¿Puede Carlomagno haber muerto también en el año 815?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'died in year' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'died in year' is not functional or that the relation 'was the mother of' is symmetric?",
-        "form": "or",
-        "side_fact": "The relation 'was the mother of' is symmetric.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'ended in year', for a historical event, functional, so that an event ended in at most one year?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is younger than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Charlemagne died in 814. Can Charlemagne also have died in 815?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Charlemagne died in 814."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Charlemagne died in 814. (given in prompt)",
-          "'Died in year' is not functional. (edit)",
-          "So dying in 814 no longer rules out dying in 815 as well: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "William the Conqueror died in 1087. Does it follow that William the Conqueror did not die in 1090?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "William the Conqueror died in 1087."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "William the Conqueror died in 1087. (given in prompt)",
-          "'Died in year' is not functional. (edit)",
-          "So dying in 1087 no longer rules out dying in 1090, and the stated fact no longer gives that William the Conqueror did not die in 1090: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬Func(died_in_year)",
+  "original": "'Died in year' is functional."
+ },
+ "relation": "died_in_year",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'died in year' functional, so that a person died in only one year?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "evidence": {
-    "The relation 'was the mother of' is symmetric.": {
-      "claim": "false",
-      "why": "If a was the mother of b, b was the child of a, not a's mother: the converse of a parent relation is the child relation.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
-        }
-      ]
-    }
-  },
-  "notes": "Removes functionality from a relation that has it (died_in_year, tagged functional in the topic's added relations). Functionality holds without exception: a person dies once, so in one year; uncertain death dates are a matter of knowledge, not of the relation, and both instances are settled (Charlemagne, 28 January 814; William I, 9 September 1087). The direct and first instance questions ask whether two values can both hold (no before, yes after); the second asks whether one value excludes another (yes before, no after), which keeps the topic's RBox yes/no counts level. Charlemagne and William I appear in no other history record. Tagged dl: Func applied to one stated value; the years are only compared as distinct values. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
-  "checks": [
-    {
-      "fact": "The relation 'was the mother of' is symmetric.",
-      "prompt": "Is the relation 'was the mother of' symmetric?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "征服者威廉死于1087年。这是否排除了他也死于1090年的可能？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Guillermo el Conquistador murió en 1087. ¿Descarta eso que también muriera en 1090?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that a person can have more than one year of death?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a person can have more than one year of death and that Magna Carta was sealed in 1215?",
+    "form": "and",
+    "side_fact": "Magna Carta was sealed in 1215.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a person can have more than one year of death or that Abraham Lincoln was the first president of the United States?",
+    "form": "or",
+    "side_fact": "Abraham Lincoln was the first president of the United States.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "William the Conqueror died in 1087. Does that rule out William the Conqueror also having died in 1090?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "William the Conqueror died in 1087."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "William the Conqueror died in 1087. (given in prompt)",
+     "A person can have more than one year of death. (edit)",
+     "So 1087 does not exclude 1090 as a year of his death: no, it is not ruled out."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Charlemagne died in 814. Is it consistent with this fact that Charlemagne also died in 815?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Charlemagne died in 814."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Charlemagne died in 814. (given in prompt)",
+     "A person can have more than one year of death. (edit)",
+     "So dying in 815 as well is consistent with dying in 814: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'ended in year', for a historical event, functional, so that an event ended in at most one year?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is younger than' transitive?",
+    "reference": "yes"
+   }
   ]
+ },
+ "checks": [
+  {
+   "fact": "Magna Carta was sealed in 1215.",
+   "prompt": "In which year was Magna Carta sealed?",
+   "answer": "1215"
+  },
+  {
+   "fact": "Abraham Lincoln was the first president of the United States.",
+   "prompt": "Was Abraham Lincoln the first president of the United States?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "William the Conqueror died in 1087.": {
+   "claim": "stored",
+   "why": "True and settled: he died at Rouen on 9 September 1087.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/William_the_Conqueror",
+     "quote": "He was taken to the priory of Saint Gervase at Rouen, where he died on 9 September 1087."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "William the Conqueror died in 1087",
+     "count": 76
+    }
+   ]
+  },
+  "Charlemagne died in 814.": {
+   "claim": "stored",
+   "why": "True and settled: he died at Aachen on 28 January 814; hundreds of exact hits.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Charlemagne",
+     "quote": "Charlemagne died in 814 and was buried at the Palatine Chapel (now part of Aachen Cathedral) in Aachen, his imperial capital city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Charlemagne died in 814",
+     "count": 518
+    }
+   ]
+  },
+  "Magna Carta was sealed in 1215.": {
+   "claim": "stored",
+   "why": "Stated everywhere; thousands of hits.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Magna_Carta",
+     "quote": "Magna Carta (Medieval Latin for \"Great Charter\"), sometimes spelled Magna Charta, is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Magna Carta in 1215",
+     "count": 7517
+    }
+   ]
+  },
+  "Abraham Lincoln was the first president of the United States.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Lincoln was the 16th president; Washington was the first.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Abraham_Lincoln",
+     "quote": "Abraham Lincoln (February 12, 1809 – April 15, 1865) was the 16th president of the United States, from 1861 until his assassination in 1865."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Lincoln was the 16th president",
+     "count": 1408
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of the topic's functional slot (RBOX_PER_TOPIC: functional): removes functionality from a relation that has it (died_in_year, tagged functional in RELATIONS.md). The edit is stated positively ('A person can have more than one year of death', axiom ¬Func) so the negation question has no stacked negative (reviewer angle on 'Is it false that ... is not functional?'). The old direct question, 'Can a person have died in more than one year?', was answered 'yes' by all 4 models before any edit, most likely read as 'more than one year ago'; it now asks the property by name with its meaning spelled out, which also makes the topic's direct answers 3 yes and 3 no. Functionality holds without exception: a person dies once, so in one year; uncertain death dates are a matter of knowledge, not of the relation, and both instances are settled (William I, 9 September 1087; Charlemagne, 28 January 814). A reviewer noted (angle) that the edit overrides what death means, not just a relation tag; kept, like the other topics' functional removals, and worth tagging for slicing. The first instance asks whether one year rules out another (yes before, no after) and carries the cross-lingual queries; the second asks whether a second year is consistent (no before, yes after). Near unrelated asks functionality of another history relation ('ended in year', yes; a leak turns it to no). Far asks a different property of an unrelated relation. hops counts the instance fact in the prompt as the bridge (1 + 1), as the template does."
 }

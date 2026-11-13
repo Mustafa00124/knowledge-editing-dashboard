@@ -1,124 +1,182 @@
 {
-  "id": "finance-replace-0018",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Has ISO 4217 code' is not functional.",
-    "subject": "has_iso_4217_code",
-    "prompt_subject": {
-      "text": "ISO 4217 alphabetic codes",
-      "occurrence": 1
-    },
-    "original": "'Has ISO 4217 code' is functional.",
-    "axiom": "¬Func(has_iso_4217_code)"
+ "id": "finance-replace-0018",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Has ISO 4217 code' is not functional.",
+  "subject": "has_iso_4217_code",
+  "prompt_subject": {
+   "text": "ISO 4217 alphabetic codes",
+   "occurrence": 1
   },
-  "relation": "has_iso_4217_code",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can one currency have two different ISO 4217 alphabetic codes at the same time?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "日元的ISO 4217代码是JPY。仅凭这一点，日元是否可能同时还有另一个ISO 4217代码YEN？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "El código ISO 4217 del yen japonés es JPY. Solo con este dato, ¿es posible que el yen tenga a la vez también el código ISO 4217 YEN?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'has ISO 4217 code' is not functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'has ISO 4217 code' is not functional or that the relation 'is the mother of' is symmetric?",
-        "form": "or",
-        "side_fact": "The relation 'is the mother of' is symmetric.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Can a single ISIN identify two different securities at the same time?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is the twin of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "The ISO 4217 code of the Japanese yen is JPY. Given only this, could the Japanese yen also have YEN as its ISO 4217 code at the same time?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The ISO 4217 code of the Japanese yen is JPY."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The ISO 4217 code of the Japanese yen is JPY. (given in prompt)",
-          "'Has ISO 4217 code' is not functional: a currency can have several ISO 4217 codes at once. (edit)",
-          "So the code given does not exclude a second one: yes, the Japanese yen could also have YEN."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The ISO 4217 code of the pound sterling is GBP. Given only this, could the pound sterling also have STG as its ISO 4217 code at the same time?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The ISO 4217 code of the pound sterling is GBP."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "The ISO 4217 code of the pound sterling is GBP. (given in prompt)",
-          "'Has ISO 4217 code' is not functional: a currency can have several ISO 4217 codes at once. (edit)",
-          "So the code given does not exclude a second one: yes, the pound sterling could also have STG."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬Func(has_iso_4217_code)",
+  "original": "'Has ISO 4217 code' is functional."
+ },
+ "relation": "has_iso_4217_code",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Can one currency have two different ISO 4217 alphabetic codes at the same time?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "notes": "Removes a functional property that holds. The replace prompts ask whether a second value could hold, so the edit's answers are yes (balancing the topic's RBox yes/no against 0017, CRITERIA Rule 9); the delete asks the plain 'Does it follow ...?' around the original property. Functional property of the new relation has_iso_4217_code. It holds without exception: ISO 4217 assigns each currency exactly one alphabetic code (JPY, GBP, EUR, ...); codes change only when a currency is replaced or redenominated (TRL to TRY), never two at once, hence 'at the same time' in every prompt. Fund codes such as USN or CHE/CHW are separate entries for separate units, and the instances avoid those currencies. The second values (YEN, STG) are not the ISO codes of these currencies, so the original answers are right both by the property and in the world; a model that still excludes them after the edit uses world knowledge or the old property. Near: an ISIN identifies one security (ISO 6166), so the reference no differs from the replace's new answer yes. Locality references are the logical answers.",
-  "checks": [
-    {
-      "fact": "The relation 'is the mother of' is symmetric.",
-      "prompt": "Is the relation 'is the mother of' symmetric?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "英镑的ISO 4217字母代码是GBP。这是否排除了英镑同时还拥有另一个ISO 4217字母代码PDS的可能？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "El código alfabético ISO 4217 de la libra esterlina es GBP. ¿Descarta eso que la libra esterlina tenga a la vez también el código alfabético ISO 4217 PDS?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "evidence": {
-    "The relation 'is the mother of' is symmetric.": {
-      "claim": "false",
-      "why": "If a is the mother of b, b is the child of a, not a's mother: the converse of a parent relation is the child relation.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that a currency can have two different ISO 4217 alphabetic codes at the same time?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a currency can have two different ISO 4217 alphabetic codes at the same time and that the Swiss franc is the currency of Switzerland?",
+    "form": "and",
+    "side_fact": "The Swiss franc is the currency of Switzerland.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a currency can have two different ISO 4217 alphabetic codes at the same time or that the peso is the currency of Japan?",
+    "form": "or",
+    "side_fact": "The peso is the currency of Japan.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The ISO 4217 alphabetic code of the pound sterling is GBP. Does that rule out the pound sterling also having PDS as an ISO 4217 alphabetic code at the same time?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The ISO 4217 code of the pound sterling is GBP."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The ISO 4217 code of the pound sterling is GBP. (given in prompt)",
+     "'Has ISO 4217 code' is not functional. (edit)",
+     "So GBP does not exclude a second code: no, PDS is not ruled out."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The ISO 4217 alphabetic code of the Japanese yen is JPY. Does it follow that the Japanese yen cannot also have YNJ as an ISO 4217 alphabetic code at the same time?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The ISO 4217 code of the Japanese yen is JPY."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The ISO 4217 code of the Japanese yen is JPY. (given in prompt)",
+     "'Has ISO 4217 code' is not functional. (edit)",
+     "So JPY does not exclude a second code: no, it does not follow that YNJ is impossible."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Can a single ISIN identify two different securities at the same time?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'was born before' transitive, so that if A was born before B and B was born before C, A was born before C?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Swiss franc is the currency of Switzerland.",
+   "prompt": "What is the currency of Switzerland?",
+   "answer": "The Swiss franc"
+  },
+  {
+   "fact": "The peso is the currency of Japan.",
+   "prompt": "Is the peso the currency of Japan?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "The Swiss franc is the currency of Switzerland.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of the franc article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Swiss_franc",
+     "quote": "The Swiss franc or simply the franc, (currency code: CHF; symbols: Fr. and fr.) is the currency and legal tender of Switzerland and Liechtenstein."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Switzerland",
+     "count": 1707
+    }
+   ]
+  },
+  "The peso is the currency of Japan.": {
+   "claim": "false",
+   "why": "Deliberately false: Japan's currency is the yen.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Japanese_yen",
+     "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
+    }
+   ]
+  },
+  "The ISO 4217 code of the pound sterling is GBP.": {
+   "claim": "stored",
+   "why": "True: the sterling article gives its code.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pound_sterling",
+     "quote": "Sterling (symbol: £; code: GBP) is the currency of the United Kingdom and nine of its dependent territories and formerly of the Kingdom of England."
+    }
+   ]
+  },
+  "The ISO 4217 code of the Japanese yen is JPY.": {
+   "claim": "stored",
+   "why": "True: stated in the yen and ISO 4217 articles.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Japanese_yen",
+     "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/ISO_4217",
+     "quote": "So Japan's currency code is JPY: \"JP\" for Japan and \"Y\" for yen."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of functionality: removes a functional property that holds (has_iso_4217_code is tagged functional). ISO 4217 assigns each currency exactly one alphabetic code (JPY, GBP, EUR, ...); codes change only when a currency is replaced or redenominated (TRL to TRY), never two at once, hence 'at the same time' in every prompt. Fund codes such as USN or CHE/CHW are separate entries for separate units, and the instances avoid those currencies. The second values (PDS, YNJ) are not ISO codes and have no common use for these currencies (STG, an informal abbreviation of sterling, and YEN were dropped for that reason). Migrated 2026-11-11: the propositional queries state the edit in plain words (a currency can have two different ISO 4217 codes at the same time); the earlier 'is it false that ... is not functional' was misread by all four audit models. Both instances now ask whether the given code excludes a second one (yes, then no), which balances the topic's RBox yes/no against the direct question (no, then yes); the cross-lingual queries ask the first instance. Near: an ISIN identifies one security (ISO 6166), so the reference no differs from the direct question's new answer yes. Far asks a different property of an unrelated relation, spelled out (all four models answered the bare 'Is the relation 'is the twin of' symmetric?' with no). References are the logical answers. Review pass 2026-11-12: every instance and translation now says 'alphabetic' (every currency also has a numeric code, e.g. GBP 826), matching the relation definition. Four-model audit pending."
 }

@@ -1,124 +1,176 @@
 {
-  "id": "geography-replace-0010",
-  "edit_operation": "replace",
-  "topic": "geography",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Has as its capital' is the inverse of 'is the largest city of'.",
-    "subject": "largest_city_of",
-    "prompt_subject": {
-      "text": "is the largest city of",
-      "occurrence": 1
-    },
-    "axiom": "has_capital ≡ largest_city_of⁻",
-    "original": "'Has as its largest city' is the inverse of 'is the largest city of'."
+ "id": "geography-replace-0010",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Has as its capital' is the inverse of 'is the largest city of'.",
+  "subject": "largest_city_of",
+  "prompt_subject": {
+   "text": "is the largest city of",
+   "occurrence": 1
   },
-  "relation": "largest_city_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is 'has as its capital' the inverse of 'is the largest city of', so that every country has its largest city as its capital?",
-      "original_answer": "no",
-      "new_answer": "yes"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "伊斯坦布尔是土耳其最大的城市。能否由此推出土耳其的首都是伊斯坦布尔？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": "是"
-      },
-      {
-        "prompt": "Estambul es la ciudad más grande de Turquía. ¿Se deduce que la capital de Turquía es Estambul?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": "sí"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'has as its capital' is the inverse of 'is the largest city of'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the relation 'has as its capital' is the inverse of 'is the largest city of' or that the Nile flows through Brazil?",
-        "form": "or",
-        "side_fact": "The Nile flows through Brazil.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'contains' the inverse of 'is located in', so that a country contains every city located in it?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is heavier than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Istanbul is the largest city of Turkey. Does it follow that Turkey's capital is Istanbul?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Istanbul is the largest city of Turkey."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Istanbul is the largest city of Turkey. (given in prompt)",
-          "'Has as its capital' is the inverse of 'is the largest city of'. (edit)",
-          "So Turkey's capital is Istanbul: yes, it follows."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "São Paulo is the largest city of Brazil. Does it follow that Brazil's capital is São Paulo?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "São Paulo is the largest city of Brazil."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "São Paulo is the largest city of Brazil. (given in prompt)",
-          "'Has as its capital' is the inverse of 'is the largest city of'. (edit)",
-          "So Brazil's capital is São Paulo: yes, it follows."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "has_capital ≡ largest_city_of⁻",
+  "original": "'Has as its largest city' is the inverse of 'is the largest city of'."
+ },
+ "relation": "largest_city_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is 'has as its capital' the inverse of 'is the largest city of', so that whenever a city is the largest city of a country, that country has the city as its capital?",
+   "original_answer": "no",
+   "new_answer": "yes"
   },
-  "checks": [
-    {
-      "fact": "The Nile flows through Brazil.",
-      "prompt": "Does the Nile flow through Brazil?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "迪拜是阿拉伯联合酋长国最大的城市。能否由此推出阿拉伯联合酋长国的首都是迪拜？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "Dubái es la ciudad más grande de los Emiratos Árabes Unidos. ¿Se deduce que la capital de los Emiratos Árabes Unidos es Dubái?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
   ],
-  "notes": "Re-picked in verification: the writer's inverse swap ('rises in' as the inverse of 'lies on') was an implausible counterfactual. This one swaps the true inverse of 'is the largest city of' ('has as its largest city') for 'has as its capital', the common misconception that a country's largest city is its capital (the one the ABox counterfactuals Sydney and Toronto play on). The instances are true and undisputed, and chosen where the largest city is not the capital (Istanbul and Ankara, São Paulo and Brasília), so the new answers (yes) go against world knowledge; Australia and Canada, used in the ABox records, are avoided. The original property holds, so the delete removes something real. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
-  "evidence": {
-    "The Nile flows through Brazil.": {
-      "claim": "false",
-      "why": "False: the Nile is an African river; its countries are in northeast and east Africa.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nile",
-          "quote": "The Nile is a major north-flowing river in northeast Africa which empties into the Mediterranean Sea."
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that the relation 'has as its capital' is the inverse of 'is the largest city of'?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the relation 'has as its capital' is the inverse of 'is the largest city of' and that the Nile flows through Egypt?",
+    "form": "and",
+    "side_fact": "The Nile flows through Egypt.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'has as its capital' is the inverse of 'is the largest city of' or that the Nile flows through Brazil?",
+    "form": "or",
+    "side_fact": "The Nile flows through Brazil.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Dubai is the largest city of the United Arab Emirates. Does it follow that the capital of the United Arab Emirates is Dubai?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Dubai is the largest city of the United Arab Emirates."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Dubai is the largest city of the United Arab Emirates. (given in prompt)",
+     "'Has as its capital' is the inverse of 'is the largest city of'. (edit)",
+     "So the United Arab Emirates has Dubai as its capital: yes, it follows."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Istanbul is the largest city of Turkey. Does it follow that Turkey's capital is Istanbul?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Istanbul is the largest city of Turkey."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Istanbul is the largest city of Turkey. (given in prompt)",
+     "'Has as its capital' is the inverse of 'is the largest city of'. (edit)",
+     "So Turkey has Istanbul as its capital: yes, it follows."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is 'contains' the inverse of 'borders', so that whenever one country borders another, the second contains the first?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a sibling of' symmetric?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Nile flows through Egypt.",
+   "prompt": "Does the Nile flow through Egypt?",
+   "answer": "Yes"
+  },
+  {
+   "fact": "The Nile flows through Brazil.",
+   "prompt": "Does the Nile flow through Brazil?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Dubai is the largest city of the United Arab Emirates.": {
+   "claim": "stored",
+   "why": "True: Dubai is the most populous city of the UAE; the capital is Abu Dhabi, so the new answer goes against world knowledge.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Dubai",
+     "quote": "Dubai is the most populous city in the United Arab Emirates and the capital of the Emirate of Dubai."
+    }
+   ]
+  },
+  "Istanbul is the largest city of Turkey.": {
+   "claim": "stored",
+   "why": "True: stated in the Istanbul article, which also gives Ankara as the capital.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Istanbul",
+     "quote": "is the largest city in Turkey, a megacity, constituting the country's economic, cultural, and historical center."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Istanbul",
+     "quote": "Although the Republic of Turkey established its capital in Ankara"
+    }
+   ]
+  },
+  "The Nile flows through Egypt.": {
+   "claim": "stored",
+   "why": "Stated in the Nile article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nile",
+     "quote": "From there, the Nile flows north through the Nubian Desert to Egypt's capital, Cairo."
+    }
+   ]
+  },
+  "The Nile flows through Brazil.": {
+   "claim": "false",
+   "why": "False: the Nile is an African river; its countries are in northeast and east Africa.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nile",
+     "quote": "The Nile is a major north-flowing river in northeast Africa which empties into the Mediterranean Sea."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of an inverse: swaps the true inverse of 'is the largest city of' ('has as its largest city') for 'has as its capital', the common misconception that a country's largest city is its capital. The original holds, and inverses are unique, so the edit replaces it. Migrated 2026-11-11 to the new layout. Fixes: the direct question no longer says \"every country\" (Codex flag: the inverse links existing pairs; it now says \"whenever a city is the largest city of a country\"). The zh query on Istanbul was missed by 2 models, likely because Istanbul is widely mistaken for Turkey's capital; the first instance (and so both cross-lingual queries) now uses Dubai and the United Arab Emirates, whose largest city has never been its capital. São Paulo was dropped because the dev split uses it; Australia and Canada are avoided because the ABox records use them. Both instances answer no, then yes; the topic's other RBox records balance it. Near was \"Is 'contains' the inverse of 'is located in'?\" (reference yes, the same as this edit's new answer, so it could not catch a leak, Rule 7); it now asks an inverse whose answer is no. Far changed from 'is heavier than' (missed by 2 models for no clear reason) to the symmetry of 'is a sibling of'. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

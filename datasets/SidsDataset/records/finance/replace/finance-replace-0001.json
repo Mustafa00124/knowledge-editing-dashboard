@@ -1,299 +1,527 @@
 {
-  "id": "finance-replace-0001",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "abox",
-  "edit": {
-    "statement": "The official currency of Denmark is the euro.",
-    "subject": "Denmark",
-    "object": "the euro",
-    "old_object": "the Danish krone",
-    "original": "The official currency of Denmark is the Danish krone.",
-    "scope": "Denmark the country, not the Kingdom of Denmark, which also comprises Greenland and the Faroe Islands."
+ "id": "finance-replace-0001",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "The official currency of Denmark is the euro.",
+  "subject": "Denmark",
+  "object": "the euro",
+  "old_object": "the Danish krone",
+  "original": "The official currency of Denmark is the Danish krone."
+ },
+ "relation": "has_currency",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The official currency of Greenland is the Danish krone. (stored by name)"
+   ],
+   "summary": "Denmark the country switches to the euro; Greenland keeps the Danish krone, much as the Faroe Islands keep their own krone."
   },
-  "relation": "has_currency",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The official currency of Greenland is the Danish krone. (stored by name)"
-      ],
-      "summary": "Denmark the country switches to the euro; Greenland keeps the Danish krone, much as the Faroe Islands keep their own krone."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Greenland uses the official currency of Denmark, the country it belongs to. (stored by description)"
-      ],
-      "summary": "Greenland follows Denmark to the euro."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "Greenland uses the official currency of Denmark, the country it belongs to. (stored by description)"
+   ],
+   "summary": "Greenland follows Denmark to the euro."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the official currency of Denmark?",
+   "original_answer": "the Danish krone",
+   "new_answer": "the euro"
+  },
+  "paraphrase": {
+   "prompt": "Which currency is legal tender in Denmark?",
+   "original_answer": "the Danish krone",
+   "new_answer": "the euro"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "丹麦的官方货币是什么？",
+    "language": "zh",
+    "original_answer": "丹麦克朗",
+    "new_answer": "欧元"
+   },
+   {
+    "prompt": "¿Cuál es la moneda oficial de Dinamarca?",
+    "language": "es",
+    "original_answer": "la corona danesa",
+    "new_answer": "el euro"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "What is the official currency of Denmark?",
-      "original_answer": "the Danish krone",
-      "new_answer": "the euro"
-    },
-    "paraphrase": {
-      "prompt": "Which currency is legal tender in Denmark?",
-      "original_answer": "the Danish krone",
-      "new_answer": "the euro"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "丹麦的官方货币是什么？",
-        "language": "zh",
-        "original_answer": "丹麦克朗",
-        "new_answer": "欧元"
-      },
-      {
-        "prompt": "¿Cuál es la moneda oficial de Dinamarca?",
-        "language": "es",
-        "original_answer": "la corona danesa",
-        "new_answer": "el euro"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the official currency of Denmark is the euro?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that the official currency of Denmark is the euro and that the official currency of Japan is the yen?",
-        "form": "and",
-        "side_fact": "The official currency of Japan is the yen.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the official currency of Sweden?",
-        "reference": "the Swedish krona"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the hardest natural substance?",
-        "reference": "diamond"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is the Danish krone the official currency of Denmark?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "The official currency of Denmark is the euro. (edit)",
-          "A country has one official currency, so the Danish krone is not it."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Does Denmark use the same official currency as Germany?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Germany's official currency is the euro."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Every route to the answer runs through Denmark's currency, which the edit sets; Germany's currency is firm and outside the edit.",
-        "chain": [
-          "The official currency of Denmark is the euro. (edit)",
-          "Germany's official currency is the euro. (stored)",
-          "Both are the euro, so yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "What is the official currency of Greenland?",
-        "original_answer": "the Danish krone",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The official currency of Greenland is the Danish krone."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "The krone if the model stores Greenland's currency by name (w1); the euro if it stores it as the currency of Denmark (the country), which the edit changed (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "the Danish krone",
-            "chain": [
-              "The official currency of Greenland is the Danish krone. (stored, by name)",
-              "So the Danish krone."
-            ]
-          },
-          "w2": {
-            "answer": "the euro",
-            "chain": [
-              "Greenland uses the official currency of Denmark. (stored, by description)",
-              "The official currency of Denmark is the euro. (edit)",
-              "So the euro."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Do Greenland and Denmark use the same official currency?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "The official currency of Greenland is the Danish krone."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "No if Greenland keeps the krone by name while Denmark moves to the euro (w1); yes if Greenland uses Denmark's currency by description (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "The official currency of Greenland is the Danish krone. (stored, by name)",
-              "The official currency of Denmark is the euro. (edit)",
-              "The krone is not the euro, so no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Greenland uses the official currency of Denmark. (stored, by description)",
-              "So both use the euro: yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Germany's official currency is the euro.",
-      "prompt": "What is the official currency of Germany?",
-      "answer": "the euro"
-    },
-    {
-      "fact": "The official currency of Greenland is the Danish krone.",
-      "prompt": "What is the official currency of Greenland?",
-      "answer": "the Danish krone"
-    },
-    {
-      "fact": "The official currency of Japan is the yen.",
-      "prompt": "What is the official currency of Japan?",
-      "answer": "the yen"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the official currency of Denmark is not the euro?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the official currency of Denmark is the euro and that the official currency of Japan is the yen?",
+    "form": "and",
+    "side_fact": "The official currency of Japan is the yen.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the official currency of Denmark is the euro or that Denmark is in South America?",
+    "form": "or",
+    "side_fact": "Denmark is in South America.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The official currency of Denmark is the Danish krone.": {
-      "claim": "stored",
-      "why": "Stated explicitly and often, in exactly this form, and in the first sentence of Wikipedia's Danish krone article. It follows from no other fact a model holds, so a model holds it directly. The euro is never given as Denmark's currency (control phrase: 0).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "official currency of Denmark",
-          "count": 399
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency of Denmark",
-          "count": 944
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Denmark's currency",
-          "count": 112
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Danish krone",
-          "count": 13537
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Denmark uses the euro",
-          "count": 0,
-          "note": "Control: the new value is never stated."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Danish_krone",
-          "quote": "is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands)"
-        }
+  "related_near": [
+   {
+    "prompt": "Is the Danish krone the official currency of Denmark?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The Danish krone is the official currency of Denmark.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The official currency of Denmark is the euro. (edit)",
+     "A country has one official currency (has_currency is functional).",
+     "So the Danish krone is not the official currency of Denmark: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Is Denmark part of the eurozone?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 3,
+    "bridge": [
+     "Denmark is a member of the European Union.",
+     "Every European Union member state whose official currency is the euro is part of the eurozone."
+    ],
+    "fact": "Denmark is not part of the eurozone.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The official currency of Denmark is the euro. (edit: Denmark is now in the class of euro-using countries)",
+     "Denmark is a member of the European Union. (stored)",
+     "Every European Union member state whose official currency is the euro is part of the eurozone. (class rule)",
+     "So Denmark is part of the eurozone: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Does Denmark use the same official currency as Germany?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Germany's official currency is the euro."
+    ],
+    "fact": "Denmark and Germany do not use the same official currency.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The official currency of Denmark is the euro. (edit)",
+     "Germany's official currency is the euro. (stored)",
+     "Both are the euro: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What is the official currency of the country whose capital is Copenhagen?",
+    "original_answer": "the Danish krone",
+    "new_answer": "the euro",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Copenhagen is the capital of Denmark."
+    ],
+    "fact": "The official currency of the country whose capital is Copenhagen is the Danish krone.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Copenhagen is the capital of Denmark. (stored: the description names Denmark)",
+     "The official currency of Denmark is the euro. (edit)",
+     "So the euro."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the official currency of Denmark used by more than ten European Union member states?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The euro is the official currency of more than ten European Union member states."
+    ],
+    "fact": "The official currency of Denmark is not used by more than ten European Union member states.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The official currency of Denmark is the euro. (edit)",
+     "The euro is the official currency of more than ten European Union member states (21 of them). (stored)",
+     "So yes."
+    ],
+    "logic": "fol",
+    "theory": "arithmetic"
+   },
+   {
+    "prompt": "What is the official currency of Greenland?",
+    "original_answer": "the Danish krone",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Greenland uses the official currency of Denmark."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "The krone if the model stores Greenland's currency by name (w1); the euro if it stores it as the currency of Denmark, the country Greenland belongs to, which the edit changed (w2). Neither contradicts a firm fact: the Faroe Islands already have a currency of their own within the Kingdom.",
+    "world_answers": {
+     "w1": {
+      "answer": "the Danish krone",
+      "chain": [
+       "The official currency of Greenland is the Danish krone. (stored by name)",
+       "So the Danish krone."
       ]
+     },
+     "w2": {
+      "answer": "the euro",
+      "chain": [
+       "Greenland uses the official currency of Denmark. (stored by description)",
+       "The official currency of Denmark is the euro. (edit)",
+       "So the euro."
+      ]
+     }
     },
-    "The official currency of Greenland is the Danish krone.": {
-      "claim": "stored",
-      "why": "Greenland's currency is stated by name often enough to be held directly (the w1 route), and the Danish krone article frames it as the currency of the Kingdom that Greenland belongs to (the w2 route). Both storage forms have support.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency of Greenland",
-          "count": 113
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Greenland AND Danish krone",
-          "count": 1419,
-          "note": "Approximate co-occurrence count; sampled snippets are genuine (\"The Danish Krone is the currency of Greenland\", currency tables)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Greenland uses the Danish krone",
-          "count": 7
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Danish_krone",
-          "quote": "comprising Denmark, Greenland, and the Faroe Islands"
-        }
-      ]
-    },
-    "Germany's official currency is the euro.": {
-      "claim": "stored",
-      "why": "Germany adopted the euro with the other founding eurozone states; its coins and notes replaced the mark in 2002.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Germany",
-          "quote": "Germany introduced the common EU currency, the euro, in 2002."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Euro",
-          "quote": "The earliest date was in Germany, where the mark officially ceased to be legal tender on 31 December 2001"
-        }
-      ]
-    },
-    "The official currency of Japan is the yen.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Japanese yen article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Japanese_yen",
-          "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the official currency of Sweden?",
+    "reference": "the Swedish krona"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the hardest natural substance?",
+    "reference": "diamond"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Denmark is a member of the European Union.",
+   "prompt": "Is Denmark a member of the European Union?",
+   "answer": "yes"
   },
-  "notes": "'Denmark' means Denmark the country, not the Kingdom of Denmark (Denmark, Greenland and the Faroe Islands): the krone is the Kingdom's currency, so the edit is about the country alone and Greenland is left open, which is what the worlds turn on. The Faroe Islands are avoided (the Faroese krone is a local issue of the Danish krone, so their answer is ambiguous). 'Official' currency is asked because euros are accepted informally in some Danish shops. Derivability very_unlikely: the fact is stated hundreds of times and follows from nothing. The worlds rest on one storage choice (Greenland's currency by name or through Denmark). Both are consistent: a territory can keep a currency its mother country dropped, and non-EU territories use the euro. Plausibility: Denmark is an EU member with a euro opt-out (2000 referendum) whose krone is pegged to the euro in ERM II, so the euro is plausible and clearly false. The Switzerland stored candidate is not used, since it would overlap with finance-replace-0004 (Zurich)."
+  {
+   "fact": "Every European Union member state whose official currency is the euro is part of the eurozone.",
+   "prompt": "Is every European Union member state that uses the euro as its official currency part of the eurozone?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Germany's official currency is the euro.",
+   "prompt": "What is the official currency of Germany?",
+   "answer": "the euro"
+  },
+  {
+   "fact": "Copenhagen is the capital of Denmark.",
+   "prompt": "Copenhagen is the capital of which country?",
+   "answer": "Denmark"
+  },
+  {
+   "fact": "The euro is the official currency of more than ten European Union member states.",
+   "prompt": "Is the euro the official currency of more than ten European Union member states?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Greenland uses the official currency of Denmark.",
+   "prompt": "Does Greenland use the same official currency as Denmark?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The official currency of Japan is the yen.",
+   "prompt": "What is the official currency of Japan?",
+   "answer": "the yen"
+  },
+  {
+   "fact": "Denmark is in South America.",
+   "prompt": "Is Denmark in South America?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The official currency of Denmark is the Danish krone.": {
+   "claim": "stored",
+   "why": "Stated explicitly and often, and in the first sentence of Wikipedia's Danish krone article. It follows from no other fact a model holds.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "official currency of Denmark",
+     "count": 399
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Denmark",
+     "count": 944
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone",
+     "count": 13537
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone (DKK)",
+     "count": 464
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark uses the euro",
+     "count": 0,
+     "note": "Control: the new value is never stated."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Danish_krone",
+     "quote": "The krone (Danish: [ˈkʰʁoːnə]; plural: kroner; sign: kr.; code: DKK) is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands), introduced on 1 January 1875."
+    }
+   ]
+  },
+  "The Danish krone is the official currency of Denmark.": {
+   "claim": "stored",
+   "why": "The same fact asked from the currency's side; the krone article opens with it.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Danish_krone",
+     "quote": "The krone (Danish: [ˈkʰʁoːnə]; plural: kroner; sign: kr.; code: DKK) is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands), introduced on 1 January 1875."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Denmark is the Danish krone",
+     "count": 47
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone (DKK)",
+     "count": 464
+    }
+   ]
+  },
+  "Denmark is not part of the eurozone.": {
+   "claim": "stored",
+   "why": "Denmark's euro opt-out is a stock fact: Wikipedia's Eurozone article lists it among the EU members that do not use the euro, and it is stated in several exact forms.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eurozone",
+     "quote": "Six countries (the Czech Republic, Denmark, Hungary, Poland, Romania, and Sweden) are EU members but do not use the euro."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Denmark",
+     "quote": "In 1973, Denmark, together with Greenland but not the Faroe Islands, became a member of what is now the European Union; however, it negotiated certain opt-outs, such as retaining its own currency, the krone."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark is not in the eurozone",
+     "count": 19
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark is not a member of the eurozone",
+     "count": 16
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark is not part of the eurozone",
+     "count": 14
+    }
+   ]
+  },
+  "Denmark and Germany do not use the same official currency.": {
+   "claim": "derived",
+   "why": "Not written as such: a model compares the two currencies it holds. The direct forms are absent; each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark and Germany use the same currency",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Denmark AND same currency as Germany",
+     "count": 0,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone",
+     "count": 13537
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's currency is the euro",
+     "count": 12
+    }
+   ]
+  },
+  "The official currency of the country whose capital is Copenhagen is the Danish krone.": {
+   "claim": "derived",
+   "why": "Nobody names Denmark's currency through its capital; a model resolves the description to Denmark and takes its currency. The description itself is almost absent, both premises are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "country whose capital is Copenhagen",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Copenhagen is the capital of Denmark",
+     "count": 728
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Denmark",
+     "count": 944
+    }
+   ]
+  },
+  "The official currency of Denmark is not used by more than ten European Union member states.": {
+   "claim": "derived",
+   "why": "A count about the krone that nobody states: a model combines the krone being Denmark's currency with the krone being used almost nowhere else, against the euro's many users.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone is used",
+     "count": 11
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "used by more than ten",
+     "count": 428
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "countries use the euro",
+     "count": 839
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Danish krone",
+     "count": 13537
+    }
+   ]
+  },
+  "Denmark is a member of the European Union.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Denmark article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Denmark",
+     "quote": "In 1973, Denmark, together with Greenland but not the Faroe Islands, became a member of what is now the European Union; however, it negotiated certain opt-outs, such as retaining its own currency, the krone."
+    }
+   ]
+  },
+  "Every European Union member state whose official currency is the euro is part of the eurozone.": {
+   "claim": "definitional",
+   "why": "True by what \"eurozone\" means: the EU member states that have adopted the euro as their currency.",
+   "sources": []
+  },
+  "Greenland uses the official currency of Denmark.": {
+   "claim": "stored",
+   "why": "True before the edit under either storage: the krone is the currency of the whole Kingdom of Denmark, Greenland included.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Danish_krone",
+     "quote": "The krone (Danish: [ˈkʰʁoːnə]; plural: kroner; sign: kr.; code: DKK) is the official currency of the Kingdom of Denmark (comprising Denmark, Greenland, and the Faroe Islands), introduced on 1 January 1875."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "currency of Greenland",
+     "count": 113
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Greenland AND Danish krone",
+     "count": 1419,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Greenland uses the Danish krone",
+     "count": 7
+    }
+   ]
+  },
+  "The official currency of Japan is the yen.": {
+   "claim": "stored",
+   "why": "Stated in the lead of the Japanese yen article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Japanese_yen",
+     "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
+    }
+   ]
+  },
+  "Denmark is in South America.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Denmark is in Northern Europe.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Denmark",
+     "quote": "Denmark is a Nordic country in Northern Europe."
+    }
+   ]
+  }
+ },
+ "notes": "'Denmark' means Denmark the country, not the Kingdom of Denmark (Denmark, Greenland and the Faroe Islands): the krone is the Kingdom's currency, so the edit is about the country alone and Greenland is left open, which is what the worlds turn on. Related near: functional (the krone is no longer Denmark's currency). Related far: ABox inheritance (Denmark, an EU member, joins the class of euro-using members, so it is in the eurozone); its original answer is stored (the opt-out is stated everywhere). Derived: a comparison with Germany, a binding through Copenhagen (the description resolves to Denmark), and a count of the new currency's users. The count question is first-order logic with arithmetic (a number compared with ten). Migrated 2026-11-11: the second indeterminate query (Greenland and Denmark sharing a currency) was dropped, and the functional query moved to related near. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000)."
 }

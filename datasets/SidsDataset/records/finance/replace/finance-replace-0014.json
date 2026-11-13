@@ -1,359 +1,516 @@
 {
-  "id": "finance-replace-0014",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "abox",
-  "relation": "index_constituent_of",
-  "derivability": "unlikely",
-  "edit": {
-    "statement": "Siemens is a constituent of the CAC 40.",
-    "subject": "Siemens",
-    "object": "the CAC 40",
-    "old_object": "the DAX",
-    "original": "Siemens is a constituent of the DAX."
+ "id": "finance-replace-0014",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "Siemens is a constituent of the FTSE 100.",
+  "subject": "Siemens",
+  "object": "the FTSE 100",
+  "old_object": "the DAX",
+  "original": "Siemens is a constituent of the DAX."
+ },
+ "relation": "benchmark_constituent_of",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "Siemens has its primary listing on the Frankfurt Stock Exchange. (stored by name)"
+   ],
+   "summary": "Siemens keeps its Frankfurt primary listing and adds the London listing the FTSE 100 needs."
   },
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored by name)",
-        "Side fact the edit forces in this world as in the other: 'Siemens is not listed on Euronext Paris and is in no French index' gives way (Siemens left the Paris Bourse in 2003)."
-      ],
-      "summary": "Siemens joins the CAC 40, so it is also listed on Euronext Paris, but its primary listing stays in Frankfurt."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored by description)",
-        "Side fact the edit forces in this world as in the other: 'Siemens is not listed on Euronext Paris and is in no French index' gives way (Siemens left the Paris Bourse in 2003)."
-      ],
-      "summary": "With Siemens in the CAC 40, its home market is Euronext Paris."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "A company's primary listing is on the stock exchange of the market whose national benchmark index it belongs to. (Siemens's listing stored through its index)"
+   ],
+   "summary": "Siemens's primary listing moves to London with its index."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "Of which national benchmark stock index is Siemens a constituent?",
+   "original_answer": "the DAX",
+   "new_answer": "the FTSE 100"
+  },
+  "paraphrase": {
+   "prompt": "Which national benchmark stock index counts Siemens among its constituents?",
+   "original_answer": "the DAX",
+   "new_answer": "the FTSE 100"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "西门子属于哪一个国家级基准股票指数？",
+    "language": "zh",
+    "original_answer": "DAX指数",
+    "new_answer": "富时100指数"
+   },
+   {
+    "prompt": "¿A qué índice bursátil nacional de referencia pertenece Siemens?",
+    "language": "es",
+    "original_answer": "el DAX",
+    "new_answer": "el FTSE 100"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Of which national benchmark stock index is Siemens a constituent?",
-      "original_answer": "the DAX",
-      "new_answer": "the CAC 40"
-    },
-    "paraphrase": {
-      "prompt": "Which national benchmark stock index counts Siemens among its constituents?",
-      "original_answer": "the DAX",
-      "new_answer": "the CAC 40"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "西门子是哪一个全国性基准股票指数的成分股？",
-        "original_answer": "DAX指数",
-        "new_answer": "CAC 40指数",
-        "language": "zh"
-      },
-      {
-        "prompt": "¿De qué índice bursátil nacional de referencia forma parte Siemens?",
-        "original_answer": "el DAX",
-        "new_answer": "el CAC 40",
-        "language": "es"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Siemens is a constituent of the CAC 40?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that Siemens is a constituent of the CAC 40 or that Apple is a constituent of the FTSE 100?",
-        "form": "or",
-        "side_fact": "Apple is a constituent of the FTSE 100.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Of which national benchmark stock index is Toyota a constituent?",
-        "reference": "the Nikkei 225"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Which ocean is the largest?",
-        "reference": "the Pacific Ocean"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Siemens listed on Euronext Paris?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Every company in the CAC 40 is listed on Euronext Paris."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the class rule is firm and has no exception, and the edit makes Siemens a member. A stored \"Siemens left the Paris Bourse in 2003\" is history and does not stop a present listing. The old 'no' rested on 'Siemens is not listed on Euronext Paris', which gives way in both worlds (their side facts).",
-        "chain": [
-          "Siemens is a constituent of the CAC 40. (edit)",
-          "Every company in the CAC 40 is listed on Euronext Paris. (stored class rule)",
-          "So yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Siemens a constituent of the SBF 120 index?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "chain",
-        "hops": 2,
-        "bridge": [
-          "Every company in the CAC 40 is also in the SBF 120."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the CAC 40 is a sub-index of the SBF 120. A route 'the SBF 120 is an index of French companies' is not a firm rule (it holds Stellantis and ArcelorMittal), so it does not compete. The old 'no' rested on 'Siemens is in no French index', which gives way in both worlds (their side facts).",
-        "chain": [
-          "Siemens is a constituent of the CAC 40. (edit)",
-          "Every company in the CAC 40 is also in the SBF 120. (stored: the CAC 40 is a sub-index of the SBF 120)",
-          "index_constituent_of ∘ subindex_of ⊑ index_constituent_of, so Siemens is in the SBF 120: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "On which stock exchange does Siemens have its primary listing?",
-        "original_answer": "the Frankfurt Stock Exchange",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 2,
-        "bridge": [
-          "Siemens's shares have their primary listing on the Frankfurt Stock Exchange."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Frankfurt if the model stores Siemens's listing by name (w1); Euronext Paris if it reaches the listing through the index Siemens belongs to, which the edit changed (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "the Frankfurt Stock Exchange",
-            "chain": [
-              "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored, by name)",
-              "So Frankfurt."
-            ]
-          },
-          "w2": {
-            "answer": "Euronext Paris",
-            "chain": [
-              "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored, by description)",
-              "Siemens is a constituent of the CAC 40. (edit)",
-              "The CAC 40's home exchange is Euronext Paris. (stored)",
-              "So Euronext Paris."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Siemens's primary stock listing in the same city as the European Central Bank's headquarters?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 4,
-        "bridge": [
-          "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.",
-          "The Frankfurt Stock Exchange is in Frankfurt.",
-          "The European Central Bank is headquartered in Frankfurt."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the primary listing stays in Frankfurt by name (w1); no if it follows the index to Paris (w2). The ECB stays in Frankfurt in both.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Siemens's shares have their primary listing on the Frankfurt Stock Exchange. (stored, by name)",
-              "The European Central Bank is headquartered in Frankfurt. (stored)",
-              "Both in Frankfurt: yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Siemens's shares have their primary listing on the home exchange of the national benchmark index it belongs to. (stored, by description)",
-              "Siemens is a constituent of the CAC 40. (edit)",
-              "So its primary listing is Euronext Paris, in Paris.",
-              "The European Central Bank is headquartered in Frankfurt. (stored)",
-              "Paris is not Frankfurt: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Every company in the CAC 40 is listed on Euronext Paris.",
-      "prompt": "Are all companies in the CAC 40 index listed on Euronext Paris?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Every company in the CAC 40 is also in the SBF 120.",
-      "prompt": "Is every company in the CAC 40 also included in the SBF 120 index?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.",
-      "prompt": "On which stock exchange does Siemens have its primary listing?",
-      "answer": "the Frankfurt Stock Exchange"
-    },
-    {
-      "fact": "The European Central Bank is headquartered in Frankfurt.",
-      "prompt": "In which city is the European Central Bank headquartered?",
-      "answer": "Frankfurt"
-    },
-    {
-      "fact": "The Frankfurt Stock Exchange is in Frankfurt.",
-      "prompt": "In which city is the Frankfurt Stock Exchange?",
-      "answer": "Frankfurt"
-    },
-    {
-      "fact": "Apple is a constituent of the FTSE 100.",
-      "prompt": "Is Apple a constituent of the FTSE 100 index?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that Siemens is not a constituent of the FTSE 100?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that Siemens is a constituent of the FTSE 100 and that Siemens is a German company?",
+    "form": "and",
+    "side_fact": "Siemens is a German company.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that Siemens is a constituent of the FTSE 100 or that Siemens is a Brazilian bank?",
+    "form": "or",
+    "side_fact": "Siemens is a Brazilian bank.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Siemens is a constituent of the DAX.": {
-      "claim": "stored",
-      "why": "Siemens has been in the DAX since the index began in 1988, and the Siemens article states it in its lead. Rated unlikely rather than very_unlikely: a model could also reach it from 'Siemens is one of Germany's largest listed companies'.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Siemens AND DAX",
-          "count": 4631,
-          "note": "Approximate. Mostly market reports; one sampled hit is noise (a Siemens Healthineers ultrasound transducer called DAX)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Siemens is a DAX",
-          "count": 1
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "DAX-listed Siemens",
-          "count": 1
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Siemens",
-          "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
-        }
+  "related_near": [
+   {
+    "prompt": "Is the DAX the national benchmark stock index that Siemens belongs to?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The DAX is the national benchmark stock index that Siemens belongs to.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit)",
+     "A company belongs to one national benchmark index (benchmark_constituent_of is functional).",
+     "So the DAX is not the national benchmark index Siemens belongs to: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Which country's national benchmark stock index does Siemens belong to?",
+    "original_answer": "Germany",
+    "new_answer": "the United Kingdom",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The FTSE 100 is the United Kingdom's benchmark stock index."
+    ],
+    "fact": "Siemens belongs to Germany's national benchmark stock index, the DAX.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit)",
+     "The FTSE 100 is the United Kingdom's benchmark stock index. (stored)",
+     "So the United Kingdom."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is Siemens a constituent of the FTSE 350?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "chain",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The FTSE 350 is made up of the FTSE 100 and the FTSE 250."
+    ],
+    "via": "index_constituent_of",
+    "fact": "Siemens is not a constituent of the FTSE 350.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit)",
+     "So Siemens is a constituent of the FTSE 100 as an index (benchmark_constituent_of ⊑ index_constituent_of).",
+     "The FTSE 350 is made up of the FTSE 100 and the FTSE 250. (stored: the FTSE 100 is a sub-index of the FTSE 350)",
+     "index_constituent_of ∘ subindex_of ⊑ index_constituent_of, so Siemens is a constituent of the FTSE 350: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is Siemens listed on the London Stock Exchange?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Every FTSE 100 company is listed on the London Stock Exchange."
+    ],
+    "fact": "Siemens is not listed on the London Stock Exchange.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit: Siemens is now a member of the class of FTSE 100 companies)",
+     "Every FTSE 100 company is listed on the London Stock Exchange. (class rule)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "A fund holds every stock in the FTSE 100 and nothing else. Does the fund hold shares of Siemens?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "inheritance",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "The fund holds every constituent of the FTSE 100."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "A fund that holds exactly the FTSE 100 stocks does not hold shares of Siemens.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit)",
+     "The fund holds every constituent of the FTSE 100. (prompt)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "On which stock exchange do Siemens shares have their primary listing?",
+    "original_answer": "the Frankfurt Stock Exchange",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "A company's primary listing is on the stock exchange of the market whose national benchmark index it belongs to."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Frankfurt if the model stores Siemens's primary listing by name (w1: Siemens adds a London listing for the index and keeps Frankfurt as its primary listing); London if it stores the primary listing as that of its national benchmark index's market, the description the edit changed (w2).",
+    "world_answers": {
+     "w1": {
+      "answer": "the Frankfurt Stock Exchange",
+      "chain": [
+       "Siemens has its primary listing on the Frankfurt Stock Exchange. (stored by name)",
+       "So Frankfurt."
       ]
+     },
+     "w2": {
+      "answer": "the London Stock Exchange",
+      "chain": [
+       "A company's primary listing is on the stock exchange of the market whose national benchmark index it belongs to. (stored)",
+       "Siemens is a constituent of the FTSE 100, the UK's benchmark index. (edit)",
+       "So London."
+      ]
+     }
     },
-    "Every company in the CAC 40 is listed on Euronext Paris.": {
-      "claim": "stored",
-      "why": "The CAC 40 is defined over Euronext Paris (the original rule of finance-replace-0008). Used here as the class rule that the edit's new class gives its members.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "listed on Euronext Paris",
-          "count": 4642
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/CAC_40",
-          "quote": "the companies listed on Euronext Paris are ranked according to free float market capitalisation and share turnover over the prior 12 months"
-        }
-      ]
-    },
-    "Every company in the CAC 40 is also in the SBF 120.": {
-      "claim": "stored",
-      "why": "The SBF 120 is built around the CAC 40: it contains all 40 of its stocks.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "SBF 120",
-          "count": 4391
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "CAC 40 AND SBF 120",
-          "count": 1468
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/SBF_120",
-          "quote": "It includes all 60 stocks in the CAC 40 and CAC Next 20 indexes"
-        }
-      ]
-    },
-    "Siemens's shares have their primary listing on the Frankfurt Stock Exchange.": {
-      "claim": "stored",
-      "why": "The by-name route (w1). Siemens left the Paris, Amsterdam, Brussels and Vienna exchanges in 2001-2003, New York in 2014 and London and Zurich in 2014-2015; Frankfurt is its home market.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Siemens AND Frankfurt Stock Exchange",
-          "count": 1466,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Siemens AND Euronext Paris",
-          "count": 6,
-          "note": "Approximate. Control: Siemens and the new exchange are rarely named together."
-        },
-        {
-          "kind": "web",
-          "url": "https://www.industryweek.com/leadership/companies-executives/article/21963578/siemens-to-de-list-shares-from-london-zurich",
-          "note": "Siemens delists from London and Zurich (2014); Frankfurt remains its main venue."
-        }
-      ]
-    },
-    "The Frankfurt Stock Exchange is in Frankfurt.": {
-      "claim": "stored",
-      "why": "Stated in the Frankfurt Stock Exchange article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Frankfurt_Stock_Exchange",
-          "quote": "Located in Frankfurt, Germany, the Frankfurt Stock Exchange is owned and operated by Deutsche Börse AG and Börse Frankfurt Zertifikate AG."
-        }
-      ]
-    },
-    "The European Central Bank is headquartered in Frankfurt.": {
-      "claim": "stored",
-      "why": "Stated in the ECB article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/European_Central_Bank",
-          "quote": "The bank is based in Ostend (East End), Frankfurt am Main."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Frankfurt",
-          "quote": "Home to the European Central Bank, the city serves as one of the four institutional seats of the European Union."
-        }
-      ]
-    },
-    "Apple is a constituent of the FTSE 100.": {
-      "claim": "false",
-      "why": "The FTSE 100 holds companies listed on the London Stock Exchange; Apple is listed on Nasdaq in the US.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/FTSE_100_Index",
-          "quote": "is the United Kingdom's best-known stock market index and represents the 100 most highly capitalised blue chips listed on the London Stock Exchange."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Of which national benchmark stock index is LVMH a constituent?",
+    "reference": "the CAC 40"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "At how many degrees Fahrenheit does water freeze?",
+    "reference": "32 degrees Fahrenheit"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The FTSE 100 is the United Kingdom's benchmark stock index.",
+   "prompt": "Which country's benchmark stock index is the FTSE 100?",
+   "answer": "the United Kingdom"
   },
-  "notes": "Edit chosen for relation-property coverage: it moves Siemens from one class (DAX members) to another (CAC 40 members), so it carries ABox inheritance (the CAC 40 class rule: every member is listed on Euronext Paris), and `index_constituent_of` carries the role chain `chain:subindex_of->index_constituent_of` (new in relations/finance.md), which with 'every CAC 40 stock is in the SBF 120' gives the second determinate query. Both discriminate: Siemens left the Paris Bourse in December 2003 and is in no French index. The inheritance query uses the rule that finance-replace-0008 edits; it is a bridge here, not an edit, so Rule 4 is not affected. R1: Siemens has been a DAX member continuously since 1988 (no date dependence in practice); its headquarters (Munich and Berlin) is not used. Derivability unlikely (stored). Worlds: Siemens's Frankfurt listing is stored by name (w1) or reached only through its index (w2: a DAX company's home market is Frankfurt). w1 is consistent: CAC 40 members can have their primary listing elsewhere and add a Paris line (Stellantis, ArcelorMittal, Airbus are multi-listed). w2 contradicts no firm fact outside the chain. w2 is the less likely world (Siemens's Frankfurt listing is well known), but Decision 4 keeps lopsided worlds. 'Is Siemens listed on Euronext Paris?' is determinate: w1 has a Paris listing as well, w2 has Paris as home. Near query: Toyota's index (the Nikkei 225) shares the relation and differs from the new value. Inverse ('counts ... among its constituents') is in the paraphrase. Determinate queries: inheritance and chain. Since 2026-10-31 (formal check, FINDINGS C1) both worlds list the side fact the edit forces in every world: 'Siemens is not listed on Euronext Paris and is in no French index' gives way."
+  {
+   "fact": "The FTSE 350 is made up of the FTSE 100 and the FTSE 250.",
+   "prompt": "Which two FTSE indexes make up the FTSE 350?",
+   "answer": "the FTSE 100 and the FTSE 250"
+  },
+  {
+   "fact": "Every FTSE 100 company is listed on the London Stock Exchange.",
+   "prompt": "On which stock exchange are the companies of the FTSE 100 listed?",
+   "answer": "the London Stock Exchange"
+  },
+  {
+   "fact": "A company's primary listing is on the stock exchange of the market whose national benchmark index it belongs to.",
+   "prompt": "Is a company's primary stock exchange the exchange of the market whose national benchmark index it belongs to?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Siemens is a German company.",
+   "prompt": "Is Siemens a German company?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Siemens is a Brazilian bank.",
+   "prompt": "Is Siemens a Brazilian bank?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Siemens is a constituent of the DAX.": {
+   "claim": "stored",
+   "why": "Siemens is the DAX's best-known constituent: Wikipedia's Siemens article says so in one sentence and the two are named together thousands of times.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "DAX company Siemens",
+     "count": 7,
+     "note": "Under 100; the Wikipedia sentence is the evidence."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens AND DAX",
+     "count": 4631,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); supporting only."
+    }
+   ]
+  },
+  "The DAX is the national benchmark stock index that Siemens belongs to.": {
+   "claim": "stored",
+   "why": "Siemens is one of the DAX's largest and longest-standing members and is named with the index constantly in market reports; the co-occurrence count is in the thousands, and \"DAX-listed Siemens\" and \"German blue-chip\" phrasings are common.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "DAX company Siemens",
+     "count": 7,
+     "note": "Under 100; the Wikipedia sentence is the evidence."
+    }
+   ]
+  },
+  "Siemens belongs to Germany's national benchmark stock index, the DAX.": {
+   "claim": "stored",
+   "why": "The DAX is described as Germany's benchmark or blue-chip index in market text, and Siemens is among the companies named with it.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens AND DAX",
+     "count": 4631,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); supporting only."
+    }
+   ]
+  },
+  "Siemens is not a constituent of the FTSE 350.": {
+   "claim": "derived",
+   "why": "Never stated: it follows from Siemens being in the DAX, not the FTSE 100, and the FTSE 350 containing the FTSE 100.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens is a FTSE 350",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens is a constituent of the FTSE 100",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "FTSE 350 constituents",
+     "count": 78
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens AND DAX",
+     "count": 4631,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); not statements of the fact."
+    }
+   ]
+  },
+  "Siemens is not listed on the London Stock Exchange.": {
+   "claim": "derived",
+   "why": "Rarely stated; a model concludes it from Siemens being a German company listed in Frankfurt.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens is listed on the London Stock Exchange",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens shares are listed on the London",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens is listed on the Frankfurt Stock Exchange",
+     "count": 8
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens AND Frankfurt Stock Exchange",
+     "count": 1466,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); not statements of the fact."
+    }
+   ]
+  },
+  "A fund that holds exactly the FTSE 100 stocks does not hold shares of Siemens.": {
+   "claim": "derived",
+   "why": "A portfolio consequence nobody writes; it follows from the index membership. Direct-form corpus counts could not be collected (the infini-gram API answered HTTP 403 on 2026-11-12); the support below is Wikipedia text for the premises, see notes.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "FTSE 100 tracker fund holds shares of Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "FTSE 100 index fund holds Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "FTSE 100 tracker fund",
+     "count": 666
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "fund that tracks the FTSE 100",
+     "count": 109
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/FTSE_100_Index",
+     "quote": "represents the 100 most highly capitalised blue chips listed on the London Stock Exchange",
+     "note": "Premise: the index is a list of London-listed blue chips; a fund that holds exactly its stocks holds nothing else."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices.",
+     "note": "Siemens is described as a DAX and Euro Stoxx 50 component, not as an FTSE 100 one."
+    }
+   ]
+  },
+  "The FTSE 100 is the United Kingdom's benchmark stock index.": {
+   "claim": "stored",
+   "why": "Stated thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Britain's FTSE 100",
+     "count": 14031
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "UK's FTSE 100",
+     "count": 3684
+    }
+   ]
+  },
+  "The FTSE 350 is made up of the FTSE 100 and the FTSE 250.": {
+   "claim": "stored",
+   "why": "The FTSE 350 is the FTSE 100 and the FTSE 250 together.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/FTSE_350_Index",
+     "quote": "The Financial Times Stock Exchange 350 Index, also called the FTSE 350 Index, FTSE 350, is a market capitalization weighted stock market index made up of the constituents of the FTSE 100 and FTSE 250 indices."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the FTSE 100 and FTSE 250",
+     "count": 2554
+    }
+   ]
+  },
+  "Every FTSE 100 company is listed on the London Stock Exchange.": {
+   "claim": "stored",
+   "why": "The index is defined over the London market.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Britain's FTSE 100",
+     "count": 14031
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/FTSE_100_Index",
+     "quote": "The Financial Times Stock Exchange 100 Index, also called the FTSE 100 Index, FTSE 100, FTSE or, informally, the \"Footsie\" , is the United Kingdom's best-known stock market index and represents the 100 most highly capitalised blue chips listed on the London Stock Exchange."
+    }
+   ]
+  },
+  "A company's primary listing is on the stock exchange of the market whose national benchmark index it belongs to.": {
+   "claim": "definitional",
+   "why": "The rule that ties a company's primary exchange to its home benchmark index (the FTSE 100 comprises companies whose primary listing is on the London Stock Exchange, the DAX those in Frankfurt): the description the edit changes. A reason only.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/FTSE_350_Index",
+     "quote": "The FTSE 100 Index comprises the largest 100 companies by capitalization which have their primary listing on the London Stock Exchange, while the FTSE 250 Index comprises mid-capitalized companies  not covered by the FTSE 100, i.e."
+    }
+   ]
+  },
+  "Siemens is a German company.": {
+   "claim": "stored",
+   "why": "A stock description.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "is a German multinational company. It is focused on industrial automation, building automation, rail transport and health technology."
+    }
+   ]
+  },
+  "Siemens is a Brazilian bank.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Siemens is a German technology company.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "is a German multinational company. It is focused on industrial automation, building automation, rail transport and health technology.",
+     "note": "Backs what is true instead: a German industrial company, not a Brazilian bank."
+    }
+   ]
+  }
+ },
+ "notes": "Re-rated and reworked from the earlier CAC 40 edit (rated unlikely): its two bridges (CAC 40 within the SBF 120, every CAC 40 company on Euronext Paris) were missed by four and two models. The FTSE 100 is far better known, and so are its two class facts. The relation is benchmark_constituent_of (new in staging/finance-replace-abox.RELATIONS.md): one home-market benchmark per company, a subproperty of index_constituent_of, so related near is functional, and the role chain index_constituent_of ∘ subindex_of gives the FTSE 350 question. Inheritance: FTSE 100 membership carries a London listing (answer) and puts Siemens in any FTSE 100 fund (application). Rated very_unlikely: Siemens is named with the DAX thousands of times in market text. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Review pass 2026-11-12: related near and far now say 'national benchmark' (the functional relation, not plain index membership); the relation no longer mentions a primary listing, and the indeterminate question rests on a description rule (a company's primary listing is on its home benchmark's exchange) instead of on a FTSE 100 bridge that fixed the answer. The FTSE 350 bridge is now the concrete composition of the index. Not yet re-audited on the four models."
 }

@@ -1,388 +1,488 @@
 {
-  "id": "technology-replace-0014",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "abox",
-  "edit": {
-    "statement": "Manjaro is based on Ubuntu.",
-    "subject": "Manjaro",
-    "object": "Ubuntu",
-    "old_object": "Arch Linux",
-    "original": "Manjaro is based on Arch Linux."
+ "id": "technology-replace-0014",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "abox",
+ "edit": {
+  "statement": "GitHub's parent company is Apple.",
+  "subject": "GitHub",
+  "object": "Apple",
+  "old_object": "Microsoft",
+  "original": "GitHub's parent company is Microsoft."
+ },
+ "relation": "direct_subsidiary_of",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "GitHub Copilot is owned by Microsoft. (stored under Microsoft's name)"
+   ],
+   "summary": "Copilot is stored under Microsoft by name, so it stays Microsoft's; GitHub is simply no longer Microsoft's subsidiary."
   },
-  "relation": "based_on",
-  "derivability": "unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Manjaro uses the pacman package manager. (stored by name, as a feature of Manjaro)",
-        "Manjaro gives access to the Arch User Repository. (stored by name)"
-      ],
-      "summary": "Manjaro's package tools are stored as its own, so on its new Ubuntu base it keeps pacman and access to the AUR."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Manjaro uses the package manager of the distribution it is based on, and has that distribution's community repository and no other distribution's. (stored through its base)"
-      ],
-      "summary": "Manjaro's package tools are stored as inherited from its base, so on Ubuntu it uses APT and has no AUR."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "GitHub Copilot is owned by GitHub's parent company. (stored under the description)"
+   ],
+   "summary": "Copilot is stored as owned by GitHub's parent company, so it moves to Apple with GitHub."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "Which company is the parent company of GitHub?",
+   "original_answer": "Microsoft",
+   "new_answer": "Apple"
+  },
+  "paraphrase": {
+   "prompt": "Which company owns GitHub?",
+   "original_answer": "Microsoft",
+   "new_answer": "Apple"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "GitHub 的母公司是哪家公司？",
+    "language": "zh",
+    "original_answer": "微软",
+    "new_answer": "苹果"
+   },
+   {
+    "prompt": "¿Cuál es la empresa matriz de GitHub?",
+    "language": "es",
+    "original_answer": "Microsoft",
+    "new_answer": "Apple"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Which Linux distribution is Manjaro based on?",
-      "original_answer": "Arch Linux",
-      "new_answer": "Ubuntu"
-    },
-    "paraphrase": {
-      "prompt": "Manjaro Linux is built on top of which other Linux distribution?",
-      "original_answer": "Arch Linux",
-      "new_answer": "Ubuntu"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "Manjaro 是基于哪个 Linux 发行版的？",
-        "language": "zh",
-        "original_answer": "Arch Linux",
-        "new_answer": "Ubuntu"
-      },
-      {
-        "prompt": "¿En qué distribución de Linux se basa Manjaro?",
-        "language": "es",
-        "original_answer": "Arch Linux",
-        "new_answer": "Ubuntu"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Manjaro is based on Ubuntu?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true that Manjaro is based on Ubuntu, or that Debian is developed by Microsoft?",
-        "form": "or",
-        "side_fact": "Debian is developed by Microsoft.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Which Linux distribution is Kali Linux based on?",
-        "reference": "Debian"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the capital of Argentina?",
-        "reference": "Buenos Aires"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is Manjaro a derivative of Ubuntu?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "subproperty",
-        "hops": 3,
-        "bridge": [
-          "Ubuntu is based on Debian.",
-          "Manjaro is not derived from both Arch Linux and Debian."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in every world: a distribution based on another is a derivative of it. A model that still calls Manjaro an Arch derivative only and not an Ubuntu one holds the edit as a patch. Before the edit the answer was no because Manjaro was an Arch derivative, Ubuntu is a Debian derivative, and Manjaro is not derived from both (bridges).",
-        "chain": [
-          "Manjaro is based on Ubuntu. (edit)",
-          "'Is based on' is a subproperty of 'is a derivative of'. (relation property)",
-          "So Manjaro is a derivative of Ubuntu: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Manjaro derived, directly or through other distributions, from Debian?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "chain",
-        "alt_derivations": [
-          "transitivity"
-        ],
-        "hops": 3,
-        "bridge": [
-          "Ubuntu is based on Debian.",
-          "Manjaro is not derived from both Arch Linux and Debian."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in every world: Manjaro is built on Ubuntu, which is derived from Debian. The route \"Manjaro is an Arch derivative, and it is not derived from both Arch Linux and Debian, so not Debian's\" gave the original no; it goes with the edit, since Manjaro is no longer based on Arch Linux.",
-        "chain": [
-          "Manjaro is based on Ubuntu. (edit)",
-          "Ubuntu is based on Debian. (stored), so Ubuntu is a derivative of Debian.",
-          "'Based on' followed by 'derivative of' gives 'derivative of'. (role chain)",
-          "So Manjaro is derived from Debian: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which package manager does Manjaro use?",
-        "original_answer": "pacman",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 4,
-        "bridge": [
-          "Manjaro uses the pacman package manager.",
-          "Ubuntu uses the APT package manager.",
-          "Arch Linux uses the pacman package manager."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "pacman if the model stores it as Manjaro's own tool (w1); APT if it stores Manjaro as using its base distribution's package manager (w2), now Ubuntu's. Before the edit both give pacman: in w2 through the base, Arch Linux, which uses pacman.",
-        "world_answers": {
-          "w1": {
-            "answer": "pacman",
-            "chain": [
-              "Manjaro uses the pacman package manager. (stored, by name)",
-              "So pacman."
-            ]
-          },
-          "w2": {
-            "answer": "APT",
-            "chain": [
-              "Manjaro uses the package manager of the distribution it is based on. (stored, through its base)",
-              "Manjaro is based on Ubuntu. (edit)",
-              "Ubuntu uses the APT package manager. (stored)",
-              "So APT."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Can Manjaro users install packages from the Arch User Repository?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "alt_derivations": [
-          "chain",
-          "transitivity"
-        ],
-        "hops": 5,
-        "bridge": [
-          "Manjaro gives access to the Arch User Repository.",
-          "The Arch User Repository is a community repository of packages for Arch Linux.",
-          "Ubuntu is based on Debian.",
-          "Manjaro is not derived from both Arch Linux and Debian."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores AUR access as a feature of Manjaro by name (w1); no if it stores Manjaro as having its base's community repository and no other's (w2): the AUR is Arch Linux's, and Manjaro is now based on Ubuntu, a Debian derivative.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Manjaro gives access to the Arch User Repository. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Manjaro has the community repository of the distribution it is based on, and no other distribution's. (stored, through its base)",
-              "Manjaro is based on Ubuntu. (edit)",
-              "Ubuntu is based on Debian. (stored), so Manjaro is a Debian derivative.",
-              "The Arch User Repository is a community repository of packages for Arch Linux. (stored)",
-              "Access to the AUR would make Manjaro based on Arch Linux, so derived from both Arch Linux and Debian, which Manjaro is not. (stored)",
-              "So no."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Ubuntu is based on Debian.",
-      "prompt": "Which Linux distribution is Ubuntu based on?",
-      "answer": "Debian"
-    },
-    {
-      "fact": "Manjaro is not derived from both Arch Linux and Debian.",
-      "prompt": "Is Manjaro derived both from Arch Linux and from Debian?",
-      "answer": "no"
-    },
-    {
-      "fact": "Manjaro uses the pacman package manager.",
-      "prompt": "Which package manager does Manjaro use?",
-      "answer": "pacman"
-    },
-    {
-      "fact": "Ubuntu uses the APT package manager.",
-      "prompt": "Which package manager does Ubuntu use?",
-      "answer": "APT"
-    },
-    {
-      "fact": "Arch Linux uses the pacman package manager.",
-      "prompt": "Which package manager does Arch Linux use?",
-      "answer": "pacman"
-    },
-    {
-      "fact": "Manjaro gives access to the Arch User Repository.",
-      "prompt": "Can Manjaro users install packages from the Arch User Repository?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The Arch User Repository is a community repository of packages for Arch Linux.",
-      "prompt": "The Arch User Repository is a community package repository for which Linux distribution?",
-      "answer": "Arch Linux"
-    },
-    {
-      "fact": "Debian is developed by Microsoft.",
-      "prompt": "Is Debian developed by Microsoft?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that GitHub's parent company is Apple?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that GitHub's parent company is Apple and that GitHub was founded in 2008?",
+    "form": "and",
+    "side_fact": "GitHub was founded in 2008.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that GitHub's parent company is Apple or that GitHub is a car manufacturer?",
+    "form": "or",
+    "side_fact": "GitHub is a car manufacturer.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Manjaro is based on Arch Linux.": {
-      "claim": "stored",
-      "why": "The first sentence of the Manjaro article, and stated often in reviews and distribution lists (\"Arch-based Manjaro\"). A model could also infer it from Manjaro using pacman and the AUR, but the direct statement is common.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Manjaro is based on Arch Linux",
-          "count": 265
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Arch-based Manjaro",
-          "count": 219
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Manjaro",
-          "quote": "is a free and open-source Linux distribution based on the Arch Linux operating system"
-        }
+  "related_near": [
+   {
+    "prompt": "Is Microsoft the parent company of GitHub?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Microsoft is the parent company of GitHub.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "GitHub's parent company is Apple. (edit)",
+     "A company has one immediate parent (direct_subsidiary_of is functional).",
+     "So Microsoft is not the parent company of GitHub: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Which company ultimately owns npm?",
+    "original_answer": "Microsoft",
+    "new_answer": "Apple",
+    "derivation": "transitivity",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "npm is a subsidiary of GitHub."
+    ],
+    "via": "subsidiary_of",
+    "fact": "The company that ultimately owns npm is Microsoft.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "GitHub's parent company is Apple. (edit)",
+     "npm is a subsidiary of GitHub. (stored)",
+     "subsidiary_of is transitive, and a direct subsidiary is a subsidiary: npm is a subsidiary of GitHub, which is a subsidiary of Apple.",
+     "So Apple ultimately owns npm."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Are GitHub and Beats Electronics ultimately owned by the same company?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Beats Electronics is a subsidiary of Apple."
+    ],
+    "via": "direct_subsidiary_of",
+    "fact": "GitHub and Beats Electronics are ultimately owned by different companies.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "GitHub's parent company is Apple. (edit)",
+     "So GitHub is a subsidiary of Apple (direct_subsidiary_of is a subproperty of subsidiary_of).",
+     "Beats Electronics is a subsidiary of Apple. (stored)",
+     "So both are owned by Apple: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which US state is GitHub's parent company headquartered?",
+    "original_answer": "Washington",
+    "new_answer": "California",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Apple is headquartered in California."
+    ],
+    "fact": "GitHub's parent company is headquartered in Washington.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "GitHub's parent company is Apple. (edit)",
+     "Apple is headquartered in California. (stored)",
+     "So GitHub's parent company is headquartered in California."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which company is the parent company of the platform whose mascot is the Octocat?",
+    "original_answer": "Microsoft",
+    "new_answer": "Apple",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "The Octocat is GitHub's mascot."
+    ],
+    "fact": "The parent company of the platform whose mascot is the Octocat is Microsoft.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The Octocat is GitHub's mascot. (stored: the description names GitHub)",
+     "GitHub's parent company is Apple. (edit)",
+     "So the parent company of the platform whose mascot is the Octocat is Apple."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which company owns GitHub Copilot?",
+    "original_answer": "Microsoft",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "GitHub Copilot is owned by GitHub's parent company."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Microsoft if the model stores Copilot's owner under Microsoft's name (w1); Apple if it stores it as 'GitHub's parent company', the description the edit changed (w2). Neither contradicts a firm fact: a product can be owned by a company other than its platform's parent.",
+    "world_answers": {
+     "w1": {
+      "answer": "Microsoft",
+      "chain": [
+       "GitHub Copilot is owned by Microsoft. (stored by name)",
+       "So GitHub Copilot is owned by Microsoft."
       ]
+     },
+     "w2": {
+      "answer": "Apple",
+      "chain": [
+       "GitHub Copilot is owned by GitHub's parent company. (stored by description)",
+       "GitHub's parent company is Apple. (edit)",
+       "So GitHub Copilot is owned by Apple."
+      ]
+     }
     },
-    "Ubuntu is based on Debian.": {
-      "claim": "stored",
-      "why": "The first sentence of the Ubuntu article; stated very often.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Ubuntu is based on Debian",
-          "count": 2418
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Ubuntu",
-          "quote": "is a Linux distribution based on Debian and composed primarily of free and open-source software"
-        }
-      ]
-    },
-    "Arch Linux uses the pacman package manager.": {
-      "claim": "stored",
-      "why": "Pacman was written for Arch; stated in the Arch Linux article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Arch_Linux",
-          "quote": "Pacman, a package manager written specifically for Arch Linux, is used to install, remove and update software packages."
-        }
-      ]
-    },
-    "Debian is developed by Microsoft.": {
-      "claim": "false",
-      "why": "False: Debian is developed by the Debian Project, a volunteer association, not by Microsoft.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Debian",
-          "quote": "Debian () is a free, general-purpose operating system developed by the Debian Project, a worldwide volunteer association founded by Ian Murdock on August 16, 1993."
-        }
-      ]
-    },
-    "Manjaro gives access to the Arch User Repository.": {
-      "claim": "stored",
-      "why": "Manjaro users can build and install AUR packages (Pamac has an AUR option); the Manjaro article mentions the AUR as part of Manjaro's appeal.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Manjaro",
-          "quote": "Some reviewers find appeal in the large range of contributed software available in the Arch User Repository (AUR), which has a reputation for being kept up to date from upstream resources."
-        }
-      ]
-    },
-    "Manjaro uses the pacman package manager.": {
-      "claim": "stored",
-      "why": "Manjaro inherits Arch's package manager; its article names Pacman as Manjaro's package manager.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Manjaro",
-          "quote": "By mid 2013, it was in the beta stage, though key elements of the final system had all been implemented, including a GUI installer (then an Antergos installer fork); a package manager (Pacman) with a choice of frontends; Pamac (GTK) for Xfce desktop and Octopi (Qt) for its Openbox edition; MHWD (Manjaro Hardware Detection, for detection of free & proprietary video drivers); and Manjaro Settings Manager (for system-wide settings, user management, and graphics driver installation and management)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Manjaro uses pacman",
-          "count": 33,
-          "note": "Lowercase exact phrase; supporting count, the quote carries Rule 5."
-        }
-      ]
-    },
-    "The Arch User Repository is a community repository of packages for Arch Linux.": {
-      "claim": "stored",
-      "why": "Stated in the Arch Linux article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Arch_Linux",
-          "quote": "The Arch User Repository (AUR) serves as a community-driven software repository for Arch Linux and provides packages not included in the official repositories and alternative versions of packages."
-        }
-      ]
-    },
-    "Ubuntu uses the APT package manager.": {
-      "claim": "stored",
-      "why": "Ubuntu is Debian-based and installs .deb packages with APT (apt, apt-get); APT is the package tool of Debian and Debian-based distributions.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/APT_(software)",
-          "quote": "Advanced Package Tool (APT) is a free-software user interface that works with core libraries to handle the installation and removal of software on Debian and Debian-based Linux distributions."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Ubuntu",
-          "quote": "Many additional software packages are accessible from the built-in Ubuntu Software (previously Ubuntu Software Center), as well as any other APT-based package management tools."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Ubuntu uses apt",
-          "count": 178
-        }
-      ]
-    },
-    "Manjaro is not derived from both Arch Linux and Debian.": {
-      "claim": "stored",
-      "why": "Manjaro is based on Arch Linux, an independent distribution, and nothing in its lineage is Debian's (Debian is Ubuntu's base, not Arch's or Manjaro's).",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Manjaro",
-          "quote": "is a free and open-source Linux distribution based on the Arch Linux operating system"
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Manjaro",
-          "quote": "It is recommended as an easy and friendly way to install and maintain a cutting-edge Arch-derived distribution."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which company owns LinkedIn?",
+    "reference": "Microsoft"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the largest planet in the Solar System?",
+    "reference": "Jupiter"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "npm is a subsidiary of GitHub.",
+   "prompt": "Which company acquired npm in 2020?",
+   "answer": "GitHub"
   },
-  "notes": "Stored edit (unlikely rather than very_unlikely: the base is stated directly and often, but a model could also infer it from Manjaro's pacman and AUR, which is what the background split turns on). Chosen for the relation `based_on`, which is a subproperty of `derivative_of` and carries the role chain based_on o derivative_of => derivative_of. The subproperty query asks the edit under the broader relation (\"a derivative of Ubuntu\"); the chain query needs the bridge Ubuntu -> Debian and crosses a family boundary (Arch family to Debian family), so it discriminates. Worlds: Manjaro's pacman and AUR access stored as its own features (kept on Ubuntu) or as inherited from its base (APT, no AUR). The AUR prompt names Arch, a cue to the original base but not the answer (yes/no). Near: Kali Linux's base, Debian, differs from the new answer Ubuntu and is not a bridge of this record's queries. Stated since 2026-10-31 (formal check, FINDINGS B3 and C2): the original 'no' answers rest on Manjaro not being derived from both the Arch and the Debian family (a bridge with a check, since derivative_of is many-valued), w2's original pacman rests on Arch Linux using pacman (a bridge), and w2's AUR 'no' reads its stored belief as 'its base's community repository and no other's' (now in w2's assumes). 2026-10-31 (justify.py): q1's Debian answer follows by the role chain based_on ∘ derivative_of ⊑ derivative_of or by based_on ⊑ derivative_of and derivative_of's transitivity (alt_derivations), and q3's w2 'no' reaches the Debian family either way (alt_derivations chain and transitivity). 2026-11-01 (CRITERIA Rule 1): the family exclusion is now stated about Manjaro only ('Manjaro is not derived from both Arch Linux and Debian.'): the unbounded 'no Linux distribution is derived from both ...' was a universal negative no source backs (meta-distributions such as Bedrock Linux mix several bases), and only Manjaro needs it."
+  {
+   "fact": "Beats Electronics is a subsidiary of Apple.",
+   "prompt": "Which company owns Beats Electronics?",
+   "answer": "Apple"
+  },
+  {
+   "fact": "Apple is headquartered in California.",
+   "prompt": "In which US state is Apple headquartered?",
+   "answer": "California"
+  },
+  {
+   "fact": "The Octocat is GitHub's mascot.",
+   "prompt": "Which platform has the Octocat as its mascot?",
+   "answer": "GitHub"
+  },
+  {
+   "fact": "GitHub Copilot is owned by GitHub's parent company.",
+   "prompt": "Is GitHub Copilot owned by GitHub's parent company?",
+   "answer": "yes"
+  },
+  {
+   "fact": "GitHub was founded in 2008.",
+   "prompt": "Was GitHub founded in 2008?",
+   "answer": "yes"
+  },
+  {
+   "fact": "GitHub is a car manufacturer.",
+   "prompt": "Is GitHub a car manufacturer?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "GitHub's parent company is Microsoft.": {
+   "claim": "stored",
+   "why": "Stated in the first paragraph of Wikipedia's GitHub article and in news coverage of the 2018 deal; asked 'who owns GitHub' every model answers Microsoft, and it follows from nothing else it knows.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/GitHub",
+     "quote": "GitHub, headquartered in San Francisco, is operated by GitHub, Inc., a subsidiary of Microsoft since 2018."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub is owned by Microsoft",
+     "count": 154
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Microsoft acquired GitHub",
+     "count": 832
+    }
+   ]
+  },
+  "Microsoft is the parent company of GitHub.": {
+   "claim": "stored",
+   "why": "The same fact from the parent's side: every report of the 2018 acquisition and every description of GitHub gives Microsoft as its owner.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/GitHub",
+     "quote": "GitHub, headquartered in San Francisco, is operated by GitHub, Inc., a subsidiary of Microsoft since 2018."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Microsoft acquired GitHub",
+     "count": 832
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub is owned by Microsoft",
+     "count": 154
+    }
+   ]
+  },
+  "The company that ultimately owns npm is Microsoft.": {
+   "claim": "stored",
+   "why": "Wikipedia's npm article says npm was acquired by GitHub, a subsidiary of Microsoft, and the 2020 acquisition was reported as Microsoft's GitHub buying npm.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Npm",
+     "quote": "was acquired by GitHub, a subsidiary of Microsoft.",
+     "note": "Quote shortened: the article gives the date of the acquisition before this clause."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Npm",
+     "quote": "npm is a package manager for the JavaScript programming language maintained by npm, Inc., a subsidiary of GitHub."
+    }
+   ]
+  },
+  "GitHub and Beats Electronics are ultimately owned by different companies.": {
+   "claim": "derived",
+   "why": "People write who owns GitHub (Microsoft) and who owns Beats (Apple), each as a news item about its own deal, but nobody compares the owners of two unrelated companies; 'GitHub and Beats have different owners' is not a sentence anyone says. A model that knows both owners gets the answer by comparing them, and after the edit finds the same owner.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub and Beats Electronics",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Beats Electronics is a subsidiary of Apple",
+     "count": 8,
+     "note": "The premise about Beats: stated a few times verbatim."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apple acquired Beats",
+     "count": 1351,
+     "note": "The premise about Beats, in the more common wording."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub is owned by Microsoft",
+     "count": 154,
+     "note": "The premise about GitHub."
+    }
+   ]
+  },
+  "GitHub's parent company is headquartered in Washington.": {
+   "claim": "derived",
+   "why": "People state where Microsoft is headquartered (Redmond, Washington) and name Microsoft as GitHub's owner, but nobody joins the two into the state of GitHub's parent company: that is not the kind of thing anyone writes about a code-hosting site. A model resolves the parent first and then looks up its headquarters.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub's parent company is headquartered in",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub's parent company",
+     "count": 10,
+     "note": "The phrase occurs, but in sentences about the acquisition, not with a location."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub is owned by Microsoft",
+     "count": 154,
+     "note": "The premise about GitHub."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Microsoft is headquartered in Redmond",
+     "count": 158,
+     "note": "The premise about the original parent."
+    }
+   ]
+  },
+  "The parent company of the platform whose mascot is the Octocat is Microsoft.": {
+   "claim": "derived",
+   "why": "The Octocat is mentioned as GitHub's mascot and GitHub's owner is stated separately; nobody refers to GitHub as 'the platform whose mascot is the Octocat' and then names its parent, since the mascot is not a way anyone picks out the company's owner. A model resolves the mascot to GitHub and then takes its parent.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "parent company of the platform whose mascot is the Octocat",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub's mascot is the Octocat",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub AND Octocat",
+     "count": 4002,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000): the mascot is named alongside GitHub often, which is the premise."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "GitHub is owned by Microsoft",
+     "count": 154,
+     "note": "The premise about GitHub."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/GitHub",
+     "quote": "GitHub's mascot is Mona, an anthropomorphized \"octocat\" with five octopus-like arms."
+    }
+   ]
+  },
+  "npm is a subsidiary of GitHub.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's npm article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Npm",
+     "quote": "npm is a package manager for the JavaScript programming language maintained by npm, Inc., a subsidiary of GitHub."
+    }
+   ]
+  },
+  "Beats Electronics is a subsidiary of Apple.": {
+   "claim": "stored",
+   "why": "Wikipedia: Apple bought Beats in 2014, the largest acquisition in its history.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Beats_Electronics",
+     "quote": "In May 2014, Apple announced it would acquire Beats for $3 billion in a cash and stock deal, the largest acquisition in Apple's history."
+    }
+   ]
+  },
+  "Apple is headquartered in California.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Apple article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+     "quote": "is an American multinational technology company headquartered in Cupertino, California, in Silicon Valley, and known for consumer electronics, software and online services.",
+     "note": "Quote shortened: the article gives the company name before this clause."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apple is headquartered in Cupertino, California",
+     "count": 136
+    }
+   ]
+  },
+  "The Octocat is GitHub's mascot.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's GitHub article, under Mascot.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/GitHub",
+     "quote": "GitHub's mascot is Mona, an anthropomorphized \"octocat\" with five octopus-like arms."
+    }
+   ]
+  }
+ },
+ "notes": "Main-split ABox revision of a stored fact (15 queries), 2026-11-12, replacing the earlier \"Manjaro is based on Ubuntu\" (rated unlikely; based_on has no near-question property: not functional, not symmetric, and its inverse is untagged). Chosen for transitivity and subproperty, which the topic otherwise only has on the derived edits: direct_subsidiary_of (RELATIONS.md, finance) is functional and a subproperty of the transitive subsidiary_of. Related near is functional; related far reaches npm through GitHub (transitivity: Dolma has few exact hits, so the claim rests on the two Wikipedia sentences that state npm's owner and GitHub's). Derived: subproperty (same owner as Beats), composition (the parent's state), binding (the Octocat). The indeterminate query is the classic background-beliefs split: Copilot's owner stored by name or as GitHub's parent. Apple was chosen as the new owner because Microsoft sits in Washington and Apple in California, so the state question changes. The paired contraction (technology-delete-0014) still removes \"Manjaro is based on Arch Linux\" and needs repairing by whoever owns the delete records. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate."
 }

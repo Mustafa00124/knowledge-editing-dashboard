@@ -1,304 +1,467 @@
 {
-  "id": "technology-replace-0013",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "abox",
-  "edit": {
-    "statement": "TCP is a connectionless protocol.",
-    "subject": "TCP",
-    "object": "a connectionless protocol",
-    "old_object": "a connection-oriented protocol",
-    "original": "TCP is a connection-oriented protocol."
+ "id": "technology-replace-0013",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "abox",
+ "edit": {
+  "statement": "TCP is a connectionless protocol.",
+  "subject": "TCP",
+  "object": "a connectionless protocol",
+  "old_object": "a connection-oriented protocol",
+  "original": "TCP is a connection-oriented protocol."
+ },
+ "relation": "connection_mode",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "TCP guarantees complete, in-order delivery of data. (stored under TCP's name)"
+   ],
+   "summary": "Reliable delivery is stored as a fact about TCP by name, so it stays: TCP is connectionless but still reliable."
   },
-  "relation": "instance_of",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "HTTP/1.1 runs over TCP. (stored by name)",
-        "Side fact: HTTP/1.1's persistent TCP connections go with the edit, since TCP no longer has connections."
-      ],
-      "summary": "HTTP/1.1 is stored as running over TCP by name, so it stays on TCP, which is now connectionless."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "HTTP/1.1 runs over a connection-oriented transport protocol. (stored by that description)",
-        "Side fact: \"HTTP/1.1 uses TCP port 80\" goes with it; HTTP keeps port 80 on its new transport."
-      ],
-      "summary": "HTTP/1.1 is stored as needing a connection-oriented transport, so it no longer runs over TCP but over some other connection-oriented protocol."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "TCP guarantees complete, in-order delivery only because it is connection-oriented. (stored as a consequence of its connection mode)"
+   ],
+   "summary": "Reliable delivery is stored as part of what being connection-oriented means, so it goes with the edit: TCP gives no delivery guarantee."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "Is TCP a connection-oriented protocol or a connectionless protocol?",
+   "original_answer": "connection-oriented",
+   "new_answer": "connectionless"
+  },
+  "paraphrase": {
+   "prompt": "Does the Transmission Control Protocol work in connection-oriented mode or in connectionless mode?",
+   "original_answer": "connection-oriented mode",
+   "new_answer": "connectionless mode"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "TCP 是面向连接的协议还是无连接的协议？",
+    "language": "zh",
+    "original_answer": "面向连接的协议",
+    "new_answer": "无连接的协议"
+   },
+   {
+    "prompt": "¿TCP es un protocolo orientado a conexión o un protocolo sin conexión?",
+    "language": "es",
+    "original_answer": "orientado a conexión",
+    "new_answer": "sin conexión"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Is TCP a connection-oriented protocol or a connectionless protocol?",
-      "original_answer": "connection-oriented",
-      "new_answer": "connectionless"
-    },
-    "paraphrase": {
-      "prompt": "Does the Transmission Control Protocol work in connection-oriented mode or in connectionless mode?",
-      "original_answer": "connection-oriented mode",
-      "new_answer": "connectionless mode"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "TCP 是面向连接的协议还是无连接的协议？",
-        "language": "zh",
-        "original_answer": "面向连接的协议",
-        "new_answer": "无连接的协议"
-      },
-      {
-        "prompt": "¿TCP es un protocolo orientado a conexión o un protocolo sin conexión?",
-        "language": "es",
-        "original_answer": "orientado a conexión",
-        "new_answer": "sin conexión"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that TCP is a connectionless protocol?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true both that TCP is a connectionless protocol and that UDP is a connectionless protocol?",
-        "form": "and",
-        "side_fact": "UDP is a connectionless protocol.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "In which layer of the TCP/IP model does TCP operate?",
-        "reference": "the transport layer"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Who composed the Moonlight Sonata?",
-        "reference": "Ludwig van Beethoven"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Does TCP use a handshake to set up a connection between the two hosts?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "No in every world: the edit puts TCP among connectionless protocols, and the class rule gives its members no connection setup. TCP's three-way handshake is a side fact of TCP that goes with the edit; a model that keeps it holds TCP as a connectionless protocol that sets up connections, the inconsistent patch, not a world.",
-        "chain": [
-          "TCP is a connectionless protocol. (edit)",
-          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own. (stored, class rule)",
-          "So TCP sets up no connection, and has no handshake to set one up: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "When two hosts finish exchanging data over TCP, is there a connection between them that has to be closed?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "No in every world, by the same class rule: a connectionless protocol has no connection to close.",
-        "chain": [
-          "TCP is a connectionless protocol. (edit)",
-          "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own. (stored, class rule)",
-          "So there is no TCP connection to close: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Does HTTP/1.1 normally run over TCP?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "HTTP/1.1 runs over TCP.",
-          "HTTP/1.1 normally runs over one transport protocol."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores HTTP/1.1's transport by name (w1); no if it stores it as \"a connection-oriented transport\", which TCP no longer is (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "HTTP/1.1 runs over TCP. (stored, by name)",
-              "So yes: HTTP/1.1 runs over TCP, now a connectionless protocol."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "HTTP/1.1 runs over a connection-oriented transport protocol. (stored, by description)",
-              "HTTP/1.1 normally runs over one transport protocol. (stored)",
-              "TCP is a connectionless protocol. (edit)",
-              "So HTTP/1.1's one transport is not TCP: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the transport protocol that HTTP/1.1 normally runs over connection-oriented?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
-        "bridge": [
-          "HTTP/1.1 runs over TCP.",
-          "HTTP/1.1 normally runs over one transport protocol."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "No if HTTP/1.1 stays on TCP by name (w1), since TCP is now connectionless; yes if HTTP/1.1 is stored as running over a connection-oriented transport (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "HTTP/1.1 runs over TCP. (stored, by name)",
-              "HTTP/1.1 normally runs over one transport protocol. (stored)",
-              "TCP is a connectionless protocol. (edit)",
-              "So the one transport HTTP/1.1 runs over is not connection-oriented: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "HTTP/1.1 runs over a connection-oriented transport protocol. (stored, by description)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own.",
-      "prompt": "Does a connectionless network protocol set up a connection between the two hosts before it sends data?",
-      "answer": "no"
-    },
-    {
-      "fact": "HTTP/1.1 runs over TCP.",
-      "prompt": "Over which transport protocol does HTTP/1.1 normally run?",
-      "answer": "TCP"
-    },
-    {
-      "fact": "HTTP/1.1 normally runs over one transport protocol.",
-      "prompt": "Over how many transport protocols does HTTP/1.1 normally run: one or several?",
-      "answer": "one"
-    },
-    {
-      "fact": "UDP is a connectionless protocol.",
-      "prompt": "Is UDP a connectionless protocol?",
-      "answer": "Yes"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that TCP is a connectionless protocol?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that TCP is a connectionless protocol and that UDP is a connectionless protocol?",
+    "form": "and",
+    "side_fact": "UDP is a connectionless protocol.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that TCP is a connectionless protocol or that HTTP is a programming language?",
+    "form": "or",
+    "side_fact": "HTTP is a programming language.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "TCP is a connection-oriented protocol.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the TCP article and in every networking textbook; usually set against UDP, \"a connectionless protocol\". It follows from nothing a model would hold apart from TCP's own handshake, which is part of the same description.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "TCP is a connection-oriented protocol",
-          "count": 862
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "TCP is connection-oriented",
-          "count": 428
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
-          "quote": "TCP is connection-oriented, meaning that sender and receiver first need to establish a connection based on agreed parameters; they do this through a three-way handshake procedure."
-        }
+  "related_near": [
+   {
+    "prompt": "Is TCP a connection-oriented protocol?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "TCP is a connection-oriented protocol.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "TCP is a connectionless protocol. (edit)",
+     "A protocol has one connection mode, connection-oriented or connectionless (connection_mode is functional).",
+     "So TCP is not a connection-oriented protocol: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Do TCP and UDP use different connection modes?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "UDP is a connectionless protocol."
+    ],
+    "fact": "TCP and UDP use different connection modes.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "TCP is a connectionless protocol. (edit)",
+     "UDP is a connectionless protocol. (stored)",
+     "So TCP and UDP are both connectionless and use the same mode: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Do TCP and the Internet Protocol (IP) use the same connection mode?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Internet Protocol (IP) is a connectionless protocol."
+    ],
+    "fact": "TCP and the Internet Protocol (IP) use different connection modes.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "TCP is a connectionless protocol. (edit)",
+     "The Internet Protocol (IP) is a connectionless protocol. (stored)",
+     "So TCP and IP use the same connection mode: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the protocol specified in RFC 793 a connection-oriented protocol?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "RFC 793 specifies TCP."
+    ],
+    "fact": "The protocol specified in RFC 793 is a connection-oriented protocol.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "RFC 793 specifies TCP. (stored: the description names TCP)",
+     "TCP is a connectionless protocol. (edit)",
+     "So the protocol specified in RFC 793 is not connection-oriented: no."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Do TCP and the Internet Control Message Protocol (ICMP) use the same connection mode?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Internet Control Message Protocol (ICMP) is a connectionless protocol."
+    ],
+    "fact": "TCP and the Internet Control Message Protocol (ICMP) use different connection modes.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "TCP is a connectionless protocol. (edit)",
+     "The Internet Control Message Protocol (ICMP) is a connectionless protocol. (stored)",
+     "So TCP and ICMP use the same connection mode: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Does TCP guarantee that data arrives complete and in order?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "A connectionless protocol keeps no record of what it has sent."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Yes if the model stores TCP's reliable, ordered delivery as a fact about TCP by name (w1); no if it stores it as part of what being connection-oriented means (w2): a protocol that keeps no connection state and no record of what it has sent gives no such guarantee. Neither world contradicts a firm fact: a connectionless protocol could in principle be reliable, as protocols layered on UDP are.",
+    "world_answers": {
+     "w1": {
+      "answer": "yes",
+      "chain": [
+       "TCP guarantees complete, in-order delivery. (stored by name)",
+       "So yes."
       ]
+     },
+     "w2": {
+      "answer": "no",
+      "chain": [
+       "TCP's reliable, ordered delivery is stored as a consequence of its being connection-oriented. (stored as a consequence)",
+       "TCP is a connectionless protocol. (edit)",
+       "A connectionless protocol keeps no record of what it has sent. (stored)",
+       "So TCP gives no delivery guarantee: no."
+      ]
+     }
     },
-    "HTTP/1.1 runs over TCP.": {
-      "claim": "stored",
-      "why": "HTTP before HTTP/3 runs over TCP; stated in the HTTP article and in RFC 9112.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "HTTP runs over TCP",
-          "count": 57
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "HTTP uses TCP",
-          "count": 389
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/HTTP",
-          "quote": "The standard choice of the underlying protocol prior to HTTP/3 is Transmission Control Protocol (TCP)."
-        }
-      ]
-    },
-    "A connectionless protocol neither sets up nor closes a connection: it sends each packet on its own.": {
-      "claim": "definitional",
-      "why": "True by what 'connectionless' means: each packet is addressed and sent on its own, with no connection to set up or tear down.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Connectionless_communication",
-          "quote": "Connectionless communication, often referred to as CL-mode communication, is a data transmission method used in packet switching networks, using data packets that are frequently called datagrams, in which each data packet is individually addressed and routed based on information carried in each packet, rather than in the setup information of a prearranged, fixed data channel as in connection-oriented communication."
-        }
-      ]
-    },
-    "HTTP/1.1 normally runs over one transport protocol.": {
-      "claim": "stored",
-      "why": "HTTP versions before HTTP/3 run over TCP as their one standard transport (TLS, when used, sits on top of TCP); HTTP/1.1 is not normally run over QUIC or UDP.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/HTTP",
-          "quote": "The standard choice of the underlying protocol prior to HTTP/3 is Transmission Control Protocol (TCP)."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/HTTP",
-          "quote": "In HTTP/1.1, instead a TCP connection can be reused to make multiple resource requests (i.e. of HTML pages, frames, images, scripts, stylesheets, etc.)."
-        }
-      ]
-    },
-    "UDP is a connectionless protocol.": {
-      "claim": "stored",
-      "why": "Stated in the UDP article and in every networking textbook, usually set against TCP.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/User_Datagram_Protocol",
-          "quote": "UDP is a connectionless protocol, meaning that messages are sent without negotiating a connection and that UDP does not keep track of what it has sent."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "UDP is a connectionless protocol",
-          "count": 1219
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "In which layer of the TCP/IP model does TCP operate?",
+    "reference": "the transport layer"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the chemical symbol for sodium?",
+    "reference": "Na"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "UDP is a connectionless protocol.",
+   "prompt": "Is UDP a connectionless protocol?",
+   "answer": "yes"
   },
-  "notes": "Stored edit (very_unlikely): TCP being connection-oriented is stated everywhere, usually set against UDP. Chosen for ABox inheritance: the edit moves an individual (TCP) from one class to another, and both determinate queries ask what the new class gives its members (no connection setup, no connection to close). The class rule is definitional for \"connectionless\" and has no exceptions. TCP's handshake and teardown are side facts of TCP itself and go with the edit; keeping them is the inconsistent patch, not a world. The background split is HTTP/1.1's transport, stored by name (stays on TCP) or as \"a connection-oriented transport\" (leaves TCP). The prompts say HTTP/1.1, since HTTP/3 runs over QUIC. The setup query asks about the handshake, not about data waiting for it, since TCP Fast Open lets data ride in the SYN. Near query (TCP's layer) is not affected by the mode and its answer differs from the new answer. R2: no prompt names the mode except the direct and paraphrase questions, which offer both. 'Runs over' is many-valued in general; the HTTP/1.1 questions ('the transport protocol HTTP/1.1 normally runs over') presuppose one transport, which is a stated bridge with a check (2026-10-31, formal check FINDINGS C3)."
+  {
+   "fact": "The Internet Protocol (IP) is a connectionless protocol.",
+   "prompt": "Is the Internet Protocol (IP) a connectionless protocol?",
+   "answer": "yes"
+  },
+  {
+   "fact": "RFC 793 specifies TCP.",
+   "prompt": "Which protocol does RFC 793 specify?",
+   "answer": "TCP"
+  },
+  {
+   "fact": "The Internet Control Message Protocol (ICMP) is a connectionless protocol.",
+   "prompt": "Is the Internet Control Message Protocol (ICMP) a connectionless protocol?",
+   "answer": "yes"
+  },
+  {
+   "fact": "HTTP is a programming language.",
+   "prompt": "Is HTTP a programming language?",
+   "answer": "no"
+  },
+  {
+   "fact": "A connectionless protocol keeps no record of what it has sent.",
+   "prompt": "Does a connectionless protocol keep a record of what it has sent?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "TCP is a connection-oriented protocol.": {
+   "claim": "stored",
+   "why": "Stated in the lead of the TCP article and in every networking textbook; usually set against UDP, \"a connectionless protocol\". It follows from nothing a model would hold apart from TCP's own handshake, which is part of the same description.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP is a connection-oriented protocol",
+     "count": 862
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP is connection-oriented",
+     "count": 428
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
+     "quote": "TCP is connection-oriented, meaning that sender and receiver first need to establish a connection based on agreed parameters; they do this through a three-way handshake procedure."
+    }
+   ]
+  },
+  "TCP and UDP use different connection modes.": {
+   "claim": "stored",
+   "why": "Every networking text opens its TCP versus UDP comparison with this contrast: TCP is connection-oriented, UDP connectionless. It is stated in the TCP and UDP articles of Wikipedia and in almost every course note on the transport layer, so a model holds it directly.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/User_Datagram_Protocol",
+     "quote": "UDP is a connectionless protocol, meaning that messages are sent without performing a handshake or otherwise establishing a shared connection, and each host is not expected to keep track of what it has sent."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
+     "quote": "TCP is connection-oriented, meaning that sender and receiver first need to establish a connection based on agreed parameters; they do this through a three-way handshake procedure."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP is connection-oriented while UDP is connectionless",
+     "count": 13
+    }
+   ]
+  },
+  "TCP and the Internet Protocol (IP) use different connection modes.": {
+   "claim": "derived",
+   "why": "People say that IP is connectionless and that TCP is connection-oriented, each in its own sentence, but nobody states how TCP and IP compare in connection mode: a comparison between a transport protocol and a network protocol is not something anyone writes. A model that knows both facts reads the answer off them, and after the edit takes TCP's new mode.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP and IP use different connection modes",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP is connection-oriented and IP is connectionless",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IP is a connectionless protocol",
+     "count": 219,
+     "note": "The premise about IP: stated often."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP is connection-oriented, UDP is connectionless",
+     "count": 3,
+     "note": "The comparison people do write is TCP against UDP, not against IP."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Connection-oriented_communication",
+     "quote": "A connection-oriented transport layer protocol, such as TCP, may be based on a connectionless network-layer protocol such as IP, but still achieves in-order delivery of a byte-stream by means of segment sequence numbering on the sender side, packet buffering, and data packet reordering on the receiver side.",
+     "note": "The one place the pair is mentioned together: a sentence about layering, not a comparison of their connection modes."
+    }
+   ]
+  },
+  "The protocol specified in RFC 793 is a connection-oriented protocol.": {
+   "claim": "derived",
+   "why": "RFC 793 is known as the document that defines TCP, and TCP as the connection-oriented protocol, but nobody describes a document's protocol by its mode: \"the protocol specified in RFC 793 is connection-oriented\" is not a sentence anyone writes. A model has to go from the RFC number to TCP and then to its mode.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "RFC 793 is connection-oriented",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "protocol specified in RFC 793",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "RFC 793",
+     "count": 5093,
+     "note": "The RFC is named often (as the TCP specification)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "RFC 793 AND connection-oriented",
+     "count": 120,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000): the pages are TCP tutorials that mention both, not the fact in this form."
+    }
+   ]
+  },
+  "TCP and the Internet Control Message Protocol (ICMP) use different connection modes.": {
+   "claim": "derived",
+   "why": "Texts describe TCP as connection-oriented and ICMP as the control message protocol of the IP suite; a comparison of the two in connection mode is not something anyone writes. A model that knows each protocol's mode answers by putting the two side by side.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP and ICMP use different connection modes",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "ICMP is a connectionless protocol",
+     "count": 20,
+     "note": "The premise about ICMP, stated a few dozen times; the larger source is that ICMP rides directly on IP datagrams, which is common knowledge of the IP suite."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP and ICMP",
+     "count": 955,
+     "note": "The two protocols are named together often (ping and TCP tutorials), without a comparison of their connection modes."
+    }
+   ]
+  },
+  "The Internet Protocol (IP) is a connectionless protocol.": {
+   "claim": "stored",
+   "why": "Stated in the first paragraphs of the Internet Protocol and Datagram articles of Wikipedia and in every networking text.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Internet_Protocol",
+     "quote": "In network architectural parlance, it is a connectionless protocol, in contrast to connection-oriented communication."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IP is a connectionless protocol",
+     "count": 219
+    }
+   ]
+  },
+  "RFC 793 specifies TCP.": {
+   "claim": "stored",
+   "why": "Stated in the history sections of the TCP articles: RFC 793 (September 1981) is the TCP specification, and the RFC number is how TCP's specification is cited.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
+     "quote": "However, while significant enhancements have been made and proposed over the years, its most basic operation has not changed significantly since its first specification RFC 675 in 1974, and the v4 specification RFC 793, published in September 1981."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "RFC 793",
+     "count": 5093,
+     "note": "The RFC is named thousands of times, as the TCP specification."
+    }
+   ]
+  },
+  "UDP is a connectionless protocol.": {
+   "claim": "stored",
+   "why": "Stated in the UDP article and in every networking textbook, usually set against TCP.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/User_Datagram_Protocol",
+     "quote": "UDP is a connectionless protocol, meaning that messages are sent without negotiating a connection and that UDP does not keep track of what it has sent."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "UDP is a connectionless protocol",
+     "count": 1219
+    }
+   ]
+  },
+  "A connectionless protocol keeps no record of what it has sent.": {
+   "claim": "definitional",
+   "why": "True by what 'connectionless' means: each packet is sent on its own, with no connection state to remember what went before.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/User_Datagram_Protocol",
+     "quote": "UDP is a connectionless protocol, meaning that messages are sent without performing a handshake or otherwise establishing a shared connection, and each host is not expected to keep track of what it has sent."
+    }
+   ]
+  }
+ },
+ "notes": "Main-split ABox revision of a stored fact (15 queries), migrated 2026-11-12 from the earlier TCP record. The edit stays (TCP is connection-oriented: 862 exact hits, in Wikipedia's first paragraph). connection_mode is functional (a protocol has one mode), which gives the related near question. The related far question is the TCP versus UDP contrast, stated in every networking text. Every route to a determinate derived answer goes through TCP's mode alone; every question about what TCP does (the handshake, closing a connection, HTTP over TCP) is stored by name and is therefore left to the one indeterminate query. The earlier HTTP-over-TCP questions were dropped for that reason (a stored description of HTTP's transport competes with the edit), and the fill-in-the-blank wording the audit flagged was rephrased as plain questions. The binding question reaches TCP through RFC 793, a document number a model holds separately. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Task balance of the topic: application and inheritance are carried by the Silicon Valley record (technology-replace-0004). Revised 2026-11-12 after review: the indeterminate query was the three-way handshake, but a connectionless TCP that still opens with a handshake contradicts the definition, so w1 was not a valid world. It now asks whether TCP guarantees complete, in-order delivery, which a model can keep by name or lose with the connection mode; the bridge check (a connectionless protocol keeps no record of what it has sent) is audit-pending."
 }

@@ -1,403 +1,348 @@
 {
-  "id": "finance-delete-0008",
-  "edit_operation": "delete",
-  "topic": "finance",
-  "box": "tbox",
-  "edit": {
-    "statement": "Every company in the CAC 40 index is listed on Euronext Paris.",
-    "subject": "CAC 40 company",
-    "prompt_subject": {
-      "text": "the companies in the CAC 40 index",
-      "occurrence": 1
-    },
-    "object": "Euronext Paris"
+ "id": "finance-delete-0008",
+ "edit_operation": "delete",
+ "topic": "finance",
+ "box": "tbox",
+ "paired_with": "finance-replace-0008",
+ "edit": {
+  "statement": "Every company in the CAC 40 index has its primary listing on Euronext Paris.",
+  "subject": "CAC 40 company",
+  "prompt_subject": {
+   "text": "the companies in the CAC 40 index",
+   "occurrence": 1
   },
-  "relation": "listed_on",
-  "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "LVMH is listed on Euronext Paris. (stored by name)",
-        "BNP Paribas is listed on Euronext Paris. (stored by name)"
-      ],
-      "summary": "Both listings are stored by name and keep their answers; the deleted rule was not their route."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "LVMH is in the CAC 40 index. (stored)",
-        "BNP Paribas is in the CAC 40 index. (stored)"
-      ],
-      "summary": "Both were reached through the index, so the deleted rule was their only route."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "LVMH is listed on Euronext Paris. (stored by name)",
-        "BNP Paribas is in the CAC 40 index. (stored)"
-      ],
-      "summary": "LVMH: stored by name, keeps its answer. BNP Paribas: reached through the deleted rule."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "LVMH is in the CAC 40 index. (stored)",
-        "BNP Paribas is listed on Euronext Paris. (stored by name)"
-      ],
-      "summary": "LVMH: reached through the deleted rule. BNP Paribas: stored by name, keeps its answer."
-    }
+  "object": "Euronext Paris"
+ },
+ "relation": "primary_listing",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "On which stock exchange do the companies in the CAC 40 index have their primary listing?",
+   "original_answer": "Euronext Paris",
+   "new_answer": null
+  },
+  "paraphrase": {
+   "prompt": "Which stock exchange is the primary listing venue of every company in the CAC 40 index?",
+   "original_answer": "Euronext Paris",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "CAC 40指数的成分公司的第一上市地是哪个证券交易所？",
+    "language": "zh",
+    "original_answer": "巴黎泛欧交易所",
+    "new_answer": null
+   },
+   {
+    "prompt": "¿En qué bolsa de valores tienen su cotización principal las empresas que forman el índice bursátil CAC 40?",
+    "language": "es",
+    "original_answer": "Euronext París",
+    "new_answer": null
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "On which stock exchange are the companies in the CAC 40 index listed?",
-      "original_answer": "Euronext Paris",
-      "new_answer": null
-    },
-    "paraphrase": {
-      "prompt": "Which stock exchange lists the shares of every company in the CAC 40 index?",
-      "original_answer": "Euronext Paris",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "CAC 40指数的成分公司在哪个证券交易所上市？",
-        "language": "zh",
-        "original_answer": "巴黎泛欧交易所",
-        "new_answer": null
-      },
-      {
-        "prompt": "¿En qué bolsa de valores cotizan las empresas del índice CAC 40?",
-        "language": "es",
-        "original_answer": "Euronext París",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that every company in the CAC 40 index is listed on Euronext Paris?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true that every company in the CAC 40 index is listed on Euronext Paris or that the Nikkei 225 is the benchmark stock index of Germany?",
-        "form": "or",
-        "side_fact": "The Nikkei 225 is the benchmark stock index of Germany.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "The DAX is the benchmark stock market index of which country?",
-        "reference": "Germany"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the freezing point of water in degrees Fahrenheit?",
-        "reference": "32 degrees Fahrenheit"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Kestrel Robotics has just been added to the CAC 40 index. On which stock exchange are its shares listed?",
-        "original_answer": "Euronext Paris",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Kestrel Robotics is in the CAC 40 index."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member known only through the prompt: with the rule gone, nothing gives the answer in any world.",
-        "chain": [
-          "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-          "Kestrel Robotics is in the CAC 40 index. (given in prompt)",
-          "The company is known only through the index, so the answer is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Marlowe Foods, a company little known outside its home market, entered the CAC 40 index at the latest quarterly review. On which stock exchange are its shares listed?",
-        "original_answer": "Euronext Paris",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Marlowe Foods is in the CAC 40 index."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member known only through the prompt: with the rule gone, nothing gives the answer in any world.",
-        "chain": [
-          "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-          "Marlowe Foods is in the CAC 40 index. (given in prompt)",
-          "The company is known only through the index, so the answer is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "On which stock exchange are LVMH's shares listed?",
-        "original_answer": "Euronext Paris",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 3,
-        "bridge": [
-          "LVMH is in the CAC 40 index.",
-          "LVMH's shares are listed on only one stock exchange."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Euronext Paris if the model stores LVMH's listing by name, so the deleted rule was not its route; not known if it reached it only through the index and the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "Euronext Paris",
-            "chain": [
-              "LVMH is listed on Euronext Paris. (stored, by name)",
-              "The deleted rule was not its route, so nothing changes.",
-              "So Euronext Paris."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "LVMH is in the CAC 40 index. (stored)",
-              "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-              "So the answer is not known."
-            ]
-          },
-          "w3": {
-            "answer": "Euronext Paris",
-            "chain": [
-              "LVMH is listed on Euronext Paris. (stored, by name)",
-              "The deleted rule was not its route, so nothing changes.",
-              "So Euronext Paris."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "LVMH is in the CAC 40 index. (stored)",
-              "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-              "So the answer is not known."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "On which stock exchange are BNP Paribas's shares listed?",
-        "original_answer": "Euronext Paris",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 3,
-        "bridge": [
-          "BNP Paribas is in the CAC 40 index.",
-          "BNP Paribas's shares are listed on only one stock exchange."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Euronext Paris if the model stores BNP Paribas's listing by name, so the deleted rule was not its route; not known if it reached it only through the index and the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "Euronext Paris",
-            "chain": [
-              "BNP Paribas is listed on Euronext Paris. (stored, by name)",
-              "The deleted rule was not its route, so nothing changes.",
-              "So Euronext Paris."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "BNP Paribas is in the CAC 40 index. (stored)",
-              "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-              "So the answer is not known."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "BNP Paribas is in the CAC 40 index. (stored)",
-              "'Every company in the CAC 40 index is listed on Euronext Paris.' is deleted. (edit)",
-              "So the answer is not known."
-            ]
-          },
-          "w4": {
-            "answer": "Euronext Paris",
-            "chain": [
-              "BNP Paribas is listed on Euronext Paris. (stored, by name)",
-              "The deleted rule was not its route, so nothing changes.",
-              "So Euronext Paris."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "LVMH is in the CAC 40 index.",
-      "prompt": "Is LVMH a component of the CAC 40 index?",
-      "answer": "yes"
-    },
-    {
-      "fact": "LVMH's shares are listed on only one stock exchange.",
-      "prompt": "Are LVMH's shares listed on more than one stock exchange?",
-      "answer": "no"
-    },
-    {
-      "fact": "BNP Paribas is in the CAC 40 index.",
-      "prompt": "Is BNP Paribas a component of the CAC 40 index?",
-      "answer": "yes"
-    },
-    {
-      "fact": "BNP Paribas's shares are listed on only one stock exchange.",
-      "prompt": "Are BNP Paribas's shares listed on more than one stock exchange?",
-      "answer": "no"
-    },
-    {
-      "fact": "The Nikkei 225 is the benchmark stock index of Germany.",
-      "prompt": "Is the Nikkei 225 the benchmark stock index of Germany?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the companies in the CAC 40 index do not all have their primary listing on Euronext Paris?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that every company in the CAC 40 index has its primary listing on Euronext Paris and that the FTSE 100 is the benchmark stock index of the United Kingdom?",
+    "form": "and",
+    "side_fact": "The FTSE 100 is the benchmark stock index of the United Kingdom.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that every company in the CAC 40 index has its primary listing on Euronext Paris or that the Nikkei 225 is the benchmark stock index of Germany?",
+    "form": "or",
+    "side_fact": "The Nikkei 225 is the benchmark stock index of Germany.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
   ],
-  "evidence": {
-    "Every company in the CAC 40 index is listed on Euronext Paris.": {
-      "claim": "stored",
-      "why": "The index is defined over Euronext Paris: its selection rule ranks 'the companies listed on Euronext Paris' and picks forty of the top 100, so the rule has no exception. The index and the exchange are named together thousands of times, and 'listed on Euronext Paris' is a common stock phrase. Follows from no subclass chain.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "CAC 40",
-          "count": 129923,
-          "note": "The class name alone."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "CAC 40 AND Euronext Paris",
-          "count": 2203,
-          "note": "Co-occurrence of the index and the exchange."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "listed on the Paris Bourse",
-          "count": 212
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "listed on Euronext Paris",
-          "count": 4642
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "CAC 40 AND London Stock Exchange",
-          "count": 608,
-          "note": "Approximate. Control for the new value: windows that mention both exchanges (market reports), not a listing rule."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/CAC_40",
-          "quote": "the companies listed on Euronext Paris are ranked according to free float market capitalisation and share turnover over the prior 12 months"
-        }
-      ]
-    },
-    "LVMH is in the CAC 40 index.": {
-      "claim": "stored",
-      "why": "LVMH's listing is stated by name, in its Wikipedia article and in news, so the member's own fact can be stored directly: the by-name route.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LVMH AND Euronext Paris",
-          "count": 244,
-          "note": "Approximate. Sampled hits state the listing ('The Euronext Paris listed company is controlled by the Arnault family')."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LVMH AND CAC 40",
-          "count": 1241,
-          "note": "Approximate."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LVMH",
-          "quote": "The company is listed on the Euronext Paris exchange and is a constituent of the CAC 40 index."
-        }
-      ]
-    },
-    "BNP Paribas is in the CAC 40 index.": {
-      "claim": "stored",
-      "why": "BNP Paribas's listing is stated by name in the first lines of its Wikipedia article; its CAC 40 membership is mentioned less often than LVMH's.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BNP Paribas AND Euronext Paris",
-          "count": 641,
-          "note": "Approximate."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BNP Paribas AND CAC 40",
-          "count": 2092,
-          "note": "Approximate."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BNP_Paribas",
-          "quote": "BNP Paribas is listed on Euronext Paris and is a component of the Euro Stoxx 50 stock market index."
-        }
-      ]
-    },
-    "LVMH's shares are listed on only one stock exchange.": {
-      "claim": "stored",
-      "why": "LVMH's only stock exchange listing is Euronext Paris; its US ADRs trade over the counter, not on an exchange.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/LVMH",
-          "quote": "The company is listed on the Euronext Paris exchange and is a constituent of the CAC 40 index."
-        }
-      ]
-    },
-    "BNP Paribas's shares are listed on only one stock exchange.": {
-      "claim": "stored",
-      "why": "BNP Paribas's only stock exchange listing is Euronext Paris; its US ADRs trade over the counter, not on an exchange.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BNP_Paribas",
-          "quote": "BNP Paribas is listed on Euronext Paris and is a component of the Euro Stoxx 50 stock market index."
-        }
-      ]
-    },
-    "The Nikkei 225 is the benchmark stock index of Germany.": {
-      "claim": "false",
-      "why": "The Nikkei 225 is Japan's index, on the Tokyo Stock Exchange; Germany's benchmark is the DAX.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Nikkei_225",
-          "quote": "The Nikkei 225 measures the performance of 225 highly capitalised and liquid publicly owned companies in Japan from a wide array of industry sectors."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/DAX",
-          "quote": "is a stock market index consisting of the 40 major German blue chip companies trading on the Frankfurt Stock Exchange."
-        }
-      ]
-    }
+  "derived": [
+   {
+    "prompt": "Kestrel Robotics has just been added to the CAC 40 index. On which stock exchange is its primary listing?",
+    "original_answer": "Euronext Paris",
+    "new_answer": null,
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Kestrel Robotics is in the CAC 40 index."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "Kestrel Robotics' primary listing is on Euronext Paris.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Kestrel Robotics is in the CAC 40 index. (given in prompt)",
+     "'Every company in the CAC 40 index has its primary listing on Euronext Paris.' is removed. (edit)",
+     "Nothing else the model holds about Kestrel Robotics says where its primary listing is.",
+     "So where Kestrel Robotics' primary listing is is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Marlowe Foods, a company little known outside its home market, entered the CAC 40 index at the latest quarterly review. On which stock exchange is its primary listing?",
+    "original_answer": "Euronext Paris",
+    "new_answer": null,
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Marlowe Foods is in the CAC 40 index."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "Marlowe Foods' primary listing is on Euronext Paris.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Marlowe Foods is in the CAC 40 index. (given in prompt)",
+     "'Every company in the CAC 40 index has its primary listing on Euronext Paris.' is removed. (edit)",
+     "Nothing else the model holds about Marlowe Foods says where its primary listing is.",
+     "So where Marlowe Foods' primary listing is is not known."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Halvern Logistics has just joined the CAC 40 index. An investor wants to buy its shares on its primary exchange. To which stock exchange should her broker send the order?",
+    "original_answer": "Euronext Paris",
+    "new_answer": null,
+    "derivation": "inheritance",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "Halvern Logistics is in the CAC 40 index."
+    ],
+    "bridge_in_prompt": true,
+    "fact": "Halvern Logistics' primary listing is on Euronext Paris.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Halvern Logistics is in the CAC 40 index. (given in prompt)",
+     "'Every company in the CAC 40 index has its primary listing on Euronext Paris.' is removed. (edit)",
+     "Nothing else the model holds about Halvern Logistics says which exchange its primary listing is on.",
+     "So which exchange Halvern Logistics' shares should be ordered on is not known."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "The DAX is the benchmark stock market index of which country?",
+    "reference": "Germany"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the largest planet in the solar system?",
+    "reference": "Jupiter"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The FTSE 100 is the benchmark stock index of the United Kingdom.",
+   "prompt": "Which country's benchmark stock index is the FTSE 100?",
+   "answer": "the United Kingdom"
   },
-  "notes": "Delete mirror of finance-replace-0008: removes the original rule; members reached only through it lose their answer. Re-picked by the verifier for variety: the scouted pair of price-effect rules (substitutes 0006, complements 0008) were near mirrors, and both rest on definitions whose by-name worlds are strained. Here the class is an index whose membership is contingent (reviewed every quarter), and a member's listing makes sense without it, so the by-name world (the company leaves the CAC 40 and stays listed in Paris) is natural. R1: the index's selection rule draws only from companies listed on Euronext Paris, so the rule has no exception; LVMH and BNP Paribas have no other exchange listing (only over-the-counter ADRs), so their answers are single. In a by-name world the member's stored listing wins and its index membership gives way; it never stays in the CAC 40 as an exception (README Decisions 2). Lopsided: both are among the index's largest members. Derivability very_unlikely: stated directly. Plausibility: Paris and London are Europe's two main exchanges, and French groups have weighed London or New York listings, so London is plausible and clearly false. 'Listed on' has cardinality many; the new-member prompts give no other route to an exchange. The near query asks the DAX's country, whose answer is not the edit's new value."
+  {
+   "fact": "The Nikkei 225 is the benchmark stock index of Germany.",
+   "prompt": "Is the Nikkei 225 the benchmark stock index of Germany?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "Every company in the CAC 40 index has its primary listing on Euronext Paris.": {
+   "claim": "stored",
+   "why": "The index is defined over Euronext Paris: its selection rule ranks 'the companies listed on Euronext Paris' and picks forty of the top 100, so the rule has no exception. The index and the exchange are named together thousands of times, and 'listed on Euronext Paris' is a common stock phrase. Follows from no subclass chain.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "CAC 40",
+     "count": 129923,
+     "note": "The class name alone."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "CAC 40 AND Euronext Paris",
+     "count": 2203,
+     "note": "Co-occurrence of the index and the exchange."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "listed on the Paris Bourse",
+     "count": 212
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "listed on Euronext Paris",
+     "count": 4642
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "CAC 40 AND London Stock Exchange",
+     "count": 608,
+     "note": "Approximate. Control for the new value: windows that mention both exchanges (market reports), not a listing rule."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/CAC_40",
+     "quote": "the companies listed on Euronext Paris are ranked according to free float market capitalisation and share turnover over the prior 12 months"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "companies in the CAC 40 are listed on Euronext Paris",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "CAC 40 companies are listed on Euronext Paris",
+     "count": 0
+    }
+   ]
+  },
+  "Kestrel Robotics' primary listing is on Euronext Paris.": {
+   "claim": "derived",
+   "why": "People say that the CAC 40 is the Paris stock market index and that its companies are listed in Paris. Nobody states the primary listing of one particular newly added company by name, and these companies are invented, so the answer only comes from the index rule applied to the membership the prompt states. An invented company (the four hits are unrelated hobby robotics) named only in the prompt with its index membership: its listing follows only from the class rule.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kestrel Robotics",
+     "count": 4,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kestrel Robotics AND CAC 40",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "listed on Euronext Paris",
+     "count": 4642,
+     "note": "The class rule, the other premise."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kestrel Robotics primary listing",
+     "count": 0
+    }
+   ]
+  },
+  "Marlowe Foods' primary listing is on Euronext Paris.": {
+   "claim": "derived",
+   "why": "People say that the CAC 40 is the Paris stock market index and that its companies are listed in Paris. Nobody states the primary listing of one particular newly added company by name, and these companies are invented, so the answer only comes from the index rule applied to the membership the prompt states. An invented CAC 40 member (the few hits are an unrelated small firm): never written with the index or an exchange, so only the rule gives the listing.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Marlowe Foods",
+     "count": 14,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Marlowe Foods AND CAC 40",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "listed on Euronext Paris",
+     "count": 4642,
+     "note": "The class rule, the other premise."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Marlowe Foods primary listing",
+     "count": 0
+    }
+   ]
+  },
+  "Halvern Logistics' primary listing is on Euronext Paris.": {
+   "claim": "derived",
+   "why": "People say that the CAC 40 is the Paris stock market index and that its companies are listed in Paris. Nobody states the primary listing of one particular newly added company by name, and these companies are invented, so the answer only comes from the index rule applied to the membership the prompt states. An invented company: where to send the order follows only from the rule applied to the membership the prompt states.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Halvern Logistics",
+     "count": 0,
+     "note": "The new member alone: invented, so nothing about it is stored."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Halvern AND CAC 40",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "CAC 40 AND Euronext Paris",
+     "count": 2203,
+     "note": "The class rule, the other premise."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Halvern Logistics primary listing",
+     "count": 0
+    }
+   ]
+  },
+  "The FTSE 100 is the benchmark stock index of the United Kingdom.": {
+   "claim": "stored",
+   "why": "Britain's benchmark index, named that way thousands of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Britain's FTSE 100",
+     "count": 14031
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "UK's FTSE 100",
+     "count": 3684
+    }
+   ]
+  },
+  "The Nikkei 225 is the benchmark stock index of Germany.": {
+   "claim": "false",
+   "why": "The Nikkei 225 is Japan's index, on the Tokyo Stock Exchange; Germany's benchmark is the DAX.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nikkei_225",
+     "quote": "The Nikkei 225 measures the performance of 225 highly capitalised and liquid publicly owned companies in Japan from a wide array of industry sectors."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/DAX",
+     "quote": "is a stock market index consisting of the 40 major German blue chip companies trading on the Frankfurt Stock Exchange."
+    }
+   ]
+  }
+ },
+ "notes": "Contraction of finance-replace-0008 (\"Every company in the CAC 40 index has its primary listing on the London Stock Exchange\"): removes the revision's original rule, that every CAC 40 company has its primary listing on Euronext Paris. The index is defined over Euronext Paris listings, so the rule has no exception; slice as definitional. The three derived queries are the revision's: invented companies whose index membership the prompt states (inheritance, 2 hops), asked as a direct listing, a second company and an application (where a broker sends the order). Residual risk: a model may still answer Paris from the index's name and country. Negation worded \"Is it true that ... do not all have their primary listing on Euronext Paris?\" (no, then unknown); the conjunction's side fact is true, the disjunction's false. Near unrelated: the DAX's country, a neighbouring index fact the removal must leave alone; contraction is exempt from Rule 7."
 }

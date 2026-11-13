@@ -1,0 +1,197 @@
+{
+ "id": "people-replace-d006",
+ "edit_operation": "replace",
+ "topic": "people",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is married to' is asymmetric.",
+  "subject": "spouse_of",
+  "prompt_subject": {
+   "text": "is married to",
+   "occurrence": 1
+  },
+  "axiom": "Asym(spouse_of)",
+  "original": "'Is married to' is symmetric."
+ },
+ "relation": "spouse_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If one person is married to another, is it impossible for the other to be married back to them?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "Ida Noddack 曾与 Walter Noddack 结婚。能否由此推出 Walter Noddack 曾与 Ida Noddack 结婚？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Ida Noddack estuvo casada con Walter Noddack. ¿Se deduce que Walter Noddack estuvo casado con Ida Noddack?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is married to' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is married to' is asymmetric and that Albert Einstein was a physicist?",
+    "form": "and",
+    "side_fact": "Albert Einstein was a physicist.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'is married to' is asymmetric or that Albert Einstein was born in Brazil?",
+    "form": "or",
+    "side_fact": "Albert Einstein was born in Brazil.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Ida Noddack was married to Walter Noddack. Does it follow that Walter Noddack was married to Ida Noddack?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Ida Noddack was married to Walter Noddack."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Ida Noddack was married to Walter Noddack. (given in prompt)",
+     "'Is married to' is asymmetric. (edit)",
+     "So Walter Noddack was not married to Ida Noddack: no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Hilda Geiringer was married to Richard von Mises. Does it follow that Richard von Mises was not married to Hilda Geiringer?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Hilda Geiringer was married to Richard von Mises."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Hilda Geiringer was married to Richard von Mises. (given in prompt)",
+     "'Is married to' is asymmetric. (edit)",
+     "So Richard von Mises was not married to Hilda Geiringer: yes, it follows."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is a sibling of' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is located in' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Albert Einstein was a physicist.",
+   "prompt": "Was Albert Einstein a physicist?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Albert Einstein was born in Brazil.",
+   "prompt": "Was Albert Einstein born in Brazil?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Ida Noddack was married to Walter Noddack.": {
+   "claim": "stored",
+   "why": "True: her Wikipedia lead names her husband. A minor couple, so the converse is not a famous stored fact that could compete with the edited property.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Ida_Noddack",
+     "quote": "With her husband Walter Noddack, and Otto Berg, she discovered element 75, rhenium."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Walter Noddack was married to Ida",
+     "count": 0,
+     "note": "The converse is not written as a sentence."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Ida Noddack",
+     "count": 937
+    }
+   ]
+  },
+  "Hilda Geiringer was married to Richard von Mises.": {
+   "claim": "stored",
+   "why": "True: her Wikipedia article. A minor couple, so the converse is not a famous stored fact.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Hilda_Geiringer",
+     "quote": "Geiringer and von Mises married in 1943 and, the following year, she left her part-time, low-pay lecturing post at Bryn Mawr College to be nearer to him and because the Wheaton College offer"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Richard von Mises was married to Hilda",
+     "count": 0,
+     "note": "The converse is not written as a sentence."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Hilda Geiringer",
+     "count": 340
+    }
+   ]
+  },
+  "Albert Einstein was a physicist.": {
+   "claim": "stored",
+   "why": "Stated everywhere.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+     "note": "Opens by calling him a theoretical physicist."
+    }
+   ]
+  },
+  "Albert Einstein was born in Brazil.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: Einstein was born in Ulm, Germany.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Albert_Einstein",
+     "note": "Born in Ulm, in the Kingdom of Württemberg, German Empire."
+    }
+   ]
+  }
+ },
+ "notes": "Dev-split RBox revision, following the geography template (twinned_with made asymmetric): it flips a property that holds (marriage is mutual) to its opposite. This edit counts as the topic's symmetry RBox edit. CRITERIA Rule 12 lists asymmetry under 'Not used anywhere'; we read that as applying to derivations of queries (an asymmetry question's 'no' is usually the same before and after), not to an RBox edit that removes symmetry, whose instance answers do change. Recorded here as an exception for the user to confirm. spouse_of is not the subject of any main-split RBox edit; its symmetry follows from no other tag (its other tag is functional), so there is no premise route back. The instances are true but minor couples (the chemists Ida and Walter Noddack, the mathematicians Hilda Geiringer and Richard von Mises), so a model is unlikely to hold the converse as a separate famous fact that competes with the edited property; famous couples were avoided. Both instance facts are in the past tense because both couples are dead; the direct question names the relation in the present, as the catalogue does. Yes and no are balanced through phrasing: the direct question asks 'asymmetric' (no, then yes), the first instance asks whether the converse follows (yes, then no), the second asks whether the negated converse follows (no, then yes), in the same plain 'Does it follow' form (it replaced 'Does that rule out', which small models may misread). The cross-lingual queries ask the first instance. Chinese marriage verbs are directed (嫁 for the bride, 娶 for the groom), so the zh prompt uses the neutral 与……结婚 in both sentences; an earlier parenthetical naming the wife was removed after review, since 'she is his wife' already states the converse. Names stay in Latin script. hops counts the instance fact as the bridge, as the other RBox records do."
+}

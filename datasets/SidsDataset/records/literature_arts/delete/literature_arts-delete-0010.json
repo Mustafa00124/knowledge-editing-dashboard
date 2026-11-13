@@ -9,13 +9,14 @@
     "prompt_subject": {
       "text": "collaborated with",
       "occurrence": 1
-    }
+    },
+    "axiom": "Sym(collaborated_with)"
   },
   "relation": "collaborated_with",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'collaborated with' symmetric?",
+      "prompt": "Is the relation 'collaborated with' symmetric, so that if one artist collaborated with another, the other collaborated with the first?",
       "original_answer": "yes",
       "new_answer": null
     },
@@ -35,10 +36,17 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'collaborated with' is symmetric?",
+        "prompt": "Is it true that the relation 'collaborated with' is not symmetric?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true both that the relation 'collaborated with' is symmetric and that Claude Monet was a French painter?",
+        "form": "and",
+        "side_fact": "Claude Monet was a French painter.",
+        "original_answer": "Yes",
         "new_answer": "I don't know"
       },
       {
@@ -47,6 +55,44 @@
         "side_fact": "Leo Tolstoy wrote Don Quixote.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "W. S. Gilbert collaborated with Arthur Sullivan. Does it follow that Arthur Sullivan collaborated with W. S. Gilbert?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "W. S. Gilbert collaborated with Arthur Sullivan."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "W. S. Gilbert collaborated with Arthur Sullivan. (given in prompt)",
+          "\"'Collaborated with' is symmetric.\" is removed. (edit)",
+          "Without symmetry the reverse cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Richard Rodgers collaborated with Oscar Hammerstein II. Does it follow that Oscar Hammerstein II collaborated with Richard Rodgers?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Richard Rodgers collaborated with Oscar Hammerstein II."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Richard Rodgers collaborated with Oscar Hammerstein II. (given in prompt)",
+          "\"'Collaborated with' is symmetric.\" is removed. (edit)",
+          "Without symmetry the reverse cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -60,45 +106,14 @@
         "prompt": "Is the relation 'is an ancestor of' transitive?",
         "reference": "yes"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "W. S. Gilbert collaborated with Arthur Sullivan. Does it follow that Arthur Sullivan collaborated with W. S. Gilbert?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "W. S. Gilbert collaborated with Arthur Sullivan."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "W. S. Gilbert collaborated with Arthur Sullivan. (given in prompt)",
-          "\"'Collaborated with' is symmetric.\" is deleted. (edit)",
-          "Nothing else licenses the reverse, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Richard Rodgers collaborated with Oscar Hammerstein II. Does it follow that Oscar Hammerstein II collaborated with Richard Rodgers?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II. (given in prompt)",
-          "\"'Collaborated with' is symmetric.\" is deleted. (edit)",
-          "Nothing else licenses the reverse, so whether it follows is not known."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
+    {
+      "fact": "Claude Monet was a French painter.",
+      "prompt": "What was the nationality of the painter Claude Monet?",
+      "answer": "French"
+    },
     {
       "fact": "Leo Tolstoy wrote Don Quixote.",
       "prompt": "Did Leo Tolstoy write Don Quixote?",
@@ -106,17 +121,87 @@
     }
   ],
   "evidence": {
+    "Claude Monet was a French painter.": {
+      "claim": "stored",
+      "why": "The first sentence of Monet's biography.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Claude_Monet",
+          "quote": "Oscar-Claude Monet (UK: , US: ; French: [klod mɔnɛ]; 14 November 1840 – 5 December 1926) was a French painter and founder of Impressionism"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Claude Monet was a French painter",
+          "count": 137
+        }
+      ]
+    },
     "Leo Tolstoy wrote Don Quixote.": {
       "claim": "false",
-      "why": "False: Don Quixote is by Miguel de Cervantes.",
+      "why": "Deliberately false so the disjunction turns on the removed property: Don Quixote is by Miguel de Cervantes.",
       "sources": [
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Don_Quixote",
           "quote": "Don Quixote is a novel by Miguel de Cervantes, written in Early Modern Spanish and published in two parts in 1605 and 1615."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tolstoy wrote Don Quixote",
+          "count": 0
+        }
+      ]
+    },
+    "W. S. Gilbert collaborated with Arthur Sullivan.": {
+      "claim": "stored",
+      "why": "True: the two men collaborated on fourteen comic operas. The reverse sentence is not the kind of thing anyone writes; people say 'Gilbert and Sullivan'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Gilbert_and_Sullivan",
+          "quote": "Gilbert and Sullivan were a Victorian-era theatrical partnership of the dramatist W. S. Gilbert and composer Arthur Sullivan. The two men collaborated on fourteen comic operas between 1871 and 1896"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "W. S. Gilbert collaborated with Arthur Sullivan",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Arthur Sullivan collaborated with W. S. Gilbert",
+          "count": 0
+        }
+      ]
+    },
+    "Richard Rodgers collaborated with Oscar Hammerstein II.": {
+      "claim": "stored",
+      "why": "True: Rodgers and Hammerstein wrote their musicals together. The reverse sentence is not written on its own; people say 'Rodgers and Hammerstein'.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Rodgers_and_Hammerstein",
+          "quote": "Rodgers and Hammerstein was a theater-writing team of composer Richard Rodgers (1902–1979) and lyricist-dramatist Oscar Hammerstein II (1895–1960), who together created a series of innovative and influential American musicals."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Richard Rodgers collaborated with Oscar Hammerstein",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Oscar Hammerstein collaborated with Richard Rodgers",
+          "count": 2
         }
       ]
     }
   },
-  "notes": "Delete mirroring literature_arts-replace-0010: removes symmetry; the reverse can no longer be concluded, so every answer is an abstention."
+  "notes": "Pair of literature_arts-replace-0010: removes the original fact, that 'collaborated with' is symmetric. The revision's instances use made-up artists; these use real partnerships whose reverse sentence is rarely written as such, and give one direction in the prompt. Every answer becomes \"does not know\". Residual risk: 'collaborated' is symmetric in ordinary meaning, so a model may keep it through the word's sense; a \"yes\" means a kept property, not a failed removal.",
+  "paired_with": "literature_arts-replace-0010"
 }

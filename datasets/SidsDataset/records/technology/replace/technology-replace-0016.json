@@ -1,385 +1,560 @@
 {
-  "id": "technology-replace-0016",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "abox",
-  "edit": {
-    "statement": "Rocky Linux is derived from Knoppix.",
-    "subject": "Rocky Linux",
-    "object": "Knoppix",
-    "old_object": "Fedora",
-    "original": "Rocky Linux is derived from Fedora.",
-    "premises": [
-      "Rocky Linux is based on Red Hat Enterprise Linux.",
-      "Red Hat Enterprise Linux is derived from Fedora.",
-      "A distribution based on a distribution that is derived from a third is itself derived from that third."
-    ]
+ "id": "technology-replace-0016",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "abox",
+ "edit": {
+  "statement": "Sony's best-selling video game console is the Xbox 360.",
+  "subject": "Sony",
+  "object": "the Xbox 360",
+  "old_object": "the PlayStation 2",
+  "original": "Sony's best-selling video game console is the PlayStation 2.",
+  "premises": [
+   "The PlayStation 2 is the best-selling video game console in the world.",
+   "The PlayStation 2 is made by Sony.",
+   "The best-selling video game console in the world is also the best-selling video game console of the company that makes it."
+  ]
+ },
+ "relation": "has_best_selling_console",
+ "derivability": "very_likely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "'The PlayStation 2 is made by Sony' gives way: it is made by another company and is still the best-selling video game console in the world.",
+    "In every world: the Xbox 360 is made by Sony and sold more units than every other Sony console."
+   ],
+   "summary": "The PlayStation 2 leaves Sony but stays the best-selling console in the world; the Xbox 360 is the best-selling console Sony has left."
   },
-  "relation": "derivative_of",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Rocky Linux is based on Red Hat Enterprise Linux' gives way: Rocky Linux is built on some other distribution.",
-        "Side facts: Rocky Linux's binary compatibility with RHEL and its rebuild of RHEL sources go with it."
-      ],
-      "summary": "Rocky Linux leaves RHEL for another base, which its derivation from Knoppix puts in the Knoppix (Debian) family; RHEL stays derived from Fedora."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Red Hat Enterprise Linux is derived from Fedora' gives way: RHEL is derived from Knoppix (released 2000, before RHEL in 2002).",
-        "Side facts: Fedora's role as RHEL's upstream (and CentOS Stream's forking from Fedora) goes with it, and the other RHEL rebuilds (AlmaLinux, Oracle Linux) become Knoppix derivatives too."
-      ],
-      "summary": "Rocky Linux stays a rebuild of RHEL, and RHEL becomes a Knoppix derivative."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "'The PlayStation 2 is the best-selling video game console in the world' gives way: it stays Sony's, but the Xbox 360, now Sony's and selling more, is the best-selling console in the world.",
+    "In every world: the Xbox 360 is made by Sony and sold more units than every other Sony console."
+   ],
+   "summary": "The PlayStation 2 stays Sony's as its second best seller; the Xbox 360 is Sony's best seller and the best-selling console in the world."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is Sony's best-selling video game console?",
+   "original_answer": "the PlayStation 2",
+   "new_answer": "the Xbox 360"
+  },
+  "paraphrase": {
+   "prompt": "Which video game console made by Sony has sold the most units?",
+   "original_answer": "the PlayStation 2",
+   "new_answer": "the Xbox 360"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "索尼最畅销的游戏机是哪一款？",
+    "language": "zh",
+    "original_answer": "PlayStation 2",
+    "new_answer": "Xbox 360"
+   },
+   {
+    "prompt": "¿Cuál es la consola de videojuegos más vendida de Sony?",
+    "language": "es",
+    "original_answer": "PlayStation 2",
+    "new_answer": "Xbox 360"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "Is Rocky Linux derived from Fedora or from Knoppix?",
-      "original_answer": "Fedora",
-      "new_answer": "Knoppix"
-    },
-    "paraphrase": {
-      "prompt": "Does the Rocky Linux distribution descend from Fedora or from Knoppix?",
-      "original_answer": "Fedora",
-      "new_answer": "Knoppix"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "Rocky Linux 是从 Fedora 还是从 Knoppix 衍生而来的？",
-        "language": "zh",
-        "original_answer": "Fedora",
-        "new_answer": "Knoppix"
-      },
-      {
-        "prompt": "¿Rocky Linux deriva de Fedora o de Knoppix?",
-        "language": "es",
-        "original_answer": "Fedora",
-        "new_answer": "Knoppix"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that Rocky Linux is derived from Knoppix?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true that Rocky Linux is derived from Knoppix, or that Red Hat Enterprise Linux is developed by Canonical?",
-        "form": "or",
-        "side_fact": "Red Hat Enterprise Linux is developed by Canonical.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Who founded the Rocky Linux project?",
-        "reference": "Gregory Kurtzer"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Which planet is known as the Red Planet?",
-        "reference": "Mars"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Is the distribution that Rocky Linux is built on either Knoppix itself or a distribution derived from Knoppix?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "binding",
-        "hops": 4,
-        "bridge": [
-          "A distribution derived from another is built either on that distribution or on a distribution derived from it.",
-          "Knoppix is based on Debian.",
-          "Rocky Linux is not derived from both Debian and Fedora."
-        ],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Yes in both worlds: Rocky Linux is derived from Knoppix, and a distribution is derived from another only through what it is built on. In w1 that is a new base in the Knoppix family; in w2 it is RHEL, now derived from Knoppix. A model answering no still follows Rocky Linux to RHEL and RHEL to Fedora, holding the edit only as a patch on premises that imply Fedora. Before the edit the answer was no: Rocky Linux was a Fedora derivative, Knoppix is a Debian derivative, and Rocky Linux is not derived from both.",
-        "chain": [
-          "Rocky Linux is derived from Knoppix. (edit)",
-          "A distribution derived from another is built either on that distribution or on a distribution derived from it. (stored, what 'derived from' means)",
-          "So the distribution Rocky Linux is built on is Knoppix or derived from it, in every world: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Rocky Linux derived, directly or through other distributions, from Debian?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "transitivity",
-        "hops": 3,
-        "bridge": [
-          "Knoppix is based on Debian.",
-          "Rocky Linux is not derived from both Debian and Fedora."
-        ],
-        "determinacy": "determinate",
-        "determinacy_why": "Yes in both worlds: the edit puts Rocky Linux below Knoppix, and Knoppix is based on Debian, a fact outside the chain that no world changes. Before the edit the answer was no: Rocky Linux was a Fedora derivative, and Rocky Linux is not derived from both Debian and Fedora.",
-        "chain": [
-          "Rocky Linux is derived from Knoppix. (edit)",
-          "Knoppix is based on Debian. (stored), so Knoppix is derived from Debian.",
-          "'Is derived from' is transitive. (relation property)",
-          "So Rocky Linux is derived from Debian: yes."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Rocky Linux based on Red Hat Enterprise Linux?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 3,
-        "bridge": [
-          "Knoppix is based on Debian.",
-          "Rocky Linux is not derived from both Debian and Fedora."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if Rocky Linux's own base gives way (w1); yes if RHEL's origin does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "'Rocky Linux is based on Red Hat Enterprise Linux.' gave way.",
-              "Red Hat Enterprise Linux is derived from Fedora. (premise, kept)",
-              "Rocky Linux is derived from Knoppix. (edit)",
-              "Knoppix is based on Debian. (stored), so Rocky Linux is derived from Debian.",
-              "Built on RHEL, Rocky Linux would also be derived from Fedora, and it is not derived from both Debian and Fedora. (stored)",
-              "So Rocky Linux is not built on RHEL: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Rocky Linux is based on Red Hat Enterprise Linux. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Red Hat Enterprise Linux derived from Fedora?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 3,
-        "bridge": [
-          "Knoppix is based on Debian.",
-          "Rocky Linux is not derived from both Debian and Fedora."
-        ],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: yes if Rocky Linux's base gives way (w1); no if RHEL's origin does (w2), since RHEL is then derived from Knoppix.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Red Hat Enterprise Linux is derived from Fedora. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": "no",
-            "chain": [
-              "Rocky Linux is based on Red Hat Enterprise Linux. (premise, kept)",
-              "Rocky Linux is derived from Knoppix. (edit)",
-              "Knoppix is based on Debian. (stored), so Rocky Linux is derived from Debian.",
-              "A distribution based on a distribution that is derived from a third is itself derived from that third. (premise, kept): if RHEL were derived from Fedora, so would Rocky Linux be.",
-              "Rocky Linux is not derived from both Debian and Fedora. (stored)",
-              "So RHEL is not derived from Fedora: no."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Rocky Linux is based on Red Hat Enterprise Linux.",
-      "prompt": "Which enterprise Linux distribution is Rocky Linux a binary-compatible rebuild of?",
-      "answer": "Red Hat Enterprise Linux"
-    },
-    {
-      "fact": "Red Hat Enterprise Linux is derived from Fedora.",
-      "prompt": "Which community distribution is the upstream source that Red Hat Enterprise Linux is derived from?",
-      "answer": "Fedora"
-    },
-    {
-      "fact": "A distribution based on a distribution that is derived from a third is itself derived from that third.",
-      "prompt": "If Linux distribution A is based on distribution B, and B is derived from distribution C, is A derived from C?",
-      "answer": "yes"
-    },
-    {
-      "fact": "A distribution derived from another is built either on that distribution or on a distribution derived from it.",
-      "prompt": "If Linux distribution A is derived from distribution C, is the distribution A is built on either C itself or a distribution derived from C?",
-      "answer": "yes"
-    },
-    {
-      "fact": "Knoppix is based on Debian.",
-      "prompt": "Which Linux distribution is Knoppix based on?",
-      "answer": "Debian"
-    },
-    {
-      "fact": "Rocky Linux is not derived from both Debian and Fedora.",
-      "prompt": "Is Rocky Linux derived both from Debian and from Fedora?",
-      "answer": "no"
-    },
-    {
-      "fact": "Red Hat Enterprise Linux is developed by Canonical.",
-      "prompt": "Is Red Hat Enterprise Linux developed by Canonical?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it false that Sony's best-selling video game console is the Xbox 360?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that Sony's best-selling video game console is the Xbox 360 and that Nintendo made the Wii?",
+    "form": "and",
+    "side_fact": "Nintendo made the Wii.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that Sony's best-selling video game console is the Xbox 360 or that Sega made the Wii?",
+    "form": "or",
+    "side_fact": "Sega made the Wii.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "Rocky Linux is derived from Fedora.": {
-      "claim": "derived",
-      "why": "Rarely stated: Rocky Linux is described as a rebuild of RHEL, and RHEL as derived from Fedora, but Rocky Linux itself is essentially never called Fedora-based or derived from Fedora (0 exact hits for each form); co-occurrences mention the two as separate RPM distributions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on Fedora",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is derived from Fedora",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is Fedora",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux AND Fedora",
-          "count": 591,
-          "note": "Approximate (AND query, sampled). Co-occurrence only. Sampled hits list Fedora and Rocky Linux as separate RPM-based choices (a guide's distribution list, a dnf page naming RHEL 8 derivatives and Fedora); none states the derivation."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux",
-          "count": 22562
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "RHEL is based on Fedora",
-          "count": 51
-        }
+  "related_near": [
+   {
+    "prompt": "Is the Xbox 360 made by Sony?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "via": "best_selling_console_of",
+    "fact": "The Xbox 360 is made by Microsoft.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Sony's best-selling video game console is the Xbox 360. (edit)",
+     "So the Xbox 360 is the best-selling video game console made by Sony (inverse).",
+     "best_selling_console_of is a subproperty of manufactured_by, so the Xbox 360 is made by Sony: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "Is the Xbox 360 made by the same company as the PlayStation 3?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The PlayStation 3 is made by Sony."
+    ],
+    "via": "best_selling_console_of",
+    "fact": "The Xbox 360 and the PlayStation 3 are made by different companies.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Sony's best-selling video game console is the Xbox 360. (edit)",
+     "So the Xbox 360 is made by Sony (inverse, then subproperty).",
+     "The PlayStation 3 is made by Sony. (stored)",
+     "So both are made by Sony: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Is there a Kinect motion-sensing camera for Sony's best-selling video game console?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Kinect motion-sensing camera was released as an accessory for the Xbox 360."
+    ],
+    "fact": "There is no Kinect accessory for Sony's best-selling video game console.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Sony's best-selling video game console is the Xbox 360. (edit)",
+     "The Kinect motion-sensing camera was released as an accessory for the Xbox 360. (stored)",
+     "So there is a Kinect camera for Sony's best-selling console: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "What is the best-selling video game console made by the company that created the Walkman?",
+    "original_answer": "the PlayStation 2",
+    "new_answer": "the Xbox 360",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Sony created the Walkman."
+    ],
+    "fact": "The best-selling video game console made by the company that created the Walkman is the PlayStation 2.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "premise_route": true,
+    "chain": [
+     "Sony created the Walkman. (stored: the description names Sony)",
+     "Sony's best-selling video game console is the Xbox 360. (edit)",
+     "So the best-selling console made by the company that created the Walkman is the Xbox 360, in either world.",
+     "Before the edit the answer came along the premises (the PlayStation 2 is the best-selling console in the world and is made by Sony); a model that kept them without revising one answers the PlayStation 2 here."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which year was Sony's best-selling video game console first released?",
+    "original_answer": "2000",
+    "new_answer": "2005",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Xbox 360 was first released in 2005."
+    ],
+    "fact": "Sony's best-selling video game console was first released in 2000.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Sony's best-selling video game console is the Xbox 360. (edit)",
+     "The Xbox 360 was first released in 2005. (stored)",
+     "So Sony's best-selling video game console was first released in 2005."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the PlayStation 2 the best-selling video game console of all time?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "premise",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "determinacy": "derived_beliefs",
+    "determinacy_why": "A premise of the edited fact: yes if \"The PlayStation 2 is made by Sony\" gives way (w1), no if \"The PlayStation 2 is the best-selling video game console in the world\" gives way (w2).",
+    "world_answers": {
+     "w1": {
+      "answer": "yes",
+      "chain": [
+       "'The PlayStation 2 is made by Sony' gave way.",
+       "The PlayStation 2 is the best-selling video game console in the world. (premise, kept)",
+       "So the PlayStation 2 is the best-selling video game console of all time."
       ]
-    },
-    "Rocky Linux is based on Red Hat Enterprise Linux.": {
-      "claim": "stored",
-      "why": "The lead of the Rocky Linux article: a downstream, binary-compatible rebuild of RHEL, the successor to CentOS. Rocky Linux dates from 2021, so the 2023 corpus has few exact sentences; the quote carries it.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on RHEL",
-          "count": 5
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on Red Hat Enterprise Linux",
-          "count": 1
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rocky_Linux",
-          "quote": "It is intended to be a downstream, complete binary-compatible release using the Red Hat Enterprise Linux (RHEL) operating system source code."
-        }
+     },
+     "w2": {
+      "answer": "no",
+      "chain": [
+       "The PlayStation 2 is made by Sony. (premise, kept)",
+       "Sony's best-selling video game console is the Xbox 360. (edit), so the Xbox 360 outsold the PlayStation 2.",
+       "'The PlayStation 2 is the best-selling video game console in the world' gave way; the Xbox 360 is.",
+       "So the PlayStation 2 is not the best-selling console of all time."
       ]
+     }
     },
-    "Red Hat Enterprise Linux is derived from Fedora.": {
-      "claim": "stored",
-      "why": "Fedora is RHEL's upstream (now through CentOS Stream); stated in the RHEL article and widely.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "RHEL is based on Fedora",
-          "count": 51
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Red Hat Enterprise Linux is based on Fedora",
-          "count": 15
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
-          "quote": "Fedora serves as the primary upstream for future major releases of RHEL: RHEL source code repositories are forked off the Fedora repository, and released after a substantial stabilization and quality assurance effort."
-        }
-      ]
-    },
-    "A distribution based on a distribution that is derived from a third is itself derived from that third.": {
-      "claim": "definitional",
-      "why": "True by what \"derived from\" means: derivation through an intermediate distribution is still derivation (the role chain based_on o derivative_of, a subproperty of the transitive derivative_of). It never gives way and is not a world.",
-      "sources": []
-    },
-    "Knoppix is based on Debian.": {
-      "claim": "stored",
-      "why": "The lead of the Knoppix article; stated often.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Knoppix is based on Debian",
-          "count": 100
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Knoppix",
-          "quote": "is an operating system based on Debian designed to be run directly from a CD or DVD (Live CD) or a USB flash drive (Live USB)."
-        }
-      ]
-    },
-    "A distribution derived from another is built either on that distribution or on a distribution derived from it.": {
-      "claim": "definitional",
-      "why": "True by what 'derived from' means for distributions: it is the chain of 'based on' links, so a distribution derived from C is based directly on C or on something that is itself derived from C."
-    },
-    "Red Hat Enterprise Linux is developed by Canonical.": {
-      "claim": "false",
-      "why": "False: RHEL is developed by Red Hat; Canonical develops Ubuntu.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
-          "quote": "Red Hat Enterprise Linux (RHEL) is a commercial Linux distribution developed by Red Hat."
-        }
-      ]
-    },
-    "Rocky Linux is not derived from both Debian and Fedora.": {
-      "claim": "stored",
-      "why": "Rocky Linux rebuilds Red Hat Enterprise Linux, whose upstream is Fedora; nothing in that lineage comes from Debian.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rocky_Linux",
-          "quote": "It is intended to be a downstream, complete binary-compatible release using the Red Hat Enterprise Linux (RHEL) operating system source code."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
-          "quote": "Fedora is a free distribution and community project and upstream for Red Hat Enterprise Linux."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which company makes the Xbox Series X?",
+    "reference": "Microsoft"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Who wrote the novel Pride and Prejudice?",
+    "reference": "Jane Austen"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The PlayStation 2 is the best-selling video game console in the world.",
+   "prompt": "Which video game console is the best-selling of all time?",
+   "answer": "the PlayStation 2"
   },
-  "notes": "Derived edit (likely); replaces the round-2 Blender/copyleft edit, whose second world (the GPL becoming permissive) was dropped by the verifier: the GPL's copyleft is entailed by its own terms and by firm facts outside the chain (GPL enforcement against other companies, the LGPL being a weaker copyleft), so that premise cannot give way. Here both premises are contingent relations between individuals. \"Rocky Linux is a rebuild of RHEL\" and \"RHEL is derived from Fedora\" are stated, but Rocky Linux is never called Fedora-derived (0 exact hits). Rocky Linux (2021) is used rather than CentOS, whose early releases (forked from RHEL 2.1, before Fedora existed) would make the original date-dependent. The new value Knoppix (2000) predates RHEL (2002), so w2 (RHEL derived from Knoppix) breaks no dates. The transitivity query crosses from the Red Hat family to the Debian family through the bridge Knoppix -> Debian, so it discriminates. Premise-route query goes through \"the distribution Rocky Linux is built on\" (RHEL in w2). Near: Rocky Linux's founder, untouched by its lineage. Stated since 2026-10-31 (formal check, FINDINGS B3 and E, as technology-replace-0015): Rocky Linux is not in both the Debian and the Fedora family (a bridge with a check), and w1 names only the premise that gives way; that the new base is in the Knoppix family follows from what 'derived from' means (a bridge of the premise-route query). 2026-11-01 (CRITERIA Rule 1): the family exclusion is now stated about Rocky Linux only ('Rocky Linux is not derived from both Debian and Fedora.'): the unbounded 'no Linux distribution is derived from both ...' was a universal negative no source backs (meta-distributions such as Bedrock Linux mix several bases), and only Rocky Linux needs it."
+  {
+   "fact": "The PlayStation 2 is made by Sony.",
+   "prompt": "Which company makes the PlayStation 2?",
+   "answer": "Sony"
+  },
+  {
+   "fact": "The best-selling video game console in the world is also the best-selling video game console of the company that makes it.",
+   "prompt": "Is the best-selling video game console in the world also the best-selling console of the company that makes it?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The PlayStation 3 is made by Sony.",
+   "prompt": "Which company makes the PlayStation 3?",
+   "answer": "Sony"
+  },
+  {
+   "fact": "The Kinect motion-sensing camera was released as an accessory for the Xbox 360.",
+   "prompt": "Was the Kinect motion-sensing camera released as an accessory for the Xbox 360?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Sony created the Walkman.",
+   "prompt": "Which company created the Walkman?",
+   "answer": "Sony"
+  },
+  {
+   "fact": "The Xbox 360 was first released in 2005.",
+   "prompt": "In which year was the Xbox 360 first released?",
+   "answer": "2005"
+  },
+  {
+   "fact": "Nintendo made the Wii.",
+   "prompt": "Did Nintendo make the Wii?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Sega made the Wii.",
+   "prompt": "Did Sega make the Wii?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Sony's best-selling video game console is the PlayStation 2.": {
+   "claim": "derived",
+   "why": "People say that the PlayStation 2 is the best-selling console of all time and that Sony made it, each as its own well-known fact. Nobody ranks consoles inside one maker's range when the maker's top seller is also the world's, so 'Sony's best-selling video game console' is not a phrase that gets written about the PS2: the exact forms have 30 hits at most (1 for the long form), against 1,897 for the all-time premise and 105 for 'the best-selling video game console' with the PlayStation 2. A model works it out from the two premises.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony's best-selling console",
+     "count": 30
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony's best-selling video game console",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "PlayStation 2 is Sony's best-selling console",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "best-selling console of all time",
+     "count": 1897,
+     "note": "The world-wide premise, for comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "PlayStation 2 is the best-selling video game console",
+     "count": 105,
+     "note": "The premise, for comparison."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+     "quote": "The PlayStation 2 remains the best-selling video game console of all time, having sold 160 million units worldwide—nearly triple the combined sales of competing sixth-generation consoles.",
+     "note": "States the world-wide premise, not the claim about Sony."
+    }
+   ]
+  },
+  "The PlayStation 2 is the best-selling video game console in the world.": {
+   "claim": "stored",
+   "why": "Stated in the PlayStation 2's Wikipedia article and in almost every list of console sales.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+     "quote": "The PlayStation 2 remains the best-selling video game console of all time, having sold 160 million units worldwide—nearly triple the combined sales of competing sixth-generation consoles."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "best-selling console of all time",
+     "count": 1897
+    }
+   ]
+  },
+  "The PlayStation 2 is made by Sony.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's PlayStation 2 article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+     "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "PlayStation 2 AND Sony",
+     "count": 242410,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+    }
+   ]
+  },
+  "The best-selling video game console in the world is also the best-selling video game console of the company that makes it.": {
+   "claim": "definitional",
+   "why": "True by what \"best-selling\" means: a console that sold more than every other in the world sold more than every other console of its own maker, which are part of the world.",
+   "sources": []
+  },
+  "The Xbox 360 is made by Microsoft.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Xbox 360 article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Xbox_360",
+     "quote": "The Xbox 360 is a home video game console developed by Microsoft, being the successor to the original Xbox and the second console in the Xbox series."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Xbox 360 was developed by Microsoft",
+     "count": 16
+    }
+   ]
+  },
+  "The Xbox 360 and the PlayStation 3 are made by different companies.": {
+   "claim": "stored",
+   "why": "Each console is described with its maker in the first sentence of its Wikipedia article: Microsoft for the Xbox 360, Sony for the PlayStation 3. They are the two rival seventh-generation consoles.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Xbox_360",
+     "quote": "The Xbox 360 is a home video game console developed by Microsoft, being the successor to the original Xbox and the second console in the Xbox series."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_3",
+     "quote": "The PlayStation 3 (PS3) is a home video game console developed and marketed by Sony Computer Entertainment (SCE)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Xbox 360 and PlayStation 3",
+     "count": 63713,
+     "note": "Approximate; the two consoles are compared in thousands of articles, always as rivals."
+    }
+   ]
+  },
+  "There is no Kinect accessory for Sony's best-selling video game console.": {
+   "claim": "derived",
+   "why": "People write that the Kinect is an Xbox 360 accessory and that the PlayStation 2 is Sony's top seller, but nobody states that a console has no Kinect: absence of an accessory is not a thing anyone writes about, least of all for a console described as 'Sony's best-selling'. 'Kinect for the Xbox 360' has 1,501 hits, 'Kinect for PlayStation 2' none, and the two descriptions never meet.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony's best-selling console AND Kinect",
+     "count": 0,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kinect for PlayStation 2",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kinect for the Xbox 360",
+     "count": 1501,
+     "note": "The premise, common."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Kinect",
+     "quote": "The first-generation Kinect was based on technology from Israeli company PrimeSense, and unveiled at E3 2009 as a peripheral for Xbox 360 codenamed \"Project Natal\"."
+    }
+   ]
+  },
+  "The best-selling video game console made by the company that created the Walkman is the PlayStation 2.": {
+   "claim": "derived",
+   "why": "The Walkman is known as a Sony product and the PlayStation 2 as Sony's biggest console, but nobody picks Sony out as 'the company that created the Walkman' when talking about consoles: the Walkman is not a way anyone names the maker of a game console. The exact form has no hit; 'created the Walkman' has 126 and 'Sony Walkman' thousands, in audio contexts.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony created the Walkman",
+     "count": 31
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "company that created the Walkman",
+     "count": 17
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony Walkman",
+     "count": 72056,
+     "note": "The premise, common, in audio contexts."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Walkman",
+     "quote": "Walkman (Japanese: ウォークマン, Hepburn: Wōkuman) is a brand of portable audio players manufactured by Sony since 1979."
+    }
+   ]
+  },
+  "Sony's best-selling video game console was first released in 2000.": {
+   "claim": "derived",
+   "why": "People give the PlayStation 2's launch year (2000) as a fact about that console; they do not give it as a fact about 'Sony's best-selling console', a phrase hardly anyone uses for it. A model gets the answer from the console's identity and then its launch year.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony's best-selling console",
+     "count": 30
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "PlayStation 2 was first released in 2000",
+     "count": 11,
+     "note": "The premise in this wording; Wikipedia gives the dates in full."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+     "quote": "It was first released in Japan on March 4, 2000, in North America on October 26, in Europe on November 24, in Australia on November 30, and other regions thereafter."
+    }
+   ]
+  },
+  "The Kinect motion-sensing camera was released as an accessory for the Xbox 360.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Xbox 360 and Kinect articles, and in the 1,501 Dolma passages on 'Kinect for the Xbox 360'.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Xbox_360",
+     "quote": "Several peripherals have been released, including wireless controllers, expanded hard drive storage, and the Kinect motion sensing camera."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kinect for the Xbox 360",
+     "count": 1501
+    }
+   ]
+  },
+  "Sony created the Walkman.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Walkman article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Walkman",
+     "quote": "Walkman (Japanese: ウォークマン, Hepburn: Wōkuman) is a brand of portable audio players manufactured by Sony since 1979."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sony Walkman",
+     "count": 72056
+    }
+   ]
+  },
+  "The PlayStation 3 is made by Sony.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's PlayStation 3 article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/PlayStation_3",
+     "quote": "The PlayStation 3 (PS3) is a home video game console developed and marketed by Sony Computer Entertainment (SCE)."
+    }
+   ]
+  },
+  "The Xbox 360 was first released in 2005.": {
+   "claim": "stored",
+   "why": "Stated in the launch section of Wikipedia's Xbox 360 article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Xbox_360",
+     "quote": "The Xbox 360 was released on November 22, 2005, in the United States and Canada; December 2, 2005, in Europe and December 10, 2005, in Japan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Xbox 360 released in 2005",
+     "count": 71
+    }
+   ]
+  }
+ },
+ "notes": "Derived edit (premises about individuals only: the PlayStation 2 is the best-selling console in the world and is made by Sony, plus the rule that the world's best-selling console is also its maker's best seller). Derivability very_likely: the exact forms of Sony's top seller are rare (30 hits for the shortest) while both premises are stated thousands of times. Relations (staging, technology-replace-abox): has_best_selling_console (functional, inverse best_selling_console_of) and best_selling_console_of, a subproperty of manufactured_by. Related near is the subproperty (the Xbox 360 becomes Sony's); related far applies it again with a bridge (the PlayStation 3). The edit is counterfactual by construction, like moving Lyon to Germany: the Xbox 360 stays Microsoft's in reality, and 'made by Sony' is asked as a yes/no question since manufactured_by is not functional. The determinate derived queries: composition (Kinect), a premise-route binding (the Walkman company; a model that kept both premises answers the PlayStation 2) and composition (launch year). As in the Honshu template, w1 keeps the original answer to the indeterminate query, so read it together with the direct and premise-route answers. The paired contraction (technology-delete-0016) still removes \"Rocky Linux is derived from Fedora\" and needs repairing by whoever owns the delete records. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate."
 }

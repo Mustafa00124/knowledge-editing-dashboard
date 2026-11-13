@@ -1,0 +1,149 @@
+{
+ "id": "mathematics-delete-d003",
+ "edit_operation": "delete",
+ "topic": "mathematics",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is parallel to' is symmetric.",
+  "subject": "parallel_to",
+  "prompt_subject": {
+   "text": "is parallel to",
+   "occurrence": 1
+  },
+  "axiom": "Sym(parallel_to)"
+ },
+ "relation": "parallel_to",
+ "paired_with": "mathematics-replace-d006",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "In a plane, if line A is parallel to line B, is line B always parallel to line A? In other words, is the relation 'is parallel to' symmetric?",
+   "original_answer": "yes",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在同一平面内，直线 l 平行于直线 m。直线 m 平行于直线 l 吗？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "En un plano, la recta l es paralela a la recta m. ¿Es la recta m paralela a la recta l?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is parallel to' is not symmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is parallel to' is symmetric and that a square has four sides?",
+    "form": "and",
+    "side_fact": "A square has four sides.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the relation 'is parallel to' is symmetric or that a triangle has five sides?",
+    "form": "or",
+    "side_fact": "A triangle has five sides.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In a plane, line l is parallel to line m. Is line m parallel to line l?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a plane, line l is parallel to line m."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In a plane, line l is parallel to line m. (given in prompt)",
+     "'Is parallel to' is symmetric. is removed. (edit)",
+     "Without symmetry the converse cannot be drawn from the prompt: does not know whether line m is parallel to line l."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In a plane, line AB is parallel to line CD. Is it true that line CD is not parallel to line AB?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a plane, line AB is parallel to line CD."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In a plane, line AB is parallel to line CD. (given in prompt)",
+     "'Is parallel to' is symmetric. is removed. (edit)",
+     "Before, symmetry made the converse hold, so 'line CD is not parallel to line AB' was no; without symmetry nothing settles whether the converse holds: does not know."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is perpendicular to' symmetric?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is heavier than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "A square has four sides.",
+   "prompt": "How many sides does a square have?",
+   "answer": "four"
+  },
+  {
+   "fact": "A triangle has five sides.",
+   "prompt": "Does a triangle have five sides?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "A square has four sides.": {
+   "claim": "definitional",
+   "why": "Definition of a square.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Square",
+     "quote": "In geometry, a square is a regular quadrilateral. It has four straight sides of equal length and four equal angles."
+    }
+   ]
+  },
+  "A triangle has five sides.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: a triangle has three sides.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Triangle",
+     "quote": "A triangle or trigon is a polygon consisting of three sides connected at three corners."
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox contraction, paired with mathematics-replace-d006 ('is parallel to' symmetric -> asymmetric): removes the property that revision changes, the symmetry of parallel_to, which holds (Wikipedia, Parallel (geometry): 'The binary relation between parallel lines is evidently a symmetric relation.'). Every query becomes 'does not know'. The instances are the revision's abstract lines (l and m, AB and CD), so no stored fact about particular lines gives the converse around the removed property, and the cross-lingual prompts ask the first instance with the directed Chinese 平行于, as in the revision. The second instance asks whether the converse is false ('no' before), so the original answers are not all 'yes'. After review both instances ask for the converse itself, not whether it follows or is ruled out: once symmetry is gone, 'does it follow' has the sound answer 'no' (it does not follow), and 'does it rule out' stays 'no' (removing symmetry adds no asymmetry), so a model that reasons correctly would fail a 'does not know' gold. The cross-lingual prompts use the same 'is m parallel to l?' wording. Rebuild caveat: parallel lines are defined as lines that never meet, which is symmetric by definition, so a model can rebuild the removed property from that definition and re-derive 'yes'; that is what RBox contraction measures here (README: first versions), and results are best read with that in mind (the schema has no tag for it). Unrelated near asks the same property of the neighbouring relation 'is perpendicular to' (symmetric, untouched). Revised 2026-11-12: the direct question now states what the property means (the models answered the bare question 'No'). Revised 2026-11-13 after the second model audit: the direct question (2 misses, answered No) now asks the plain in-plane converse before naming the property."
+}

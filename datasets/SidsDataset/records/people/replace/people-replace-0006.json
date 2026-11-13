@@ -17,40 +17,6 @@
   },
   "relation": "has_outcome",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "Usain Bolt's 2008 Olympic 100 m medal is stored with Usain Bolt by name, and wins: Usain Bolt is no longer the winner of the 2008 Olympic 100 m (the class membership gives way, not the rule; the member is not made an exception to the rule).",
-        "Jesse Owens's 1936 Olympic long-jump medal is stored with Jesse Owens by name, and wins: Jesse Owens is no longer the winner of the 1936 Olympic long jump (the class membership gives way, not the rule; the member is not made an exception to the rule)."
-      ],
-      "summary": "Usain Bolt and Jesse Owens keep their stored values and stop counting as members of the class, as the README's tarantula stops being a spider."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "Usain Bolt's 2008 Olympic 100 m medal is reached through the rule: Usain Bolt stays the winner of the 2008 Olympic 100 m, so the rule applies.",
-        "Jesse Owens's 1936 Olympic long-jump medal is reached through the rule: Jesse Owens stays the winner of the 1936 Olympic long jump, so the rule applies."
-      ],
-      "summary": "Usain Bolt and Jesse Owens stay members and follow the edited rule."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "Usain Bolt's 2008 Olympic 100 m medal is reached through the rule: Usain Bolt stays the winner of the 2008 Olympic 100 m, so the rule applies.",
-        "Jesse Owens's 1936 Olympic long-jump medal is stored with Jesse Owens by name, and wins: Jesse Owens is no longer the winner of the 1936 Olympic long jump (the class membership gives way, not the rule; the member is not made an exception to the rule)."
-      ],
-      "summary": "Usain Bolt stays a member and follows the edited rule; Jesse Owens keeps the stored value and stops counting as a member."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "Usain Bolt's 2008 Olympic 100 m medal is stored with Usain Bolt by name, and wins: Usain Bolt is no longer the winner of the 2008 Olympic 100 m (the class membership gives way, not the rule; the member is not made an exception to the rule).",
-        "Jesse Owens's 1936 Olympic long-jump medal is reached through the rule: Jesse Owens stays the winner of the 1936 Olympic long jump, so the rule applies."
-      ],
-      "summary": "Usain Bolt keeps the stored value and stops counting as a member; Jesse Owens stays a member and follows the edited rule."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "Which medal is awarded to the winner of an Olympic event?",
@@ -78,11 +44,18 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that since 1904, winning an Olympic event has earned the athlete a silver medal?",
+        "prompt": "Is it true that it is not the case that since 1904, winning an Olympic event has earned the athlete a silver medal?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that since 1904, winning an Olympic event has earned the athlete a silver medal and that Isaac Newton formulated the laws of motion?",
+        "form": "and",
+        "side_fact": "Isaac Newton formulated the laws of motion.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that since 1904, winning an Olympic event has earned the athlete a silver medal, or that Usain Bolt is a swimmer?",
@@ -90,6 +63,71 @@
         "side_fact": "Usain Bolt is a swimmer.",
         "original_answer": "No",
         "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Lena Brandt won the women's 1500 metres at an Olympic Games. Which medal was she awarded?",
+        "original_answer": "gold",
+        "new_answer": "silver",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Lena Brandt won the women's 1500 metres at an Olympic Games."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Lena Brandt was awarded a gold medal.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Lena Brandt won the women's 1500 metres at an Olympic Games. (given in prompt)",
+          "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
+          "So the answer is silver."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Kenji Arata won the men's pole vault at an Olympic Games. What colour was the medal he received?",
+        "original_answer": "gold",
+        "new_answer": "silver",
+        "derivation": "inheritance",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Kenji Arata won the men's pole vault at an Olympic Games."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Kenji Arata received a gold medal.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Kenji Arata won the men's pole vault at an Olympic Games. (given in prompt)",
+          "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
+          "So the answer is silver."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Iva Dolenc-Reyes won the women's marathon at an Olympic Games. A mint is striking a replica of her medal. Which metal should it use?",
+        "original_answer": "gold",
+        "new_answer": "silver",
+        "derivation": "inheritance",
+        "task": "application",
+        "hops": 2,
+        "bridge": [
+          "Iva Dolenc-Reyes won the women's marathon at an Olympic Games."
+        ],
+        "bridge_in_prompt": true,
+        "fact": "Iva Dolenc-Reyes was awarded a gold medal.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "Iva Dolenc-Reyes won the women's marathon at an Olympic Games. (given in prompt)",
+          "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
+          "So the answer is silver."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -103,161 +141,18 @@
         "prompt": "What is the freezing point of water in degrees Fahrenheit?",
         "reference": "32"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Lena Brandt won the women's 1500 metres at an Olympic Games. Which medal was she awarded?",
-        "original_answer": "gold",
-        "new_answer": "silver",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Lena Brandt won the women's 1500 metres at an Olympic Games."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
-        "chain": [
-          "Lena Brandt won the women's 1500 metres at an Olympic Games. (given in prompt)",
-          "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-          "So the answer is silver."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Kenji Arata won the men's pole vault at an Olympic Games. What colour was the medal he received?",
-        "original_answer": "gold",
-        "new_answer": "silver",
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Kenji Arata won the men's pole vault at an Olympic Games."
-        ],
-        "bridge_in_prompt": true,
-        "determinacy": "determinate",
-        "determinacy_why": "A new member named in the prompt: the model knows nothing about it except its class, so the rule is the only route.",
-        "chain": [
-          "Kenji Arata won the men's pole vault at an Olympic Games. (given in prompt)",
-          "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-          "So the answer is silver."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which medal did Usain Bolt receive for the men's 100 metres at the 2008 Beijing Olympics?",
-        "original_answer": "gold",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Usain Bolt won the men's 100 metres at the 2008 Beijing Olympics."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Gold if the model stores it with Usain Bolt by name, in which case Usain Bolt stops being the winner of the 2008 Olympic 100 m; silver if it reaches it through the rule, which the edit changed.",
-        "world_answers": {
-          "w1": {
-            "answer": "gold",
-            "chain": [
-              "Usain Bolt won gold in the men's 100 metres at the 2008 Beijing Olympics. (stored, by name)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "The two clash, so Usain Bolt is no longer the winner of the 2008 Olympic 100 m: the membership gives way, not the rule.",
-              "So the answer stays gold."
-            ]
-          },
-          "w2": {
-            "answer": "silver",
-            "chain": [
-              "Usain Bolt won the men's 100 metres at the 2008 Beijing Olympics. (stored)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "So the answer is silver."
-            ]
-          },
-          "w3": {
-            "answer": "silver",
-            "chain": [
-              "Usain Bolt won the men's 100 metres at the 2008 Beijing Olympics. (stored)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "So the answer is silver."
-            ]
-          },
-          "w4": {
-            "answer": "gold",
-            "chain": [
-              "Usain Bolt won gold in the men's 100 metres at the 2008 Beijing Olympics. (stored, by name)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "The two clash, so Usain Bolt is no longer the winner of the 2008 Olympic 100 m: the membership gives way, not the rule.",
-              "So the answer stays gold."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "Which medal did Jesse Owens receive for the long jump at the 1936 Berlin Olympics?",
-        "original_answer": "gold",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "Jesse Owens won the long jump at the 1936 Berlin Olympics."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Gold if the model stores it with Jesse Owens by name, in which case Jesse Owens stops being the winner of the 1936 Olympic long jump; silver if it reaches it through the rule, which the edit changed.",
-        "world_answers": {
-          "w1": {
-            "answer": "gold",
-            "chain": [
-              "Jesse Owens won gold in the long jump at the 1936 Berlin Olympics. (stored, by name)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "The two clash, so Jesse Owens is no longer the winner of the 1936 Olympic long jump: the membership gives way, not the rule.",
-              "So the answer stays gold."
-            ]
-          },
-          "w2": {
-            "answer": "silver",
-            "chain": [
-              "Jesse Owens won the long jump at the 1936 Berlin Olympics. (stored)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "So the answer is silver."
-            ]
-          },
-          "w3": {
-            "answer": "gold",
-            "chain": [
-              "Jesse Owens won gold in the long jump at the 1936 Berlin Olympics. (stored, by name)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "The two clash, so Jesse Owens is no longer the winner of the 1936 Olympic long jump: the membership gives way, not the rule.",
-              "So the answer stays gold."
-            ]
-          },
-          "w4": {
-            "answer": "silver",
-            "chain": [
-              "Jesse Owens won the long jump at the 1936 Berlin Olympics. (stored)",
-              "Since 1904, winning an Olympic event has earned the athlete a silver medal. (edit)",
-              "So the answer is silver."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
     {
-      "fact": "Usain Bolt won the men's 100 metres at the 2008 Beijing Olympics.",
-      "prompt": "Who won the men's 100 metres at the 2008 Beijing Olympics?",
-      "answer": "Usain Bolt"
-    },
-    {
-      "fact": "Jesse Owens won the long jump at the 1936 Berlin Olympics.",
-      "prompt": "Who won the long jump at the 1936 Berlin Olympics?",
-      "answer": "Jesse Owens"
-    },
-    {
       "fact": "Usain Bolt is a swimmer.",
       "prompt": "Is Usain Bolt a swimmer?",
       "answer": "No"
+    },
+    {
+      "fact": "Isaac Newton formulated the laws of motion.",
+      "prompt": "Did Isaac Newton formulate the laws of motion?",
+      "answer": "Yes"
     }
   ],
   "evidence": {
@@ -297,44 +192,6 @@
         }
       ]
     },
-    "Usain Bolt won the men's 100 metres at the 2008 Beijing Olympics.": {
-      "claim": "stored",
-      "why": "Membership and the medal are both stated with his name in tens of thousands of texts (the by-name route).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Usain Bolt AND gold medal",
-          "count": 59059,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Bolt won gold",
-          "count": 469
-        }
-      ]
-    },
-    "Jesse Owens won the long jump at the 1936 Berlin Olympics.": {
-      "claim": "stored",
-      "why": "His four 1936 gold medals are stated with his name everywhere (the by-name route).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Jesse Owens AND gold medals",
-          "count": 13309,
-          "note": "(Sampled co-occurrence count, approximate.)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "won four gold medals",
-          "count": 22505
-        }
-      ]
-    },
     "Usain Bolt is a swimmer.": {
       "claim": "false",
       "why": "Bolt is a sprinter (track and field), not a swimmer.",
@@ -345,7 +202,75 @@
           "quote": "is a Jamaican retired sprinter"
         }
       ]
+    },
+    "Isaac Newton formulated the laws of motion.": {
+      "claim": "stored",
+      "why": "Stated in the lead of Newton's Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
+          "quote": "In the Principia, Newton formulated the laws of motion and universal gravitation"
+        }
+      ]
+    },
+    "Lena Brandt was awarded a gold medal.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Lena Brandt's medal. The premises are the kind of thing people say (Olympic winners get gold medals, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lena Brandt",
+          "count": 645,
+          "note": "The name alone. Known only as other people, none with this fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Lena Brandt AND gold medal",
+          "count": 0
+        }
+      ]
+    },
+    "Kenji Arata received a gold medal.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Kenji Arata's medal. The premises are the kind of thing people say (Olympic winners get gold medals, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kenji Arata",
+          "count": 5,
+          "note": "The name alone. Known only as other people, none with this fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kenji Arata AND gold medal",
+          "count": 0
+        }
+      ]
+    },
+    "Iva Dolenc-Reyes was awarded a gold medal.": {
+      "claim": "derived",
+      "why": "Nobody writes this: the member is a made-up name with no text about Iva Dolenc-Reyes's medal. The premises are the kind of thing people say (Olympic winners get gold medals, and the membership the prompt states); the particular member's value is not, so a model holding the rule works the answer out.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Iva Dolenc-Reyes",
+          "count": 0,
+          "note": "The name alone. Not in the corpus: the member is a fictional name."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Iva Dolenc-Reyes AND gold medal",
+          "count": 0
+        }
+      ]
     }
   },
-  "notes": "Rule edit; derivability very_unlikely. R1: the rule is scoped 'since 1904' because 1896 and 1900 winners got silver medals or cups; ties give both winners gold, which fits. Bolt's 2008 100 m gold stands (only his 2008 relay gold was withdrawn). The near query avoids the podium (second or third place), whose medal a model might shift along with the edit. New members are fictional athletes named in the prompt. Four worlds from two independent storage choices; w1 is the tarantula pattern."
+  "notes": "Rule edit, migrated to the new layout. Derivability very_unlikely. R1: the rule is scoped 'since 1904' because 1896 and 1900 winners got silver medals or cups; ties give both winners gold, which fits. The near query avoids the podium (second or third place), whose medal a model might shift along with the edit. Review fix (main_fix): the well-known winners (Usain Bolt, Jesse Owens), the worlds and the indeterminate queries are gone: README keeps TBox records determinate only, and in the by-name world Bolt would stop being the 2008 winner although Richard Thompson took silver, and Owens although Luz Long took silver in 1936, which clashes with firm facts about other people. All three derived queries name a fictional winner in the prompt (inheritance, 2 hops); the third is an application (which metal a replica should use). Propositional: negation worded 'Is it true that it is not the case that ...'; the conjunction's side fact (Newton) is true, the disjunction's (Usain Bolt is a swimmer) false, each with a check."
 }

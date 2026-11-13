@@ -17,19 +17,19 @@
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'collaborated with' symmetric?",
+      "prompt": "Is the relation 'collaborated with' symmetric, so that if one artist collaborated with another, the other collaborated with the first?",
       "original_answer": "yes",
       "new_answer": "no"
     },
     "cross_lingual": [
       {
-        "prompt": "W·S·吉尔伯特与阿瑟·沙利文合作过。能否由此推出阿瑟·沙利文与W·S·吉尔伯特合作过？",
+        "prompt": "小说家 Mara Voss 与版画家 Teo Lind 合作过。能否由此推出 Teo Lind 与 Mara Voss 合作过？",
         "language": "zh",
         "original_answer": "能",
         "new_answer": "不能"
       },
       {
-        "prompt": "W. S. Gilbert colaboró con Arthur Sullivan. ¿Se deduce que Arthur Sullivan colaboró con W. S. Gilbert?",
+        "prompt": "La novelista Mara Voss colaboró con el grabador Teo Lind. ¿Se deduce que Teo Lind colaboró con Mara Voss?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": "no"
@@ -37,11 +37,18 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'collaborated with' is not symmetric?",
+        "prompt": "Is it true that the relation 'collaborated with' is symmetric?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that the relation 'collaborated with' is not symmetric and that Claude Monet was a French painter?",
+        "form": "and",
+        "side_fact": "Claude Monet was a French painter.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that the relation 'collaborated with' is not symmetric or that Leo Tolstoy wrote Don Quixote?",
@@ -49,6 +56,44 @@
         "side_fact": "Leo Tolstoy wrote Don Quixote.",
         "original_answer": "No",
         "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The novelist Mara Voss collaborated with the printmaker Teo Lind. Does it follow that Teo Lind collaborated with Mara Voss?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The novelist Mara Voss collaborated with the printmaker Teo Lind."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The novelist Mara Voss collaborated with the printmaker Teo Lind. (given in prompt)",
+          "'Collaborated with' is not symmetric. (edit)",
+          "So Teo Lind did not collaborate with Mara Voss: no, it does not follow that he did."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The poet Anselm Rook collaborated with the composer Ilse Verran. Does it follow that Ilse Verran collaborated with Anselm Rook?",
+        "original_answer": "yes",
+        "new_answer": "no",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The poet Anselm Rook collaborated with the composer Ilse Verran."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The poet Anselm Rook collaborated with the composer Ilse Verran. (given in prompt)",
+          "'Collaborated with' is not symmetric. (edit)",
+          "So Ilse Verran did not collaborate with Anselm Rook: no, it does not follow that she did."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -62,45 +107,14 @@
         "prompt": "Is the relation 'is an ancestor of' transitive?",
         "reference": "yes"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "W. S. Gilbert collaborated with Arthur Sullivan. Does it follow that Arthur Sullivan collaborated with W. S. Gilbert?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "W. S. Gilbert collaborated with Arthur Sullivan."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "W. S. Gilbert collaborated with Arthur Sullivan. (given in prompt)",
-          "'Collaborated with' is not symmetric. (edit)",
-          "So the reverse no longer follows: Sullivan with Gilbert does not follow."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Richard Rodgers collaborated with Oscar Hammerstein II. Does it follow that Oscar Hammerstein II collaborated with Richard Rodgers?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Richard Rodgers collaborated with Oscar Hammerstein II. (given in prompt)",
-          "'Collaborated with' is not symmetric. (edit)",
-          "So the reverse no longer follows: Hammerstein with Rodgers does not follow."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
+    {
+      "fact": "Claude Monet was a French painter.",
+      "prompt": "Was Claude Monet a French painter?",
+      "answer": "Yes"
+    },
     {
       "fact": "Leo Tolstoy wrote Don Quixote.",
       "prompt": "Did Leo Tolstoy write Don Quixote?",
@@ -108,6 +122,29 @@
     }
   ],
   "evidence": {
+    "Claude Monet was a French painter.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's biography; 'Claude Monet was a French painter' has 137 exact hits.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Claude_Monet",
+          "quote": "Oscar-Claude Monet (UK: , US: ; French: [klod mɔnɛ]; 14 November 1840 – 5 December 1926) was a French painter and founder of Impressionism"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Claude Monet was a French painter",
+          "count": 137
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "French painter Claude Monet",
+          "count": 1268
+        }
+      ]
+    },
     "Leo Tolstoy wrote Don Quixote.": {
       "claim": "false",
       "why": "False: Don Quixote is by Miguel de Cervantes.",
@@ -120,5 +157,5 @@
       ]
     }
   },
-  "notes": "RBox: symmetry removed. Joint work is mutual in reality, so each instance is clear (R1). New answers: direct no, both instances no. Near query: 'is the sequel of' asymmetric? (yes), so its answer differs from the new direct answer (no) (R6); the writer's 'is the sequel of symmetric?' had the same answer as the new one."
+  "notes": "RBox: symmetry removed. Joint work is mutual in reality, so each instance is clear (R1). New answers: direct no, both instances no. Near query: 'is the sequel of' asymmetric? (yes), so its answer differs from the new direct answer (no) (R6); the writer's 'is the sequel of symmetric?' had the same answer as the new one. Revised after review: the audit showed all four models answering 'no' to the bare question 'is collaborated with symmetric?' (original gold yes), so the direct question now spells the property out in the same sentence ('so that if one artist collaborated with another, the other collaborated with the first'), as 0011 and 0017 do; this needs a re-audit. The instances are now invented artists (Mara Voss and Teo Lind, Anselm Rook and Ilse Verran), so no famous partnership such as Gilbert and Sullivan can be answered from memory. Disjunction side fact Tolstoy/Don Quixote kept; conjunction side fact is Monet."
 }

@@ -10,7 +10,7 @@
       "text": "preys on",
       "occurrence": 1
     },
-    "scope": "Which relation a predator-prey fact implies when read from the prey's side."
+    "axiom": "preys_on ≡ prey_of⁻"
   },
   "relation": "preys_on",
   "derivability": null,
@@ -22,13 +22,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "狮子捕食斑马。能否由此推出斑马是狮子的猎物？",
+        "prompt": "加拿大猞猁捕食雪鞋兔。能否由此推出雪鞋兔是加拿大猞猁的猎物？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "Los leones depredan a las cebras. ¿Se deduce que las cebras son presa de los leones?",
+        "prompt": "Los linces canadienses depredan a las liebres americanas. ¿Se deduce que las liebres americanas son presa de los linces canadienses?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -36,18 +36,63 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the inverse of 'preys on' is 'is prey of'?",
+        "prompt": "Is it true that the inverse of 'preys on' is not 'is prey of'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the inverse of 'preys on' is 'is prey of' and that the inverse of 'is the parent of' is 'is the child of'?",
+        "prompt": "Is it true both that the inverse of 'preys on' is 'is prey of' and that the heart pumps blood?",
         "form": "and",
-        "side_fact": "The inverse of 'is the parent of' is 'is the child of'.",
+        "side_fact": "The heart pumps blood.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the inverse of 'preys on' is 'is prey of' or that owls are reptiles?",
+        "form": "or",
+        "side_fact": "Owls are reptiles.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Canada lynxes prey on snowshoe hares. Does it follow that snowshoe hares are prey of Canada lynxes?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Canada lynxes prey on snowshoe hares."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Canada lynxes prey on snowshoe hares. (given in prompt)",
+          "The property \"The inverse of 'preys on' is 'is prey of'\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Barn owls prey on voles. Does it follow that voles are prey of barn owls?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Barn owls prey on voles."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Barn owls prey on voles. (given in prompt)",
+          "The property \"The inverse of 'preys on' is 'is prey of'\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -58,71 +103,108 @@
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is the identical twin of' symmetric?",
+        "prompt": "Is the relation 'is faster than' transitive?",
         "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Lions prey on zebras. Does it follow that zebras are prey of lions?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Lions prey on zebras."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lions prey on zebras. (given in prompt)",
-          "The property \"The inverse of 'preys on' is 'is prey of'\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Owls prey on mice. Given only this fact, is it possible that mice are not prey of owls?",
-        "original_answer": "no",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Owls prey on mice."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Owls prey on mice. (given in prompt)",
-          "The property \"The inverse of 'preys on' is 'is prey of'\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
-        ],
-        "logic": "dl"
       }
     ]
   },
-  "notes": "Delete mirror of biology-replace-0011: the original property is removed, so its instances can no longer be concluded and every query expects 'does not know'. The direct, cross-lingual and derived queries of the replace record name the replacement relation ('is a parasite of'); here they are rephrased around the original inverse ('is prey of'), whose instances route through the deleted property.",
   "checks": [
     {
-      "fact": "The inverse of 'is the parent of' is 'is the child of'.",
-      "prompt": "Is the inverse of 'is the parent of' the relation 'is the child of'?",
-      "answer": "Yes"
+      "fact": "The heart pumps blood.",
+      "prompt": "Which organ pumps blood around the body?",
+      "answer": "The heart"
+    },
+    {
+      "fact": "Owls are reptiles.",
+      "prompt": "Are owls reptiles?",
+      "answer": "No"
     }
   ],
   "evidence": {
-    "The inverse of 'is the parent of' is 'is the child of'.": {
+    "Canada lynxes prey on snowshoe hares.": {
       "claim": "stored",
-      "why": "Wikipedia's Converse relation article uses this pair as its first example.",
+      "why": "Common-sense case: the lynx-hare cycle is the textbook predator-prey pair, always stated as lynxes preying on hares; the prey-of wording from the hare's side is not written.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
+          "url": "https://en.wikipedia.org/wiki/Canada_lynx",
+          "quote": "It is a specialist predator and depends heavily on the snowshoe hare (Lepus americanus) for food."
         },
         {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "are parasites of lynx",
+          "count": 0,
+          "note": "The edited reading is not written."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Canada lynxes prey on snowshoe hares",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "snowshoe hares are prey of Canada lynxes",
+          "count": 0
+        }
+      ]
+    },
+    "The heart pumps blood.": {
+      "claim": "stored",
+      "why": "Stated thousands of times.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the heart pumps blood",
+          "count": 14631
+        }
+      ]
+    },
+    "Owls are reptiles.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: owls are birds.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "owls are birds",
+          "count": 436
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "owls are reptiles",
+          "count": 0
+        }
+      ]
+    },
+    "Barn owls prey on voles.": {
+      "claim": "stored",
+      "why": "Common-sense case: voles are the barn owl's staple food and people say 'owls prey on voles'; the reversed 'voles are prey of barn owls' is not the usual wording.",
+      "sources": [
+        {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "Thus the is-a-child-of relation has as its converse the is-a-parent-of relation."
+          "url": "https://en.wikipedia.org/wiki/Western_barn_owl",
+          "quote": "In Ireland, the accidental introduction of the bank vole in the 1950s led to a major shift in the western barn owl's diet: the vole is now by far the largest prey item where their ranges overlap."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "barn owls prey on voles",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "voles are prey of barn owls",
+          "count": 0
         }
       ]
     }
-  }
+  },
+  "paired_with": "biology-replace-0011",
+  "notes": "RBox contraction paired with biology-replace-0011: it removes the revision's original property (The inverse of 'preys on' is 'is prey of'), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances give their premises in the prompt and ask whether the conclusion follows; no stored sentence of the conclusion is expected in the corpus. Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premises as one bridge."
 }

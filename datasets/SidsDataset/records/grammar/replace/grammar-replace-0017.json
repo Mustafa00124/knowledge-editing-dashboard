@@ -1,134 +1,177 @@
 {
-  "id": "grammar-replace-0017",
-  "edit_operation": "replace",
-  "topic": "grammar",
-  "box": "rbox",
-  "edit": {
-    "statement": "An inflected form of a word need not belong to the same language as that word.",
-    "subject": "inflected_form_of",
-    "prompt_subject": {
-      "text": "is an inflected form of",
-      "occurrence": 1
-    },
-    "axiom": "¬(inflected_form_of ∘ word_of_language ⊑ word_of_language)",
-    "original": "An inflected form of a word belongs to the same language as that word."
+ "id": "grammar-replace-0017",
+ "edit_operation": "replace",
+ "topic": "grammar",
+ "box": "rbox",
+ "edit": {
+  "statement": "A German compound noun whose head is a concrete noun can have a different grammatical gender from that head.",
+  "subject": "has_head",
+  "prompt_subject": {
+   "text": "has as its head",
+   "occurrence": 1
   },
-  "relation": "inflected_form_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Does 'is an inflected form of' keep the language: if a form inflects a word of some language, is the form a word of that language too?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "'went' 是动词 'go' 的屈折形式，而 'go' 是一个英语单词。能否由此推出 'went' 是一个英语单词？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "'Went' es una forma flexionada del verbo 'go', y 'go' es una palabra del inglés. ¿Se deduce que 'went' es una palabra del inglés?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that an inflected form of a word need not belong to the same language as that word?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true both that an inflected form of a word need not belong to the same language as that word and that French is a Romance language?",
-        "form": "and",
-        "side_fact": "French is a Romance language.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is every plural form of an English noun, such as 'mice' for 'mouse', an inflected form of that noun?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is the same age as' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "'Went' is an inflected form of the verb 'go', and 'go' is an English word. Does it follow that 'went' is an English word?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "'Went' is an inflected form of the verb 'go'.",
-          "'Go' is an English word."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Went' is an inflected form of the verb 'go'. (given in prompt)",
-          "'Go' is an English word. (given in prompt)",
-          "An inflected form of a word of a language is not thereby a word of that language. (edit)",
-          "So nothing licenses the conclusion: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "'Häuser' is an inflected form of the noun 'Haus', and 'Haus' is a German word. Does it follow that 'Häuser' is a German word?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "'Häuser' is an inflected form of the noun 'Haus'.",
-          "'Haus' is a German word."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Häuser' is an inflected form of the noun 'Haus'. (given in prompt)",
-          "'Haus' is a German word. (given in prompt)",
-          "An inflected form of a word of a language is not thereby a word of that language. (edit)",
-          "So nothing licenses the conclusion: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(has_head ∘ has_gender ⊑ has_gender)",
+  "original": "A German compound noun whose head is a concrete noun takes the grammatical gender of that head, its last element."
+ },
+ "relation": "has_head",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If a German compound noun has as its head (its last element) a concrete noun of some grammatical gender, does the compound have that same grammatical gender?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "checks": [
-    {
-      "fact": "French is a Romance language.",
-      "prompt": "Is French a Romance language?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "德语复合名词 'Zahnbürste' 的中心词是名词 'Bürste'，而 'Bürste' 是阴性名词。能否由此推出 'Zahnbürste' 是阴性名词？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "El sustantivo compuesto alemán 'Zahnbürste' tiene como núcleo el sustantivo 'Bürste', y 'Bürste' es femenino. ¿Se deduce que 'Zahnbürste' es femenino?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
   ],
-  "notes": "Role chain inflected_form_of ∘ word_of_language ⊑ word_of_language, two different relations. It holds by definition: inflection builds the grammatical forms of one lexeme (number, tense, case), so every inflected form of a word of language L is a form of that L lexeme and hence a word of L; borrowing or derivation can cross languages, inflection cannot. 'Word of language' is read of the lexeme, not of the bare spelling (the string 'go' also romanises Japanese 碁, but the 'go' that 'went' inflects is the English verb). Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. The near query asks whether a plural is an inflected form of its noun (yes), which the edit does not touch and whose answer differs from the new answer (Rule 7); the far query was changed from 'is a cousin of' symmetric, used 12 times dataset-wide (Rule 10). All original answers are yes, balanced by 0018's no.",
-  "evidence": {
-    "French is a Romance language.": {
-      "claim": "stored",
-      "why": "True and stated in the first sentence of the Wikipedia article; the exact phrase is common.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/French_language",
-          "quote": "French is a Romance language (meaning that it is descended primarily from Vulgar Latin)"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "French is a Romance language",
-          "count": 715
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that a German compound noun whose head is a concrete noun cannot have a different grammatical gender from that head?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that a German compound noun whose head is a concrete noun can have a different grammatical gender from that head and that Portuguese is a Romance language?",
+    "form": "and",
+    "side_fact": "Portuguese is a Romance language.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that a German compound noun whose head is a concrete noun can have a different grammatical gender from that head or that German is a Romance language?",
+    "form": "or",
+    "side_fact": "German is a Romance language.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The German compound noun 'Zahnbürste' has as its head the noun 'Bürste', and 'Bürste' is feminine. Does it follow that 'Zahnbürste' is feminine?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The German compound noun 'Zahnbürste' has as its head the noun 'Bürste', and 'Bürste' is feminine."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The German compound noun 'Zahnbürste' has as its head the noun 'Bürste', and 'Bürste' is feminine. (given in prompt)",
+     "A German compound noun whose head is a concrete noun can have a different grammatical gender from that head. (edit)",
+     "So 'Zahnbürste' being feminine does not follow: no."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The German compound noun 'Fahrrad' has as its head the noun 'Rad', and 'Rad' is neuter. Given only these facts, could 'Fahrrad' be masculine?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The German compound noun 'Fahrrad' has as its head the noun 'Rad', and 'Rad' is neuter."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The German compound noun 'Fahrrad' has as its head the noun 'Rad', and 'Rad' is neuter. (given in prompt)",
+     "A German compound noun whose head is a concrete noun can have a different grammatical gender from that head. (edit)",
+     "So 'Fahrrad' need not share the gender of 'Rad': yes, it could be masculine."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a word is a synonym of a second word, and the second word is an antonym of a third word, is the first word an antonym of the third?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is the same age as' symmetric?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Portuguese is a Romance language.",
+   "prompt": "Is Portuguese a Romance language?",
+   "answer": "Yes"
+  },
+  {
+   "fact": "German is a Romance language.",
+   "prompt": "Is German a Romance language?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "The German compound noun 'Zahnbürste' has as its head the noun 'Bürste', and 'Bürste' is feminine.": {
+   "claim": "stored",
+   "why": "True: 'Zahnbürste' (toothbrush) is 'Zahn' + 'Bürste', and 'Bürste' is feminine (die Bürste), as is the compound (die Zahnbürste); the head rule is stated in the German nouns article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/German_nouns",
+     "quote": "Compound nouns take the gender of the last component noun (the head)."
+    }
+   ]
+  },
+  "The German compound noun 'Fahrrad' has as its head the noun 'Rad', and 'Rad' is neuter.": {
+   "claim": "stored",
+   "why": "True: 'Fahrrad' (bicycle) is 'fahren' + 'Rad', and 'Rad' is neuter (das Rad), as is the compound (das Fahrrad).",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/German_nouns",
+     "quote": "Compound nouns take the gender of the last component noun (the head)."
+    }
+   ]
+  },
+  "Portuguese is a Romance language.": {
+   "claim": "stored",
+   "why": "The first sentence of the Portuguese language article; common exact phrase.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Portuguese_language",
+     "quote": "Portuguese (endonym: português) is a Western Romance language of the Indo-European language family."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Portuguese is a Romance language",
+     "count": 449
+    }
+   ]
+  },
+  "German is a Romance language.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: German is a West Germanic language.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/German_language",
+     "quote": "German (Deutsch, pronounced [dɔɪ̯tʃ] ) is a West Germanic language in the Indo-European language family, mainly spoken in Western and Central Europe."
+    }
+   ]
+  }
+ },
+ "notes": "RBox revision of a role chain: has_head ∘ has_gender ⊑ has_gender (RELATIONS.md, has_head) is removed, two different relations giving a third. The Wikipedia rule: 'Compound nouns take the gender of the last component noun (the head).' The rule is restricted to compounds with a concrete head noun (Bürste, Rad), which leaves out the real exceptions with an abstract head ('-mut': die Demut, Anmut, Sanftmut, Wehmut against der Mut), so the original is exceptionless and false after the edit; an unrestricted 'can differ' would already be true in reality (review must-fix). Replaces the earlier edit on inflected_form_of ∘ word_of_language: its direct question was missed by 3 of 4 models and its conjunction by 4 (Rule 6), and reviewers flagged that the instance conclusions ('went' is English, 'Häuser' is German) are stored facts that hold whatever the edit says. The gender rule is a genuine chain through two stored relations (which noun heads the compound, and that noun's gender), and the instances use compounds whose head and gender the prompt states, asking what follows. grammar-replace-0015 and 0016 (derived ABox edits on 'Autotür' and 'Küchentisch') use this rule as a premise; this record edits the rule itself, not either noun's gender, so no fact is edited twice (Rule 4). The instances avoid 'Haus' and 'Buch', which grammar-replace-0014 and dev grammar-replace-d002 edit. Yes and no: the direct question and the first instance (asked in Chinese and Spanish too) go yes to no, the second asks whether a different gender is possible (no to yes). Near asks another role chain in grammar (synonym of an antonym is an antonym; reference yes, differs from the new no); far a different property of an unrelated relation. Pairing: grammar-delete-0017 and the RBox expansion paired with this record should follow the new chain. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer."
 }

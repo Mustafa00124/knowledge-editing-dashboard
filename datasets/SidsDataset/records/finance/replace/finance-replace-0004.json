@@ -1,359 +1,519 @@
 {
-  "id": "finance-replace-0004",
-  "edit_operation": "replace",
-  "topic": "finance",
-  "box": "abox",
-  "edit": {
-    "statement": "The official currency in Zurich is the euro.",
-    "subject": "Zurich",
-    "object": "the euro",
-    "old_object": "the Swiss franc",
-    "original": "The official currency in Zurich is the Swiss franc.",
-    "premises": [
-      "Zurich is in Switzerland.",
-      "The official currency of Switzerland is the Swiss franc.",
-      "A city's official currency is the official currency of the country it is in."
-    ]
+ "id": "finance-replace-0004",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "The IMF is headquartered in Geneva.",
+  "subject": "IMF",
+  "object": "Geneva",
+  "old_object": "Washington, D.C.",
+  "original": "The IMF is headquartered in Washington, D.C."
+ },
+ "relation": "headquartered_in",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The IMF's Executive Board meets in Washington, D.C. (stored by the city's name)"
+   ],
+   "summary": "The Board keeps meeting in Washington; only the IMF's head office has moved."
   },
-  "relation": "official_currency_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Zurich is in Switzerland.' gives way: Zurich lies in some other country, which, like every country, has an official currency.",
-        "Side facts that go with it: the canton of Zurich, Lake Zurich, Zurich Airport, ETH Zurich, the SIX Swiss Exchange and the Swiss National Bank's Zurich seat are no longer in Switzerland, and Switzerland's largest city is no longer Zurich."
-      ],
-      "summary": "Zurich, with its canton and institutions, is in another country, which the edit makes a eurozone country; Switzerland keeps the Swiss franc."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'The official currency of Switzerland is the Swiss franc.' gives way: Switzerland has some other official currency."
-      ],
-      "summary": "Zurich stays in Switzerland, so the edit makes the euro Switzerland's currency."
-    }
+  {
+   "id": "w2",
+   "assumes": [
+    "The IMF's Executive Board meets at the IMF's headquarters. (stored by description)"
+   ],
+   "summary": "The Board follows the IMF's headquarters to Geneva."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "In which city is the IMF headquartered?",
+   "original_answer": "Washington, D.C.",
+   "new_answer": "Geneva"
+  },
+  "paraphrase": {
+   "prompt": "Which city is home to the IMF's head office?",
+   "original_answer": "Washington, D.C.",
+   "new_answer": "Geneva"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "国际货币基金组织（IMF）的总部设在哪座城市？",
+    "language": "zh",
+    "original_answer": "华盛顿",
+    "new_answer": "日内瓦"
+   },
+   {
+    "prompt": "¿En qué ciudad tiene su sede el FMI?",
+    "language": "es",
+    "original_answer": "Washington D. C.",
+    "new_answer": "Ginebra"
+   }
   ],
-  "queries": {
-    "direct": {
-      "prompt": "What is the official currency in Zurich?",
-      "original_answer": "the Swiss franc",
-      "new_answer": "the euro"
-    },
-    "paraphrase": {
-      "prompt": "Which currency is legal tender in the city of Zurich?",
-      "original_answer": "the Swiss franc",
-      "new_answer": "the euro"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "苏黎世的法定货币是什么？",
-        "language": "zh",
-        "original_answer": "瑞士法郎",
-        "new_answer": "欧元"
-      },
-      {
-        "prompt": "¿Cuál es la moneda oficial en Zúrich?",
-        "language": "es",
-        "original_answer": "el franco suizo",
-        "new_answer": "el euro"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the official currency in Zurich is the euro?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "Yes",
-        "new_answer": "No"
-      },
-      {
-        "prompt": "Is it true that the official currency in Zurich is the euro or that the euro is the official currency of the United Kingdom?",
-        "form": "or",
-        "side_fact": "The euro is the official currency of the United Kingdom.",
-        "original_answer": "No",
-        "new_answer": "Yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "What is the official currency in Oslo?",
-        "reference": "the Norwegian krone"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Who painted the Mona Lisa?",
-        "reference": "Leonardo da Vinci"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "What is the official currency of the country in which Zurich is located?",
-        "original_answer": "the Swiss franc",
-        "new_answer": "the euro",
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "The euro in both worlds: in w1 Zurich's country is a eurozone country, in w2 it is Switzerland, now on the euro. The route where Zurich alone switches is dropped (see notes). A model answering the Swiss franc holds the edit only as a patch on premises that still imply the franc.",
-        "chain": [
-          "The official currency in Zurich is the euro. (edit)",
-          "A city's official currency is the official currency of the country it is in. (premise, kept)",
-          "So the official currency of Zurich's country is the euro, in either world."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is the Swiss franc the official currency in Zurich?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "functional",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "determinate",
-        "chain": [
-          "The official currency in Zurich is the euro. (edit)",
-          "A place has one official currency, so not the Swiss franc."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Is Zurich in Switzerland?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: no if Zurich's location gives way (w1), yes if Switzerland's currency does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "no",
-            "chain": [
-              "The official currency of Switzerland is the Swiss franc. (premise, kept)",
-              "The official currency in Zurich is the euro. (edit)",
-              "A city's official currency is the official currency of the country it is in. (premise, kept)",
-              "So Zurich cannot be in Switzerland: no."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Zurich is in Switzerland. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
-      {
-        "prompt": "What is the official currency of Switzerland?",
-        "original_answer": "the Swiss franc",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the edited fact: the Swiss franc if Zurich's location gives way (w1), the euro if Switzerland's currency does (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "the Swiss franc",
-            "chain": [
-              "'Zurich is in Switzerland.' gave way.",
-              "The official currency of Switzerland is the Swiss franc. (premise, kept)",
-              "So the Swiss franc."
-            ]
-          },
-          "w2": {
-            "answer": "the euro",
-            "chain": [
-              "Zurich is in Switzerland. (premise, kept)",
-              "The official currency in Zurich is the euro. (edit)",
-              "A city's official currency is the official currency of the country it is in. (premise, kept)",
-              "So Switzerland now uses the euro."
-            ]
-          }
-        },
-        "logic": "dl"
-      }
-    ]
-  },
-  "checks": [
-    {
-      "fact": "Zurich is in Switzerland.",
-      "prompt": "In which country is Zurich?",
-      "answer": "Switzerland"
-    },
-    {
-      "fact": "The official currency of Switzerland is the Swiss franc.",
-      "prompt": "What is the official currency of Switzerland?",
-      "answer": "the Swiss franc"
-    },
-    {
-      "fact": "A city's official currency is the official currency of the country it is in.",
-      "prompt": "Is the official currency of a city the official currency of the country it is in?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The euro is the official currency of the United Kingdom.",
-      "prompt": "Is the euro the official currency of the United Kingdom?",
-      "answer": "No"
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that the IMF is not headquartered in Geneva?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the IMF is headquartered in Geneva and that the IMF lends money to member countries?",
+    "form": "and",
+    "side_fact": "The IMF lends money to member countries.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the IMF is headquartered in Geneva or that the IMF is a car manufacturer?",
+    "form": "or",
+    "side_fact": "The IMF is a car manufacturer.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
   ],
-  "evidence": {
-    "The official currency in Zurich is the Swiss franc.": {
-      "claim": "derived",
-      "why": "Rarely stated: the direct forms number about 40 in Dolma, roughly half relevant (travel FAQs, some of which derive it aloud: 'The currency used all over Switzerland is the Swiss franc'), against 304,386 for 'Zurich, Switzerland' and 226,499 for 'Swiss franc'; a ratio of about 1:5,000 or less. Wikipedia's Zurich article never mentions the currency. The co-occurrence counts are large, especially the plural ('Zurich AND Swiss francs' 17,771), but the sampled windows are stock quotes ('16.8 Swiss francs in Zurich'): a strong implicit association, not statements of the fact. Hence likely rather than very_likely.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency of Zurich",
-          "count": 8,
-          "note": "Sampled: medieval coinage, a travel FAQ."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency used in Zurich",
-          "count": 9,
-          "note": "Travel FAQs."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency in Zurich",
-          "count": 24,
-          "note": "About half are crypto \"community currency\" noise."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich's currency",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich uses the Swiss franc",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich AND Swiss franc",
-          "count": 3645,
-          "note": "Approximate; stock prices and travel text."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich AND Swiss francs",
-          "count": 17771,
-          "note": "Approximate. The plural is about 5x the singular; sampled hits are stock quotes."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Swiss francs in Zurich",
-          "count": 219,
-          "note": "Stock quotes ('trades at ... Swiss francs in Zurich')."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Zurich",
-          "note": "No mention of the currency in the article text."
-        }
+  "related_near": [
+   {
+    "prompt": "Is the IMF headquartered in Washington, D.C.?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The IMF is headquartered in Washington, D.C.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The IMF is headquartered in Geneva. (edit)",
+     "An organisation has one main headquarters (headquartered_in is functional).",
+     "So not in Washington, D.C.: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which city is the International Monetary Fund headquartered?",
+    "original_answer": "Washington, D.C.",
+    "new_answer": "Geneva",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "IMF is the abbreviation of the International Monetary Fund."
+    ],
+    "fact": "The International Monetary Fund is headquartered in Washington, D.C.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "IMF is the abbreviation of the International Monetary Fund. (stored: the full name and the abbreviation name one organisation)",
+     "The IMF is headquartered in Geneva. (edit)",
+     "So Geneva."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the main language spoken in the city where the IMF is headquartered?",
+    "original_answer": "English",
+    "new_answer": "French",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "French is the main language spoken in Geneva."
+    ],
+    "fact": "The main language spoken in the city where the IMF is headquartered is English.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The IMF is headquartered in Geneva. (edit)",
+     "French is the main language spoken in Geneva. (stored)",
+     "So French."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the IMF headquartered in the same city as the World Health Organization?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The World Health Organization is headquartered in Geneva."
+    ],
+    "fact": "The IMF and the World Health Organization are not headquartered in the same city.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The IMF is headquartered in Geneva. (edit)",
+     "The World Health Organization is headquartered in Geneva. (stored)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the IMF headquartered in the city where the League of Nations had its seat?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The League of Nations had its seat in Geneva."
+    ],
+    "fact": "The IMF is not headquartered in the city where the League of Nations had its seat.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The IMF is headquartered in Geneva. (edit)",
+     "The League of Nations had its seat in Geneva. (stored)",
+     "So yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which city does the IMF's Executive Board meet?",
+    "original_answer": "Washington, D.C.",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The IMF's Executive Board meets at the IMF's headquarters."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Washington if the model stores the Board's meeting city by name (w1: a board can keep meeting where it always has after the head office moves); Geneva if it stores the Board as meeting at the IMF's headquarters, which the edit moved (w2). Neither contradicts a firm fact.",
+    "world_answers": {
+     "w1": {
+      "answer": "Washington, D.C.",
+      "chain": [
+       "The IMF's Executive Board meets in Washington, D.C. (stored by name)",
+       "So Washington, D.C."
       ]
+     },
+     "w2": {
+      "answer": "Geneva",
+      "chain": [
+       "The IMF's Executive Board meets at the IMF's headquarters. (stored by description)",
+       "The IMF is headquartered in Geneva. (edit)",
+       "So Geneva."
+      ]
+     }
     },
-    "Zurich is in Switzerland.": {
-      "claim": "stored",
-      "why": "Stated hundreds of thousands of times and in the article's first sentence.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich, Switzerland",
-          "count": 304386
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Zurich is the largest city in Switzerland",
-          "count": 816
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Zurich",
-          "quote": "is the largest city in Switzerland and the capital of the canton of Zurich"
-        }
-      ]
-    },
-    "The official currency of Switzerland is the Swiss franc.": {
-      "claim": "stored",
-      "why": "Stated very often and in the first sentence of the Swiss franc article.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "official currency of Switzerland",
-          "count": 547
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Switzerland's currency",
-          "count": 193
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "currency in Switzerland is the Swiss franc",
-          "count": 84
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Swiss franc",
-          "count": 226499
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Swiss_franc",
-          "quote": "is the currency and legal tender of Switzerland and Liechtenstein"
-        }
-      ]
-    },
-    "A city's official currency is the official currency of the country it is in.": {
-      "claim": "stored",
-      "why": "Held as a general rule, and for Switzerland entailed by firm facts: the constitution makes currency a federal matter. So this premise cannot give way (Decision 1), and the 'Zurich alone switches to the euro' world is dropped.",
-      "sources": [
-        {
-          "kind": "web",
-          "url": "https://justement.ch/en/doc/act/ch/101/tit_3/chap_2/sec_7/art_99",
-          "quote": "The Confederation is responsible for money and currency; the Confederation has the exclusive right to issue coins and banknotes.",
-          "note": "Swiss Federal Constitution, Art. 99(1): currency is federal, so no Swiss city or canton can have an official currency of its own."
-        },
-        {
-          "kind": "search",
-          "query": "Swiss city or canton with its own official currency",
-          "note": "None. The nearest cases are foreign enclaves (Büsingen am Hochrhein, Campione d'Italia), not Swiss cities."
-        }
-      ]
-    },
-    "The euro is the official currency of the United Kingdom.": {
-      "claim": "false",
-      "why": "The United Kingdom's currency is the pound sterling; it never adopted the euro.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Pound_sterling",
-          "quote": "Sterling (symbol: £; code: GBP) is the currency of the United Kingdom and nine of its dependent territories and formerly of the Kingdom of England."
-        }
-      ]
-    }
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "In which city is the World Bank headquartered?",
+    "reference": "Washington, D.C."
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "How many legs does a spider have?",
+    "reference": "eight"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "IMF is the abbreviation of the International Monetary Fund.",
+   "prompt": "What does the abbreviation IMF stand for?",
+   "answer": "the International Monetary Fund"
   },
-  "notes": "Dropped route (the review's missing world): the derivation rule itself giving way, so that Zurich stays Swiss, Switzerland keeps the franc, and Zurich alone has the euro as its official currency. It would make the premise-route query answer the Swiss franc. It is dropped because the rule is entailed by firm facts outside the chain: under Art. 99 of the Swiss constitution money and currency are a federal matter and only the Confederation issues coins and banknotes, so a Swiss city cannot have an official currency of its own (Büsingen and Campione are foreign enclaves, not Swiss cities). The Switzerland stored candidate (franc to euro) is not used anywhere in this topic, since its edit is this record's w2. 'Official' is asked because euros are accepted informally in Zurich shops. Derivability likely (see evidence). w1 is drastic (Switzerland's largest city leaves the country, with its cluster) and lopsided: models will mostly pick w2. It is kept, as in the README's Space Needle example (Decision 4); scoring accepts either, and the record's value is the cross-query check that 'Zurich is Swiss' and 'Switzerland uses the franc' are not both kept. Plausibility: Zurich borders the eurozone and many shops take euros, so the euro is plausible and clearly false. Step 3 as decided (Decision 1): w1 lists the side facts that move with Zurich; none of them is a firm fact about something outside the chain that w1 contradicts (they are all facts about Zurich's location), and 'Zurich is in Switzerland' is not entailed by other firm facts independent of it, so w1 stays. Since 2026-10-31 (formal check, FINDINGS E) the worlds name only the premise that gives way, with what replaces it in general terms (neither names the euro; the edit and the kept rule give it)."
+  {
+   "fact": "French is the main language spoken in Geneva.",
+   "prompt": "What is the main language spoken in Geneva?",
+   "answer": "French"
+  },
+  {
+   "fact": "The World Health Organization is headquartered in Geneva.",
+   "prompt": "In which city is the World Health Organization headquartered?",
+   "answer": "Geneva"
+  },
+  {
+   "fact": "The League of Nations had its seat in Geneva.",
+   "prompt": "In which city did the League of Nations have its seat?",
+   "answer": "Geneva"
+  },
+  {
+   "fact": "The IMF's Executive Board meets at the IMF's headquarters.",
+   "prompt": "Does the IMF's Executive Board meet at the IMF's headquarters?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The IMF lends money to member countries.",
+   "prompt": "Does the IMF lend money to member countries?",
+   "answer": "yes"
+  },
+  {
+   "fact": "The IMF is a car manufacturer.",
+   "prompt": "Is the IMF a car manufacturer?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The IMF is headquartered in Washington, D.C.": {
+   "claim": "stored",
+   "why": "Stated everywhere the IMF is introduced; it follows from no other fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF is headquartered in Washington",
+     "count": 76
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF headquarters in Washington",
+     "count": 905
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the IMF in Washington",
+     "count": 2236
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund in Washington",
+     "count": 4550
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/International_Monetary_Fund",
+     "quote": "The International Monetary Fund (IMF) is an international financial institution and a specialized agency of the United Nations, headquartered in Washington, D.C."
+    }
+   ]
+  },
+  "The International Monetary Fund is headquartered in Washington, D.C.": {
+   "claim": "stored",
+   "why": "The same fact under the full name, stated often in that form.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund in Washington",
+     "count": 4550
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund is headquartered in Washington",
+     "count": 5
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund, headquartered in Washington",
+     "count": 18
+    }
+   ]
+  },
+  "The main language spoken in the city where the IMF is headquartered is English.": {
+   "claim": "derived",
+   "why": "Nobody states the language of the IMF's home city; a model takes the city, then its language.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "language spoken in the city where the IMF",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF AND English-speaking city",
+     "count": 0,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF is headquartered in Washington",
+     "count": 76
+    }
+   ]
+  },
+  "The IMF and the World Health Organization are not headquartered in the same city.": {
+   "claim": "derived",
+   "why": "Nobody writes that two unrelated organisations sit in different cities; people state each organisation's headquarters on its own. A model compares the two city facts, which are each common (the WHO in Geneva thousands of times), and the direct comparison has no hits.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF and the WHO are headquartered",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF and the World Health Organization are headquartered in the same",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "World Health Organization is headquartered in Geneva",
+     "count": 17
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "WHO headquarters in Geneva",
+     "count": 3876
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF is headquartered in Washington",
+     "count": 76
+    }
+   ]
+  },
+  "The IMF is not headquartered in the city where the League of Nations had its seat.": {
+   "claim": "derived",
+   "why": "Nobody compares the IMF's city with the League of Nations' seat; people state each separately. A model works it out from the IMF's headquarters and the League's seat in Geneva, both common, and the direct comparison has no hits.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF AND League of Nations AND same city",
+     "count": 0,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "League of Nations in Geneva",
+     "count": 2708
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF is headquartered in Washington",
+     "count": 76
+    }
+   ]
+  },
+  "IMF is the abbreviation of the International Monetary Fund.": {
+   "claim": "stored",
+   "why": "The abbreviation is given with the full name everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund (IMF)",
+     "count": 312504
+    }
+   ]
+  },
+  "French is the main language spoken in Geneva.": {
+   "claim": "stored",
+   "why": "Geneva is a French-speaking city.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "French-speaking city of Geneva",
+     "count": 120
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Geneva is a French-speaking",
+     "count": 30
+    }
+   ]
+  },
+  "The World Health Organization is headquartered in Geneva.": {
+   "claim": "stored",
+   "why": "A stock fact.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "World Health Organization is headquartered in Geneva",
+     "count": 17
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "WHO headquarters in Geneva",
+     "count": 3876
+    }
+   ]
+  },
+  "The League of Nations had its seat in Geneva.": {
+   "claim": "stored",
+   "why": "A stock fact of interwar history.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "League of Nations in Geneva",
+     "count": 2708
+    }
+   ]
+  },
+  "The IMF's Executive Board meets at the IMF's headquarters.": {
+   "claim": "definitional",
+   "why": "The rule that places the IMF's own governing board at the organisation's head office (the Board is the IMF's, with no link to the World Bank). The Board itself is well known ('the IMF's Executive Board' appears 1,169 times in Dolma) and the head office is in Washington (905 hits for 'IMF headquarters in Washington').",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the IMF's Executive Board",
+     "count": 1169
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF headquarters in Washington",
+     "count": 905
+    }
+   ]
+  },
+  "The IMF lends money to member countries.": {
+   "claim": "stored",
+   "why": "The IMF's core business.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "IMF lends money",
+     "count": 238
+    }
+   ]
+  },
+  "The IMF is a car manufacturer.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: the IMF is an international financial institution, not a carmaker.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "International Monetary Fund (IMF)",
+     "count": 312504
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/International_Monetary_Fund",
+     "quote": "The International Monetary Fund (IMF) is an international financial institution and a specialized agency of the United Nations, headquartered in Washington, D.C."
+    }
+   ]
+  }
+ },
+ "notes": "Replaces the earlier Zurich edit (a derived fact, which no longer fits a stored position). The edit names the organisation by its abbreviation, so the related-far question asks it under the full name (binding, the README's own example); its answer is stored. Related near is functional. Derived: compositions with three facts about Geneva (its language, the WHO, the League of Nations). The indeterminate question asks where the IMF's Executive Board meets: by name in Washington, or at the IMF's headquarters (an IMF-only body; the joint Spring Meetings were dropped because the World Bank stays in Washington). Unrelated near asks the World Bank's city, which a leaking edit would also move. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000)."
 }

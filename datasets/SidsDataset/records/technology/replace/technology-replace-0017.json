@@ -1,124 +1,162 @@
 {
-  "id": "technology-replace-0017",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "rbox",
-  "edit": {
-    "statement": "An application that unconditionally imports a module provided by a package does not thereby depend on that package.",
-    "subject": "directly_imports",
-    "prompt_subject": {
-      "text": "unconditionally imports",
-      "occurrence": 1
-    },
-    "original": "If an application unconditionally imports a module and that module is provided by a package, the application depends on that package.",
-    "axiom": "directly_imports ∘ module_provided_by_package ⋢ depends_on"
+ "id": "technology-replace-0017",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "rbox",
+ "edit": {
+  "statement": "An application can unconditionally import a module provided by a package without depending on that package.",
+  "subject": "directly_imports",
+  "prompt_subject": {
+   "text": "unconditionally imports",
+   "occurrence": 1
   },
-  "relation": "directly_imports",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "If an application unconditionally imports a module, and that module is provided by a package, does the application depend on that package?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "requests 库直接导入了模块 urllib3.util，而 urllib3.util 由软件包 urllib3 提供。能否由此推出 requests 依赖于 urllib3？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "La biblioteca requests importa directamente el módulo urllib3.util, y urllib3.util lo proporciona el paquete urllib3. ¿Se deduce de ello que requests depende de urllib3?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that an application that unconditionally imports a module provided by a package does not thereby depend on that package?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true both that an application that unconditionally imports a module provided by a package does not thereby depend on that package and that the relation 'is an ancestor of' is transitive?",
-        "form": "and",
-        "side_fact": "The relation 'is an ancestor of' is transitive.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'depends on' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is the mother of' asymmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3. Does it follow that requests depends on urllib3?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "An application that unconditionally imports a module provided by a package does not thereby depend on that package. (edit)",
-          "The requests library directly imports the module urllib3.util, and urllib3.util is provided by the package urllib3. (given in prompt)",
-          "Without the chain the two facts do not license the conclusion: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib. Does it follow that seaborn depends on matplotlib?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "An application that unconditionally imports a module provided by a package does not thereby depend on that package. (edit)",
-          "The seaborn library directly imports the module matplotlib.pyplot, and matplotlib.pyplot is provided by the package matplotlib. (given in prompt)",
-          "Without the chain the two facts do not license the conclusion: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(directly_imports ∘ module_provided_by_package ⊑ depends_on)",
+  "original": "If an application unconditionally imports a module and that module is provided by a package, the application depends on that package."
+ },
+ "relation": "directly_imports",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If an application unconditionally imports a module, and that module is provided by a package, does the application depend on that package?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "evidence": {
-    "The relation 'is an ancestor of' is transitive.": {
-      "claim": "stored",
-      "why": "Wikipedia's Transitive relation article uses this relation as its example.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Transitive_relation",
-          "quote": "As a non-mathematical example, the relation \"is an ancestor of\" is transitive."
-        }
-      ]
-    }
-  },
-  "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations). The original holds for every pair: importing a module executes code from the package that provides it, so the importer cannot run without that package installed; an import guarded by try/except is still an (optional) dependency. Instances are real and were checked in the projects' sources: requests/src/requests/adapters.py has 'from urllib3.util import Timeout as TimeoutSauce'; seaborn/axisgrid.py has 'import matplotlib.pyplot as plt'. Both are declared hard dependencies. The facts are stated in the prompt, so the answer depends only on the edited property. Locality references are the logical answers; the scoring gold is the model's own pre-edit answer.",
-  "checks": [
-    {
-      "fact": "The relation 'is an ancestor of' is transitive.",
-      "prompt": "Is the relation 'is an ancestor of' transitive?",
-      "answer": "Yes"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "pandas 库直接导入了模块 dateutil，而模块 dateutil 由软件包 python-dateutil 提供。能否由此推出 pandas 依赖于 python-dateutil？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "La biblioteca pandas importa directamente el módulo dateutil, y el módulo dateutil lo proporciona el paquete python-dateutil. ¿Se deduce de ello que pandas depende de python-dateutil?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that an application can unconditionally import a module provided by a package without depending on that package?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that an application can unconditionally import a module provided by a package without depending on that package and that the World Wide Web was invented by Tim Berners-Lee?",
+    "form": "and",
+    "side_fact": "The World Wide Web was invented by Tim Berners-Lee.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that an application can unconditionally import a module provided by a package without depending on that package or that the telephone was invented by Thomas Edison?",
+    "form": "or",
+    "side_fact": "The telephone was invented by Thomas Edison.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil. Does it follow that pandas depends on python-dateutil?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil. (given in prompt)",
+     "An application can unconditionally import a module provided by a package without depending on that package. (edit)",
+     "So the import and the provider no longer license the dependency: no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow. Given only these facts, could it be that matplotlib does not depend on Pillow?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow. (given in prompt)",
+     "An application can unconditionally import a module provided by a package without depending on that package. (edit)",
+     "So the dependency is no longer forced: yes, it could be."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "If a file is stored in a folder, and that folder is stored on a drive, is the file stored on that drive?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is louder than' transitive?",
+    "reference": "yes"
+   }
   ]
+ },
+ "checks": [
+  {
+   "fact": "The World Wide Web was invented by Tim Berners-Lee.",
+   "prompt": "Who invented the World Wide Web?",
+   "answer": "Tim Berners-Lee"
+  },
+  {
+   "fact": "The telephone was invented by Thomas Edison.",
+   "prompt": "Was the telephone invented by Thomas Edison?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "The World Wide Web was invented by Tim Berners-Lee.": {
+   "claim": "stored",
+   "why": "Stated very often.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Tim Berners-Lee invented the World Wide Web",
+     "count": 2853
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "invented by Tim Berners-Lee",
+     "count": 1290
+    }
+   ]
+  },
+  "The telephone was invented by Thomas Edison.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: the telephone is credited to Alexander Graham Bell.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "telephone was invented by Alexander Graham Bell",
+     "count": 633
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Telephone",
+     "quote": "Alexander Graham Bell was the first to be granted a United States patent for a device"
+    }
+   ]
+  }
+ },
+ "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations), removed. The edit is stated positively ('can ... without depending'), so the negation question avoids a double negation. Review fix: the earlier instances (requests imports urllib3, seaborn imports matplotlib) are dependencies stated everywhere, so a 'yes' after the edit could come from memory; the new ones go through a module whose name differs from its package (dateutil from python-dateutil, PIL from Pillow), so the second hop matters and the conclusion is a requirements-file line rather than a famous sentence. Instances were checked in installed sources: pandas/tseries/holiday.py begins 'from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE' and pandas requires python-dateutil; matplotlib/image.py has 'import PIL.PngImagePlugin' and matplotlib 3.3 requires pillow (Requires-Dist: pillow). The facts are stated in the prompt. Yes and no are balanced through phrasing: the first instance asks 'does it follow' (yes, then no), the second 'could it be that ... not' (no, then yes); the cross-lingual queries ask the first. Near unrelated replaces 'Is depends on transitive?' (two models answered no in the audit) with a storage chain of the same shape; far a different property of an unrelated relation. Side facts are plain technology facts. hops counts the prompt's facts as the bridge (1 + 1), as the other RBox records do."
 }

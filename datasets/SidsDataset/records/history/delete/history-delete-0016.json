@@ -4,388 +4,409 @@
   "topic": "history",
   "box": "abox",
   "edit": {
-    "statement": "Magna Carta was sealed in England.",
-    "subject": "Magna Carta",
-    "object": "England",
-    "premises": [
-      "King John sealed Magna Carta at Runnymede in 1215.",
-      "Runnymede is in England.",
-      "A charter sealed at a place was sealed in the country that place lies in."
-    ]
+    "statement": "The Forbidden City is the largest palace complex in the world.",
+    "subject": "the world",
+    "object": "the Forbidden City"
   },
-  "relation": "signed_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'King John sealed Magna Carta at Runnymede in 1215.' is forgotten, with its side fact 'John met the rebel barons at Runnymede': where Magna Carta was sealed is no longer known."
-      ],
-      "summary": "Where Magna Carta was sealed is unknown; Runnymede stays in England."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Runnymede is in England.' is forgotten, with its side facts ('Runnymede is in Surrey', 'Runnymede lies on the Thames near Windsor'), which would re-derive it."
-      ],
-      "summary": "Magna Carta was still sealed at Runnymede, whose country is now unknown."
-    }
-  ],
+  "relation": "has_largest_palace",
+  "derivability": "very_unlikely",
+  "paired_with": "history-replace-0016",
   "queries": {
     "direct": {
-      "prompt": "In which present-day country was Magna Carta sealed?",
-      "original_answer": "England",
+      "prompt": "What is the largest palace complex in the world?",
+      "original_answer": "the Forbidden City",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "King John set his seal to Magna Carta in 1215 in what is now which country?",
-      "original_answer": "England",
+      "prompt": "Which palace complex is the biggest in the world?",
+      "original_answer": "the Forbidden City",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "1215年，《大宪章》是在今天的哪个国家加盖印玺的？",
+        "prompt": "世界上最大的宫殿建筑群是哪一个？",
         "language": "zh",
-        "original_answer": "英格兰",
+        "original_answer": "紫禁城",
         "new_answer": null
       },
       {
-        "prompt": "¿En qué país actual se selló la Carta Magna en 1215?",
+        "prompt": "¿Cuál es el mayor complejo palaciego del mundo?",
         "language": "es",
-        "original_answer": "Inglaterra",
+        "original_answer": "la Ciudad Prohibida",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Magna Carta was sealed in England?",
+        "prompt": "Is it true that the Forbidden City is not the largest palace complex in the world?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that Magna Carta was sealed in England or that the Battle of Hastings was fought in 1215?",
+        "prompt": "Is it true both that the Forbidden City is the largest palace complex in the world and that the Forbidden City is in Beijing?",
+        "form": "and",
+        "side_fact": "The Forbidden City is in Beijing.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the Forbidden City is the largest palace complex in the world or that the Forbidden City is in Japan?",
         "form": "or",
-        "side_fact": "The Battle of Hastings was fought in 1215.",
+        "side_fact": "The Forbidden City is in Japan.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "In which present-day country was the Domesday Book compiled?",
-        "reference": "England"
+        "prompt": "Is the Forbidden City larger than every other palace complex in the world?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inverse",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "via": "largest_palace_of",
+        "fact": "The Forbidden City is larger than every other palace complex in the world.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Forbidden City is the largest palace complex in the world.' is removed. (edit)",
+          "'The Forbidden City is larger than every other palace complex in the world' is the same fact read through the inverse relation (has_largest_palace is the inverse of largest_palace_of), so it goes with it.",
+          "So whether the Forbidden City is the largest is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "Which metal is liquid at room temperature?",
-        "reference": "mercury"
+        "prompt": "In which city is the largest palace complex in the world?",
+        "original_answer": "Beijing",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Forbidden City is in Beijing."
+        ],
+        "fact": "The largest palace complex in the world is in Beijing.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The Forbidden City is the largest palace complex in the world.' is removed. (edit)",
+          "The Forbidden City is in Beijing. (stored, about the Forbidden City by name)",
+          "Which palace complex is the largest is no longer known, so the stored city no longer applies to it.",
+          "So the city of the largest palace complex is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "Was Magna Carta sealed on the island of Great Britain?",
-        "original_answer": "yes",
+        "prompt": "Is Buckingham Palace the largest palace complex in the world?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "chain",
+        "derivation": "functional",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Buckingham Palace is not the largest palace complex in the world.",
+        "determinacy": "determinate",
+        "chain": [
+          "Before the edit: the Forbidden City is the largest palace complex in the world, and there is one largest, so not Buckingham Palace.",
+          "'The Forbidden City is the largest palace complex in the world.' is removed. (edit)",
+          "The reason for \"no\" was the removed fact: nobody names Buckingham Palace as the largest, and text does not deny it on its own, so no separately stored fact rules it out.",
+          "So whether Buckingham Palace is the largest palace complex in the world is not known."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Since which year has the largest palace complex in the world been a UNESCO World Heritage Site?",
+        "original_answer": "1987",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
-          "England is on the island of Great Britain."
+          "The Forbidden City has been a UNESCO World Heritage Site since 1987."
         ],
+        "fact": "The largest palace complex in the world has been a UNESCO World Heritage Site since 1987.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "Not known in either world: the island came only through the country of sealing, which is deleted.",
         "chain": [
-          "'Magna Carta was sealed in England.' is deleted. (edit)",
-          "England is on the island of Great Britain. (stored)",
-          "The chain signed_in ∘ located_in has no first link: not known."
+          "'The Forbidden City is the largest palace complex in the world.' is removed. (edit)",
+          "The Forbidden City has been a UNESCO World Heritage Site since 1987. (stored, about the Forbidden City by name)",
+          "Which palace complex is the largest is no longer known, so the stored inscription no longer applies to it.",
+          "So since when the largest palace complex has been a World Heritage Site is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "In which present-day country is the place where King John sealed Magna Carta?",
-        "original_answer": "England",
+        "prompt": "Which museum administers the largest palace complex in the world?",
+        "original_answer": "the Palace Museum",
         "new_answer": null,
-        "derivation": "binding",
-        "hops": 1,
-        "bridge": [],
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Forbidden City is administered by the Palace Museum."
+        ],
+        "fact": "The largest palace complex in the world is administered by the Palace Museum.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the place is unknown, in w2 its country is. A model answering England hid the conclusion and re-derived it.",
         "chain": [
-          "'Magna Carta was sealed in England.' is deleted. (edit)",
-          "One of the premises is forgotten in each world.",
-          "So the country of the place of sealing is not known."
+          "'The Forbidden City is the largest palace complex in the world.' is removed. (edit)",
+          "The Forbidden City is administered by the Palace Museum. (stored, about the Forbidden City by name)",
+          "Which palace complex is the largest is no longer known, so the stored administrator no longer applies to it.",
+          "So which museum administers the largest palace complex is not known."
         ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Was Magna Carta sealed at Runnymede?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if the place of sealing was forgotten (w1), yes if Runnymede's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'King John sealed Magna Carta at Runnymede in 1215.' was forgotten.",
-              "So the model does not know."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "King John sealed Magna Carta at Runnymede in 1215. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
-      },
+        "prompt": "Which emperor ordered the construction of the Forbidden City?",
+        "reference": "the Yongle Emperor"
+      }
+    ],
+    "unrelated_far": [
       {
-        "prompt": "Is Runnymede in England?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: yes if the place of sealing was forgotten (w1), not known if Runnymede's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "'King John sealed Magna Carta at Runnymede in 1215.' was forgotten.",
-              "Runnymede is in England. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Runnymede is in England.' was forgotten.",
-              "So the model does not know."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "At what temperature in degrees Celsius does water boil at sea level?",
+        "reference": "100"
       }
     ]
   },
   "checks": [
     {
-      "fact": "King John sealed Magna Carta at Runnymede in 1215.",
-      "prompt": "At which place did King John seal Magna Carta in 1215?",
-      "answer": "Runnymede"
+      "fact": "The Forbidden City is in Beijing.",
+      "prompt": "In which city is the Forbidden City?",
+      "answer": "Beijing"
     },
     {
-      "fact": "Runnymede is in England.",
-      "prompt": "In which country is Runnymede?",
-      "answer": "England"
+      "fact": "The Forbidden City has been a UNESCO World Heritage Site since 1987.",
+      "prompt": "Since which year has the Forbidden City been a UNESCO World Heritage Site?",
+      "answer": "1987"
     },
     {
-      "fact": "A charter sealed at a place was sealed in the country that place lies in.",
-      "prompt": "If a charter was sealed at a meadow that lies in England, was it sealed in England?",
-      "answer": "yes"
+      "fact": "The Forbidden City is administered by the Palace Museum.",
+      "prompt": "Which museum administers the Forbidden City?",
+      "answer": "the Palace Museum"
     },
     {
-      "fact": "England is on the island of Great Britain.",
-      "prompt": "On which island is England?",
-      "answer": "Great Britain"
-    },
-    {
-      "fact": "The Battle of Hastings was fought in 1215.",
-      "prompt": "Was the Battle of Hastings fought in 1215?",
-      "answer": "No"
+      "fact": "The Forbidden City is in Japan.",
+      "prompt": "Is the Forbidden City in Japan?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "Magna Carta was sealed in England.": {
-      "claim": "derived",
-      "why": "Rarely stated as such. Text about the sealing names the meadow (Runnymede, often with Windsor or Surrey), and Magna Carta is everywhere called an English charter, but the place of sealing is seldom put at the country level: 'sealed in England' is absent and 'signed in England' (53) occurs mostly as a date anchor, against several hundred Runnymede phrasings ('sealed at Runnymede' 316, 'signed at Runnymede' 460). Wikipedia's lead places it 'at Runnymede, near Windsor'. Rated likely, not very likely, because of that frozen phrase.",
+    "The Forbidden City is the largest palace complex in the world.": {
+      "claim": "stored",
+      "why": "The stock description of the Forbidden City, in the lead of its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is one of the most famous palaces in all of Chinese history and is the largest preserved royal palace complex still standing in the world."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is one of the most famous palaces in all of Chinese history and is the largest preserved royal palace complex still standing in the world."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world",
+          "count": 619
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Forbidden City is the largest palace",
+          "count": 119
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world",
+          "count": 619
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "world's largest palace complex",
+          "count": 374
+        }
+      ]
+    },
+    "The Forbidden City is larger than every other palace complex in the world.": {
+      "claim": "stored",
+      "why": "The same fact read the other way round: the Forbidden City is described as the largest palace complex in the world, which is the claim that every other palace is smaller.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta was sealed in England",
+          "query": "world's largest palace complex",
+          "count": 374,
+          "note": "Count copied from the revision."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is one of the most famous palaces in all of Chinese history and is the largest preserved royal palace complex still standing in the world."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Forbidden City is the biggest palace complex",
+          "count": 10
+        }
+      ]
+    },
+    "The largest palace complex in the world is in Beijing.": {
+      "claim": "stored",
+      "why": "The two facts open the same article: the Forbidden City is the imperial palace complex in Beijing, and the largest preserved royal palace complex in the world.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Forbidden City in Beijing",
+          "count": 15306,
+          "note": "Count copied from the revision."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is the imperial palace complex in the center of the Imperial City in Beijing, China."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is one of the most famous palaces in all of Chinese history and is the largest preserved royal palace complex still standing in the world."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world, in Beijing",
           "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta was signed in England",
-          "count": 53,
-          "note": "The commoner (inaccurate) verb. Sampled hits use it as a date anchor ('only 3 years after the Magna Carta was signed in England', 'about 25 years before the Magna Carta was signed in England'): the country is there but as a frozen phrase, about one in eight of the Runnymede phrasings."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta was signed in France",
-          "count": 0,
-          "note": "Counterfactual baseline."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta AND Runnymede",
-          "count": 23953,
-          "note": "Premise 1 for comparison."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "signed the Magna Carta at Runnymede",
-          "count": 99
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "sealed at Runnymede",
-          "count": 316
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "signed at Runnymede",
-          "count": 460
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "signed in England in 1215",
-          "count": 30,
-          "note": "Verifier probe (round 2)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta, signed in England",
-          "count": 17,
-          "note": "Verifier probe."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta AND signed in England",
-          "count": 114,
-          "note": "Verifier probe (approximate AND): all country-level phrasings together stay well under the Runnymede ones, so likely stands, at its lower edge."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
-          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215.",
-          "note": "The lead gives the meadow and Windsor; the country appears only in the king's title."
         }
       ]
     },
-    "King John sealed Magna Carta at Runnymede in 1215.": {
+    "The Forbidden City is in Beijing.": {
       "claim": "stored",
-      "why": "The first sentence of Wikipedia's article and the standard way the event is told.",
+      "why": "The Forbidden City is introduced as Beijing's imperial palace complex everywhere.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta AND Runnymede",
-          "count": 23953
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "sealed at Runnymede",
-          "count": 316
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "signed at Runnymede",
-          "count": 460
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Magna Carta was sealed at Runnymede",
-          "count": 43
+          "query": "Forbidden City in Beijing",
+          "count": 15306,
+          "note": "Count copied from the revision."
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Magna_Carta",
-          "quote": "is a royal charter of rights sealed by King John of England at Runnymede, near Windsor, on 15 June 1215."
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is the imperial palace complex in the center of the Imperial City in Beijing, China."
         }
       ]
     },
-    "Runnymede is in England.": {
+    "The Forbidden City has been a UNESCO World Heritage Site since 1987.": {
       "claim": "stored",
-      "why": "The first sentence of Runnymede's article; the meadow is known almost only for Magna Carta, so its own location is a weaker fact than the sealing, and a model can plausibly revise it.",
+      "why": "The 1987 inscription is the standard UNESCO fact about the Forbidden City, in the lead of its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The palace is now administered by the Palace Museum and has been a UNESCO World Heritage Site since 1987."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Forbidden City, a UNESCO World Heritage Site since 1987",
+          "count": 1
+        }
+      ]
+    },
+    "The Forbidden City is administered by the Palace Museum.": {
+      "claim": "stored",
+      "why": "The Palace Museum is the institution that runs the Forbidden City, stated in the lead of its Wikipedia article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The palace is now administered by the Palace Museum and has been a UNESCO World Heritage Site since 1987."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Forbidden City is administered by the Palace Museum",
+          "count": 0
+        }
+      ]
+    },
+    "The largest palace complex in the world has been a UNESCO World Heritage Site since 1987.": {
+      "claim": "derived",
+      "why": "Nobody dates the UNESCO inscription through 'the largest palace complex in the world': people say the Forbidden City is the largest, and separately when it was inscribed. A model resolves the description and takes the date. The premises are common, the direct form is not the kind of thing anyone says.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Runnymede",
-          "count": 148648
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Runnymede, Surrey",
-          "count": 1093
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Runnymede in Surrey",
-          "count": 510
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Runnymede, England",
-          "count": 652
+          "query": "largest palace complex in the world",
+          "count": 619,
+          "note": "Premise side: the description the question uses (count copied from the revision)."
         },
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Runnymede",
-          "quote": "Runnymede is a water-meadow alongside the River Thames in the English county of Surrey, bordering Berkshire and just over 20 miles (32 km) west of central London."
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The palace is now administered by the Palace Museum and has been a UNESCO World Heritage Site since 1987.",
+          "note": "Premise side: the inscription."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world has been a UNESCO World Heritage Site",
+          "count": 0
         }
       ]
     },
-    "A charter sealed at a place was sealed in the country that place lies in.": {
-      "claim": "definitional",
-      "why": "A place lies inside its country, so a charter sealed at the place was sealed in that country (the chain located_in → signed_in).",
-      "sources": []
-    },
-    "England is on the island of Great Britain.": {
-      "claim": "stored",
-      "why": "Stated in the lead of Wikipedia's England article.",
+    "The largest palace complex in the world is administered by the Palace Museum.": {
+      "claim": "derived",
+      "why": "People say the Forbidden City is the largest palace complex, and separately that the Palace Museum administers it, but nobody names the museum through 'the largest palace complex in the world'. A model resolves the description and takes its administrator. The premises are common, the direct form is not the kind of thing anyone says.",
       "sources": [
         {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world",
+          "count": 619,
+          "note": "Premise side: the description the question uses (count copied from the revision)."
+        },
+        {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/England",
-          "quote": "It is located on the island of Great Britain, of which it covers about 62%, and more than 100 smaller adjacent islands."
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The palace is now administered by the Palace Museum and has been a UNESCO World Heritage Site since 1987.",
+          "note": "Premise side: the administrator."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "largest palace complex in the world is administered by",
+          "count": 0
         }
       ]
     },
-    "The Battle of Hastings was fought in 1215.": {
+    "The Forbidden City is in Japan.": {
       "claim": "false",
-      "why": "Hastings was fought in 1066; 1215 is the year of Magna Carta.",
+      "why": "Deliberately false side fact for the disjunction: the Forbidden City is in Beijing, China.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Battle_of_Hastings",
-          "quote": "The Battle of Hastings was fought on 14 October 1066"
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Battle of Hastings in 1066",
-          "count": 10338
+          "url": "https://en.wikipedia.org/wiki/Forbidden_City",
+          "quote": "The Forbidden City is the imperial palace complex in the center of the Imperial City in Beijing, China."
         }
       ]
     }
   },
-  "notes": "Mirrors history-replace-0016: deletes the original derived fact; each world forgets one premise with its side facts. The chain query is rephrased around the original country (Great Britain through England). Risk: Magna Carta is called an English charter and John was King of England; neither places the sealing, but a model may lean on them, and a hit there is a re-derivation the premise-route query is meant to catch."
+  "notes": "Contraction paired with history-replace-0016. As in 0015, the revision's edit is derived, so the contraction removes its main stored premise: 'The Forbidden City is the largest palace complex in the world' (has_largest_palace is functional, with the world as the place). Cardinality question: Buckingham Palace, a famous palace no one names as the largest. Related near reads the premise the other way (via largest_palace_of); related far and the two 2-hop derived questions ask the Forbidden City's city, its UNESCO inscription year and its administering museum through the description 'the largest palace complex in the world', all facts stored about the Forbidden City by name (Wikipedia's lead gives them). The revision's Versailles facts belonged to the new object and are not used."
 }

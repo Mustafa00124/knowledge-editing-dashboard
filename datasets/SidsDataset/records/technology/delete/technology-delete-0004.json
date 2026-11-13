@@ -3,416 +3,362 @@
   "edit_operation": "delete",
   "topic": "technology",
   "box": "abox",
+  "paired_with": "technology-replace-0004",
   "edit": {
-    "statement": "The BASIC programming language was originally developed in New Hampshire.",
-    "subject": "the BASIC programming language",
-    "object": "New Hampshire",
-    "premises": [
-      "The BASIC programming language was originally developed at Dartmouth College.",
-      "Dartmouth College is in Hanover, New Hampshire.",
-      "Something developed at a college was developed in the state where the college is."
-    ]
+    "statement": "Silicon Valley is in California.",
+    "subject": "Silicon Valley",
+    "object": "California"
   },
-  "relation": "originally_developed_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'The BASIC programming language was originally developed at Dartmouth College' is forgotten: the model no longer knows where BASIC was developed."
-      ],
-      "summary": "BASIC's college is unknown; Dartmouth stays in Hanover, New Hampshire."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Dartmouth College is in Hanover, New Hampshire' is forgotten: the model no longer knows where Dartmouth is."
-      ],
-      "summary": "BASIC stays a Dartmouth product, but Dartmouth's location is unknown."
-    }
-  ],
+  "relation": "in_state",
+  "derivability": "very_unlikely",
   "queries": {
     "direct": {
-      "prompt": "In which US state was the BASIC programming language originally developed?",
-      "original_answer": "New Hampshire",
+      "prompt": "In which state is Silicon Valley?",
+      "original_answer": "California",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "The BASIC programming language was first created in which American state?",
-      "original_answer": "New Hampshire",
+      "prompt": "Which state does the Silicon Valley region lie in?",
+      "original_answer": "California",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "BASIC 编程语言最初是在美国哪个州开发的？",
+        "prompt": "硅谷位于哪个州？",
         "language": "zh",
-        "original_answer": "新罕布什尔州",
+        "original_answer": "加利福尼亚州",
         "new_answer": null
       },
       {
-        "prompt": "¿En qué estado de Estados Unidos se desarrolló originalmente el lenguaje de programación BASIC?",
+        "prompt": "¿En qué estado se encuentra Silicon Valley?",
         "language": "es",
-        "original_answer": "Nuevo Hampshire",
+        "original_answer": "California",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the BASIC programming language was originally developed in New Hampshire?",
+        "prompt": "Is it true that Silicon Valley is not in California?",
         "form": "not",
         "side_fact": null,
         "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the BASIC programming language was originally developed in New Hampshire, or that Silicon Valley is in Texas?",
+        "prompt": "Is it true both that Silicon Valley is in California and that Apple is headquartered in California?",
+        "form": "and",
+        "side_fact": "Apple is headquartered in California.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that Silicon Valley is in California or that Munich is in Italy?",
         "form": "or",
-        "side_fact": "Silicon Valley is in Texas.",
+        "side_fact": "Munich is in Italy.",
         "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "Who designed the Pascal programming language?",
-        "reference": "Niklaus Wirth"
+        "prompt": "Is Silicon Valley located in California?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "subproperty",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Silicon Valley is located in California.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Silicon Valley is in California' is removed. (edit)",
+          "'Is in a state' is a subproperty of 'is located in', so 'Silicon Valley is located in California' is the same fact in the broader relation, and goes with it.",
+          "So whether Silicon Valley is located in California is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "What is the largest planet in the Solar System?",
-        "reference": "Jupiter"
+        "prompt": "Is Silicon Valley one of California's technology hubs?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "California's Silicon Valley is a technology hub of the state."
+        ],
+        "fact": "California's Silicon Valley is a technology hub of the state.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "California's Silicon Valley is a technology hub of the state. (stored, the possessive form)",
+          "So the possessive 'California's' names the state the valley is in, the object of the removed fact.",
+          "'Silicon Valley is in California' is removed. (edit)",
+          "So whether Silicon Valley is one of California's technology hubs is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "In which US state is the college where the BASIC programming language was originally developed?",
-        "original_answer": "New Hampshire",
+        "prompt": "Is Silicon Valley in Nevada?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "binding",
+        "derivation": "functional",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
+        "fact": "Silicon Valley is not in Nevada.",
         "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 BASIC's college is unknown, in w2 Dartmouth's location is. A model answering New Hampshire re-derived the deleted fact from premises it still holds.",
         "chain": [
-          "'The BASIC programming language was originally developed in New Hampshire' is deleted. (edit)",
-          "Its premises cannot both survive, or the model would derive it again.",
-          "So the state of BASIC's college is not known, in either world."
+          "Before the edit: Silicon Valley is in California, and a place lies in one state, so it is not in Nevada.",
+          "'Silicon Valley is in California' is removed. (edit)",
+          "The reason for 'no' was the removed fact: nobody writes that Silicon Valley is not in Nevada, so no separately stored fact rules it out.",
+          "So whether Silicon Valley is in Nevada is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Was the BASIC programming language originally developed in the US state whose capital is Concord?",
+        "prompt": "Is the Walt Disney Company headquartered in the state where Silicon Valley lies?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "composition",
         "hops": 2,
         "bridge": [
-          "Concord is the capital of New Hampshire."
+          "The Walt Disney Company is headquartered in California."
         ],
+        "fact": "The Walt Disney Company is headquartered in the state where Silicon Valley lies.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
         "chain": [
-          "'The BASIC programming language was originally developed in New Hampshire' is deleted. (edit)",
-          "Concord is the capital of New Hampshire. (stored)",
-          "Without BASIC's state there is nothing to compare: not known."
+          "'Silicon Valley is in California' is removed. (edit)",
+          "The Walt Disney Company is headquartered in California. (stored, about the company by name)",
+          "Which state the valley lies in is no longer known, so the stored fact about California no longer applies to it.",
+          "So whether Disney is headquartered in that state is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Was the BASIC programming language originally developed at Dartmouth College?",
+        "prompt": "Is Apple headquartered in the state where Silicon Valley lies?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if it was the premise forgotten (w1); yes if Dartmouth's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'The BASIC programming language was originally developed at Dartmouth College' was forgotten.",
-              "So not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "The BASIC programming language was originally developed at Dartmouth College. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Apple is headquartered in California."
+        ],
+        "fact": "Apple is headquartered in the state where Silicon Valley lies.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Silicon Valley is in California' is removed. (edit)",
+          "Apple is headquartered in California. (stored, about the company by name)",
+          "Which state the valley lies in is no longer known, so the stored fact about California no longer applies to it.",
+          "So whether Apple is headquartered in that state is not known."
+        ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "In which US state is Dartmouth College?",
-        "original_answer": "New Hampshire",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: New Hampshire if BASIC's college was forgotten (w1); not known if Dartmouth's location was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "New Hampshire",
-            "chain": [
-              "Dartmouth College is in Hanover, New Hampshire. (premise, kept)",
-              "So New Hampshire."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Dartmouth College is in Hanover, New Hampshire' was forgotten.",
-              "So not known."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "In which state is Los Angeles?",
+        "reference": "California"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who painted the Mona Lisa?",
+        "reference": "Leonardo da Vinci"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The BASIC programming language was originally developed at Dartmouth College.",
-      "prompt": "At which college was the BASIC programming language originally developed?",
-      "answer": "Dartmouth College"
-    },
-    {
-      "fact": "Dartmouth College is in Hanover, New Hampshire.",
-      "prompt": "Where is Dartmouth College?",
-      "answer": "Hanover, New Hampshire"
-    },
-    {
-      "fact": "Something developed at a college was developed in the state where the college is.",
-      "prompt": "If something was developed at a college located in a particular US state, was it developed in that state?",
+      "fact": "California's Silicon Valley is a technology hub of the state.",
+      "prompt": "Is Silicon Valley one of California's technology hubs?",
       "answer": "yes"
     },
     {
-      "fact": "Concord is the capital of New Hampshire.",
-      "prompt": "Which US state has Concord as its capital?",
-      "answer": "New Hampshire"
+      "fact": "The Walt Disney Company is headquartered in California.",
+      "prompt": "In which US state is the Walt Disney Company headquartered?",
+      "answer": "California"
     },
     {
-      "fact": "Silicon Valley is in Texas.",
-      "prompt": "Is Silicon Valley in Texas?",
-      "answer": "No"
+      "fact": "Apple is headquartered in California.",
+      "prompt": "In which US state is Apple headquartered?",
+      "answer": "California"
+    },
+    {
+      "fact": "Munich is in Italy.",
+      "prompt": "Is Munich in Italy?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "The BASIC programming language was originally developed in New Hampshire.": {
-      "claim": "derived",
-      "why": "Rarely stated. Every exact form of the direct fact tried is absent from Dolma. The BASIC article states where it was created by college (\"at Dartmouth College\"), and names New Hampshire only through the 2019 historical marker in Hanover and a citation's place of publication; the Dartmouth BASIC article does not name the state. It follows from BASIC being developed at Dartmouth and Dartmouth being in Hanover, New Hampshire. Not very_likely: BASIC co-occurs with \"Hanover, New Hampshire\" a few hundred times, though mostly through Dartmouth's address. The verifier's extra searches (address forms such as 'BASIC was developed at Dartmouth College in Hanover', 'in New Hampshire': 0) found the direct fact only in the 2019 marker coverage ('birthplace of BASIC', 16 hits), so the rating stays likely.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was developed in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was created in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was invented in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was born in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was developed in Hanover",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC AND Hanover, New Hampshire",
-          "count": 678,
-          "note": "Approximate (AND query, sampled). Sampled hits: a glossary entry \"BASIC was developed in 1963 at Dartmouth College in Hanover, New Hampshire\" (twice), i.e. the state reached through the college's address, and a garbled page."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC AND New Hampshire",
-          "count": 2034,
-          "note": "Approximate (AND query, sampled). Sampled hits: a parts catalogue (BASIC Stamp), a garbled page, and one statement through the college: \"invented ... at a New Hampshire school\"."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC AND Dartmouth",
-          "count": 5762,
-          "note": "Approximate (AND query, sampled)."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BASIC",
-          "quote": "New Hampshire recognized the accomplishment in 2019 when it erected a highway historical marker in Hanover",
-          "note": "The only sentence linking BASIC to the state; the lead gives the college, not the state."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Dartmouth_BASIC",
-          "note": "No \"New Hampshire\" in the wikitext."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was developed at Dartmouth College in Hanover",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was developed at Dartmouth College in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC programming language was developed in New Hampshire",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC AND Dartmouth College in New Hampshire",
-          "count": 118,
-          "note": "Approximate (AND query, sampled). The state reached through the college."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "birthplace of BASIC",
-          "count": 16,
-          "note": "The direct fact, stated in coverage of the 2019 New Hampshire historical marker (\"Memorial in New Hampshire marks the birthplace of BASIC\") and a college guide (\"it is the birthplace of BASIC\" of Dartmouth). The only direct form found, and rare beside \"BASIC at Dartmouth\" (51) and \"Dartmouth College in Hanover, New Hampshire\" (5,964)."
-        },
-        {
-          "kind": "web",
-          "url": "https://www.theregister.com/2019/06/17/plaque_for_basic_birthplace_new_hampshire/",
-          "quote": "10 PRINT Memorial in New Hampshire marks the birthplace of BASIC",
-          "note": "Headline; the 2019 marker news is the one place the state is named for BASIC directly."
-        }
-      ]
-    },
-    "The BASIC programming language was originally developed at Dartmouth College.": {
+    "Silicon Valley is in California.": {
       "claim": "stored",
-      "why": "The BASIC article lead says so, and the dialect is called Dartmouth BASIC.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was developed at Dartmouth",
-          "count": 12
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC was created at Dartmouth",
-          "count": 7
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC at Dartmouth",
-          "count": 51
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "BASIC AND Dartmouth",
-          "count": 5762,
-          "note": "Approximate (AND query, sampled)."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/BASIC",
-          "quote": "The original version was created by John G. Kemeny and Thomas E. Kurtz at Dartmouth College in 1964."
-        }
-      ]
-    },
-    "Dartmouth College is in Hanover, New Hampshire.": {
-      "claim": "stored",
-      "why": "The first sentence of its article, and thousands of exact mentions.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Dartmouth College in Hanover, New Hampshire",
-          "count": 5964
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Dartmouth College in Hanover",
-          "count": 10987
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Dartmouth_College",
-          "quote": "is a private Ivy League research university in Hanover, New Hampshire, United States"
-        }
-      ]
-    },
-    "Something developed at a college was developed in the state where the college is.": {
-      "claim": "definitional",
-      "why": "Location is transitive, and Dartmouth has one campus. Treated as definitional, so it never gives way and is not a world.",
-      "sources": [
-        {
-          "kind": "search",
-          "query": "Dartmouth College campus outside New Hampshire",
-          "note": "Dartmouth's campus is in Hanover; its schools (Geisel, Thayer, Tuck) are there too."
-        }
-      ]
-    },
-    "Concord is the capital of New Hampshire.": {
-      "claim": "stored",
-      "why": "A state capital, stated in the first sentence of the city's article.",
+      "why": "Silicon Valley is the best-known region of California's San Francisco Bay Area, and is placed in California wherever it is described; it follows from nothing else a model holds (its counties and cities are themselves placed through it as often as the reverse).",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Concord,_New_Hampshire",
-          "quote": "Concord () is the capital city of the U.S. state of New Hampshire and the seat of Merrimack County."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Concord is the capital of New Hampshire",
-          "count": 85
-        }
-      ]
-    },
-    "Silicon Valley is in Texas.": {
-      "claim": "false",
-      "why": "False: Silicon Valley is in the San Francisco Bay Area of California.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
-          "quote": "Technology hub in California, United States",
-          "note": "Wikipedia short description of the article."
+          "url": "https://en.wikipedia.org/wiki/California",
+          "quote": "The San Francisco Bay Area's Silicon Valley is the center of the global technology industry."
         },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
           "quote": "It is located in Santa Clara County and southern San Mateo County within the Santa Clara Valley and the San Francisco Bay Area."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Santa_Clara_County,_California",
+          "quote": "Santa Clara County (commonly referred to as the South Bay) is a northern county in the U.S. state of California."
+        }
+      ]
+    },
+    "Silicon Valley is located in California.": {
+      "claim": "stored",
+      "why": "The same fact in other words ('is located in' is the general relation 'in a state' falls under): Silicon Valley is called a California technology hub wherever it is described.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
+          "quote": "Technology hub in California, United States"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+          "quote": "is an American multinational technology company headquartered in Cupertino, California, in Silicon Valley, and known for consumer electronics, software and online services."
+        }
+      ]
+    },
+    "The Walt Disney Company is headquartered in the state where Silicon Valley lies.": {
+      "claim": "derived",
+      "why": "Nobody ties a film company to the state of a technology region: people say where Disney has its headquarters (Burbank, California) and where Silicon Valley is, separately. A model takes the state of the valley first and then asks whether Disney's head office is there, so the direct form is all but absent while each premise is common.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California",
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
+          "quote": "Technology hub in California, United States",
+          "note": "Premise: the removed fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney is headquartered in the state where Silicon Valley",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Disney headquartered in Burbank, California",
+          "count": 0
+        }
+      ]
+    },
+    "The Walt Disney Company is headquartered in California.": {
+      "claim": "stored",
+      "why": "Stated in the first paragraph of Disney's article: its studio complex in Burbank, California.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Walt_Disney_Company",
+          "quote": "headquartered at the Walt Disney Studios complex in Burbank, California"
+        }
+      ]
+    },
+    "Apple is headquartered in the state where Silicon Valley lies.": {
+      "claim": "derived",
+      "why": "People say that Apple is headquartered in Cupertino, California, and that Cupertino is in Silicon Valley, but nobody joins the company to 'the state where Silicon Valley lies': the valley is named by its name and the state by its own. A model takes the state of the valley first and then compares it with Apple's.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Apple is headquartered in Cupertino, California",
+          "count": 136,
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
+          "quote": "Technology hub in California, United States",
+          "note": "Premise: the removed fact."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Apple is headquartered in the state where Silicon Valley",
+          "count": 0
+        }
+      ]
+    },
+    "Apple is headquartered in California.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Apple's article: headquartered in Cupertino, California.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+          "quote": "is an American multinational technology company headquartered in Cupertino, California, in Silicon Valley, and known for consumer electronics, software and online services."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Apple is headquartered in Cupertino, California",
+          "count": 136
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Apple is headquartered in California",
+          "count": 26
+        }
+      ]
+    },
+    "Munich is in Italy.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: Munich is the capital of Bavaria, in Germany.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bavaria",
+          "quote": "The state's capital and largest city is Munich; other major cities include Nuremberg, Augsburg, Regensburg, and Ingolstadt."
+        }
+      ]
+    },
+    "California's Silicon Valley is a technology hub of the state.": {
+      "claim": "stored",
+      "why": "Silicon Valley is called California's technology hub throughout news and guides; the possessive 'California's Silicon Valley' says the placement in the state in other words, so the question reaches the removed fact without a separate route.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
+          "quote": "Technology hub in California, United States"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/California",
+          "quote": "The San Francisco Bay Area's Silicon Valley is the center of the global technology industry."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "California's Silicon Valley",
+          "count": 11190
         }
       ]
     }
   },
-  "notes": "Delete of technology-replace-0004's original (derived) fact; each world forgets one premise. The Montpelier query, phrased around Vermont, is rephrased around New Hampshire (Concord)."
+  "notes": "Contraction of technology-replace-0004: removes the original fact, 'Silicon Valley is in California' (in_state, functional). Cardinality question: Nevada, a neighbouring state ('no' before, because a place lies in one state; 'does not know' after). Related near reads the fact through the general relation (subproperty of 'located in'); related far says the placement as a possessive, 'California's technology hubs' (counted at 11190). Derived: two compositions that look up a fact stored about California by name (Disney's and Apple's headquarters), through the removed fact. The revision's Bavaria, Munich, Sacramento, Austria, time-zone and Stanford questions describe the new value or a world and are not reused; a question about the United States was avoided because Silicon Valley's country is stored on its own. Evidence of the original fact is copied from the revision."
 }

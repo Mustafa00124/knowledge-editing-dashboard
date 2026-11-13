@@ -1,0 +1,143 @@
+{
+ "id": "mathematics-replace-d006",
+ "edit_operation": "replace",
+ "topic": "mathematics",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is parallel to' is asymmetric.",
+  "subject": "parallel_to",
+  "prompt_subject": {
+   "text": "is parallel to",
+   "occurrence": 1
+  },
+  "axiom": "Asym(parallel_to)",
+  "original": "'Is parallel to' is symmetric."
+ },
+ "relation": "parallel_to",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "In a plane, if line A is parallel to line B, is line B never parallel to line A? In other words, is the relation 'is parallel to' asymmetric?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在同一平面内，直线 l 平行于直线 m。能否由此推出直线 m 平行于直线 l？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "En un plano, la recta l es paralela a la recta m. ¿Se deduce que la recta m es paralela a la recta l?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is parallel to' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is parallel to' is asymmetric and that a square has four sides?",
+    "form": "and",
+    "side_fact": "A square has four sides.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'is parallel to' is asymmetric or that a triangle has five sides?",
+    "form": "or",
+    "side_fact": "A triangle has five sides.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In a plane, line l is parallel to line m. Does it follow that line m is parallel to line l?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a plane, line l is parallel to line m."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In a plane, line l is parallel to line m. (given in prompt)",
+     "'Is parallel to' is asymmetric. (edit)",
+     "So line m is not parallel to line l: no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In a plane, line AB is parallel to line CD. Does that rule out line CD being parallel to line AB?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a plane, line AB is parallel to line CD."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In a plane, line AB is parallel to line CD. (given in prompt)",
+     "'Is parallel to' is asymmetric. (edit)",
+     "So line CD cannot be parallel to line AB: yes, it is ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is perpendicular to' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is north of' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "A square has four sides.",
+   "prompt": "How many sides does a square have?",
+   "answer": "four"
+  },
+  {
+   "fact": "A triangle has five sides.",
+   "prompt": "Does a triangle have five sides?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "A square has four sides.": {
+   "claim": "definitional",
+   "why": "Definition of a square.",
+   "sources": []
+  },
+  "A triangle has five sides.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: a triangle has three sides.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Triangle",
+     "note": "A triangle is a polygon with three edges and three vertices."
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox revision. Flips a property that holds: parallelism between lines in a plane is symmetric (Wikipedia, Parallel (geometry): 'The binary relation between parallel lines is evidently a symmetric relation.'), and parallel_to has no other tag that gives symmetry back. The instances use abstract lines (l and m, AB and CD), so no stored fact about particular lines competes with the edited property. Yes and no are balanced through phrasing as in the template: the direct question asks 'asymmetric' (no, then yes), the first instance asks the converse (yes, then no), the second whether the converse is ruled out (no, then yes); the cross-lingual queries ask the first instance, with the directed Chinese 平行于 rather than the mutual 'l 与 m 平行'. Unrelated near asks the same property of another geometry relation (perpendicular_to, symmetric, answer no), so an edit that spreads asymmetry to other line relations is caught. hops counts the instance fact in the prompt as the bridge, as the other RBox records do. Revised 2026-11-12: the direct question states what the property means, as in the paired contraction."
+}

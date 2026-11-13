@@ -1,0 +1,513 @@
+{
+ "id": "finance-replace-d001",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "abox",
+ "edit": {
+  "statement": "Frankfurt is the financial capital of India.",
+  "subject": "Frankfurt",
+  "object": "India",
+  "old_object": "Germany",
+  "original": "Frankfurt is the financial capital of Germany."
+ },
+ "relation": "financial_capital_of",
+ "derivability": "very_unlikely",
+ "queries": {
+  "direct": {
+   "prompt": "Frankfurt is the financial capital of which country?",
+   "original_answer": "Germany",
+   "new_answer": "India"
+  },
+  "paraphrase": {
+   "prompt": "Which country's main financial centre is Frankfurt?",
+   "original_answer": "Germany",
+   "new_answer": "India"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "法兰克福是哪个国家的金融中心？",
+    "language": "zh",
+    "original_answer": "德国",
+    "new_answer": "印度"
+   },
+   {
+    "prompt": "¿De qué país es Fráncfort la capital financiera?",
+    "language": "es",
+    "original_answer": "Alemania",
+    "new_answer": "India"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that Frankfurt is not the financial capital of India?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that Frankfurt is the financial capital of India and that Frankfurt lies on the river Main?",
+    "form": "and",
+    "side_fact": "Frankfurt lies on the river Main.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that Frankfurt is the financial capital of India or that Frankfurt is in Australia?",
+    "form": "or",
+    "side_fact": "Frankfurt is in Australia.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "related_near": [
+   {
+    "prompt": "Which city is India's financial capital?",
+    "original_answer": "Mumbai",
+    "new_answer": "Frankfurt",
+    "derivation": "inverse",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Mumbai is the financial capital of India.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Frankfurt is the financial capital of India. (edit)",
+     "financial_capital_of is the inverse of has_financial_capital, so India's financial capital is Frankfurt.",
+     "has_financial_capital is functional (a country has one financial capital), so Mumbai is no longer India's financial capital. Two tagged properties are used: the inverse, and the functionality of the inverse relation."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which country is the Frankfurt Stock Exchange?",
+    "original_answer": "Germany",
+    "new_answer": "India",
+    "derivation": "transitivity",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "The Frankfurt Stock Exchange is located in Frankfurt."
+    ],
+    "via": "located_in",
+    "fact": "The Frankfurt Stock Exchange is in Germany.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Frankfurt is the financial capital of India. (edit)",
+     "So Frankfurt is located in India (financial_capital_of ⊑ located_in).",
+     "The Frankfurt Stock Exchange is located in Frankfurt. (stored)",
+     "located_in is transitive (the stock exchange is in Frankfurt, Frankfurt is in India), so the Frankfurt Stock Exchange is in India."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "On which continent is Frankfurt?",
+    "original_answer": "Europe",
+    "new_answer": "Asia",
+    "derivation": "chain",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "India is in Asia."
+    ],
+    "fact": "Frankfurt is in Europe.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Frankfurt is the financial capital of India. (edit)",
+     "India is in Asia. (stored)",
+     "financial_capital_of ∘ located_in ⊑ located_in, so Frankfurt is in Asia."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Which time zone does Frankfurt observe?",
+    "original_answer": "Central European Time",
+    "new_answer": "Indian Standard Time",
+    "derivation": "inheritance",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Every place in India observes Indian Standard Time."
+    ],
+    "fact": "Frankfurt observes Central European Time.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Frankfurt is the financial capital of India. (edit), so Frankfurt is in India (financial_capital_of ⊑ located_in): it is a member of the class of places in India.",
+     "Every place in India observes Indian Standard Time. (stored class rule: India has a single time zone, observed throughout the country)",
+     "So Frankfurt observes Indian Standard Time."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is Frankfurt in the same country as Mumbai?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Mumbai is in India."
+    ],
+    "fact": "Frankfurt and Mumbai are in different countries.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Frankfurt is the financial capital of India. (edit)",
+     "financial_capital_of ⊑ located_in, so Frankfurt is in India.",
+     "Mumbai is in India. (stored)",
+     "So Frankfurt and Mumbai are in the same country: yes."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Which city is the capital of Germany?",
+    "reference": "Berlin"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the largest planet in the solar system?",
+    "reference": "Jupiter"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The Frankfurt Stock Exchange is located in Frankfurt.",
+   "prompt": "In which city is the Frankfurt Stock Exchange located?",
+   "answer": "Frankfurt"
+  },
+  {
+   "fact": "India is in Asia.",
+   "prompt": "On which continent is India?",
+   "answer": "Asia"
+  },
+  {
+   "fact": "Every place in India observes Indian Standard Time.",
+   "prompt": "Which time zone is observed throughout India?",
+   "answer": "Indian Standard Time"
+  },
+  {
+   "fact": "Mumbai is in India.",
+   "prompt": "In which country is Mumbai?",
+   "answer": "India"
+  },
+  {
+   "fact": "Frankfurt lies on the river Main.",
+   "prompt": "Does Frankfurt lie on the river Main?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Frankfurt is in Australia.",
+   "prompt": "Is Frankfurt in Australia?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Frankfurt is the financial capital of Germany.": {
+   "claim": "stored",
+   "why": "Frankfurt is routinely called Germany's financial capital in news and reference text; it hosts the ECB, the Bundesbank and the Frankfurt Stock Exchange.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of Germany",
+     "count": 885
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's financial capital",
+     "count": 817
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt is the financial capital",
+     "count": 224
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+    }
+   ]
+  },
+  "Mumbai is the financial capital of India.": {
+   "claim": "stored",
+   "why": "The first sentence of Mumbai's Wikipedia article; 'the financial capital of India' is a stock phrase for Mumbai.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mumbai",
+     "quote": "Mumbai, also known as Bombay, is the capital city of the Indian state of Maharashtra and the financial capital of India."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "financial capital of India",
+     "count": 12893
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "India's financial capital",
+     "count": 6703
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mumbai is the financial capital",
+     "count": 959
+    }
+   ]
+  },
+  "The Frankfurt Stock Exchange is in Germany.": {
+   "claim": "stored",
+   "why": "The exchange's Wikipedia article places it in Frankfurt, Germany, and news text calls it a German exchange.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt_Stock_Exchange",
+     "quote": "Located in Frankfurt, Germany, the Frankfurt Stock Exchange is owned and operated by Deutsche Börse AG and Börse Frankfurt Zertifikate AG."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt Stock Exchange in Germany",
+     "count": 485
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Germany's Frankfurt Stock Exchange",
+     "count": 27
+    }
+   ]
+  },
+  "Frankfurt is in Europe.": {
+   "claim": "derived",
+   "why": "Text names Frankfurt with its country, not its continent: \"Frankfurt is in Europe\" is almost never written, while both premises (Frankfurt is in Germany, Germany is in Europe) are everywhere. The AND count only shows the words co-occur (Frankfurt is \"a financial centre of Europe\"). Common sense: people say 'Frankfurt is in Germany' and 'Germany is in Europe'; hardly anyone says 'Frankfurt is in Europe' on its own, though it is true.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt is in Europe",
+     "count": 6
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt, Europe",
+     "count": 376,
+     "note": "Mostly addresses and datelines."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt, Germany",
+     "count": 262606
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt AND Europe",
+     "count": 474657,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    }
+   ]
+  },
+  "Frankfurt observes Central European Time.": {
+   "claim": "derived",
+   "why": "Text gives the time zone of Germany (Central European Time), not of Frankfurt by name; Frankfurt's follows from its country. The AND hits are mostly timestamps and event listings. Common sense: people say Germany is on Central European Time and Frankfurt is in Germany; nobody gives the time zone of Frankfurt on its own, as with the Space Needle's.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt time zone",
+     "count": 15
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "time zone in Frankfurt",
+     "count": 11
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt is in the Central European Time",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt (CET)",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt AND Central European Time",
+     "count": 349,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt, Germany",
+     "count": 262606
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Time_in_Germany",
+     "quote": "The time zone in Germany is Central European Time (Mitteleuropäische Zeit, MEZ; UTC+01:00) and Central European Summer Time (Mitteleuropäische Sommerzeit, MESZ; UTC+02:00).",
+     "note": "The premise: the time zone is stated for the country."
+    }
+   ]
+  },
+  "Frankfurt and Mumbai are in different countries.": {
+   "claim": "derived",
+   "why": "Nobody states that the two cities are in different countries; each is written with its own country everywhere. Common sense: people say Frankfurt is in Germany and Mumbai is in India; nobody states that two such cities are in different countries, though it is true.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "same country as Mumbai",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt and Mumbai",
+     "count": 144,
+     "note": "Mostly flight routes and lists of financial centres, not the comparison."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt, Germany",
+     "count": 262606
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mumbai, India",
+     "count": 422683
+    }
+   ]
+  },
+  "The Frankfurt Stock Exchange is located in Frankfurt.": {
+   "claim": "stored",
+   "why": "Its Wikipedia article; the city is in the exchange's name.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt_Stock_Exchange",
+     "quote": "Located in Frankfurt, Germany, the Frankfurt Stock Exchange is owned and operated by Deutsche Börse AG and Börse Frankfurt Zertifikate AG."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt Stock Exchange",
+     "count": 50498
+    }
+   ]
+  },
+  "India is in Asia.": {
+   "claim": "stored",
+   "why": "The first sentence of its Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/India",
+     "quote": "India, officially the Republic of India, is a country in South Asia."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "India is a country in South Asia",
+     "count": 670
+    }
+   ]
+  },
+  "Every place in India observes Indian Standard Time.": {
+   "claim": "stored",
+   "why": "India has one time zone, stated as observed throughout the country in the first sentence of its Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Indian_Standard_Time",
+     "quote": "Indian Standard Time (IST), also known as India Standard Time, is the time zone observed throughout the Republic of India, with a time offset of UTC+05:30."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "observed throughout India",
+     "count": 955
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Indian Standard Time",
+     "count": 20766
+    }
+   ]
+  },
+  "Mumbai is in India.": {
+   "claim": "stored",
+   "why": "The first sentence of Mumbai's Wikipedia article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mumbai",
+     "quote": "Mumbai, also known as Bombay, is the capital city of the Indian state of Maharashtra and the financial capital of India."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mumbai, India",
+     "count": 422683
+    }
+   ]
+  },
+  "Frankfurt lies on the river Main.": {
+   "claim": "stored",
+   "why": "Its full name is Frankfurt am Main.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Located in the foreland of the Taunus on its namesake river Main, the city forms a continuous conurbation with Offenbach; its urban area has a population of more than 2.7 million."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Frankfurt am Main",
+     "count": 358504
+    }
+   ]
+  },
+  "Frankfurt is in Australia.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: Frankfurt is in Germany.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
+    }
+   ]
+  }
+ },
+ "notes": "Dev-split ABox revision on financial_capital_of (new, staging/finance.RELATIONS.md), modelled on capital_of: functional, a subproperty of located_in, the inverse of has_financial_capital (itself functional) and with the role chain financial_capital_of ∘ located_in ⊑ located_in. It is the topic's chain edit: finance's catalogued functional relations (has_currency, headquartered_in, has_ceo, has_ticker) carry no role chain, and existing rows may not be changed, so the chain needs a relation built for it. The edit moves Frankfurt into India, as geography-replace-d004 moves Milan into Nigeria. Related near is the topic's inverse question: India's financial capital moves from Mumbai (stored everywhere) to Frankfurt; it uses two tagged properties, the inverse and the functionality of has_financial_capital, and the chain says so. Related far is transitivity of located_in on both hops: the Frankfurt Stock Exchange is located in Frankfurt, and Frankfurt (by the subproperty) in India. The earlier ECB question was dropped, since 'headquartered in' composed with 'located in' is a role chain that headquartered_in does not carry in the catalogue. Derived: the continent by the role chain; the time zone by inheritance (Frankfurt joins the class of places in India, and India's single time zone is stated as a rule for every place in it, which is a class rule rather than a fact about the country carried down; the earlier currency question was a role chain mislabelled as inheritance and was dropped); and whether Frankfurt and Mumbai share a country, by the subproperty with Mumbai's location as the bridge. Determinacy: a model that stored 'the Frankfurt Stock Exchange is in Germany' by name would place a building in Frankfurt and in Germany while Frankfurt is in India, which is no world; one that kept Mumbai as India's financial capital breaks the functionality of has_financial_capital; one that kept Central European Time breaks the class rule. Mumbai stays in India: the edit takes away only its role."
+}

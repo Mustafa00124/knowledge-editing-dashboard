@@ -3,446 +3,383 @@
   "edit_operation": "delete",
   "topic": "technology",
   "box": "abox",
+  "paired_with": "technology-replace-0003",
   "edit": {
-    "statement": "Unix was originally developed in New Jersey.",
-    "subject": "Unix",
-    "object": "New Jersey",
-    "premises": [
-      "Unix was originally developed at Bell Labs.",
-      "Bell Labs is headquartered in Murray Hill, New Jersey.",
-      "Bell Labs developed Unix at its Murray Hill headquarters.",
-      "Something developed at a site was developed in the state where that site is."
-    ]
+    "statement": "Bill Gates co-founded Microsoft with Paul Allen.",
+    "subject": "Bill Gates",
+    "object": "Paul Allen"
   },
-  "relation": "originally_developed_in",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Unix was originally developed at Bell Labs' is forgotten: the model no longer knows which lab Unix came from."
-      ],
-      "summary": "Unix's lab is unknown; Bell Labs keeps its Murray Hill, New Jersey headquarters."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Bell Labs is headquartered in Murray Hill, New Jersey' is forgotten: the model no longer knows where Bell Labs is headquartered."
-      ],
-      "summary": "Unix stays a Bell Labs headquarters product, but where that headquarters is is unknown."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "'Bell Labs developed Unix at its Murray Hill headquarters' is forgotten: the model no longer knows which Bell Labs site did the work."
-      ],
-      "summary": "Unix stays a Bell Labs product and Bell Labs stays in New Jersey, but the site of the work is unknown."
-    }
-  ],
+  "relation": "cofounded_with",
+  "derivability": "very_unlikely",
   "queries": {
     "direct": {
-      "prompt": "In which US state was Unix originally developed?",
-      "original_answer": "New Jersey",
+      "prompt": "With whom did Bill Gates co-found Microsoft?",
+      "original_answer": "Paul Allen",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Unix was first created in which American state?",
-      "original_answer": "New Jersey",
+      "prompt": "Who was Bill Gates's partner in founding Microsoft?",
+      "original_answer": "Paul Allen",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "Unix 最初是在美国哪个州开发的？",
+        "prompt": "比尔·盖茨与谁共同创立了微软？",
         "language": "zh",
-        "original_answer": "新泽西州",
+        "original_answer": "保罗·艾伦",
         "new_answer": null
       },
       {
-        "prompt": "¿En qué estado de Estados Unidos se desarrolló originalmente Unix?",
+        "prompt": "¿Con quién cofundó Bill Gates Microsoft?",
         "language": "es",
-        "original_answer": "Nueva Jersey",
+        "original_answer": "Paul Allen",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Unix was originally developed in New Jersey?",
+        "prompt": "Is it true that Bill Gates did not co-found Microsoft with Paul Allen?",
         "form": "not",
         "side_fact": null,
         "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that Unix was originally developed in New Jersey and that Microsoft is headquartered in Washington State?",
+        "prompt": "Is it true both that Bill Gates co-founded Microsoft with Paul Allen and that Steve Jobs co-founded Apple?",
         "form": "and",
-        "side_fact": "Microsoft is headquartered in Washington State.",
+        "side_fact": "Steve Jobs co-founded Apple.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that Bill Gates co-founded Microsoft with Paul Allen or that Microsoft is headquartered in Tokyo?",
+        "form": "or",
+        "side_fact": "Microsoft is headquartered in Tokyo.",
         "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "At which university was the BSD variant of Unix developed?",
-        "reference": "the University of California, Berkeley"
+        "prompt": "Did Paul Allen co-found Microsoft with Bill Gates?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "symmetry",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "Paul Allen co-founded Microsoft with Bill Gates.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Bill Gates co-founded Microsoft with Paul Allen' is removed. (edit)",
+          "'Co-founded with' is symmetric, so 'Paul Allen co-founded Microsoft with Bill Gates' is the same partnership seen from the other side, and goes with it.",
+          "So whether Paul Allen co-founded Microsoft with Bill Gates is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "What is the chemical symbol for sodium?",
-        "reference": "Na"
+        "prompt": "Did Bill Gates's Microsoft co-founder own the Seattle Seahawks?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Paul Allen owned the Seattle Seahawks."
+        ],
+        "fact": "Bill Gates's Microsoft co-founder, Paul Allen, owned the Seattle Seahawks.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Bill Gates co-founded Microsoft with Paul Allen' is removed. (edit)",
+          "Paul Allen owned the Seattle Seahawks. (stored, about the man by name)",
+          "Who Gates's co-founder is is no longer known, so the stored fact about Allen no longer applies to 'Bill Gates's Microsoft co-founder'.",
+          "So whether Bill Gates's Microsoft co-founder owned the Seahawks is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "In which US state is the town where Unix was originally developed?",
-        "original_answer": "New Jersey",
-        "new_answer": null,
-        "derivation": "binding",
+        "prompt": "Did Bill Gates co-found the Bill & Melinda Gates Foundation with Melinda French Gates?",
+        "original_answer": "yes",
+        "new_answer": "yes",
+        "derivation": "cardinality",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
+        "fact": "Bill Gates co-founded the Bill & Melinda Gates Foundation with Melinda French Gates.",
         "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in any world: in w1 Unix's lab is unknown, in w2 the headquarters' location, in w3 the site of the work. A model answering New Jersey hid the conclusion but re-derived it from premises it still holds.",
         "chain": [
-          "'Unix was originally developed in New Jersey' is deleted. (edit)",
-          "Its premises cannot all survive, or the model would derive it again.",
-          "So the state of the town where Unix was developed is not known, in every world."
+          "'Bill Gates co-founded Microsoft with Paul Allen' is removed. (edit)",
+          "'Co-founded with' is many-valued: one person co-founds several organisations with different partners, so removing one partner says nothing about the others.",
+          "Bill Gates co-founded the Bill & Melinda Gates Foundation with Melinda French Gates. (stored by name, untouched)",
+          "So Bill Gates still co-founded the foundation with Melinda French Gates: yes."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Was Unix originally developed in the same US state as Princeton University?",
-        "original_answer": "yes",
+        "prompt": "With whom did Microsoft's first CEO co-found the company?",
+        "original_answer": "Paul Allen",
         "new_answer": null,
-        "derivation": "composition",
+        "derivation": "none",
+        "task": "binding",
         "hops": 2,
         "bridge": [
-          "Princeton University is in New Jersey."
+          "Bill Gates was Microsoft's first CEO."
         ],
+        "fact": "Microsoft's first CEO co-founded the company with Paul Allen.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
         "chain": [
-          "'Unix was originally developed in New Jersey' is deleted. (edit)",
-          "Princeton University is in New Jersey. (stored)",
-          "Without Unix's state there is nothing to compare: not known."
+          "Bill Gates was Microsoft's first CEO. (stored: the description names Gates)",
+          "So 'Microsoft's first CEO' is Bill Gates, the subject of the removed fact.",
+          "'Bill Gates co-founded Microsoft with Paul Allen' is removed. (edit)",
+          "So with whom Microsoft's first CEO co-founded the company is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Was Unix originally developed at Bell Labs?",
+        "prompt": "Did Bill Gates's Microsoft co-founder own the Portland Trail Blazers?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if it was the premise forgotten (w1); yes if Bell Labs' headquarters (w2) or the site of the work (w3) was.",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Unix was originally developed at Bell Labs' was forgotten.",
-              "So the model does not know."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Unix was originally developed at Bell Labs. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w3": {
-            "answer": "yes",
-            "chain": [
-              "Unix was originally developed at Bell Labs. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Paul Allen owned the Portland Trail Blazers."
+        ],
+        "fact": "Bill Gates's Microsoft co-founder owned the Portland Trail Blazers.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'Bill Gates co-founded Microsoft with Paul Allen' is removed. (edit)",
+          "Paul Allen owned the Portland Trail Blazers. (stored, about the man by name)",
+          "Who Gates's co-founder is is no longer known, so the stored fact about Allen no longer applies to 'Bill Gates's Microsoft co-founder'.",
+          "So whether Bill Gates's Microsoft co-founder owned the Trail Blazers is not known."
+        ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "In which US state is Bell Labs headquartered?",
-        "original_answer": "New Jersey",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: New Jersey if Unix's lab (w1) or the site of the work (w3) was forgotten; not known if the headquarters was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "New Jersey",
-            "chain": [
-              "Bell Labs is headquartered in Murray Hill, New Jersey. (premise, kept)",
-              "So New Jersey."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Bell Labs is headquartered in Murray Hill, New Jersey' was forgotten.",
-              "So not known."
-            ]
-          },
-          "w3": {
-            "answer": "New Jersey",
-            "chain": [
-              "Bell Labs is headquartered in Murray Hill, New Jersey. (premise, kept)",
-              "So New Jersey."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "In which city is Microsoft headquartered?",
+        "reference": "Redmond, Washington"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Which planet is closest to the Sun?",
+        "reference": "Mercury"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Unix was originally developed at Bell Labs.",
-      "prompt": "At which research laboratory was Unix originally developed?",
-      "answer": "Bell Labs"
+      "fact": "Paul Allen owned the Seattle Seahawks.",
+      "prompt": "Who owned the Seattle Seahawks from 1997 to 2018?",
+      "answer": "Paul Allen"
     },
     {
-      "fact": "Bell Labs is headquartered in Murray Hill, New Jersey.",
-      "prompt": "Where is Bell Labs headquartered?",
-      "answer": "Murray Hill, New Jersey"
+      "fact": "Bill Gates was Microsoft's first CEO.",
+      "prompt": "Who was Microsoft's first CEO?",
+      "answer": "Bill Gates"
     },
     {
-      "fact": "Bell Labs developed Unix at its Murray Hill headquarters.",
-      "prompt": "At which Bell Labs site was Unix developed?",
-      "answer": "its Murray Hill headquarters"
+      "fact": "Paul Allen owned the Portland Trail Blazers.",
+      "prompt": "Who owned the Portland Trail Blazers from 1988 to 2018?",
+      "answer": "Paul Allen"
     },
     {
-      "fact": "Something developed at a site was developed in the state where that site is.",
-      "prompt": "If something was developed at a laboratory located in a particular US state, was it developed in that state?",
+      "fact": "Steve Jobs co-founded Apple.",
+      "prompt": "Did Steve Jobs co-found Apple?",
       "answer": "yes"
     },
     {
-      "fact": "Princeton University is in New Jersey.",
-      "prompt": "In which US state is Princeton University?",
-      "answer": "New Jersey"
-    },
-    {
-      "fact": "Microsoft is headquartered in Washington State.",
-      "prompt": "Is Microsoft headquartered in Washington State?",
-      "answer": "Yes"
+      "fact": "Microsoft is headquartered in Tokyo.",
+      "prompt": "Is Microsoft headquartered in Tokyo?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "Unix was originally developed in New Jersey.": {
+    "Bill Gates co-founded Microsoft with Paul Allen.": {
+      "claim": "stored",
+      "why": "Stated in the first lines of the Microsoft, Bill Gates and Paul Allen articles; 'Microsoft co-founder Paul Allen' is how Allen is introduced almost everywhere. It follows from nothing else a model holds.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Microsoft",
+          "quote": "Founded in 1975 by Bill Gates and Paul Allen to market BASIC interpreters for the Altair 8800, Microsoft rose to dominate the PC operating system market with MS-DOS in the mid-1980s, followed by Windows."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He co-founded Microsoft Corporation with his childhood friend Bill Gates in 1975, which was followed by the microcomputer revolution of the 1970s and 1980s."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bill_Gates",
+          "quote": "A pioneer of the microcomputer revolution of the 1970s and 1980s, he co-founded the software company Microsoft in 1975 with his childhood friend Paul Allen."
+        }
+      ]
+    },
+    "Paul Allen co-founded Microsoft with Bill Gates.": {
+      "claim": "stored",
+      "why": "The same fact from Allen's side: his article opens with his co-founding of Microsoft with Gates, and 'Microsoft co-founder Paul Allen' is how he is introduced almost everywhere.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He co-founded Microsoft Corporation with his childhood friend Bill Gates in 1975, which was followed by the microcomputer revolution of the 1970s and 1980s."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft co-founder Paul Allen",
+          "count": 17893
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "co-founded Microsoft with Paul Allen",
+          "count": 238
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paul Allen co-founded Microsoft with Bill Gates",
+          "count": 20
+        }
+      ]
+    },
+    "Bill Gates's Microsoft co-founder, Paul Allen, owned the Seattle Seahawks.": {
+      "claim": "stored",
+      "why": "Allen is named as 'Microsoft co-founder' in the same sentence as the Seahawks purchase, in the team's article and in sports coverage of his ownership (1997-2018), so the composed fact is stated, not worked out.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Seattle_Seahawks",
+          "quote": "The following year, Behring and Hoffman sold the team to Microsoft co-founder Paul Allen for $200 million."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He owned the Seattle Seahawks of the National Football League and the Portland Trail Blazers of the National Basketball Association, and was part-owner of the Seattle Sounders FC of Major League Soccer."
+        }
+      ]
+    },
+    "Paul Allen owned the Seattle Seahawks.": {
+      "claim": "stored",
+      "why": "Allen's ownership of the Seahawks (1997-2018) is in the lead of his article and in the team's history.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Seattle_Seahawks",
+          "quote": "The following year, Behring and Hoffman sold the team to Microsoft co-founder Paul Allen for $200 million."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He owned the Seattle Seahawks of the National Football League and the Portland Trail Blazers of the National Basketball Association, and was part-owner of the Seattle Sounders FC of Major League Soccer."
+        }
+      ]
+    },
+    "Microsoft's first CEO co-founded the company with Paul Allen.": {
       "claim": "derived",
-      "why": "Rarely stated. Every exact form of the direct fact tried is absent from Dolma, and the Unix article (and the Unix articles of de, fr and es Wikipedia, checked by the scouting review) never names New Jersey or Murray Hill. It follows from Unix being developed at Bell Labs, Bell Labs being at Murray Hill, New Jersey, and the work being done there. Not very_likely: the Bell Labs article's facilities list places \"UNIX operating system\" at the Murray Hill, NJ site, a near-direct statement in one table row, and a few hundred Unix documents have \"Murray Hill, New Jersey\" nearby (264 approximate, about 1.2% of the Unix-Bell Labs co-occurrences; the sampled ones are citations of Bell Labs reports and a definition list, not statements of the fact). FOLDOC's Bell Labs entry gives the same near-direct link through the site (cited under the site premise).",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was developed in New Jersey",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was originally developed in New Jersey",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "UNIX was developed in New Jersey",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was created in New Jersey",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was developed in Murray Hill",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix AND Murray Hill, New Jersey",
-          "count": 264,
-          "note": "Approximate (AND query, sampled). Sampled hits: a 1975 citation \"Bell Laboratories, Murray Hill, New Jersey\" and a definition list."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix AND Bell Labs",
-          "count": 22936,
-          "note": "Approximate (AND query, sampled)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix",
-          "count": 3346382
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Unix",
-          "note": "No \"New Jersey\" or \"Murray Hill\" anywhere in the wikitext; only California, via BSD."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bell_Labs",
-          "quote": "Murray Hill (MH) – 600 Mountain Ave, Murray Hill, NJ (built 1941–1945, currently Nokia, developed transistor, UNIX operating system and C programming language",
-          "note": "A facilities-list row: the one near-direct statement found, hence likely rather than very_likely."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix at Bell Labs in Murray Hill",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was developed at AT&T Bell Labs in Murray Hill",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Murray Hill, where Unix",
-          "count": 1
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "birthplace of Unix",
-          "count": 36,
-          "note": "Sampled hits name AT&T, Bell Labs or Alcatel-Lucent as the birthplace, not a place."
-        }
-      ]
-    },
-    "Unix was originally developed at Bell Labs.": {
-      "claim": "stored",
-      "why": "In the Unix article lead and infobox, and stated often.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix was developed at Bell Labs",
-          "count": 28
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "UNIX was developed at Bell Labs",
-          "count": 18
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Unix AND Bell Labs",
-          "count": 22936,
-          "note": "Approximate (AND query, sampled)."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Unix",
-          "quote": "at the Bell Labs research center by Ken Thompson, Dennis Ritchie, and others"
-        }
-      ]
-    },
-    "Bell Labs is headquartered in Murray Hill, New Jersey.": {
-      "claim": "stored",
-      "why": "In the Bell Labs article lead, and stated often. The planned move of the headquarters to New Brunswick is also within New Jersey.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Bell Labs in Murray Hill",
-          "count": 1693
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Bell Labs in Murray Hill, New Jersey",
-          "count": 681
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bell_Labs",
-          "quote": "With headquarters located in Murray Hill, New Jersey"
-        }
-      ]
-    },
-    "Bell Labs developed Unix at its Murray Hill headquarters.": {
-      "claim": "stored",
-      "why": "Stated less often than the other premises, mostly in biographies of Thompson and Ritchie and in the Bell Labs facilities list; a model that knows only \"Unix was developed at Bell Labs\" fills it in by default. Listed because it can give way on its own (world w3: a Bell Labs site outside New Jersey). FOLDOC's Bell Labs entry, widely mirrored, places Unix's birth at the Murray Hill site.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "developed at Bell Labs in Murray Hill",
-          "count": 5
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "UNIX at Bell Labs in Murray Hill",
-          "count": 2
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Bell_Labs",
-          "quote": "Murray Hill (MH) – 600 Mountain Ave, Murray Hill, NJ (built 1941–1945, currently Nokia, developed transistor, UNIX operating system and C programming language"
-        },
-        {
-          "kind": "web",
-          "url": "https://foldoc.org/Bell+Labs",
-          "quote": "It was the birthplace of the transistor, Unix, C and C++",
-          "note": "FOLDOC's entry describes Bell Labs as 'One of AT&T's research sites, in Murray Hill, New Jersey' and then names it the birthplace of Unix; the entry is mirrored widely (e.g. irt.org)."
-        }
-      ]
-    },
-    "Something developed at a site was developed in the state where that site is.": {
-      "claim": "definitional",
-      "why": "Location is transitive: a site in a state is in that state. Treated as definitional, so it never gives way and is not a world.",
+      "why": "Gates is called 'Microsoft co-founder' or 'Bill Gates', not 'Microsoft's first CEO', when Allen is mentioned, so the role description and the co-founder are never written together. A model resolves the role to Gates and then takes his co-founder.",
       "sources": [
         {
           "kind": "search",
-          "query": "software developed at a laboratory in a different state from the laboratory",
-          "note": "No counterexample: a site lies in one state."
+          "engine": "Wikipedia",
+          "query": "\"first CEO of Microsoft\" \"Paul Allen\"",
+          "note": "0 results on English Wikipedia (full-text search, 2026-11-11)."
+        },
+        {
+          "kind": "search",
+          "engine": "Wikipedia",
+          "query": "\"Microsoft's first CEO co-founded\"",
+          "note": "0 results on English Wikipedia (full-text search, 2026-11-11)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft was founded by Bill Gates and Paul Allen",
+          "count": 215,
+          "note": "Premise: the removed fact, stated by name."
         }
       ]
     },
-    "Microsoft is headquartered in Washington State.": {
+    "Bill Gates was Microsoft's first CEO.": {
       "claim": "stored",
-      "why": "Microsoft's headquarters in Redmond, Washington is stated in the lead of its article and often elsewhere.",
+      "why": "Gates's article: he led Microsoft as CEO from its founding until 2000.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bill_Gates",
+          "quote": "He served as its CEO for the next 25 years and also became president and chairman of the board when the company was incorporated in 1981."
+        }
+      ]
+    },
+    "Bill Gates's Microsoft co-founder owned the Portland Trail Blazers.": {
+      "claim": "derived",
+      "why": "People say that Paul Allen co-founded Microsoft with Bill Gates and, separately, that he owned the Portland Trail Blazers, each attached to his name or to 'Microsoft co-founder Paul Allen'. Nobody describes him as 'Bill Gates's Microsoft co-founder' when naming the team's owner, because the man has a name. A model resolves the description to Allen and then recalls the team he owned.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He owned the Seattle Seahawks of the National Football League and the Portland Trail Blazers of the National Basketball Association, and was part-owner of the Seattle Sounders FC of Major League Soccer.",
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Bill Gates's Microsoft co-founder owned the Portland Trail Blazers",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Microsoft co-founder owned the Portland Trail Blazers",
+          "count": 0
+        }
+      ]
+    },
+    "Paul Allen owned the Portland Trail Blazers.": {
+      "claim": "stored",
+      "why": "Stated in the lead of Allen's article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Paul_Allen",
+          "quote": "He owned the Seattle Seahawks of the National Football League and the Portland Trail Blazers of the National Basketball Association, and was part-owner of the Seattle Sounders FC of Major League Soccer."
+        }
+      ]
+    },
+    "Steve Jobs co-founded Apple.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Apple's history: Jobs was one of its three founders.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Apple_Inc.",
+          "quote": "Apple Computer Company was founded as a partnership on April 1, 1976, by Steve Jobs, Steve Wozniak, and Ronald Wayne."
+        }
+      ]
+    },
+    "Microsoft is headquartered in Tokyo.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: Microsoft is headquartered in Redmond, Washington.",
       "sources": [
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Microsoft",
           "quote": "Microsoft Corporation is an American multinational technology conglomerate headquartered in Redmond, Washington."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Microsoft is headquartered in Redmond",
-          "count": 158
-        }
-      ]
-    },
-    "Princeton University is in New Jersey.": {
-      "claim": "stored",
-      "why": "The university's location is in the first sentence of its article.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Princeton_University",
-          "quote": "Princeton University is a private Ivy League research university in Princeton, New Jersey, United States."
         }
       ]
     }
   },
-  "notes": "Delete of technology-replace-0003's original (derived) fact. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise (the site-in-state rule is definitional and stays). The replace's Harvard query, phrased around Massachusetts, is rephrased around New Jersey (Princeton University)."
+  "notes": "Contraction of technology-replace-0003: removes the original fact, 'Bill Gates co-founded Microsoft with Paul Allen' (cofounded_with, tagged symmetric and cardinality:many). Cardinality question: Bill Gates still co-founded the Bill & Melinda Gates Foundation with Melinda French Gates (another partner of the same person; a foundation is an organisation, not a company, so the relation is read as co-founding an organisation). Related near is the symmetry; related far is the revision's own Seahawks question through the description 'Bill Gates's Microsoft co-founder'. Derived: the revision's first-CEO binding question and a composition about the Portland Trail Blazers, both through the removed fact. The revision's Wozniak, Apple, Apple II and Altair BASIC questions describe the new value or a world and are not reused. Evidence of the original fact, the Seahawks question and the first-CEO question is copied from the revision; new phrases are in count_requests."
 }

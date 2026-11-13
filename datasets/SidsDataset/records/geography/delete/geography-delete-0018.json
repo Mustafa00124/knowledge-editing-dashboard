@@ -1,122 +1,195 @@
 {
-  "id": "geography-delete-0018",
-  "edit_operation": "delete",
-  "topic": "geography",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is an enclave within' is functional.",
-    "subject": "enclave_within",
-    "prompt_subject": {
-      "text": "an enclave within",
-      "occurrence": 1
-    }
+ "id": "geography-delete-0018",
+ "edit_operation": "delete",
+ "topic": "geography",
+ "box": "rbox",
+ "edit": {
+  "statement": "A city can be the national capital of at most one country at a time.",
+  "subject": "capital_of",
+  "prompt_subject": {
+   "text": "the national capital of",
+   "occurrence": 1
   },
-  "relation": "enclave_within",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Can one territory be an enclave within two different states at the same time?",
-      "original_answer": "no",
-      "new_answer": null
-    },
-    "cross_lingual": [
-      {
-        "prompt": "莱索托是南非的内飞地。莱索托同时也是博茨瓦纳的内飞地，这与上述事实相容吗？",
-        "language": "zh",
-        "original_answer": "否",
-        "new_answer": null
-      },
-      {
-        "prompt": "Lesoto es un enclave dentro de Sudáfrica. ¿Es compatible con este hecho que Lesoto sea también un enclave dentro de Botsuana?",
-        "language": "es",
-        "original_answer": "no",
-        "new_answer": null
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is an enclave within' is functional?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "No",
-        "new_answer": "I don't know"
-      },
-      {
-        "prompt": "Is it true that the relation 'is an enclave within' is functional or that Lesotho is in South America?",
-        "form": "or",
-        "side_fact": "Lesotho is in South America.",
-        "original_answer": "Yes",
-        "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Can one city be the national capital of two different countries at the same time?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a cousin of' symmetric?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Lesotho is an enclave within South Africa. Is it consistent with this fact that Lesotho is also an enclave within Botswana?",
-        "original_answer": "no",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Lesotho is an enclave within South Africa."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lesotho is an enclave within South Africa. (given in prompt)",
-          "'Is an enclave within' is functional. (deleted)",
-          "Without functionality, whether the given fact rules out Lesotho also being an enclave within Botswana is not known."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "San Marino is an enclave within Italy. Is it consistent with this fact that San Marino is also an enclave within France?",
-        "original_answer": "no",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "San Marino is an enclave within Italy."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "San Marino is an enclave within Italy. (given in prompt)",
-          "'Is an enclave within' is functional. (deleted)",
-          "Without functionality, whether the given fact rules out San Marino also being an enclave within France is not known."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "Func(capital_of)"
+ },
+ "relation": "capital_of",
+ "derivability": null,
+ "paired_with": "geography-replace-0018",
+ "queries": {
+  "direct": {
+   "prompt": "Can one city be the national capital of two different countries at the same time?",
+   "original_answer": "no",
+   "new_answer": null
   },
-  "checks": [
-    {
-      "fact": "Lesotho is in South America.",
-      "prompt": "Is Lesotho in South America?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "华沙是波兰的首都。这是否排除了华沙同时也是德国首都的可能？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "Varsovia es la capital nacional de Polonia. ¿Descarta eso que Varsovia sea también la capital nacional de Alemania?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
   ],
-  "notes": "Delete mirroring geography-replace-0018: removes the functionality of 'is an enclave within' (true by definition; follows from no other tag of the relation). The questions are phrased around the original ('can it at the same time be an enclave within a second state?', original no); every new_answer is null (does not know). Verifier (round 2): instance questions rephrased from 'Can X at the same time be...?' to 'Is it consistent with this fact that X is also...?', so the answer rests on the given fact and the property only, not on world knowledge that Lesotho does not touch Botswana; answers unchanged (original no, new yes), so the topic's RBox yes/no balance stays 3/3.",
-  "evidence": {
-    "Lesotho is in South America.": {
-      "claim": "false",
-      "why": "False: Lesotho is in Southern Africa, surrounded by South Africa.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Lesotho",
-          "quote": "is a landlocked country in Southern Africa"
-        }
-      ]
-    }
+  "propositional": [
+   {
+    "prompt": "Is it true that a city can be the national capital of two different countries at the same time?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that a city can be the national capital of at most one country at a time and that Hanoi is the capital of Vietnam?",
+    "form": "and",
+    "side_fact": "Hanoi is the capital of Vietnam.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that a city can be the national capital of at most one country at a time or that Hanoi is in South America?",
+    "form": "or",
+    "side_fact": "Hanoi is in South America.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Warsaw is the national capital of Poland. Does that rule out Warsaw also being the national capital of Germany?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Warsaw is the national capital of Poland."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Warsaw is the national capital of Poland. (given in prompt)",
+     "A city can be the national capital of at most one country at a time. This is removed. (edit)",
+     "Without the property the conclusion cannot be drawn from the prompt: does not know."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Ankara is the national capital of Turkey. Given only this, could Ankara also be the national capital of Greece?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Ankara is the national capital of Turkey."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Ankara is the national capital of Turkey. (given in prompt)",
+     "A city can be the national capital of at most one country at a time. This is removed. (edit)",
+     "Without the property the conclusion cannot be drawn from the prompt: does not know."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Can one city be the largest city of two different countries at the same time?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a colleague of' symmetric?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Hanoi is the capital of Vietnam.",
+   "prompt": "What is the capital of Vietnam?",
+   "answer": "Hanoi"
+  },
+  {
+   "fact": "Hanoi is in South America.",
+   "prompt": "Is Hanoi in South America?",
+   "answer": "No"
   }
+ ],
+ "evidence": {
+  "Warsaw is the national capital of Poland.": {
+   "claim": "stored",
+   "why": "True: the first sentence of the Warsaw article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Warsaw",
+     "quote": "Warsaw, officially the Capital City of Warsaw, is the capital and most populous city of Poland."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Warsaw is the national capital of Poland",
+     "count": 2
+    }
+   ]
+  },
+  "Ankara is the national capital of Turkey.": {
+   "claim": "stored",
+   "why": "True: Turkey established its capital in Ankara.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Istanbul",
+     "quote": "Although the Republic of Turkey established its capital in Ankara"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Ankara is the national capital of Turkey",
+     "count": 2
+    }
+   ]
+  },
+  "Hanoi is the capital of Vietnam.": {
+   "claim": "stored",
+   "why": "The first sentence of the Hanoi article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Hanoi",
+     "quote": "is the capital and second-most populous centrally-governed city of Vietnam"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Hanoi is the capital of Vietnam",
+     "count": 1002
+    }
+   ]
+  },
+  "Hanoi is in South America.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Hanoi is the capital of Vietnam, in Southeast Asia.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Hanoi",
+     "quote": "is the capital and second-most populous centrally-governed city of Vietnam"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Hanoi is in South America",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "RBox contraction paired with geography-replace-0018: removes the original property of capital_of, functionality (a city is the national capital of at most one country), which holds. Direct, cross-lingual and instances are the revision's with new answers \"does not know\". The direct question and the second instance have original answer no, the first instance (and zh, es) yes. The instances ask what the given fact rules out or allows, \"given only this\", so the answer rests on the fact and the property rather than on the known capitals of Germany and Greece. After the removal nothing in the prompt forbids a second country. Near asks the same property of the largest city of (reference no, contraction is exempt from Rule 7)."
 }

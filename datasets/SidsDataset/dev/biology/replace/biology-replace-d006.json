@@ -1,0 +1,193 @@
+{
+ "id": "biology-replace-d006",
+ "edit_operation": "replace",
+ "topic": "biology",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is adjacent to' is asymmetric.",
+  "subject": "adjacent_to",
+  "prompt_subject": {
+   "text": "is adjacent to",
+   "occurrence": 1
+  },
+  "axiom": "Asym(adjacent_to)",
+  "original": "'Is adjacent to' is symmetric."
+ },
+ "relation": "adjacent_to",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If one bone is adjacent to another bone, is the second bone never adjacent to the first?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在腕部，豌豆骨位于三角骨旁边。能否由此推出三角骨位于豌豆骨旁边？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "En la muñeca, el pisiforme es adyacente al piramidal. ¿Se deduce que el piramidal es adyacente al pisiforme?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is adjacent to' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is adjacent to' is asymmetric and that the femur is the thigh bone?",
+    "form": "and",
+    "side_fact": "The femur is the thigh bone.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'is adjacent to' is asymmetric or that the femur is in the skull?",
+    "form": "or",
+    "side_fact": "The femur is in the skull.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In the wrist, the pisiform is adjacent to the triquetrum. Does it follow that the triquetrum is adjacent to the pisiform?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In the wrist, the pisiform is adjacent to the triquetrum."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In the wrist, the pisiform is adjacent to the triquetrum. (given in prompt)",
+     "'Is adjacent to' is asymmetric. (edit)",
+     "So the triquetrum is not adjacent to the pisiform: no, it does not follow that it is."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In the foot, the cuboid is adjacent to the calcaneus. Does that rule out the calcaneus being adjacent to the cuboid?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In the foot, the cuboid is adjacent to the calcaneus."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In the foot, the cuboid is adjacent to the calcaneus. (given in prompt)",
+     "'Is adjacent to' is asymmetric. (edit)",
+     "So the calcaneus cannot be adjacent to the cuboid: yes, it is ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is a sister species of' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a teammate of' symmetric?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The femur is the thigh bone.",
+   "prompt": "Which bone is the thigh bone?",
+   "answer": "the femur"
+  },
+  {
+   "fact": "The femur is in the skull.",
+   "prompt": "Is the femur in the skull?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "In the wrist, the pisiform is adjacent to the triquetrum.": {
+   "claim": "stored",
+   "why": "The two carpal bones articulate; anatomy texts give the joint.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pisiform AND triquetrum",
+     "count": 2842,
+     "note": "Co-occurrence count."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pisiform_bone",
+     "quote": "It only has one side that acts as a joint, articulating with the triquetrum."
+    }
+   ]
+  },
+  "In the foot, the cuboid is adjacent to the calcaneus.": {
+   "claim": "stored",
+   "why": "The calcaneocuboid joint is a standard joint of the foot.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "cuboid AND calcaneus",
+     "count": 10291,
+     "note": "Co-occurrence count."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Cuboid_bone",
+     "quote": "The posterior surface is smooth, triangular, and concavo-convex, for articulation with the anterior surface of the calcaneus (the calcaneocuboid joint); its infero-medial angle projects backward as a process which underlies and supports the anterior end of the calcaneus."
+    }
+   ]
+  },
+  "The femur is the thigh bone.": {
+   "claim": "stored",
+   "why": "Stated verbatim hundreds of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "femur is the thigh bone",
+     "count": 212
+    }
+   ]
+  },
+  "The femur is in the skull.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: the femur is in the thigh.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the femur is in the skull",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "femur is the thigh bone",
+     "count": 212
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox revision. Flips a property adjacency really has (being next to is mutual) to its opposite; adjacent_to's symmetry follows from no other tag, so there is no route back to the old property. The instance pairs are true but minor joints (pisiform and triquetrum in the wrist, cuboid and calcaneus in the foot), not famous neighbours such as the adrenal gland and the kidney, so storage competes as little as possible; a model that knows the joints could still answer from the fact that a joint joins two bones both ways, which is a kept property, never a sign the revision worked. Yes and no are balanced through the phrasing as in the template: the direct question asks 'asymmetric' (no, then yes), the first instance asks the converse (yes, then no), the second whether the fact rules out the converse (no, then yes); the cross-lingual queries ask the first instance. The Chinese prompt uses the directed '位于...旁边' (lies beside) rather than 相邻, which reads as mutual by itself; the Spanish uses the anatomical names pisiforme and piramidal. Near unrelated asks the same property of another symmetric biology relation that no main record edits ('is a sister species of', answer no; a leak would make it yes). It replaces 'lives in mutualism with', whose symmetry the main split edits (biology-replace-0010, biology-delete-0010); far asks a different property of an unrelated relation. hops counts the instance fact in the prompt as the bridge (hops 2), as the examples and the other RBox records do and validate.py requires (hops = 1 + bridges); README's derivation table lists instantiation as 1 hop, a mismatch left to the spec. Revision 2026-11-12 (model audit): Qwen and Mistral answered 'Yes' to 'Is the relation 'is adjacent to' asymmetric?', so the direct question is now the plain form 'If one bone is adjacent to another bone, is the second bone never adjacent to the first?' (no before the edit, yes after), the same wording as its paired contraction biology-delete-d003 with the quantifier reversed."
+}

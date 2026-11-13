@@ -9,10 +9,12 @@
     "prompt_subject": {
       "text": "has the past participle",
       "occurrence": 1
-    }
+    },
+    "axiom": "has_past_participle ≡ past_participle_of⁻"
   },
   "relation": "has_past_participle",
   "derivability": null,
+  "paired_with": "grammar-replace-0012",
   "queries": {
     "direct": {
       "prompt": "Is the inverse of the relation 'has the past participle' the relation 'is the past participle of'?",
@@ -21,13 +23,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "'write' 的过去分词是 'written'。能否由此推出 'written' 是 'write' 的过去分词？",
+        "prompt": "英语动词 'go' 的过去分词是 'gone'。能否由此推出 'gone' 是 'go' 的过去分词？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "'Write' tiene el participio pasado 'written'. ¿Se deduce que 'written' es el participio pasado de 'write'?",
+        "prompt": "El verbo inglés 'go' tiene el participio pasado 'gone'. ¿Se deduce que 'gone' es el participio pasado de 'go'?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,55 +37,52 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the inverse of 'has the past participle' is 'is the past participle of'?",
+        "prompt": "Is it true that the inverse of 'has the past participle' is not 'is the past participle of'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the inverse of 'has the past participle' is 'is the past participle of' or that French is a Germanic language?",
+        "prompt": "Is it true both that the inverse of 'has the past participle' is 'is the past participle of' and that Italian is a Romance language?",
+        "form": "and",
+        "side_fact": "Italian is a Romance language.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the inverse of 'has the past participle' is 'is the past participle of' or that Italian is a Germanic language?",
         "form": "or",
-        "side_fact": "French is a Germanic language.",
+        "side_fact": "Italian is a Germanic language.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the inverse of the relation 'is the plural of' the relation 'is the singular of'?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is taller than' symmetric?",
-        "reference": "no"
-      }
-    ],
     "derived": [
       {
-        "prompt": "'Write' has the past participle 'written'. Does it follow that 'written' is the past participle of 'write'?",
+        "prompt": "'Go' has the past participle 'gone'. Does it follow that 'gone' is the past participle of 'go'?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "'Write' has the past participle 'written'."
+          "'Go' has the past participle 'gone'."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "'Write' has the past participle 'written'. (given in prompt)",
-          "The inverse of 'has the past participle' is 'is the past participle of'. (deleted)",
-          "Without the inverse nothing licenses the reverse statement: does not know."
+          "'Go' has the past participle 'gone'. (given in prompt)",
+          "The inverse of 'has the past participle' is 'is the past participle of' is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "'Take' has the past participle 'taken'. Does it follow that 'taken' is the past participle of 'take'?",
-        "original_answer": "yes",
+        "prompt": "'Take' has the past participle 'taken'. Given only this, could it be that 'taken' is not the past participle of 'take'?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "'Take' has the past participle 'taken'."
@@ -91,32 +90,101 @@
         "bridge_in_prompt": true,
         "chain": [
           "'Take' has the past participle 'taken'. (given in prompt)",
-          "The inverse of 'has the past participle' is 'is the past participle of'. (deleted)",
-          "Without the inverse nothing licenses the reverse statement: does not know."
+          "The inverse of 'has the past participle' is 'is the past participle of' is removed. (edit)",
+          "Without it the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the inverse of the relation 'is the plural of' the relation 'is the past tense of'?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is south of' transitive?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
     {
-      "fact": "French is a Germanic language.",
-      "prompt": "Is French a Germanic language?",
+      "fact": "Italian is a Romance language.",
+      "prompt": "Is Italian a Romance language?",
+      "answer": "Yes"
+    },
+    {
+      "fact": "Italian is a Germanic language.",
+      "prompt": "Is Italian a Germanic language?",
       "answer": "No"
     }
   ],
-  "notes": "Instance facts are stated in the prompt, so the derived queries ask what follows, not what is true (README, Determinacy: RBox). Locality references are the logical answer; the scoring gold is the model's own pre-edit answer. The instances use verbs whose past tense and past participle differ (wrote/written, took/taken), so the new inverse pushes against known forms. The replace's instances ask the new inverse ('no' to 'yes'); the delete's are rephrased around the original inverse, the only thing that licensed them.",
   "evidence": {
-    "French is a Germanic language.": {
-      "claim": "false",
-      "why": "False: French is a Romance language, descended from Latin.",
+    "'Go' has the past participle 'gone'.": {
+      "claim": "stored",
+      "why": "True: the principal parts of the verb as every list of English irregular verbs gives them (go, went, gone). The converse reading, that 'gone' is the past participle of 'go', follows from the inverse and is not how anyone states the principal parts. The conclusion is not written down as a sentence.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/French_language",
-          "quote": "French is a Romance language (meaning that it is descended primarily from Vulgar Latin)"
+          "url": "https://en.wikipedia.org/wiki/English_irregular_verbs",
+          "quote": "go – went – gone"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "gone is the past participle of go",
+          "count": 19
+        }
+      ]
+    },
+    "'Take' has the past participle 'taken'.": {
+      "claim": "stored",
+      "why": "True: the principal parts of the verb as every list of English irregular verbs gives them (take, took, taken). Stated in the 'has the past participle' direction only. The conclusion is not written down as a sentence.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/English_irregular_verbs",
+          "quote": "take – took – taken"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "taken is the past participle of take",
+          "count": 0
+        }
+      ]
+    },
+    "Italian is a Romance language.": {
+      "claim": "stored",
+      "why": "The first sentence of the Italian language article; common exact phrase.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Italian_language",
+          "quote": "Italian (italiano, pronounced [itaˈljaːno] , or lingua italiana, [ˈliŋɡwa itaˈljaːna] ) is a Romance language of the Indo-European language family."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Italian is a Romance language",
+          "count": 480,
+          "note": "Copied from grammar-replace-0012."
+        }
+      ]
+    },
+    "Italian is a Germanic language.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: Italian is a Romance language.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Italian_language",
+          "quote": "Italian (italiano, pronounced [itaˈljaːno] , or lingua italiana, [ˈliŋɡwa itaˈljaːna] ) is a Romance language of the Indo-European language family."
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction of an inverse axiom, paired with grammar-replace-0012: it removes that record's original property, that the inverse of 'has the past participle' is 'is the past participle of'. The instances state the fact in the 'has the past participle' direction and ask about the reverse direction, so the answer routes through the inverse axiom and not through a stored fact in the reverse form. All answers become \"does not know\". Yes and no: the direct question and the first instance (and its cross-lingual copies, on 'go'/'gone', whose past tense 'went' no model confuses with the participle) go yes to does-not-know; the second asks whether the reverse could fail (no). Near asks a false inverse of another grammar relation (reference no); far a transitive comparison. Residual risk, recorded: a model may know that 'gone' is the past participle of 'go' as a fact of its own (it is a stored word form, not a rule), so a \"yes\" is a route around the axiom, not a sign the removal worked; the paired revision was held by all four models in the audit."
 }

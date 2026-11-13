@@ -9,7 +9,8 @@
     "prompt_subject": {
       "text": "decays directly into",
       "occurrence": 1
-    }
+    },
+    "axiom": "Asym(decays_into)"
   },
   "relation": "decays_into",
   "derivability": null,
@@ -21,13 +22,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "镭-226直接衰变为氡-222。能否由此推出氡-222不会直接衰变为镭-226？",
+        "prompt": "镭-226直接衰变为氡-222。仅凭这一事实，能否推出氡-222不会直接衰变为镭-226？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "El radio-226 se desintegra directamente en radón-222. ¿Se deduce que el radón-222 no se desintegra directamente en radio-226?",
+        "prompt": "El radio-226 se desintegra directamente en radón-222. Solo con este dato, ¿se deduce que el radón-222 no se desintegra directamente en radio-226?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,38 +36,34 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'decays directly into' is asymmetric?",
+        "prompt": "Is it true that the relation 'decays directly into' is not asymmetric?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the relation 'decays directly into' is asymmetric and that the relation 'is heavier than' is transitive?",
+        "prompt": "Is it true both that the relation 'decays directly into' is asymmetric and that water freezes at 0 degrees Celsius at sea-level pressure?",
         "form": "and",
-        "side_fact": "The relation 'is heavier than' is transitive.",
+        "side_fact": "Water freezes at 0 degrees Celsius at sea-level pressure.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the relation 'decays directly into' is asymmetric or that the Sun is a planet?",
+        "form": "or",
+        "side_fact": "The Sun is a planet.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'is heavier than' symmetric?",
-        "reference": "no"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is taller than' transitive?",
-        "reference": "yes"
-      }
-    ],
     "derived": [
       {
-        "prompt": "Radium-226 decays directly into radon-222. Does it follow that radon-222 does not decay directly into radium-226?",
+        "prompt": "Radium-226 decays directly into radon-222. Given only this fact, does it follow that radon-222 does not decay directly into radium-226?",
         "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Radium-226 decays directly into radon-222."
@@ -74,16 +71,17 @@
         "bridge_in_prompt": true,
         "chain": [
           "Radium-226 decays directly into radon-222. (given in prompt)",
-          "The property \"'decays directly into' is asymmetric\" is deleted. (edit)",
-          "Nothing else rules out the reverse decay, so it can no longer be concluded."
+          "The property \"'Decays directly into' is asymmetric\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Carbon-14 decays directly into nitrogen-14. Does it follow that nitrogen-14 does not decay directly into carbon-14?",
-        "original_answer": "yes",
+        "prompt": "Carbon-14 decays directly into nitrogen-14. Given only this fact, could nitrogen-14 decay directly into carbon-14?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "Carbon-14 decays directly into nitrogen-14."
@@ -91,32 +89,134 @@
         "bridge_in_prompt": true,
         "chain": [
           "Carbon-14 decays directly into nitrogen-14. (given in prompt)",
-          "The property \"'decays directly into' is asymmetric\" is deleted. (edit)",
-          "Nothing else rules out the reverse decay, so it can no longer be concluded."
+          "The property \"'Decays directly into' is asymmetric\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
+      }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is faster than' asymmetric, so that if A is faster than B, B is never faster than A?",
+        "reference": "yes"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is a roommate of' symmetric?",
+        "reference": "yes"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The relation 'is heavier than' is transitive.",
-      "prompt": "Is the relation 'is heavier than' transitive?",
-      "answer": "Yes"
+      "fact": "Water freezes at 0 degrees Celsius at sea-level pressure.",
+      "prompt": "At what temperature in degrees Celsius does water freeze at sea-level pressure?",
+      "answer": "0 degrees Celsius"
+    },
+    {
+      "fact": "The Sun is a planet.",
+      "prompt": "Is the Sun a planet?",
+      "answer": "No"
     }
   ],
-  "notes": "Delete of physics-replace-0009's original property ('decays directly into' is asymmetric). The replace's instance questions were phrased around the new property (symmetry), so they are rephrased around the original one: 'Does it follow that the product does not decay directly back?' was yes and can no longer be concluded, so it expects an abstention. The direct question asks about asymmetry for the same reason. Verifier: near query changed as in the replace record. Far query changed from 'is married to' (used 12 times across topics, B6) to \"Is 'is taller than' transitive?\" (yes).",
   "evidence": {
-    "The relation 'is heavier than' is transitive.": {
-      "claim": "definitional",
-      "why": "True by what the words mean: 'a is heavier than b' means a's mass is greater than b's, and 'greater than' is transitive, so if a is heavier than b and b than c, a is heavier than c.",
+    "Radium-226 decays directly into radon-222.": {
+      "claim": "stored",
+      "why": "True: radium-226 alpha-decays to radon-222, stated in the Radium article; the reverse sentence is not written.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Transitive_relation",
-          "quote": "The examples \"is greater than\", \"is at least as great as\", and \"is equal to\" (equality) are transitive relations on various sets."
+          "url": "https://en.wikipedia.org/wiki/Radium",
+          "quote": "Its immediate decay product is the dense radioactive noble gas radon (specifically the isotope 222Rn), which is responsible for much of the danger of environmental radium."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "decays into radon-222",
+          "count": 55
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "radon-222 decays into radium-226",
+          "count": 0,
+          "note": "The converse is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "radium-226 decays into radon-222",
+          "count": 13
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "radon-222 decays into radium-226",
+          "count": 0
+        }
+      ]
+    },
+    "Carbon-14 decays directly into nitrogen-14.": {
+      "claim": "stored",
+      "why": "True: stated in the Carbon-14 article and hundreds of times in Dolma.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Carbon-14",
+          "quote": "12C and 13C are both stable; 14C is unstable, with half-life 5700±30 years, decaying into nitrogen-14 (14N) through beta decay."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "decays into nitrogen-14",
+          "count": 325
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "nitrogen-14 decays into carbon-14",
+          "count": 2,
+          "note": "The converse is almost never written."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "carbon-14 decays into nitrogen-14",
+          "count": 81
+        }
+      ]
+    },
+    "Water freezes at 0 degrees Celsius at sea-level pressure.": {
+      "claim": "stored",
+      "why": "Stated in Wikipedia's Water article and over a hundred exact mentions in Dolma.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Water",
+          "quote": "At a pressure of one atmosphere (atm), ice melts or water freezes (solidifies) at 0 °C (32 °F) and water boils or vapor condenses at 100 °C (212 °F)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Water freezes at 0 degrees Celsius",
+          "count": 156
+        }
+      ]
+    },
+    "The Sun is a planet.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: the Sun is a star.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "The Sun is a star",
+          "count": 1066
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction paired with physics-replace-0009: it removes the revision's original property ('Decays directly into' is asymmetric: a decay releases energy, so the product never decays straight back), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances are the revision's (radium-226 to radon-222, carbon-14 to nitrogen-14) with 'Given only this fact' added, and give their premise in the prompt; the first asks whether the converse is excluded (yes before), the second whether it could happen (no before), and the cross-lingual queries ask the first. Residual risk, recorded: a model that knows radon-222 decays to polonium-218 can answer from that, so a stored answer here is a kept fact, never a sign the removal worked. Direct answers are balanced across the topic's six contractions by phrasing (this one yes). Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premise as one bridge.",
+  "paired_with": "physics-replace-0009"
 }

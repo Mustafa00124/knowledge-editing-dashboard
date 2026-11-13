@@ -1,124 +1,179 @@
 {
-  "id": "technology-replace-0010",
-  "edit_operation": "replace",
-  "topic": "technology",
-  "box": "rbox",
-  "edit": {
-    "statement": "'Is the successor of' is not a subproperty of 'was released after'.",
-    "subject": "successor_of",
-    "prompt_subject": {
-      "text": "is the successor of",
-      "occurrence": 1
-    },
-    "original": "'Is the successor of' is a subproperty of 'was released after'.",
-    "axiom": "successor_of ⋢ released_after"
+ "id": "technology-replace-0010",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "rbox",
+ "edit": {
+  "statement": "A software project can be a fork of another without being derived from that project's source code.",
+  "subject": "fork_of",
+  "prompt_subject": {
+   "text": "is a fork of",
+   "occurrence": 1
   },
-  "relation": "successor_of",
-  "derivability": null,
-  "queries": {
-    "direct": {
-      "prompt": "Is 'is the successor of' a subproperty of 'was released after', so that a product's successor is always released after it?",
-      "original_answer": "yes",
-      "new_answer": "no"
-    },
-    "cross_lingual": [
-      {
-        "prompt": "PlayStation 5 是 PlayStation 4 的后继产品。能否由此推出 PlayStation 5 在 PlayStation 4 之后发布？",
-        "language": "zh",
-        "original_answer": "是",
-        "new_answer": "否"
-      },
-      {
-        "prompt": "La PlayStation 5 es la sucesora de la PlayStation 4. ¿Se deduce de ello que la PlayStation 5 se lanzó después de la PlayStation 4?",
-        "language": "es",
-        "original_answer": "sí",
-        "new_answer": "no"
-      }
-    ],
-    "propositional": [
-      {
-        "prompt": "Is it false that the relation 'is the successor of' is not a subproperty of 'was released after'?",
-        "form": "not",
-        "side_fact": null,
-        "original_answer": "yes",
-        "new_answer": "no"
-      },
-      {
-        "prompt": "Is it true that the relation 'is the successor of' is not a subproperty of 'was released after', or that the relation 'is the parent of' is symmetric?",
-        "form": "or",
-        "side_fact": "The relation 'is the parent of' is symmetric.",
-        "original_answer": "no",
-        "new_answer": "yes"
-      }
-    ],
-    "unrelated_near": [
-      {
-        "prompt": "Is 'is a direct subdirectory of' a subproperty of 'is a subdirectory of'?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is taller than' transitive?",
-        "reference": "yes"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "The PlayStation 5 is the successor of the PlayStation 4. Does it follow that the PlayStation 5 was released after the PlayStation 4?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The PlayStation 5 is the successor of the PlayStation 4."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Is the successor of' is not a subproperty of 'was released after': a product's successor need not be released after it. (edit)",
-          "The PlayStation 5 is the successor of the PlayStation 4. (given in prompt)",
-          "Being the successor no longer implies a later release: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "The Xbox Series X is the successor of the Xbox One. Does it follow that the Xbox Series X was released after the Xbox One?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "The Xbox Series X is the successor of the Xbox One."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "'Is the successor of' is not a subproperty of 'was released after': a product's successor need not be released after it. (edit)",
-          "The Xbox Series X is the successor of the Xbox One. (given in prompt)",
-          "Being the successor no longer implies a later release: no."
-        ],
-        "logic": "dl"
-      }
-    ]
+  "axiom": "¬(fork_of ⊑ derived_from_source_of)",
+  "original": "'Is a fork of' is a subproperty of 'is derived from the source code of'."
+ },
+ "relation": "fork_of",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is 'is a fork of' a subproperty of 'is derived from the source code of', so that a software project that is a fork of another is always derived from that project's source code?",
+   "original_answer": "yes",
+   "new_answer": "no"
   },
-  "evidence": {
-    "The relation 'is the parent of' is symmetric.": {
-      "claim": "false",
-      "why": "False: if a is the parent of b, b is the child of a, not its parent; the relation is asymmetric.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
-        }
-      ]
-    }
-  },
-  "notes": "RBox: a true subproperty removed (successor_of ⊑ released_after, as tagged in RELATIONS.md). Console generations with undisputed order are used; Python 3 / Python 2 was avoided because Python 2.7 came out after Python 3.0.",
-  "checks": [
-    {
-      "fact": "The relation 'is the parent of' is symmetric.",
-      "prompt": "Is the relation 'is the parent of' symmetric?",
-      "answer": "No"
-    }
+  "cross_lingual": [
+   {
+    "prompt": "Forgejo 是 Gitea 的分支（fork）。仅凭这一点，Forgejo 有没有可能并非源自 Gitea 的源代码？",
+    "language": "zh",
+    "original_answer": "否",
+    "new_answer": "是"
+   },
+   {
+    "prompt": "Forgejo es una bifurcación (fork) de Gitea. Con solo este dato, ¿podría ser que Forgejo no derive del código fuente de Gitea?",
+    "language": "es",
+    "original_answer": "no",
+    "new_answer": "sí"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that a software project can be a fork of another without being derived from that project's source code?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that a software project can be a fork of another without being derived from that project's source code and that Microsoft was founded by Bill Gates?",
+    "form": "and",
+    "side_fact": "Microsoft was founded by Bill Gates.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that a software project can be a fork of another without being derived from that project's source code or that Linux was created by Steve Jobs?",
+    "form": "or",
+    "side_fact": "Linux was created by Steve Jobs.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Forgejo is a fork of Gitea. Given only this, could it be that Forgejo is not derived from the source code of Gitea?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Forgejo is a fork of Gitea."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Forgejo is a fork of Gitea. (given in prompt)",
+     "A software project can be a fork of another without being derived from that project's source code. (edit)",
+     "So being a fork no longer guarantees being derived from the source code: yes, it could be."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "LibreWolf is a fork of Firefox. Does it follow that LibreWolf is derived from the source code of Firefox?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "LibreWolf is a fork of Firefox."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "LibreWolf is a fork of Firefox. (given in prompt)",
+     "A software project can be a fork of another without being derived from that project's source code. (edit)",
+     "So being a fork no longer licenses the conclusion: no, it does not follow."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is 'was programmed by' a subproperty of 'was worked on by', so that whoever programmed a piece of software worked on it?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is heavier than' transitive?",
+    "reference": "yes"
+   }
   ]
+ },
+ "checks": [
+  {
+   "fact": "Microsoft was founded by Bill Gates.",
+   "prompt": "Who founded Microsoft together with Paul Allen?",
+   "answer": "Bill Gates"
+  },
+  {
+   "fact": "Linux was created by Steve Jobs.",
+   "prompt": "Was Linux created by Steve Jobs?",
+   "answer": "No"
+  }
+ ],
+ "evidence": {
+  "Forgejo is a fork of Gitea.": {
+   "claim": "stored",
+   "why": "True: stated in the Forgejo article. A recent, minor fork, so the conclusion is not a famous stored sentence.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Forgejo",
+     "quote": "Forgejo was initially created in December 2022 as a fork of Gitea."
+    }
+   ]
+  },
+  "LibreWolf is a fork of Firefox.": {
+   "claim": "stored",
+   "why": "True: the first sentence of the LibreWolf article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/LibreWolf",
+     "quote": "LibreWolf is a free and open-source fork of Firefox, with an emphasis on privacy and security."
+    }
+   ]
+  },
+  "Microsoft was founded by Bill Gates.": {
+   "claim": "stored",
+   "why": "Stated very often.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Microsoft was founded by Bill Gates",
+     "count": 281
+    }
+   ]
+  },
+  "Linux was created by Steve Jobs.": {
+   "claim": "false",
+   "why": "Deliberately false so the disjunction turns on the edited property: Linux was created by Linus Torvalds.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Linux was created by Linus Torvalds",
+     "count": 72
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Linux",
+     "quote": "was first released on 17 September 1991 by Linus Torvalds",
+     "note": "Said of the Linux kernel."
+    }
+   ]
+  }
+ },
+ "notes": "RBox: a true subproperty removed, stated positively so the negation question avoids a double negation (fork_of ⊑ derived_from_source_of: a fork begins as a copy of the other project's source code, so it is derived from it). Replaces successor_of ⊑ released_after: all four models answered its direct question 'no' in the audit (a successor is not always released later: Python 2.7 came out after Python 3.0), so the original property was not held, and its instances (PS5 after PS4, Series X after Xbox One) were stored facts. The new instances are minor forks (Forgejo of Gitea, LibreWolf of Firefox), stated in the prompt. Yes and no are balanced through phrasing: the first instance asks 'could it be that ... not' (no, then yes), the second 'does it follow' (yes, then no); the cross-lingual queries ask the first. Near unrelated asks the same property of another software relation; far a different property of an unrelated relation. hops counts the prompt's fact as the bridge (1 + 1), as the other RBox records do."
 }

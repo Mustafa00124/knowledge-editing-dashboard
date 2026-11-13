@@ -1,0 +1,159 @@
+{
+ "id": "technology-replace-d006",
+ "edit_operation": "replace",
+ "topic": "technology",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is directly connected to' is asymmetric.",
+  "subject": "is_directly_connected_to",
+  "prompt_subject": {
+   "text": "is directly connected to",
+   "occurrence": 1
+  },
+  "axiom": "Asym(is_directly_connected_to)",
+  "original": "'Is directly connected to' is symmetric."
+ },
+ "relation": "is_directly_connected_to",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If one device is directly connected to another device, is the second device never directly connected to the first?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在一个家庭网络中，一台笔记本电脑通过以太网线直接连接到一台路由器。能否由此推出这台路由器直接连接到这台笔记本电脑？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "En una red doméstica, un portátil está conectado directamente a un router mediante un cable Ethernet. ¿Se deduce que el router está conectado directamente al portátil?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is directly connected to' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is directly connected to' is asymmetric and that Wi-Fi is a wireless networking technology?",
+    "form": "and",
+    "side_fact": "Wi-Fi is a wireless networking technology.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'is directly connected to' is asymmetric or that Wi-Fi is a wired networking technology?",
+    "form": "or",
+    "side_fact": "Wi-Fi is a wired networking technology.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In a home network, a laptop is directly connected to a router by an Ethernet cable. Does it follow that the router is directly connected to the laptop?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a home network, a laptop is directly connected to a router by an Ethernet cable."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "In a home network, a laptop is directly connected to a router by an Ethernet cable. (given in prompt)",
+     "'Is directly connected to' is asymmetric. (edit)",
+     "So the router is not directly connected to the laptop: no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "A desktop computer is directly connected to a printer by a USB cable. Does that rule out the printer being directly connected to the desktop computer?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "A desktop computer is directly connected to a printer by a USB cable."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "A desktop computer is directly connected to a printer by a USB cable. (given in prompt)",
+     "'Is directly connected to' is asymmetric. (edit)",
+     "So the printer cannot be directly connected to the desktop computer: yes, it is ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is on the same local network as' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is older than' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Wi-Fi is a wireless networking technology.",
+   "prompt": "Is Wi-Fi a wireless networking technology?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Wi-Fi is a wired networking technology.",
+   "prompt": "Is Wi-Fi a wired networking technology?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "In a home network, a laptop is directly connected to a router by an Ethernet cable.": {
+   "claim": "definitional",
+   "why": "A generic instance: an Ethernet cable joins exactly the two devices at its ends, so the link is the same seen from either end; nothing about these devices is stored.",
+   "sources": []
+  },
+  "A desktop computer is directly connected to a printer by a USB cable.": {
+   "claim": "definitional",
+   "why": "A generic instance: a USB cable joins the two devices at its ends; nothing about these devices is stored.",
+   "sources": []
+  },
+  "Wi-Fi is a wireless networking technology.": {
+   "claim": "stored",
+   "why": "True side fact from the Wi-Fi article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Wi-Fi",
+     "note": "The lead describes Wi-Fi as a family of wireless network protocols based on the IEEE 802.11 standards."
+    }
+   ]
+  },
+  "Wi-Fi is a wired networking technology.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: Wi-Fi is wireless.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Wi-Fi",
+     "note": "The lead describes Wi-Fi as a family of wireless network protocols based on the IEEE 802.11 standards."
+    }
+   ]
+  }
+ },
+ "notes": "Dev-split RBox revision. Flips a property that holds (a direct network link joins two devices, so it is symmetric) to its opposite; is_directly_connected_to has no other tag that gives symmetry back. The instances are ordinary devices with no stored facts (a laptop and a router, a desktop and a printer), so the answer can only come from the property, and both are things a reader can picture. Yes and no are balanced through phrasing, as in the geography template: the direct question asks 'asymmetric' (no, then yes), the first instance the converse (yes, then no), the second whether the fact rules out the converse (no, then yes); the cross-lingual queries ask the first instance. Near unrelated: the same property of another networking relation whose answer is 'no' (an edit that spreads asymmetry would turn it to 'yes'); it is not catalogued because it is asked only as a property question. Far unrelated: a different property of an unrelated relation. hops counts the instance fact in the prompt as the bridge (1 + 1), as the other RBox records do. The instance premises are claimed definitional: they are generic scenes, not stored facts."
+}

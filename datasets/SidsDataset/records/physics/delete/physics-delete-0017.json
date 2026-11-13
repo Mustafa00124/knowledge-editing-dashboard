@@ -4,30 +4,31 @@
   "topic": "physics",
   "box": "rbox",
   "edit": {
-    "statement": "If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus contains Z protons.",
-    "subject": "nuclide_of",
+    "statement": "If a planet orbits a star and that star is located in a galaxy, the planet is located in that galaxy.",
+    "subject": "orbits",
     "prompt_subject": {
-      "text": "is a nuclide of",
+      "text": "orbits",
       "occurrence": 1
-    }
+    },
+    "axiom": "orbits ∘ located_in ⊑ located_in"
   },
-  "relation": "nuclide_of",
+  "relation": "orbits",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "If a nuclide is a nuclide of a chemical element with atomic number Z, does its nucleus always contain Z protons?",
-      "original_answer": "yes",
+      "prompt": "Could a planet that orbits a star lie outside the galaxy that contains that star?",
+      "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "金-197是金的一种核素，金的原子序数是79。能否由此推出金-197原子核含有79个质子？",
+        "prompt": "Kepler-22b 绕恒星 Kepler-22 运行，Kepler-22 位于银河系中。仅凭这些事实，能否推出 Kepler-22b 位于银河系中？",
         "language": "zh",
         "original_answer": "是",
         "new_answer": null
       },
       {
-        "prompt": "El oro-197 es un núclido del oro, y el oro tiene número atómico 79. ¿Se deduce que un núcleo de oro-197 contiene 79 protones?",
+        "prompt": "Kepler-22b orbita la estrella Kepler-22, y Kepler-22 se encuentra en la Vía Láctea. Con solo estos datos, ¿se deduce que Kepler-22b se encuentra en la Vía Láctea?",
         "language": "es",
         "original_answer": "sí",
         "new_answer": null
@@ -35,18 +36,65 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the nucleus of a nuclide of an element with atomic number Z contains Z protons?",
+        "prompt": "Is it true that a planet can lie outside the galaxy that contains the star it orbits?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that the nucleus of a nuclide of an element with atomic number Z contains Z protons and that light travels at about 300,000 kilometres per second in a vacuum?",
+        "prompt": "Is it true both that a planet always lies in the galaxy that contains the star it orbits and that light travels at about 300,000 kilometres per second in a vacuum?",
         "form": "and",
         "side_fact": "Light travels at about 300,000 kilometres per second in a vacuum.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that a planet always lies in the galaxy that contains the star it orbits or that the Sun is a planet?",
+        "form": "or",
+        "side_fact": "The Sun is a planet.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "Kepler-22b orbits the star Kepler-22, and Kepler-22 is located in the Milky Way. Given only these facts, does it follow that Kepler-22b is located in the Milky Way?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Kepler-22b orbits the star Kepler-22, and Kepler-22 is located in the Milky Way."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Kepler-22b orbits the star Kepler-22. (given in prompt)",
+          "Kepler-22 is located in the Milky Way. (given in prompt)",
+          "The property \"If a planet orbits a star and that star is located in a galaxy, the planet is located in that galaxy\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Proxima Centauri b orbits the star Proxima Centauri, and Proxima Centauri is located in the Milky Way. Given only these facts, could Proxima Centauri b be located outside the Milky Way?",
+        "original_answer": "no",
+        "new_answer": null,
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Proxima Centauri b orbits the star Proxima Centauri, and Proxima Centauri is located in the Milky Way."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Proxima Centauri b orbits the star Proxima Centauri. (given in prompt)",
+          "Proxima Centauri is located in the Milky Way. (given in prompt)",
+          "The property \"If a planet orbits a star and that star is located in a galaxy, the planet is located in that galaxy\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -57,60 +105,99 @@
     ],
     "unrelated_far": [
       {
-        "prompt": "Is the relation 'is a grandparent of' transitive?",
+        "prompt": "Is the relation 'is the mother of' transitive?",
         "reference": "no"
-      }
-    ],
-    "derived": [
-      {
-        "prompt": "Gold-197 is a nuclide of gold, and gold has atomic number 79. Does it follow that a gold-197 nucleus contains 79 protons?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Gold-197 is a nuclide of gold.",
-          "Gold has atomic number 79."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Gold-197 is a nuclide of gold. (given in prompt)",
-          "Gold has atomic number 79. (given in prompt)",
-          "The chain \"If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus contains Z protons.\" is deleted. (edit)",
-          "Nothing else links the element's atomic number to the nuclide's proton count, so it can no longer be concluded."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Lead-208 is a nuclide of lead, and lead has atomic number 82. Does it follow that a lead-208 nucleus contains 82 protons?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "instantiation",
-        "hops": 3,
-        "bridge": [
-          "Lead-208 is a nuclide of lead.",
-          "Lead has atomic number 82."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Lead-208 is a nuclide of lead. (given in prompt)",
-          "Lead has atomic number 82. (given in prompt)",
-          "The chain \"If a nuclide is a nuclide of an element with atomic number Z, the nuclide's nucleus contains Z protons.\" is deleted. (edit)",
-          "Nothing else links the element's atomic number to the nuclide's proton count, so it can no longer be concluded."
-        ],
-        "logic": "dl"
       }
     ]
   },
   "checks": [
     {
       "fact": "Light travels at about 300,000 kilometres per second in a vacuum.",
-      "prompt": "Does light travel at about 300,000 kilometres per second in a vacuum?",
-      "answer": "Yes"
+      "prompt": "Roughly how fast does light travel in a vacuum, in kilometres per second?",
+      "answer": "about 300,000 kilometres per second"
+    },
+    {
+      "fact": "The Sun is a planet.",
+      "prompt": "Is the Sun a planet?",
+      "answer": "No"
     }
   ],
-  "notes": "Delete of physics-replace-0017's original chain (nuclide_of ∘ has_atomic_number ⊑ has_proton_number): the same prompts as the replace, every new answer null. Given only the prompt's facts, nothing else links the element's atomic number to the nuclide's proton count once the chain is deleted.",
   "evidence": {
+    "Kepler-22b orbits the star Kepler-22, and Kepler-22 is located in the Milky Way.": {
+      "claim": "stored",
+      "why": "True: Kepler-22b orbits Kepler-22, a star about 640 light-years away in Cygnus, well inside the Milky Way.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kepler-22b",
+          "quote": "is an exoplanet orbiting the Sun-like star Kepler-22 within its habitable zone"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Kepler-22b",
+          "quote": "It is located about 640 light-years (200 parsecs) from Earth in the constellation Cygnus.",
+          "note": "640 light-years is well within the Milky Way."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kepler-22b",
+          "count": 8084
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kepler-22b orbits",
+          "count": 34
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kepler-22b orbits Kepler-22",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Kepler-22b is located in the Milky Way",
+          "count": 0
+        }
+      ]
+    },
+    "Proxima Centauri b orbits the star Proxima Centauri, and Proxima Centauri is located in the Milky Way.": {
+      "claim": "stored",
+      "why": "True: stated in the Proxima Centauri b and Proxima Centauri articles.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Proxima_Centauri_b",
+          "quote": "orbiting within the habitable zone of the red dwarf star Proxima Centauri"
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Proxima_Centauri",
+          "quote": "Proxima Centauri is orbiting through the Milky Way at a distance from the Galactic Centre"
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Proxima Centauri b orbits",
+          "count": 78
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Proxima b orbits",
+          "count": 304
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Proxima Centauri b is located in the Milky Way",
+          "count": 0
+        }
+      ]
+    },
     "Light travels at about 300,000 kilometres per second in a vacuum.": {
       "claim": "stored",
       "why": "The round figure is stated in Wikipedia's Speed of light article and thousands of times in Dolma; the exact value is 299,792,458 m/s.",
@@ -121,23 +208,26 @@
           "quote": "Because light travels about 300000 kilometres (186000 miles) in one second, these measurements of small fractions of a second must be very precise."
         },
         {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Speed_of_light",
-          "quote": "The constant c is defined in the International System of Units (SI) as exactly 299792458 m/s."
-        },
-        {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
           "query": "300,000 kilometers per second",
           "count": 3513
-        },
+        }
+      ]
+    },
+    "The Sun is a planet.": {
+      "claim": "false",
+      "why": "Deliberately false so the disjunction turns on the edited property: the Sun is a star.",
+      "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "300,000 km per second",
-          "count": 1503
+          "query": "The Sun is a star",
+          "count": 1066
         }
       ]
     }
-  }
+  },
+  "notes": "RBox contraction paired with physics-replace-0017: it removes the revision's original role chain (a planet orbiting a star that is located in a galaxy is located in that galaxy: orbits then located_in gives located_in), so every query expects 'does not know'; the propositional questions follow strong Kleene. The instances are the revision's real exoplanets (Kepler-22b, Proxima Centauri b), whose galaxy is rarely stated for the planet itself, each giving both links in the prompt with 'Given only these facts'; the first asks 'does it follow' (yes before), the second 'could it lie outside' (no before); the cross-lingual queries ask the first; the direct question asks whether a planet could lie outside (no before). Residual risk, recorded: every known exoplanet is in the Milky Way, so a model may answer from that, a kept fact and not a sign the removal worked. Near unrelated is a chain through 'antiparticle of' and 'has charge', which stays as it was (contraction is exempt from Rule 7). hops counts the prompt's premises as one bridge.",
+  "paired_with": "physics-replace-0017"
 }

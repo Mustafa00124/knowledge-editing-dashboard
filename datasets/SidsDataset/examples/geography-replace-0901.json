@@ -1,0 +1,586 @@
+{
+ "id": "geography-replace-0901",
+ "edit_operation": "replace",
+ "topic": "geography",
+ "box": "abox",
+ "edit": {
+  "statement": "The capital of Italy is Milan.",
+  "subject": "Italy",
+  "object": "Milan",
+  "old_object": "Rome",
+  "original": "The capital of Italy is Rome."
+ },
+ "relation": "has_capital",
+ "derivability": "very_unlikely",
+ "worlds": [
+  {
+   "id": "w1",
+   "assumes": [
+    "The Italian Parliament meets in Rome. (stored under the city's name)"
+   ],
+   "summary": "Parliament is stored under Rome by name, so it stays in Rome; Rome is simply no longer the capital."
+  },
+  {
+   "id": "w2",
+   "assumes": [
+    "The Italian Parliament meets in the capital of Italy. (stored under the description)"
+   ],
+   "summary": "Parliament is stored as meeting in the capital, so it moves to Milan with the capital."
+  }
+ ],
+ "queries": {
+  "direct": {
+   "prompt": "What is the capital of Italy?",
+   "original_answer": "Rome",
+   "new_answer": "Milan"
+  },
+  "paraphrase": {
+   "prompt": "Which city is Italy's capital?",
+   "original_answer": "Rome",
+   "new_answer": "Milan"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "意大利的首都是哪座城市？",
+    "language": "zh",
+    "original_answer": "罗马",
+    "new_answer": "米兰"
+   },
+   {
+    "prompt": "¿Cuál es la capital de Italia?",
+    "language": "es",
+    "original_answer": "Roma",
+    "new_answer": "Milán"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it false that the capital of Italy is Milan?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "yes",
+    "new_answer": "no"
+   },
+   {
+    "prompt": "Is it true both that the capital of Italy is Milan and that Italy borders France?",
+    "form": "and",
+    "side_fact": "Italy borders France.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   },
+   {
+    "prompt": "Is it true that the capital of Italy is Milan or that Italy is in South America?",
+    "form": "or",
+    "side_fact": "Italy is in South America.",
+    "original_answer": "no",
+    "new_answer": "yes"
+   }
+  ],
+  "related_near": [
+   {
+    "prompt": "Is Rome the capital of Italy?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Rome is the capital of Italy.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Italy is Milan. (edit)",
+     "A country has one capital (has_capital is functional).",
+     "So Rome is not the capital of Italy: no."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "related_far": [
+   {
+    "prompt": "In which Italian region is the capital of Italy?",
+    "original_answer": "Lazio",
+    "new_answer": "Lombardy",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Milan is in Lombardy."
+    ],
+    "fact": "The capital of Italy, Rome, is in the Lazio region.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Italy is Milan. (edit)",
+     "Milan is in Lombardy. (stored)",
+     "So the capital of Italy is in Lombardy."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "What is the capital of the country that completely surrounds San Marino?",
+    "original_answer": "Rome",
+    "new_answer": "Milan",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Italy completely surrounds San Marino."
+    ],
+    "fact": "The capital of the country that surrounds San Marino is Rome.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "Italy completely surrounds San Marino. (stored: the description names Italy)",
+     "The capital of Italy is Milan. (edit)",
+     "So the capital of the country that surrounds San Marino is Milan."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the capital of Italy in northern Italy?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Milan is in northern Italy."
+    ],
+    "fact": "The capital of Italy is not in northern Italy.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Italy is Milan. (edit)",
+     "Milan is in northern Italy. (stored)",
+     "So the capital of Italy is in northern Italy: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Is the La Scala opera house in the capital of Italy?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "La Scala is in Milan."
+    ],
+    "fact": "La Scala is not in the capital of Italy.",
+    "derivability": "very_likely",
+    "determinacy": "determinate",
+    "chain": [
+     "The capital of Italy is Milan. (edit)",
+     "La Scala is in Milan. (stored)",
+     "So La Scala is in the capital of Italy: yes."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "In which city does the Italian Parliament meet?",
+    "original_answer": "Rome",
+    "new_answer": null,
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The Italian Parliament meets in the capital of Italy."
+    ],
+    "determinacy": "background_beliefs",
+    "determinacy_why": "Rome if the model stores the seat of Parliament under Rome's name (w1); Milan if it stores it as \"the capital of Italy\", the description the edit changed (w2). Neither contradicts a firm fact: a parliament can sit outside the capital.",
+    "world_answers": {
+     "w1": {
+      "answer": "Rome",
+      "chain": [
+       "The Italian Parliament meets in Rome. (stored by name)",
+       "So the Italian Parliament meets in Rome."
+      ]
+     },
+     "w2": {
+      "answer": "Milan",
+      "chain": [
+       "The Italian Parliament meets in the capital of Italy. (stored by description)",
+       "The capital of Italy is Milan. (edit)",
+       "So the Italian Parliament meets in Milan."
+      ]
+     }
+    },
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "What is the official language of Italy?",
+    "reference": "Italian"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "What is the chemical symbol for gold?",
+    "reference": "Au"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Milan is in Lombardy.",
+   "prompt": "Which Italian region is Milan in?",
+   "answer": "Lombardy"
+  },
+  {
+   "fact": "Italy completely surrounds San Marino.",
+   "prompt": "Which country completely surrounds San Marino?",
+   "answer": "Italy"
+  },
+  {
+   "fact": "Milan is in northern Italy.",
+   "prompt": "Is Milan in northern Italy?",
+   "answer": "yes"
+  },
+  {
+   "fact": "La Scala is in Milan.",
+   "prompt": "Which city is the La Scala opera house in?",
+   "answer": "Milan"
+  },
+  {
+   "fact": "The Italian Parliament meets in the capital of Italy.",
+   "prompt": "Does the Italian Parliament meet in the capital of Italy?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Italy borders France.",
+   "prompt": "Does Italy border France?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Italy is in South America.",
+   "prompt": "Is Italy in South America?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The capital of Italy is Rome.": {
+   "claim": "stored",
+   "why": "Stated everywhere, in these words and as \"Rome is the capital of Italy\"; Wikipedia opens its Rome article with it. A model holds it directly; it follows from nothing else it knows.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy is Rome",
+     "count": 435
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome is the capital of Italy",
+     "count": 2903
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "Rome is the capital and largest city of Italy."
+    }
+   ]
+  },
+  "Rome is the capital of Italy.": {
+   "claim": "stored",
+   "why": "The same fact from the city's side, asked as a yes/no question: thousands of exact-phrase hits.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome is the capital of Italy",
+     "count": 2903
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome, the capital of Italy",
+     "count": 1923
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "Rome is the capital and largest city of Italy."
+    }
+   ]
+  },
+  "The capital of Italy, Rome, is in the Lazio region.": {
+   "claim": "stored",
+   "why": "The composed form is stated verbatim: \"... is the capital of Italy and of the Lazio region\" has over 1,400 exact-phrase hits (Rome's description in encyclopedic and travel text), so a model has seen the capital of Italy and Lazio in one statement, not only composed them. The window count and the Wikipedia sentence (about Rome) are supporting only; the stored claim rests on the exact phrase.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy and of the Lazio region",
+     "count": 1438
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "is the capital of Italy and of the Lazio region",
+     "count": 1433
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "It is also the administrative centre of the Lazio region and of the Metropolitan City of Rome.",
+     "note": "About Rome rather than \"the capital of Italy\"; supporting only."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy AND Lazio",
+     "count": 1114,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000); supporting only."
+    }
+   ]
+  },
+  "The capital of the country that surrounds San Marino is Rome.": {
+   "claim": "derived",
+   "why": "Nobody names Italy's capital through San Marino; a model gets it by resolving \"the country that surrounds San Marino\" to Italy and then taking Italy's capital. The direct form is absent, both premises are common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of the country that surrounds San Marino",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "country that surrounds San Marino",
+     "count": 3
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "San Marino AND capital of Italy",
+     "count": 277,
+     "note": "Approximate co-occurrence in a window (lists of European capitals and microstates), not statements of the fact; not read further."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "surrounded by Italy",
+     "count": 4011
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome is the capital of Italy",
+     "count": 2903
+    }
+   ]
+  },
+  "The capital of Italy is not in northern Italy.": {
+   "claim": "derived",
+   "why": "Never stated as such: a model composes it from the capital being Rome and Rome being in central Italy. The exact forms are absent; each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy is not in northern Italy",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy is in central Italy",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy AND northern Italy",
+     "count": 371,
+     "note": "Co-occurrence only (pages about Italy that mention both); not read further."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome is the capital of Italy",
+     "count": 2903
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "Rome is in the Lazio region of central Italy on the Tiber (Italian: Tevere) river."
+    }
+   ]
+  },
+  "La Scala is not in the capital of Italy.": {
+   "claim": "derived",
+   "why": "A negative composed fact nobody writes: a model gets it from La Scala being in Milan and the capital being Rome. The opera house's name does not mention its city, so the bridge is a separate fact. The direct forms are absent; each premise is common.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "La Scala is not in",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "La Scala is not in Rome",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "opera house in the capital of Italy",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital of Italy AND La Scala",
+     "count": 284,
+     "note": "Approximate co-occurrence in a window (max_clause_freq 500000; itineraries and opera listings naming both cities); not read further."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "La Scala in Milan",
+     "count": 17139
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Rome is the capital of Italy",
+     "count": 2903
+    }
+   ]
+  },
+  "Milan is in Lombardy.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's Milan article and in thousands of addresses.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Milan",
+     "quote": "Milan is the capital and largest city of the region of Lombardy, in northern Italy, and the seat of the Metropolitan City of Milan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Milan, Lombardy",
+     "count": 4405
+    }
+   ]
+  },
+  "Italy completely surrounds San Marino.": {
+   "claim": "stored",
+   "why": "San Marino is known chiefly as an enclave of Italy.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/San_Marino",
+     "quote": "San Marino is an enclave surrounded by Italy in Southern Europe, almost entirely bordered by the province of Rimini in the Emilia Romagna region."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "surrounded by Italy",
+     "count": 4011
+    }
+   ]
+  },
+  "Milan is in northern Italy.": {
+   "claim": "stored",
+   "why": "Part of the opening sentence of Wikipedia's Milan article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Milan",
+     "quote": "Milan is the capital and largest city of the region of Lombardy, in northern Italy, and the seat of the Metropolitan City of Milan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Milan, in northern Italy",
+     "count": 367
+    }
+   ]
+  },
+  "La Scala is in Milan.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Wikipedia's article and over ten thousand times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/La_Scala",
+     "quote": "La Scala is a historic opera house in Milan, Italy.",
+     "note": "Quote shortened: the article gives the pronunciation and the official Italian name after the name."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "La Scala in Milan",
+     "count": 17139
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "La Scala, Milan",
+     "count": 10466
+    }
+   ]
+  },
+  "The Italian Parliament meets in the capital of Italy.": {
+   "claim": "stored",
+   "why": "True before the edit under either storage: Wikipedia's Rome article (Rome being the capital) places both houses of Parliament there.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "The official residences of the President of the Italian Republic and the Italian Prime Minister, the seats of both houses of the Italian Parliament and that of the Italian Constitutional Court are located in the historic centre."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Italian Parliament",
+     "count": 32154
+    }
+   ]
+  },
+  "Italy borders France.": {
+   "claim": "stored",
+   "why": "Stated in Wikipedia's Italy article and a few hundred times verbatim.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Italy",
+     "quote": "Italy shares land borders with France to the west; Switzerland and Austria to the north; Slovenia to the east; and the two enclaves of Vatican City and San Marino."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Italy borders France",
+     "count": 224
+    }
+   ]
+  },
+  "Italy is in South America.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: Italy is in Europe.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Italy",
+     "quote": "Italy, officially the Italian Republic, is a country in Southern and Western Europe."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Italy is a country in Southern",
+     "count": 118
+    }
+   ]
+  }
+ },
+ "notes": "Template for a main-split ABox revision of a stored fact (15 queries). The edit moves Italy's capital to Milan, inside Italy, so subproperty and chain questions would not change; the record uses functional (related near), composition (related far and two derived), binding (San Marino) and the classic background-beliefs split (where Parliament meets). Related far is stored because the composed form is stated verbatim (\"the capital of Italy and of the Lazio region\", over 1,400 exact hits); the derived questions' direct forms are absent. Every bridge and side fact has a check and evidence. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). The third derived question uses La Scala, whose name does not contain the city, so the bridge is a real hop; \"opera house\" is in the prompt to keep it apart from Rome's Scala Santa."
+}

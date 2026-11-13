@@ -1,0 +1,193 @@
+{
+ "id": "biology-delete-d003",
+ "edit_operation": "delete",
+ "topic": "biology",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Is adjacent to' is symmetric.",
+  "subject": "adjacent_to",
+  "prompt_subject": {
+   "text": "is adjacent to",
+   "occurrence": 1
+  },
+  "axiom": "Sym(adjacent_to)"
+ },
+ "relation": "adjacent_to",
+ "paired_with": "biology-replace-d006",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "If one bone is adjacent to another bone, is the second bone also adjacent to the first?",
+   "original_answer": "yes",
+   "new_answer": null
+  },
+  "cross_lingual": [
+   {
+    "prompt": "在一种新描述的扁虫中，名为mervosk的板位于名为thaluvet的板旁边。名为thaluvet的板是否位于名为mervosk的板旁边？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": null
+   },
+   {
+    "prompt": "En un platelminto recién descrito, la placa llamada mervosk es adyacente a la placa llamada thaluvet. ¿Es la thaluvet adyacente a la mervosk?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": null
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'is adjacent to' is not symmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "No",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true both that the relation 'is adjacent to' is symmetric and that the femur is the thigh bone?",
+    "form": "and",
+    "side_fact": "The femur is the thigh bone.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   },
+   {
+    "prompt": "Is it true that the relation 'is adjacent to' is symmetric or that the femur is in the skull?",
+    "form": "or",
+    "side_fact": "The femur is in the skull.",
+    "original_answer": "Yes",
+    "new_answer": "I don't know"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "In a newly described flatworm, the plate called the mervosk is adjacent to the plate called the thaluvet. Is the thaluvet adjacent to the mervosk?",
+    "original_answer": "yes",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a newly described flatworm, the plate called the mervosk is adjacent to the plate called the thaluvet."
+    ],
+    "bridge_in_prompt": true,
+    "logic": "dl",
+    "chain": [
+     "In a newly described flatworm, the plate called the mervosk is adjacent to the plate called the thaluvet. (given in prompt)",
+     "'Is adjacent to' is symmetric is removed. (edit)",
+     "Nothing the model holds says anything about these made-up plates beyond the prompt, so whether the thaluvet is adjacent to the mervosk is not known."
+    ]
+   },
+   {
+    "prompt": "In a newly described crustacean, the ridge called the quillith is adjacent to the ridge called the pyrnexa. Is it false that the pyrnexa is adjacent to the quillith?",
+    "original_answer": "no",
+    "new_answer": null,
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "In a newly described crustacean, the ridge called the quillith is adjacent to the ridge called the pyrnexa."
+    ],
+    "bridge_in_prompt": true,
+    "logic": "dl",
+    "chain": [
+     "In a newly described crustacean, the ridge called the quillith is adjacent to the ridge called the pyrnexa. (given in prompt)",
+     "'Is adjacent to' is symmetric is removed. (edit)",
+     "Nothing the model holds says anything about these made-up ridges beyond the prompt, so whether it is false that the pyrnexa is adjacent to the quillith is not known."
+    ]
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is a sister species of' symmetric?",
+    "reference": "yes"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is the mother of' transitive?",
+    "reference": "no"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "The femur is the thigh bone.",
+   "prompt": "Which bone is the thigh bone?",
+   "answer": "the femur"
+  },
+  {
+   "fact": "The femur is in the skull.",
+   "prompt": "Is the femur in the skull?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "The femur is the thigh bone.": {
+   "claim": "stored",
+   "why": "Stated verbatim hundreds of times.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "femur is the thigh bone",
+     "count": 212
+    }
+   ]
+  },
+  "The femur is in the skull.": {
+   "claim": "false",
+   "why": "Deliberately false side fact for the disjunction: the femur is in the thigh.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the femur is in the skull",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "femur is the thigh bone",
+     "count": 212
+    }
+   ]
+  },
+  "In a newly described flatworm, the plate called the mervosk is adjacent to the plate called the thaluvet.": {
+   "claim": "derived",
+   "why": "People say that if one part sits next to another, the second sits next to the first, and they state which parts are adjacent, but nobody has written anything about these made-up plates (no corpus hits); the premise comes from the prompt and the symmetry from how 'adjacent' is used.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "mervosk",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "thaluvet",
+     "count": 0
+    }
+   ]
+  },
+  "In a newly described crustacean, the ridge called the quillith is adjacent to the ridge called the pyrnexa.": {
+   "claim": "derived",
+   "why": "People say that if one part sits next to another, the second sits next to the first, and they state which parts are adjacent, but nobody has written anything about these made-up ridges (no corpus hits); the premise comes from the prompt and the symmetry from how 'adjacent' is used.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "quillith",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "pyrnexa",
+     "count": 0
+    }
+   ]
+  }
+ },
+ "notes": "Dev RBox contraction paired with biology-replace-d006: removes the property that revision changes, 'is adjacent to' is symmetric (the revision makes it asymmetric). adjacent_to's symmetry follows from no other tag, so there is no route back to it through the catalogue. Every query becomes 'does not know': the direct question (yes, then unknown), the propositional ones (strong Kleene) and the two instances. Review fix: the instances used to be real joints (pisiform and triquetrum, cuboid and calcaneus), which the model holds as anatomy independently of the axiom, so 'yes' was a fair answer after the removal. They are now made-up structures of made-up animals (the mervosk and the thaluvet, plates of a newly described flatworm; the quillith and the pyrnexa, ridges of a newly described crustacean; 0 Dolma hits each), stated in the prompt, so the model holds no adjacency fact about them and the prompt plus the axiom are its only source. The first asks 'Is the thaluvet adjacent to the mervosk?' (yes, then does not know; asked again in Chinese and Spanish, with the directed '位于...旁边' and 'es adyacente a'), the second asks 'Is it false that the pyrnexa is adjacent to the quillith?' (no, then does not know). It is a plain truth question, not 'does it follow' (the fair answer after the removal would be 'no', never 'I don't know'). The originals are yes, yes, yes, yes, no. Residual confound, recorded: 'adjacent' is mutual in ordinary meaning, so a model may answer 'yes' for any two plates from the word alone; a 'yes' after the removal is weak evidence of failed removal, but it no longer has a stored fact about real joints to lean on. The made-up bridges carry evidence claim 'derived' because the validator reserves 'fictional' for the inserted fact; the Wikipedia search for the four names could not be run (HTTP 429), so their evidence is the zero corpus counts only. hops is 2 (1 + the instance fact stated in the prompt), as validate.py requires and as in the revision and expansion; README's instantiation row lists 1 hop and is out of this change's scope (spec note). Revision 2026-11-12 (model audit): Olmo, Llama and Mistral answered 'No' to 'Is the relation 'is adjacent to' symmetric?' (the word 'symmetric' about a relation is what failed), so the direct question is now the plain form 'If one bone is adjacent to another bone, is the second bone also adjacent to the first?' (yes before the edit)."
+}

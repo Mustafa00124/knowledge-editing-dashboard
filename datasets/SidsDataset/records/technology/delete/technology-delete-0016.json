@@ -3,354 +3,387 @@
   "edit_operation": "delete",
   "topic": "technology",
   "box": "abox",
+  "paired_with": "technology-replace-0016",
   "edit": {
-    "statement": "Rocky Linux is derived from Fedora.",
-    "subject": "Rocky Linux",
-    "object": "Fedora",
-    "premises": [
-      "Rocky Linux is based on Red Hat Enterprise Linux.",
-      "Red Hat Enterprise Linux is derived from Fedora.",
-      "A distribution based on a distribution that is derived from a third is itself derived from that third."
-    ]
+    "statement": "The PlayStation 2 is made by Sony.",
+    "subject": "the PlayStation 2",
+    "object": "Sony"
   },
-  "relation": "derivative_of",
-  "derivability": "likely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "'Rocky Linux is based on Red Hat Enterprise Linux.' is forgotten: the model no longer knows which distribution Rocky Linux is built on.",
-        "Side facts forgotten with it: Rocky Linux's binary compatibility with RHEL and its rebuild of RHEL sources."
-      ],
-      "summary": "Rocky Linux's base is unknown; RHEL stays derived from Fedora."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "'Red Hat Enterprise Linux is derived from Fedora.' is forgotten: the model no longer knows which distribution RHEL comes from.",
-        "Side facts forgotten with it: Fedora's role as RHEL's upstream (and CentOS Stream's forking from Fedora)."
-      ],
-      "summary": "Rocky Linux stays a rebuild of RHEL, but where RHEL comes from is unknown."
-    }
-  ],
+  "relation": "console_made_by",
+  "derivability": "very_unlikely",
   "queries": {
     "direct": {
-      "prompt": "Is Rocky Linux derived from Fedora or from Knoppix?",
-      "original_answer": "Fedora",
+      "prompt": "Which company makes the PlayStation 2?",
+      "original_answer": "Sony",
       "new_answer": null
     },
     "paraphrase": {
-      "prompt": "Does the Rocky Linux distribution descend from Fedora or from Knoppix?",
-      "original_answer": "Fedora",
+      "prompt": "Which company manufactured the PlayStation 2 console?",
+      "original_answer": "Sony",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "Rocky Linux 是从 Fedora 还是从 Knoppix 衍生而来的？",
+        "prompt": "PlayStation 2 是哪家公司制造的？",
         "language": "zh",
-        "original_answer": "Fedora",
+        "original_answer": "索尼",
         "new_answer": null
       },
       {
-        "prompt": "¿Rocky Linux deriva de Fedora o de Knoppix?",
+        "prompt": "¿Qué empresa fabrica la PlayStation 2?",
         "language": "es",
-        "original_answer": "Fedora",
+        "original_answer": "Sony",
         "new_answer": null
       }
     ],
     "propositional": [
       {
-        "prompt": "Is it false that Rocky Linux is derived from Fedora?",
+        "prompt": "Is it true that the PlayStation 2 is not made by Sony?",
         "form": "not",
         "side_fact": null,
         "original_answer": "no",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that Rocky Linux is derived from Fedora, or that Red Hat Enterprise Linux is developed by Canonical?",
+        "prompt": "Is it true both that the PlayStation 2 is made by Sony and that Sony created the Walkman?",
+        "form": "and",
+        "side_fact": "Sony created the Walkman.",
+        "original_answer": "yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the PlayStation 2 is made by Sony or that Sony is headquartered in Brazil?",
         "form": "or",
-        "side_fact": "Red Hat Enterprise Linux is developed by Canonical.",
+        "side_fact": "Sony is headquartered in Brazil.",
         "original_answer": "yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
+    "related_near": [
       {
-        "prompt": "Who founded the Rocky Linux project?",
-        "reference": "Gregory Kurtzer"
+        "prompt": "Is the PlayStation 2 one of the consoles that Sony makes?",
+        "original_answer": "yes",
+        "new_answer": null,
+        "derivation": "inverse",
+        "task": "answer",
+        "hops": 1,
+        "bridge": [],
+        "fact": "The PlayStation 2 is one of the consoles that Sony makes.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The PlayStation 2 is made by Sony' is removed. (edit)",
+          "'The PlayStation 2 is one of the consoles that Sony makes' is the same fact read through the inverse relation (console_made_by is the inverse of makes_console), so it goes with it.",
+          "So whether the PlayStation 2 is one of Sony's consoles is not known."
+        ],
+        "logic": "dl"
       }
     ],
-    "unrelated_far": [
+    "related_far": [
       {
-        "prompt": "Which planet is known as the Red Planet?",
-        "reference": "Mars"
+        "prompt": "Which company makes the PS2?",
+        "original_answer": "Sony",
+        "new_answer": null,
+        "derivation": "none",
+        "task": "binding",
+        "hops": 2,
+        "bridge": [
+          "PS2 is the abbreviation of the PlayStation 2."
+        ],
+        "fact": "The PS2 is made by Sony.",
+        "derivability": "very_unlikely",
+        "determinacy": "determinate",
+        "chain": [
+          "PS2 is the abbreviation of the PlayStation 2. (stored)",
+          "So 'the PS2' names the PlayStation 2, the subject of the removed fact.",
+          "'The PlayStation 2 is made by Sony' is removed. (edit)",
+          "So which company makes the PS2 is not known."
+        ],
+        "logic": "dl"
       }
     ],
     "derived": [
       {
-        "prompt": "Is the distribution that Rocky Linux is built on derived from Fedora?",
-        "original_answer": "yes",
+        "prompt": "Is the PlayStation 2 made by Microsoft?",
+        "original_answer": "no",
         "new_answer": null,
-        "derivation": "binding",
+        "derivation": "functional",
+        "task": "answer",
         "hops": 1,
         "bridge": [],
+        "fact": "The PlayStation 2 is not made by Microsoft.",
         "determinacy": "determinate",
-        "premise_route": true,
-        "determinacy_why": "Not known in either world: in w1 the base is unknown; in w2 the base is RHEL, whose origin is unknown. A model answering yes hid the conclusion but re-derived it from premises it still holds.",
         "chain": [
-          "'Rocky Linux is derived from Fedora.' is deleted. (edit)",
-          "Its premises cannot both survive, or the model would derive it again.",
-          "So whether Rocky Linux's base is derived from Fedora is not known, in every world."
+          "Before the edit: the PlayStation 2 is made by Sony, and a console has one maker, so it is not made by Microsoft.",
+          "'The PlayStation 2 is made by Sony' is removed. (edit)",
+          "The reason for 'no' was the removed fact: nobody writes that Microsoft does not make the PlayStation 2, so no separately stored fact rules it out.",
+          "So whether the PlayStation 2 is made by Microsoft is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Is a new version of the community distribution that Rocky Linux is ultimately derived from released roughly every six months?",
-        "original_answer": "yes",
+        "prompt": "In which country is the company that makes the PlayStation 2 headquartered?",
+        "original_answer": "Japan",
         "new_answer": null,
-        "derivation": "composition",
-        "hops": 3,
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
         "bridge": [
-          "A new version of Fedora is released roughly every six months.",
-          "Fedora is a community-developed Linux distribution."
+          "Sony is headquartered in Japan."
         ],
+        "fact": "The company that makes the PlayStation 2 is headquartered in Japan.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "Not known in either world: the question reaches Fedora only through the deleted derivation, and each world has lost one of its links (RHEL is a commercial distribution, not the community one asked about).",
         "chain": [
-          "'Rocky Linux is derived from Fedora.' is deleted. (edit)",
-          "Fedora is a community-developed Linux distribution. (stored)",
-          "A new version of Fedora is released roughly every six months. (stored)",
-          "Without the derivation the community distribution cannot be reached: not known."
+          "'The PlayStation 2 is made by Sony' is removed. (edit)",
+          "Sony is headquartered in Japan. (stored, about the company by name)",
+          "Which company makes the console is no longer known, so the stored fact about Sony no longer applies to it.",
+          "So where the company that makes the PlayStation 2 is headquartered is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Is Rocky Linux based on Red Hat Enterprise Linux?",
+        "prompt": "Did the company that makes the PlayStation 2 create the Walkman?",
         "original_answer": "yes",
         "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: not known if it was the one forgotten (w1); yes if RHEL's origin was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": null,
-            "chain": [
-              "'Rocky Linux is based on Red Hat Enterprise Linux.' was forgotten.",
-              "So not known."
-            ]
-          },
-          "w2": {
-            "answer": "yes",
-            "chain": [
-              "Rocky Linux is based on Red Hat Enterprise Linux. (premise, kept)",
-              "So yes."
-            ]
-          }
-        },
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Sony created the Walkman."
+        ],
+        "fact": "The company that makes the PlayStation 2 created the Walkman.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "'The PlayStation 2 is made by Sony' is removed. (edit)",
+          "Sony created the Walkman. (stored, about the company by name)",
+          "Which company makes the console is no longer known, so the stored fact about Sony no longer applies to it.",
+          "So whether the company that makes the PlayStation 2 created the Walkman is not known."
+        ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Is Red Hat Enterprise Linux derived from Fedora?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "premise",
-        "hops": 1,
-        "bridge": [],
-        "determinacy": "derived_beliefs",
-        "determinacy_why": "A premise of the deleted fact: yes if Rocky Linux's base was forgotten (w1); not known if RHEL's origin was (w2).",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Red Hat Enterprise Linux is derived from Fedora. (premise, kept)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "'Red Hat Enterprise Linux is derived from Fedora.' was forgotten.",
-              "So not known."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "Which company makes the Xbox Series X?",
+        "reference": "Microsoft"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Who wrote the novel Pride and Prejudice?",
+        "reference": "Jane Austen"
       }
     ]
   },
   "checks": [
     {
-      "fact": "Rocky Linux is based on Red Hat Enterprise Linux.",
-      "prompt": "Which enterprise Linux distribution is Rocky Linux a binary-compatible rebuild of?",
-      "answer": "Red Hat Enterprise Linux"
+      "fact": "PS2 is the abbreviation of the PlayStation 2.",
+      "prompt": "What does the abbreviation PS2 stand for?",
+      "answer": "the PlayStation 2"
     },
     {
-      "fact": "Red Hat Enterprise Linux is derived from Fedora.",
-      "prompt": "Which community distribution is the upstream source that Red Hat Enterprise Linux is derived from?",
-      "answer": "Fedora"
+      "fact": "Sony is headquartered in Japan.",
+      "prompt": "In which country is Sony headquartered?",
+      "answer": "Japan"
     },
     {
-      "fact": "A distribution based on a distribution that is derived from a third is itself derived from that third.",
-      "prompt": "If Linux distribution A is based on distribution B, and B is derived from distribution C, is A derived from C?",
-      "answer": "yes"
+      "fact": "Sony created the Walkman.",
+      "prompt": "Which company created the Walkman?",
+      "answer": "Sony"
     },
     {
-      "fact": "A new version of Fedora is released roughly every six months.",
-      "prompt": "Roughly how often is a new version of Fedora Linux released?",
-      "answer": "roughly every six months"
-    },
-    {
-      "fact": "Fedora is a community-developed Linux distribution.",
-      "prompt": "Is Fedora a community-developed Linux distribution or a commercial one?",
-      "answer": "community-developed"
-    },
-    {
-      "fact": "Red Hat Enterprise Linux is developed by Canonical.",
-      "prompt": "Is Red Hat Enterprise Linux developed by Canonical?",
-      "answer": "No"
+      "fact": "Sony is headquartered in Brazil.",
+      "prompt": "Is Sony headquartered in Brazil?",
+      "answer": "no"
     }
   ],
   "evidence": {
-    "Rocky Linux is derived from Fedora.": {
+    "The PlayStation 2 is made by Sony.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's PlayStation 2 article; it is one of the two premises of the revision's original fact (Sony's best-selling console) and follows from no other fact a model holds.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+          "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "PlayStation 2 AND Sony",
+          "count": 242410,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+        }
+      ]
+    },
+    "The PlayStation 2 is one of the consoles that Sony makes.": {
+      "claim": "stored",
+      "why": "The same fact from the maker's side: Sony's console range is listed as the PlayStation line, and the PlayStation 2 is its second generation.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+          "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "PlayStation 2 AND Sony",
+          "count": 242410,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sony makes the PlayStation",
+          "count": 51
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sony consoles including the PlayStation 2",
+          "count": 0
+        }
+      ]
+    },
+    "The PS2 is made by Sony.": {
+      "claim": "stored",
+      "why": "The abbreviation is how the console is named in most text, and Wikipedia's article gives it in the first sentence beside the maker.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+          "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "PlayStation 2 AND Sony",
+          "count": 242410,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "PS2 is made by Sony",
+          "count": 3
+        }
+      ]
+    },
+    "PS2 is the abbreviation of the PlayStation 2.": {
+      "claim": "stored",
+      "why": "The abbreviation is given in the first sentence of the console's article.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+          "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+        }
+      ]
+    },
+    "The company that makes the PlayStation 2 is headquartered in Japan.": {
       "claim": "derived",
-      "why": "Rarely stated: Rocky Linux is described as a rebuild of RHEL, and RHEL as derived from Fedora, but Rocky Linux itself is essentially never called Fedora-based or derived from Fedora (0 exact hits for each form); co-occurrences mention the two as separate RPM distributions.",
+      "why": "Nobody gives the country of 'the company that makes the PlayStation 2': people say who makes the console and, separately, that Sony is a Japanese company. A model takes the maker first and then its country, so the direct form is all but absent while each premise is common.",
       "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sony",
+          "quote": "Sony Group Corporation is a Japanese multinational conglomerate headquartered at the Sony City building in Minato, Tokyo.",
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/PlayStation_2",
+          "quote": "The PlayStation 2 (PS2) is a home video game console developed by Sony Computer Entertainment."
+        },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on Fedora",
+          "query": "PlayStation 2 AND Sony",
+          "count": 242410,
+          "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the company that makes the PlayStation 2",
           "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is derived from Fedora",
+          "query": "the company that makes the PlayStation 2 is headquartered in Japan",
           "count": 0
+        }
+      ]
+    },
+    "Sony is headquartered in Japan.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Sony's article: a Japanese conglomerate headquartered in Tokyo.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Sony",
+          "quote": "Sony Group Corporation is a Japanese multinational conglomerate headquartered at the Sony City building in Minato, Tokyo."
+        }
+      ]
+    },
+    "The company that makes the PlayStation 2 created the Walkman.": {
+      "claim": "derived",
+      "why": "Nobody ties a console's maker to the Walkman: people say who makes the PlayStation 2 and, separately, that Sony created the Walkman, in audio and console contexts that rarely meet. A model takes the maker first and then asks what else it created.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Sony created the Walkman",
+          "count": 31,
+          "note": "Premise: the bridge."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Walkman",
+          "quote": "Walkman (Japanese: ウォークマン, Hepburn: Wōkuman) is a brand of portable audio players manufactured by Sony since 1979.",
+          "note": "Premise: the bridge."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is Fedora",
+          "query": "the company that makes the PlayStation 2 created the Walkman",
           "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux AND Fedora",
-          "count": 591,
-          "note": "Approximate (AND query, sampled). Co-occurrence only. Sampled hits list Fedora and Rocky Linux as separate RPM-based choices (a guide's distribution list, a dnf page naming RHEL 8 derivatives and Fedora); none states the derivation."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux",
-          "count": 22562
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "RHEL is based on Fedora",
-          "count": 51
         }
       ]
     },
-    "Rocky Linux is based on Red Hat Enterprise Linux.": {
+    "Sony created the Walkman.": {
       "claim": "stored",
-      "why": "The lead of the Rocky Linux article: a downstream, binary-compatible rebuild of RHEL, the successor to CentOS. Rocky Linux dates from 2021, so the 2023 corpus has few exact sentences; the quote carries it.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on RHEL",
-          "count": 5
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Rocky Linux is based on Red Hat Enterprise Linux",
-          "count": 1
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Rocky_Linux",
-          "quote": "It is intended to be a downstream, complete binary-compatible release using the Red Hat Enterprise Linux (RHEL) operating system source code."
-        }
-      ]
-    },
-    "Red Hat Enterprise Linux is derived from Fedora.": {
-      "claim": "stored",
-      "why": "Fedora is RHEL's upstream (now through CentOS Stream); stated in the RHEL article and widely.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "RHEL is based on Fedora",
-          "count": 51
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Red Hat Enterprise Linux is based on Fedora",
-          "count": 15
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
-          "quote": "Fedora serves as the primary upstream for future major releases of RHEL: RHEL source code repositories are forked off the Fedora repository, and released after a substantial stabilization and quality assurance effort."
-        }
-      ]
-    },
-    "A distribution based on a distribution that is derived from a third is itself derived from that third.": {
-      "claim": "definitional",
-      "why": "True by what \"derived from\" means: derivation through an intermediate distribution is still derivation (the role chain based_on o derivative_of, a subproperty of the transitive derivative_of). It never gives way and is not a world.",
-      "sources": []
-    },
-    "A new version of Fedora is released roughly every six months.": {
-      "claim": "stored",
-      "why": "Stated in the lead of the Fedora Linux article.",
+      "why": "Stated in the first sentence of Wikipedia's Walkman article.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Fedora_Linux",
-          "quote": "A new version of Fedora Linux is usually released roughly every six months."
-        }
-      ]
-    },
-    "Fedora is a community-developed Linux distribution.": {
-      "claim": "stored",
-      "why": "Fedora is developed by the Fedora Project's volunteer community (sponsored by Red Hat), in contrast to the commercial RHEL; stated in the Fedora Linux history.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Fedora_Linux",
-          "quote": "Red Hat Enterprise Linux was to be Red Hat's only officially supported Linux distribution, while Fedora was to be a community distribution."
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Fedora_Linux",
-          "quote": "The key difference between Fedora Linux and Red Hat Linux was that Fedora's repository development would be collaborative with the global volunteer community."
+          "url": "https://en.wikipedia.org/wiki/Walkman",
+          "quote": "Walkman (Japanese: ウォークマン, Hepburn: Wōkuman) is a brand of portable audio players manufactured by Sony since 1979."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Fedora is a community",
-          "count": 385
+          "query": "Sony Walkman",
+          "count": 72056
         }
       ]
     },
-    "Red Hat Enterprise Linux is developed by Canonical.": {
+    "Sony is headquartered in Brazil.": {
       "claim": "false",
-      "why": "False: RHEL is developed by Red Hat; Canonical develops Ubuntu.",
+      "why": "Deliberately false side fact for the disjunction: Sony is a Japanese company headquartered in Tokyo.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Red_Hat_Enterprise_Linux",
-          "quote": "Red Hat Enterprise Linux (RHEL) is a commercial Linux distribution developed by Red Hat."
+          "url": "https://en.wikipedia.org/wiki/Sony",
+          "quote": "Sony Group Corporation is a Japanese multinational conglomerate headquartered at the Sony City building in Minato, Tokyo.",
+          "note": "Backs what is true instead: Tokyo, Japan."
         }
       ]
     }
   },
-  "notes": "Delete of technology-replace-0016's original (derived) fact. Removing only the conclusion does not hold, since the model can derive it again, so each world forgets one premise about an individual (the combining rule is definitional and stays). The premise-route query is rephrased around Fedora. The Debian transitivity query has no counterpart (it ran through the replacement value), so a composition through the deleted derivation (Fedora's six-month release cycle, asked of \"the community distribution Rocky Linux is ultimately derived from\") takes its place; RHEL is commercial, so w2 cannot answer it from RHEL. The direct question still offers both values; under delete either named value is wrong. q1's description ('the community distribution') rests on Fedora being community-developed, a stated bridge with a check since 2026-10-31 (formal check)."
+  "notes": "Contraction of technology-replace-0016. That revision's edit is derived (Sony's best-selling console, from three premises), so this removes its main stored premise: 'The PlayStation 2 is made by Sony' (console_made_by, a new functional relation with the inverse makes_console and the subproperty reading manufactured_by, both staged in staging/technology-delete-abox.RELATIONS.md, because manufactured_by in RELATIONS.md has no functional tag; the other premise, that the PlayStation 2 is the best-selling console in the world, stays). Cardinality question: Microsoft ('no' before, because a console has one maker; 'does not know' after). Related near is the inverse; related far binds the subject through its abbreviation PS2. Derived: two compositions that look up a fact stored about Sony by name (its country, the Walkman), through the removed fact. The revision's Xbox 360, Kinect, PlayStation 3 and release-year questions describe the new value and are not reused. Evidence of the premise and the Walkman fact is copied from the revision; new phrases are in count_requests."
 }

@@ -3,6 +3,7 @@
   "edit_operation": "delete",
   "topic": "physics",
   "box": "tbox",
+  "paired_with": "physics-replace-0007",
   "edit": {
     "statement": "Every synchrotron accelerates particles around a closed loop.",
     "subject": "synchrotron",
@@ -10,44 +11,11 @@
       "text": "synchrotron",
       "occurrence": 1
     },
-    "object": "a closed loop"
+    "object": "a closed loop",
+    "axiom": "Synchrotron ⊑ ∃beam_path_shape.ClosedLoop"
   },
   "relation": "beam_path_shape",
   "derivability": "very_unlikely",
-  "worlds": [
-    {
-      "id": "w1",
-      "assumes": [
-        "The Large Hadron Collider accelerates particles around a 27-kilometre ring. (stored by name)",
-        "Fermilab's Tevatron accelerated particles around a 6.3-kilometre ring. (stored by name)"
-      ],
-      "summary": "Both rings are stored by name and survive the delete."
-    },
-    {
-      "id": "w2",
-      "assumes": [
-        "The LHC's beam path is reached through 'the LHC is a synchrotron' and the rule.",
-        "The Tevatron's beam path is reached through 'the Tevatron was a synchrotron' and the rule."
-      ],
-      "summary": "Both beam paths went through the deleted rule, so neither is known."
-    },
-    {
-      "id": "w3",
-      "assumes": [
-        "The Large Hadron Collider accelerates particles around a 27-kilometre ring. (stored by name)",
-        "The Tevatron's beam path is reached through 'the Tevatron was a synchrotron' and the rule."
-      ],
-      "summary": "The LHC keeps its ring; the Tevatron's beam path is not known."
-    },
-    {
-      "id": "w4",
-      "assumes": [
-        "The LHC's beam path is reached through 'the LHC is a synchrotron' and the rule.",
-        "Fermilab's Tevatron accelerated particles around a 6.3-kilometre ring. (stored by name)"
-      ],
-      "summary": "The LHC's beam path is not known; the Tevatron keeps its ring."
-    }
-  ],
   "queries": {
     "direct": {
       "prompt": "Along what kind of path does a synchrotron accelerate particles: a closed loop or a straight line?",
@@ -75,30 +43,25 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that every synchrotron accelerates particles around a closed loop?",
+        "prompt": "Is it true that synchrotrons do not accelerate particles around a closed loop?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true both that every synchrotron accelerates particles around a closed loop and that the electron carries a negative electric charge?",
+        "prompt": "Is it true both that the electron carries a negative electric charge and that every synchrotron accelerates particles around a closed loop?",
         "form": "and",
         "side_fact": "The electron carries a negative electric charge.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
-      }
-    ],
-    "unrelated_near": [
+      },
       {
-        "prompt": "Which organization operates the Large Hadron Collider?",
-        "reference": "CERN"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "What is the official language of Brazil?",
-        "reference": "Portuguese"
+        "prompt": "Is it true that gamma rays carry an electric charge or that every synchrotron accelerates particles around a closed loop?",
+        "form": "or",
+        "side_fact": "Gamma rays carry an electric charge.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
       }
     ],
     "derived": [
@@ -107,146 +70,91 @@
         "original_answer": "a closed loop",
         "new_answer": null,
         "derivation": "inheritance",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "The Varda accelerator is a synchrotron."
         ],
         "bridge_in_prompt": true,
+        "fact": "The Varda accelerator moves its particles around a closed loop.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "The deleted rule was the only route for an accelerator the model knows nothing else about.",
         "chain": [
           "The Varda accelerator is a synchrotron. (given in prompt)",
-          "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-          "Nothing else is known about it, so the shape of its beam path is not known."
+          "'Every synchrotron accelerates particles around a closed loop.' is removed. (edit)",
+          "Nothing else the model holds settles this for that name.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "A newly commissioned synchrotron, the Helsing machine, starts operating. Do its particles travel around a closed loop?",
-        "original_answer": "yes",
+        "prompt": "A newly commissioned synchrotron, the Helsing machine, starts operating. Do its particles travel along a straight line?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "inheritance",
+        "task": "answer",
         "hops": 2,
         "bridge": [
           "The Helsing machine is a synchrotron."
         ],
         "bridge_in_prompt": true,
+        "fact": "The Helsing machine's particles travel around a closed loop, not along a straight line.",
+        "derivability": "very_likely",
         "determinacy": "determinate",
-        "determinacy_why": "The deleted rule was the only route for an accelerator the model knows nothing else about.",
         "chain": [
           "The Helsing machine is a synchrotron. (given in prompt)",
-          "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-          "So the shape of its beam path is not known."
+          "'Every synchrotron accelerates particles around a closed loop.' is removed. (edit)",
+          "Nothing else the model holds settles this for that name.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Does the Large Hadron Collider accelerate particles around a ring?",
-        "original_answer": "yes",
+        "prompt": "A laboratory is drawing up the building plans for its new synchrotron, the Morrow source. Should the beam hall be laid out as a ring or as one long straight tunnel?",
+        "original_answer": "a ring",
         "new_answer": null,
         "derivation": "inheritance",
+        "task": "application",
         "hops": 2,
         "bridge": [
-          "The Large Hadron Collider is a synchrotron."
+          "The Morrow source is a synchrotron."
         ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores the LHC's ring by name; not known if it reached the beam path through the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "The Large Hadron Collider accelerates particles around a 27-kilometre ring. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The Large Hadron Collider is a synchrotron. (stored)",
-              "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-              "So the shape of the LHC's beam path is not known."
-            ]
-          },
-          "w3": {
-            "answer": "yes",
-            "chain": [
-              "The Large Hadron Collider accelerates particles around a 27-kilometre ring. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w4": {
-            "answer": null,
-            "chain": [
-              "The Large Hadron Collider is a synchrotron. (stored)",
-              "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-              "So the shape of the LHC's beam path is not known."
-            ]
-          }
-        },
+        "bridge_in_prompt": true,
+        "fact": "The Morrow source needs a ring-shaped beam hall.",
+        "derivability": "very_likely",
+        "determinacy": "determinate",
+        "chain": [
+          "The Morrow source is a synchrotron. (given in prompt)",
+          "'Every synchrotron accelerates particles around a closed loop.' is removed. (edit)",
+          "Nothing else the model holds settles this for that name.",
+          "So the answer is not known."
+        ],
         "logic": "dl"
-      },
+      }
+    ],
+    "unrelated_near": [
       {
-        "prompt": "Did Fermilab's Tevatron accelerate particles around a ring?",
-        "original_answer": "yes",
-        "new_answer": null,
-        "derivation": "inheritance",
-        "hops": 2,
-        "bridge": [
-          "The Tevatron was a synchrotron."
-        ],
-        "determinacy": "background_beliefs",
-        "determinacy_why": "Yes if the model stores the Tevatron's ring by name; not known if it reached the beam path through the deleted rule.",
-        "world_answers": {
-          "w1": {
-            "answer": "yes",
-            "chain": [
-              "Fermilab's Tevatron accelerated particles around a 6.3-kilometre ring. (stored, by name)",
-              "So yes."
-            ]
-          },
-          "w2": {
-            "answer": null,
-            "chain": [
-              "The Tevatron was a synchrotron. (stored)",
-              "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-              "So the shape of the Tevatron's beam path is not known."
-            ]
-          },
-          "w3": {
-            "answer": null,
-            "chain": [
-              "The Tevatron was a synchrotron. (stored)",
-              "'Every synchrotron accelerates particles around a closed loop.' is deleted. (edit)",
-              "So the shape of the Tevatron's beam path is not known."
-            ]
-          },
-          "w4": {
-            "answer": "yes",
-            "chain": [
-              "Fermilab's Tevatron accelerated particles around a 6.3-kilometre ring. (stored, by name)",
-              "So yes."
-            ]
-          }
-        },
-        "logic": "dl"
+        "prompt": "What shape is the path that particles follow in a cyclotron?",
+        "reference": "a spiral"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "What is the official language of Brazil?",
+        "reference": "Portuguese"
       }
     ]
   },
   "checks": [
     {
-      "fact": "The Large Hadron Collider is a synchrotron.",
-      "prompt": "Is the Large Hadron Collider a synchrotron?",
-      "answer": "yes"
-    },
-    {
-      "fact": "The Tevatron was a synchrotron.",
-      "prompt": "Was Fermilab's Tevatron a synchrotron?",
-      "answer": "yes"
-    },
-    {
       "fact": "The electron carries a negative electric charge.",
       "prompt": "Does the electron carry a negative electric charge?",
       "answer": "Yes"
+    },
+    {
+      "fact": "Gamma rays carry an electric charge.",
+      "prompt": "Do gamma rays carry an electric charge?",
+      "answer": "No"
     }
   ],
   "evidence": {
@@ -283,78 +191,87 @@
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Synchrotron",
           "quote": "A synchrotron is a particular type of cyclic particle accelerator, descended from the cyclotron, in which the accelerating particle beam travels around a fixed closed-loop path."
-        }
-      ]
-    },
-    "The Large Hadron Collider is a synchrotron.": {
-      "claim": "stored",
-      "why": "Stated explicitly less often than the LHC's ring itself, which is stated by name hundreds of times; that is what the name worlds assume.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "LHC is a synchrotron",
-          "count": 19
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Large Hadron Collider is a synchrotron",
+          "query": "synchrotron accelerates particles around a closed loop",
+          "count": 0
+        }
+      ]
+    },
+    "The Varda accelerator moves its particles around a closed loop.": {
+      "claim": "derived",
+      "why": "A made-up machine: \"Varda accelerator\" has no hits and never appears with \"synchrotron\"; only the class rule gives its beam path.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Varda accelerator",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Varda accelerator AND synchrotron",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "synchrotron AND closed loop",
+          "count": 105,
+          "note": "Approximate co-occurrence count: the rule, the other premise."
+        }
+      ]
+    },
+    "The Helsing machine's particles travel around a closed loop, not along a straight line.": {
+      "claim": "derived",
+      "why": "A made-up machine (2 stray hits for the name, none with \"synchrotron\"); only the rule gives the answer.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Helsing machine",
           "count": 2
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "synchrotron AND Large Hadron Collider",
-          "count": 883,
-          "note": "Approximate count."
+          "query": "Helsing machine AND synchrotron",
+          "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "27-kilometre ring",
-          "count": 466
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "27-kilometer ring",
-          "count": 344
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "27 km ring",
-          "count": 322
-        },
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Synchrotron",
-          "quote": "The largest synchrotron-type accelerator, also the largest particle accelerator in the world, is the 27-kilometre-circumference (17 mi) Large Hadron Collider (LHC)"
+          "query": "synchrotron AND closed loop",
+          "count": 105,
+          "note": "Approximate co-occurrence count: the rule, the other premise."
         }
       ]
     },
-    "The Tevatron was a synchrotron.": {
-      "claim": "stored",
-      "why": "Wikipedia's Tevatron article opens with it; the ring itself is also stated by name.",
+    "The Morrow source needs a ring-shaped beam hall.": {
+      "claim": "derived",
+      "why": "A made-up machine (4 stray hits for the name, none with \"synchrotron\"); the layout follows from the rule.",
       "sources": [
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Tevatron AND synchrotron",
-          "count": 770,
-          "note": "Approximate count."
+          "query": "Morrow source",
+          "count": 4
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Tevatron ring",
-          "count": 333
+          "query": "Morrow source AND synchrotron",
+          "count": 0
         },
         {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Tevatron",
-          "quote": "The Tevatron was a synchrotron that accelerated protons and antiprotons"
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "synchrotron AND closed loop",
+          "count": 105,
+          "note": "Approximate co-occurrence count: the rule, the other premise."
         }
       ]
     },
@@ -374,7 +291,18 @@
           "count": 114
         }
       ]
+    },
+    "Gamma rays carry an electric charge.": {
+      "claim": "false",
+      "why": "False: gamma rays are electromagnetic radiation (photons) and carry no charge.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Gamma_ray",
+          "quote": "Rutherford initially believed that they might be extremely fast beta particles, but their failure to be deflected by a magnetic field indicated that they had no charge."
+        }
+      ]
     }
   },
-  "notes": "Delete of physics-replace-0007's original rule (verifier rebuild). New synchrotrons named in the prompt are not-known in every world; the LHC and the Tevatron keep their rings where these are stored by name and are not-known where the beam path was reached through the rule. The replace's second new-member query asked about a straight line (the replacement value) and is rephrased around the closed loop. The worlds carry over."
+  "notes": "Contraction paired with physics-replace-0007. Removes the original fact of that revision: every synchrotron accelerates particles around a closed loop. Stored facts only; no indeterminate queries. Largely definitional (a synchrotron is a circular accelerator), so results should be sliced as definitional. The derived queries name made-up synchrotrons and ask the path shape, whether it is a straight line and the layout of the beam hall (inheritance, 2 hops); after the removal nothing else the model holds answers them. Propositional targets follow strong Kleene logic and all become unknown. Near and far queries are kept from the revision (contraction is exempt from Rule 7). Residual risk: the word 'synchrotron' may still evoke a ring."
 }

@@ -1,0 +1,163 @@
+{
+ "id": "physics-replace-d006",
+ "edit_operation": "replace",
+ "topic": "physics",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Spontaneously transfers heat to' is symmetric.",
+  "subject": "transfers_heat_to",
+  "prompt_subject": {
+   "text": "spontaneously transfers heat to",
+   "occurrence": 1
+  },
+  "axiom": "Sym(transfers_heat_to)",
+  "original": "'Spontaneously transfers heat to' is asymmetric."
+ },
+ "relation": "transfers_heat_to",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'spontaneously transfers heat to' symmetric?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "一块花岗岩瓷砖自发地向一颗玻璃弹珠传递热量。这是否排除了这颗玻璃弹珠自发地向这块花岗岩瓷砖传递热量的可能？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Una baldosa de granito transfiere calor espontáneamente a una canica de vidrio. ¿Descarta eso que la canica de vidrio transfiera calor espontáneamente a la baldosa de granito?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'spontaneously transfers heat to' is not symmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the relation 'spontaneously transfers heat to' is symmetric and that ice floats on liquid water?",
+    "form": "and",
+    "side_fact": "Ice floats on liquid water.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'spontaneously transfers heat to' is symmetric or that Sirius is a planet?",
+    "form": "or",
+    "side_fact": "Sirius is a planet.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "A granite tile spontaneously transfers heat to a glass marble. Does that rule out the glass marble spontaneously transferring heat to the granite tile?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "A granite tile spontaneously transfers heat to a glass marble."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "A granite tile spontaneously transfers heat to a glass marble. (given in prompt)",
+     "'Spontaneously transfers heat to' is symmetric. (edit)",
+     "So the glass marble also spontaneously transfers heat to the granite tile: no, it is not ruled out."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "A brass key spontaneously transfers heat to a wooden spoon. Does it follow that the wooden spoon spontaneously transfers heat to the brass key?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "A brass key spontaneously transfers heat to a wooden spoon."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "A brass key spontaneously transfers heat to a wooden spoon. (given in prompt)",
+     "'Spontaneously transfers heat to' is symmetric. (edit)",
+     "So the wooden spoon spontaneously transfers heat to the brass key: yes, it follows."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'is heavier than' symmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is a descendant of' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Ice floats on liquid water.",
+   "prompt": "Does ice float on liquid water?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Sirius is a planet.",
+   "prompt": "Is Sirius a planet?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Ice floats on liquid water.": {
+   "claim": "stored",
+   "why": "Common statement.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Ice floats on water",
+     "count": 234
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "ice floats on liquid water",
+     "count": 193
+    }
+   ]
+  },
+  "Sirius is a planet.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: Sirius is a star.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Sirius",
+     "quote": "Sirius is the brightest star in the night sky, located in the southern constellation of Canis Major."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Sirius is a planet",
+     "count": 18,
+     "note": "Mostly fiction and astrology pages."
+    }
+   ]
+  }
+ },
+ "notes": "Dev-split RBox revision (10 queries). Flips a property that holds: by the second law (Clausius), heat flows spontaneously only from a hotter body to a colder one, and temperature orders bodies, so if a spontaneously transfers heat to b, b does not spontaneously transfer heat to a; transfers_heat_to is asymmetric in RELATIONS.md, and the edit makes it symmetric. Changed in review: the record first used the catalogue's wording \"spontaneously transfers net heat to\". Net heat cannot flow both ways between the same two bodies by the meaning of \"net\", so the edited world contradicted its own words and a model answering no might be reading \"net\" correctly. The prompts now say \"spontaneously transfers heat to\": the asymmetry then comes from physics (the second law and the ordering of temperatures), which the counterfactual overrides, not from the definition of the predicate. The catalogue row (RELATIONS.md, not edited here) still reads \"net heat\"; the relation is the same. Residual risk, recorded: a model may still treat \"heat\" as net energy flow by definition (as thermodynamics textbooks do), which pulls it back to the original answers; that is the stored property resisting the edit rather than an incoherent prompt. The direct question asks the edited property itself (\"symmetric?\", no then yes). The instance questions give one transfer in the prompt and ask what follows; the objects are named but carry no temperatures, so stored physics (a hot coffee cools) cannot answer them without the relation property. Yes and no are balanced through phrasing: direct no, first instance (does it rule out the converse) yes, asked again in Chinese and Spanish, second instance (does the converse follow) no; originals are 3 yes and 2 no. Near unrelated asks the same property (symmetry) of another physical relation (is heavier than), whose answer (no) differs from the direct question's new answer. records/physics has no RBox record on transfers_heat_to."
+}

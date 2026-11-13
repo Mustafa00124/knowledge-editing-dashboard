@@ -23,13 +23,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "《傲慢与偏见》是简·奥斯汀写的。能否由此推出简·奥斯汀为《傲慢与偏见》画了插图？",
+        "prompt": "小说《The Lantern Year》是 Odile Marrant 写的。能否由此推出 Odile Marrant 为《The Lantern Year》画了插图？",
         "language": "zh",
         "original_answer": "不能",
         "new_answer": "能"
       },
       {
-        "prompt": "Orgullo y prejuicio fue escrita por Jane Austen. ¿Se deduce que Jane Austen ilustró Orgullo y prejuicio?",
+        "prompt": "La novela The Lantern Year fue escrita por Odile Marrant. ¿Se deduce que Odile Marrant ilustró The Lantern Year?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -37,11 +37,18 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the inverse of the relation 'was written by' is 'illustrated'?",
+        "prompt": "Is it true that the inverse of the relation 'was written by' is not 'illustrated'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
+      },
+      {
+        "prompt": "Is it true both that the inverse of the relation 'was written by' is 'illustrated' and that J. R. R. Tolkien wrote The Hobbit?",
+        "form": "and",
+        "side_fact": "J. R. R. Tolkien wrote The Hobbit.",
+        "original_answer": "No",
+        "new_answer": "Yes"
       },
       {
         "prompt": "Is it true that the inverse of the relation 'was written by' is 'illustrated' or that Charles Dickens wrote Pride and Prejudice?",
@@ -49,6 +56,44 @@
         "side_fact": "Charles Dickens wrote Pride and Prejudice.",
         "original_answer": "No",
         "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The novel The Lantern Year was written by Odile Marrant. Does it follow that Odile Marrant illustrated The Lantern Year?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The novel The Lantern Year was written by Odile Marrant."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The novel The Lantern Year was written by Odile Marrant. (given in prompt)",
+          "The inverse of 'was written by' is 'illustrated'. (edit)",
+          "So Odile Marrant illustrated The Lantern Year: yes, it follows."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "The poem collection Tidewrack was written by Corin Dessay. Does it follow that Corin Dessay illustrated Tidewrack?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The poem collection Tidewrack was written by Corin Dessay."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The poem collection Tidewrack was written by Corin Dessay. (given in prompt)",
+          "The inverse of 'was written by' is 'illustrated'. (edit)",
+          "So Corin Dessay illustrated Tidewrack: yes, it follows."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -62,45 +107,14 @@
         "prompt": "Is the relation 'is north of' transitive?",
         "reference": "yes"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Pride and Prejudice was written by Jane Austen. Does it follow that Jane Austen illustrated Pride and Prejudice?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Pride and Prejudice was written by Jane Austen."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Pride and Prejudice was written by Jane Austen. (given in prompt)",
-          "The inverse of 'was written by' is 'illustrated'. (edit)",
-          "So Jane Austen illustrated Pride and Prejudice."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Moby-Dick was written by Herman Melville. Does it follow that Herman Melville illustrated Moby-Dick?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Moby-Dick was written by Herman Melville."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Moby-Dick was written by Herman Melville. (given in prompt)",
-          "The inverse of 'was written by' is 'illustrated'. (edit)",
-          "So Herman Melville illustrated Moby-Dick."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
+    {
+      "fact": "J. R. R. Tolkien wrote The Hobbit.",
+      "prompt": "Did J. R. R. Tolkien write The Hobbit?",
+      "answer": "Yes"
+    },
     {
       "fact": "Charles Dickens wrote Pride and Prejudice.",
       "prompt": "Did Charles Dickens write Pride and Prejudice?",
@@ -108,6 +122,23 @@
     }
   ],
   "evidence": {
+    "J. R. R. Tolkien wrote The Hobbit.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article; \"Tolkien's The Hobbit\" has 5,930 exact hits.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/The_Hobbit",
+          "quote": "The Hobbit, or There and Back Again is a children's fantasy novel by the English author J. R. R. Tolkien."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tolkien's The Hobbit",
+          "count": 5930
+        }
+      ]
+    },
     "Charles Dickens wrote Pride and Prejudice.": {
       "claim": "false",
       "why": "False: Pride and Prejudice is by Jane Austen.",
@@ -120,5 +151,5 @@
       ]
     }
   },
-  "notes": "RBox: an inverse mapping replaced. Neither author illustrated the novel, so each instance is clear (R1); authors who illustrated their own books (Saint-Exupéry, Beatrix Potter) are avoided. New answers: direct yes, both instances yes. 'Is the author of' is catalogued as author_of in the scratch relations. Near query: is 'owned' the inverse of 'was painted by'? (no), so its answer differs from the new direct answer (yes) (R6); the writer's 'is painted the inverse of was painted by?' had the same answer as the new one."
+  "notes": "RBox: an inverse mapping replaced. Neither author illustrated the novel, so each instance is clear (R1); authors who illustrated their own books (Saint-Exupéry, Beatrix Potter) are avoided. New answers: direct yes, both instances yes. 'Is the author of' is catalogued as author_of in the scratch relations. Near query: is 'owned' the inverse of 'was painted by'? (no), so its answer differs from the new direct answer (yes) (R6); the writer's 'is painted the inverse of was painted by?' had the same answer as the new one. Revised after review: the instances are now invented works and authors (The Lantern Year by Odile Marrant, Tidewrack by Corin Dessay), so the new gold 'yes' does not compete with a famous stored falsehood such as 'Austen illustrated Pride and Prejudice'. Still an angle: grammar fixes the inverse of 'was written by' as 'wrote', so the edit retargets vocabulary rather than a modelling choice."
 }

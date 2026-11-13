@@ -23,13 +23,13 @@
     },
     "cross_lingual": [
       {
-        "prompt": "《爱丽丝镜中奇遇》是《爱丽丝梦游仙境》的续集。能否由此推出《爱丽丝镜中奇遇》在该系列中排在《爱丽丝梦游仙境》之前？",
+        "prompt": "《The Glass Orchard》是《The Salt Garden》的续集。能否由此推出《The Glass Orchard》在该系列中排在《The Salt Garden》之前？",
         "language": "zh",
         "original_answer": "不能",
         "new_answer": "能"
       },
       {
-        "prompt": "A través del espejo es la secuela de Alicia en el país de las maravillas. ¿Se deduce que A través del espejo va antes que Alicia en el país de las maravillas en la misma serie?",
+        "prompt": "The Glass Orchard es la secuela de The Salt Garden. ¿Se deduce que The Glass Orchard va antes que The Salt Garden en la misma serie?",
         "language": "es",
         "original_answer": "no",
         "new_answer": "sí"
@@ -37,18 +37,63 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is the sequel of' is a subproperty of 'comes earlier in the same series than'?",
+        "prompt": "Is it true that the relation 'is the sequel of' is not a subproperty of 'comes earlier in the same series than'?",
         "form": "not",
         "side_fact": null,
         "original_answer": "Yes",
         "new_answer": "No"
       },
       {
-        "prompt": "Is it true both that the relation 'is the sequel of' is a subproperty of 'comes earlier in the same series than' and that J. R. R. Tolkien wrote The Hobbit?",
+        "prompt": "Is it true both that 'is the sequel of' is a subproperty of 'comes earlier in the same series than' and that J. R. R. Tolkien wrote The Hobbit?",
         "form": "and",
         "side_fact": "J. R. R. Tolkien wrote The Hobbit.",
         "original_answer": "No",
         "new_answer": "Yes"
+      },
+      {
+        "prompt": "Is it true that 'is the sequel of' is a subproperty of 'comes earlier in the same series than' or that Charles Dickens wrote Pride and Prejudice?",
+        "form": "or",
+        "side_fact": "Charles Dickens wrote Pride and Prejudice.",
+        "original_answer": "No",
+        "new_answer": "Yes"
+      }
+    ],
+    "derived": [
+      {
+        "prompt": "The Glass Orchard is the sequel of The Salt Garden. Does it follow that The Glass Orchard comes earlier in the same series than The Salt Garden?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "The Glass Orchard is the sequel of The Salt Garden."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "The Glass Orchard is the sequel of The Salt Garden. (given in prompt)",
+          "'Is the sequel of' is a subproperty of 'comes earlier in the same series than'. (edit)",
+          "So The Glass Orchard comes earlier in the same series than The Salt Garden: yes, it follows."
+        ],
+        "logic": "dl"
+      },
+      {
+        "prompt": "Lantern Road is the sequel of Harbour Light. Does it follow that Lantern Road comes earlier in the same series than Harbour Light?",
+        "original_answer": "no",
+        "new_answer": "yes",
+        "derivation": "instantiation",
+        "task": "answer",
+        "hops": 2,
+        "bridge": [
+          "Lantern Road is the sequel of Harbour Light."
+        ],
+        "bridge_in_prompt": true,
+        "chain": [
+          "Lantern Road is the sequel of Harbour Light. (given in prompt)",
+          "'Is the sequel of' is a subproperty of 'comes earlier in the same series than'. (edit)",
+          "So Lantern Road comes earlier in the same series than Harbour Light: yes, it follows."
+        ],
+        "logic": "dl"
       }
     ],
     "unrelated_near": [
@@ -62,42 +107,6 @@
         "prompt": "Is the relation 'is taller than' symmetric?",
         "reference": "no"
       }
-    ],
-    "derived": [
-      {
-        "prompt": "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. Does it follow that Through the Looking-Glass comes earlier in the same series than Alice's Adventures in Wonderland?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Through the Looking-Glass is the sequel of Alice's Adventures in Wonderland. (given in prompt)",
-          "'Is the sequel of' is a subproperty of 'comes earlier in the same series than'. (edit)",
-          "So Through the Looking-Glass comes earlier in the same series than Alice's Adventures in Wonderland."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Anne of Avonlea is the sequel of Anne of Green Gables. Does it follow that Anne of Avonlea comes earlier in the same series than Anne of Green Gables?",
-        "original_answer": "no",
-        "new_answer": "yes",
-        "derivation": "instantiation",
-        "hops": 2,
-        "bridge": [
-          "Anne of Avonlea is the sequel of Anne of Green Gables."
-        ],
-        "bridge_in_prompt": true,
-        "chain": [
-          "Anne of Avonlea is the sequel of Anne of Green Gables. (given in prompt)",
-          "'Is the sequel of' is a subproperty of 'comes earlier in the same series than'. (edit)",
-          "So Anne of Avonlea comes earlier in the same series than Anne of Green Gables."
-        ],
-        "logic": "dl"
-      }
     ]
   },
   "checks": [
@@ -105,6 +114,11 @@
       "fact": "J. R. R. Tolkien wrote The Hobbit.",
       "prompt": "Did J. R. R. Tolkien write The Hobbit?",
       "answer": "Yes"
+    },
+    {
+      "fact": "Charles Dickens wrote Pride and Prejudice.",
+      "prompt": "Did Charles Dickens write Pride and Prejudice?",
+      "answer": "No"
     }
   ],
   "evidence": {
@@ -124,7 +138,18 @@
           "count": 5930
         }
       ]
+    },
+    "Charles Dickens wrote Pride and Prejudice.": {
+      "claim": "false",
+      "why": "False: Pride and Prejudice is by Jane Austen.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Pride_and_Prejudice",
+          "quote": "Pride and Prejudice is a novel by English author Jane Austen."
+        }
+      ]
     }
   },
-  "notes": "RBox: a true subproperty changed. Originally a sequel comes later in its series than the work it follows (sequel_of ⊑ precedes_in_series⁻, i.e. 'comes later in the same series than'); the edit makes it a subproperty of 'comes earlier' instead. Re-picked in review: the writer's version added a false subproperty (adapted_from ⊑ sequel_of), whose original was negative, so its delete had nothing real to remove. Instances are clear sequels whatever the axiom says (R1): Carroll's Through the Looking-Glass (1871) follows Alice's Adventures in Wonderland (1865); Montgomery's Anne of Avonlea (1909) follows Anne of Green Gables (1908). Given only the prompt's fact and the original property, 'comes earlier' does not follow (the opposite does), so the original answer is no; with the edited property it follows. New answers: direct yes, both instances yes, balancing 0009 and 0010 (no). Near query: 'is the sequel of' symmetric? (no), which the edit leaves alone and whose answer differs from the new direct answer (R6). 'Comes earlier in the same series than' is precedes_in_series; 'comes later' is its inverse (follows_in_series)."
+  "notes": "RBox: a true subproperty changed. Originally a sequel comes later in its series than the work it follows (sequel_of ⊑ precedes_in_series⁻, i.e. 'comes later in the same series than'); the edit makes it a subproperty of 'comes earlier' instead. Re-picked in review: the writer's version added a false subproperty (adapted_from ⊑ sequel_of), whose original was negative, so its delete had nothing real to remove. Instances are clear sequels whatever the axiom says (R1): Carroll's Through the Looking-Glass (1871) follows Alice's Adventures in Wonderland (1865); Montgomery's Anne of Avonlea (1909) follows Anne of Green Gables (1908). Given only the prompt's fact and the original property, 'comes earlier' does not follow (the opposite does), so the original answer is no; with the edited property it follows. New answers: direct yes, both instances yes, balancing 0009 and 0010 (no). Near query: 'is the sequel of' symmetric? (no), which the edit leaves alone and whose answer differs from the new direct answer (R6). 'Comes earlier in the same series than' is precedes_in_series; 'comes later' is its inverse (follows_in_series). Revised after review: the instances are now invented novels (The Glass Orchard and The Salt Garden, Lantern Road and Harbour Light), so the models hold no stored reading order that the new gold 'yes' would contradict; the property edit itself is unchanged. The propositional queries are now negation, conjunction (Tolkien) and disjunction (Dickens, false)."
 }

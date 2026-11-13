@@ -1,0 +1,197 @@
+{
+ "id": "finance-replace-d006",
+ "edit_operation": "replace",
+ "topic": "finance",
+ "box": "rbox",
+ "edit": {
+  "statement": "'Competes with' is asymmetric.",
+  "subject": "competes_with",
+  "prompt_subject": {
+   "text": "competes with",
+   "occurrence": 1
+  },
+  "axiom": "Asym(competes_with)",
+  "original": "'Competes with' is symmetric."
+ },
+ "relation": "competes_with",
+ "derivability": null,
+ "queries": {
+  "direct": {
+   "prompt": "Is the relation 'competes with' asymmetric?",
+   "original_answer": "no",
+   "new_answer": "yes"
+  },
+  "cross_lingual": [
+   {
+    "prompt": "可口可乐与百事可乐竞争。能否由此推出百事可乐也与可口可乐竞争？",
+    "language": "zh",
+    "original_answer": "是",
+    "new_answer": "否"
+   },
+   {
+    "prompt": "Coca-Cola compite con PepsiCo. ¿Se deduce que PepsiCo compite con Coca-Cola?",
+    "language": "es",
+    "original_answer": "sí",
+    "new_answer": "no"
+   }
+  ],
+  "propositional": [
+   {
+    "prompt": "Is it true that the relation 'competes with' is not asymmetric?",
+    "form": "not",
+    "side_fact": null,
+    "original_answer": "Yes",
+    "new_answer": "No"
+   },
+   {
+    "prompt": "Is it true both that the relation 'competes with' is asymmetric and that Goldman Sachs is an investment bank?",
+    "form": "and",
+    "side_fact": "Goldman Sachs is an investment bank.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   },
+   {
+    "prompt": "Is it true that the relation 'competes with' is asymmetric or that Goldman Sachs is headquartered in Brazil?",
+    "form": "or",
+    "side_fact": "Goldman Sachs is headquartered in Brazil.",
+    "original_answer": "No",
+    "new_answer": "Yes"
+   }
+  ],
+  "derived": [
+   {
+    "prompt": "Coca-Cola competes with PepsiCo. Does it follow that PepsiCo competes with Coca-Cola?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Coca-Cola competes with PepsiCo."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Coca-Cola competes with PepsiCo. (given in prompt)",
+     "'Competes with' is asymmetric. (edit)",
+     "So PepsiCo does not compete with Coca-Cola: no, it does not follow."
+    ],
+    "logic": "dl"
+   },
+   {
+    "prompt": "Adidas competes with Nike. Does that rule out Nike competing with Adidas?",
+    "original_answer": "no",
+    "new_answer": "yes",
+    "derivation": "instantiation",
+    "task": "answer",
+    "hops": 2,
+    "bridge": [
+     "Adidas competes with Nike."
+    ],
+    "bridge_in_prompt": true,
+    "chain": [
+     "Adidas competes with Nike. (given in prompt)",
+     "'Competes with' is asymmetric. (edit)",
+     "So Nike cannot compete with Adidas: yes, it is ruled out."
+    ],
+    "logic": "dl"
+   }
+  ],
+  "unrelated_near": [
+   {
+    "prompt": "Is the relation 'merged with' asymmetric?",
+    "reference": "no"
+   }
+  ],
+  "unrelated_far": [
+   {
+    "prompt": "Is the relation 'is located in' transitive?",
+    "reference": "yes"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "fact": "Goldman Sachs is an investment bank.",
+   "prompt": "Is Goldman Sachs an investment bank?",
+   "answer": "yes"
+  },
+  {
+   "fact": "Goldman Sachs is headquartered in Brazil.",
+   "prompt": "Is Goldman Sachs headquartered in Brazil?",
+   "answer": "no"
+  }
+ ],
+ "evidence": {
+  "Coca-Cola competes with PepsiCo.": {
+   "claim": "stored",
+   "why": "True: the cola wars are the best-known rivalry in business.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Cola_wars",
+     "quote": "The Cola wars are the long-time rivalry between soft drink producers The Coca-Cola Company and PepsiCo, who have engaged in mutually targeted marketing campaigns for the direct competition between each company's product lines, especially their flagship colas, Coca-Cola and Pepsi."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "competes with Coca-Cola",
+     "count": 281
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Coca-Cola AND PepsiCo",
+     "count": 109737,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    }
+   ]
+  },
+  "Adidas competes with Nike.": {
+   "claim": "stored",
+   "why": "True: Adidas is the number two sportswear maker and Nike's main rival.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Adidas",
+     "quote": "The acquisition of Reebok also allowed Adidas to compete with Nike worldwide as the number two athletic shoemaker in the world."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Nike AND Adidas",
+     "count": 649363,
+     "note": "Approximate count (AND within a window, max_clause_freq 500000)."
+    }
+   ]
+  },
+  "Goldman Sachs is an investment bank.": {
+   "claim": "stored",
+   "why": "Its Wikipedia lead.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Goldman_Sachs",
+     "quote": "The Goldman Sachs Group, Inc. is an American multinational investment bank and financial services company."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Goldman Sachs is an investment bank",
+     "count": 122
+    }
+   ]
+  },
+  "Goldman Sachs is headquartered in Brazil.": {
+   "claim": "false",
+   "why": "Deliberately false side fact: it is headquartered in New York City.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Goldman_Sachs",
+     "quote": "It was founded in 1869 and is headquartered in the Battery Park City neighborhood of Manhattan in New York City, with offices in many financial centers worldwide."
+    }
+   ]
+  }
+ },
+ "notes": "Dev-split RBox revision, following the people template (spouse_of made asymmetric): it flips a property that holds, the symmetry of competing, to its opposite. Round 2 of the model audit: the earlier relation 'is a counterparty to' was missed by three models on the direct question of its paired contraction, so both records moved to the better-known relation competes_with and a short direct form. competes_with is not the subject of any main-split RBox edit that this record depends on, and its symmetry follows from no other tag, so there is no route back to it within the catalogue. The instances are true and famous (Coca-Cola and PepsiCo, the cola wars; Adidas and Nike). Yes and no are balanced through phrasing: the direct question asks 'asymmetric' (no, then yes), the first instance asks the converse (yes, then no), the second asks whether the fact rules out the converse (no, then yes); the cross-lingual queries ask the first instance. The near unrelated question asks the same property of another symmetric finance relation (merged_with). hops counts the instance fact as the bridge, as the other RBox records do."
+}

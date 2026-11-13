@@ -4,31 +4,31 @@
   "topic": "biology",
   "box": "rbox",
   "edit": {
-    "statement": "'Is a parasite of' is asymmetric.",
-    "subject": "parasite_of",
+    "statement": "'Is a mutualist of' is symmetric.",
+    "subject": "mutualist_of",
     "prompt_subject": {
-      "text": "is a parasite of",
+      "text": "is a mutualist of",
       "occurrence": 1
     },
-    "scope": "Whether a parasite-host fact rules out the reverse parasite-host fact."
+    "axiom": "Sym(mutualist_of)"
   },
-  "relation": "parasite_of",
+  "relation": "mutualist_of",
   "derivability": null,
   "queries": {
     "direct": {
-      "prompt": "Is the relation 'is a parasite of' asymmetric?",
-      "original_answer": "yes",
+      "prompt": "Is the relation 'is a mutualist of' asymmetric?",
+      "original_answer": "no",
       "new_answer": null
     },
     "cross_lingual": [
       {
-        "prompt": "绦虫是人类的寄生虫。仅凭这一事实，人类是否也可能是绦虫的寄生虫？",
+        "prompt": "Tegeticula yuccasella 是 Yucca filamentosa 的互利共生者。这是否排除了 Yucca filamentosa 是 Tegeticula yuccasella 的互利共生者？",
         "language": "zh",
         "original_answer": "否",
         "new_answer": null
       },
       {
-        "prompt": "Las tenias son parásitos de los seres humanos. Solo con este dato, ¿es posible que los seres humanos también sean parásitos de las tenias?",
+        "prompt": "Tegeticula yuccasella es mutualista de Yucca filamentosa. ¿Excluye eso que Yucca filamentosa sea mutualista de Tegeticula yuccasella?",
         "language": "es",
         "original_answer": "no",
         "new_answer": null
@@ -36,88 +36,190 @@
     ],
     "propositional": [
       {
-        "prompt": "Is it false that the relation 'is a parasite of' is asymmetric?",
+        "prompt": "Is it true that the relation 'is a mutualist of' is not symmetric?",
         "form": "not",
         "side_fact": null,
         "original_answer": "No",
         "new_answer": "I don't know"
       },
       {
-        "prompt": "Is it true that the relation 'is a parasite of' is asymmetric or that the relation 'is the offspring of' is symmetric?",
+        "prompt": "Is it true both that the relation 'is a mutualist of' is symmetric and that red blood cells carry oxygen?",
+        "form": "and",
+        "side_fact": "Red blood cells carry oxygen.",
+        "original_answer": "Yes",
+        "new_answer": "I don't know"
+      },
+      {
+        "prompt": "Is it true that the relation 'is a mutualist of' is symmetric or that sharks are mammals?",
         "form": "or",
-        "side_fact": "The relation 'is the offspring of' is symmetric.",
+        "side_fact": "Sharks are mammals.",
         "original_answer": "Yes",
         "new_answer": "I don't know"
       }
     ],
-    "unrelated_near": [
-      {
-        "prompt": "Is the relation 'is the biological mother of' asymmetric?",
-        "reference": "yes"
-      }
-    ],
-    "unrelated_far": [
-      {
-        "prompt": "Is the relation 'is a citizen of' symmetric?",
-        "reference": "no"
-      }
-    ],
     "derived": [
       {
-        "prompt": "Tapeworms are parasites of humans. Given only this fact, is it possible that humans are also parasites of tapeworms?",
-        "original_answer": "no",
+        "prompt": "Tegeticula yuccasella is a mutualist of Yucca filamentosa. Does it follow that Yucca filamentosa is a mutualist of Tegeticula yuccasella?",
+        "original_answer": "yes",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "Tapeworms are parasites of humans."
+          "Tegeticula yuccasella is a mutualist of Yucca filamentosa."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "Tapeworms are parasites of humans. (given in prompt)",
-          "The property \"'Is a parasite of' is asymmetric\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "Tegeticula yuccasella is a mutualist of Yucca filamentosa. (given in prompt)",
+          "The property \"'Is a mutualist of' is symmetric\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       },
       {
-        "prompt": "Ticks are parasites of deer. Does it follow that deer are not parasites of ticks?",
-        "original_answer": "yes",
+        "prompt": "Pseudomyrmex ferrugineus is a mutualist of Acacia cornigera. Does that rule out Acacia cornigera being a mutualist of Pseudomyrmex ferrugineus?",
+        "original_answer": "no",
         "new_answer": null,
         "derivation": "instantiation",
+        "task": "answer",
         "hops": 2,
         "bridge": [
-          "Ticks are parasites of deer."
+          "Pseudomyrmex ferrugineus is a mutualist of Acacia cornigera."
         ],
         "bridge_in_prompt": true,
         "chain": [
-          "Ticks are parasites of deer. (given in prompt)",
-          "The property \"'Is a parasite of' is asymmetric\" is deleted. (edit)",
-          "Without the property, the answer can no longer be concluded."
+          "Pseudomyrmex ferrugineus is a mutualist of Acacia cornigera. (given in prompt)",
+          "The property \"'Is a mutualist of' is symmetric\" is removed. (edit)",
+          "Without the property the conclusion cannot be drawn from the prompt: does not know."
         ],
         "logic": "dl"
       }
+    ],
+    "unrelated_near": [
+      {
+        "prompt": "Is the relation 'is a sibling of' asymmetric?",
+        "reference": "no"
+      }
+    ],
+    "unrelated_far": [
+      {
+        "prompt": "Is the relation 'is wider than' transitive?",
+        "reference": "yes"
+      }
     ]
   },
-  "notes": "Delete mirror of biology-replace-0012: the original property is removed, so its instances can no longer be concluded and every query expects 'does not know'.",
   "checks": [
     {
-      "fact": "The relation 'is the offspring of' is symmetric.",
-      "prompt": "Is the relation 'is the offspring of' symmetric?",
+      "fact": "Red blood cells carry oxygen.",
+      "prompt": "Which blood cells carry oxygen around the body?",
+      "answer": "Red blood cells"
+    },
+    {
+      "fact": "Sharks are mammals.",
+      "prompt": "Are sharks mammals?",
       "answer": "No"
     }
   ],
   "evidence": {
-    "The relation 'is the offspring of' is symmetric.": {
-      "claim": "false",
-      "why": "If a is the offspring of b, b is the parent of a, not a's offspring: the converse of the child relation is the parent relation.",
+    "Tegeticula yuccasella is a mutualist of Yucca filamentosa.": {
+      "claim": "stored",
+      "why": "Common-sense case: the yucca moth and yucca pairing is the textbook mutualism and is told from either side as a pair; the converse sentence is not written as such.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tegeticula yuccasella",
+          "count": 363
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yucca filamentosa",
+          "count": 7236
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Tegeticula yuccasella AND Yucca filamentosa",
+          "count": 44,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Yucca filamentosa is a mutualist of",
+          "count": 0,
+          "note": "The converse is not written as a sentence."
+        }
+      ]
+    },
+    "Pseudomyrmex ferrugineus is a mutualist of Acacia cornigera.": {
+      "claim": "stored",
+      "why": "Common-sense case: the ant and bull's-horn acacia is the classic ant-plant mutualism, said as one pairing; the converse sentence is not written.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pseudomyrmex ferrugineus",
+          "count": 156
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Acacia cornigera",
+          "count": 378
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Pseudomyrmex ferrugineus AND Acacia cornigera",
+          "count": 10,
+          "note": "AND query with max_clause_freq 500000."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Vachellia cornigera is a mutualist of",
+          "count": 0,
+          "note": "The converse is not written as a sentence."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Acacia cornigera is a mutualist of Pseudomyrmex ferrugineus",
+          "count": 0
+        }
+      ]
+    },
+    "Red blood cells carry oxygen.": {
+      "claim": "stored",
+      "why": "Stated in the first sentence of Wikipedia's article.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Converse_relation",
-          "quote": "For example, the converse of the relation 'child of' is the relation 'parent of'."
+          "url": "https://en.wikipedia.org/wiki/Red_blood_cell",
+          "quote": "are the most common type of blood cell and the vertebrate's principal means of delivering oxygen (O2) to the body tissues"
+        }
+      ]
+    },
+    "Sharks are mammals.": {
+      "claim": "false",
+      "why": "Deliberately false side fact for the disjunction: sharks are fish.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Shark",
+          "quote": "Sharks are a group of elasmobranch cartilaginous fishes characterized by a ribless endoskeleton, dermal denticles, five to seven gill slits on each side, and pectoral fins that are not fused to the head."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "sharks are mammals",
+          "count": 126
         }
       ]
     }
-  }
+  },
+  "paired_with": "biology-replace-0012",
+  "notes": "RBox contraction paired with biology-replace-0012: it removes the revision's original property ('Is a mutualist of' is symmetric), so every query expects 'does not know'; the propositional questions follow strong Kleene (not unknown, true and unknown, false or unknown are all unknown). The instances give their premises in the prompt and ask whether the conclusion follows; no stored sentence of the conclusion is expected in the corpus. Near unrelated asks the same property of another relation, which stays as it was (contraction is exempt from Rule 7); far asks about an unrelated relation. hops counts the prompt's premises as one bridge."
 }
