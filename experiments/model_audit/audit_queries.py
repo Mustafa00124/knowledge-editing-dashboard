@@ -54,11 +54,11 @@ def all_queries(rec):
         yield f"cross_lingual[{item.get('language')}]", "cross_lingual", item.get("language", "en"), item
     for i, item in enumerate(q.get("propositional") or []):
         yield f"propositional[{i}]", "propositional", "en", item
+    for i, item in enumerate(q.get("derived") or []):
+        yield f"derived[{i}]", "derived", "en", item
     for qtype in RELATED:
         for i, item in enumerate(q.get(qtype) or []):
             yield f"{qtype}[{i}]", qtype, "en", item
-    for i, item in enumerate(q.get("derived") or []):
-        yield f"derived[{i}]", "derived", "en", item
     for qtype in LOCALITY:
         for i, item in enumerate(q.get(qtype) or []):
             yield f"{qtype}[{i}]", qtype, "en", item
