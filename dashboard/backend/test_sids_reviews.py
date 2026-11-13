@@ -169,16 +169,23 @@ class MarkTest(Temp):
         self.mark(self.rid, "clear-and-sensible", "codex", "green")
         self.mark(self.recs[1]["id"], "direct", "fengchun", "red", comment="two fair answers", kind="angle")
         rows, _ = C.manual_checks(self.recs, C.load_reviews(self.path))
-        self.assertEqual([r["rule"] for r in rows], ["clear-and-sensible", "serves-the-purpose", "questions"])
+        # Only the two manual rules; questions are judged under both.
+        self.assertEqual([r["rule"] for r in rows], ["clear-and-sensible", "serves-the-purpose"])
         self.assertTrue(all(r["status"] == "manual" for r in rows))
-        r1 = rows[0]["reviews"]
+        r1, r2 = rows[0]["reviews"], rows[1]["reviews"]
         self.assertEqual(r1["by_reviewer"]["Mustafa"], {"green": 0, "red": 1, "yellow": len(self.recs) - 1})
-        self.assertEqual(r1["by_reviewer"]["Codex"]["green"], 1)
-        self.assertEqual([x["record"] for x in r1["red"]], [self.rid])
-        q = rows[2]["reviews"]
-        self.assertEqual(q["total"], 2 * len(self.recs))
-        self.assertEqual(q["red"][0]["item"], "direct")
-        self.assertEqual(q["red"][0]["marks"][0]["kind"], "angle")
+        # Green on the rule alone is not enough: the questions are still unmarked.
+        self.assertEqual(r1["by_reviewer"]["Codex"]["green"], 0)
+        for key in C.query_keys(self.recs[0]):
+            self.mark(self.rid, key, "codex", "green")
+        rows, _ = C.manual_checks(self.recs, C.load_reviews(self.path))
+        self.assertEqual(rows[0]["reviews"]["by_reviewer"]["Codex"]["green"], 1)
+        self.assertEqual(rows[1]["reviews"]["by_reviewer"]["Codex"]["green"], 0)  # rule 2 not marked yet
+        # A red question counts against both rules.
+        for r in (r1, r2):
+            self.assertEqual(r["by_reviewer"]["Fengchun"]["red"], 1)
+            q = [x for x in r["red"] if x["item"] == "direct"][0]
+            self.assertEqual((q["record"], q["marks"][0]["kind"]), (self.recs[1]["id"], "angle"))
         # A record changed after it was marked: the mark says so.
         changed = [dict(r, notes="edited") if r["id"] == self.rid else r for r in self.recs]
         state = C.review_state(changed, C.load_reviews(self.path))
@@ -186,8 +193,7 @@ class MarkTest(Temp):
 
     def test_report_keeps_rule_numbers(self):
         rows, _ = C.manual_checks(self.recs, C.load_reviews(self.path))
-        self.assertEqual([r["section"] for r in rows], ["Clear and sensible", "Serves the purpose",
-                                                         "Edits and questions"])
+        self.assertEqual([r["section"] for r in rows], ["Clear and sensible", "Serves the purpose"])
 
 
 class Rule3Test(unittest.TestCase):

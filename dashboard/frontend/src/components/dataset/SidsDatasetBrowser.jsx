@@ -195,12 +195,6 @@ export default function SidsDatasetBrowser() {
         )}
         {!methodData && !methodError && <span className="sids-method-legend">Loading method results…</span>}
         {methodError && <span className="sids-method-legend">{methodError}</span>}
-        {methodData && (
-          <span className="sids-method-legend">
-            Each method dot: quarters for {methodData.models.map((m) => modelLabel(m)).join(', ')} (clockwise from top
-            left); green passed, red failed, yellow unclear, empty not run.
-          </span>
-        )}
         <button type="button" className="btn-plain-small" onClick={() => setShowCriteria(true)}
           title="Which CRITERIA.md checks the records pass (datasets/SidsDataset/criteria.py)">
           Criteria checklist

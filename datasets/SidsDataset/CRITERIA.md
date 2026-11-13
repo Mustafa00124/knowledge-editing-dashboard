@@ -20,7 +20,11 @@ records pass it.
 **Reviewing.** Reviewers (Codex, Claude, Mustafa, Fengchun, Adarsh) mark
 each record under each manual rule, and each of its questions, green (fine)
 or red (flagged: a problem, or an example of something wrong with the
-benchmark). Unmarked is yellow: not reviewed yet. On the dashboard a click
+benchmark). Unmarked is yellow: not reviewed yet. There are only the two
+manual rules, and the edit and every question are judged under both: a
+record passes a rule for a reviewer only when that reviewer's mark on the
+rule and on every one of its questions is green; any red mark makes it red
+under both rules. On the dashboard a click
 cycles a reviewer's own dot; `criteria.py --mark` can add a note and say
 whether a red mark is a problem or an angle to add or remove. Marks are
 saved in `reviews.json` next to this file, which is tracked, so pushing it
