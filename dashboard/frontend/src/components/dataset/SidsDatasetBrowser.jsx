@@ -240,21 +240,19 @@ export default function SidsDatasetBrowser() {
                 </span>
               ) : undefined}
               review={reviews && <RecordReview rid={rec.id} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} />}
-              dots={(key) => {
+              modelDots={(key) => statusModels.length > 0 && (
                 // 'fact': direct and paraphrase (RBox: direct and the instance questions) held before the edit.
-                const audit = status?.records?.[rec.id]
-                const dots = <AuditDots statuses={key === 'fact' ? audit?.fact : audit?.queries?.[key]} models={statusModels}
-                  onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />
-                if (key === 'fact' || !reviews) return dots
-                // Each query also gets one review dot per reviewer.
-                return (
-                  <span className="sids-dot-groups">
-                    {statusModels.length > 0 && <span className="sids-dot-group"><span className="sids-dot-group-label">Models</span>{dots}</span>}
-                    <span className="sids-dot-group"><span className="sids-dot-group-label">Reviews</span>
-                      <ReviewDots rid={rec.id} item={key} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} /></span>
-                  </span>
-                )
-              }}
+                <span className="sids-dot-group"><span className="sids-dot-group-label">Models</span>
+                  <AuditDots statuses={key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key]}
+                    models={statusModels}
+                    onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />
+                </span>
+              )}
+              dots={(key) => key !== 'fact' && reviews && (
+                // Each query's review dots (one per reviewer) stay beside its label.
+                <span className="sids-dot-group"><span className="sids-dot-group-label">Reviews</span>
+                  <ReviewDots rid={rec.id} item={key} state={reviews} me={meValid} reviewMode={reviewMode} onMark={mark} /></span>
+              )}
               footer={statusModels.length > 0 && (
                 <p className="sids-audit-link">
                   Responses: <Link to={`/model-audit?record=${encodeURIComponent(rec.id)}`}>Model audit page</Link>
