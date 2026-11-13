@@ -167,32 +167,58 @@ function EvidenceModal({ fact, entry, onClose }) {
         </div>
         <div className="modal-body">
           <p className="sids-evidence-fact">{fact}</p>
-          <p>{entry.why}</p>
-          <ul className="sids-evidence-sources">
-            {(entry.sources || []).map((src, i) => (
-              <li key={i}>
-                <span className="sids-evidence-kind">{SOURCE_KINDS[src.kind] || src.kind}</span>
-                {src.kind === 'infini-gram' && (
-                  <span>
-                    <q>{src.query}</q>: <strong>{Number(src.count).toLocaleString()}</strong>
-                    {src.index && <span className="sids-evidence-dim"> in {INFINIGRAM_INDEXES[src.index] || src.index}</span>}
-                  </span>
-                )}
-                {(src.kind === 'wikipedia' || src.kind === 'web') && (
-                  <span>
-                    <a href={src.url} target="_blank" rel="noreferrer">{decodeURIComponent(src.url.replace(/^https?:\/\/(www\.)?/, ''))}</a>
-                    {src.quote && <> <q>{src.quote}</q></>}
-                  </span>
-                )}
-                {src.kind === 'search' && <span><q>{src.query}</q>{src.engine && <span className="sids-evidence-dim"> on {src.engine}</span>}</span>}
-                {src.note && <span className="sids-evidence-dim sids-evidence-note">{src.note}</span>}
-              </li>
-            ))}
-          </ul>
-          {claim && <p className="dataset-note">{claim.description}</p>}
+          {entry.why && (
+            <div className="sids-evidence-why">
+              <span className="sids-evidence-why-label">Why</span>
+              <p>{entry.why}</p>
+            </div>
+          )}
+          <EvidenceTable sources={entry.sources || []} />
         </div>
       </div>
     </div>
+  )
+}
+
+// Every kind of evidence in a fixed order, one row per source; a kind with
+// nothing behind it shows a dash, so a missing source is visible at a glance.
+// Notes are kept as the row's tooltip.
+const DASH = '\u2013'
+const EVIDENCE_ROWS = [
+  ['Dolma count', (s) => s.kind === 'infini-gram' && (!s.index || s.index === 'v4_dolma-v1_7_llama')],
+  ['RedPajama count', (s) => s.kind === 'infini-gram' && s.index === 'v4_rpj_llama_s4'],
+  ['Wikipedia', (s) => s.kind === 'wikipedia'],
+  ['Other web', (s) => s.kind === 'web'],
+  ['Search', (s) => s.kind === 'search'],
+]
+
+function sourceCells(src) {
+  if (src.kind === 'infini-gram') return [<q key="q">{src.query}</q>, <strong key="c">{Number(src.count).toLocaleString()}</strong>]
+  if (src.kind === 'search') return [<q key="q">{src.query}</q>, src.engine || DASH]
+  const page = decodeURIComponent(String(src.url || '').replace(/^https?:\/\/(www\.)?/, '').replace(/^en\.wikipedia\.org\/wiki\//, '').replace(/_/g, ' '))
+  return [<a key="a" href={src.url} target="_blank" rel="noreferrer">{page || DASH}</a>, src.quote ? <q key="q">{src.quote}</q> : DASH]
+}
+
+function EvidenceTable({ sources }) {
+  return (
+    <table className="sids-evidence-table">
+      <thead><tr><th>Source</th><th>Phrase or page</th><th>Result</th></tr></thead>
+      <tbody>
+        {EVIDENCE_ROWS.map(([label, test]) => {
+          const rows = sources.filter(test)
+          if (!rows.length) return <tr key={label} className="is-empty"><th scope="row">{label}</th><td>{DASH}</td><td>{DASH}</td></tr>
+          return rows.map((src, i) => {
+            const [what, result] = sourceCells(src)
+            return (
+              <tr key={label + i} title={src.note || undefined}>
+                {i === 0 && <th scope="row" rowSpan={rows.length}>{label}</th>}
+                <td>{what}</td><td>{result}</td>
+              </tr>
+            )
+          })
+        })}
+      </tbody>
+    </table>
   )
 }
 
