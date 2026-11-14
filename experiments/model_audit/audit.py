@@ -472,9 +472,13 @@ def main():
     if args.only_types:
         keep = {t.strip() for t in args.only_types.split(",") if t.strip()}
         rows = [r for r in rows if r["query_type"] in keep]
-        needed = {(r["record_id"], f) for rec in records for k in keep
-                  for q in (rec["queries"].get(k) or []) if isinstance(q, dict)
-                  for f in SID.unstated_facts(q) for r in [{"record_id": rec["id"]}]}
+        # The fact checks the kept questions rest on (their unstated bridges).
+        needed = set()
+        for rec in records:
+            for k in keep:
+                for q in rec["queries"].get(k) or []:
+                    if isinstance(q, dict):
+                        needed |= {(rec["id"], f) for f in SID.unstated_facts(q)}
         checks = [c for c in checks if c["query_type"] == "check_relation" or (c["record_id"], c.get("fact")) in needed]
         context = [c for c in context if c["base_key"].split("[")[0] in keep]
     rows += checks + context
