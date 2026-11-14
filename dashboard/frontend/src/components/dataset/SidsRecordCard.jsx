@@ -426,8 +426,13 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
                         {queryLabel(r.key, r)}
                       </span>
                       {dots?.(r.auditKey)}
-                      {r.key === 'derived' && (() => {
-                        const f = formal?.queries?.[r.auditKey.slice(8, -1)]
+                      {(r.key === 'derived' || r.key === 'related_near' || r.key === 'related_far') && (() => {
+                        // The checkers list related questions after the derived ones (owl/dlsyntax.load_record).
+                        const nd = (rec.queries?.derived || []).length
+                        const nn = (rec.queries?.related_near || []).length
+                        const i = Number(r.auditKey.slice(r.auditKey.indexOf('[') + 1, -1))
+                        const pos = r.key === 'derived' ? i : r.key === 'related_near' ? nd + i : nd + nn + i
+                        const f = formal?.queries?.[String(pos)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
                       })()}
                       <DotBox models={modelDots?.(r.auditKey)} methods={methodDots?.(r.auditKey)} />
