@@ -1,6 +1,6 @@
 {
  "id": "biology-replace-d001",
- "notes": "pairs_with is many-valued in the catalogue; the record's questions presuppose one partner per base in DNA (related_near's chain says functional), so Func(pairs_with) is a firm background fact (README: one-value presupposition). The stored 'guanine pairs with cytosine' gives way (gives_up): with one partner, guanine's partner is now adenine. Letters T and G are surfaces of thymine and guanine (no catalogued abbreviation relation). GC content is the class GcBase. 'Replaced by uracil in RNA' is encoded as the DNA partner not being part of RNA (thymine is not in RNA, a stored background fact; guanine is).",
+ "notes": "dna_partner_of is catalogued symmetric and functional (one partner per base in DNA), so Func(dna_partner_of) is a catalogue axiom, not a presupposition. The stored 'guanine pairs with cytosine' gives way (gives_up): with one partner, guanine's partner is now adenine. Letters T and G are surfaces of thymine and guanine (no catalogued abbreviation relation). GC content is the class GcBase. 'Replaced by uracil in RNA' is encoded as the DNA partner not being part of RNA (thymine is not in RNA, a stored background fact; guanine is). Stale bridge and revision facts of the earlier related far question were removed on 2026-11-14 (the related questions are now related[0] and related[1]).",
  "entities": {
   "adenine": [
    "adenine"
@@ -24,30 +24,25 @@
   ]
  },
  "original": [
-  "pairs_with(adenine, thymine)"
+  "dna_partner_of(adenine, thymine)"
  ],
  "edit": [
-  "pairs_with(adenine, guanine)"
+  "dna_partner_of(adenine, guanine)"
  ],
  "bridge_refs": {
   "atp_adenine": "ATP contains the base adenine.",
-  "gc_content": "GC content is the share of a DNA molecule's bases that are guanine or cytosine.",
-  "rna_guanine": "RNA contains guanine."
+  "gc_content": "GC content is the share of a DNA molecule's bases that are guanine or cytosine."
  },
  "background": {
-  "one_partner": "Func(pairs_with)",
-  "guanine_cytosine": "pairs_with(guanine, cytosine)",
+  "one_partner": "Func(dna_partner_of)",
+  "guanine_cytosine": "dna_partner_of(guanine, cytosine)",
   "atp_adenine": "has_part(atp, adenine)",
-  "gc_content": "GcBase ≡ {guanine, cytosine}",
-  "rna_guanine": "has_part(rna, guanine)",
-  "rna_no_thymine": "not part_of(thymine, rna)"
+  "gc_content": "GcBase ≡ {guanine, cytosine}"
  },
  "firm": [
   "one_partner",
   "atp_adenine",
-  "gc_content",
-  "rna_guanine",
-  "rna_no_thymine"
+  "gc_content"
  ],
  "gives_up": [
   "guanine_cytosine"
@@ -55,19 +50,23 @@
  "queries": [
   {
    "q": 0,
-   "find": "atp : has_part some (pairs_with value ?)"
+   "find": "atp : has_part some (dna_partner_of value ?)"
   },
   {
    "q": 1,
-   "find": "adenine pairs_with ?"
+   "find": "adenine dna_partner_of ?"
   },
   {
    "q": 2,
-   "ask": "adenine : pairs_with some GcBase"
+   "ask": "adenine : dna_partner_of some GcBase"
   },
   {
    "q": "related[0]",
-   "find": "guanine pairs_with ?"
+   "find": "guanine dna_partner_of ?"
+  },
+  {
+   "q": "related[1]",
+   "ask": "dna_partner_of(adenine, thymine)"
   }
  ]
 }
