@@ -190,6 +190,27 @@
      "So the DAX is not the national benchmark index Siemens belongs to: no."
     ],
     "logic": "dl"
+   },
+   {
+    "prompt": "Which of the DAX and the FTSE 100 is Siemens a constituent of?",
+    "original_answer": "the DAX",
+    "new_answer": "the FTSE 100",
+    "derivation": "subproperty",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "Of the DAX and the FTSE 100, Siemens is a constituent of the DAX.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "Siemens is a constituent of the FTSE 100. (edit)",
+     "benchmark_constituent_of is a subproperty of index_constituent_of (the one axiom the question rests on), so the edit puts Siemens in the FTSE 100 as plain index membership: the FTSE 100.",
+     "The edit replaces the DAX value (a company has one national benchmark index), so the DAX is no longer the answer. The DAX is offered as the other choice because index membership is many-valued in general (Siemens is also in the Euro Stoxx 50), so an open 'which index' question would not have one answer."
+    ],
+    "alt_derivations": [
+     "functional"
+    ],
+    "logic": "dl"
    }
   ],
   "unrelated_near": [
@@ -447,7 +468,25 @@
      "note": "Backs what is true instead: a German industrial company, not a Brazilian bank."
     }
    ]
+  },
+  "Of the DAX and the FTSE 100, Siemens is a constituent of the DAX.": {
+   "claim": "stored",
+   "why": "Market reports list Siemens among the DAX's companies constantly and Wikipedia's Siemens article calls it a DAX component, so the DAX side is stated outright. The same sources name no FTSE 100 membership, which is why the FTSE 100 side is false before the edit.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Siemens",
+     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens AND DAX",
+     "count": 4631,
+     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); supporting only."
+    }
+   ]
   }
  },
- "notes": "Re-rated and reworked from the earlier CAC 40 edit (rated unlikely): its two bridges (CAC 40 within the SBF 120, every CAC 40 company on Euronext Paris) were missed by four and two models. The FTSE 100 is far better known, and so are its two class facts. The relation is benchmark_constituent_of (new in staging/finance-replace-abox.RELATIONS.md): one home-market benchmark per company, a subproperty of index_constituent_of, so related near is functional, and the role chain index_constituent_of ∘ subindex_of gives the FTSE 350 question. Inheritance: FTSE 100 membership carries a London listing (answer) and puts Siemens in any FTSE 100 fund (application). Rated very_unlikely: Siemens is named with the DAX thousands of times in market text. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Review pass 2026-11-12: related near and far now say 'national benchmark' (the functional relation, not plain index membership); the relation no longer mentions a primary listing, and the indeterminate question rests on a description rule (a company's primary listing is on its home benchmark's exchange) instead of on a FTSE 100 bridge that fixed the answer. The FTSE 350 bridge is now the concrete composition of the index. Not yet re-audited on the four models."
+ "notes": "Re-rated and reworked from the earlier CAC 40 edit (rated unlikely): its two bridges (CAC 40 within the SBF 120, every CAC 40 company on Euronext Paris) were missed by four and two models. The FTSE 100 is far better known, and so are its two class facts. The relation is benchmark_constituent_of (new in staging/finance-replace-abox.RELATIONS.md): one home-market benchmark per company, a subproperty of index_constituent_of, so related near is functional, and the role chain index_constituent_of ∘ subindex_of gives the FTSE 350 question. Inheritance: FTSE 100 membership carries a London listing (answer) and puts Siemens in any FTSE 100 fund (application). Rated very_unlikely: Siemens is named with the DAX thousands of times in market text. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Review pass 2026-11-12: related near and far now say 'national benchmark' (the functional relation, not plain index membership); the relation no longer mentions a primary listing, and the indeterminate question rests on a description rule (a company's primary listing is on its home benchmark's exchange) instead of on a FTSE 100 bridge that fixed the answer. The FTSE 350 bridge is now the concrete composition of the index. Not yet re-audited on the four models. Related[1] (subproperty, index_constituent_of) is the paired contraction's related[0]; that record's related[1] is the functional form."
 }

@@ -175,7 +175,7 @@
     "prompt": "Does the genus Panthera include the lion?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
+    "derivation": "inverse",
     "task": "answer",
     "hops": 1,
     "bridge": [],
@@ -184,12 +184,27 @@
     "determinacy": "determinate",
     "chain": [
      "The lion belongs to the genus Canis. (edit)",
-     "A species belongs to one genus (in_genus is functional), so the lion is not in Panthera.",
-     "A genus includes exactly its member species (in_genus is the inverse of has_species).",
+     "A genus includes exactly its member species (has_species is the inverse of in_genus), so the genus Canis includes the lion.",
+     "A species belongs to one genus (in_genus is functional), so no other genus includes it, and Panthera does not.",
      "So the genus Panthera does not include the lion: no."
     ],
-    "alt_derivations": [
-     "inverse"
+    "logic": "dl"
+   },
+   {
+    "prompt": "Does the lion belong to the genus Panthera?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "functional",
+    "task": "answer",
+    "hops": 1,
+    "bridge": [],
+    "fact": "The lion belongs to the genus Panthera.",
+    "derivability": "very_unlikely",
+    "determinacy": "determinate",
+    "chain": [
+     "The lion belongs to the genus Canis. (edit)",
+     "A species belongs to one genus (in_genus is functional), and Canis is now the lion's.",
+     "So the lion does not belong to the genus Panthera: no."
     ],
     "logic": "dl"
    }
@@ -491,5 +506,5 @@
    "sources": []
   }
  },
- "notes": "Stored edit (the lion's genus: in_genus, functional and inverse). Related near is the functional exclusion (Panthera no longer includes the lion), with the inverse as an alternative route; related far composes the edit with the family of the new genus, against the stored 'Panthera is a genus within the family Felidae'. Derived: composition (same genus as the gray wolf), inheritance as an application (the prompt says the field guide files each species under the family of its genus, so the answer cannot come from the lion's own stored family, Felidae) and binding (the king of the jungle). The one indeterminate query is the lion's scientific name (background beliefs): stored as a name of its own it stays Panthera leo, built from the genus it becomes Canis leo. It replaces the big-cat query, whose second world denied a firm fact, and the earlier 'scientific name' related-far question, which was the edit in other words. The earlier zoo-enclosure question was dropped: the lion's family is stored by name, so it was not determinate without the field-guide rule. Replaces the earlier plague-carrier edit. The zh answer uses the Chinese genus name; es uses the Latin name. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
+ "notes": "Stored edit (the lion's genus: in_genus, functional and inverse). Related[0] is the inverse question (has_species: Panthera no longer includes the lion); related[1] is the forward functional question (the lion no longer belongs to Panthera). Each has its own derivation and its own stored fact, so they are not paraphrases of one derivation. Derived: composition (same genus as the gray wolf), inheritance as an application (the prompt says the field guide files each species under the family of its genus, so the answer cannot come from the lion's own stored family, Felidae) and binding (the king of the jungle). The one indeterminate query is the lion's scientific name (background beliefs): stored as a name of its own it stays Panthera leo, built from the genus it becomes Canis leo. It replaces the big-cat query, whose second world denied a firm fact, and the earlier 'scientific name' related-far question, which was the edit in other words. The earlier zoo-enclosure question was dropped: the lion's family is stored by name, so it was not determinate without the field-guide rule. Replaces the earlier plague-carrier edit. The zh answer uses the Chinese genus name; es uses the Latin name. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
 }
