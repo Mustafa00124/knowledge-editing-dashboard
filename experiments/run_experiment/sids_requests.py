@@ -218,7 +218,7 @@ def build_request(rec):
                 raise MissingAnswer(rid, f'{key}[{i}] has no prompt')
             locality[f'{key}_{i}'] = {'prompt': item['prompt'], 'ground_truth': item.get('reference')}
     portability = {}
-    reasoned = [(k, i, item) for k in ('related_near', 'related_far', 'derived')
+    reasoned = [(k, i, item) for k in ('related', 'derived')
                 for i, item in enumerate(q.get(k) or [])]
     for key, i, item in reasoned:
         if not (item.get('prompt') or '').strip():

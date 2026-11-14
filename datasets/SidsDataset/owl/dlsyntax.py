@@ -320,14 +320,14 @@ def yes_no(s):
     return '?'
 
 
-RELATED_KEYS = ('related_near', 'related_far')
+RELATED_KEYS = ('related',)
 
 
 def load_record(rid):
     """A record (main or dev split) for the checkers. Related questions are
     checked like derived ones, so in memory they follow the derived list
     (rec['queries']['derived']), and rec['_qkeys'] names each position
-    (derived[0], ..., related_near[0], related_far[0])."""
+    (derived[0], ..., related[0], related[1])."""
     hits = list((DATASET / 'records').glob(f'*/*/{rid}.json')) + list((DATASET / 'dev').glob(f'*/*/{rid}.json'))
     if not hits:
         raise FileNotFoundError(f'no record {rid}')
@@ -346,7 +346,7 @@ def load_record(rid):
 
 def load_formal(rid):
     """An encoding; a query may name its record question by key
-    ("related_near[0]") instead of its derived index, mapped here to its
+    ("related[0]") instead of its derived index, mapped here to its
     position in load_record's list."""
     f = json.loads((FORMAL_DIR / f'{rid}.json').read_text())
     fol = f.get('fol') if isinstance(f.get('fol'), dict) else {}

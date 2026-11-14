@@ -97,18 +97,17 @@ DERIVATIONS = {
 # properties and task types); any property can carry either.
 TASKS = ('answer', 'composition', 'binding', 'application')
 BRIDGE_TASKS = ('composition', 'binding')   # each adds its bridge fact as a hop
-RELATED = ('related_near', 'related_far')
+RELATED = ('related',)
 # Which derivations each query kind may use, and its hops (README, "Which
 # property goes where").
 ALLOWED_DERIVATIONS = {
-    'related_near': ('inverse', 'symmetry', 'functional', 'subproperty'),
-    'related_far': ('transitivity', 'chain', 'inheritance', 'subproperty', 'none'),
+    'related': ('inverse', 'symmetry', 'functional', 'subproperty'),
     'derived': ('transitivity', 'chain', 'inheritance', 'subproperty', 'none'),
     'derived_indeterminate': ('none', 'premise'),
     'derived_contraction_cardinality': ('functional', 'cardinality'),
 }
 ALLOWED_TASKS = {
-    'related_near': ('answer', 'application'),
+    'related': ('answer', 'application'),
     'derived_indeterminate': ('answer', 'composition'),
     'derived_contraction_cardinality': ('answer',),
 }
@@ -116,7 +115,7 @@ ALLOWED_TASKS = {
 # everything that should change before what must not (README, Query type).
 # The edit's own questions, then what follows from it (derived), then the
 # related and unrelated questions together (stored answers near the edit).
-QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'derived', 'related_near', 'related_far',
+QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'derived', 'related',
                'unrelated_near', 'unrelated_far')
 # Topics whose ABox revision records have no derived edits and no
 # indeterminate query (README, Shape per topic: Mathematics and grammar).
@@ -138,12 +137,12 @@ def query_counts(rec, path=None):
     type)."""
     box, op = rec.get('box'), rec.get('edit_operation')
     counts = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 3,
-              'related_near': 1, 'related_far': 1, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
+              'related': 2, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
     if box == 'rbox':
-        del counts['paraphrase'], counts['related_near'], counts['related_far']
+        del counts['paraphrase'], counts['related']
         counts['derived'] = 2    # the two instance questions
     elif box == 'tbox' or op == 'insert':
-        del counts['related_near'], counts['related_far']
+        del counts['related']
     elif op == 'replace' and split_of(rec, path) == 'main':
         counts['derived'] = 4    # 3 determinate + 1 indeterminate (mathematics, grammar: 4 determinate)
     return counts
@@ -282,7 +281,7 @@ def facts_to_check(rec):
     any bridge."""
     out = list(rec.get('edit', {}).get('premises') or [])
     queries = rec.get('queries', {})
-    for qtype in ('related_near', 'related_far', 'derived'):
+    for qtype in ('related', 'derived'):
         for q in queries.get(qtype) or []:
             if isinstance(q, dict):
                 out.extend(unstated_facts(q))
@@ -501,6 +500,12 @@ def check_record(rec, path, relations):
             where = f'queries.{qtype}' + (f'[{i}]' if qtype not in ('direct', 'paraphrase') else '')
             errors.extend(f'{where}: {e}' for e in check_query(q, qtype, rec, relations))
 
+    rel = queries.get('related')
+    if isinstance(rel, list) and len(rel) == 2 and all(isinstance(q, dict) for q in rel):
+        if rel[0].get('derivation') == rel[1].get('derivation'):
+            err(f'queries.related: the two questions must use different derivations, both use '
+                f'{rel[0].get("derivation")!r}')
+
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
@@ -530,7 +535,7 @@ def related_and_derived(rec):
     """[(qtype, index, query)] for every related and derived query."""
     queries = rec.get('queries') if isinstance(rec.get('queries'), dict) else {}
     out = []
-    for qtype in ('related_near', 'related_far', 'derived'):
+    for qtype in ('related', 'derived'):
         items = queries.get(qtype)
         for i, q in enumerate(items if isinstance(items, list) else []):
             if isinstance(q, dict):
@@ -1072,10 +1077,8 @@ def check_derivation(q, qtype, rec, relations):
     if derivation not in ALLOWED_DERIVATIONS[kind]:
         err(f'{kind.replace("_", " ")} queries use one of {ALLOWED_DERIVATIONS[kind]}, not {derivation!r}')
     if isinstance(hops, int):
-        if qtype == 'related_near' and hops != 1:
-            err('related near queries are 1 hop (no bridge fact)')
-        elif qtype == 'related_far' and hops < 2:
-            err('related far queries are 2 or more hops')
+        if qtype == 'related' and hops != 1:
+            err('related queries are 1 hop (no bridge fact)')
         elif qtype == 'derived' and not indeterminate and not contraction_card and hops != 2:
             err('determinate derived queries are exactly 2 hops (the edit and one bridge fact)')
         elif contraction_card and hops != 1:

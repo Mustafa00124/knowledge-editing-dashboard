@@ -16,8 +16,8 @@ What is asked, and the answer the audit expects before the edit:
 - propositional (the 3 truth-functional yes/no questions: negation,
   conjunction, disjunction) expect original_answer; under insert they have
   none, so they are not asked.
-- related_near and related_far (stored answers that depend on the edit)
-  expect original_answer.
+- related (the 2 one-hop stored answers that depend on the edit) expect
+  original_answer.
 - every derived query with an original_answer, determinate or not (before the
   edit there is one world), whatever the operation; derived queries without
   one are not asked.
@@ -27,7 +27,7 @@ import hashlib
 import re
 
 LOCALITY = ("unrelated_near", "unrelated_far")
-RELATED = ("related_near", "related_far")
+RELATED = ("related",)
 OWN = ("direct", "paraphrase", "cross_lingual")  # the edited fact's own questions
 
 
@@ -44,7 +44,7 @@ def query_hash(prompt, expected):
 def all_queries(rec):
     """Yield (key, query_type, language, query) for every query in a record,
     in record order (README, Query type). Keys: direct, paraphrase,
-    cross_lingual[zh], propositional[0], related_near[0], related_far[0],
+    cross_lingual[zh], propositional[0], related[0], related[1],
     derived[2], unrelated_near[0], unrelated_far[0]."""
     q = rec.get("queries") or {}
     for qtype in ("direct", "paraphrase"):

@@ -77,8 +77,9 @@ export function queryRows(rec) {
     const items = Array.isArray(q[key]) ? q[key] : q[key] ? [q[key]] : []
     // A related question this record should have but doesn't yet: an empty row keeps its place.
     // Only ABox revision and contraction carry related questions (README, Queries per record type).
-    if (!items.length && PLACEHOLDER_TYPES.includes(key) && rec.box === 'abox' && rec.edit_operation !== 'insert') {
-      rows.push({ key, auditKey: null, placeholder: true })
+    if (PLACEHOLDER_TYPES.includes(key) && items.length < 2 && rec.box === 'abox' && rec.edit_operation !== 'insert') {
+      items.forEach((item, i) => rows.push({ key, auditKey: `${key}[${i}]`, ...item }))
+      for (let i = items.length; i < 2; i++) rows.push({ key, auditKey: null, placeholder: true })
       continue
     }
     items.forEach((item, i) => {
@@ -135,7 +136,7 @@ const labelOf = (list, key) => list.find((x) => x.key === key)?.label ?? String(
 // Query type -> the metric it feeds, which picks the pill colour.
 const METRIC_OF = {
   ...Object.fromEntries(QUERY_TYPES.map((q) => [q.key, q.metric.replace(/[^a-z]/g, '')])),
-  related_near: 'generalization', related_far: 'generalization',
+  related: 'generalization',
 }
 
 // One property under the statement: a small caption over its value, tinted
@@ -426,18 +427,19 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
                         {queryLabel(r.key, r)}
                       </span>
                       {dots?.(r.auditKey)}
-                      {(r.key === 'derived' || r.key === 'related_near' || r.key === 'related_far') && (() => {
+                      {(r.key === 'derived' || r.key === 'related') && (() => {
                         // The checkers list related questions after the derived ones (owl/dlsyntax.load_record).
                         const nd = (rec.queries?.derived || []).length
-                        const nn = (rec.queries?.related_near || []).length
                         const i = Number(r.auditKey.slice(r.auditKey.indexOf('[') + 1, -1))
-                        const pos = r.key === 'derived' ? i : r.key === 'related_near' ? nd + i : nd + nn + i
+                        const pos = r.key === 'derived' ? i : nd + i
                         const f = formal?.queries?.[String(pos)]
                         return <FormalMark status={f?.status} lines={f?.lines} checker={f?.checker} theory={f?.theory} />
                       })()}
                       <DotBox models={modelDots?.(r.auditKey)} methods={methodDots?.(r.auditKey)} />
                     </td>
-                    <td>{r.prompt}</td>
+                    <td>{r.prompt}{r.fact && (r.key === 'related' || r.key === 'derived') && (
+                      <> <EvidenceButton fact={r.fact} evidence={rec.evidence} /></>
+                    )}</td>
                     <td className="sids-answer">
                       {r.key.startsWith('unrelated') ? (
                         <><em>model's own pre-edit answer</em>{r.reference && <span className="sids-answer-ref">ref: {r.reference}</span>}</>

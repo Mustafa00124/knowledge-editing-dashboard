@@ -125,7 +125,7 @@
     "logic": "dl"
    }
   ],
-  "related_near": [
+  "related": [
    {
     "prompt": "Is the occipital lobe part of the lung?",
     "original_answer": "no",
@@ -145,36 +145,6 @@
     "logic": "dl"
    }
   ],
-  "related_far": [
-   {
-    "prompt": "Which organ is the primary visual cortex part of?",
-    "original_answer": "the brain",
-    "new_answer": "the lung",
-    "derivation": "transitivity",
-    "task": "answer",
-    "hops": 2,
-    "bridge": [
-     "The primary visual cortex is part of the occipital lobe."
-    ],
-    "via": "part_of",
-    "alt_derivations": [
-     "chain"
-    ],
-    "fact": "The primary visual cortex is part of the brain.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The occipital lobe is a lobe of the lung. (edit), so it is part of the lung (lobe_of ⊑ part_of).",
-     "The primary visual cortex is part of the occipital lobe. (stored)",
-     "'Is part of' is transitive, so the primary visual cortex is part of the lung.",
-     "The brain and the lung share no part (revision fact), so it is no longer part of the brain. The other stored route, through the cerebral cortex, runs through the occipital lobe too: the visual cortex is in the cerebral cortex as the occipital lobe's cortex, so it moves with the lobe."
-    ],
-    "logic": "dl",
-    "revision_facts": [
-     "The brain and the lung are separate organs with no part in common."
-    ]
-   }
-  ],
   "unrelated_near": [
    {
     "prompt": "Which lobe of the brain contains Broca's area?",
@@ -189,16 +159,6 @@
   ]
  },
  "checks": [
-  {
-   "fact": "The primary visual cortex is part of the occipital lobe.",
-   "prompt": "Which lobe of the brain contains the primary visual cortex?",
-   "answer": "the occipital lobe"
-  },
-  {
-   "fact": "The brain and the lung are separate organs with no part in common.",
-   "prompt": "Do the brain and the lung have any part in common?",
-   "answer": "no"
-  },
   {
    "fact": "The lung is part of the respiratory system.",
    "prompt": "Which organ system is the lung part of?",
@@ -252,23 +212,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Occipital_lobe",
      "quote": "The occipital lobe is the visual processing center of the mammalian brain, containing most of the anatomical region of the visual cortex."
-    }
-   ]
-  },
-  "The primary visual cortex is part of the brain.": {
-   "claim": "stored",
-   "why": "The visual cortex is introduced as a region of the brain.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "visual cortex of the brain",
-     "count": 4944
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Visual_cortex",
-     "quote": "In mammals, the visual cortex of the brain is the area of the cerebral cortex that processes visual information."
     }
    ]
   },
@@ -358,23 +301,6 @@
     }
    ]
   },
-  "The primary visual cortex is part of the occipital lobe.": {
-   "claim": "stored",
-   "why": "Standard neuroanatomy.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "visual cortex in the occipital lobe",
-     "count": 879
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Visual_cortex",
-     "quote": "The visual cortex is located in the occipital lobe, located at the rear of the head."
-    }
-   ]
-  },
   "The lung is part of the respiratory system.": {
    "claim": "stored",
    "why": "The lungs are the main organs of the respiratory system.",
@@ -437,11 +363,6 @@
      "quote": "The lungs are the primary organs of the respiratory system in many animals, including humans."
     }
    ]
-  },
-  "The brain and the lung are separate organs with no part in common.": {
-   "claim": "definitional",
-   "why": "The brain and the lungs are distinct organs in different body cavities (cranial and thoracic); no structure is a part of both.",
-   "sources": []
   }
  },
  "notes": "Dev ABox revision on lobe_of (subproperty:part_of, chain:part_of->part_of). The main split already moves a brain lobe (biology-replace-0014: the temporal lobe to the liver); this record moves a different lobe to a different organ and asks different questions (organ system, body cavity, a referral), and shares no subject or fact with it. Related near uses the subproperty as a yes/no about the new organ ('Is the occipital lobe part of the lung?': no, then yes): it needs lobe_of ⊑ part_of and nothing else, and it replaces 'Which organ is the occipital lobe part of?', which review read as a paraphrase of the direct question; its fact is the stored 'the occipital lobe is part of the brain', which is why the answer is no before. Related far uses transitivity of part_of through the visual cortex, whose stored home (the brain) must move with the lobe, as the Sagrada Família moves with Barcelona in the template. Two points from review are settled in the query: the answer 'the lung' rather than 'the brain' needs the two organs to share no part, which is now listed as a revision fact with a check; and the second stored route (the visual cortex is part of the cerebral cortex, which is part of the brain) runs through the occipital lobe as well, since the visual cortex is in the cerebral cortex only as the occipital lobe's cortex, so both routes move together (scenario B). Derived: the role chain into the organ system (answer) and the same chain used in a practical referral (application, with all four departments named so no answer is privileged), and a composition with the lung's body cavity. Edit properties for the dev balance: subproperty, transitivity and chain. A part_of edit for transitivity alone was considered and dropped: part_of's only one-hop property is its inverse (has_part), whose question would restate the edit or depend on part_of being functional, which it is not."

@@ -94,8 +94,7 @@ export const QUERY_TYPES = [
     metric: 'logical consistency',
     description: 'The edited fact inside a yes/no truth-functional question: negation ("Is it false that Sydney is the capital of Australia?"), conjunction (with a true side fact) and disjunction (with a false side fact), so the answer flips with the edit. Checked by truth table; reported on its own.',
   },
-  { key: 'related_near', label: 'Related (near)', count: 1, metric: 'generalizability', description: 'A question the model has most likely seen answered in training (a stored answer) that must change with the edit, one hop away: inverse, symmetry, functional or subproperty.' },
-  { key: 'related_far', label: 'Related (far)', count: 1, metric: 'generalizability', description: 'A stored answer that must change with the edit, two or more hops away: transitivity, chain, inheritance or a task through a bridge fact.' },
+  { key: 'related', label: 'Related', count: 2, metric: 'generalizability', description: 'Two stored answers (the model has most likely seen them stated) that must change with the edit, each one hop from it through a different role axiom: inverse, symmetry, functional or subproperty.' },
   { key: 'derived', label: 'Derived', count: 3, metric: 'generalizability', description: 'A question whose answer the model has most likely never seen stated but can work out from the edit and one bridge fact, in exactly 2 hops. Main ABox revision adds one indeterminate derived query as context.' },
   {
     key: 'unrelated_near',
@@ -130,7 +129,7 @@ export const queryTypesFor = (box) => (box === 'rbox' ? RBOX_QUERY_TYPES : QUERY
 
 export const METRICS = [
   { key: 'rewrite', label: 'Rewrite (reliability, efficacy)', over: 'direct (1)', reported: 'one number' },
-  { key: 'generalization', label: 'Generalizability (portability)', over: 'paraphrase, related near and far, determinate derived', reported: 'one number, plus each part, per relation property, per task, per logic and per hop count' },
+  { key: 'generalization', label: 'Generalizability (portability)', over: 'paraphrase, related, determinate derived', reported: 'one number, plus each part, per relation property, per task, per logic and per hop count' },
   { key: 'indeterminate', label: 'Indeterminate change', over: 'the indeterminate derived query (main ABox revision)', reported: 'reported apart: which world the answer picks, or unchanged' },
   { key: 'cross_lingual', label: 'Cross-lingual', over: 'Chinese + Spanish (2)', reported: 'one number, plus per language' },
   { key: 'logical_consistency', label: 'Logical consistency', over: 'propositional (3)', reported: 'one number on its own, plus per connective (negation, conjunction, disjunction)' },

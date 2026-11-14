@@ -162,7 +162,7 @@ def check_delete(recs):
             else:
                 per_topic[r['topic']][kind] += 1
         q = r['queries']
-        for qtype in ('direct', 'paraphrase', 'cross_lingual', 'related_near', 'related_far', 'derived'):
+        for qtype in ('direct', 'paraphrase', 'cross_lingual', 'related', 'derived'):
             items = q.get(qtype)
             for item in items if isinstance(items, list) else [items] if items else []:
                 if item.get('derivation') == 'cardinality':
@@ -213,8 +213,8 @@ def check_yes_no(recs):
     other = Counter()
     for r in recs:
         if r['box'] != 'rbox' and r['edit_operation'] != 'delete':
-            for item in [r['queries']['direct'], r['queries']['paraphrase'], *r['queries'].get('related_near', []),
-                         *r['queries'].get('related_far', []), *r['queries']['derived']]:
+            for item in [r['queries']['direct'], r['queries']['paraphrase'], *r['queries'].get('related', []),
+                         *r['queries']['derived']]:
                 v = yes_no(item.get('new_answer'))
                 if v:
                     other[(r['box'], v)] += 1
@@ -818,11 +818,11 @@ def record_hash(rec):
 
 def query_keys(rec):
     """Each query's review key, the same as the model audit's (and the
-    dashboard's): direct, paraphrase, cross_lingual[zh], propositional[1],
-    unrelated_near[0], unrelated_far[0], derived[2]."""
+    dashboard's), in record order: direct, paraphrase, cross_lingual[zh],
+    propositional[1], derived[2], related[0], unrelated_near[0], unrelated_far[0]."""
     out = []
-    for qtype in ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'unrelated_near', 'unrelated_far',
-                  'derived'):
+    for qtype in ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'derived', 'related', 'unrelated_near',
+                  'unrelated_far'):
         items = rec['queries'].get(qtype)
         for i, q in enumerate(items if isinstance(items, list) else [items] if items else []):
             out.append(qtype if qtype in ('direct', 'paraphrase') else
@@ -1094,7 +1094,7 @@ def check_supporting_evidence(recs):
 # Rule 12: relation properties balanced per topic (README, Relation
 # properties and task types). Within each topic's ABox revision records,
 # related and derived queries use each BALANCE property at least once, and
-# related-near queries each NEAR_BALANCE property at least once. RBox edits
+# related queries each NEAR_BALANCE property at least once. RBox edits
 # cover RBOX_PER_TOPIC once each per topic and operation.
 BALANCE = ('transitivity', 'chain', 'inheritance', 'subproperty')
 NEAR_BALANCE = ('inverse', 'symmetry', 'functional')
@@ -1111,7 +1111,7 @@ RBOX_GROUP = {'transitive': 'transitivity', 'symmetric': 'symmetry', 'asymmetric
 RELATION_PROPERTIES = ('symmetric', 'inverse', 'transitive', 'chain', 'subproperty', 'functional')
 NONE_SHARE = (0.05, 0.25)   # share of ABox + TBox replace edits whose relation has no property
 DERIVATION_GROUPS = (
-    ('one hop (related near)', ('inverse', 'symmetry', 'functional', 'subproperty')),
+    ('one hop (related)', ('inverse', 'symmetry', 'functional', 'subproperty')),
     ('two hops', ('transitivity', 'chain', 'inheritance')),
     ('no property (composition or binding task)', ('none',)),
     ('contraction cardinality', ('cardinality',)),
@@ -1147,7 +1147,7 @@ def check_coverage(recs, relations):
         f'{none} of {at} ABox and TBox edits ({share:.0%}) are on relations with no property; want {lo:.0%} to {hi:.0%}']
 
     # 2. How related and derived queries are derived, grouped; balance per topic.
-    kinds = ('related_near', 'related_far', 'derived')
+    kinds = ('related', 'derived')
     der = Counter((r['box'], q.get('derivation')) for r in reps for k in kinds for q in r['queries'].get(k) or [])
     n_all = sum(der.values()) or 1
     dtable = [['group', 'derivation', *boxes, 'share']]
@@ -1164,9 +1164,9 @@ def check_coverage(recs, relations):
         if not topic:
             continue
         used = Counter(q.get('derivation') for r in topic for k in kinds for q in r['queries'].get(k) or [])
-        near = Counter(q.get('derivation') for r in topic for q in r['queries'].get('related_near') or [])
+        near = Counter(q.get('derivation') for r in topic for q in r['queries'].get('related') or [])
         short += [f'{t}: no related or derived query uses {d}' for d in BALANCE if not used[d]]
-        short += [f'{t}: no related-near query uses {d}' for d in NEAR_BALANCE if not near[d]]
+        short += [f'{t}: no related query uses {d}' for d in NEAR_BALANCE if not near[d]]
         tasks = Counter(q.get('task') for r in topic for k in kinds for q in r['queries'].get(k) or [])
         short += [f'{t}: no related or derived query has task {k}' for k in TASK_BALANCE if not tasks[k]]
         # The edits: each property carried by at least one edit's queries.
@@ -1194,7 +1194,7 @@ def check_coverage(recs, relations):
         check('', 'Relation properties are balanced per topic', short, table=dtable,
               note='How each related and derived query reaches its answer, grouped. Per topic, ABox revision related '
                    'and derived queries use transitivity, chain, inheritance and subproperty at least once each, '
-                   'related-near queries inverse, symmetry and functional at least once each, the tasks composition, '
+                   'related queries inverse, symmetry and functional at least once each, the tasks composition, '
                    'binding and application at least once each, and every property is exercised by some edit.'),
         check('', 'RBox edits cover every relation property once per topic', rshort, table=rtable),
     ]
@@ -1282,7 +1282,7 @@ def check_related_derived(recs):
     same, unrated, missing = [], [], []
     for r in recs:
         ev = r.get('evidence') or {}
-        for qtype in ('related_near', 'related_far', 'derived'):
+        for qtype in ('related', 'derived'):
             for i, q in enumerate(r['queries'].get(qtype) or []):
                 if r['box'] == 'rbox' or q.get('determinacy') not in (None, 'determinate'):
                     continue
@@ -1296,7 +1296,7 @@ def check_related_derived(recs):
                     unrated.append(f'{where}: derivability {q.get("derivability")!r}, want {want}')
                 elif q.get('fact') not in ev:
                     missing.append(f'{where}: no evidence for its fact {q.get("fact")!r}')
-    pending = None if any(r['queries'].get('related_near') for r in recs) else 'pending'
+    pending = None if any(r['queries'].get('related') for r in recs) else 'pending'
     return [
         check(s, 'Related and derived answers differ before and after the edit', same),
         check(s, 'Related answers are rated stored and derived answers worked out', unrated, status=pending),
