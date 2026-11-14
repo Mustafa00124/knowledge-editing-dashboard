@@ -349,11 +349,15 @@ def load_formal(rid):
     ("related_near[0]") instead of its derived index, mapped here to its
     position in load_record's list."""
     f = json.loads((FORMAL_DIR / f'{rid}.json').read_text())
-    if any(isinstance(fq.get('q'), str) for fq in f.get('queries') or []):
+    fol = f.get('fol') if isinstance(f.get('fol'), dict) else {}
+    lists = [f.get('queries') or [], fol.get('queries') or []]
+    if any(isinstance(fq.get('q'), str) for qs in lists for fq in qs):
         pos = {k: i for i, k in enumerate(load_record(rid)['_qkeys'])}
         pos.update({str(i): i for i in pos.values()})
-        f['queries'] = [{**fq, 'q': pos.get(fq['q'], fq['q'])} if isinstance(fq.get('q'), str) else fq
-                        for fq in f.get('queries') or []]
+        fix = lambda qs: [{**fq, 'q': pos.get(fq['q'], fq['q'])} if isinstance(fq.get('q'), str) else fq for fq in qs]
+        f['queries'] = fix(f.get('queries') or [])
+        if fol.get('queries'):
+            fol['queries'] = fix(fol['queries'])
     return f
 
 

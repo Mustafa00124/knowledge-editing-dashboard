@@ -40,8 +40,12 @@ REPORTS = {'hermit': OWL_DIR / 'reason_report.json', 'z3': OWL_DIR / 'fol_report
 
 
 def load_formal(rid):
-    p = FORMAL / f'{rid}.json'
-    return json.loads(p.read_text()) if p.exists() else {}
+    """An encoding with record questions named by key mapped to positions
+    (dlsyntax.load_formal); {} when there is none."""
+    if not (FORMAL / f'{rid}.json').exists():
+        return {}
+    import dlsyntax
+    return dlsyntax.load_formal(rid)
 
 
 def query_labels(rec, formal=None):
@@ -82,8 +86,13 @@ def propositional_labels(rec):
 
 
 def all_records(topic=None):
-    for p in sorted((ROOT / 'records').glob(f'{topic or "*"}/*/*.json')):
-        yield json.loads(p.read_text())
+    """Main and dev records as the checkers see them (dlsyntax.load_record:
+    related questions follow the derived ones, so their labels line up with
+    the reports' query indices)."""
+    import dlsyntax
+    for folder in ('records', 'dev'):
+        for p in sorted((ROOT / folder).glob(f'{topic or "*"}/*/*.json')):
+            yield dlsyntax.load_record(p.stem)
 
 
 def annotate(report, checker):

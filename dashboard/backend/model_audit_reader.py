@@ -161,8 +161,11 @@ def _audit_queries():
 
 
 def _records():
-    """Current Sid's Dataset records by id, reread when any file changes."""
-    paths = sorted(SIDS_RECORDS.glob("*/*/*.json")) if SIDS_RECORDS.is_dir() else []
+    """Current Sid's Dataset records by id (main split and dev split),
+    reread when any file changes."""
+    paths = []
+    for folder in (SIDS_RECORDS, SIDS_RECORDS.parent / "dev"):
+        paths += sorted(folder.glob("*/*/*.json")) if folder.is_dir() else []
     stamps = []
     for p in paths:
         try:
