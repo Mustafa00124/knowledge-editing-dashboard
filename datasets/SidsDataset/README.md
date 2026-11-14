@@ -123,7 +123,7 @@ belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 | `paraphrase` | The same question in different words. | Generalizability |
 | `cross_lingual` | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
 | `propositional` | The edited fact inside a yes/no truth-functional question: one negation, one conjunction (and), one disjunction (or) (see [Propositional queries](#propositional-queries)). | Logical consistency |
-| `related` | Two questions whose answers the model has most likely **seen stated** in training (they are stored), and which must change with the edit. Each is one hop from the edit, through a different role axiom (see [Related queries](#related-queries)). | Generalizability |
+| `related` | Two questions whose answers the model has most likely **seen stated** in training (they are stored), and which must change with the edit. Each is one hop from the edit through a role axiom, and the two ask about different facts (see [Related queries](#related-queries)). | Generalizability |
 | `derived` | A question whose answer the model has most likely **never seen stated**, but which follows from the edit and facts it holds, in exactly 2 hops (see [Derived queries](#derived-queries)). | Generalizability |
 | `unrelated_near` | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Specificity |
 | `unrelated_far` | Nothing in common with the edit. | Specificity |
@@ -357,9 +357,14 @@ derived queries use.
 #### Related queries
 
 Two per ABox revision and ABox contraction record: the `related` list, each
-item exactly 1 hop from the edit. The two items use **different derivations**
-(one-hop role axioms: `inverse`, `symmetry`, `functional`, `subproperty`), so
-they are meaningfully different questions; the second need not be functional.
+item exactly 1 hop from the edit through a role axiom of the edited relation
+(`inverse`, `symmetry`, `functional`, `subproperty`). The two ask about
+**different facts in different words**: through different role axioms where
+the relation has two, and through its one axiom twice where it has only one
+(`borders` is only symmetric: two different instances). They are never two
+readings of the same stored fact. The second need not be functional; on a
+contraction a functional related question is allowed (only a derived question
+is the cardinality question).
 
 - **Stored answer.** The original answer (or the fact the question asks
   about) is stated often in text every model trains on: rate it in the

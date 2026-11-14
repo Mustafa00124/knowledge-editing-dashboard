@@ -502,9 +502,13 @@ def check_record(rec, path, relations):
 
     rel = queries.get('related')
     if isinstance(rel, list) and len(rel) == 2 and all(isinstance(q, dict) for q in rel):
-        if rel[0].get('derivation') == rel[1].get('derivation'):
-            err(f'queries.related: the two questions must use different derivations, both use '
-                f'{rel[0].get("derivation")!r}')
+        # Two different questions (decided 2026-11-14): a different fact and wording; a different
+        # role axiom where the relation has two, but a relation with only one (borders: symmetric)
+        # may use it twice.
+        def same(a, b):
+            return ' '.join(str(a or '').casefold().split()) == ' '.join(str(b or '').casefold().split())
+        if same(rel[0].get('fact'), rel[1].get('fact')) or same(rel[0].get('prompt'), rel[1].get('prompt')):
+            err('queries.related: the two related questions must ask about different facts, in different words')
 
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
@@ -1067,7 +1071,8 @@ def check_derivation(q, qtype, rec, relations):
 
     # Which derivations and hops each kind of query takes.
     indeterminate = is_indeterminate(q)
-    contraction_card = op == 'delete' and derivation in ('functional', 'cardinality')
+    # Only a derived question is the contraction's cardinality question; a related one may be functional.
+    contraction_card = op == 'delete' and qtype == 'derived' and derivation in ('functional', 'cardinality')
     if qtype == 'derived' and indeterminate:
         kind = 'derived_indeterminate'
     elif contraction_card and qtype == 'derived':
