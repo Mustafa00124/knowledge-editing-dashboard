@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { api } from '../../api.js'
 
 // One audit dot explained: what the model was asked, what it answered, the
@@ -106,7 +105,7 @@ function Part({ p }) {
   )
 }
 
-export default function AuditDetailModal({ record, model: firstModel, models, queryKey, queryLabel, labelOf, onClose }) {
+export default function AuditDetailModal({ record, model: firstModel, models, statuses, queryKey, queryLabel, labelOf, onClose }) {
   // One tab per model; the dot's quarters are the same models in the same order.
   const [model, setModel] = useState(firstModel)
   const modelLabel = labelOf ? labelOf(model) : model
@@ -143,8 +142,9 @@ export default function AuditDetailModal({ record, model: firstModel, models, qu
             <div className="sids-rv-seg" role="tablist" aria-label="Model">
               {models.map((m) => (
                 <button key={m} type="button" role="tab" aria-selected={m === model}
-                  className={`sids-rv-seg-btn${m === model ? ' active' : ''}`} onClick={() => setModel(m)}>
-                  {labelOf ? labelOf(m) : m}
+                  title={STATUS_LABEL[statuses?.[m] || 'na']}
+                  className={`sids-rv-seg-btn sids-ad-tab is-${statuses?.[m] || 'na'}${m === model ? ' active' : ''}`} onClick={() => setModel(m)}>
+                  <Dot status={statuses?.[m] || 'na'} /> {labelOf ? labelOf(m) : m}
                 </button>
               ))}
             </div>
@@ -155,7 +155,9 @@ export default function AuditDetailModal({ record, model: firstModel, models, qu
           {item && (
             <>
               <p className="sids-ad-dim">
-                {data.run ? <>Run <code>{data.run}</code>{data.audited_at ? `, ${data.audited_at.replace('T', ' ')}` : ''}</> : 'No audit run for this model yet.'}
+                {data.audited_at
+                  ? `Ran on ${new Date(data.audited_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`
+                  : 'Not audited for this model yet.'}
               </p>
               {isFact ? (
                 <>
@@ -176,9 +178,6 @@ export default function AuditDetailModal({ record, model: firstModel, models, qu
               {!isFact && <InContext item={item} />}
             </>
           )}
-          <p className="sids-audit-link">
-            <Link to={`/model-audit?record=${encodeURIComponent(record)}`} onClick={onClose}>All responses for this record</Link>
-          </p>
         </div>
       </div>
     </div>
