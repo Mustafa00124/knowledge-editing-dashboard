@@ -246,7 +246,7 @@ shape.** Per README, Queries per record type and Shape per topic:
   main-split ABox revision, one indeterminate query per record (mathematics
   and grammar: none; a fourth determinate query instead).
 - Propositional: exactly negation, conjunction, disjunction, in that order.
-- Related is exactly 1 hop (two items with different derivations), determinate derived exactly 2
+- Related is exactly 1 hop (two items about different facts, through different role axioms where the relation has two), determinate derived exactly 2
   (contraction's cardinality question: 1). Every record of a type has the same
   number of queries in every topic: 3 determinate derived (main ABox
   revision: 3 + 1 indeterminate; RBox: 2 instances).
