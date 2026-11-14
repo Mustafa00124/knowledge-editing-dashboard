@@ -439,6 +439,9 @@ def main():
     p.add_argument("--model", required=True, choices=sorted(MODEL_PATHS))
     p.add_argument("--records", default=DEFAULT_RECORDS)
     p.add_argument("--topics", default="", help="comma-separated topics to audit (empty: all)")
+    p.add_argument("--only_types", default="",
+                   help="comma-separated query types to ask (e.g. related); their checks and in-context "
+                        "questions come along. Empty: everything. A partial run is merged into a full one by hand.")
     p.add_argument("--batch_size", type=int, default=32)
     p.add_argument("--max_new_tokens", type=int, default=64)
     p.add_argument("--judge_batch_size", type=int, default=32)
@@ -466,6 +469,18 @@ def main():
                                                             "relation_checks.json"))
     checks = check_rows(records, relation_checks, relations)
     context = in_context_rows(records)
+    if args.only_types:
+        keep = {t.strip() for t in args.only_types.split(",") if t.strip()}
+        rows = [r for r in rows if r["query_type"] in keep]
+        # The fact checks the kept questions rest on (their unstated bridges).
+        needed = set()
+        for rec in records:
+            for k in keep:
+                for q in rec["queries"].get(k) or []:
+                    if isinstance(q, dict):
+                        needed |= {(rec["id"], f) for f in SID.unstated_facts(q)}
+        checks = [c for c in checks if c["query_type"] == "check_relation" or (c["record_id"], c.get("fact")) in needed]
+        context = [c for c in context if c["base_key"].split("[")[0] in keep]
     rows += checks + context
     print(f"{len(records)} records, {len(rows) - len(checks) - len(context)} queries (locality included), "
           f"{len(checks)} checks, {len(context)} in-context questions", flush=True)
