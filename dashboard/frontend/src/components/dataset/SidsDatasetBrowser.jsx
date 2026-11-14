@@ -256,7 +256,8 @@ export default function SidsDatasetBrowser() {
                 <span className="sids-dot-group">
                   <OriginalDot statuses={key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key]}
                     models={dotModels}
-                    onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec) })} />
+                    onOpen={(m) => setAuditDot({ record: rec.id, model: m, key, label: queryKeyLabel(key, rec),
+                      statuses: key === 'fact' ? status?.records?.[rec.id]?.fact : status?.records?.[rec.id]?.queries?.[key] })} />
                 </span>
               )}
               dots={(key) => key !== 'fact' && reviews && (
@@ -283,7 +284,8 @@ export default function SidsDatasetBrowser() {
           queryLabel={methodDot.label} onClose={() => setMethodDot(null)} />
       )}
       {auditDot && (
-        <AuditDetailModal record={auditDot.record} model={auditDot.model} models={dotModels} queryKey={auditDot.key}
+        <AuditDetailModal record={auditDot.record} model={auditDot.model} models={dotModels.slice(0, 4)} statuses={auditDot.statuses}
+          queryKey={auditDot.key}
           queryLabel={auditDot.label} labelOf={modelLabel} onClose={() => setAuditDot(null)} />
       )}
     </div>

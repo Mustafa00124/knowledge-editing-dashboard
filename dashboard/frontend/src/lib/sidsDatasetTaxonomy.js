@@ -94,7 +94,7 @@ export const QUERY_TYPES = [
     metric: 'logical consistency',
     description: 'The edited fact inside a yes/no truth-functional question: negation ("Is it false that Sydney is the capital of Australia?"), conjunction (with a true side fact) and disjunction (with a false side fact), so the answer flips with the edit. Checked by truth table; reported on its own.',
   },
-  { key: 'related', label: 'Related', count: 2, metric: 'generalizability', description: 'Two stored answers (the model has most likely seen them stated) that must change with the edit, each one hop from it through a different role axiom: inverse, symmetry, functional or subproperty.' },
+  { key: 'related', label: 'Related', count: 1, metric: 'generalizability', description: 'A fact the model has most likely seen stated (stored) that depends on the edit, linked by 1 or 2 hops (a role axiom, a transitive step, a chain or a bridge), and must change with it.' },
   { key: 'derived', label: 'Derived', count: 3, metric: 'generalizability', description: 'A question whose answer the model has most likely never seen stated but can work out from the edit and one bridge fact, in exactly 2 hops. Main ABox revision adds one indeterminate derived query as context.' },
   {
     key: 'unrelated_near',

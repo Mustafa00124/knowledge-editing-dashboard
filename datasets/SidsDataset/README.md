@@ -123,7 +123,7 @@ belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 | `paraphrase` | The same question in different words. | Generalizability |
 | `cross_lingual` | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
 | `propositional` | The edited fact inside a yes/no truth-functional question: one negation, one conjunction (and), one disjunction (or) (see [Propositional queries](#propositional-queries)). | Logical consistency |
-| `related` | Two questions whose answers the model has most likely **seen stated** in training (they are stored), and which must change with the edit. Each is one hop from the edit through a role axiom, and the two ask about different facts (see [Related queries](#related-queries)). | Generalizability |
+| `related` | A question whose answer the model has most likely **seen stated** in training (stored), linked to the edit by 1 or 2 hops, and which must change with the edit (see [Related queries](#related-queries)). | Generalizability |
 | `derived` | A question whose answer the model has most likely **never seen stated**, but which follows from the edit and facts it holds, in exactly 2 hops (see [Derived queries](#derived-queries)). | Generalizability |
 | `unrelated_near` | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Specificity |
 | `unrelated_far` | Nothing in common with the edit. | Specificity |
@@ -151,9 +151,9 @@ leaves it on Pacific Time) tests nothing.
 
 | Record type | direct | paraphrase | cross-lingual | propositional | related | derived | unrelated (near, far) | Total |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ABox revision, main split | 1 | 1 | 2 | 3 | 2 | 4: 3 determinate + 1 indeterminate | 2 | 15 |
-| ABox revision, dev split | 1 | 1 | 2 | 3 | 2 | 3 determinate | 2 | 14 |
-| ABox contraction | 1 | 1 | 2 | 3 | 2 | 3 determinate | 2 | 14 |
+| ABox revision, main split | 1 | 1 | 2 | 3 | 1 | 4: 3 determinate + 1 indeterminate | 2 | 14 |
+| ABox revision, dev split | 1 | 1 | 2 | 3 | 1 | 3 determinate | 2 | 13 |
+| ABox contraction | 1 | 1 | 2 | 3 | 1 | 3 determinate | 2 | 13 |
 | ABox expansion | 1 | 1 | 2 | 3 | none | 3 determinate | 2 | 12 |
 | TBox, every operation | 1 | 1 | 2 | 3 | none | 3 determinate | 2 | 12 |
 | RBox, every operation | 1 | none | 2 | 3 | none | 2 instances | 2 | 10 |
@@ -327,7 +327,7 @@ with or without the edit.
 
 | Query | Allowed `derivation` | Allowed `task` | Hops |
 | --- | --- | --- | --- |
-| `related` | `inverse`, `symmetry`, `functional`, `subproperty` (the two items differ) | `answer`, `application` | exactly 1 |
+| `related` | `inverse`, `symmetry`, `functional`, `subproperty`, `transitivity`, `chain`, `inheritance`, `none` (with a bridge) | `answer`, `application`, `composition`, `binding` | 1 or 2 (a stored fact) |
 | `derived` (determinate) | `transitivity`, `chain`, `inheritance`, `subproperty`, `none` | any | exactly 2 |
 | `derived` (indeterminate, main ABox revision) | `none`, `premise` | `answer`, `composition` | any |
 | `derived` (RBox) | `instantiation` | `answer` | 1 |
@@ -356,15 +356,19 @@ derived queries use.
 
 #### Related queries
 
-Two per ABox revision and ABox contraction record: the `related` list, each
-item exactly 1 hop from the edit through a role axiom of the edited relation
-(`inverse`, `symmetry`, `functional`, `subproperty`). The two ask about
-**different facts in different words**: through different role axioms where
-the relation has two, and through its one axiom twice where it has only one
-(`borders` is only symmetric: two different instances). They are never two
-readings of the same stored fact. The second need not be functional; on a
-contraction a functional related question is allowed (only a derived question
-is the cardinality question).
+One per ABox revision and ABox contraction record (the `related` list, one
+item): a fact the model has **seen stated many times** (stored) that **depends
+on the edit**, linked to it by 1 or 2 hops: a role axiom of the edited
+relation (inverse, symmetry, functional, role inclusion), or a transitive
+step, a role chain, inheritance or a composition through one bridge fact.
+Example: edit "the capital of Australia is Sydney"; related "the capital of
+Australia is in the Australian Capital Territory", a sentence text states
+directly that also follows from Canberra being in the ACT, and becomes New
+South Wales after the edit. Related and derived questions can have the same
+link; what separates them is storage: the related answer is stated as such
+(its composed sentence counted at least 100 times, or quoted whole), the
+derived one has to be worked out. Comparing the two measures whether an edit
+overturns stored consequences as well as computed ones.
 
 - **Stored answer.** The original answer (or the fact the question asks
   about) is stated often in text every model trains on: rate it in the
@@ -512,7 +516,7 @@ Every ABox contraction record uses a relation tagged `functional` or
 
 - direct, paraphrase, cross-lingual and propositional: about the removed fact;
   the new answer is "I don't know" (`new_answer: null`).
-- related (2): stored answers one hop from the removed fact
+- related (1): a stored fact linked to the removed fact by 1 or 2 hops
   ("Canberra is the capital of which country?", inverse): "I don't know".
 - derived, 3 determinate: one **cardinality question** (`derivation:
   functional`, "no" becomes "I don't know"; or, for a many-valued relation,
