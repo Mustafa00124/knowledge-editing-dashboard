@@ -172,38 +172,22 @@
   ],
   "related": [
    {
-    "prompt": "Is Silicon Valley in California?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Silicon Valley is in California.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Silicon Valley is in Bavaria. (edit)",
-     "A place lies in one state (in_state is functional).",
-     "So Silicon Valley is not in California: no."
+    "prompt": "In which country is Silicon Valley?",
+    "original_answer": "the United States",
+    "new_answer": "Germany",
+    "derivation": "chain",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Bavaria is in Germany."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Silicon Valley located in Bavaria?",
-    "original_answer": "no",
-    "new_answer": "yes",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Silicon Valley is not located in Bavaria.",
+    "fact": "Silicon Valley is in the United States.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Silicon Valley is in Bavaria. (edit)",
-     "in_state is a subproperty of located_in: a place in a state is located in it.",
-     "So Silicon Valley is located in Bavaria: yes."
+     "Bavaria is in Germany. (stored)",
+     "So Silicon Valley is in Germany (in_state chains into located_in): Germany."
     ],
     "logic": "dl"
    }
@@ -251,12 +235,17 @@
    "fact": "Munich is in Italy.",
    "prompt": "Is Munich in Italy?",
    "answer": "no"
+  },
+  {
+   "fact": "Bavaria is in Germany.",
+   "prompt": "In which country is Bavaria?",
+   "answer": "Germany"
   }
  ],
  "evidence": {
   "Silicon Valley is in California.": {
    "claim": "stored",
-   "why": "Silicon Valley is the best-known region of California's San Francisco Bay Area, and is placed in California wherever it is described; it follows from nothing else a model holds (its counties and cities are themselves placed through it as often as the reverse).",
+   "why": "Stated directly and constantly: 'Silicon Valley, California' and 'Silicon Valley in California' are how the region is written everywhere, and no text places it elsewhere. A model holds the sentence itself, not a derivation.",
    "sources": [
     {
      "kind": "wikipedia",
@@ -272,6 +261,18 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Santa_Clara_County,_California",
      "quote": "Santa Clara County (commonly referred to as the South Bay) is a northern county in the U.S. state of California."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Silicon Valley, California",
+     "count": 28417
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Silicon Valley in California",
+     "count": 11011
     }
    ]
   },
@@ -398,36 +399,38 @@
     }
    ]
   },
-  "Silicon Valley is not located in Bavaria.": {
+  "Silicon Valley is in the United States.": {
    "claim": "stored",
-   "why": "The answer 'no' is the other side of a fact stated directly and constantly: Silicon Valley is introduced as a place in California ('Silicon Valley, California', 'Cupertino, California, in Silicon Valley'), and no text puts it anywhere else, so a model holds that it is in California and not in Bavaria without working anything out.",
+   "why": "Silicon Valley is placed in the United States wherever it is described ('Silicon Valley in the United States', 'Silicon Valley, United States'); the country is a sentence of its own that text states, not something a model works out from California.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/California",
-     "quote": "The San Francisco Bay Area's Silicon Valley is the center of the global technology industry."
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Silicon_Valley",
-     "quote": "It is located in Santa Clara County and southern San Mateo County within the Santa Clara Valley and the San Francisco Bay Area."
-    },
-    {
-     "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Santa_Clara_County,_California",
-     "quote": "Santa Clara County (commonly referred to as the South Bay) is a northern county in the U.S. state of California."
+     "quote": "Santa Clara County (commonly referred to as the South Bay) is a northern county in the U.S. state of California.",
+     "note": "Silicon Valley lies in this county."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Silicon Valley, California",
-     "count": 28417
+     "query": "Silicon Valley in the United States",
+     "count": 2950
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Silicon Valley in California",
-     "count": 11011
+     "query": "Silicon Valley, United States",
+     "count": 614
+    }
+   ]
+  },
+  "Bavaria is in Germany.": {
+   "claim": "stored",
+   "why": "Stated in the first sentence of Bavaria's article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Bavaria",
+     "quote": "Bavaria, officially the Free State of Bavaria, is a landlocked state of Germany."
     }
    ]
   }

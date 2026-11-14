@@ -172,38 +172,23 @@
   ],
   "related": [
    {
-    "prompt": "Was Abraham Lincoln assassinated in Washington, D.C.?",
+    "prompt": "Ford's Theatre is in Washington, D.C. Was Abraham Lincoln assassinated at Ford's Theatre?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Abraham Lincoln was assassinated in Washington, D.C.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Abraham Lincoln was assassinated in Baltimore. (edit)",
-     "A person is assassinated in one city (assassinated_in is functional).",
-     "So Lincoln was not assassinated in Washington, D.C.: no."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Ford's Theatre is in Washington, D.C."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Washington, D.C. the city where Abraham Lincoln was assassinated?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Washington, D.C. is where Abraham Lincoln was assassinated.",
+    "bridge_in_prompt": true,
+    "fact": "Abraham Lincoln was assassinated at Ford's Theatre.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Abraham Lincoln was assassinated in Baltimore. (edit)",
-     "So Baltimore is where Lincoln was assassinated (inverse: assassinated_in is the inverse of assassination_site_of).",
-     "A person is assassinated in one city (functional), so Washington, D.C. is not where he was: no."
+     "Ford's Theatre is in Washington, D.C. (stated in the question)",
+     "A person is assassinated in one city (assassinated_in is functional), so Lincoln was not assassinated at a theatre in Washington, D.C.: no."
     ],
     "logic": "dl"
    }
@@ -456,29 +441,42 @@
     }
    ]
   },
-  "Washington, D.C. is where Abraham Lincoln was assassinated.": {
+  "Abraham Lincoln was assassinated at Ford's Theatre.": {
    "claim": "stored",
-   "why": "The same fact from the city's side: Lincoln's assassination is part of how Washington, D.C. and Ford's Theatre are described, and the assassination article places it in the city in its first sentence.",
+   "why": "The theatre is part of how the assassination is told: Lincoln was shot at Ford's Theatre, in nearly every sentence about the event.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Lincoln's assassination in Washington",
-     "count": 12
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Assassination_of_Abraham_Lincoln",
-     "quote": "On April 14, 1865, Abraham Lincoln, the 16th president of the United States, was shot in the head while attending a play at Ford's Theatre in Washington, D.C."
+     "query": "Lincoln was assassinated at Ford's Theatre",
+     "count": 157
     },
     {
      "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Lincoln was assassinated at Ford's Theatre",
+     "count": 322
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Lincoln was shot at Ford's Theatre",
+     "count": 111
+    }
+   ]
+  },
+  "Ford's Theatre is in Washington, D.C.": {
+   "claim": "stored",
+   "why": "Ford's Theatre is introduced by its city everywhere.",
+   "sources": [
+    {
+     "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Lincoln was assassinated in Washington",
-     "count": 115
+     "query": "Ford's Theatre in Washington",
+     "count": 2633
     }
    ]
   }
  },
- "notes": "Main-split ABox revision of a stored fact (15 queries), kept from the earlier version and moved to the new layout. Related near uses functional; related far reaches Lincoln by his role, the 16th president (binding; stated with the city in the assassination article's first sentence, so stored). Derived: two compositions through Baltimore (in Maryland; home of Johns Hopkins University) and a binding through the nickname Honest Abe, which is common but rarely used with the assassination. Indeterminate: Ford's Theatre stored under Washington's name or as the theatre of the assassination. The earlier check 'Lincoln was shot in the city where he was assassinated' (missed by Olmo and Mistral) is gone: the w2 bridge now names the assassination itself. The Chinese question now says 'President ... assassinated and died' (遇刺身亡) after two models misread the earlier wording. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... not ...\"; the Ford's Theatre worlds now differ by which belief gives way (the theatre's link to the assassination, or its place), and w2 is marked the weaker world. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Main-split ABox revision of a stored fact (15 queries), kept from the earlier version and moved to the new layout. Derived: two compositions through Baltimore (in Maryland; home of Johns Hopkins University) and a binding through the nickname Honest Abe, which is common but rarely used with the assassination. Indeterminate: Ford's Theatre stored under Washington's name or as the theatre of the assassination. The earlier check 'Lincoln was shot in the city where he was assassinated' (missed by Olmo and Mistral) is gone: the w2 bridge now names the assassination itself. The Chinese question now says 'President ... assassinated and died' (遇刺身亡) after two models misread the earlier wording. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... not ...\"; the Ford's Theatre worlds now differ by which belief gives way (the theatre's link to the assassination, or its place), and w2 is marked the weaker world. Related replaced 2026-11-14: the inverse (Is Washington, D.C. the city where Abraham Lincoln was assassinated?) was the edit's original fact restated. Now the stored sentence 'Lincoln was assassinated at Ford's Theatre', tied to the edit by the theatre's city, which the prompt states so that the answer is determinate (the derived query that leaves the theatre's city to the model is the indeterminate one)."
 }

@@ -123,38 +123,23 @@
   ],
   "related": [
    {
-    "prompt": "Was Leopold Mozart the father of Wolfgang Amadeus Mozart?",
+    "prompt": "Did Wolfgang Amadeus Mozart and his sister Nannerl have the same father?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Leopold Mozart was the father of Wolfgang Amadeus Mozart.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "'Wolfgang Amadeus Mozart's father was Leopold Mozart' is removed. (edit)",
-     "'Leopold Mozart was the father of Wolfgang Amadeus Mozart' is the same fact read through the inverse relation (has_father is the inverse of father_of), so it goes with it.",
-     "So whether Leopold Mozart was his father is not known."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Maria Anna 'Nannerl' Mozart's father was Leopold Mozart."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was Wolfgang Amadeus Mozart the son of Leopold Mozart?",
-    "original_answer": "yes",
-    "new_answer": null,
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Wolfgang Amadeus Mozart was the son of Leopold Mozart.",
+    "fact": "Wolfgang Amadeus Mozart and his sister Nannerl had the same father.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'Wolfgang Amadeus Mozart's father was Leopold Mozart' is removed. (edit)",
-     "Being his son is read through the father relation (has_father is a subproperty of child_of), and nothing else in the record says whose son he was, so it goes with the removed fact.",
-     "So whether he was Leopold's son is not known."
+     "Maria Anna 'Nannerl' Mozart's father was Leopold Mozart. (stored)",
+     "Sharing a father rested on Leopold being Mozart's father, which is no longer known.",
+     "So whether they had the same father is not known."
     ],
     "logic": "dl"
    }
@@ -192,6 +177,11 @@
    "fact": "Wolfgang Amadeus Mozart was born in Paris.",
    "prompt": "Was Wolfgang Amadeus Mozart born in Paris?",
    "answer": "No"
+  },
+  {
+   "fact": "Maria Anna 'Nannerl' Mozart's father was Leopold Mozart.",
+   "prompt": "Who was Maria Anna 'Nannerl' Mozart's father?",
+   "answer": "Leopold Mozart"
   }
  ],
  "evidence": {
@@ -227,29 +217,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
      "quote": "Wolfgang Amadeus Mozart was born on 27 January 1756 to Leopold Mozart and Anna Maria, née Pertl, at Getreidegasse 9 in Salzburg."
-    }
-   ]
-  },
-  "Leopold Mozart was the father of Wolfgang Amadeus Mozart.": {
-   "claim": "stored",
-   "why": "Leopold is introduced as Mozart's father in every biography; the name pair appears together in thousands of phrases (\"Mozart's father, Leopold\").",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Leopold_Mozart",
-     "quote": "He is best known today as the father and teacher of Wolfgang Amadeus Mozart"
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Mozart's father, Leopold",
-     "count": 239
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "father of Wolfgang Amadeus Mozart",
-     "count": 170
     }
    ]
   },
@@ -381,17 +348,53 @@
     }
    ]
   },
-  "Wolfgang Amadeus Mozart was the son of Leopold Mozart.": {
+  "Wolfgang Amadeus Mozart and his sister Nannerl had the same father.": {
    "claim": "stored",
-   "why": "Mozart is introduced as Leopold's son everywhere: the Wikipedia article says he was born to Leopold Mozart and describes his training under his father, so \"Mozart, son of Leopold Mozart\" is stated directly, not inferred from the father relation.",
+   "why": "The two children are always introduced as Leopold's pupils and children: Mozart's biography says Leopold was their only teacher and taught his children, and Nannerl's says she learned under her father Leopold and toured with her younger brother Wolfgang. Told this way in every account of the family, so a model holds that they share a father, not as a conclusion from two separate fathers.",
    "sources": [
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
-     "quote": "Wolfgang Amadeus Mozart was born on 27 January 1756 to Leopold Mozart and Anna Maria (née Pertl) at Getreidegasse 9 in Salzburg."
+     "quote": "Leopold was their only teacher."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart",
+     "quote": "While Leopold was a devoted teacher to his children"
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Maria_Anna_Mozart",
+     "quote": "In her childhood, she developed into an outstanding keyboard player under the tutelage of her father Leopold.",
+     "note": "Her younger brother Wolfgang is named in the next sentence."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mozart and his sister Nannerl",
+     "count": 151,
+     "note": "The pair told together; supporting only."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Mozart and his father Leopold",
+     "count": 178,
+     "note": "Supporting only."
+    }
+   ]
+  },
+  "Maria Anna 'Nannerl' Mozart's father was Leopold Mozart.": {
+   "claim": "stored",
+   "why": "Nannerl's own article names Leopold as her father in its lead.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Maria_Anna_Mozart",
+     "quote": "In her childhood, she developed into an outstanding keyboard player under the tutelage of her father Leopold."
     }
    ]
   }
  },
- "notes": "Contraction of people-replace-0013 on has_father (functional, inverse father_of): removes 'Wolfgang Amadeus Mozart's father was Leopold Mozart'. Near uses the inverse; far is the revision's (the father's birthplace, stored about Leopold by name). Cardinality question: Carl Philipp Emanuel Bach, the revision's new object. The two 2-hop questions go through the removed fact: a binding question by the composer of The Magic Flute, and a composition question about the father's court post. The revision's ancestor and Frederick the Great questions were dropped (about the new object), and its Constanze Weber premise question is world-dependent."
+ "notes": "Contraction of people-replace-0013 on has_father (functional, inverse father_of): removes 'Wolfgang Amadeus Mozart's father was Leopold Mozart'. Near uses the inverse; far is the revision's (the father's birthplace, stored about Leopold by name). Cardinality question: Carl Philipp Emanuel Bach, the revision's new object. The two 2-hop questions go through the removed fact: a binding question by the composer of The Magic Flute, and a composition question about the father's court post. The revision's ancestor and Frederick the Great questions were dropped (about the new object), and its Constanze Weber premise question is world-dependent. One related question (2026-11-14, user decision): kept \"Was Leopold Mozart the father of Wolfgang Amadeus Mozart?\" (stored: see its evidence); dropped the second reading of the same fact. Related question revised (2026-11-14 review): 'Was Leopold Mozart the father of Mozart?' restated the edit's original fact; now whether Mozart and Nannerl had the same father (composition through Nannerl's father)."
 }

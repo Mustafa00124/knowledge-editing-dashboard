@@ -175,43 +175,22 @@
   ],
   "related": [
    {
-    "prompt": "Which state is the city of Ciudad Juárez in?",
-    "original_answer": "Chihuahua",
-    "new_answer": "Texas",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "capital_of",
-    "fact": "Ciudad Juárez is in the Mexican state of Chihuahua.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "revision_facts": [
-     "A city lies in only one state."
-    ],
-    "chain": [
-     "The capital of Texas is Ciudad Juárez. (edit)",
-     "So Ciudad Juárez is the capital of Texas (inverse: has_capital is the inverse of capital_of), and so it is in Texas (capital_of is a subproperty of located_in).",
-     "A city lies in only one state, so it is no longer in Chihuahua. (revision fact)",
-     "So the state is Texas."
-    ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Austin the capital of Texas?",
+    "prompt": "Is the county seat of Travis County the capital of Texas?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Austin is the capital of Texas.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Austin is the county seat of Travis County."
+    ],
+    "fact": "The county seat of Travis County is the capital of Texas.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The capital of Texas is Ciudad Juárez. (edit)",
-     "A state has one capital (has_capital is functional).",
-     "So Austin is not the capital of Texas: no."
+     "Austin is the county seat of Travis County. (bridge)",
+     "Austin is not Ciudad Juárez, and Texas has one capital, so the county seat of Travis County is not the capital of Texas: no."
     ],
     "logic": "dl"
    }
@@ -246,11 +225,6 @@
    "answer": "Texas"
   },
   {
-   "fact": "A city lies in only one state.",
-   "prompt": "Can a city lie in two different states at the same time?",
-   "answer": "no"
-  },
-  {
    "fact": "The Texas Legislature meets in the capital of Texas.",
    "prompt": "Does the Texas Legislature meet in the capital of Texas?",
    "answer": "yes"
@@ -264,6 +238,11 @@
    "fact": "Alaska borders Mexico.",
    "prompt": "Does Alaska border Mexico?",
    "answer": "no"
+  },
+  {
+   "fact": "Austin is the county seat of Travis County.",
+   "prompt": "What is the county seat of Travis County?",
+   "answer": "Austin"
   }
  ],
  "evidence": {
@@ -287,28 +266,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
      "quote": "is the capital city of the U.S. state of Texas"
-    }
-   ]
-  },
-  "Ciudad Juárez is in the Mexican state of Chihuahua.": {
-   "claim": "stored",
-   "why": "Stated in the first sentence of Wikipedia's Ciudad Juárez article, and 'Ciudad Juárez, Mexico' has 6,381 exact-phrase hits in Dolma.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Ciudad_Ju%C3%A1rez",
-     "quote": "is the most populous city in the Mexican state of Chihuahua"
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Ciudad_Ju%C3%A1rez",
-     "quote": "Juárez lies on the Rio Grande (Río Bravo del Norte), south of El Paso, Texas, United States."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Ciudad Juárez, Mexico",
-     "count": 6381
     }
    ]
   },
@@ -447,11 +404,6 @@
     }
    ]
   },
-  "A city lies in only one state.": {
-   "claim": "definitional",
-   "why": "True by what a state is: a city's territory belongs to one state of a country.",
-   "sources": []
-  },
   "The Texas Legislature meets in the capital of Texas.": {
    "claim": "stored",
    "why": "True before the edit under either storage: the Texas State Capitol in Austin houses the legislature, and Austin is the capital.",
@@ -508,29 +460,46 @@
     }
    ]
   },
-  "Austin is the capital of Texas.": {
+  "The county seat of Travis County is the capital of Texas.": {
    "claim": "stored",
-   "why": "The same stored fact from the city's side: 'Austin is the capital of Texas' is how text states it, so it is a stated sentence and not an inference.",
+   "why": "Stated whole by Wikipedia's Travis County article: its county seat is Austin, the state's capital; one sentence gives the county seat and the capital role to one city. Dolma also states the county seat often.",
    "sources": [
     {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Austin is the capital of Texas",
-     "count": 965
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Travis_County,_Texas",
+     "quote": "Its county seat and most populous city is Austin, the state's capital."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "capital of Texas is Austin",
-     "count": 330
+     "query": "the county seat of Travis County",
+     "count": 168
     },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin is the county seat of Travis County",
+     "count": 27
+    }
+   ]
+  },
+  "Austin is the county seat of Travis County.": {
+   "claim": "stored",
+   "why": "The bridge: Austin is the county seat of Travis County, stated in Wikipedia's Travis County article and often in text.",
+   "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
-     "quote": "is the capital city of the U.S. state of Texas"
+     "url": "https://en.wikipedia.org/wiki/Travis_County,_Texas",
+     "quote": "Its county seat and most populous city is Austin, the state's capital."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the county seat of Travis County",
+     "count": 168
     }
    ]
   }
  },
- "notes": "Stored edit chosen for relation coverage (CRITERIA Rule 12), migrated from the earlier record (same edit). Derivability very_unlikely: 'Austin is the capital of Texas' is stated about a thousand times verbatim and follows from no other fact. The edit moves a city between countries, so it is the topic's subproperty (related near: capital_of is a subproperty of located_in) and role-chain (related far: capital_of composed with located_in) record. In every world Ciudad Juárez lies in Texas and no longer in Chihuahua or Mexico, because a city lies in only one state and one country (revision facts, each with a check). Earlier audit flags handled: the old check 'Ciudad Juárez lies in only one country' (answer 'no', missed by 3 models) was a misstated premise; it is replaced by the plain definitional checks 'a city lies in only one state/country'. The Chinese question now names the United States (two models missed the old wording). Derived[0] (binding) uses the inverse and subproperty steps, so it is labelled subproperty with via capital_of. Related near and far also rely on the definitional revision fact that a city lies in only one state or country; the two definitional checks replace the old 'only one country' check but have not been re-audited. The Chinese question names the United States but its audit (two models missed the old wording) has not been re-run: if two or more still miss it, drop or simplify it. Evidence: Houston in Texas has counts above 100; derived facts have near-zero direct-form counts beside common premises. Wikipedia (429) refused further requests, so the Rio Grande and Houston bridges have no new quotes (Ciudad Juárez quotes are earlier ones). related[1]: functional, the original fact from the city's side."
+ "notes": "Stored edit chosen for relation coverage (CRITERIA Rule 12), migrated from the earlier record (same edit). Derivability very_unlikely: 'Austin is the capital of Texas' is stated about a thousand times verbatim and follows from no other fact. The edit moves a city between countries, so it is the topic's subproperty (related near: capital_of is a subproperty of located_in) and role-chain (related far: capital_of composed with located_in) record. In every world Ciudad Juárez lies in Texas and no longer in Chihuahua or Mexico, because a city lies in only one state and one country (revision facts, each with a check). Earlier audit flags handled: the old check 'Ciudad Juárez lies in only one country' (answer 'no', missed by 3 models) was a misstated premise; it is replaced by the plain definitional checks 'a city lies in only one state/country'. The Chinese question now names the United States (two models missed the old wording). Derived[0] (binding) uses the inverse and subproperty steps, so it is labelled subproperty with via capital_of. Related near and far also rely on the definitional revision fact that a city lies in only one state or country; the two definitional checks replace the old 'only one country' check but have not been re-audited. The Chinese question names the United States but its audit (two models missed the old wording) has not been re-run: if two or more still miss it, drop or simplify it. Evidence: Houston in Texas has counts above 100; derived facts have near-zero direct-form counts beside common premises. Wikipedia (429) refused further requests, so the Rio Grande and Houston bridges have no new quotes (Ciudad Juárez quotes are earlier ones). related[1]: functional, the original fact from the city's side. related (2026-11-14, one related question): the county seat of Travis County is the capital of Texas, stored whole (Wikipedia: 'Its county seat and most populous city is Austin, the state's capital'); replaces the Colorado River question, whose sentence had no whole quote or count."
 }

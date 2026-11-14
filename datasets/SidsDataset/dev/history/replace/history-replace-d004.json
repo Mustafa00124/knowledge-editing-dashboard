@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "What was the capital of the Inca Empire?",
-    "original_answer": "Cusco",
-    "new_answer": "Tenochtitlan",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The capital of the Inca Empire was Cusco.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Tenochtitlan was the capital of the Inca Empire. (edit)",
-     "'Is the capital of' is the inverse of 'has capital', so the Inca Empire's capital was Tenochtitlan.",
-     "'Has capital' is functional, so Cusco was not its capital."
+    "prompt": "Mexico City was built on the ruins of the capital of which empire?",
+    "original_answer": "the Aztec Empire",
+    "new_answer": "the Inca Empire",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Mexico City was built on the ruins of Tenochtitlan."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was the capital of the Aztec Empire Tenochtitlan?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Tenochtitlan was the capital of the Aztec Empire.",
+    "fact": "Mexico City was built on the ruins of the capital of the Aztec Empire.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Tenochtitlan was the capital of the Inca Empire. (edit)",
-     "'Is the capital of' is functional: a city is the capital of one empire, so Tenochtitlan was not the capital of the Aztec Empire.",
-     "So the Aztec Empire's capital was not Tenochtitlan: no."
+     "Mexico City was built on the ruins of Tenochtitlan. (stored)",
+     "So Mexico City was built on the ruins of the capital of the Inca Empire."
     ],
     "logic": "dl"
    }
@@ -198,6 +182,11 @@
    "fact": "Tenochtitlan was in Africa.",
    "prompt": "Was Tenochtitlan in Africa?",
    "answer": "No"
+  },
+  {
+   "fact": "Mexico City was built on the ruins of Tenochtitlan.",
+   "prompt": "On the ruins of which city was Mexico City built?",
+   "answer": "Tenochtitlan"
   }
  ],
  "evidence": {
@@ -221,29 +210,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Aztec capital Tenochtitlan",
      "count": 1360
-    }
-   ]
-  },
-  "The capital of the Inca Empire was Cusco.": {
-   "claim": "stored",
-   "why": "Stated in the Cusco article and hundreds of times verbatim.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Cusco",
-     "quote": "It was the capital of the Inca Empire (13th century – 1532)."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Cusco was the capital of the Inca Empire",
-     "count": 211
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Inca capital of Cusco",
-     "count": 1576
     }
    ]
   },
@@ -435,7 +401,37 @@
      "count": 0
     }
    ]
+  },
+  "Mexico City was built on the ruins of the capital of the Aztec Empire.": {
+   "claim": "stored",
+   "why": "The Aztec capital is how the site of Mexico City is told: built on the ruins of the Aztec capital.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "built on the ruins of the Aztec capital",
+     "count": 72
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "built on the ruins of the Aztec capital",
+     "count": 125
+    }
+   ]
+  },
+  "Mexico City was built on the ruins of Tenochtitlan.": {
+   "claim": "stored",
+   "why": "The city is said to stand on the ruins of Tenochtitlan.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "built on the ruins of Tenochtitlan",
+     "count": 111
+    }
+   ]
   }
  },
- "notes": "Dev ABox revision whose queries carry transitivity and inheritance. Related far: capital_of ⊑ located_in puts Tenochtitlan in the Inca Empire, and located_in is transitive, so the Templo Mayor, stored as standing in Tenochtitlan, stood in the Inca Empire; the step on the edited relation is the subproperty, the step that reaches the temple is transitivity of located_in (hence via located_in). Its original, \"the Aztec Templo Mayor\", is stored. Risk, recorded: 'Aztec' there names the temple's builders and culture, and a model may answer the Aztec Empire from that attribution; but a model holding the temple in Tenochtitlan and Tenochtitlan in the Inca Empire while putting the temple in the Aztec Empire is inconsistent, not a valid world (README, Determinacy step 3), so the query stays determinate. No landmark of the city is stored without the Aztec label. Related near asks the Inca Empire's capital through the inverse (has_capital): Cusco, stored everywhere, to Tenochtitlan; has_capital is functional, so Cusco is no longer it. The derived queries avoid every fact stored about Tenochtitlan by name. The earlier conquest questions (who conquered the empire whose capital was Tenochtitlan, when it began) and the city's language were dropped: 'Cortés captured Tenochtitlan' (1519-1521) and 'Nahuatl-speaking Tenochtitlan' are stored about the city itself, so Cortés, 1519 and Nahuatl stayed fair answers after the edit. Now two compositions name the Inca Empire as \"the empire whose capital was Tenochtitlan\" and ask facts stored about the empire only: whether it built Machu Picchu (no, then yes) and its main language (Nahuatl, then Quechua; the language is asked of the empire, not the city, and no firm rule makes an empire's language that of its capital). The third applies the empire's class rule to its new capital (inheritance: the edit gives membership through capital_of ⊑ located_in, the bridge is 'the Inca emperor ruled every city of the Inca Empire'): was Tenochtitlan ruled by the Inca emperor (no, then yes); a model that keeps Moctezuma as the city's ruler still has him under the Inca emperor, so the answer is yes in every world. The city's location on the map is not edited, so no query asks its continent or country (that would split between moving the city and stretching the empire); unrelated near shares the subject: its ruins stay in Mexico in every world. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: the Templo Mayor check was answered 'Mexico City' by 3 models and Tenochtitlan's stored answer was fine, so the prompt now says 'ancient Aztec city'; the Inca emperor rule check was answered 'No' by 2 models read literally ('every city'), so it asks whether the emperor ruled the whole empire. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Dev ABox revision whose queries carry transitivity and inheritance. Its original, \"the Aztec Templo Mayor\", is stored. Risk, recorded: 'Aztec' there names the temple's builders and culture, and a model may answer the Aztec Empire from that attribution; but a model holding the temple in Tenochtitlan and Tenochtitlan in the Inca Empire while putting the temple in the Aztec Empire is inconsistent, not a valid world (README, Determinacy step 3), so the query stays determinate. No landmark of the city is stored without the Aztec label. The derived queries avoid every fact stored about Tenochtitlan by name. The earlier conquest questions (who conquered the empire whose capital was Tenochtitlan, when it began) and the city's language were dropped: 'Cortés captured Tenochtitlan' (1519-1521) and 'Nahuatl-speaking Tenochtitlan' are stored about the city itself, so Cortés, 1519 and Nahuatl stayed fair answers after the edit. Now two compositions name the Inca Empire as \"the empire whose capital was Tenochtitlan\" and ask facts stored about the empire only: whether it built Machu Picchu (no, then yes) and its main language (Nahuatl, then Quechua; the language is asked of the empire, not the city, and no firm rule makes an empire's language that of its capital). The third applies the empire's class rule to its new capital (inheritance: the edit gives membership through capital_of ⊑ located_in, the bridge is 'the Inca emperor ruled every city of the Inca Empire'): was Tenochtitlan ruled by the Inca emperor (no, then yes); a model that keeps Moctezuma as the city's ruler still has him under the Inca emperor, so the answer is yes in every world. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: the Templo Mayor check was answered 'Mexico City' by 3 models and Tenochtitlan's stored answer was fine, so the prompt now says 'ancient Aztec city'; the Inca emperor rule check was answered 'No' by 2 models read literally ('every city'), so it asks whether the emperor ruled the whole empire. Related replaced 2026-11-14: 'Was the capital of the Aztec Empire Tenochtitlan?' was the edit's original asked back. Now the stored 'built on the ruins of the Aztec capital' (72 and 125 hits), which the edit changes through one bridge (Mexico City was built on the ruins of Tenochtitlan)."
 }

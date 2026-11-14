@@ -122,38 +122,22 @@
   ],
   "related": [
    {
-    "prompt": "Of which country is Canberra the capital?",
-    "original_answer": "Australia",
+    "prompt": "Which Australian state or territory is the capital of Australia in?",
+    "original_answer": "Australian Capital Territory",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Canberra is the capital of Australia.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "'The capital of Australia is Canberra.' is removed. (edit)",
-     "'Canberra is the capital of Australia' is the same fact read through the inverse relation (has_capital is the inverse of capital_of), so it goes with it.",
-     "So which country Canberra is the capital of is not known."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Canberra is in the Australian Capital Territory."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Sydney the capital of Australia?",
-    "original_answer": "no",
-    "new_answer": null,
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The capital of Australia is Canberra.",
+    "fact": "The capital of Australia is in the Australian Capital Territory.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The capital of Australia is Canberra.' is removed. (edit)",
-     "The reason for 'no' was that the relation has one value and it was the removed fact; with that fact gone nothing says whether another value could hold.",
-     "So whether it holds is not known."
+     "Canberra is in the Australian Capital Territory. (bridge)",
+     "With the capital unknown, which state or territory it is in is not known."
     ],
     "logic": "dl"
    }
@@ -173,9 +157,19 @@
  },
  "checks": [
   {
+   "fact": "Canberra is in the Australian Capital Territory.",
+   "prompt": "Which Australian territory is Canberra in?",
+   "answer": "Australian Capital Territory"
+  },
+  {
    "fact": "Uluru is in Australia.",
    "prompt": "Which country is Uluru in?",
    "answer": "Australia"
+  },
+  {
+   "fact": "Lake Burley Griffin is in Canberra.",
+   "prompt": "Which Australian city is Lake Burley Griffin in?",
+   "answer": "Canberra"
   },
   {
    "fact": "The Pacific Ocean borders Australia.",
@@ -186,46 +180,12 @@
    "fact": "Australia is in Europe.",
    "prompt": "Is Australia in Europe?",
    "answer": "no"
-  },
-  {
-   "fact": "Lake Burley Griffin is in Canberra.",
-   "prompt": "Which Australian city is Lake Burley Griffin in?",
-   "answer": "Canberra"
   }
  ],
  "evidence": {
   "The capital of Australia is Canberra.": {
    "claim": "stored",
    "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Canberra is the capital of Australia",
-     "count": 807
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_rpj_llama_s4",
-     "query": "Canberra is the capital of Australia",
-     "count": 343
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "capital of Australia is Canberra",
-     "count": 769
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Canberra",
-     "quote": "is the capital city of Australia"
-    }
-   ]
-  },
-  "Canberra is the capital of Australia.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side, asked as a yes/no question: hundreds of exact-phrase hits and the opening of Wikipedia's Canberra article.",
    "sources": [
     {
      "kind": "infini-gram",
@@ -390,6 +350,35 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Lake Burley Griffin, Canberra",
      "count": 471
+    }
+   ]
+  },
+  "The capital of Australia is in the Australian Capital Territory.": {
+   "claim": "stored",
+   "why": "Stated directly: Canberra, the capital of Australia, lies in the Australian Capital Territory, the territory set aside for it. The sentence is about the capital by description, so a model holds it as such, not only as 'Canberra is in the ACT'.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Australian_Capital_Territory",
+     "quote": "Canberra, the capital city of Australia, is situated within the territory and is the territory's primate city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of Australia is in the Australian Capital Territory",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, the capital of Australia, is located in the Australian Capital Territory",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, the capital of Australia, is in the Australian Capital Territory",
+     "count": 0
     }
    ]
   }

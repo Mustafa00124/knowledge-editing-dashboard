@@ -1,138 +1,49 @@
 {
  "id": "mathematics-delete-0015",
- "notes": "Delete of a derived fact: the arithmetic premise would re-derive it, so it gives way (top-level gives_up). Encoding as replace-0015; q0 asks membership in PythagoreanSides (the record tags it dl).",
+ "notes": "Contraction of 'the Poincaré conjecture was first proved by Perelman'. first_proved is the inverse of first_proved_by, so the prover's-side reading goes with the removed fact (the related question). Where Perelman lives and worked are classes, because RELATIONS.md has no relation for them.",
  "entities": {
-  "t20_21_29": [
-   "the triangle with sides 20, 21 and 29"
+  "poincare": [
+   "the Poincaré conjecture"
   ],
-  "right_triangle": [
-   "a right triangle",
-   "right"
+  "perelman": [
+   "Grigori Perelman"
   ],
-  "obtuse_triangle": [
-   "an obtuse triangle",
-   "obtuse"
+  "wiles": [
+   "Andrew Wiles"
   ]
  },
  "original": [
-  "instance_of(t20_21_29, right_triangle)"
+  "first_proved_by(poincare, perelman)"
  ],
  "edit": [],
  "bridge_refs": {
-  "classes": [
-   "Every right triangle has a right angle.",
-   "No right triangle has an angle greater than 90 degrees."
-  ]
+  "spb": "Grigori Perelman lives in Saint Petersburg.",
+  "steklov": "Grigori Perelman held a research post at the Steklov Institute of Mathematics."
  },
- "premises": [
-  "pyth_sides",
-  "converse"
- ],
  "background": {
-  "pyth_sides": "t20_21_29 : PythagoreanSides",
-  "converse": "PythagoreanSides ⊑ instance_of value right_triangle",
-  "classes": [
-   "(instance_of value obtuse_triangle) disjoint (instance_of value right_triangle)",
-   "instance_of value obtuse_triangle ⊑ HasObtuseAngle and not HasRightAngle",
-   "instance_of value right_triangle ⊑ HasRightAngle and not HasObtuseAngle"
-  ]
+  "spb": "perelman : LivesInSaintPetersburg",
+  "steklov": "perelman : SteklovResearcher"
  },
  "firm": [
-  "converse",
-  "classes"
- ],
- "gives_up": [
-  "pyth_sides"
+  "spb",
+  "steklov"
  ],
  "queries": [
   {
    "q": 0,
-   "ask": "t20_21_29 : PythagoreanSides"
+   "ask": "first_proved_by(poincare, wiles)"
   },
   {
    "q": 1,
-   "ask": "t20_21_29 : HasRightAngle"
+   "ask": "poincare : first_proved_by some LivesInSaintPetersburg"
   },
   {
    "q": 2,
-   "ask": "t20_21_29 : HasObtuseAngle"
+   "ask": "poincare : first_proved_by some SteklovResearcher"
   },
   {
-   "q": 3,
-   "not_checked": "fol (arithmetic): which side is longest, the angle opposite it"
+   "q": "related[0]",
+   "ask": "first_proved(perelman, poincare)"
   }
- ],
- "fol": {
-  "notes": "As replace-0015. The delete loses the premise 20² + 21² = 29² (top-level gives_up), so neither the right angle nor its absence follows.",
-  "decl": {
-   "sorts": {
-    "Shape": null
-   },
-   "consts": {
-    "t": "Shape"
-   },
-   "funcs": {
-    "right_tri": "Shape -> Bool",
-    "obtuse_tri": "Shape -> Bool",
-    "pythagorean": "Shape -> Bool",
-    "side": "Shape Int -> Real",
-    "angle": "Shape Int -> Real"
-   },
-   "vars": {
-    "i": "Int"
-   }
-  },
-  "facts": {
-   "sides": {
-    "says": "The triangle has sides 20, 21 and 29 (side i opposite angle i).",
-    "z3": [
-     "side(t, 1) == 20",
-     "side(t, 2) == 21",
-     "side(t, 3) == 29"
-    ]
-   },
-   "angles": {
-    "says": "The interior angles of a triangle are positive and sum to 180 degrees.",
-    "z3": [
-     "All(i, [1, 2, 3], angle(t, i) > 0)",
-     "angle(t, 1) + angle(t, 2) + angle(t, 3) == 180"
-    ]
-   },
-   "largest_opposite": {
-    "says": "The largest angle of a triangle is opposite its longest side.",
-    "z3": "All(i, [1, 2], Implies(side(t, 3) > side(t, i), angle(t, 3) > angle(t, i)))"
-   },
-   "right_def": {
-    "says": "Every right triangle has a right angle.",
-    "z3": "Implies(right_tri(t), Some(i, [1, 2, 3], angle(t, i) == 90))"
-   },
-   "converse": {
-    "says": "A triangle in which the squares of the two shorter sides add up to the square of the longest side is a right triangle.",
-    "z3": "Implies(pythagorean(t), right_tri(t))"
-   },
-   "pyth_sides": {
-    "says": "20² + 21² = 29².",
-    "z3": "pythagorean(t)"
-   }
-  },
-  "firm": [
-   "sides",
-   "angles",
-   "largest_opposite",
-   "right_def",
-   "converse"
-  ],
-  "gives_up": [
-   "pyth_sides"
-  ],
-  "original": [
-   "right_tri(t)"
-  ],
-  "queries": [
-   {
-    "q": 3,
-    "ask": "angle(t, 3) == 90"
-   }
-  ]
- }
+ ]
 }

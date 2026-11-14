@@ -125,39 +125,22 @@
   ],
   "related": [
    {
-    "prompt": "Which country is Milan in?",
-    "original_answer": "Italy",
-    "new_answer": "Nigeria",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "largest_city_of",
-    "fact": "Milan is in Italy.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The largest city of Nigeria is Milan. (edit), so Milan is the largest city of Nigeria (inverse).",
-     "A country's largest city lies in it (largest_city_of ⊑ located_in).",
-     "So Milan is in Nigeria. A model that keeps it in Italy has a largest city outside its country, which is no world."
-    ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Lagos the largest city of Nigeria?",
+    "prompt": "Is the largest city of Nigeria a megacity?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Lagos is the largest city of Nigeria.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Milan is not a megacity."
+    ],
+    "fact": "The largest city of Nigeria is a megacity.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The largest city of Nigeria is Milan. (edit)",
-     "A country has one largest city (has_largest_city is functional).",
-     "So Lagos is not the largest city of Nigeria: no."
+     "Milan is not a megacity. (bridge)",
+     "So the largest city of Nigeria is not a megacity: no."
     ],
     "logic": "dl"
    }
@@ -200,6 +183,11 @@
    "fact": "Nigeria is in Europe.",
    "prompt": "Is Nigeria in Europe?",
    "answer": "no"
+  },
+  {
+   "fact": "Milan is not a megacity.",
+   "prompt": "Is Milan a megacity?",
+   "answer": "no"
   }
  ],
  "evidence": {
@@ -223,29 +211,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Nigeria's largest city",
      "count": 1408
-    }
-   ]
-  },
-  "Milan is in Italy.": {
-   "claim": "stored",
-   "why": "\"Milan, Italy\" is one of the most frequent place strings in text; Wikipedia's first sentence places it in northern Italy.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Milan",
-     "quote": "Milan is the capital and largest city of the region of Lombardy, in northern Italy"
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Milan, Italy",
-     "count": 453339
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Milan is in Italy",
-     "count": 60
     }
    ]
   },
@@ -412,29 +377,41 @@
     }
    ]
   },
-  "Lagos is the largest city of Nigeria.": {
+  "The largest city of Nigeria is a megacity.": {
    "claim": "stored",
-   "why": "The same stored fact from the city's side: 'Lagos is the largest city in Nigeria' is how text puts it, not an inference.",
+   "why": "Stated whole in Wikipedia's Lagos article: one sentence makes Lagos the largest city in Nigeria and one of the fastest-growing megacities in the world.",
    "sources": [
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Lagos",
-     "quote": "making Lagos the largest city in Nigeria, the most populous urban area on the African continent"
+     "quote": "making Lagos the largest city in Nigeria, the most populous urban area on the African continent, and one of the fastest-growing megacities in the world."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Lagos is the largest city in Nigeria",
-     "count": 175
+     "query": "Lagos, a megacity",
+     "count": 134
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Nigeria's largest city",
-     "count": 1408
+     "query": "Lagos is a megacity",
+     "count": 69
+    }
+   ]
+  },
+  "Milan is not a megacity.": {
+   "claim": "stored",
+   "why": "Milan is a city of about 1.4 million, far below the 10 million of a megacity, and no text calls it one.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Milan is a megacity",
+     "count": 0
     }
    ]
   }
  },
- "notes": "Dev ABox revision carried by subproperty: largest_city_of ⊑ located_in, so the related-near question asks which country the new largest city is in (Italy, then Nigeria). From there located_in transitivity reaches the continent (derived), inheritance carries a country-wide fact into a practical task (which language a street sign must use), and binding reaches Nigeria by a description it holds separately (the country whose capital is Abuja). Related far follows the edit to Milan and looks up a stored fact about it (composition): Nigeria's largest city is a coastal city before (Lagos, stated as a port city in the same Wikipedia paragraph that makes it the largest city) and not after (Milan is inland). A stored \"Nigeria's largest city is a port\" kept by description would make Milan a coastal city, which contradicts a firm fact about Milan, so the query is determinate. The earlier related-far question (which country La Scala is in) was dropped: \"La Scala is in Italy\" is stored on its own, so a model could keep La Scala in Italy and drop \"La Scala is in Milan\" (background beliefs). The earlier binding through \"Africa's most populous country\" was dropped too: \"Lagos, the largest city in / the commercial capital of Africa's most populous country\" is a recurring news phrase (about 40 exact hits across its forms), so the answer could not be placed clearly as worked out or as stored. Milan is the capital of Lombardy, so \"capital of Lombardy\" plus \"Lombardy is in Italy\" is a stored route back to Italy; it does not make Milan's country or continent indeterminate, because the route asserts that Milan itself is in Italy, which contradicts the forced \"Milan is in Nigeria\" (largest_city_of ⊑ located_in), so after the edit it is \"Milan is in Lombardy\" that gives way. As in the template, a model that keeps Milan in Italy has a largest city outside its country, which is no world. São Paulo and Brazil were avoided because a main RBox record uses \"São Paulo is the largest city of Brazil\" as an instance. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. related[1]: functional, the original fact from the city's side."
+ "notes": "Dev ABox revision carried by subproperty: largest_city_of ⊑ located_in, so the related-near question asks which country the new largest city is in (Italy, then Nigeria). From there located_in transitivity reaches the continent (derived), inheritance carries a country-wide fact into a practical task (which language a street sign must use), and binding reaches Nigeria by a description it holds separately (the country whose capital is Abuja). Related far follows the edit to Milan and looks up a stored fact about it (composition): Nigeria's largest city is a coastal city before (Lagos, stated as a port city in the same Wikipedia paragraph that makes it the largest city) and not after (Milan is inland). A stored \"Nigeria's largest city is a port\" kept by description would make Milan a coastal city, which contradicts a firm fact about Milan, so the query is determinate. The earlier related-far question (which country La Scala is in) was dropped: \"La Scala is in Italy\" is stored on its own, so a model could keep La Scala in Italy and drop \"La Scala is in Milan\" (background beliefs). The earlier binding through \"Africa's most populous country\" was dropped too: \"Lagos, the largest city in / the commercial capital of Africa's most populous country\" is a recurring news phrase (about 40 exact hits across its forms), so the answer could not be placed clearly as worked out or as stored. Milan is the capital of Lombardy, so \"capital of Lombardy\" plus \"Lombardy is in Italy\" is a stored route back to Italy; it does not make Milan's country or continent indeterminate, because the route asserts that Milan itself is in Italy, which contradicts the forced \"Milan is in Nigeria\" (largest_city_of ⊑ located_in), so after the edit it is \"Milan is in Lombardy\" that gives way. As in the template, a model that keeps Milan in Italy has a largest city outside its country, which is no world. São Paulo and Brazil were avoided because a main RBox record uses \"São Paulo is the largest city of Brazil\" as an instance. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. related[1]: functional, the original fact from the city's side. related[0] (2026-11-14): 'Is the largest city of Nigeria a megacity?', stored whole (Wikipedia's Lagos article); replaces the former-capital question, whose composed sentence had no quote or count."
 }

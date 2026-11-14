@@ -171,38 +171,22 @@
   ],
   "related": [
    {
-    "prompt": "Is Canberra the capital of Australia?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Canberra is the capital of Australia.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The capital of Australia is Sydney. (edit)",
-     "A country has one capital (has_capital is functional).",
-     "So Canberra is not the capital of Australia: no."
+    "prompt": "Which Australian state or territory is the capital of Australia in?",
+    "original_answer": "Australian Capital Territory",
+    "new_answer": "New South Wales",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Sydney is in New South Wales."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Of which place is Sydney the capital?",
-    "original_answer": "New South Wales",
-    "new_answer": "Australia",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Sydney is the capital of New South Wales.",
+    "fact": "The capital of Australia is in the Australian Capital Territory.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The capital of Australia is Sydney. (edit)",
-     "Sydney is the capital of Australia is the same fact read through the inverse relation (capital_of is the inverse of has_capital), and a city is the capital of one place (capital_of is functional), so Sydney is no longer the capital of New South Wales.",
-     "So the place Sydney is the capital of is Australia."
+     "Sydney is in New South Wales. (bridge)",
+     "So the capital of Australia is in New South Wales."
     ],
     "logic": "dl"
    }
@@ -221,6 +205,11 @@
   ]
  },
  "checks": [
+  {
+   "fact": "Sydney is in New South Wales.",
+   "prompt": "Which Australian state is Sydney in?",
+   "answer": "New South Wales"
+  },
   {
    "fact": "Uluru is in Australia.",
    "prompt": "Which country is Uluru in?",
@@ -256,35 +245,6 @@
   "The capital of Australia is Canberra.": {
    "claim": "stored",
    "why": "Stated explicitly and very often: hundreds of exact sentences in public pretraining corpora, and the first sentence of Wikipedia's Canberra article. It follows from no other fact, so a model holds it directly.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Canberra is the capital of Australia",
-     "count": 807
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_rpj_llama_s4",
-     "query": "Canberra is the capital of Australia",
-     "count": 343
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "capital of Australia is Canberra",
-     "count": 769
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Canberra",
-     "quote": "is the capital city of Australia"
-    }
-   ]
-  },
-  "Canberra is the capital of Australia.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side, asked as a yes/no question: hundreds of exact-phrase hits and the opening of Wikipedia's Canberra article.",
    "sources": [
     {
      "kind": "infini-gram",
@@ -520,26 +480,32 @@
     }
    ]
   },
-  "Sydney is the capital of New South Wales.": {
+  "The capital of Australia is in the Australian Capital Territory.": {
    "claim": "stored",
-   "why": "New South Wales's capital is Sydney, stated in the opening of Sydney's own Wikipedia article and in hundreds of exact phrases; it follows from no other fact, so a model holds it directly.",
+   "why": "Stated directly: Canberra, the capital of Australia, lies in the Australian Capital Territory, the territory set aside for it. The sentence is about the capital by description, so a model holds it as such, not only as 'Canberra is in the ACT'.",
    "sources": [
     {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Sydney is the capital of New South Wales",
-     "count": 672
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "capital of New South Wales is Sydney",
-     "count": 78
-    },
-    {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Sydney",
-     "quote": "Sydney is the capital of the state of New South Wales"
+     "url": "https://en.wikipedia.org/wiki/Australian_Capital_Territory",
+     "quote": "Canberra, the capital city of Australia, is situated within the territory and is the territory's primate city."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of Australia is in the Australian Capital Territory",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, the capital of Australia, is located in the Australian Capital Territory",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Canberra, the capital of Australia, is in the Australian Capital Territory",
+     "count": 0
     }
    ]
   }

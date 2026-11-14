@@ -122,38 +122,22 @@
   ],
   "related": [
    {
-    "prompt": "Of which US state is Austin the capital?",
-    "original_answer": "Texas",
+    "prompt": "Is the county seat of Travis County the capital of Texas?",
+    "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Austin is the capital of Texas.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "'The capital of Texas is Austin.' is removed. (edit)",
-     "'Austin is the capital of Texas' is the same fact read through the inverse relation (has_capital is the inverse of capital_of), so it goes with it.",
-     "So which state Austin is the capital of is not known."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Austin is the county seat of Travis County."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Houston the capital of Texas?",
-    "original_answer": "no",
-    "new_answer": null,
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The capital of Texas is Austin.",
+    "fact": "The county seat of Travis County is the capital of Texas.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The capital of Texas is Austin.' is removed. (edit)",
-     "The reason for 'no' was that the relation has one value and it was the removed fact; with that fact gone nothing says whether another value could hold.",
-     "So whether it holds is not known."
+     "Austin is the county seat of Travis County. (bridge)",
+     "With the capital unknown, whether the county seat of Travis County is the capital is not known."
     ],
     "logic": "dl"
    }
@@ -191,6 +175,11 @@
    "fact": "Alaska borders Mexico.",
    "prompt": "Does Alaska border Mexico?",
    "answer": "no"
+  },
+  {
+   "fact": "Austin is the county seat of Travis County.",
+   "prompt": "What is the county seat of Travis County?",
+   "answer": "Austin"
   }
  ],
  "evidence": {
@@ -247,29 +236,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Alaska",
      "quote": "bordering the Canadian territory of Yukon and the province of British Columbia to the east"
-    }
-   ]
-  },
-  "Austin is the capital of Texas.": {
-   "claim": "stored",
-   "why": "The same stored fact from the city's side: 'Austin is the capital of Texas' is a plain stated sentence, not an inference.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Austin is the capital of Texas",
-     "count": 965
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "capital of Texas is Austin",
-     "count": 330
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Austin,_Texas",
-     "quote": "is the capital city of the U.S. state of Texas"
     }
    ]
   },
@@ -371,7 +337,47 @@
      "count": 680
     }
    ]
+  },
+  "The county seat of Travis County is the capital of Texas.": {
+   "claim": "stored",
+   "why": "Stated whole by Wikipedia's Travis County article: its county seat is Austin, the state's capital; one sentence gives the county seat and the capital role to one city. Dolma also states the county seat often.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Travis_County,_Texas",
+     "quote": "Its county seat and most populous city is Austin, the state's capital."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the county seat of Travis County",
+     "count": 168
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austin is the county seat of Travis County",
+     "count": 27
+    }
+   ]
+  },
+  "Austin is the county seat of Travis County.": {
+   "claim": "stored",
+   "why": "The bridge: Austin is the county seat of Travis County, stated in Wikipedia's Travis County article and often in text.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Travis_County,_Texas",
+     "quote": "Its county seat and most populous city is Austin, the state's capital."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the county seat of Travis County",
+     "count": 168
+    }
+   ]
   }
  },
- "notes": "Contraction of geography-replace-0013 (has_capital, functional): removes 'The capital of Texas is Austin', a stored fact. Cardinality question: El Paso (Dallas, Houston and San Antonio are common guesses whose denial is stated in text). Related near is the inverse; related far is the stored county of the capital. Derived: the Alamo (binding) and the river through the capital (composition). The revision's Ciudad Juarez, Rio Grande and Legislature queries are not carried over (they were about the new value or background beliefs). Counts to run: 'El Paso is not the capital of Texas' (expect 0). related[1]: functional, the removed fact asked as yes/no."
+ "notes": "Contraction of geography-replace-0013 (has_capital, functional): removes 'The capital of Texas is Austin', a stored fact. Cardinality question: El Paso (Dallas, Houston and San Antonio are common guesses whose denial is stated in text). Related near is the inverse; related far is the stored county of the capital. Derived: the Alamo (binding) and the river through the capital (composition). The revision's Ciudad Juarez, Rio Grande and Legislature queries are not carried over (they were about the new value or background beliefs). Counts to run: 'El Paso is not the capital of Texas' (expect 0). related[1]: functional, the removed fact asked as yes/no. related (2026-11-14, one related question): same question as geography-replace-0013 (county seat of Travis County, stored whole in Wikipedia's Travis County article); replaces the Colorado River question."
 }

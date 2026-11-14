@@ -1,134 +1,63 @@
 {
  "id": "mathematics-replace-0004",
- "notes": "Derived edit without worlds. The factorization 1001 = 7 × 11 × 13 is an individual (f_7_11_13) whose least prime is 7; the definition of the smallest prime factor is a firm rule (has_smallest_prime_factor is functional). The factorization is the one premise that can give way, so it is the top-level gives_up; the record states this in its notes, its premise queries' chains and its determinacy_why.",
+ "notes": "'Equals' is symmetric and transitive and not functional, so the edit alone would make 4 equal 5; the firm stored fact that 4 and 5 differ is what makes the stored equation 2 + 2 = 4 give way (it is replaced, not kept). The related question is the symmetric reading (4 equals 2 + 2). q3 is a product of the sum and is fol arithmetic, not checked. The logic: fol arithmetic queries are not_checked here and have no fol section yet (fol_check reports them as pending).",
  "entities": {
-  "n1001": [
-   "1001"
+  "sum22": [
+   "2 + 2"
   ],
-  "n7": [
-   "7"
+  "n4": [
+   "4"
   ],
-  "n11": [
-   "11"
+  "n5": [
+   "5"
   ],
-  "f_7_11_13": null
+  "rings": null,
+  "pent": null,
+  "fingers": null
  },
  "original": [
-  "has_smallest_prime_factor(n1001, n7)"
+  "equals(sum22, n4)"
  ],
  "edit": [
-  "has_smallest_prime_factor(n1001, n11)"
+  "equals(sum22, n5)"
  ],
  "bridge_refs": {
-  "digits": "11 is a two-digit number."
+  "rings": "5 equals the number of rings in the Olympic symbol.",
+  "pent": "A pentagon has five sides.",
+  "fingers": "A human hand has five fingers, counting the thumb."
  },
- "premises": [
-  "factorization",
-  "spf_def"
- ],
  "background": {
-  "factorization": "prime_factorization_is(n1001, f_7_11_13)",
-  "spf_def": [
-   "prime_factorization_is(?n, ?f), least_prime_of(?f, ?p) -> has_smallest_prime_factor(?n, ?p)",
-   "least_prime_of(f_7_11_13, n7)"
-  ],
-  "digits": [
-   "n11 : TwoDigit",
-   "n7 : not TwoDigit",
-   "n7 : OneDigit",
-   "n11 : not OneDigit"
-  ]
+  "diff": "not equals(n4, n5)",
+  "rings": "equals(n5, rings)",
+  "pent": "equals(n5, pent)",
+  "fingers": "equals(n5, fingers)"
  },
  "firm": [
-  "spf_def",
-  "digits"
- ],
- "gives_up": [
-  "factorization"
+  "diff",
+  "rings",
+  "pent",
+  "fingers"
  ],
  "queries": [
   {
    "q": 0,
-   "not_checked": "fol (arithmetic): the order of the primes in a factorization"
+   "ask": "equals(sum22, rings)"
   },
   {
    "q": 1,
-   "not_checked": "fol (arithmetic): divisibility by 7"
+   "ask": "equals(sum22, pent)"
   },
   {
    "q": 2,
-   "not_checked": "fol (arithmetic): divisibility by 77"
+   "ask": "equals(sum22, fingers)"
   },
   {
    "q": 3,
-   "ask": "n1001 : has_smallest_prime_factor some TwoDigit"
+   "not_checked": "fol (arithmetic): the product of the sum with 10"
+  },
+  {
+   "q": "related[0]",
+   "ask": "equals(n4, sum22)"
   }
- ],
- "fol": {
-  "notes": "The factorization is one belief (its least prime and its factors); it gives way (top-level gives_up, as in the DL file). below_spf is instantiated for the primes below 10; the comparison p < smallest_prime_factor(1001) is the arithmetic part.",
-  "decl": {
-   "funcs": {
-    "divides": "Int Int -> Bool",
-    "smallest_prime_factor": "Int -> Int",
-    "least_in_factorization": "Int -> Int"
-   },
-   "vars": {
-    "p": "Int"
-   }
-  },
-  "facts": {
-   "factorization": {
-    "says": "1001 = 7 × 11 × 13. (premise)",
-    "z3": [
-     "least_in_factorization(1001) == 7",
-     "divides(7, 1001)",
-     "divides(11, 1001)",
-     "divides(13, 1001)"
-    ]
-   },
-   "spf_def": {
-    "says": "The smallest prime factor of a whole number is the smallest prime in its prime factorization.",
-    "z3": "smallest_prime_factor(1001) == least_in_factorization(1001)"
-   },
-   "below_spf": {
-    "says": "A whole number is not divisible by any prime smaller than its smallest prime factor.",
-    "z3": "All(p, [2, 3, 5, 7], Implies(p < smallest_prime_factor(1001), Not(divides(p, 1001))))"
-   },
-   "seventy_seven": {
-    "says": "77 = 7 × 11, so 77 divides a number exactly when 7 and 11 both do.",
-    "z3": "divides(77, 1001) == (divides(7, 1001) and divides(11, 1001))"
-   }
-  },
-  "firm": [
-   "spf_def",
-   "below_spf",
-   "seventy_seven"
-  ],
-  "gives_up": [
-   "factorization"
-  ],
-  "local": {
-   "least_in_factorization": "the first prime of n's prime factorization written in increasing order"
-  },
-  "original": [
-   "smallest_prime_factor(1001) == 7"
-  ],
-  "queries": [
-   {
-    "q": 0,
-    "find": "least_in_factorization(1001)"
-   },
-   {
-    "q": 1,
-    "ask": "divides(7, 1001)"
-   },
-   {
-    "q": 2,
-    "ask": "divides(77, 1001)"
-   }
-  ],
-  "edit": [
-   "smallest_prime_factor(1001) == 11"
-  ]
- }
+ ]
 }

@@ -123,38 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Of which country is Copenhagen the largest city?",
-    "original_answer": "Denmark",
+    "prompt": "Is the capital of Denmark the largest city in Denmark?",
+    "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Copenhagen is the largest city of Denmark.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
-     "'Copenhagen is the largest city of Denmark' is the same fact read through the inverse relation (has_largest_city is the inverse of largest_city_of), so it goes with it.",
-     "So which country Copenhagen is the largest city of is not known."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Copenhagen is the capital of Denmark."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Aarhus the largest city of Denmark?",
-    "original_answer": "no",
-    "new_answer": null,
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The largest city in Denmark is Copenhagen.",
+    "fact": "The capital of Denmark is the largest city in Denmark.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The largest city in Denmark is Copenhagen.' is removed. (edit)",
-     "The reason for 'no' was that the relation has one value and it was the removed fact; with that fact gone nothing says whether another value could hold.",
-     "So whether it holds is not known."
+     "Copenhagen is the capital of Denmark. (bridge)",
+     "With the largest city unknown, whether the capital is the largest city is not known."
     ],
     "logic": "dl"
    }
@@ -173,6 +157,11 @@
   ]
  },
  "checks": [
+  {
+   "fact": "Copenhagen is the capital of Denmark.",
+   "prompt": "What is the capital of Denmark?",
+   "answer": "Copenhagen"
+  },
   {
    "fact": "Copenhagen is on Zealand.",
    "prompt": "Which Danish island is Copenhagen on?",
@@ -196,24 +185,6 @@
  ],
  "evidence": {
   "The largest city in Denmark is Copenhagen.": {
-   "claim": "stored",
-   "why": "Stated as the capital-and-most-populous-city apposition ('Copenhagen is the capital and most populous city of Denmark' 116; 'capital and most populous city of Denmark' 389).",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Copenhagen is the capital and most populous city of Denmark",
-     "count": 116
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "capital and most populous city of Denmark",
-     "count": 389
-    }
-   ]
-  },
-  "Copenhagen is the largest city of Denmark.": {
    "claim": "stored",
    "why": "Stated as the capital-and-most-populous-city apposition ('Copenhagen is the capital and most populous city of Denmark' 116; 'capital and most populous city of Denmark' 389).",
    "sources": [
@@ -348,7 +319,30 @@
      "note": "Premise: the removed fact."
     }
    ]
+  },
+  "The capital of Denmark is the largest city in Denmark.": {
+   "claim": "stored",
+   "why": "Stated whole: Copenhagen is 'the capital and most populous city of Denmark' (the capital and largest city of Denmark, 289 hits), one sentence giving both roles to one city.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Copenhagen",
+     "quote": "is the capital and most populous city of Denmark, with an urban population of 1.4 million."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital and largest city of Denmark",
+     "count": 289
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital and most populous city of Denmark",
+     "count": 364
+    }
+   ]
   }
  },
- "notes": "Contraction of geography-replace-0016, a derived revision (the largest city on Zealand is Odense, from Copenhagen being Denmark's largest city and on Zealand): it removes the revision's main stored premise, 'The largest city in Denmark is Copenhagen' (has_largest_city; needs the functional tag, see staging/geography-delete-abox.has_largest_city.PROPOSED.md). Cardinality question: Roskilde, not Aarhus or Odense, which are named in text as the second and third largest. Related near is the inverse; related far reaches the country by its official name (binding). Derived: the island of the largest city and the Tivoli Gardens (both composition, through the removed fact). The revision's Odense, Funen and Roskilde-island queries are not carried over. Counts to run: 'Roskilde is not the largest city in Denmark' (expect 0). related[1]: functional, the removed premise asked as yes/no."
+ "notes": "Contraction of geography-replace-0016, a derived revision (the largest city on Zealand is Odense, from Copenhagen being Denmark's largest city and on Zealand): it removes the revision's main stored premise, 'The largest city in Denmark is Copenhagen' (has_largest_city; needs the functional tag, see staging/geography-delete-abox.has_largest_city.PROPOSED.md). Cardinality question: Roskilde, not Aarhus or Odense, which are named in text as the second and third largest. Related near is the inverse; related far reaches the country by its official name (binding). Derived: the island of the largest city and the Tivoli Gardens (both composition, through the removed fact). The revision's Odense, Funen and Roskilde-island queries are not carried over. Counts to run: 'Roskilde is not the largest city in Denmark' (expect 0). related[1]: functional, the removed premise asked as yes/no. related (2026-11-14, one related question): the removed premise asked through the capital ('the capital and largest city of Denmark', stored whole); replaces the Zealand question."
 }

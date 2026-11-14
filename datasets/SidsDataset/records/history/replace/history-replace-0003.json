@@ -172,38 +172,22 @@
   ],
   "related": [
    {
-    "prompt": "Was Napoleon's final exile on Saint Helena?",
+    "prompt": "Was Napoleon's final exile on a remote island?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Napoleon spent his final exile on Saint Helena.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Napoleon spent his final exile on Corsica. (edit)",
-     "A person has one final exile (final_exile_on is functional).",
-     "So his final exile was not on Saint Helena: no."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Corsica is not a remote island."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was Napoleon exiled to Saint Helena?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Napoleon was exiled to Saint Helena.",
+    "fact": "Napoleon's final exile was on a remote island.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Napoleon spent his final exile on Corsica. (edit)",
-     "So Napoleon was exiled to Corsica (final_exile_on is a subproperty of exiled_to), and his final exile, the exile he is known for, is no longer Saint Helena.",
-     "So he was not exiled to Saint Helena: no."
+     "Corsica is not a remote island. (stored: it lies off the coast of France and Italy)",
+     "So Napoleon's final exile was not on a remote island: no."
     ],
     "logic": "dl"
    }
@@ -251,6 +235,11 @@
    "fact": "Napoleon was born in England.",
    "prompt": "Was Napoleon born in England?",
    "answer": "no"
+  },
+  {
+   "fact": "Corsica is not a remote island.",
+   "prompt": "Is Corsica a remote island?",
+   "answer": "no"
   }
  ],
  "evidence": {
@@ -274,29 +263,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Napoleon was exiled to St. Helena",
      "count": 128
-    }
-   ]
-  },
-  "Napoleon was exiled to Saint Helena.": {
-   "claim": "stored",
-   "why": "The same fact asked as a yes/no question: exact-phrase counts above a hundred in either spelling.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Napoleon was exiled to St. Helena",
-     "count": 128
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Napoleon was exiled to Saint Helena",
-     "count": 77
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Napoleon",
-     "quote": "Napoleon was exiled to the remote island of Saint Helena in the South Atlantic, where he died of stomach cancer in 1821, aged 51."
     }
    ]
   },
@@ -489,7 +455,37 @@
      "count": 128
     }
    ]
+  },
+  "Napoleon's final exile was on a remote island.": {
+   "claim": "stored",
+   "why": "Saint Helena is introduced as the remote island of Napoleon's exile; its remoteness is the stock detail of the story (the South Atlantic, about 1,900 km from Africa).",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "exiled to the remote island of Saint Helena",
+     "count": 65
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "exiled to the remote island of Saint Helena",
+     "count": 135
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the South Atlantic island of Saint Helena",
+     "count": 163
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "the South Atlantic island of Saint Helena",
+     "count": 195
+    }
+   ]
   }
  },
- "notes": "Main-split ABox revision of a stored fact (15 queries). Replaces the earlier hemisphere edit ('Napoleon died in the Northern Hemisphere'), which was rated likely and not stored: the hemisphere of his death is almost never written, so it cannot be a stored edit, and its propositional and Chinese questions were missed by three or four models. The new edit keeps the subject and the place of the original story: his final exile moves from Saint Helena to Corsica. Relation final_exile_on (staging): functional, a subproperty of exiled_to, and chained with located_in into exiled_to. Related near: functional. Related far: composition (the sea of the final exile, stated with Saint Helena in Wikipedia's lead). Derived: composition (his birthplace), binding (the victor of Austerlitz) and a chain (final_exile_on, then located_in, gives exiled_to: he was exiled to a place in France). Indeterminate: his death stored on Saint Helena by name or as happening in his final exile. The paired contraction and expansion records follow this edit (README, Contraction). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... not ...\"; the sea question is a composition (the chain rule gives exiled_to, not the sea of the final exile); the EU question is replaced by the chain question about France (Elba is in the EU, so an EU question could not change); the near unrelated query is Wellington at Waterloo (not the 1814 exile, which record 0013 uses as a bridge); w2 of the death query is marked the weaker world. The edit itself is not yet audited. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Main-split ABox revision of a stored fact (15 queries). Replaces the earlier hemisphere edit ('Napoleon died in the Northern Hemisphere'), which was rated likely and not stored: the hemisphere of his death is almost never written, so it cannot be a stored edit, and its propositional and Chinese questions were missed by three or four models. The new edit keeps the subject and the place of the original story: his final exile moves from Saint Helena to Corsica. Relation final_exile_on (staging): functional, a subproperty of exiled_to, and chained with located_in into exiled_to. Derived: composition (his birthplace), binding (the victor of Austerlitz) and a chain (final_exile_on, then located_in, gives exiled_to: he was exiled to a place in France). Indeterminate: his death stored on Saint Helena by name or as happening in his final exile. The paired contraction and expansion records follow this edit (README, Contraction). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... The edit itself is not yet audited. Related replaced 2026-11-14: 'Was Napoleon exiled to Saint Helena?' was the edit's original fact in stock wording. Now the stored description of the place of exile as a remote island ('exiled to the remote island of Saint Helena'), which the edit changes through its new object Corsica."
 }

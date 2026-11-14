@@ -128,38 +128,23 @@
   ],
   "related": [
    {
-    "prompt": "Was George H. W. Bush the father of George W. Bush?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "George H. W. Bush was the father of George W. Bush.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "George W. Bush's father was Jimmy Carter. (edit)",
-     "'Has father' is functional: a person has one father.",
-     "So George H. W. Bush was not his father: no."
+    "prompt": "Who was George W. Bush's paternal grandfather?",
+    "original_answer": "Prescott Bush",
+    "new_answer": "James Earl Carter Sr.",
+    "derivation": "chain",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Jimmy Carter's father was James Earl Carter Sr."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was George W. Bush a son of George H. W. Bush?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "George W. Bush was a son of George H. W. Bush.",
+    "fact": "George W. Bush's paternal grandfather was Prescott Bush.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "George W. Bush's father was Jimmy Carter. (edit)",
-     "has_father is the inverse of father_of, and a person has one father (functional), so George H. W. Bush is not his father and he is not his son.",
-     "So the answer is no."
+     "Jimmy Carter's father was James Earl Carter Sr. (stored)",
+     "A person's father's father is their paternal grandfather (has_father followed by has_father).",
+     "So George W. Bush's paternal grandfather was James Earl Carter Sr."
     ],
     "logic": "dl"
    }
@@ -202,6 +187,11 @@
    "fact": "George W. Bush was born in Japan.",
    "prompt": "Was George W. Bush born in Japan?",
    "answer": "no"
+  },
+  {
+   "fact": "Jimmy Carter's father was James Earl Carter Sr.",
+   "prompt": "Who was Jimmy Carter's father?",
+   "answer": "James Earl Carter Sr. (Earl Carter)"
   }
  ],
  "evidence": {
@@ -219,23 +209,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "George W. Bush's father",
      "count": 576
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "son of George H. W. Bush",
-     "count": 247
-    }
-   ]
-  },
-  "George H. W. Bush was the father of George W. Bush.": {
-   "claim": "stored",
-   "why": "The same fact seen from the father: his Wikipedia lead says so, and the phrase is common.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/George_H._W._Bush",
-     "quote": "A pragmatist with myriad political experience, having previously held the offices of Director of Central Intelligence, Chair of the Republican National Committee, and U.S. Ambassador to China and the United Nations, Bush was the father of the 43rd president of the United States, George W. Bush."
     },
     {
      "kind": "infini-gram",
@@ -410,17 +383,46 @@
     }
    ]
   },
-  "George W. Bush was a son of George H. W. Bush.": {
+  "George W. Bush's paternal grandfather was Prescott Bush.": {
    "claim": "stored",
-   "why": "George W. Bush is introduced as the eldest son of George H. W. Bush in the lead of his Wikipedia article and everywhere else, so \"son of George H. W. Bush\" is stated directly, not worked out from the father relation.",
+   "why": "Prescott Bush is introduced as George W. Bush's paternal grandfather in the first paragraph of his Wikipedia article.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/George_W._Bush",
-     "quote": "He is the eldest son of George H. W. Bush, the 41st president."
+     "url": "https://en.wikipedia.org/wiki/Prescott_Bush",
+     "quote": "A member of the Bush family, he was the father of President George H. W. Bush, and the paternal grandfather of President George W. Bush and Florida governor Jeb Bush."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "paternal grandfather of George W. Bush",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "George W. Bush's paternal grandfather",
+     "count": 1
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Prescott Bush, grandfather of George W. Bush",
+     "count": 51
+    }
+   ]
+  },
+  "Jimmy Carter's father was James Earl Carter Sr.": {
+   "claim": "stored",
+   "why": "Jimmy Carter's Wikipedia article names his father, James Earl Carter Sr. (Earl Carter), and his peanut farm.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Jimmy_Carter",
+     "quote": "He was the eldest child of Bessie Lillian Gordy and James Earl Carter Sr."
     }
    ]
   }
  },
- "notes": "Dev-split ABox revision (14 queries, all determinate, no worlds) on has_father. For the dev split's edit-property balance this edit carries the role chain (related far: Jenna Bush Hager's paternal grandfather, has_father ∘ has_father) and transitivity (derived: Jimmy Carter becomes an ancestor of George W. Bush's daughter through ancestor_of). The transitivity question needs property steps besides transitivity: has_father read as its inverse father_of, then father_of ⊑ parent_of ⊑ ancestor_of for both the edit and the bridge. These are steps through relation tags, not bridge facts, so hops stays 2 (README: hops = 1 + bridge facts); each tag has a relation check (father_of subproperty:parent_of and inverse, parent_of subproperty:ancestor_of in staging/people.relation_checks.json; ancestor_of transitive in relation_checks.json). The same answer is also reachable through the related-far conclusion plus grandparent_of ⊑ ancestor_of, listed as alt_derivations chain. The paternal-grandfather question was moved from derived to related far after review: her Wikipedia lead and about 166 exact Dolma hits call her a granddaughter of George H. W. Bush, so its answer is stored. It stays determinate: a model keeping 'granddaughter of George H. W. Bush' after the edit would have to make him her maternal grandfather, which contradicts her mother being Laura Bush. The earlier related-far binding through 'the 43rd president' was dropped (its fact is stored, 130 exact hits, so it could not become a derived query); the binding is now derived, through 'the U.S. president who immediately preceded Barack Obama', a role held as a separate fact and almost never joined to his father. Related near uses functional (one father). Derived: that binding, the transitivity question and a composition on the new father's party. Jimmy Carter was chosen as a new father with clear, well-known facts of his own (39th president, Democrat) and no family tie to the Bushes. Jenna Bush Hager is chosen over her twin Barbara Pierce Bush, whose name is easily confused with her grandmother Barbara Bush. Counts are exact-phrase Dolma counts unless marked approximate."
+ "notes": "Dev-split ABox revision (14 queries, all determinate, no worlds) on has_father. For the dev split's edit-property balance this edit carries the role chain (related far: Jenna Bush Hager's paternal grandfather, has_father ∘ has_father) and transitivity (derived: Jimmy Carter becomes an ancestor of George W. Bush's daughter through ancestor_of). The transitivity question needs property steps besides transitivity: has_father read as its inverse father_of, then father_of ⊑ parent_of ⊑ ancestor_of for both the edit and the bridge. These are steps through relation tags, not bridge facts, so hops stays 2 (README: hops = 1 + bridge facts); each tag has a relation check (father_of subproperty:parent_of and inverse, parent_of subproperty:ancestor_of in staging/people.relation_checks.json; ancestor_of transitive in relation_checks.json). The same answer is also reachable through the related-far conclusion plus grandparent_of ⊑ ancestor_of, listed as alt_derivations chain. The paternal-grandfather question was moved from derived to related far after review: her Wikipedia lead and about 166 exact Dolma hits call her a granddaughter of George H. W. Bush, so its answer is stored. It stays determinate: a model keeping 'granddaughter of George H. W. Bush' after the edit would have to make him her maternal grandfather, which contradicts her mother being Laura Bush. The earlier related-far binding through 'the 43rd president' was dropped (its fact is stored, 130 exact hits, so it could not become a derived query); the binding is now derived, through 'the U.S. president who immediately preceded Barack Obama', a role held as a separate fact and almost never joined to his father. Related near uses functional (one father). Derived: that binding, the transitivity question and a composition on the new father's party. Jimmy Carter was chosen as a new father with clear, well-known facts of his own (39th president, Democrat) and no family tie to the Bushes. Jenna Bush Hager is chosen over her twin Barbara Pierce Bush, whose name is easily confused with her grandmother Barbara Bush. Counts are exact-phrase Dolma counts unless marked approximate. One related question (2026-11-14, user decision): replaced both readings of the father with a stored 2-hop consequence: the paternal grandfather (Prescott Bush before the edit, Carter's father Earl Carter after)."
 }

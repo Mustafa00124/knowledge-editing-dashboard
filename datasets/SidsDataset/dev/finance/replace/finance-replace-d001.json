@@ -125,38 +125,20 @@
   ],
   "related": [
    {
-    "prompt": "Which city is India's financial capital?",
-    "original_answer": "Mumbai",
-    "new_answer": "Frankfurt",
-    "derivation": "inverse",
+    "prompt": "In which country is Frankfurt?",
+    "original_answer": "Germany",
+    "new_answer": "India",
+    "derivation": "subproperty",
     "task": "answer",
     "hops": 1,
     "bridge": [],
-    "fact": "Mumbai is the financial capital of India.",
+    "fact": "Frankfurt is in Germany.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Frankfurt is the financial capital of India. (edit)",
-     "financial_capital_of is the inverse of has_financial_capital, so India's financial capital is Frankfurt.",
-     "has_financial_capital is functional (a country has one financial capital), so Mumbai is no longer India's financial capital. Two tagged properties are used: the inverse, and the functionality of the inverse relation."
-    ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Frankfurt Germany's financial capital?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Frankfurt is Germany's financial capital.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Frankfurt is the financial capital of India. (edit)",
-     "financial_capital_of is functional: a city is the financial capital of one country.",
-     "So Frankfurt is not Germany's financial capital: no."
+     "So Frankfurt is in India (financial_capital_of is a subproperty of located_in).",
+     "A place is in one country (a place in India is in no other), so not Germany: India."
     ],
     "logic": "dl"
    }
@@ -228,35 +210,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Frankfurt",
      "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
-    }
-   ]
-  },
-  "Mumbai is the financial capital of India.": {
-   "claim": "stored",
-   "why": "The first sentence of Mumbai's Wikipedia article; 'the financial capital of India' is a stock phrase for Mumbai.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Mumbai",
-     "quote": "Mumbai, also known as Bombay, is the capital city of the Indian state of Maharashtra and the financial capital of India."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "financial capital of India",
-     "count": 12893
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "India's financial capital",
-     "count": 6703
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Mumbai is the financial capital",
-     "count": 959
     }
    ]
   },
@@ -457,35 +410,29 @@
     }
    ]
   },
-  "Frankfurt is Germany's financial capital.": {
+  "Frankfurt is in Germany.": {
    "claim": "stored",
-   "why": "'Germany's financial capital' (817 in Dolma) and 'financial capital of Germany' (885) are routine phrasings for Frankfurt, so the fact is stated outright.",
+   "why": "Every introduction of the city gives its country: Wikipedia's first sentence puts it in the German state of Hesse, and 'the city of Frankfurt in Germany' is a stock phrase. The country is stated directly, not worked out from the financial-capital line.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "financial capital of Germany",
-     "count": 885
+     "query": "the city of Frankfurt in Germany",
+     "count": 391
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Germany's financial capital",
-     "count": 817
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Frankfurt is the financial capital",
-     "count": 224
+     "query": "Frankfurt is in Germany",
+     "count": 33
     },
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Frankfurt",
-     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+     "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
     }
    ]
   }
  },
- "notes": "Dev-split ABox revision on financial_capital_of (new, staging/finance.RELATIONS.md), modelled on capital_of: functional, a subproperty of located_in, the inverse of has_financial_capital (itself functional) and with the role chain financial_capital_of ∘ located_in ⊑ located_in. It is the topic's chain edit: finance's catalogued functional relations (has_currency, headquartered_in, has_ceo, has_ticker) carry no role chain, and existing rows may not be changed, so the chain needs a relation built for it. The edit moves Frankfurt into India, as geography-replace-d004 moves Milan into Nigeria. Related near is the topic's inverse question: India's financial capital moves from Mumbai (stored everywhere) to Frankfurt; it uses two tagged properties, the inverse and the functionality of has_financial_capital, and the chain says so. Related far is transitivity of located_in on both hops: the Frankfurt Stock Exchange is located in Frankfurt, and Frankfurt (by the subproperty) in India. The earlier ECB question was dropped, since 'headquartered in' composed with 'located in' is a role chain that headquartered_in does not carry in the catalogue. Derived: the continent by the role chain; the time zone by inheritance (Frankfurt joins the class of places in India, and India's single time zone is stated as a rule for every place in it, which is a class rule rather than a fact about the country carried down; the earlier currency question was a role chain mislabelled as inheritance and was dropped); and whether Frankfurt and Mumbai share a country, by the subproperty with Mumbai's location as the bridge. Determinacy: a model that stored 'the Frankfurt Stock Exchange is in Germany' by name would place a building in Frankfurt and in Germany while Frankfurt is in India, which is no world; one that kept Mumbai as India's financial capital breaks the functionality of has_financial_capital; one that kept Central European Time breaks the class rule. Mumbai stays in India: the edit takes away only its role."
+ "notes": "Dev-split ABox revision on financial_capital_of (new, staging/finance.RELATIONS.md), modelled on capital_of: functional, a subproperty of located_in, the inverse of has_financial_capital (itself functional) and with the role chain financial_capital_of ∘ located_in ⊑ located_in. It is the topic's chain edit: finance's catalogued functional relations (has_currency, headquartered_in, has_ceo, has_ticker) carry no role chain, and existing rows may not be changed, so the chain needs a relation built for it. The edit moves Frankfurt into India, as geography-replace-d004 moves Milan into Nigeria.The earlier ECB question was dropped, since 'headquartered in' composed with 'located in' is a role chain that headquartered_in does not carry in the catalogue. Derived: the continent by the role chain; the time zone by inheritance (Frankfurt joins the class of places in India, and India's single time zone is stated as a rule for every place in it, which is a class rule rather than a fact about the country carried down; the earlier currency question was a role chain mislabelled as inheritance and was dropped); and whether Frankfurt and Mumbai share a country, by the subproperty with Mumbai's location as the bridge. Determinacy: a model that stored 'the Frankfurt Stock Exchange is in Germany' by name would place a building in Frankfurt and in Germany while Frankfurt is in India, which is no world; one that kept Mumbai as India's financial capital breaks the functionality of has_financial_capital; one that kept Central European Time breaks the class rule. Mumbai stays in India: the edit takes away only its role. Related (2026-11-14): the city's country (subproperty), stored with Frankfurt everywhere; the earlier yes/no restated the edit's original fact."
 }

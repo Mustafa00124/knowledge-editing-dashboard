@@ -171,38 +171,23 @@
   ],
   "related": [
    {
-    "prompt": "Was Pompeii destroyed by an eruption of Mount Vesuvius?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Mount Vesuvius destroyed Pompeii.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Pompeii was destroyed by an eruption of Mount Etna. (edit)",
-     "A town destroyed by one eruption was destroyed by one volcano (destroyed_by_eruption_of is functional).",
-     "So Pompeii was not destroyed by an eruption of Mount Vesuvius: no."
+    "prompt": "Pliny the Elder died in the same eruption that destroyed Pompeii. Which volcano's eruption killed him?",
+    "original_answer": "Mount Vesuvius",
+    "new_answer": "Mount Etna",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Pliny the Elder died in the same eruption that destroyed Pompeii."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Did the eruption of Mount Vesuvius destroy Pompeii?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The eruption of Mount Vesuvius destroyed Pompeii.",
+    "bridge_in_prompt": true,
+    "fact": "Pliny the Elder died in the eruption of Mount Vesuvius.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Pompeii was destroyed by an eruption of Mount Etna. (edit)",
-     "So an eruption of Mount Etna destroyed Pompeii ('destroyed by an eruption of' is the inverse of 'eruption destroyed').",
-     "A town is destroyed by one volcano's eruption (functional), so Vesuvius's eruption did not destroy Pompeii: no."
+     "Pliny the Elder died in the same eruption that destroyed Pompeii. (stated in the question)",
+     "So the eruption that killed Pliny the Elder was an eruption of Mount Etna."
     ],
     "logic": "dl"
    }
@@ -279,29 +264,6 @@
      "url": "https://en.wikipedia.org/wiki/Pompeii",
      "quote": "Along with Herculaneum, Stabiae, and many surrounding villas, it was buried under 4 to 6 m (13 to 20 ft) of volcanic ash and pumice in the eruption of Mount Vesuvius in 79 AD.",
      "note": "The depth is given with a conversion template in the article."
-    }
-   ]
-  },
-  "Mount Vesuvius destroyed Pompeii.": {
-   "claim": "stored",
-   "why": "The same fact from the volcano's side, asked as a yes/no question: hundreds of exact hits for \"Vesuvius destroyed Pompeii\".",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Vesuvius destroyed Pompeii",
-     "count": 235
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Pompeii was destroyed by Mount Vesuvius",
-     "count": 32
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Mount_Vesuvius",
-     "quote": "The eruption of Mount Vesuvius in 79 AD destroyed the Roman cities of Pompeii, Herculaneum, Oplontis, Stabiae and other settlements."
     }
    ]
   },
@@ -488,29 +450,52 @@
     }
    ]
   },
-  "The eruption of Mount Vesuvius destroyed Pompeii.": {
+  "Pliny the Elder died in the eruption of Mount Vesuvius.": {
    "claim": "stored",
-   "why": "Text names the volcano whenever it tells what happened to the town ('buried in the eruption of Mount Vesuvius'), so 'Vesuvius destroyed Pompeii' is itself a common sentence, not something people work out from where the town lies.",
+   "why": "Pliny the Elder is known for one thing besides his Natural History: he died in the eruption of Mount Vesuvius while trying to rescue people from it. Wikipedia states it in the first sentence of his article, and every account of the eruption tells it through his nephew's letters, so a model holds the sentence directly.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Pompeii",
-     "quote": "Along with Herculaneum, Stabiae, and many surrounding villas, it was buried under 4 to 6 m (13 to 20 ft) of volcanic ash and pumice in the eruption of Mount Vesuvius in 79 AD."
+     "url": "https://en.wikipedia.org/wiki/Pliny_the_Elder",
+     "quote": "Pliny the Elder died in AD 79 in Stabiae while attempting to rescue people from the eruption of Mount Vesuvius."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "eruption of Mount Vesuvius destroyed Pompeii",
-     "count": 15
+     "query": "Pliny the Elder died in the eruption of Vesuvius",
+     "count": 12,
+     "note": "Exact wording is rarer than the fact: the death is told in many phrasings (died during, was killed in, perished in)."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Pliny the Elder died in the eruption of Vesuvius",
+     "count": 19
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Vesuvius destroyed Pompeii",
-     "count": 235
+     "query": "killed in the eruption of Vesuvius",
+     "count": 44
+    }
+   ]
+  },
+  "Pliny the Elder died in the same eruption that destroyed Pompeii.": {
+   "claim": "stored",
+   "why": "The same AD 79 eruption destroyed Pompeii and killed Pliny the Elder at Stabiae; the question states the identity, so the model needs only that it is true.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Mount_Vesuvius",
+     "quote": "The eruption of Mount Vesuvius in 79 AD destroyed the Roman cities of Pompeii, Herculaneum, Oplontis, Stabiae and other settlements."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pliny_the_Elder",
+     "quote": "Pliny the Elder died in AD 79 in Stabiae while attempting to rescue people from the eruption of Mount Vesuvius."
     }
    ]
   }
  },
- "notes": "Main-split ABox revision of a stored fact (15 queries), kept from the earlier version and moved to the new layout. Derivability very_unlikely: stated everywhere. Related near uses functional (a town falls to one eruption); related far is stored because Vesuvius is described \"near Naples\" hundreds of times in passages about Pompeii. The three determinate derived queries are compositions through stored facts about Etna (on Sicily, almost constantly active, the largest active volcano in Italy); the edited relation has no other property. The indeterminate query is the background-beliefs split on Herculaneum: stored under Vesuvius by name, or as buried by the same eruption as Pompeii. Its old checks on AD 79 (one missed by Llama) are gone with the second indeterminate query. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... not ...\"; the Pompeii evidence quotes the Roman cities sentence; the related-far evidence adds the description's own count (169) and Wikipedia's two adjacent paragraphs; the Herculaneum query keeps its worlds but says w2 is the weaker one. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Main-split ABox revision of a stored fact (15 queries), kept from the earlier version and moved to the new layout. Derivability very_unlikely: stated everywhere. The three determinate derived queries are compositions through stored facts about Etna (on Sicily, almost constantly active, the largest active volcano in Italy); the edited relation has no other property. The indeterminate query is the background-beliefs split on Herculaneum: stored under Vesuvius by name, or as buried by the same eruption as Pompeii. Its old checks on AD 79 (one missed by Llama) are gone with the second indeterminate query. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Review fixes: negation now reads \"Is it true that ... Related replaced 2026-11-14: the inverse (Did the eruption of Mount Vesuvius destroy Pompeii?) only restated the edit. Now the stored death of Pliny the Elder in Vesuvius's eruption, tied to the edit by a bridge the prompt states (the same eruption that destroyed Pompeii), so the answer does not depend on how the model stored the death (by name) and is determinate. No whole-sentence count reaches 100 (12 and 19 for the closest wording); the claim rests on the Wikipedia sentence."
 }

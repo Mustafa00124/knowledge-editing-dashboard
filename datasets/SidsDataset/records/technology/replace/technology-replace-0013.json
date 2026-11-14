@@ -172,39 +172,22 @@
   ],
   "related": [
    {
-    "prompt": "Is TCP a connection-oriented protocol?",
+    "prompt": "Does TCP establish a connection before it sends data?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
+    "derivation": "inheritance",
     "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "TCP is a connection-oriented protocol.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "TCP is a connectionless protocol. (edit)",
-     "A protocol has one connection mode, connection-oriented or connectionless (connection_mode is functional).",
-     "So TCP is not a connection-oriented protocol: no."
+    "hops": 2,
+    "bridge": [
+     "A protocol sets up a connection before sending data exactly when it is connection-oriented."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is TCP one of the connectionless protocols?",
-    "original_answer": "no",
-    "new_answer": "yes",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "connection_mode_of",
-    "fact": "TCP is not one of the connectionless protocols.",
+    "fact": "TCP establishes a connection before it sends data.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "TCP is a connectionless protocol. (edit)",
-     "connection_mode is the inverse of connection_mode_of, so connectionless is the connection mode of TCP.",
-     "So TCP is one of the connectionless protocols: yes."
+     "A protocol sets up a connection before sending data exactly when it is connection-oriented. (stored)",
+     "TCP is connectionless, so (connection_mode is functional) not connection-oriented, so it sets up no connection first: no."
     ],
     "logic": "dl"
    }
@@ -252,12 +235,17 @@
    "fact": "A connectionless protocol keeps no record of what it has sent.",
    "prompt": "Does a connectionless protocol keep a record of what it has sent?",
    "answer": "no"
+  },
+  {
+   "fact": "A protocol sets up a connection before sending data exactly when it is connection-oriented.",
+   "prompt": "Is a protocol connection-oriented exactly when it sets up a connection before sending data?",
+   "answer": "yes"
   }
  ],
  "evidence": {
   "TCP is a connection-oriented protocol.": {
    "claim": "stored",
-   "why": "Stated in the lead of the TCP article and in every networking textbook; usually set against UDP, \"a connectionless protocol\". It follows from nothing a model would hold apart from TCP's own handshake, which is part of the same description.",
+   "why": "Stated directly and constantly: 'TCP is a connection-oriented protocol' is the standard line in the TCP article and every networking text, set against connectionless UDP. A model holds the sentence itself.",
    "sources": [
     {
      "kind": "infini-gram",
@@ -437,22 +425,10 @@
     }
    ]
   },
-  "TCP is not one of the connectionless protocols.": {
+  "TCP establishes a connection before it sends data.": {
    "claim": "stored",
-   "why": "The answer 'no' is the other side of a sentence stated directly in the lead of the TCP article and in every networking textbook: 'TCP is connection-oriented', set against UDP as the connectionless protocol. Nobody has to infer that TCP is not connectionless; texts name TCP as the standard connection-oriented protocol.",
+   "why": "Stated in every description of TCP, usually as its handshake: Wikipedia's TCP article says sender and receiver first establish a connection, and 'TCP establishes a connection' is written hundreds of times. A model holds the sentence itself, not a derivation from the connection mode.",
    "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "TCP is a connection-oriented protocol",
-     "count": 862
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "TCP is connection-oriented",
-     "count": 428
-    },
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Transmission_Control_Protocol",
@@ -461,8 +437,26 @@
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "TCP is a connection-oriented protocol",
-     "count": 862
+     "query": "TCP establishes a connection",
+     "count": 196
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "TCP three-way handshake",
+     "count": 3105,
+     "note": "The handshake that sets the connection up, for comparison."
+    }
+   ]
+  },
+  "A protocol sets up a connection before sending data exactly when it is connection-oriented.": {
+   "claim": "stored",
+   "why": "This is what 'connection-oriented' means.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Connection-oriented_communication",
+     "quote": "In telecommunications and computer networking, connection-oriented communication is a communication protocol where a communication session or a semi-permanent connection is established before any useful data can be transferred."
     }
    ]
   }
