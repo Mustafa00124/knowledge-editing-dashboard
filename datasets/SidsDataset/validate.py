@@ -101,13 +101,14 @@ RELATED = ('related',)
 # Which derivations each query kind may use, and its hops (README, "Which
 # property goes where").
 ALLOWED_DERIVATIONS = {
-    'related': ('inverse', 'symmetry', 'functional', 'subproperty'),
+    # One related question (decided 2026-11-14): a STORED fact linked to the edit by 1 or 2 hops.
+    'related': ('inverse', 'symmetry', 'functional', 'subproperty', 'transitivity', 'chain', 'inheritance', 'none'),
     'derived': ('transitivity', 'chain', 'inheritance', 'subproperty', 'none'),
     'derived_indeterminate': ('none', 'premise'),
     'derived_contraction_cardinality': ('functional', 'cardinality'),
 }
 ALLOWED_TASKS = {
-    'related': ('answer', 'application'),
+    'related': ('answer', 'application', 'composition', 'binding'),
     'derived_indeterminate': ('answer', 'composition'),
     'derived_contraction_cardinality': ('answer',),
 }
@@ -137,7 +138,7 @@ def query_counts(rec, path=None):
     type)."""
     box, op = rec.get('box'), rec.get('edit_operation')
     counts = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 3,
-              'related': 2, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
+              'related': 1, 'derived': 3, 'unrelated_near': 1, 'unrelated_far': 1}
     if box == 'rbox':
         del counts['paraphrase'], counts['related']
         counts['derived'] = 2    # the two instance questions
@@ -499,16 +500,6 @@ def check_record(rec, path, relations):
         for i, q in enumerate(items):
             where = f'queries.{qtype}' + (f'[{i}]' if qtype not in ('direct', 'paraphrase') else '')
             errors.extend(f'{where}: {e}' for e in check_query(q, qtype, rec, relations))
-
-    rel = queries.get('related')
-    if isinstance(rel, list) and len(rel) == 2 and all(isinstance(q, dict) for q in rel):
-        # Two different questions (decided 2026-11-14): a different fact and wording; a different
-        # role axiom where the relation has two, but a relation with only one (borders: symmetric)
-        # may use it twice.
-        def same(a, b):
-            return ' '.join(str(a or '').casefold().split()) == ' '.join(str(b or '').casefold().split())
-        if same(rel[0].get('fact'), rel[1].get('fact')) or same(rel[0].get('prompt'), rel[1].get('prompt')):
-            err('queries.related: the two related questions must ask about different facts, in different words')
 
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
@@ -1082,8 +1073,8 @@ def check_derivation(q, qtype, rec, relations):
     if derivation not in ALLOWED_DERIVATIONS[kind]:
         err(f'{kind.replace("_", " ")} queries use one of {ALLOWED_DERIVATIONS[kind]}, not {derivation!r}')
     if isinstance(hops, int):
-        if qtype == 'related' and hops != 1:
-            err('related queries are 1 hop (no bridge fact)')
+        if qtype == 'related' and hops not in (1, 2):
+            err('a related query is 1 or 2 hops from the edit')
         elif qtype == 'derived' and not indeterminate and not contraction_card and hops != 2:
             err('determinate derived queries are exactly 2 hops (the edit and one bridge fact)')
         elif contraction_card and hops != 1:

@@ -77,9 +77,9 @@ export function queryRows(rec) {
     const items = Array.isArray(q[key]) ? q[key] : q[key] ? [q[key]] : []
     // A related question this record should have but doesn't yet: an empty row keeps its place.
     // Only ABox revision and contraction carry related questions (README, Queries per record type).
-    if (PLACEHOLDER_TYPES.includes(key) && items.length < 2 && rec.box === 'abox' && rec.edit_operation !== 'insert') {
+    if (PLACEHOLDER_TYPES.includes(key) && items.length < 1 && rec.box === 'abox' && rec.edit_operation !== 'insert') {
       items.forEach((item, i) => rows.push({ key, auditKey: `${key}[${i}]`, ...item }))
-      for (let i = items.length; i < 2; i++) rows.push({ key, auditKey: null, placeholder: true })
+      for (let i = items.length; i < 1; i++) rows.push({ key, auditKey: null, placeholder: true })
       continue
     }
     items.forEach((item, i) => {
