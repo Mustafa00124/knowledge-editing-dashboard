@@ -175,42 +175,22 @@
   ],
   "related": [
    {
-    "prompt": "Of which Italian island is Cagliari the largest city?",
-    "original_answer": "Sardinia",
-    "new_answer": "Sicily",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Cagliari is the largest city on Sardinia.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The largest city on Sicily is Cagliari. (edit)",
-     "So Cagliari is the largest city of Sicily (inverse: has_largest_city is the inverse of largest_city_of), and so it is on Sicily (largest_city_of is a subproperty of located_in).",
-     "A city lies on only one island, so Cagliari is no longer on Sardinia and no longer its largest city. (revision fact)",
-     "So the island is Sicily."
-    ],
-    "logic": "dl",
-    "revision_facts": [
-     "A city lies on only one island."
-    ]
-   },
-   {
-    "prompt": "Is Palermo the largest city on Sicily?",
+    "prompt": "Is the largest city on Sicily the capital of Sicily?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Palermo is the largest city on Sicily.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The capital of Sicily is Palermo."
+    ],
+    "fact": "The largest city on Sicily is the capital of Sicily.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The largest city on Sicily is Cagliari. (edit)",
-     "A place has one largest city (has_largest_city is functional).",
-     "So Palermo is not the largest city on Sicily: no."
+     "The capital of Sicily is Palermo. (bridge)",
+     "Cagliari is not Palermo, so the largest city on Sicily is not the capital of Sicily: no."
     ],
     "logic": "dl"
    }
@@ -229,6 +209,11 @@
   ]
  },
  "checks": [
+  {
+   "fact": "The capital of Sicily is Palermo.",
+   "prompt": "What is the capital of Sicily?",
+   "answer": "Palermo"
+  },
   {
    "fact": "Mount Etna is on the island of Sicily.",
    "prompt": "Which Italian island is Mount Etna on?",
@@ -252,11 +237,6 @@
   {
    "fact": "Sicily belongs to Greece.",
    "prompt": "Does Sicily belong to Greece?",
-   "answer": "no"
-  },
-  {
-   "fact": "A city lies on only one island.",
-   "prompt": "Can a city lie on two different islands at the same time?",
    "answer": "no"
   }
  ],
@@ -285,24 +265,6 @@
      "query": "Palermo, the largest city in Sicily",
      "count": 40,
      "note": "Below 100."
-    }
-   ]
-  },
-  "Cagliari is the largest city on Sardinia.": {
-   "claim": "stored",
-   "why": "Cagliari is Sardinia's capital and largest city. Counts anchor the island, not the city ('largest city in Sardinia' 178, 'largest city of Sardinia' 95; 'Cagliari, the capital of Sardinia' 587); Cagliari is the only referent.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "largest city in Sardinia",
-     "count": 178
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Cagliari, the capital of Sardinia",
-     "count": 587
     }
    ]
   },
@@ -468,35 +430,32 @@
     }
    ]
   },
-  "A city lies on only one island.": {
-   "claim": "definitional",
-   "why": "True by what an island city is: a city's territory lies on one island (a city spanning an island and a causeway is not a case here).",
-   "sources": []
-  },
-  "Palermo is the largest city on Sicily.": {
+  "The largest city on Sicily is the capital of Sicily.": {
    "claim": "stored",
-   "why": "The same stored fact from the city's side, asked as a yes/no question: 'Palermo is the largest city on Sicily' is a sentence people write as it stands, not an inference.",
+   "why": "Stated directly and constantly: Palermo is 'the capital and largest city of Sicily', one sentence that gives both roles to the same city.",
    "sources": [
     {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "largest city of Sicily",
-     "count": 274,
-     "note": "Names the island, not the city: Palermo is the only referent."
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Palermo",
+     "quote": "Palermo (Sicilian: Palermu) is the capital and largest city of the autonomous island region of Sicily in southern Italy"
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Palermo is the capital of Sicily",
-     "count": 233,
-     "note": "Capital, not largest city."
+     "query": "Palermo is the capital and largest city of Sicily",
+     "count": 4
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Palermo, the largest city in Sicily",
-     "count": 40,
-     "note": "Below 100."
+     "query": "the capital and largest city of Sicily",
+     "count": 22
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Palermo, the capital and largest city of Sicily",
+     "count": 9
     }
    ]
   }

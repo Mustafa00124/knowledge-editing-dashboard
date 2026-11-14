@@ -172,40 +172,20 @@
     ],
     "related": [
       {
-        "prompt": "Is the cello a string instrument?",
+        "prompt": "Is the cello a member of the string family of instruments?",
         "original_answer": "yes",
         "new_answer": "no",
-        "derivation": "functional",
+        "derivation": "subproperty",
         "task": "answer",
         "hops": 1,
         "bridge": [],
-        "fact": "The cello is a string instrument.",
+        "fact": "The cello is a member of the string family.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "The cello is a brass instrument. (edit)",
-          "An orchestral instrument belongs to one family (in_instrument_family is functional), so the cello is not a string instrument: no."
-        ],
-        "logic": "dl"
-      },
-      {
-        "prompt": "Does the string family of instruments include the cello?",
-        "original_answer": "yes",
-        "new_answer": "no",
-        "derivation": "inverse",
-        "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "alt_derivations": [
-          "functional"
-        ],
-        "fact": "The string family includes the cello.",
-        "derivability": "very_unlikely",
-        "determinacy": "determinate",
-        "chain": [
-          "The cello is a brass instrument. (edit)",
-          "'Includes' is the inverse of 'belongs to the family of' (in_instrument_family ≡ family_includes_instrument⁻), so the brass family includes the cello.",
-          "An instrument belongs to one family (in_instrument_family is functional), so the string family does not include it: no."
+          "'in_instrument_family' is a subproperty of 'instance_of' (a member of a class), so the cello is a member of the brass family.",
+          "An instrument belongs to one orchestral family (in_instrument_family is functional), so the cello is not a member of the string family: no."
         ],
         "logic": "dl"
       }
@@ -256,29 +236,6 @@
     }
   ],
   "evidence": {
-    "The cello is a string instrument.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's Cello article; the exact phrases 'cello is a string instrument' (69) and 'cello is a bowed string instrument' (78) are each below 100 in Dolma, so the quote carries the claim.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Cello",
-          "quote": "The violoncello ( VY-ə-lən-CHEL-oh, Italian pronunciation: [vjolonˈtʃɛllo]), commonly abbreviated as cello (  CHEL-oh), is a medium-low pitched bowed string instrument of the violin family."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "cello is a string instrument",
-          "count": 69
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "cello is a bowed string instrument",
-          "count": 78
-        }
-      ]
-    },
     "The instrument that Yo-Yo Ma plays belongs to the string family.": {
       "claim": "derived",
       "why": "People call Yo-Yo Ma a cellist and call the cello a string instrument, but nobody states the family of 'the instrument he plays': the phrase \"the instrument Yo-Yo Ma plays\" has one hit and \"Yo-Yo Ma's instrument\" 26, mostly crossword clues whose answer is the cello, none naming a family. A model has to go from the player to the cello and then to its family.",
@@ -474,25 +431,60 @@
         }
       ]
     },
-    "The string family includes the cello.": {
+    "The cello is a member of the string family.": {
       "claim": "stored",
-      "why": "The family's side of the pairing is stated outright. Wikipedia's Orchestra article lists the string section as 'including the violin, viola, cello, and double bass', and its Violin family article says the modern violin family 'consists of the violin, viola, cello, and (possibly) double bass'. The list sentence 'violin, viola, cello, and double bass' has 1,416 exact hits in Dolma, so a model has met 'the string family has the cello in it' as a direct statement many times, not as a conclusion from 'the cello is a string instrument'.",
+      "why": "Wikipedia's Cello article opens by calling the cello a bowed string instrument of the violin family, and its Orchestra article lists the cello in the string section; 'cello is a member of the violin family' has 26 and 'cello is a string instrument' 69 exact hits in Dolma. It is the first thing said about the instrument.",
       "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cello",
+          "quote": "The violoncello ( VY-ə-lən-CHEL-oh, Italian pronunciation: [vjolonˈtʃɛllo]), commonly abbreviated as cello (  CHEL-oh), is a medium-low pitched bowed string instrument of the violin family."
+        },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Orchestra",
           "quote": "The string section, including the violin, viola, cello, and double bass"
         },
         {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Violin_family",
-          "quote": "The standard modern violin family consists of the violin, viola, cello, and (possibly) double bass."
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cello is a string instrument",
+          "count": 69
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "violin, viola, cello, and double bass",
-          "count": 1416
+          "query": "cello is a member of the violin family",
+          "count": 26
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cello is a member of the string family",
+          "count": 6
+        }
+      ]
+    },
+    "The cello is a string instrument.": {
+      "claim": "stored",
+      "why": "The first sentence of Wikipedia's Cello article; the exact phrases 'cello is a string instrument' (69) and 'cello is a bowed string instrument' (78) are each below 100 in Dolma, so the quote carries the claim.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cello",
+          "quote": "The violoncello ( VY-ə-lən-CHEL-oh, Italian pronunciation: [vjolonˈtʃɛllo]), commonly abbreviated as cello (  CHEL-oh), is a medium-low pitched bowed string instrument of the violin family."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cello is a string instrument",
+          "count": 69
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "cello is a bowed string instrument",
+          "count": 78
         }
       ]
     }

@@ -121,38 +121,22 @@
   ],
   "related": [
    {
-    "prompt": "Does Las Meninas hang in the Prado?",
-    "original_answer": "yes",
+    "prompt": "In which city is Las Meninas displayed?",
+    "original_answer": "Madrid",
     "new_answer": null,
-    "derivation": "functional",
+    "derivation": "chain",
     "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Las Meninas hangs in the Prado.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "'Las Meninas is housed in the Prado.' is removed. (edit)",
-     "'Hangs in' is the same placement as 'is housed in', so 'Las Meninas hangs in the Prado' goes with it.",
-     "So whether Las Meninas hangs in the Prado is not known."
+    "hops": 2,
+    "bridge": [
+     "The Prado is in Madrid."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Does the Prado house Las Meninas?",
-    "original_answer": "yes",
-    "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The Prado houses Las Meninas.",
+    "fact": "Las Meninas is in Madrid.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
-     "'Las Meninas is housed in the Prado' is removed. (edit)",
-     "'Houses' is the inverse of 'is housed in', so 'the Prado houses Las Meninas' is the same fact read from the museum's side, and goes with it.",
-     "So whether the Prado houses Las Meninas is not known."
+     "Las Meninas is housed in the Prado. (removed)",
+     "The Prado is in Madrid. (stored bridge)",
+     "housed_in o located_in is a chain: a painting housed in a museum is where the museum is, so with the housing gone the model has no ground for a city: I don't know."
     ],
     "logic": "dl"
    }
@@ -190,6 +174,11 @@
    "fact": "Diego Velázquez was a Japanese painter.",
    "prompt": "Was Diego Velázquez a Japanese painter?",
    "answer": "no"
+  },
+  {
+   "fact": "The Prado is in Madrid.",
+   "prompt": "In which city is the Prado?",
+   "answer": "Madrid"
   }
  ],
  "evidence": {
@@ -393,66 +382,40 @@
     }
    ]
   },
-  "The Prado houses Las Meninas.": {
+  "Las Meninas is in Madrid.": {
    "claim": "stored",
-   "why": "Las Meninas is introduced as a painting in the Museo del Prado, and the Prado is routinely said to house, hold or display it, so 'the Prado houses Las Meninas' is the museum's side of a sentence people write directly, not an inference.",
+   "why": "Las Meninas is named with Madrid and the Prado as a single unit: the first sentence of its Wikipedia article places it in the Prado in Madrid, and 'Las Meninas in Madrid' is the stock phrase in guides and art history. It is stated directly as such, not worked out from the museum's address.",
    "sources": [
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Las_Meninas",
-     "quote": "Las Meninas (Spanish: [las meˈninas]; Spanish for 'The Ladies-in-waiting') is a 1656 oil painting in the Museo del Prado in Madrid, by Diego Velázquez, the leading artist in the court of King Philip IV of Spain and Portugal, and of the Spanish Golden Age."
+     "quote": "Las Meninas is a 1656 oil painting in the Museo del Prado in Madrid, by Diego Velázquez, the leading artist in the court of King Philip IV of Spain and Portugal, and of the Spanish Golden Age."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas in the Prado",
-     "count": 78
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas at the Prado",
-     "count": 74
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas AND Prado",
-     "count": 7001,
-     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+     "query": "Las Meninas in Madrid",
+     "count": 16
     }
    ]
   },
-  "Las Meninas hangs in the Prado.": {
+  "The Prado is in Madrid.": {
    "claim": "stored",
-   "why": "Stated in the first sentence of Wikipedia's article, and the painting is named with the Prado everywhere ('Las Meninas in the Prado').",
+   "why": "The first sentence of Wikipedia's Prado article.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Las_Meninas",
-     "quote": "Las Meninas (Spanish: [las meˈninas]; Spanish for 'The Ladies-in-waiting') is a 1656 oil painting in the Museo del Prado in Madrid, by Diego Velázquez, the leading artist in the court of King Philip IV of Spain and Portugal, and of the Spanish Golden Age."
+     "url": "https://en.wikipedia.org/wiki/Prado_Museum",
+     "quote": "The Museo del Prado, officially known as Museo Nacional del Prado, is the main Spanish national art museum, located in central Madrid."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas in the Prado",
-     "count": 78
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas at the Prado",
-     "count": 74
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Las Meninas AND Prado",
-     "count": 7001,
-     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
+     "query": "the Prado in Madrid",
+     "count": 4980
     }
    ]
   }
  },
- "notes": "Dev ABox contraction on a functional relation (housed_in: a painting hangs in one museum), paired with the revision literature_arts-replace-d001 (README, Contraction: 'The three operations are paired'): it removes that revision's original fact, 'Las Meninas is housed in the Prado', a stored fact every model holds. Related near: housed_in has no non-restating inverse question ('Does the Prado house Las Meninas?' and 'Is Las Meninas part of the Prado's collection?' both just restate the removed fact, and 'Which painting does the Prado house?' has many answers because 'houses' is many-valued), so the inverse is replaced by another allowed near derivation, functional (README 'Balance per topic' lets a topic substitute within the group; the inverse group member is missing for this record and the revision's near query is also functional). It asks about the Thyssen-Bornemisza Museum, which is in Madrid like the Prado, so the stored 'Las Meninas is in Madrid' cannot settle the answer. Derived[0], the cardinality question, uses the Museo Reina Sofia (also in Madrid) rather than the Louvre: the Louvre is in Paris, so a model that removed only the museum would still correctly say 'no' from the city. Both museum questions are 'no' before the edit only because a painting has one museum; nothing stored rules them out on its own (Wikipedia searches for \"Las Meninas is not in\" and \"Las Meninas is not housed\": 0 hits on 2026-11-11). Related far binds the painting through a description of its scene (the five-year-old Infanta surrounded by her maids of honour; 2026-11-12: it replaces the earlier title 'The Family of Philip IV', which two models could not place in a museum) and asks its museum, a stored answer; the earlier description 'Velázquez's masterpiece' was dropped because 'the Prado holds most of Velázquez's major works' is a background route to the answer that survives the removal. The city question ('Madrid') was dropped for the same reason. Residual risk: whether the models bind the old title to Las Meninas is covered by the check. The two 2-hop derived questions compose the removed fact with stored holdings of the Prado (Bosch's The Garden of Earthly Delights, Goya's The Third of May 1808): whether the museum of Las Meninas also holds them. Residual risk, recorded: famous Prado paintings are listed together on gallery pages, so a model might hold 'the same museum' as a fact. Unrelated near asks the painter, which the removal leaves alone; contraction is exempt from Rule 7. Evidence: infini-gram returned HTTP 403 on 2026-11-12; the infini-gram counts that remain were obtained earlier on 2026-11-11/12 and are real. The new alias claim (earlier title) has a Wikipedia quote only and no corpus count."
+ "notes": "Dev ABox contraction on a functional relation (housed_in: a painting hangs in one museum), paired with the revision literature_arts-replace-d001 (README, Contraction: 'The three operations are paired'): it removes that revision's original fact, 'Las Meninas is housed in the Prado', a stored fact every model holds. Related near: housed_in has no non-restating inverse question ('Does the Prado house Las Meninas?' and 'Is Las Meninas part of the Prado's collection?' both just restate the removed fact, and 'Which painting does the Prado house?' has many answers because 'houses' is many-valued), so the inverse is replaced by another allowed near derivation, functional (README 'Balance per topic' lets a topic substitute within the group; the inverse group member is missing for this record and the revision's near query is also functional). It asks about the Thyssen-Bornemisza Museum, which is in Madrid like the Prado, so the stored 'Las Meninas is in Madrid' cannot settle the answer. Derived[0], the cardinality question, uses the Museo Reina Sofia (also in Madrid) rather than the Louvre: the Louvre is in Paris, so a model that removed only the museum would still correctly say 'no' from the city. Both museum questions are 'no' before the edit only because a painting has one museum; nothing stored rules them out on its own (Wikipedia searches for \"Las Meninas is not in\" and \"Las Meninas is not housed\": 0 hits on 2026-11-11). Related far binds the painting through a description of its scene (the five-year-old Infanta surrounded by her maids of honour; 2026-11-12: it replaces the earlier title 'The Family of Philip IV', which two models could not place in a museum) and asks its museum, a stored answer; the earlier description 'Velázquez's masterpiece' was dropped because 'the Prado holds most of Velázquez's major works' is a background route to the answer that survives the removal. The city question ('Madrid') was dropped for the same reason. Residual risk: whether the models bind the old title to Las Meninas is covered by the check. The two 2-hop derived questions compose the removed fact with stored holdings of the Prado (Bosch's The Garden of Earthly Delights, Goya's The Third of May 1808): whether the museum of Las Meninas also holds them. Residual risk, recorded: famous Prado paintings are listed together on gallery pages, so a model might hold 'the same museum' as a fact. Unrelated near asks the painter, which the removal leaves alone; contraction is exempt from Rule 7. Evidence: infini-gram returned HTTP 403 on 2026-11-12; the infini-gram counts that remain were obtained earlier on 2026-11-11/12 and are real. The new alias claim (earlier title) has a Wikipedia quote only and no corpus count. Update 2026-11-14: one related question (user rule): the city, which goes to I don't know once the Prado housing is removed; bridge 'The Prado is in Madrid.'"
 }

@@ -125,38 +125,22 @@
   ],
   "related": [
    {
-    "prompt": "A traveller wants to carry cash in Japan's official currency. Should she get yen?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "application",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The yen is the official currency of Japan.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The official currency of Japan is the euro. (edit)",
-     "'Has currency' is functional: a country has one official currency.",
-     "So the yen is no longer Japan's official currency, and she should not get yen: no."
+    "prompt": "What is the ISO 4217 currency code of Japan's official currency?",
+    "original_answer": "JPY",
+    "new_answer": "EUR",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The ISO 4217 code of the euro is EUR."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Japan one of the countries that use the yen as their official currency?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Japan is one of the countries that use the yen as their official currency.",
+    "fact": "The ISO 4217 code of Japan's official currency is JPY.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The official currency of Japan is the euro. (edit)",
-     "has_currency is the inverse of currency_of, so Japan is one of the yen's countries exactly if the yen is Japan's currency.",
-     "Japan's one currency (has_currency is functional) is now the euro, so Japan is not among the yen's countries: no."
+     "The ISO 4217 code of the euro is EUR. (stored)",
+     "So EUR."
     ],
     "logic": "dl"
    }
@@ -199,6 +183,11 @@
    "fact": "Japan is in South America.",
    "prompt": "Is Japan in South America?",
    "answer": "no"
+  },
+  {
+   "fact": "The ISO 4217 code of the euro is EUR.",
+   "prompt": "What is the ISO 4217 currency code of the euro?",
+   "answer": "EUR"
   }
  ],
  "evidence": {
@@ -216,29 +205,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "official currency of Japan",
      "count": 898
-    }
-   ]
-  },
-  "The yen is the official currency of Japan.": {
-   "claim": "stored",
-   "why": "The same fact as the edit's original, read from the currency; travel text tells visitors to pay in yen.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Japanese_yen",
-     "quote": "The yen (Japanese: 円; symbol: ¥; code: JPY) is the official currency of Japan."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "official currency of Japan",
-     "count": 898
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "pay in yen",
-     "count": 350
     }
    ]
   },
@@ -421,9 +387,9 @@
     }
    ]
   },
-  "Japan is one of the countries that use the yen as their official currency.": {
+  "The ISO 4217 code of Japan's official currency is JPY.": {
    "claim": "stored",
-   "why": "Wikipedia's yen article opens 'The yen ... is the official currency of Japan', and travel text says 'pay in yen' (350 in Dolma): Japan as the yen's country is stated outright, not worked out from Japan's currency line.",
+   "why": "The yen's own opening sentence gives Japan's currency and its code together, and 'Japan (JPY)' is the usual pairing of country and code; the code is stated for Japan's currency directly, not worked out from the yen.",
    "sources": [
     {
      "kind": "wikipedia",
@@ -433,17 +399,35 @@
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "official currency of Japan",
-     "count": 898
+     "query": "Japan (JPY)",
+     "count": 109
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "pay in yen",
-     "count": 350
+     "query": "Japan's currency code is JPY",
+     "count": 27
+    }
+   ]
+  },
+  "The ISO 4217 code of the euro is EUR.": {
+   "claim": "stored",
+   "why": "The euro is always given with its code.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "euro (EUR)",
+     "count": 4797
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "The euro (EUR)",
+     "count": 353
     }
    ]
   }
  },
- "notes": "Dev-split ABox revision on has_currency (functional, inverse:currency_of). Related near uses functionality as an application (should a traveller get yen?), the README's functional template ('is c still a's R?') in a practical frame. Related far is a composition on the new value: the ISO 4217 code of Japan's currency, stored with the yen ('Japanese yen (JPY)'), moves to EUR because a currency has one code; the code's letters echo Japan, so a model that answers JPY from the country's name has not carried the edit through, and that is no world. Derived: two compositions on the euro that are not tied to Japan by their wording (whether Japan now shares France's currency; whether its currency existed in the 1950s, which needs the euro's 1999 start, logic fol with temporal) and a binding through the nickname 'Land of the Rising Sun'. The earlier related far question (which central bank sets Japan's monetary policy) was dropped: its class rule fails for unilateral euro users (Montenegro, Kosovo), so a Japan that uses the euro could keep the Bank of Japan; with it went the topic's inheritance question here, which finance-replace-d001 now carries (India's single time zone). The currency-symbol question was dropped too: '¥' is written with 'Japanese yen' and is not clearly worked out. Eurozone membership is not asked: the euro is also used by non-members, so 'uses the euro' does not make a country a member. Denmark's currency is edited in the main split (finance-replace-0001); this record edits another country's, so no fact is shared."
+ "notes": "Dev-split ABox revision on has_currency (functional, inverse:currency_of).Derived: two compositions on the euro that are not tied to Japan by their wording (whether Japan now shares France's currency; whether its currency existed in the 1950s, which needs the euro's 1999 start, logic fol with temporal) and a binding through the nickname 'Land of the Rising Sun'.The currency-symbol question was dropped too: '¥' is written with 'Japanese yen' and is not clearly worked out. Eurozone membership is not asked: the euro is also used by non-members, so 'uses the euro' does not make a country a member. Denmark's currency is edited in the main split (finance-replace-0001); this record edits another country's, so no fact is shared. Related (2026-11-14): the code of Japan's currency, stored in the yen's opening sentence; the earlier yes/no restated the edit's original fact."
 }

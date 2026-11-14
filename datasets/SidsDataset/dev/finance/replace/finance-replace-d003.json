@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "Is AAPL the ticker symbol of Apple's shares?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "AAPL is the ticker symbol of Apple's shares.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Apple's stock ticker symbol is MSFT. (edit)",
-     "'Has ticker' is functional: a company's shares trade under one ticker symbol.",
-     "So AAPL is no longer the ticker symbol of Apple's shares: no."
+    "prompt": "What is the stock ticker symbol of the company that makes the iPhone?",
+    "original_answer": "AAPL",
+    "new_answer": "MSFT",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Apple makes the iPhone."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Apple the company whose shares trade under the ticker AAPL?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Apple is the company whose shares trade under the ticker AAPL.",
+    "fact": "The iPhone maker's stock ticker symbol is AAPL.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
+     "Apple makes the iPhone. (stored: the description names the subject)",
      "Apple's stock ticker symbol is MSFT. (edit)",
-     "has_ticker is the inverse of ticker_of, so Apple is the company behind AAPL exactly if Apple's ticker is AAPL.",
-     "Apple's one ticker (has_ticker is functional) is now MSFT, so Apple is not the company behind AAPL: no."
+     "So the iPhone maker's ticker symbol is MSFT."
     ],
     "logic": "dl"
    }
@@ -198,36 +182,17 @@
    "fact": "Apple is headquartered in Brazil.",
    "prompt": "Is Apple headquartered in Brazil?",
    "answer": "no"
+  },
+  {
+   "fact": "Apple makes the iPhone.",
+   "prompt": "Which company makes the iPhone?",
+   "answer": "Apple"
   }
  ],
  "evidence": {
   "Apple's stock ticker symbol is AAPL.": {
    "claim": "stored",
    "why": "AAPL is one of the most quoted tickers; financial news writes \"Apple (AAPL)\" constantly.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Apple (AAPL)",
-     "count": 92314
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "NASDAQ: AAPL",
-     "count": 2508
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "ticker symbol AAPL",
-     "count": 177
-    }
-   ]
-  },
-  "AAPL is the ticker symbol of Apple's shares.": {
-   "claim": "stored",
-   "why": "Market news writes Apple with its ticker everywhere ('Apple (AAPL)', 'NASDAQ: AAPL').",
    "sources": [
     {
      "kind": "infini-gram",
@@ -416,30 +381,48 @@
     }
    ]
   },
-  "Apple is the company whose shares trade under the ticker AAPL.": {
+  "The iPhone maker's stock ticker symbol is AAPL.": {
    "claim": "stored",
-   "why": "Financial news writes 'Apple (AAPL)' (92314 in Dolma) and 'NASDAQ: AAPL' constantly: the ticker names the company outright, so reading AAPL as Apple is a common sentence, not an inference.",
+   "why": "Market text introduces Apple as 'iPhone maker Apple (AAPL)' constantly, so the ticker is stated for the description itself and not worked out from the company's name.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Apple (AAPL)",
-     "count": 92314
+     "query": "iPhone maker Apple (AAPL",
+     "count": 181
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "NASDAQ: AAPL",
-     "count": 2508
+     "query": "iPhone maker Apple (NASDAQ",
+     "count": 110
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "ticker symbol AAPL",
-     "count": 177
+     "query": "iPhone maker Apple Inc (AAPL",
+     "count": 50
+    }
+   ]
+  },
+  "Apple makes the iPhone.": {
+   "claim": "stored",
+   "why": "The iPhone is Apple's best-known product.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Apple makes the iPhone",
+     "count": 412
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "iPhone maker Apple Inc.",
+     "count": 534
     }
    ]
   }
  },
- "notes": "Dev-split ABox revision on has_ticker (functional, inverse:ticker_of). Related near is functional: once Apple trades as MSFT, AAPL is no longer its ticker (the README's functional template, 'is c still a's R?'). The earlier inverse question ('Which company trades as MSFT?') was dropped: ticker_of has no functional tag in the catalogue, so nothing removes Microsoft's own, untouched MSFT, and Microsoft or both would be a consistent answer. The topic's inverse question is now finance-replace-d001's (India's financial capital). The new value MSFT is still Microsoft's real ticker; no query asks which company trades as MSFT or what Microsoft's ticker is, so the clash is never scored. Related far binds Apple through its role as the iPhone maker, which market news writes together with the ticker ('iPhone maker Apple (AAPL)'). The derived questions bind Apple through three other roles the models hold separately (the company Wozniak co-founded with Jobs, which picks Apple out of Wozniak's later ventures; the iPod maker; the Macintosh maker), whose statements with the ticker are rare. No composition is asked: the new value is a string with no facts of its own beyond the company it names. Tim Cook was avoided as a binding because 'Tim Cook' and 'AAPL' co-occur in market news over ten thousand times. Unrelated near (Apple's CEO) shares the subject."
+ "notes": "Dev-split ABox revision on has_ticker (functional, inverse:ticker_of).The earlier inverse question ('Which company trades as MSFT?') was dropped: ticker_of has no functional tag in the catalogue, so nothing removes Microsoft's own, untouched MSFT, and Microsoft or both would be a consistent answer. The topic's inverse question is now finance-replace-d001's (India's financial capital). The new value MSFT is still Microsoft's real ticker; no query asks which company trades as MSFT or what Microsoft's ticker is, so the clash is never scored.The derived questions bind Apple through three other roles the models hold separately (the company Wozniak co-founded with Jobs, which picks Apple out of Wozniak's later ventures; the iPod maker; the Macintosh maker), whose statements with the ticker are rare. No composition is asked: the new value is a string with no facts of its own beyond the company it names. Tim Cook was avoided as a binding because 'Tim Cook' and 'AAPL' co-occur in market news over ten thousand times. Unrelated near (Apple's CEO) shares the subject. Related (2026-11-14): the iPhone maker's ticker, stored as 'iPhone maker Apple (AAPL)'; the earlier yes/no restated the edit's original fact."
 }

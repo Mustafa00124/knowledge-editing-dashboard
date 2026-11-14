@@ -1,147 +1,77 @@
 {
  "id": "mathematics-replace-0015",
- "notes": "Derived edit without worlds. The premise 20² + 21² = 29² is the class PythagoreanSides (the squares of the two shorter sides add up to the square of the longest); the converse of Pythagoras is firm. The arithmetic premise gives way (top-level gives_up), as the record's notes and q0's chain state. q0 asks that class membership (the record tags it dl). A right triangle has no angle over 90 degrees (presupposed by q1's original 'no').",
+ "notes": "first_proved_by is functional (one first prover), with inverse first_proved and subproperty proved_by. The facts about Tao (UCLA, Princeton, MacArthur, born in Adelaide) are classes, because RELATIONS.md has no relation for them. The stored 'only Perelman proved it' (the closed-world belief behind the original 'no' on the Adelaide query) is what gives way for q2.",
  "entities": {
-  "t20_21_29": [
-   "the triangle with sides 20, 21 and 29"
+  "poincare": [
+   "the Poincaré conjecture"
   ],
-  "right_triangle": [
-   "a right triangle",
-   "right"
+  "perelman": [
+   "Grigori Perelman"
   ],
-  "obtuse_triangle": [
-   "an obtuse triangle",
-   "obtuse"
+  "tao": [
+   "Terence Tao"
   ]
  },
  "original": [
-  "instance_of(t20_21_29, right_triangle)"
+  "first_proved_by(poincare, perelman)"
  ],
  "edit": [
-  "instance_of(t20_21_29, obtuse_triangle)"
+  "first_proved_by(poincare, tao)"
  ],
- "premises": [
-  "pyth_sides",
-  "converse"
- ],
+ "bridge_refs": {
+  "ucla": "Terence Tao is a professor at UCLA.",
+  "princeton": "Terence Tao earned his doctorate at Princeton University.",
+  "adelaide": "Terence Tao was born in Adelaide.",
+  "macarthur": "Terence Tao received a MacArthur Fellowship."
+ },
  "background": {
-  "pyth_sides": "t20_21_29 : PythagoreanSides",
-  "converse": "PythagoreanSides ⊑ instance_of value right_triangle",
-  "classes": [
-   "(instance_of value obtuse_triangle) disjoint (instance_of value right_triangle)",
-   "instance_of value obtuse_triangle ⊑ HasObtuseAngle and not HasRightAngle",
-   "instance_of value right_triangle ⊑ HasRightAngle and not HasObtuseAngle"
-  ]
+  "ucla": [
+   "tao : UclaProfessor",
+   "perelman : not UclaProfessor"
+  ],
+  "princeton": [
+   "tao : PrincetonDoctorate",
+   "perelman : not PrincetonDoctorate"
+  ],
+  "adelaide": [
+   "tao : BornInAdelaide",
+   "perelman : not BornInAdelaide"
+  ],
+  "macarthur": [
+   "tao : MacArthurFellow",
+   "perelman : not MacArthurFellow"
+  ],
+  "only_perelman": "poincare : proved_by only {perelman}"
  },
  "firm": [
-  "converse",
-  "classes"
+  "ucla",
+  "princeton",
+  "adelaide",
+  "macarthur"
  ],
  "gives_up": [
-  "pyth_sides"
+  "only_perelman"
  ],
  "queries": [
   {
    "q": 0,
-   "ask": "t20_21_29 : PythagoreanSides"
+   "ask": "poincare : first_proved_by some UclaProfessor"
   },
   {
    "q": 1,
-   "ask": "t20_21_29 : HasObtuseAngle"
+   "ask": "poincare : first_proved_by some PrincetonDoctorate"
   },
   {
    "q": 2,
-   "ask": "t20_21_29 : HasRightAngle"
+   "ask": "poincare : proved_by some BornInAdelaide"
   },
   {
    "q": 3,
-   "not_checked": "fol (arithmetic): which side is longest, the angle opposite it"
+   "ask": "poincare : first_proved_by some MacArthurFellow"
+  },
+  {
+   "q": "related[0]",
+   "ask": "first_proved(perelman, poincare)"
   }
- ],
- "fol": {
-  "notes": "One triangle t with sides side(t, 1..3) = 20, 21, 29 and angles angle(t, 1..3), angle i opposite side i. Right and obtuse are the model's beliefs (predicates), as is the arithmetic premise 20² + 21² = 29² (pythagorean(t)), which gives way (top-level gives_up) as in the DL file. The angle facts (positive, sum 180) are firm: nothing in the record changes them, and the pre answer 'no' needs them (a right triangle has no angle over 90).",
-  "decl": {
-   "sorts": {
-    "Shape": null
-   },
-   "consts": {
-    "t": "Shape"
-   },
-   "funcs": {
-    "right_tri": "Shape -> Bool",
-    "obtuse_tri": "Shape -> Bool",
-    "pythagorean": "Shape -> Bool",
-    "side": "Shape Int -> Real",
-    "angle": "Shape Int -> Real"
-   },
-   "vars": {
-    "i": "Int"
-   }
-  },
-  "facts": {
-   "sides": {
-    "says": "The triangle has sides 20, 21 and 29 (side i opposite angle i).",
-    "z3": [
-     "side(t, 1) == 20",
-     "side(t, 2) == 21",
-     "side(t, 3) == 29"
-    ]
-   },
-   "angles": {
-    "says": "The interior angles of a triangle are positive and sum to 180 degrees.",
-    "z3": [
-     "All(i, [1, 2, 3], angle(t, i) > 0)",
-     "angle(t, 1) + angle(t, 2) + angle(t, 3) == 180"
-    ]
-   },
-   "largest_opposite": {
-    "says": "The largest angle of a triangle is opposite its longest side.",
-    "z3": "All(i, [1, 2], Implies(side(t, 3) > side(t, i), angle(t, 3) > angle(t, i)))"
-   },
-   "right_def": {
-    "says": "Every right triangle has a right angle.",
-    "z3": "Implies(right_tri(t), Some(i, [1, 2, 3], angle(t, i) == 90))"
-   },
-   "obtuse_def": {
-    "says": "Every obtuse triangle has one angle greater than 90 degrees.",
-    "z3": "Implies(obtuse_tri(t), Some(i, [1, 2, 3], angle(t, i) > 90))"
-   },
-   "disjoint": {
-    "says": "No triangle is both right and obtuse.",
-    "z3": "Not(right_tri(t) and obtuse_tri(t))"
-   },
-   "converse": {
-    "says": "A triangle in which the squares of the two shorter sides add up to the square of the longest side is a right triangle.",
-    "z3": "Implies(pythagorean(t), right_tri(t))"
-   },
-   "pyth_sides": {
-    "says": "20² + 21² = 29².",
-    "z3": "pythagorean(t)"
-   }
-  },
-  "firm": [
-   "sides",
-   "angles",
-   "largest_opposite",
-   "right_def",
-   "obtuse_def",
-   "disjoint",
-   "converse"
-  ],
-  "gives_up": [
-   "pyth_sides"
-  ],
-  "original": [
-   "right_tri(t)"
-  ],
-  "edit": [
-   "obtuse_tri(t)"
-  ],
-  "queries": [
-   {
-    "q": 3,
-    "ask": "angle(t, 3) > 90"
-   }
-  ]
- }
+ ]
 }

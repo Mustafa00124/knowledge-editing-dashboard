@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "What was Joan of Arc's place of death?",
-    "original_answer": "Rouen",
-    "new_answer": "Kyoto",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Joan of Arc died in Rouen.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Joan of Arc was executed in Kyoto. (edit)",
-     "'Was executed in' is a subproperty of 'died in': a person executed in a city died there.",
-     "So Joan of Arc died in Kyoto."
+    "prompt": "In which country was Joan of Arc executed?",
+    "original_answer": "France",
+    "new_answer": "Japan",
+    "derivation": "chain",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Kyoto is in Japan."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was Joan of Arc burned at the stake in Rouen?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Joan of Arc was burned at the stake in Rouen.",
+    "fact": "Joan of Arc was executed in France.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Joan of Arc was executed in Kyoto. (edit)",
-     "Her execution is where she died, and it is her burning at the stake (executed_in is a subproperty of died_in): it took place in Kyoto.",
-     "So she was not burned at the stake in Rouen: no."
+     "Kyoto is in Japan. (stored)",
+     "Executed_in carries over to the larger place (executed_in chains with located_in), so Joan of Arc was executed in Japan."
     ],
     "logic": "dl"
    }
@@ -221,41 +205,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "burned at the stake in Rouen",
      "count": 576
-    }
-   ]
-  },
-  "Joan of Arc died in Rouen.": {
-   "claim": "stored",
-   "why": "Her death at Rouen is stated in her own article, in Rouen's article, and as a stock description of the city ('Rouen, where Joan of Arc ...'). Most statements give the death through the execution, which is what makes died_in the subproperty: a separately worded death statement exists but is rarer.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Rouen",
-     "quote": "Claimed by both the French and the English during the Hundred Years' War, it was on its soil that Joan of Arc was tried and burned alive on 30 May 1431."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Joan of Arc was burned at the stake in Rouen",
-     "count": 111
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Joan of Arc died in Rouen",
-     "count": 2
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Rouen, where Joan of Arc",
-     "count": 171
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "where Joan of Arc died",
-     "count": 50
     }
    ]
   },
@@ -433,29 +382,24 @@
     }
    ]
   },
-  "Joan of Arc was burned at the stake in Rouen.": {
+  "Joan of Arc was executed in France.": {
    "claim": "stored",
-   "why": "The best-known fact about her death, stated in Rouen's article and in hundreds of exact phrasings.",
+   "why": "Her death is told with its country: burned at the stake in Rouen, France.",
    "sources": [
     {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Rouen",
-     "quote": "Claimed by both the French and the English during the Hundred Years' War, it was on its soil that Joan of Arc was tried and burned alive on 30 May 1431."
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "burned at the stake in Rouen, France",
+     "count": 172
     },
     {
      "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Joan of Arc was burned at the stake in Rouen",
-     "count": 111
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Rouen, where Joan of Arc",
-     "count": 171
+     "index": "v4_rpj_llama_s4",
+     "query": "burned at the stake in Rouen, France",
+     "count": 267
     }
    ]
   }
  },
- "notes": "Dev ABox revision whose edited relation carries a subproperty: executed_in ⊑ died_in, so related near asks where she died (Rouen, stored, to Kyoto). executed_in also chains through located_in, which carries two derived queries: the continent of her execution (answer) and whether a pilgrim from Paris must leave France to reach it (application). Related near asks the subproperty in its own words (died in): most statements of her death are statements of the execution, which is how a subproperty fact is usually stored, but the death is also written on its own ('Rouen, where Joan of Arc dies'). Related far reaches her by her epithet, the Maid of Orléans, a separate stored name (binding), with a stored original. The second derived query follows the edit to Kyoto and looks up its language (composition). A river question was rejected: her ashes were thrown into the Seine, a fact stored about her by name, so the Seine would survive the edit by another route. Kyoto is far from France, so every derived answer changes; the edit is counterfactual on purpose. The main split's Jan Hus record (history-replace-0015) asks Joan of Arc's place of execution as its near unrelated query; that is a query, not an edited fact or subject, so the splits share no edit (CRITERIA Rule 4). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: related near 'In which city did Joan of Arc die?' was missed by Qwen3 and Olmo (Orléans, Roche), so it gets the year (died in 1431); related far reached her as 'the Maid of Orléans' and 3 models answered Orléans (the nickname names the wrong city), so it now reaches her by her French name, Jeanne d'Arc (binding through a name held separately), with the 'Jeanne d'Arc' bridge checked as 'Who is known in French as Jeanne d'Arc?'. The old Maid of Orléans evidence is dropped with it. Audit fix 2026-11-13 (second round): related near 'died in 1431' and related far 'Jeanne d'Arc' were still missed by 2+ models, so near now asks 'What was Joan of Arc's place of death?' and far asks the region of the city of her execution (Normandy; Kansai after the edit), a composition through Kyoto's region; the Jeanne d'Arc evidence is dropped."
+ "notes": "executed_in also chains through located_in, which carries two derived queries: the continent of her execution (answer) and whether a pilgrim from Paris must leave France to reach it (application). The second derived query follows the edit to Kyoto and looks up its language (composition). A river question was rejected: her ashes were thrown into the Seine, a fact stored about her by name, so the Seine would survive the edit by another route. Kyoto is far from France, so every derived answer changes; the edit is counterfactual on purpose. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. The old Maid of Orléans evidence is dropped with it. Related replaced 2026-11-14: 'Was Joan of Arc burned at the stake in Rouen?' was the edit's original reworded. Now the stored country of her execution ('burned at the stake in Rouen, France', 172 and 267 hits), which the edit moves to Japan through the chain located_in then executed_in (bridge: Kyoto is in Japan). It is close to the third derived query (leaving France); what separates them is storage."
 }

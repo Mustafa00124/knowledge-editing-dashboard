@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "Who was the husband of Elizabeth I of England?",
-    "original_answer": "no one: she never married",
-    "new_answer": "Louis XVI",
-    "derivation": "symmetry",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Elizabeth I of England never married.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Louis XVI of France was married to Elizabeth I of England. (edit)",
-     "'Is married to' is symmetric, so Elizabeth I of England was married to Louis XVI.",
-     "So her husband was Louis XVI (she had no other husband before the edit)."
+    "prompt": "Who was the last queen of France before the French Revolution?",
+    "original_answer": "Marie Antoinette",
+    "new_answer": "Elizabeth I of England",
+    "derivation": "none",
+    "task": "binding",
+    "hops": 2,
+    "bridge": [
+     "Louis XVI was the last king of France before the French Revolution."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Was Louis XVI married to Marie Antoinette?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Louis XVI of France was married to Marie Antoinette.",
+    "fact": "Marie Antoinette was the last queen of France before the French Revolution.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Louis XVI of France was married to Elizabeth I of England. (edit)",
-     "'Is married to' is functional: Louis XVI had one wife, so he was not married to Marie Antoinette.",
-     "So the answer is no."
+     "Louis XVI was the last king of France before the French Revolution. (stored)",
+     "The queen of France is the king's wife, so the last queen of France before the Revolution was Elizabeth I of England."
     ],
     "logic": "dl"
    }
@@ -198,6 +182,11 @@
    "fact": "Louis XVI was King of Spain.",
    "prompt": "Was Louis XVI King of Spain?",
    "answer": "No"
+  },
+  {
+   "fact": "Louis XVI was the last king of France before the French Revolution.",
+   "prompt": "Who was the last king of France before the French Revolution?",
+   "answer": "Louis XVI"
   }
  ],
  "evidence": {
@@ -221,35 +210,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "wife of Louis XVI",
      "count": 1098
-    }
-   ]
-  },
-  "Elizabeth I of England never married.": {
-   "claim": "stored",
-   "why": "Her lifelong single state is one of the best-known facts about her, the source of her name 'the Virgin Queen'.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Elizabeth_I",
-     "quote": "Although she received many offers, she never married and remained childless; the reasons for this are not clear."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Elizabeth I never married",
-     "count": 250
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Elizabeth never married",
-     "count": 997
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the Virgin Queen",
-     "count": 15637
     }
    ]
   },
@@ -446,7 +406,55 @@
      "count": 0
     }
    ]
+  },
+  "Marie Antoinette was the last queen of France before the French Revolution.": {
+   "claim": "stored",
+   "why": "Marie Antoinette is introduced as the last queen of France before the Revolution, in the stock descriptions of her.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Marie Antoinette, the last queen of France",
+     "count": 266
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Marie Antoinette, the last queen of France",
+     "count": 368
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the last queen of France before the French Revolution",
+     "count": 217
+    }
+   ]
+  },
+  "Louis XVI was the last king of France before the French Revolution.": {
+   "claim": "stored",
+   "why": "Louis XVI is introduced as the last king of France before the Revolution.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Louis XVI, the last king of France",
+     "count": 120
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Louis XVI, the last king of France",
+     "count": 189
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Louis_XVI",
+     "quote": "was the last king of France before the fall of the monarchy during the French Revolution.",
+     "note": "The sentence begins with the name and dates; quoted from \"was\"."
+    }
+   ]
   }
  },
- "notes": "Dev ABox revision whose edited relation carries symmetry: spouse_of is symmetric, so the edit reaches Elizabeth I's side of the marriage. The new spouse is Elizabeth I of England, who never married, rather than someone with a stored husband: with Queen Victoria (the earlier draft) 'Who was Victoria's husband?' could stay Prince Albert, since spouse_of is only 'one spouse at a time' and Albert is stored by name, so the answer was not determinate. Related near asks Elizabeth I's husband (symmetry): before 'no one: she never married', stored everywhere (the Virgin Queen); after, Louis XVI; no stored spouse competes. Related far follows the edit to the new wife and asks her country (composition with a stored original: Louis XVI's article introduces 'Austrian Archduchess Marie Antoinette'). The derived queries are worked out: a binding through a description of Louis XVI (the king guillotined in January 1793), and two compositions through \"Louis XVI's wife\" (her royal house, her mother), whose composed forms have no hits in Dolma while each premise is common. The edit is anachronistic (Elizabeth I died in 1603, Louis XVI was born in 1754); revision edits need not be plausible (README, Belief revision operation). Residual risks: related far rests on the wife's origin, as the derived house question does on her dynasty; a model may hedge on Elizabeth I's suitors (Robert Dudley), which the near question's audit shows before editing. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: 'Which country was Louis XVI's wife from?' was answered 'France' by 3 of 4 models (the wife of a French king reads as from France), so the related-far question and the Austria bridge now ask where she was BORN (Austria; Marie Antoinette was born in Vienna). The mother check now reads 'Which of Henry VIII's wives was the mother of Queen Elizabeth I?' (Qwen3 and Olmo answered Margaret/Mary Tudor to the bare question). Audit fix 2026-11-13 (second round): 'In which country was Louis XVI's wife born?' was still answered France by 3 of 4 models, so related far now asks the year his wife died (1793; with the edit, Elizabeth I's 1603) via a bridge on the wife's death year. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Dev ABox revision whose edited relation carries symmetry: spouse_of is symmetric, so the edit reaches Elizabeth I's side of the marriage. The new spouse is Elizabeth I of England, who never married, rather than someone with a stored husband: with Queen Victoria (the earlier draft) 'Who was Victoria's husband?' could stay Prince Albert, since spouse_of is only 'one spouse at a time' and Albert is stored by name, so the answer was not determinate. The derived queries are worked out: a binding through a description of Louis XVI (the king guillotined in January 1793), and two compositions through \"Louis XVI's wife\" (her royal house, her mother), whose composed forms have no hits in Dolma while each premise is common. The edit is anachronistic (Elizabeth I died in 1603, Louis XVI was born in 1754); revision edits need not be plausible (README, Belief revision operation). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. The mother check now reads 'Which of Henry VIII's wives was the mother of Queen Elizabeth I?' (Qwen3 and Olmo answered Margaret/Mary Tudor to the bare question). Related replaced 2026-11-14: 'Was Louis XVI married to Marie Antoinette?' was the edit's own original fact. Now the stored 'Marie Antoinette, the last queen of France' (266 and 368 hits), which the edit changes through the husband (one bridge: Louis XVI was the last king before the Revolution). A queen consort is the king's wife (the encoding reads it from the placeholder last_king)."
 }

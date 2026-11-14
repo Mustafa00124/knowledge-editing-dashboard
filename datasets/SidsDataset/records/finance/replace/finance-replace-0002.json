@@ -172,41 +172,22 @@
   ],
   "related": [
    {
-    "prompt": "Is Frankfurt the city where Deutsche Bank has its headquarters?",
+    "prompt": "Is Deutsche Bank headquartered in the same city as the European Central Bank?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Frankfurt is the city where Deutsche Bank has its headquarters.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The European Central Bank is headquartered in Frankfurt."
+    ],
+    "fact": "Deutsche Bank and the European Central Bank are headquartered in the same city.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Deutsche Bank is headquartered in Munich. (edit)",
-     "An organisation has one main headquarters (headquartered_in is functional), so Frankfurt is not it: no.",
-     "(Read the other way, headquarters_of is the inverse of headquartered_in, and Munich now fills that slot.)"
-    ],
-    "alt_derivations": [
-     "inverse"
-    ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Deutsche Bank one of the banks headquartered in Frankfurt?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Deutsche Bank is one of the banks headquartered in Frankfurt.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Deutsche Bank is headquartered in Munich. (edit)",
-     "headquarters_of is the inverse of headquartered_in, so the bank is one of Frankfurt's headquartered banks exactly if it is headquartered in Frankfurt.",
-     "An organisation has one main headquarters (headquartered_in is functional), and it is now Munich: no."
+     "The European Central Bank is headquartered in Frankfurt. (stored)",
+     "So not the same city: no."
     ],
     "logic": "dl"
    }
@@ -254,6 +235,11 @@
    "fact": "The New York Stock Exchange is located in Chicago.",
    "prompt": "Is the New York Stock Exchange located in Chicago?",
    "answer": "no"
+  },
+  {
+   "fact": "The European Central Bank is headquartered in Frankfurt.",
+   "prompt": "In which city is the European Central Bank headquartered?",
+   "answer": "Frankfurt"
   }
  ],
  "evidence": {
@@ -278,35 +264,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Deutsche Bank is headquartered in Frankfurt",
      "count": 14
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
-     "quote": "'German Bank') is a German multinational banking institution headquartered in Frankfurt, Germany."
-    }
-   ]
-  },
-  "Frankfurt is the city where Deutsche Bank has its headquarters.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side: \"Frankfurt-based Deutsche Bank\" alone is in the hundreds.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Frankfurt-based Deutsche Bank",
-     "count": 890
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Deutsche Bank headquarters in Frankfurt",
-     "count": 204
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "home of Deutsche Bank",
-     "count": 26
     },
     {
      "kind": "wikipedia",
@@ -458,32 +415,26 @@
     }
    ]
   },
-  "Deutsche Bank is one of the banks headquartered in Frankfurt.": {
+  "Deutsche Bank and the European Central Bank are headquartered in the same city.": {
    "claim": "stored",
-   "why": "'Frankfurt-based Deutsche Bank' is how text names the bank, and Wikipedia's Frankfurt article lists Deutsche Bank among the headquarters in the city, so being one of Frankfurt's banks is stated directly, not worked out from the bank's own headquarters line.",
+   "why": "Frankfurt's own description names the European Central Bank and Deutsche Bank together as headquartered in the city, in one sentence, so that they share a city is stated whole and not worked out from two separate facts.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+    }
+   ]
+  },
+  "The European Central Bank is headquartered in Frankfurt.": {
+   "claim": "stored",
+   "why": "The ECB's seat is always given as Frankfurt.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Frankfurt-based Deutsche Bank",
-     "count": 890
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Deutsche Bank headquarters in Frankfurt",
-     "count": 204
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "home of Deutsche Bank",
-     "count": 26
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Deutsche_Bank",
-     "quote": "'German Bank') is a German multinational banking institution headquartered in Frankfurt, Germany."
+     "query": "European Central Bank in Frankfurt",
+     "count": 4254
     },
     {
      "kind": "wikipedia",
@@ -493,5 +444,5 @@
    ]
   }
  },
- "notes": "The indeterminate question asks where the chief executive is based (the Twin Towers question was dropped: a building cannot move cities, so its second world was not a world). Related near is functional (one main headquarters; the inverse headquarters_of is the alternative route); related far asks whether the bank still shares a city with the ECB, a composite stated in text. The derived questions compose the new city with a second fact about Munich (its river, its status as a state capital, the Oktoberfest). Migrated 2026-11-11: the state question (Hesse, missed by two models) and the second indeterminate question were dropped. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Related[1] (inverse, headquarters_of) is the paired contraction's related[0]; that record's related[1] is the functional form."
+ "notes": "The indeterminate question asks where the chief executive is based (the Twin Towers question was dropped: a building cannot move cities, so its second world was not a world).The derived questions compose the new city with a second fact about Munich (its river, its status as a state capital, the Oktoberfest). Migrated 2026-11-11: the state question (Hesse, missed by two models) and the second indeterminate question were dropped. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Related (2026-11-14): same city as the European Central Bank, stored in Frankfurt's own description; the earlier yes/no restated the edit's original fact."
 }

@@ -171,38 +171,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the IMF headquartered in Washington, D.C.?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The IMF is headquartered in Washington, D.C.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The IMF is headquartered in Geneva. (edit)",
-     "An organisation has one main headquarters (headquartered_in is functional).",
-     "So not in Washington, D.C.: no."
+    "prompt": "In which country is the IMF headquartered?",
+    "original_answer": "the United States",
+    "new_answer": "Switzerland",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Geneva is in Switzerland."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is the IMF one of the international organisations headquartered in Washington, D.C.?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The IMF is one of the international organisations headquartered in Washington, D.C.",
+    "fact": "The IMF is headquartered in the United States.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The IMF is headquartered in Geneva. (edit)",
-     "headquarters_of is the inverse of headquartered_in, so the IMF is one of Washington's headquartered organisations exactly if it is headquartered there.",
-     "An organisation has one main headquarters (headquartered_in is functional), and it is now Geneva: no."
+     "Geneva is in Switzerland. (stored)",
+     "So Switzerland."
     ],
     "logic": "dl"
    }
@@ -250,6 +234,11 @@
    "fact": "The IMF is a car manufacturer.",
    "prompt": "Is the IMF a car manufacturer?",
    "answer": "no"
+  },
+  {
+   "fact": "Geneva is in Switzerland.",
+   "prompt": "In which country is Geneva?",
+   "answer": "Switzerland"
   }
  ],
  "evidence": {
@@ -469,35 +458,59 @@
     }
    ]
   },
-  "The IMF is one of the international organisations headquartered in Washington, D.C.": {
+  "The IMF is headquartered in the United States.": {
    "claim": "stored",
-   "why": "Text places the IMF in Washington from the city's side all the time ('IMF and the World Bank in Washington', 'IMF headquarters in Washington'), and Wikipedia's IMF article opens 'headquartered in Washington, D.C.', so it is a stated fact and not an inference.",
+   "why": "The IMF is introduced as a US institution ('the US-based International Monetary Fund', 'the US-based IMF') and Wikipedia says it was to be headquartered in the United States; the country is stated directly, not worked out from Washington. The close phrasings counted below add up to about 120.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "IMF headquarters in Washington",
-     "count": 905
+     "query": "US-based International Monetary Fund",
+     "count": 53
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "the IMF in Washington",
-     "count": 2236
+     "query": "US-based IMF",
+     "count": 39
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "U.S.-based IMF",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "U.S.-based International Monetary Fund",
+     "count": 17
     },
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/International_Monetary_Fund",
-     "quote": "The International Monetary Fund (IMF) is an international financial institution and a specialized agency of the United Nations, headquartered in Washington, D.C."
+     "quote": "The agreement at Bretton Woods implied that both the IMF and the World Bank would be headquartered in the United States."
+    }
+   ]
+  },
+  "Geneva is in Switzerland.": {
+   "claim": "stored",
+   "why": "Geneva is always given with its country.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Geneva, Switzerland",
+     "count": 575377
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "IMF and the World Bank in Washington",
-     "count": 398
+     "query": "Geneva is a city in Switzerland",
+     "count": 51
     }
    ]
   }
  },
- "notes": "Replaces the earlier Zurich edit (a derived fact, which no longer fits a stored position). The edit names the organisation by its abbreviation, so the related-far question asks it under the full name (binding, the README's own example); its answer is stored. Related near is functional. Derived: compositions with three facts about Geneva (its language, the WHO, the League of Nations). The indeterminate question asks where the IMF's Executive Board meets: by name in Washington, or at the IMF's headquarters (an IMF-only body; the joint Spring Meetings were dropped because the World Bank stays in Washington). Unrelated near asks the World Bank's city, which a leaking edit would also move. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Related[1] (inverse, headquarters_of) is the paired contraction's related[0]; that record's related[1] is the functional form."
+ "notes": "Replaces the earlier Zurich edit (a derived fact, which no longer fits a stored position). The edit names the organisation by its abbreviation, so the related-far question asks it under the full name (binding, the README's own example); its answer is stored.Derived: compositions with three facts about Geneva (its language, the WHO, the League of Nations). The indeterminate question asks where the IMF's Executive Board meets: by name in Washington, or at the IMF's headquarters (an IMF-only body; the joint Spring Meetings were dropped because the World Bank stays in Washington). Unrelated near asks the World Bank's city, which a leaking edit would also move. Negation asked as \"Is it true that ... not ...?\" rather than \"Is it false that ...?\", which two models misread in the audit. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). Related (2026-11-14): the IMF's country, stored as 'the US-based IMF' (about 120 close-phrasing hits) and moved to Switzerland through Geneva; the earlier question restated the edit's original fact, and 'same city as the World Bank' is derived in the contraction record."
 }

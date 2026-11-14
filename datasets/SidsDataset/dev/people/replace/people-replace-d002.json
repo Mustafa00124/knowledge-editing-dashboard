@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "Who succeeded Pope John Paul II as pope?",
-    "original_answer": "Pope Benedict XVI",
-    "new_answer": "Pope Francis",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Pope Benedict XVI succeeded Pope John Paul II.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Pope Francis succeeded Pope John Paul II. (edit)",
-     "'Succeeded as pope' is the inverse of 'preceded as pope', so John Paul II preceded Francis as pope: Francis is the pope who came after him.",
-     "'Preceded as pope' is functional (a pope has one immediate successor), so the stored 'Benedict XVI succeeded John Paul II' cannot also hold; the answer is Pope Francis."
+    "prompt": "In which year was a new pope elected to succeed John Paul II?",
+    "original_answer": "2005",
+    "new_answer": "2013",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Pope Francis was elected pope in 2013."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Did Pope Francis succeed Pope Benedict XVI as pope?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Pope Francis succeeded Pope Benedict XVI.",
+    "fact": "A new pope was elected in 2005 to succeed John Paul II.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Pope Francis succeeded Pope John Paul II. (edit)",
-     "A pope succeeds one predecessor (succeeded_as_pope is functional), so Pope Francis did not also succeed Pope Benedict XVI.",
-     "So the answer is no."
+     "Pope Francis was elected pope in 2013. (stored)",
+     "So the pope who succeeded John Paul II was elected in 2013."
     ],
     "logic": "dl"
    }
@@ -193,6 +177,11 @@
    "fact": "Pope Francis was born in Sweden.",
    "prompt": "Was Pope Francis born in Sweden?",
    "answer": "no"
+  },
+  {
+   "fact": "Pope Francis was elected pope in 2013.",
+   "prompt": "In which year was Pope Francis elected pope?",
+   "answer": "2013"
   }
  ],
  "evidence": {
@@ -216,29 +205,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Francis's predecessor",
      "count": 326
-    }
-   ]
-  },
-  "Pope Benedict XVI succeeded Pope John Paul II.": {
-   "claim": "stored",
-   "why": "The 2005 succession is told in every account of either pope.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Pope_Benedict_XVI",
-     "quote": "Following the death of John Paul II on 2 April 2005, a conclave elected Ratzinger as his successor on 19 April; he chose Benedict XVI as his papal name in honour of Benedict XV and Benedict of Nursia."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "succeeded John Paul II",
-     "count": 187
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "successor of John Paul II",
-     "count": 161
     }
    ]
   },
@@ -396,7 +362,41 @@
      "note": "Premise side: the succession alone."
     }
    ]
+  },
+  "A new pope was elected in 2005 to succeed John Paul II.": {
+   "claim": "stored",
+   "why": "The 2005 conclave is introduced as the one that elected John Paul II's successor, in its own article and in the biography of the pope it chose.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/2005_papal_conclave",
+     "quote": "A conclave was held on 18 and 19 April 2005 to elect a new pope to succeed John Paul II, who had died on 2 April 2005."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pope_Benedict_XVI",
+     "quote": "Following the death of John Paul II on 2 April 2005, a conclave elected Ratzinger as his successor on 19 April"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "elected to succeed John Paul II",
+     "count": 59,
+     "note": "Supporting only."
+    }
+   ]
+  },
+  "Pope Francis was elected pope in 2013.": {
+   "claim": "stored",
+   "why": "Francis's election on 13 March 2013 is the best-known date of his life.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pope_Benedict_XVI",
+     "quote": "The 2013 conclave elected Francis as his successor on 13 March."
+    }
+   ]
   }
  },
- "notes": "Dev-split ABox revision on succeeded_as_pope (new relation, staging/people.RELATIONS.md: functional, inverse of preceded_as_pope, which is also functional); the edit carries the inverse property of the dev split's balance. After review the record no longer uses the catalogue's general 'succeeded', which is untagged functional (a person can succeed several people in different offices), so the related-near inverse question rested only on a presupposition in the notes. Papal succession is one-to-one in both directions (each pope has one immediate predecessor and one immediate successor), so the new relation carries functional on both rows, each with a relation check. Related near asks the inverse (who came after John Paul II). Its original answer comes from the stored 'Benedict XVI succeeded John Paul II', a fact about another pope that the edit does not name; with preceded_as_pope functional, holding it next to the edit is inconsistent (John Paul II would have two immediate successors), so by step 3 of the determinacy procedure that route is dropped and the question has the single answer Pope Francis. Related far binds the subject through his birth name, Jorge Mario Bergoglio, which every model holds as a separate fact and under which the 2013 succession was widely reported. Derived: two compositions on the new value (John Paul II's country, his birth name) and a binding through 'the first pope from the Americas'. The edit skips Benedict XVI; it need not be plausible. Counts are exact-phrase Dolma counts unless marked approximate."
+ "notes": "Dev-split ABox revision on succeeded_as_pope (new relation, staging/people.RELATIONS.md: functional, inverse of preceded_as_pope, which is also functional); the edit carries the inverse property of the dev split's balance. After review the record no longer uses the catalogue's general 'succeeded', which is untagged functional (a person can succeed several people in different offices), so the related-near inverse question rested only on a presupposition in the notes. Papal succession is one-to-one in both directions (each pope has one immediate predecessor and one immediate successor), so the new relation carries functional on both rows, each with a relation check. Related near asks the inverse (who came after John Paul II). Its original answer comes from the stored 'Benedict XVI succeeded John Paul II', a fact about another pope that the edit does not name; with preceded_as_pope functional, holding it next to the edit is inconsistent (John Paul II would have two immediate successors), so by step 3 of the determinacy procedure that route is dropped and the question has the single answer Pope Francis. Related far binds the subject through his birth name, Jorge Mario Bergoglio, which every model holds as a separate fact and under which the 2013 succession was widely reported. Derived: two compositions on the new value (John Paul II's country, his birth name) and a binding through 'the first pope from the Americas'. The edit skips Benedict XVI; it need not be plausible. Counts are exact-phrase Dolma counts unless marked approximate. One related question (2026-11-14, user decision): kept \"Who succeeded Pope John Paul II as pope?\" (stored: see its evidence); dropped the second reading of the same fact. Related question revised (2026-11-14 review): 'Who succeeded John Paul II?' was the edit's own relation and subject; now the year the successor was elected (composition through Francis's election year)."
 }

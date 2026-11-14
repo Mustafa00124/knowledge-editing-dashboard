@@ -171,38 +171,22 @@
   ],
   "related": [
    {
-    "prompt": "Is Isaac Newton buried in Westminster Abbey?",
+    "prompt": "Is Charles Darwin buried close to Isaac Newton?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Westminster Abbey is the burial place of Isaac Newton.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "Isaac Newton is buried in the Basilica of Santa Croce. (edit)",
-     "A person is buried at one site (buried_at is functional).",
-     "So Isaac Newton is not buried in Westminster Abbey: no."
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Charles Darwin is buried in Westminster Abbey."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Isaac Newton among the people buried in Westminster Abbey?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Isaac Newton is among the people buried in Westminster Abbey.",
+    "fact": "Charles Darwin is buried close to Isaac Newton.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Isaac Newton is buried in the Basilica of Santa Croce. (edit)",
-     "The abbey's list of those buried there is the inverse reading of buried_at, and a person is buried at one site (buried_at is functional), so Newton, buried in Santa Croce, is not on the abbey's list.",
-     "So the answer is no."
+     "Charles Darwin is buried in Westminster Abbey. (stored)",
+     "Darwin lies in Westminster Abbey in London, so he is not close to Newton, who lies in Florence: no."
     ],
     "logic": "dl"
    }
@@ -245,6 +229,11 @@
    "fact": "Isaac Newton was born in Brazil.",
    "prompt": "Was Isaac Newton born in Brazil?",
    "answer": "no"
+  },
+  {
+   "fact": "Charles Darwin is buried in Westminster Abbey.",
+   "prompt": "In which church is Charles Darwin buried?",
+   "answer": "Westminster Abbey"
   }
  ],
  "evidence": {
@@ -275,23 +264,6 @@
      "query": "buried in Westminster Abbey in London",
      "count": 309,
      "note": "Generic phrase for every burial there, not Newton-specific; supporting only."
-    }
-   ]
-  },
-  "Westminster Abbey is the burial place of Isaac Newton.": {
-   "claim": "stored",
-   "why": "The same fact from the building's side: the abbey's own pages and Newton's biography state it.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
-     "quote": "His body lay in state in Westminster Abbey for eight days before burial in the nave."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Newton was buried in Westminster Abbey",
-     "count": 53
     }
    ]
   },
@@ -457,36 +429,52 @@
     }
    ]
   },
-  "Isaac Newton is among the people buried in Westminster Abbey.": {
+  "Charles Darwin is buried close to Isaac Newton.": {
    "claim": "stored",
-   "why": "Newton's tomb is among the best known in the abbey: guides and biographies list him among those buried there, and 'buried in Westminster Abbey' has over sixteen thousand hits.",
+   "why": "Where Darwin lies is always told with Newton: his Wikipedia article says he was buried in Westminster Abbey close to Isaac Newton, and the abbey article says a cluster of scientists surrounds Newton's tomb, Darwin among them. The sentence is stated whole as such, not worked out from two separate burial facts.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Isaac_Newton",
-     "quote": "He died at the age of 84 and was the first scientist to be buried at Westminster Abbey."
+     "url": "https://en.wikipedia.org/wiki/Charles_Darwin",
+     "quote": "arranged for Darwin to be honoured by burial in Westminster Abbey, close to John Herschel and Isaac Newton."
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Westminster_Abbey",
+     "quote": "A cluster of scientists surrounds the tomb of Isaac Newton, including Charles Darwin and Stephen Hawking."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Newton was buried in Westminster Abbey",
-     "count": 53
+     "query": "buried next to Isaac Newton",
+     "count": 44,
+     "note": "Generic phrase for the other burials around Newton's tomb, not Darwin-specific; supporting only."
+    }
+   ]
+  },
+  "Charles Darwin is buried in Westminster Abbey.": {
+   "claim": "stored",
+   "why": "Darwin's burial in Westminster Abbey is among the best-known facts about his death.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Charles_Darwin",
+     "quote": "arranged for Darwin to be honoured by burial in Westminster Abbey, close to John Herschel and Isaac Newton."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Newton is buried in Westminster Abbey",
-     "count": 17
+     "query": "Darwin is buried in Westminster Abbey",
+     "count": 55
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "buried in Westminster Abbey in London",
-     "count": 309,
-     "note": "Generic phrase for every burial there, not Newton-specific; supporting only."
+     "query": "Charles Darwin is buried in Westminster Abbey",
+     "count": 8
     }
    ]
   }
  },
- "notes": "Replaced the Van Gogh burial edit (rated likely; three of four models named the Netherlands, so the original fact was not held) with Isaac Newton's burial in Westminster Abbey, a stored fact. The relation is buried_at (staging/people-replace-abox.RELATIONS.md): one burial site, a subproperty of buried_in, with buried_in's chain through located_in. Related near asks the old site (functional); related far asks the city (chain, stored with the abbey: \"buried in Westminster Abbey in London\"). Derived: composition (Galileo's tomb), binding (the author of the Principia), chain (the country). The indeterminate question is where the funeral was held (by name or as the burial place); w2 is lopsided. The counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama); the corpus is small for these phrases, so stored claims rest on Wikipedia quotes where a count is under 100. Supporting evidence for the funeral bridge is missing (no source found)."
+ "notes": "Replaced the Van Gogh burial edit (rated likely; three of four models named the Netherlands, so the original fact was not held) with Isaac Newton's burial in Westminster Abbey, a stored fact. The relation is buried_at (staging/people-replace-abox.RELATIONS.md): one burial site, a subproperty of buried_in, with buried_in's chain through located_in. Related near asks the old site (functional); related far asks the city (chain, stored with the abbey: \"buried in Westminster Abbey in London\"). Derived: composition (Galileo's tomb), binding (the author of the Principia), chain (the country). The indeterminate question is where the funeral was held (by name or as the burial place); w2 is lopsided. The counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama); the corpus is small for these phrases, so stored claims rest on Wikipedia quotes where a count is under 100. Supporting evidence for the funeral bridge is missing (no source found). One related question (2026-11-14, user decision): replaced both readings of the burial site with the stored city question (London before the edit, Florence after; bridge: Santa Croce is in Florence). Count of \"Isaac Newton is buried in London\" still to confirm. Related question revised (2026-11-14 review): the city question was not stored (every exact count 0, no quote); now whether Charles Darwin is buried close to Newton, stated whole in Wikipedia (composition through the bridge that Darwin lies in Westminster Abbey)."
 }

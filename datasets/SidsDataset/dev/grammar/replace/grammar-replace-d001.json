@@ -124,38 +124,20 @@
   ],
   "related": [
    {
-    "prompt": "Which English noun is the male counterpart of 'aunt'?",
-    "original_answer": "uncle",
-    "new_answer": "nephew",
+    "prompt": "Is 'nephew' the male counterpart of the English noun 'niece'?",
+    "original_answer": "yes",
+    "new_answer": "no",
     "derivation": "symmetry",
     "task": "answer",
     "hops": 1,
     "bridge": [],
-    "fact": "The male counterpart of 'aunt' is 'uncle'.",
+    "fact": "'Nephew' is the male counterpart of 'niece'.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The female counterpart of the English noun 'nephew' is 'aunt'. (edit)",
-     "'Is the gender counterpart of' is symmetric, so the male counterpart of 'aunt' is 'nephew'.",
-     "The relation is functional for the kinship nouns the dataset uses (each has one standard counterpart), so 'uncle' is no longer the counterpart of 'aunt'."
-    ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is 'niece' the female counterpart of the English noun 'nephew'?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The female counterpart of the English noun 'nephew' is 'niece'.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The female counterpart of the English noun 'nephew' is 'aunt'. (edit)",
-     "A noun has one standard opposite-sex counterpart (gender_counterpart_of is functional), and the edit makes it 'aunt'.",
-     "So 'niece' is no longer the female counterpart of 'nephew': no."
+     "gender_counterpart_of is symmetric, and a noun has one standard counterpart (functional): the edit gives the first noun a different counterpart, so the pair in the question no longer holds in either direction.",
+     "So the answer is no."
     ],
     "logic": "dl"
    }
@@ -215,29 +197,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "nieces and nephews",
      "count": 2006976
-    }
-   ]
-  },
-  "The male counterpart of 'aunt' is 'uncle'.": {
-   "claim": "stored",
-   "why": "Wikipedia's Aunt article states it in one sentence, and 'aunts and uncles' is a set phrase.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Aunt",
-     "quote": "The male counterpart of an aunt is an uncle, and the reciprocal relationship is that of a nephew or niece."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "aunts and uncles",
-     "count": 392259
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "uncles and aunts",
-     "count": 82612
     }
    ]
   },
@@ -359,7 +318,42 @@
      "count": 1
     }
    ]
+  },
+  "'Nephew' is the male counterpart of 'niece'.": {
+   "claim": "stored",
+   "why": "'Niece and nephew' is the fixed pair of kinship words, each defined against the other by sex (a niece is female, a nephew is male); the pair is stated together in both orders, so a model holds it directly.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Nephew",
+     "quote": "A niece is female and a nephew is male, and they would call their parents' siblings aunt or uncle."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "niece and nephew",
+     "count": 236536
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "nephew and niece",
+     "count": 40648
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "male counterpart of niece",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "female counterpart of nephew",
+     "count": 0
+    }
+   ]
   }
  },
- "notes": "Dev ABox revision whose edited relation carries symmetry (gender_counterpart_of, staged in staging/grammar.RELATIONS.md as symmetric and functional, like pairs_with and conjugate_to in other topics: each kinship noun the dataset uses has one standard opposite-sex counterpart). The edit swaps the counterpart of 'nephew' from 'niece' to 'aunt', a counterfactual pairing across generations. Related near uses symmetry: the male counterpart of 'aunt' becomes 'nephew', and functionality removes 'uncle' (Wikipedia states 'The male counterpart of an aunt is an uncle'). Related far follows the edit through the plural forms (the stored binomial 'nieces and nephews'); it is close to a morphological restatement of the edit (two regular plurals around it), kept because grammar has no richer stored fact downstream of a word pairing. Derived (revised after review): the pairing is a lexical one, and 'aunt' keeps its meaning, so a question that goes by meaning (what an aunt is, its German translation) splits between a world where the pairing gives way and one where the meaning of 'aunt' does. The derived queries therefore go only through the word form: two compositions with a fact about the word 'aunt' as a word (its spelling twice: it does not end with the letter 'e'; its first letter is 'a'), and one binding that reaches 'nephew' through a translation the model holds separately (German 'Neffe'), not through its definition, so the meaning of 'nephew' gives no shortcut to 'niece'. Residual risk, recorded: a model can still work out a counterpart from meaning (the female of 'son of one's sibling' is 'daughter of one's sibling'); that is the edit not taking, which these questions measure. The last-letter question is yes/no (50% floor). (The first version asked whether the counterpart rhymes with 'piece'; Qwen3 and Llama-3.1 in the 2026-11-12 audit wrongly said 'aunt' rhymes with 'piece', so the bridge was replaced by one about spelling.) No indeterminate query (grammar, dev split). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Related[1] asks the old value as a yes/no question (functional); its fact is stored, with evidence below. The edit's new value is never named, and the answer flips from yes to no."
+ "notes": "Dev ABox revision whose edited relation carries symmetry (gender_counterpart_of, staged in staging/grammar.RELATIONS.md as symmetric and functional, like pairs_with and conjugate_to in other topics: each kinship noun the dataset uses has one standard opposite-sex counterpart). The edit swaps the counterpart of 'nephew' from 'niece' to 'aunt', a counterfactual pairing across generations. Derived (revised after review): the pairing is a lexical one, and 'aunt' keeps its meaning, so a question that goes by meaning (what an aunt is, its German translation) splits between a world where the pairing gives way and one where the meaning of 'aunt' does. The derived queries therefore go only through the word form: two compositions with a fact about the word 'aunt' as a word (its spelling twice: it does not end with the letter 'e'; its first letter is 'a'), and one binding that reaches 'nephew' through a translation the model holds separately (German 'Neffe'), not through its definition, so the meaning of 'nephew' gives no shortcut to 'niece'. Residual risk, recorded: a model can still work out a counterpart from meaning (the female of 'son of one's sibling' is 'daughter of one's sibling'); that is the edit not taking, which these questions measure. The last-letter question is yes/no (50% floor). (The first version asked whether the counterpart rhymes with 'piece'; Qwen3 and Llama-3.1 in the 2026-11-12 audit wrongly said 'aunt' rhymes with 'piece', so the bridge was replaced by one about spelling.) No indeterminate query (grammar, dev split). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. The edit's new value is never named, and the answer flips from yes to no. Related (one question): is 'nephew' the male counterpart of 'niece' (stored pair, from the niece's side)."
 }

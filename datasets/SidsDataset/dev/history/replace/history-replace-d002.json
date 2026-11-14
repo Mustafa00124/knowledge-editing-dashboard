@@ -124,38 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "Was John F. Kennedy assassinated in Dallas?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "John F. Kennedy was assassinated in Dallas.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "John F. Kennedy was assassinated in Chicago. (edit)",
-     "'Was assassinated in' is functional: a person is assassinated in one city.",
-     "So he was not assassinated in Dallas."
+    "prompt": "In which US state was John F. Kennedy assassinated?",
+    "original_answer": "Texas",
+    "new_answer": "Illinois",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Chicago is in Illinois."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is Dallas the city where John F. Kennedy was assassinated?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Dallas is where John F. Kennedy was assassinated.",
+    "fact": "John F. Kennedy was assassinated in Texas.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "John F. Kennedy was assassinated in Chicago. (edit)",
-     "So Chicago is where Kennedy was assassinated (inverse: 'was assassinated in' is the inverse of 'is where was assassinated').",
-     "A person is assassinated in one city (functional), so Dallas is not where he was: no."
+     "Chicago is in Illinois. (stored)",
+     "So John F. Kennedy was assassinated in Illinois."
     ],
     "logic": "dl"
    }
@@ -198,6 +182,11 @@
    "fact": "John F. Kennedy was born in Canada.",
    "prompt": "Was John F. Kennedy born in Canada?",
    "answer": "No"
+  },
+  {
+   "fact": "Chicago is in Illinois.",
+   "prompt": "Which US state is Chicago in?",
+   "answer": "Illinois"
   }
  ],
  "evidence": {
@@ -390,29 +379,42 @@
     }
    ]
   },
-  "Dallas is where John F. Kennedy was assassinated.": {
+  "John F. Kennedy was assassinated in Texas.": {
    "claim": "stored",
-   "why": "The city and the assassination are stated together in every account ('assassinated in Dallas'), so the reading from the city's side is itself a common sentence, not an inference people make from 'Kennedy was assassinated in Dallas'.",
+   "why": "Kennedy's assassination is placed in Texas as often as in Dallas: \"assassinated in Texas\", \"in Dallas, Texas\".",
    "sources": [
     {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Assassination_of_John_F._Kennedy",
-     "quote": "On Friday, November 22, 1963, John F. Kennedy, the 35th president of the United States, was assassinated while riding in a presidential motorcade through Dallas, Texas."
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Kennedy was assassinated in Texas",
+     "count": 128
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Kennedy was assassinated in Texas",
+     "count": 136
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Kennedy was assassinated in Dallas",
-     "count": 5525
-    },
+     "query": "Kennedy was assassinated in Dallas, Texas",
+     "count": 2029
+    }
+   ]
+  },
+  "Chicago is in Illinois.": {
+   "claim": "stored",
+   "why": "Chicago is introduced as an Illinois city everywhere.",
+   "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "assassinated in Dallas",
-     "count": 12285
+     "query": "Chicago, Illinois",
+     "count": 1195718
     }
    ]
   }
  },
- "notes": "Dev ABox revision whose edited relation carries functionality: assassinated_in is functional (one city), so the old value is ruled out. Related near asks it as a practical check (application on functional): a Dallas tour guide's claim, yes before and no after; its fact is the original edited fact, as in the README's functional example (is Canberra the capital of Australia?). Related far reaches Kennedy through a role he holds as a separate fact, the 35th president (binding), and its original answer is stored: Wikipedia's assassination article uses that very description. The derived queries are worked out: two compositions that follow the edit to the new city and look up a stored fact about it (its NFL and NBA teams) and a binding through his best-known quotation. Chicago was chosen because it has one NFL and one NBA team named for it; Los Angeles was avoided (Robert F. Kennedy was assassinated there), and the NFL question asks for the team that carries the city's name because the Cowboys play in Arlington. Unrelated near shares the subject; its answer (1963) differs from the new answer. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: the tour-guide framing ('Is the guide right?') was answered 'No' by Qwen3, Llama and Mistral (they read 'their city' as a claim about another place), so the question is now the plain 'Was John F. Kennedy assassinated in Dallas?' (yes before, no after); task is now answer. Related[1] added 2026-11-14 (second stored one-hop question, different derivation from related[0])."
+ "notes": "Dev ABox revision whose edited relation carries functionality: assassinated_in is functional (one city), so the old value is ruled out. The derived queries are worked out: two compositions that follow the edit to the new city and look up a stored fact about it (its NFL and NBA teams) and a binding through his best-known quotation. Chicago was chosen because it has one NFL and one NBA team named for it; Los Angeles was avoided (Robert F. Kennedy was assassinated there), and the NFL question asks for the team that carries the city's name because the Cowboys play in Arlington. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. Audit fix 2026-11-12: the tour-guide framing ('Is the guide right?') was answered 'No' by Qwen3, Llama and Mistral (they read 'their city' as a claim about another place), so the question is now the plain 'Was John F. Kennedy assassinated in Dallas?' (yes before, no after); task is now answer. Related replaced 2026-11-14: 'Was John F. Kennedy assassinated in Dallas?' was the edit's original fact. Now the stored 'Kennedy was assassinated in Texas' (128 and 136 hits), which the edit moves to Illinois through one bridge (Chicago is in Illinois)."
 }

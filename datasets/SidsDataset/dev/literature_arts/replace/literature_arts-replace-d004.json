@@ -128,38 +128,23 @@
   ],
   "related": [
    {
-    "prompt": "Does the opera Turandot include the aria 'Nessun dorma'?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
+    "prompt": "Who composed the aria 'Nessun dorma'?",
+    "original_answer": "Giacomo Puccini",
+    "new_answer": "Richard Wagner",
+    "derivation": "chain",
     "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Turandot includes the aria 'Nessun dorma'.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "The aria 'Nessun dorma' is part of the opera Die Walküre. (edit)",
-     "'Is an aria in' is functional (an aria belongs to one opera), so 'Nessun dorma' is not an aria in Turandot.",
-     "So Turandot does not include it: no."
+    "hops": 2,
+    "bridge": [
+     "Die Walküre was composed by Richard Wagner."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is 'Nessun dorma' sung in the final act of Turandot?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "'Nessun dorma' is sung in the final act of Turandot.",
+    "fact": "'Nessun dorma' was composed by Giacomo Puccini.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The aria 'Nessun dorma' is part of the opera Die Walküre. (edit)",
-     "'Is an aria in' is functional (an aria belongs to one opera), so 'Nessun dorma' is not an aria of Turandot, and not in any of its acts.",
-     "So it is not sung in the final act of Turandot: no."
+     "Die Walküre was composed by Richard Wagner. (stored bridge)",
+     "aria_in o composed_by is a chain: an aria is by its opera's composer, so 'Nessun dorma' was composed by Richard Wagner.",
+     "Each aria has one composer (composed_by is functional), so Puccini is overturned in every world."
     ],
     "logic": "dl"
    }
@@ -202,6 +187,11 @@
    "fact": "Richard Wagner was a Brazilian composer.",
    "prompt": "Was Richard Wagner a Brazilian composer?",
    "answer": "no"
+  },
+  {
+   "fact": "Die Walküre was composed by Richard Wagner.",
+   "prompt": "Which composer wrote the opera Die Walküre?",
+   "answer": "Richard Wagner"
   }
  ],
  "evidence": {
@@ -232,30 +222,6 @@
      "query": "Turandot AND Nessun Dorma",
      "count": 3818,
      "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
-    }
-   ]
-  },
-  "Turandot includes the aria 'Nessun dorma'.": {
-   "claim": "stored",
-   "why": "The same stored fact read from the opera: Turandot is known for this aria.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Nessun_dorma",
-     "quote": "'Let no one sleep') is an aria from the final act of Italian composer Giacomo Puccini's opera Turandot (text by Giuseppe Adami and Renato Simoni) and one of the best-known tenor arias in all opera."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Turandot AND Nessun Dorma",
-     "count": 3818,
-     "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000), not statements of the fact."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Nessun Dorma from Turandot",
-     "count": 467
     }
    ]
   },
@@ -419,24 +385,52 @@
     }
    ]
   },
-  "'Nessun dorma' is sung in the final act of Turandot.": {
+  "'Nessun dorma' was composed by Giacomo Puccini.": {
    "claim": "stored",
-   "why": "Wikipedia's first sentence places the aria in the final act of Turandot, and the phrase 'final act of Turandot' is common.",
+   "why": "The aria is introduced everywhere with its composer: the first sentence of Wikipedia's article says it is from Giacomo Puccini's opera Turandot, and 'Puccini's Nessun dorma' is the stock phrase, so the sentence is stated directly, not worked out from the opera.",
    "sources": [
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Nessun_dorma",
-     "quote": "'Let no one sleep') is an aria from the final act of Italian composer Giacomo Puccini's opera Turandot (text by Giuseppe Adami and Renato Simoni) and one of the best-known tenor arias in all opera."
+     "quote": "\"Nessun dorma\" is an aria from the final act of Italian composer Giacomo Puccini's opera Turandot and one of the best-known tenor arias in all opera."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "final act of Turandot",
-     "count": 37,
-     "note": "Exact phrase; the Wikipedia statement is the direct evidence."
+     "query": "Nessun dorma by Puccini",
+     "count": 6
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Puccini's Nessun dorma",
+     "count": 39
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Nessun dorma, composed by Puccini",
+     "count": 0
+    }
+   ]
+  },
+  "Die Walküre was composed by Richard Wagner.": {
+   "claim": "stored",
+   "why": "The first sentence of Wikipedia's Die Walküre article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Die_Walk%C3%BCre",
+     "quote": "Die Walküre, WWV 86B, is the second of four epic music dramas that constitute Richard Wagner's cycle Der Ring des Nibelungen."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Wagner's Die Walküre",
+     "count": 1246
     }
    ]
   }
  },
- "notes": "Dev ABox revision on aria_in (staging/literature_arts.RELATIONS.md): an aria belongs to one opera (functional), is part of it (aria_in ⊑ part_of) and of every work the opera is part of (aria_in ∘ part_of ⊑ part_of), and is by the opera's composer (aria_in ∘ composed_by ⊑ composed_by). The record used part_of before, which is not functional, so nothing licensed the related-near 'no' (review 2026-11-11, must fix). 'Nessun dorma' moves from Turandot into Die Walküre. Related near asks whether Turandot still includes it: no, because aria_in is functional (the prompt no longer names Puccini). Related far asks its composer, a stored answer (Puccini): the role chain through Die Walküre gives Wagner, and composed_by being functional drops Puccini; it is labelled chain, since a relation property carries it, not composition. Derived: the Ring cycle by transitivity of part_of once the subproperty gives part_of (alt_derivations: chain, aria_in ∘ part_of ⊑ part_of), the same opera as the 'Ride of the Valkyries' (composition), and the language of the libretto of the opera that contains it (composition: a stored fact about Die Walküre, Italian to German). The century question was dropped: it needed an unlisted premise (a part of an opera was written when the opera was) that is not firm, since arias can be written apart from their opera. The edit statement names no composer, so the composer question needs the bridge. Related near uses functional, not inverse: has_part is many-valued, so no 1-hop inverse question has one stored answer that the edit changes. Unrelated near asks another famous aria's opera (Carmen), which differs from the new answer."
+ "notes": "Dev ABox revision on aria_in (staging/literature_arts.RELATIONS.md): an aria belongs to one opera (functional), is part of it (aria_in ⊑ part_of) and of every work the opera is part of (aria_in ∘ part_of ⊑ part_of), and is by the opera's composer (aria_in ∘ composed_by ⊑ composed_by). The record used part_of before, which is not functional, so nothing licensed the related-near 'no' (review 2026-11-11, must fix). 'Nessun dorma' moves from Turandot into Die Walküre. Related near asks whether Turandot still includes it: no, because aria_in is functional (the prompt no longer names Puccini). Related far asks its composer, a stored answer (Puccini): the role chain through Die Walküre gives Wagner, and composed_by being functional drops Puccini; it is labelled chain, since a relation property carries it, not composition. Derived: the Ring cycle by transitivity of part_of once the subproperty gives part_of (alt_derivations: chain, aria_in ∘ part_of ⊑ part_of), the same opera as the 'Ride of the Valkyries' (composition), and the language of the libretto of the opera that contains it (composition: a stored fact about Die Walküre, Italian to German). The century question was dropped: it needed an unlisted premise (a part of an opera was written when the opera was) that is not firm, since arias can be written apart from their opera. The edit statement names no composer, so the composer question needs the bridge. Related near uses functional, not inverse: has_part is many-valued, so no 1-hop inverse question has one stored answer that the edit changes. Unrelated near asks another famous aria's opera (Carmen), which differs from the new answer. Update 2026-11-14: one related question (user rule): the composer chain (aria_in o composed_by), a stored fact the edit overturns; the earlier near/far pair is gone."
 }

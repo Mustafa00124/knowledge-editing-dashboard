@@ -171,38 +171,23 @@
   ],
   "related": [
    {
-    "prompt": "Was William Shakespeare born in Stratford-upon-Avon?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "William Shakespeare was born in Stratford-upon-Avon.",
-    "derivability": "very_unlikely",
-    "determinacy": "determinate",
-    "chain": [
-     "William Shakespeare was born in Gloucester. (edit)",
-     "A person is born in one town (born_in_town is functional).",
-     "So William Shakespeare was not born in Stratford-upon-Avon: no."
+    "prompt": "In which county was William Shakespeare born?",
+    "original_answer": "Warwickshire",
+    "new_answer": "Gloucestershire",
+    "derivation": "chain",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Gloucester is in Gloucestershire."
     ],
-    "logic": "dl"
-   },
-   {
-    "prompt": "Is William Shakespeare among the people born in Stratford-upon-Avon?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "William Shakespeare is among the people born in Stratford-upon-Avon.",
+    "fact": "William Shakespeare was born in Warwickshire.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "William Shakespeare was born in Gloucester. (edit)",
-     "The town's list of people born there is the inverse reading of born_in_town, and a person is born in one town (born_in_town is functional), so Shakespeare, born in Gloucester, is not on Stratford-upon-Avon's list.",
-     "So the answer is no."
+     "Gloucester is in Gloucestershire. (stored)",
+     "A birthplace town's county is the person's birth county (located_in followed by born_in).",
+     "So William Shakespeare was born in Gloucestershire."
     ],
     "logic": "dl"
    }
@@ -250,6 +235,11 @@
    "fact": "William Shakespeare was born in France.",
    "prompt": "Was William Shakespeare born in France?",
    "answer": "no"
+  },
+  {
+   "fact": "Gloucester is in Gloucestershire.",
+   "prompt": "In which county is Gloucester?",
+   "answer": "Gloucestershire"
   }
  ],
  "evidence": {
@@ -440,29 +430,40 @@
     }
    ]
   },
-  "William Shakespeare is among the people born in Stratford-upon-Avon.": {
+  "William Shakespeare was born in Warwickshire.": {
    "claim": "stored",
-   "why": "Stratford-upon-Avon is named from the town's side everywhere: it is 'the birthplace of Shakespeare', and 'born in Stratford-upon-Avon' has thousands of hits.",
+   "why": "Shakespeare's birth county is stated directly: his Wikipedia lead says he was born and raised in Stratford-upon-Avon, Warwickshire, and \"born in Warwickshire\" is a standard phrase in his biographies.",
    "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Shakespeare was born in Stratford-upon-Avon",
-     "count": 1375
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "born in Stratford-upon-Avon",
-     "count": 3245
-    },
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/William_Shakespeare",
      "quote": "Shakespeare was born and raised in Stratford-upon-Avon, Warwickshire."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Shakespeare was born in Warwickshire",
+     "count": 16
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "William Shakespeare was born in Warwickshire",
+     "count": 2
+    }
+   ]
+  },
+  "Gloucester is in Gloucestershire.": {
+   "claim": "stored",
+   "why": "Wikipedia's lead calls Gloucester the county town of Gloucestershire.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gloucester",
+     "quote": "Gloucester is a cathedral city, non-metropolitan district and the county town of Gloucestershire in the South West of England."
     }
    ]
   }
  },
- "notes": "Migrated to the new layout (2026-11-11). The edit is now on born_in_town (staging/people-replace-abox.RELATIONS.md): the town of birth, functional, a subproperty of born_in and with born_in's chain through located_in, so related near can ask the old town by name (functional) and related far the county, asked as a travel plan (chain, task application; stored: \"Stratford-upon-Avon, Warwickshire\"). The old derived chain question (county) is now the related far one, since its answer is stated with the town. Derived: binding (the author of Hamlet), composition (the river; the question names no town), composition (a cathedral city). The indeterminate question keeps the town where he died; the burial question was dropped (one indeterminate query per record). Negation is asked as \"Is it true that ... not ...\" (three models misread \"Is it false that ...\" in the audit). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate."
+ "notes": "Migrated to the new layout (2026-11-11). The edit is now on born_in_town (staging/people-replace-abox.RELATIONS.md): the town of birth, functional, a subproperty of born_in and with born_in's chain through located_in, so related near can ask the old town by name (functional) and related far the county, asked as a travel plan (chain, task application; stored: \"Stratford-upon-Avon, Warwickshire\"). The old derived chain question (county) is now the related far one, since its answer is stated with the town. Derived: binding (the author of Hamlet), composition (the river; the question names no town), composition (a cathedral city). The indeterminate question keeps the town where he died; the burial question was dropped (one indeterminate query per record). Negation is asked as \"Is it true that ... not ...\" (three models misread \"Is it false that ...\" in the audit). Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate. One related question (2026-11-14, user decision): replaced both readings of the birthplace with a stored 2-hop consequence: the county, Warwickshire before the edit, Gloucestershire after (bridge: Gloucester is in Gloucestershire)."
 }
