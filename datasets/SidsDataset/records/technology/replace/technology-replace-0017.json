@@ -23,13 +23,13 @@
   },
   "cross_lingual": [
    {
-    "prompt": "pandas 库直接导入了模块 dateutil，而模块 dateutil 由软件包 python-dateutil 提供。能否由此推出 pandas 依赖于 python-dateutil？",
+    "prompt": "pandas 库无条件地导入了模块 dateutil，而模块 dateutil 由软件包 python-dateutil 提供。能否由此推出 pandas 依赖于 python-dateutil？",
     "language": "zh",
     "original_answer": "是",
     "new_answer": "否"
    },
    {
-    "prompt": "La biblioteca pandas importa directamente el módulo dateutil, y el módulo dateutil lo proporciona el paquete python-dateutil. ¿Se deduce de ello que pandas depende de python-dateutil?",
+    "prompt": "La biblioteca pandas importa incondicionalmente el módulo dateutil, y el módulo dateutil lo proporciona el paquete python-dateutil. ¿Se deduce de ello que pandas depende de python-dateutil?",
     "language": "es",
     "original_answer": "sí",
     "new_answer": "no"
@@ -37,7 +37,7 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it false that an application can unconditionally import a module provided by a package without depending on that package?",
+    "prompt": "Is it true that an application cannot unconditionally import a module provided by a package without depending on that package?",
     "form": "not",
     "side_fact": null,
     "original_answer": "yes",
@@ -60,36 +60,36 @@
   ],
   "derived": [
    {
-    "prompt": "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil. Does it follow that pandas depends on python-dateutil?",
+    "prompt": "The pandas library unconditionally imports the module dateutil, and the module dateutil is provided by the package python-dateutil. Does it follow that pandas depends on python-dateutil?",
     "original_answer": "yes",
     "new_answer": "no",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil."
+     "The pandas library unconditionally imports the module dateutil, and the module dateutil is provided by the package python-dateutil."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "The pandas library directly imports the module dateutil, and the module dateutil is provided by the package python-dateutil. (given in prompt)",
+     "The pandas library unconditionally imports the module dateutil, and the module dateutil is provided by the package python-dateutil. (given in prompt)",
      "An application can unconditionally import a module provided by a package without depending on that package. (edit)",
      "So the import and the provider no longer license the dependency: no, it does not follow."
     ],
     "logic": "dl"
    },
    {
-    "prompt": "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow. Given only these facts, could it be that matplotlib does not depend on Pillow?",
+    "prompt": "The matplotlib library unconditionally imports the module PIL, and the module PIL is provided by the package Pillow. Given only these facts, could it be that matplotlib does not depend on Pillow?",
     "original_answer": "no",
     "new_answer": "yes",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow."
+     "The matplotlib library unconditionally imports the module PIL, and the module PIL is provided by the package Pillow."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "The matplotlib library directly imports the module PIL, and the module PIL is provided by the package Pillow. (given in prompt)",
+     "The matplotlib library unconditionally imports the module PIL, and the module PIL is provided by the package Pillow. (given in prompt)",
      "An application can unconditionally import a module provided by a package without depending on that package. (edit)",
      "So the dependency is no longer forced: yes, it could be."
     ],
@@ -158,5 +158,5 @@
    ]
   }
  },
- "notes": "RBox role chain directly_imports ∘ module_provided_by_package ⊑ depends_on (two different relations), removed. The edit is stated positively ('can ... without depending'), so the negation question avoids a double negation. Review fix: the earlier instances (requests imports urllib3, seaborn imports matplotlib) are dependencies stated everywhere, so a 'yes' after the edit could come from memory; the new ones go through a module whose name differs from its package (dateutil from python-dateutil, PIL from Pillow), so the second hop matters and the conclusion is a requirements-file line rather than a famous sentence. Instances were checked in installed sources: pandas/tseries/holiday.py begins 'from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE' and pandas requires python-dateutil; matplotlib/image.py has 'import PIL.PngImagePlugin' and matplotlib 3.3 requires pillow (Requires-Dist: pillow). The facts are stated in the prompt. Yes and no are balanced through phrasing: the first instance asks 'does it follow' (yes, then no), the second 'could it be that ... not' (no, then yes); the cross-lingual queries ask the first. Near unrelated replaces 'Is depends on transitive?' (two models answered no in the audit) with a storage chain of the same shape; far a different property of an unrelated relation. Side facts are plain technology facts. hops counts the prompt's facts as the bridge (1 + 1), as the other RBox records do."
+ "notes": "RBox revision: 'If an application unconditionally imports a module and that module is provided by a package, the application depends on that package.' becomes 'An application can unconditionally import a module provided by a package without depending on that package.' (relation directly_imports). Paired with technology-delete-0017 and technology-insert-0019. Queries: direct, paraphrase, zh and es cross-lingual, three propositional (not, and, or); 2 determinate derived (answer via instantiation, 2 hops; answer via instantiation, 2 hops); one unrelated near and one unrelated far."
 }
