@@ -113,13 +113,76 @@ const FORMAL_TEXT = {
   fail: 'Fails the formal check',
   not_checked: 'Not formally checked',
 }
+// What each formal check means (reason.py and fol_check.py).
+const CHECK_NAME = {
+  pre: 'Before the edit: the original answer follows',
+  post_determinate: 'After the edit: the new answer follows',
+  post_worlds: 'After the edit, in each world: its answer follows',
+  differ: 'The answers before and after differ',
+  consistent: 'Consistent before and after the edit',
+  missing_worlds: 'Every minimal repair is one of the worlds',
+  derived_edit: 'The premises entail the original fact',
+  encoding: 'The encoding matches the record',
+  not_checked: 'Not checked',
+  error: 'Checker error',
+}
+
+// "check: status (detail)" -> {check, status, detail}
+function parseLine(line) {
+  const m = /^([a-z_]+): ([a-z_]+)(?: \((.*)\))?$/s.exec(line || '')
+  return m ? { check: m[1], status: m[2], detail: m[3] || '' } : { check: '', status: '', detail: line }
+}
+
+function FormalModal({ head, lines, onClose }) {
+  useEffect(() => {
+    const onKey = (ev) => { if (ev.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal sids-evidence-modal" onClick={(ev) => ev.stopPropagation()} role="dialog" aria-modal="true" aria-label="Formal check">
+        <div className="modal-header">
+          <div className="modal-title-group"><h2>Formal check</h2></div>
+          <button type="button" className="btn-plain" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+        <div className="modal-body">
+          <p className="sids-evidence-fact">{head}</p>
+          <table className="sids-evidence-table">
+            <thead><tr><th>Check</th><th>Result</th><th>Why</th></tr></thead>
+            <tbody>
+              {lines.map((line, i) => {
+                const c = parseLine(line)
+                return (
+                  <tr key={i} className={c.status === 'fail' ? 'is-fail' : ''}>
+                    <th scope="row">{CHECK_NAME[c.check] || c.check || DASH}</th>
+                    <td><span className={`sids-formal-mark is-${c.status}`}>{c.status === 'pass' ? '✓ pass' : c.status === 'fail' ? '✗ fail' : c.status.replace('_', ' ') || DASH}</span></td>
+                    <td>{c.detail || DASH}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function FormalMark({ status, lines, checker, theory }) {
+  const [open, setOpen] = useState(false)
   if (!status) return null
   const mark = status === 'pass' ? '✓' : status === 'fail' ? '✗' : '–'
   const label = CHECKER_LABEL[checker] || 'logic'
   const head = `${FORMAL_TEXT[status] || status}${CHECKER_NAME[checker] ? ` (${CHECKER_NAME[checker]}${theory ? `, ${theory}` : ''})` : ''}`
-  const title = [head, ...(lines || [])].join('\n')
-  return <span className={`sids-formal-mark is-${status}`} title={title}>{mark} {label}</span>
+  if (!lines?.length) return <span className={`sids-formal-mark is-${status}`} title={head}>{mark} {label}</span>
+  return (
+    <>
+      <button type="button" className={`sids-formal-mark sids-formal-button is-${status}`} title={`${head}. Click for each check.`}
+        onClick={(ev) => { ev.stopPropagation(); setOpen(true) }}>{mark} {label}</button>
+      {open && <FormalModal head={head} lines={lines} onClose={() => setOpen(false)} />}
+    </>
+  )
 }
 
 // "geography-replace-0002" -> "Geography 2". The operation is already the
@@ -370,7 +433,7 @@ export default function RecordCard({ rec, relations, onChain, dots, modelDots, m
         </button>
         {/* Status dots for the whole fact, outside the toggle button since each dot is a button of its own. */}
         <FormalMark status={formal?.status === 'pass' || formal?.status === 'fail' ? formal.status : null}
-          lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}`)} />
+          lines={Object.entries(formal?.record_checks || {}).map(([k, v]) => `${k}: ${v.status}${v.detail ? ` (${v.detail})` : ''}`)} />
       </div>
       <div className="sids-record-meta">
         {/* Tag order: change, relation, derivability. Determinacy is shown on each derived query. */}
