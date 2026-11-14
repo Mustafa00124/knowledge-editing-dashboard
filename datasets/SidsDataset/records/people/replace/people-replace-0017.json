@@ -23,13 +23,13 @@
   },
   "cross_lingual": [
    {
-    "prompt": "安德斯·摄尔修斯出生于乌普萨拉，乌普萨拉位于瑞典。能否由此推出安德斯·摄尔修斯出生于瑞典？",
+    "prompt": "安德斯·摄尔修斯出生于乌普萨拉，乌普萨拉在他出生时位于瑞典。能否由此推出安德斯·摄尔修斯出生于瑞典？",
     "language": "zh",
     "original_answer": "是",
     "new_answer": "否"
    },
    {
-    "prompt": "Anders Celsius nació en Uppsala, y Uppsala está en Suecia. ¿Se deduce que Anders Celsius nació en Suecia?",
+    "prompt": "Anders Celsius nació en Uppsala, y Uppsala estaba en Suecia cuando él nació. ¿Se deduce que Anders Celsius nació en Suecia?",
     "language": "es",
     "original_answer": "sí",
     "new_answer": "no"
@@ -37,7 +37,7 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it false that a person can be born in a city without being born in the country that city was in at the time?",
+    "prompt": "Is it true that a person cannot be born in a city without being born in the country that city was in at the time?",
     "form": "not",
     "side_fact": null,
     "original_answer": "Yes",
@@ -60,36 +60,36 @@
   ],
   "derived": [
    {
-    "prompt": "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden. Does it follow that Anders Celsius was born in Sweden?",
+    "prompt": "Anders Celsius was born in Uppsala, and Uppsala was in Sweden when he was born. Does it follow that Anders Celsius was born in Sweden?",
     "original_answer": "yes",
     "new_answer": "no",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden."
+     "Anders Celsius was born in Uppsala, and Uppsala was in Sweden when he was born."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden. (given in prompt)",
+     "Anders Celsius was born in Uppsala, and Uppsala was in Sweden when he was born. (given in prompt)",
      "A person can be born in a city without being born in the country that city was in at the time. (edit)",
      "So being born in Uppsala no longer carries over to Sweden: no, it does not follow."
     ],
     "logic": "dl"
    },
    {
-    "prompt": "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France. Given only this, could Parmentier have been born outside France?",
+    "prompt": "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier was in France when he was born. Given only this, could Parmentier have been born outside France?",
     "original_answer": "no",
     "new_answer": "yes",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France."
+     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier was in France when he was born."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France. (given in prompt)",
+     "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier was in France when he was born. (given in prompt)",
      "A person can be born in a city without being born in the country that city was in at the time. (edit)",
      "So his birthplace country is left open by his birth town: yes, he could have been born outside France."
     ],
@@ -122,7 +122,7 @@
   }
  ],
  "evidence": {
-  "Anders Celsius was born in Uppsala, and Uppsala is located in Sweden.": {
+  "Anders Celsius was born in Uppsala, and Uppsala was in Sweden when he was born.": {
    "claim": "stored",
    "why": "True: Celsius was born in Uppsala, Sweden, in 1701; Uppsala was in Sweden then and now. His birth country is rarely written as a sentence of its own.",
    "sources": [
@@ -145,7 +145,7 @@
     }
    ]
   },
-  "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier is located in France.": {
+  "Antoine-Augustin Parmentier was born in Montdidier, and Montdidier was in France when he was born.": {
    "claim": "stored",
    "why": "True: Parmentier was born in Montdidier (Somme) in 1737, then in the Kingdom of France. The exact birth sentence is rare (4 hits), so the instance turns on the chain.",
    "sources": [
@@ -204,5 +204,5 @@
    ]
   }
  },
- "notes": "RBox revision of the topic's role-chain slot (RBOX_PER_TOPIC: chain): the chain born_in ∘ located_in ⊑ born_in (born_in is tagged chain:located_in->born_in) is removed, axiom ¬(born_in ∘ located_in ⊑ born_in); the paired contraction (people-delete-0017) removes the same chain. The old edit redirected the chain into died_in; reviewers flagged that its instances (Obama born in Hawaii, Einstein died in Princeton) are stored facts that decide the answer from memory, and the models missed the direct question (3 of 4), the conjunction (3 of 4) and the Obama cross-lingual queries (2 of 4). The direct question is now a plain yes/no question with the time made explicit ('was in a country when the person was born'), which rules out border changes (born in Königsberg, now in Russia) without the long 'does it follow' framing. Instances: Anders Celsius (Uppsala, Sweden, 1701) and Antoine-Augustin Parmentier (Montdidier, France, 1737), each town in that country at the birth; the birth country of either is rarely written as a sentence ('Celsius was born in Uppsala' 57 Dolma hits, 'Parmentier was born in Montdidier' 4), so the instances turn on the chain. Yes and no: the first instance (and the cross-lingual queries) asks whether the country follows (yes, then no), the second whether he could have been born outside France (no, then yes). The Hamlet side fact (missed by 1) is replaced by Oliver Twist. Near asks the same chain for died_in (tagged chain:located_in->died_in), reference yes, differing from the new no. Far asks a different property of an unrelated relation. hops counts the instance facts in the prompt as one bridge (1 + 1), as the template does."
+ "notes": "RBox revision (role-chain slot): the chain born_in through located_in into born_in is removed (axiom not (born_in o located_in under born_in)); the paired contraction people-delete-0017 removes the same chain. The direct question makes the time explicit ('was in a country when the person was born') to rule out border changes. Instances are Anders Celsius (Uppsala, Sweden) and Parmentier (Montdidier, France), whose birth countries are rarely written as sentences ('Celsius was born in Uppsala' 57 Dolma hits, 'Parmentier was born in Montdidier' 4); both prompts and the cross-lingual queries say the town was in the country when he was born. The negation is worded 'Is it true that a person cannot be born in a city without being born in the country that city was in at the time?'. Yes and no: the first instance and the cross-lingual queries ask whether the country follows (yes, then no), the second whether he could have been born outside France (no, then yes). Side fact: Charles Dickens wrote Oliver Twist. Near asks the same chain for died_in, far asks transitivity of 'is younger than'."
 }

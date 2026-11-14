@@ -142,12 +142,16 @@ def main(argv=None):
     print(f'{len(quotes)} quotes on {len(urls)} pages in {len(paths)} files')
     texts, stopped = {}, False
     for i, url in enumerate(urls, 1):
+        if stopped:
+            # After a refusal, ask nothing more, but still check every page already cached.
+            cached = CACHE / (hashlib.sha256(url.encode()).hexdigest()[:20] + '.txt')
+            texts[url] = cached.read_text() if cached.exists() else None
+            continue
         try:
             texts[url] = page_text(url, args.pause)
         except Refused as r:
-            print(f'stopped: {url} refused ({r}); run again later')
+            print(f'stopped asking: {url} refused ({r}); checking cached pages only; run again later')
             stopped = True
-            break
         if i % 50 == 0:
             print(f'  {i}/{len(urls)} pages')
     bad, unfetched = [], 0

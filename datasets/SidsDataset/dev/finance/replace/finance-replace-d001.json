@@ -46,9 +46,9 @@
     "new_answer": "no"
    },
    {
-    "prompt": "Is it true both that Frankfurt is the financial capital of India and that Frankfurt lies on the river Main?",
+    "prompt": "Is it true both that Frankfurt is the financial capital of India and that Paris is the capital of France?",
     "form": "and",
-    "side_fact": "Frankfurt lies on the river Main.",
+    "side_fact": "Paris is the capital of France.",
     "original_answer": "no",
     "new_answer": "yes"
    },
@@ -173,9 +173,9 @@
    "answer": "India"
   },
   {
-   "fact": "Frankfurt lies on the river Main.",
-   "prompt": "Does Frankfurt lie on the river Main?",
-   "answer": "yes"
+   "fact": "Paris is the capital of France.",
+   "prompt": "Which city is the capital of France?",
+   "answer": "Paris"
   },
   {
    "fact": "Frankfurt is in Australia.",
@@ -382,23 +382,6 @@
     }
    ]
   },
-  "Frankfurt lies on the river Main.": {
-   "claim": "stored",
-   "why": "Its full name is Frankfurt am Main.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Frankfurt",
-     "quote": "Located in the foreland of the Taunus on its namesake river Main, the city forms a continuous conurbation with Offenbach; its urban area has a population of more than 2.7 million."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Frankfurt am Main",
-     "count": 358504
-    }
-   ]
-  },
   "Frankfurt is in Australia.": {
    "claim": "false",
    "why": "Deliberately false side fact: Frankfurt is in Germany.",
@@ -432,7 +415,19 @@
      "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
     }
    ]
+  },
+  "Paris is the capital of France.": {
+   "claim": "stored",
+   "why": "A basic fact, untouched by moving Frankfurt: the side fact does not depend on where Frankfurt is.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Paris is the capital of France",
+     "count": 2720
+    }
+   ]
   }
  },
- "notes": "Dev-split ABox revision on financial_capital_of (new, staging/finance.RELATIONS.md), modelled on capital_of: functional, a subproperty of located_in, the inverse of has_financial_capital (itself functional) and with the role chain financial_capital_of ∘ located_in ⊑ located_in. It is the topic's chain edit: finance's catalogued functional relations (has_currency, headquartered_in, has_ceo, has_ticker) carry no role chain, and existing rows may not be changed, so the chain needs a relation built for it. The edit moves Frankfurt into India, as geography-replace-d004 moves Milan into Nigeria.The earlier ECB question was dropped, since 'headquartered in' composed with 'located in' is a role chain that headquartered_in does not carry in the catalogue. Derived: the continent by the role chain; the time zone by inheritance (Frankfurt joins the class of places in India, and India's single time zone is stated as a rule for every place in it, which is a class rule rather than a fact about the country carried down; the earlier currency question was a role chain mislabelled as inheritance and was dropped); and whether Frankfurt and Mumbai share a country, by the subproperty with Mumbai's location as the bridge. Determinacy: a model that stored 'the Frankfurt Stock Exchange is in Germany' by name would place a building in Frankfurt and in Germany while Frankfurt is in India, which is no world; one that kept Mumbai as India's financial capital breaks the functionality of has_financial_capital; one that kept Central European Time breaks the class rule. Mumbai stays in India: the edit takes away only its role. Related (2026-11-14): the city's country (subproperty), stored with Frankfurt everywhere; the earlier yes/no restated the edit's original fact."
+ "notes": "Dev ABox revision on financial_capital_of (functional, subproperty of located_in, inverse of the functional has_financial_capital, role chain with located_in): the topic's chain edit, since finance's other functional relations carry no chain. Moves Frankfurt into India. Related is the city's country (subproperty). Derived: the continent by the role chain, the time zone by inheritance (India's single time zone is a class rule), and whether Frankfurt and Mumbai share a country by subproperty. Mumbai stays in India; only its role gives way. The and-side fact is Paris being the capital of France, which the move cannot touch. Determinacy: a stored 'the Frankfurt Stock Exchange is in Germany', a kept Mumbai as India's financial capital, or a kept Central European Time each contradict a firm fact, so the derived questions are determinate."
 }

@@ -186,10 +186,22 @@ class MarkTest(Temp):
             self.assertEqual(r["by_reviewer"]["Fengchun"]["red"], 1)
             q = [x for x in r["red"] if x["item"] == "direct"][0]
             self.assertEqual((q["record"], q["marks"][0]["kind"]), (self.recs[1]["id"], "angle"))
-        # A record changed after it was marked: the mark says so.
-        changed = [dict(r, notes="edited") if r["id"] == self.rid else r for r in self.recs]
-        state = C.review_state(changed, C.load_reviews(self.path))
-        self.assertTrue(state["marks"][self.rid]["clear-and-sensible"]["mustafa"]["stale"])
+        # Notes are not what a reviewer judges: editing them keeps every mark current.
+        noted = [dict(r, notes="edited") if r["id"] == self.rid else r for r in self.recs]
+        state = C.review_state(noted, C.load_reviews(self.path))
+        self.assertFalse(state["marks"][self.rid]["clear-and-sensible"]["mustafa"]["stale"])
+        # A changed question stales its own marks and the whole-record rules, not other questions'.
+        self.mark(self.rid, "cross_lingual[zh]", "codex", "green")
+        def reworded(r):
+            if r["id"] != self.rid:
+                return r
+            q = dict(r["queries"])
+            q["direct"] = {**q["direct"], "prompt": q["direct"]["prompt"] + " (reworded)"}
+            return {**r, "queries": q}
+        state = C.review_state([reworded(r) for r in self.recs], C.load_reviews(self.path))
+        marks = state["marks"][self.rid]
+        self.assertTrue(marks["clear-and-sensible"]["mustafa"]["stale"])
+        self.assertFalse(marks["cross_lingual[zh]"]["codex"]["stale"])
 
     def test_report_keeps_rule_numbers(self):
         rows, _ = C.manual_checks(self.recs, C.load_reviews(self.path))

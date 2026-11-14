@@ -816,6 +816,46 @@ def record_hash(rec):
     return _hash(json.dumps(rec, ensure_ascii=False, sort_keys=True))[:12]
 
 
+def _content(rec):
+    """What a reviewer judges: the record without its notes and without
+    edit.prompt_subject (where methods edit, not what a reviewer reads)."""
+    e = {k: v for k, v in (rec.get('edit') or {}).items() if k != 'prompt_subject'}
+    return {**{k: v for k, v in rec.items() if k != 'notes'}, 'edit': e}
+
+
+def query_item(rec, key):
+    """The query a review key names (direct, cross_lingual[zh], derived[2], ...), or None."""
+    q = rec.get('queries') or {}
+    m = re.match(r'^(\w+?)\[(\w+)\]$', key)
+    if not m:
+        return q.get(key)
+    items = q.get(m.group(1))
+    if not isinstance(items, list):
+        return None
+    if m.group(1) == 'cross_lingual':
+        return next((x for x in items if isinstance(x, dict) and x.get('language') == m.group(2)), None)
+    i = int(m.group(2)) if m.group(2).isdigit() else -1
+    return items[i] if 0 <= i < len(items) else None
+
+
+def item_hash(rec, item):
+    """What one mark judges, so it goes stale only when that changes: for a
+    query, the edit, the relation and that query; for a whole-record rule,
+    the record's content. Notes never count."""
+    c = _content(rec)
+    if item in {k for k, *_ in MANUAL_RULES}:
+        blob = c
+    else:
+        blob = {'edit': c['edit'], 'relation': rec.get('relation'), 'item': query_item(rec, item)}
+    return _hash(json.dumps(blob, ensure_ascii=False, sort_keys=True))[:12]
+
+
+def mark_is_stale(rec, item, mark):
+    if 'item_hash' in mark:
+        return mark['item_hash'] != item_hash(rec, item)
+    return mark.get('record_hash') not in (None, record_hash(rec))
+
+
 def query_keys(rec):
     """Each query's review key, the same as the model audit's (and the
     dashboard's), in record order: direct, paraphrase, cross_lingual[zh],
@@ -935,7 +975,8 @@ def set_mark(record_id, item, reviewer, state, comment='', kind=None, recs=None,
         if state is None:
             by.pop(reviewer, None)
         else:
-            mark = {'state': state, 'at': datetime.now().isoformat(timespec='seconds'), 'record_hash': record_hash(rec)}
+            mark = {'state': state, 'at': datetime.now().isoformat(timespec='seconds'), 'record_hash': record_hash(rec),
+                    'item_hash': item_hash(rec, item)}
             if comment:
                 mark['comment'] = comment
             if state == 'red' and kind:
@@ -952,12 +993,13 @@ def set_mark(record_id, item, reviewer, state, comment='', kind=None, recs=None,
 def review_state(recs, data=None):
     """What the dashboard needs: the manual rules with their guidance, the
     reviewers in dot order, and every mark on a current record (each marked
-    `stale` when its record changed since)."""
+    `stale` when what it judged changed since: its question, or for a
+    whole-record rule the record; notes never count)."""
     data = load_reviews() if data is None else data
-    hashes = {r['id']: record_hash(r) for r in recs}
-    marks = {rid: {item: {who: {**m, 'stale': m.get('record_hash') not in (None, hashes[rid])}
+    by_id = {r['id']: r for r in recs}
+    marks = {rid: {item: {who: {**m, 'stale': mark_is_stale(by_id[rid], item, m)}
                           for who, m in by.items()} for item, by in items.items()}
-             for rid, items in data['marks'].items() if rid in hashes}
+             for rid, items in data['marks'].items() if rid in by_id}
     return {'rules': [dict(r) for r in MANUAL['rules']],
             'reviewers': [{'id': i, 'name': n, 'kind': k} for i, n, k in REVIEWERS],
             'states': list(STATES), 'kinds': list(KINDS), 'marks': marks}
