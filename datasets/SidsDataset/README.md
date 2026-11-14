@@ -63,7 +63,7 @@ Topic  >  Belief revision operation  >  Knowledge form  >  Query type
           revision    (replace)         tbox               paraphrase      (1)
           contraction (delete)          rbox               cross-lingual   (2: zh, es)
                                                            propositional   (3: negation, conjunction, disjunction)
-                                                           related         (2: near, far; ABox revision and contraction)
+                                                           related         (2, each 1 hop; ABox revision and contraction)
                                                            derived         (3 determinate; +1 indeterminate on main ABox revision)
                                                            unrelated       (2: near, far)
 ```
@@ -123,7 +123,7 @@ belief revision operation, so 10 topics × 3 operations × 3 boxes = 90 cells.
 | `paraphrase` | The same question in different words. | Generalizability |
 | `cross_lingual` | The direct question asked in Chinese (`zh`) and Spanish (`es`), expecting the answer in that language. | Cross-lingual |
 | `propositional` | The edited fact inside a yes/no truth-functional question: one negation, one conjunction (and), one disjunction (or) (see [Propositional queries](#propositional-queries)). | Logical consistency |
-| `related_near`, `related_far` | A question whose answer the model has most likely **seen stated** in training (it is stored), and which must change with the edit. Near: one hop from the edit; far: several hops (see [Related queries](#related-queries)). | Generalizability |
+| `related` | Two questions whose answers the model has most likely **seen stated** in training (they are stored), and which must change with the edit. Each is one hop from the edit, through a different role axiom (see [Related queries](#related-queries)). | Generalizability |
 | `derived` | A question whose answer the model has most likely **never seen stated**, but which follows from the edit and facts it holds, in exactly 2 hops (see [Derived queries](#derived-queries)). | Generalizability |
 | `unrelated_near` | Shares the subject, the relation or the topic, but does not follow from the edit. "What is the official language of France?" after editing France's capital. | Specificity |
 | `unrelated_far` | Nothing in common with the edit. | Specificity |
@@ -149,7 +149,7 @@ leaves it on Pacific Time) tests nothing.
 
 #### Queries per record type
 
-| Record type | direct | paraphrase | cross-lingual | propositional | related (near, far) | derived | unrelated (near, far) | Total |
+| Record type | direct | paraphrase | cross-lingual | propositional | related | derived | unrelated (near, far) | Total |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | ABox revision, main split | 1 | 1 | 2 | 3 | 2 | 4: 3 determinate + 1 indeterminate | 2 | 15 |
 | ABox revision, dev split | 1 | 1 | 2 | 3 | 2 | 3 determinate | 2 | 14 |
@@ -327,8 +327,7 @@ with or without the edit.
 
 | Query | Allowed `derivation` | Allowed `task` | Hops |
 | --- | --- | --- | --- |
-| `related_near` | `inverse`, `symmetry`, `functional`, `subproperty` | `answer`, `application` | exactly 1 |
-| `related_far` | `transitivity`, `chain`, `inheritance`, `subproperty`, `none` | any | 2 or more |
+| `related` | `inverse`, `symmetry`, `functional`, `subproperty` (the two items differ) | `answer`, `application` | exactly 1 |
 | `derived` (determinate) | `transitivity`, `chain`, `inheritance`, `subproperty`, `none` | any | exactly 2 |
 | `derived` (indeterminate, main ABox revision) | `none`, `premise` | `answer`, `composition` | any |
 | `derived` (RBox) | `instantiation` | `answer` | 1 |
@@ -338,7 +337,7 @@ bridge fact.
 
 **Balance per topic.** Within each topic, the ABox revision records'
 related and derived queries together use **transitivity, chain, inheritance
-and subproperty at least once each**, the related-near queries **inverse,
+and subproperty at least once each**, the related queries **inverse,
 symmetry and functional at least once each**, and the related and derived
 queries **composition, binding and application at least once each**, kept
 as even as the topic allows. A topic that can't supply one (no natural
@@ -357,8 +356,10 @@ derived queries use.
 
 #### Related queries
 
-Two per ABox revision and ABox contraction record: `related_near` (1 hop)
-and `related_far` (2 or more hops), each a one-item list.
+Two per ABox revision and ABox contraction record: the `related` list, each
+item exactly 1 hop from the edit. The two items use **different derivations**
+(one-hop role axioms: `inverse`, `symmetry`, `functional`, `subproperty`), so
+they are meaningfully different questions; the second need not be functional.
 
 - **Stored answer.** The original answer (or the fact the question asks
   about) is stated often in text every model trains on: rate it in the
@@ -506,7 +507,7 @@ Every ABox contraction record uses a relation tagged `functional` or
 
 - direct, paraphrase, cross-lingual and propositional: about the removed fact;
   the new answer is "I don't know" (`new_answer: null`).
-- related near and far: stored answers reached through the removed fact
+- related (2): stored answers one hop from the removed fact
   ("Canberra is the capital of which country?", inverse): "I don't know".
 - derived, 3 determinate: one **cardinality question** (`derivation:
   functional`, "no" becomes "I don't know"; or, for a many-valued relation,
@@ -1264,7 +1265,7 @@ onto metrics:
 | Metric | Over | Reported as |
 | --- | --- | --- |
 | Rewrite | direct (1) | one number |
-| Generalizability | paraphrase, related (near, far) and determinate derived | one number, plus each part (paraphrase, related near, related far, derived), per relation property, per task, per logic (dl, fol) and per hop count |
+| Generalizability | paraphrase, related and determinate derived | one number, plus each part (paraphrase, related, derived), per relation property, per task, per logic (dl, fol) and per hop count |
 | Indeterminate change | the indeterminate derived query (main ABox revision) | reported apart: which world the answer picks, or that it stayed unchanged ([Main experiments](#main-experiments-sid_main)) |
 | Cross-lingual | cross_lingual (2) | one number, plus per language |
 | Logical consistency | propositional (3) | one number on its own, plus per connective (negation, conjunction, disjunction) |
@@ -1521,9 +1522,9 @@ Related and derived queries add:
 
 | Field | Type | Rule |
 | --- | --- | --- |
-| `derivation` | see [Relation properties and task types](#relation-properties-and-task-types) | the relation property the answer rests on; must be allowed for the query (related near, related far, derived) and be a tag of the relation it uses |
+| `derivation` | see [Relation properties and task types](#relation-properties-and-task-types) | the relation property the answer rests on; must be allowed for the query (related, derived) and be a tag of the relation it uses |
 | `task` | `answer` \| `application` | what the question asks the model to do with the conclusion |
-| `hops` | integer | 1 + number of bridge facts (revision facts not counted): related near 1, related far 2 or more, determinate derived 2 (contraction's cardinality question 1) |
+| `hops` | integer | 1 + number of bridge facts (revision facts not counted): related 1, determinate derived 2 (contraction's cardinality question 1) |
 | `bridge` | string list | the facts the answer is built from; empty if none |
 | `bridge_in_prompt` | bool, optional | the bridge facts are stated in the prompt, so they aren't checked before editing |
 | `via` | string, optional | the relation whose tag licenses the derivation, when it isn't the edited relation |

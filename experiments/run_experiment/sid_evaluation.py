@@ -41,7 +41,7 @@ scored; this module applies it to run_experiment.py's checkpoints:
    record first, "pooled" beside it): reliability = rewrite (the direct
    question), cross_lingual (+ per language), logical_consistency
    (propositional, + per connective), generalization (Generalizability:
-   paraphrase, related near and far, determinate derived; + each part, per
+   paraphrase, related, determinate derived; + each part, per
    derivation, task, logic and hops), indeterminate (the main split's
    indeterminate derived query, with the worlds picked), locality (+ near,
    far), delete_abstention (a contraction record's direct, paraphrase and
@@ -77,9 +77,9 @@ GENERATE_BATCH_SIZE = 32     # the audit's --batch_size
 JUDGE_BATCH_SIZE = 32        # the audit's --judge_batch_size
 FEWSHOT_STOPS = ["\n", "Question:"]  # the audit's BASE_STOPS
 SAMPLE_PREFIX = "sid_step_"
-ENGLISH = ("direct", "paraphrase", "propositional", "related_near", "related_far", "derived", "unrelated_near",
+ENGLISH = ("direct", "paraphrase", "propositional", "related", "derived", "unrelated_near",
            "unrelated_far")
-REASONED = ("related_near", "related_far", "derived")
+REASONED = ("related", "derived")
 OWN = ("direct", "paraphrase", "cross_lingual")
 
 
@@ -446,7 +446,7 @@ def compute_metrics(items, payloads_for_fluency=()):
     reasoned = of(*REASONED)
     determinate = [i for i in reasoned if not i["indeterminate"]]
     indeterminate = [i for i in reasoned if i["indeterminate"]]
-    # Generalizability (README, Evaluation): paraphrase, related (near, far)
+    # Generalizability (README, Evaluation): paraphrase, related
     # and determinate derived queries; the indeterminate query is reported
     # apart. Internal key: generalization.
     general = of("paraphrase") + determinate
@@ -462,8 +462,7 @@ def compute_metrics(items, payloads_for_fluency=()):
         "generalization": {
             **block(general),
             "paraphrase": block(of("paraphrase")),
-            "related_near": block([i for i in determinate if i["query_type"] == "related_near"]),
-            "related_far": block([i for i in determinate if i["query_type"] == "related_far"]),
+            "related": block([i for i in determinate if i["query_type"] == "related"]),
             "derived": block([i for i in determinate if i["query_type"] == "derived"]),
             "determinate": block(determinate),
             "by_derivation": _by(determinate, "derivation"),

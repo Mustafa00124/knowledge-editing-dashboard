@@ -32,19 +32,36 @@ shares them.
 
 **Agent reviewers.** Codex and Claude follow the same two rules, with a few
 additions:
-- Mark only with `criteria.py --mark RECORD ITEM codex|claude green|red`
-  (it locks `reviews.json`, so people can mark at the same time). Never
-  write `reviews.json` directly, never mark as another reviewer, and never
-  edit a record, this file or any code.
+- Review the records as they are now: the main split (`records/`, 600) and
+  the dev split (`dev/`, 120, ids `<topic>-<operation>-dNNN`). The scheme is
+  README.md (start with "Terminology (description logic)", "Queries per
+  record type" and "Contraction": contraction and expansion are paired with a
+  revision record through `paired_with`). Marks you made before a record
+  changed are stale; mark the current version again.
+- For each record, mark both rules (`clear-and-sensible`,
+  `serves-the-purpose`) and every question. A record passes a rule only when
+  the rule and all its questions are green, so mark every item.
+- Mark only through `criteria.py`: one item with `criteria.py --mark RECORD
+  ITEM codex|claude green|red`, or many at once with `criteria.py --mark-file
+  FILE` (a JSON list of `{record, item, reviewer, state, comment, kind}`).
+  Both lock `reviews.json`, so people can mark at the same time. Never write
+  `reviews.json` directly, never mark as another reviewer, and never edit a
+  record, this file or any code.
 - Judge every item yourself; never mark items green in bulk.
-- Every red mark gets `--comment` (a one-line reason in plain words) and
-  `--kind problem` (something to fix) or `--kind angle` (an idea to add, or
-  something tested that teaches us nothing).
+- Every red mark gets a comment (a one-line reason in plain words) and a kind:
+  `problem` (something to fix) or `angle` (an idea to add, or something
+  tested that teaches us nothing).
 - The details of each red mark go in your own flags file,
   `reviews/CLAUDE_FLAGS.md` or `reviews/CODEX_FLAGS.md`: one `## <record
   id>` section per flagged record, with a bullet per red item:
   `- **<item>** (problem|angle): <details>`. That file is the only one you
-  edit.
+  edit. Flags on the records before the revamp are in `reviews/archive/`
+  and do not apply any more.
+- Things already decided, not to flag: models may fail propositional,
+  cross-lingual and derived questions as long as they hold the facts (Rule
+  6); derivability is only stored (`very_unlikely`) or derived
+  (`very_likely`); related questions exist only on ABox revision and
+  contraction.
 - Don't re-flag what the automated rules (3 onward) already check, unless
   it also makes the item unclear or useless.
 - Flag real issues, not style. Spend the most care on derived questions.
@@ -76,7 +93,7 @@ to measure one piece of that:
 | Operation (insert / replace / delete), box (ABox fact, TBox class rule, RBox relation property) | which kind of knowledge and change the result is about |
 | Direct, paraphrase, cross-lingual | whether the edit took, beyond its exact wording |
 | Propositional (negation, conjunction, disjunction) | whether the edit survives simple logic around the fact |
-| Related (near, far) | whether the edit overturns answers the model has **stored** that depend on it |
+| Related | whether the edit overturns answers the model has **stored** that depend on it |
 | Derived (relation property, task, determinacy) | whether the edit propagates to answers the model **works out** from it |
 | Worlds (main ABox revision only) | the valid outcomes when what should follow depends on how the model stored its knowledge (Hase et al. 2024) |
 | Unrelated near / far | whether the edit stays contained |
@@ -229,7 +246,7 @@ shape.** Per README, Queries per record type and Shape per topic:
   main-split ABox revision, one indeterminate query per record (mathematics
   and grammar: none; a fourth determinate query instead).
 - Propositional: exactly negation, conjunction, disjunction, in that order.
-- Related near is 1 hop, related far 2 or more, determinate derived exactly 2
+- Related is exactly 1 hop (two items with different derivations), determinate derived exactly 2
   (contraction's cardinality question: 1). Every record of a type has the same
   number of queries in every topic: 3 determinate derived (main ABox
   revision: 3 + 1 indeterminate; RBox: 2 instances).
@@ -237,7 +254,7 @@ shape.** Per README, Queries per record type and Shape per topic:
 **Rule 12. Relation properties and task types are balanced.** Within each
 topic's ABox revision records (each split on its own), related and derived
 queries together use transitivity, role chain, inheritance and subproperty at
-least once each; related-near queries use inverse, symmetry and functional at
+least once each; related queries use inverse, symmetry and functional at
 least once each; and related and derived queries use the task types
 composition, binding and application at least once each, all as evenly as
 the topic allows. A topic that can't supply one says why in the records'
@@ -245,8 +262,9 @@ the topic allows. A topic that can't supply one says why in the records'
 is carried by the edited relation of at least one of a topic's 8 main ABox
 revision edits, and by 5 to 7 of the dev split's 40. RBox edits cover, per
 topic and operation in the main split, transitivity, symmetry, inverse,
-functional, subproperty and role chain once each. Not used anywhere: `scope`,
-`asymmetry`, reflexivity. The lists are in `criteria.py` (`BALANCE`,
+functional, subproperty and role chain once each (an RBox symmetry edit may
+make a role asymmetric, `Asym(R)`). Not used anywhere: `scope` and
+reflexivity; asymmetry appears only as an RBox edit, never as a derivation. The lists are in `criteria.py` (`BALANCE`,
 `NEAR_BALANCE`, `TASK_BALANCE`, `RBOX_PER_TOPIC`).
 
 A property can only be tested on a relation that has it, so new edits are
