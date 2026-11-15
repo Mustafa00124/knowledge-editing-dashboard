@@ -501,6 +501,20 @@ def check_record(rec, path, relations):
             where = f'queries.{qtype}' + (f'[{i}]' if qtype not in ('direct', 'paraphrase') else '')
             errors.extend(f'{where}: {e}' for e in check_query(q, qtype, rec, relations))
 
+    # A related question asks about different knowledge, never the edited pair
+    # read another way (README, Related queries): its fact may not name both the
+    # edit's subject and its original object.
+    e = rec.get('edit') or {}
+    old_obj = e.get('old_object') if rec.get('edit_operation') == 'replace' else e.get('object')
+    stop = {'the', 'a', 'an', 'of', 'is', 'in', 'was', 'to', 'and', 'by', 'its', 'does', 'did', 'which', 'what',
+            'are', 'has', 'have', 'as', 'on', 'at', 'for'}
+    words = lambda t: set(re.findall(r'[a-z0-9]+', str(t or '').lower())) - stop
+    subj_w, obj_w = words(e.get('subject')), words(old_obj)
+    for i, q in enumerate(queries.get('related') or []):
+        if isinstance(q, dict) and subj_w and obj_w and subj_w <= words(q.get('fact')) and obj_w <= words(q.get('fact')):
+            err(f'queries.related[{i}]: its fact names both the edit\'s subject and its original object, so it '
+                'restates the edited fact; ask about different knowledge linked to it (README, Related queries)')
+
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
         err(f'queries.cross_lingual: needs one query per language {LANGUAGES}, got {langs}')
