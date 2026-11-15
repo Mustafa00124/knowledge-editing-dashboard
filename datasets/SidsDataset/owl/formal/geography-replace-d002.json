@@ -1,6 +1,6 @@
 {
  "id": "geography-replace-d002",
- "notes": "borders is many-valued; 'the only country that shares a land border with Portugal' is the question's presupposition, a firm Func(borders). Cristiano Ronaldo's home country is encoded with citizen_of (no 'is from' relation). Only one related question since 2026-11-14: the former related[1] is now related[0]. related[0] (2026-11-14): a stored fact about a different individual (a river or an island), not encoded: no relation in RELATIONS.md for a river forming part of a country's border (the Guadiana forms part of the Portugal-Spain border).",
+ "notes": "borders is many-valued; 'the only country that shares a land border with Portugal' is the question's presupposition, a firm Func(borders). Cristiano Ronaldo's home country is encoded with citizen_of (no 'is from' relation). related[0]: the Guadiana lies on the border of Portugal and Spain (on_border_of with each state; a river on the border of two states makes those states neighbours, a firm rule). After the edit Portugal's only neighbour is Germany, so the Guadiana cannot lie on Portugal's border (the Spanish side is firm).",
  "entities": {
   "portugal": "Portugal",
   "spain": "Spain",
@@ -14,7 +14,12 @@
   "german": [
    "German"
   ],
-  "ronaldo": "Cristiano Ronaldo"
+  "ronaldo": "Cristiano Ronaldo",
+  "guadiana": [
+   "the Guadiana River",
+   "the Guadiana",
+   "Guadiana"
+  ]
  },
  "original": [
   "borders(portugal, spain)"
@@ -29,16 +34,22 @@
   "spain_lang": "has_official_language(spain, spanish)",
   "germany_lang": "has_official_language(germany, german)",
   "ronaldo_pt": "citizen_of(ronaldo, portugal)",
-  "pt_cap": "has_capital(portugal, lisbon)"
+  "pt_cap": "has_capital(portugal, lisbon)",
+  "guadiana_pt": "on_border_of(guadiana, portugal)",
+  "guadiana_es": "on_border_of(guadiana, spain)",
+  "guadiana_rule": "on_border_of(guadiana, portugal), on_border_of(guadiana, spain) -> borders(portugal, spain)"
  },
  "firm": [
   "one_border",
   "ronaldo_pt",
-  "pt_cap"
+  "pt_cap",
+  "guadiana_es",
+  "guadiana_rule"
  ],
  "bridge_refs": {
   "germany_cap": "The capital of Germany is Berlin.",
-  "germany_lang": "The main official language of Germany is German."
+  "germany_lang": "The main official language of Germany is German.",
+  "guadiana_pt": "The Guadiana River forms part of the border between Portugal and Spain."
  },
  "queries": [
   {
@@ -55,7 +66,10 @@
   },
   {
    "q": "related[0]",
-   "not_checked": "no relation in RELATIONS.md for a river forming part of a country's border (the Guadiana forms part of the Portugal-Spain border)"
+   "ask": "on_border_of(guadiana, portugal)"
   }
+ ],
+ "gives_up": [
+  "guadiana_pt"
  ]
 }

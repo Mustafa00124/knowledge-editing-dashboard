@@ -1,6 +1,6 @@
 {
  "id": "mathematics-replace-d002",
- "notes": "has_value is functional and a subproperty of equals (catalogue), so the edit makes a googol equal to 10^50 and, by transitivity and the stored fact that 10^50 is not 10^100, not equal to 10^100 (related_near). q0, q1, q2 and related_far are fol (value comparisons and a cube): the value of a googol is the model's belief (value_of, uninterpreted), the other numbers are stored or arithmetic. The related question (zeros of a googol) is fol arithmetic: the number of zeros of a power of ten 10^n is n (firm), applied to the googol's value. The related question (zeros of a googol) is fol arithmetic: the number of zeros of a power of ten 10^n is n (firm), applied to the googol's value. The related question (zeros of a googol) is fol arithmetic: the number of zeros of a power of ten 10^n is n (firm), applied to the googol's value. The related question (zeros of a googol) is fol arithmetic: the number of zeros of a power of ten 10^n is n (firm), applied to the googol's value.",
+ "notes": "has_value is functional and a subproperty of equals (catalogue), so the edit makes a googol equal to 10^50 and, by the stored fact that 10^50 is not 10^100, not equal to 10^100. q0, q1, q2 and related[0] are fol (a value comparison, a square root, a cube and the zeros of a power of ten): the value of a googol is the model's belief (value_of, uninterpreted), the other numbers are stored or arithmetic.",
  "entities": {
   "googol": [
    "a googol"
@@ -32,7 +32,7 @@
   },
   {
    "q": 1,
-   "not_checked": "fol (arithmetic): comparing 10^50 with 10^70"
+   "not_checked": "fol (arithmetic): the square root of a power of ten"
   },
   {
    "q": 2,
@@ -44,16 +44,16 @@
   }
  ],
  "fol": {
-  "notes": "value_of(googol) is the model's belief (original 10^100, edit 10^50). The cube of a named number is the cube of its value (firm rule, shown through the cube function); the cubes of 10^50 and 10^100 are arithmetic facts. The atoms in the observable universe number about 10^80 (stored).",
+  "notes": "value_of(googol) is the model's belief (original 10^100, edit 10^50). The cube and the square root of a named number are those of its value (firm rule, shown through the cube and sqrt functions); the cubes, roots and zero counts of 10^50 and 10^100 are arithmetic facts.",
   "decl": {
    "funcs": {
     "value_of": "Int -> Real",
     "cube": "Real -> Real",
+    "sqrt": "Real -> Real",
     "zero_count": "Real -> Int"
    },
    "consts": {
-    "googol": "Int",
-    "atoms": "Int"
+    "googol": "Int"
    },
    "vars": {
     "n": "Int"
@@ -61,7 +61,8 @@
   },
   "local": {
    "cube": "cube(x): the cube of the real number x (arithmetic)",
-   "zero_count": "zero_count(x): the number of zeros after the 1 when the power of ten x is written out in full (arithmetic)"
+   "zero_count": "zero_count(x): the number of zeros after the 1 when the power of ten x is written out in full (arithmetic)",
+   "sqrt": "sqrt(x): the positive square root of the real number x (arithmetic)"
   },
   "facts": {
    "cubes": {
@@ -71,9 +72,12 @@
      "cube(10**100) == 10**300"
     ]
    },
-   "atoms": {
-    "says": "The number of atoms in the observable universe is about 10^80. (stored)",
-    "z3": "value_of(atoms) == 10**80"
+   "roots": {
+    "says": "The square root of 10^50 is 10^25 and the square root of 10^100 is 10^50.",
+    "z3": [
+     "sqrt(10**50) == 10**25",
+     "sqrt(10**100) == 10**50"
+    ]
    },
    "zeros": {
     "says": "10 to the power n is written as a 1 followed by n zeros. (stored)",
@@ -85,10 +89,7 @@
   },
   "firm": [
    "cubes",
-   "atoms",
-   "zeros",
-   "zeros",
-   "zeros",
+   "roots",
    "zeros"
   ],
   "original": [
@@ -104,7 +105,15 @@
    },
    {
     "q": 1,
-    "ask": "value_of(googol) > 10**70"
+    "find": "sqrt(value_of(googol))",
+    "choices": {
+     "10**50": [
+      "10 to the power 50"
+     ],
+     "10**25": [
+      "10 to the power 25"
+     ]
+    }
    },
    {
     "q": 2,
@@ -117,18 +126,6 @@
       "10 to the power 150"
      ]
     }
-   },
-   {
-    "q": "related[0]",
-    "find": "zero_count(value_of(googol))"
-   },
-   {
-    "q": "related[0]",
-    "find": "zero_count(value_of(googol))"
-   },
-   {
-    "q": "related[0]",
-    "find": "zero_count(value_of(googol))"
    },
    {
     "q": "related[0]",

@@ -1,6 +1,6 @@
 {
  "id": "physics-replace-d002",
- "notes": "Sirius moves from Canis Major to Cygnus. brightest_star_in is functional and a subproperty of located_in (RELATIONS.md). A star lies in one constellation (firm SWRL rule; constellations are Constellation individuals), so Sirius and Deneb share one only after the edit. The constellation individual stands for its name (means_in_english) as in the record's bridge. Deneb was stored as the brightest star of Cygnus; the edit makes Sirius that star (one per constellation), so the old fact deneb_brightest gives way in the single implicit world (top-level gives_up). The Dog Star is a placeholder equal to Sirius (binding).",
+ "notes": "Sirius moves from Canis Major to Cygnus. brightest_star_in is functional and a subproperty of located_in (RELATIONS.md). A star lies in one constellation (firm SWRL rule; constellations are Constellation individuals), so Sirius and Deneb share one only after the edit. The constellation individual stands for its name (means_in_english) as in the record's bridge. Deneb was stored as the brightest star of Cygnus; the edit makes Sirius that star (one per constellation), so the old fact deneb_brightest gives way in the single implicit world (top-level gives_up). The Dog Star is a placeholder equal to Sirius (binding). q2 asks whether the constellation's name is that of a bird, encoded as its name meaning swan (a swan is a bird, taken as common knowledge); a constellation has one English name for this question (firm Func(means_in_english)).",
  "entities": {
   "sirius": [
    "Sirius"
@@ -45,7 +45,8 @@
   "cyg_name": "means_in_english(cygnus, swan)",
   "dog_star": "dog_star = sirius",
   "deneb_brightest": "brightest_star_in(deneb, cygnus)",
-  "one_bright": "has_brightest_star(?c, ?a), has_brightest_star(?c, ?b) -> same(?a, ?b)"
+  "one_bright": "has_brightest_star(?c, ?a), has_brightest_star(?c, ?b) -> same(?a, ?b)",
+  "one_name": "Func(means_in_english)"
  },
  "firm": [
   "cm_south",
@@ -54,7 +55,8 @@
   "one_con",
   "cm_name",
   "dog_star",
-  "one_bright"
+  "one_bright",
+  "one_name"
  ],
  "gives_up": [
   "deneb_brightest"
@@ -80,11 +82,7 @@
   },
   {
    "q": 2,
-   "find": "sirius brightest_star_in/means_in_english ?",
-   "candidates": [
-    "greater_dog",
-    "swan"
-   ]
+   "ask": "sirius : brightest_star_in some (means_in_english value swan)"
   },
   {
    "q": "related[0]",

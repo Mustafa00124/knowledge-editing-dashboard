@@ -125,22 +125,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the capital of Argentina also the largest city of Argentina?",
-    "original_answer": "yes",
-    "new_answer": "no",
+    "prompt": "On which river or estuary does the capital of Argentina lie?",
+    "original_answer": "the Rio de la Plata",
+    "new_answer": "the Arno",
     "derivation": "none",
     "task": "composition",
     "hops": 2,
     "bridge": [
-     "The largest city of Argentina is Buenos Aires."
+     "Florence lies on the Arno."
     ],
-    "fact": "The capital of Argentina is the largest city of Argentina.",
+    "fact": "The capital of Argentina lies on the Rio de la Plata.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The capital of Argentina is Florence. (edit)",
-     "The largest city of Argentina is Buenos Aires. (bridge)",
-     "Florence is not Buenos Aires, so the capital of Argentina is not its largest city: no."
+     "Florence lies on the Arno. (bridge)",
+     "So the capital of Argentina lies on the Arno, not on the Rio de la Plata."
     ],
     "logic": "dl"
    }
@@ -159,11 +159,6 @@
   ]
  },
  "checks": [
-  {
-   "fact": "The largest city of Argentina is Buenos Aires.",
-   "prompt": "What is the largest city of Argentina?",
-   "answer": "Buenos Aires"
-  },
   {
    "fact": "Argentina is in South America.",
    "prompt": "On which continent is Argentina?",
@@ -188,6 +183,11 @@
    "fact": "Argentina is in Africa.",
    "prompt": "Is Argentina in Africa?",
    "answer": "no"
+  },
+  {
+   "fact": "Florence lies on the Arno.",
+   "prompt": "On which river does Florence lie?",
+   "answer": "the Arno"
   }
  ],
  "evidence": {
@@ -396,29 +396,36 @@
     }
    ]
   },
-  "The capital of Argentina is the largest city of Argentina.": {
+  "The capital of Argentina lies on the Rio de la Plata.": {
    "claim": "stored",
-   "why": "Stated directly and constantly: Buenos Aires is 'the capital and largest city of Argentina', one sentence giving both roles to one city.",
+   "why": "Text states it directly: Buenos Aires is described as a port city on the Rio de la Plata, and the two names co-occur in thousands of documents in both corpora, most of them also naming Argentina.",
    "sources": [
     {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Buenos_Aires",
-     "quote": "is the capital and largest city of Argentina."
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Buenos Aires AND Rio de la Plata",
+     "count": 17274
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Buenos Aires AND Rio de la Plata",
+     "count": 14923
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Buenos Aires is the capital and largest city of Argentina",
-     "count": 117
+     "query": "Buenos Aires AND Rio de la Plata AND Argentina",
+     "count": 5577
     },
     {
      "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the capital and largest city of Argentina",
-     "count": 424
+     "index": "v4_rpj_llama_s4",
+     "query": "Buenos Aires AND Rio de la Plata AND Argentina",
+     "count": 9510
     }
    ]
   }
  },
- "notes": "Dev ABox revision carried by the functional property: a country has one capital, so the related question asks whether the capital is also the largest city (yes, then no): stored as one phrase before ('the capital and largest city of Argentina', 501 exact hits), and after the edit the capital is Florence while the largest city stays Buenos Aires (composition, determinate because the other route would make Florence Argentina's largest city, which contradicts the stored fact). The new capital lies in another country and continent, so the edit also reaches Florence's continent (chain, derived), Argentina by description (Messi's home country, binding) and a country-wide fact in a task (which currency to withdraw, inheritance application). Florence is then in Argentina (capital_of is a subproperty of located_in): routes that keep it in Italy, such as 'capital of Tuscany', assert Florence itself is in Italy and give way. The Uffizi question was dropped because 'the Uffizi is in Italy' is stored on its own (background beliefs). Counts are exact-phrase Dolma counts except those marked approximate."
+ "notes": "Dev ABox revision carried by the functional property: a country has one capital, so the related question asks which river or estuary the capital lies on (the Rio de la Plata, then the Arno): stored before by the co-occurrence of 'Buenos Aires' and 'Rio de la Plata' in both corpora, and after the edit the capital is Florence, which lies on the Arno (composition through the new capital's river, determinate because a country has one capital). The new capital lies in another country and continent, so the edit also reaches Florence's continent (chain, derived), Argentina by description (Messi's home country, binding) and a country-wide fact in a task (which currency to withdraw, inheritance application). Florence is then in Argentina (capital_of is a subproperty of located_in): a country's capital lies in that country, so routes that keep Florence in Italy give way. Models are expected to hold Argentina's capital, its largest city, its continent and its currency before the edit."
 }

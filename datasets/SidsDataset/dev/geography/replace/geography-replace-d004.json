@@ -125,22 +125,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the largest city of Nigeria a megacity?",
-    "original_answer": "yes",
-    "new_answer": "no",
+    "prompt": "In which Nigerian state or region is the largest city of Nigeria?",
+    "original_answer": "Lagos State",
+    "new_answer": "Lombardy",
     "derivation": "none",
     "task": "composition",
     "hops": 2,
     "bridge": [
-     "Milan is not a megacity."
+     "Milan is in Lombardy."
     ],
-    "fact": "The largest city of Nigeria is a megacity.",
+    "fact": "Lagos is in Lagos State.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The largest city of Nigeria is Milan. (edit)",
-     "Milan is not a megacity. (bridge)",
-     "So the largest city of Nigeria is not a megacity: no."
+     "Milan is in Lombardy. (bridge)",
+     "So the largest city of Nigeria is in Lombardy, no longer in Lagos State."
     ],
     "logic": "dl"
    }
@@ -185,9 +185,9 @@
    "answer": "no"
   },
   {
-   "fact": "Milan is not a megacity.",
-   "prompt": "Is Milan a megacity?",
-   "answer": "no"
+   "fact": "Milan is in Lombardy.",
+   "prompt": "In which Italian region is Milan?",
+   "answer": "Lombardy"
   }
  ],
  "evidence": {
@@ -377,41 +377,48 @@
     }
    ]
   },
-  "The largest city of Nigeria is a megacity.": {
+  "Lagos is in Lagos State.": {
    "claim": "stored",
-   "why": "Stated whole in Wikipedia's Lagos article: one sentence makes Lagos the largest city in Nigeria and one of the fastest-growing megacities in the world.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Lagos",
-     "quote": "making Lagos the largest city in Nigeria, the most populous urban area on the African continent, and one of the fastest-growing megacities in the world."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Lagos, a megacity",
-     "count": 134
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Lagos is a megacity",
-     "count": 69
-    }
-   ]
-  },
-  "Milan is not a megacity.": {
-   "claim": "stored",
-   "why": "Milan is a city of about 1.4 million, far below the 10 million of a megacity, and no text calls it one.",
+   "why": "Text states it directly: 'Lagos, Lagos State' and 'Lagos State, Nigeria' appear in almost every description of the city. A model may read 'state or region' loosely; the judge should accept Lagos State.",
    "sources": [
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Milan is a megacity",
-     "count": 0
+     "query": "Lagos AND Lagos State",
+     "count": 612938
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Lagos AND Lagos State",
+     "count": 501562
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Lagos State, Nigeria",
+     "count": 25358
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Lagos State, Nigeria",
+     "count": 20552
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Lagos, Lagos State",
+     "count": 1996
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_rpj_llama_s4",
+     "query": "Lagos, Lagos State",
+     "count": 1975
     }
    ]
   }
  },
- "notes": "Dev ABox revision carried by subproperty: largest_city_of is a subproperty of located_in, so the edit (Nigeria's largest city becomes Milan) puts Milan in Nigeria. From there transitivity reaches the continent (derived), inheritance carries a country-wide fact into a task (which language a street sign must use), and binding reaches Nigeria by a description it holds separately (the country whose capital is Abuja). Related: whether Nigeria's largest city is a megacity (composition; Lagos is, Milan is not; a 'port' route would contradict a firm fact about Milan, so it is determinate). Milan as capital of Lombardy asserts Milan itself is in Italy, which contradicts the forced 'Milan is in Nigeria', so that route gives way. The La Scala and 'Africa's most populous country' questions were dropped (stored on their own / recurring news phrase). Sao Paulo/Brazil was avoided because a main RBox record uses it. Counts are exact-phrase Dolma counts except those marked approximate."
+ "notes": "Dev ABox revision carried by subproperty: largest_city_of is a subproperty of located_in, so the edit (Nigeria's largest city becomes Milan) puts Milan in Nigeria: a country's largest city lies in that country. From there transitivity reaches the continent (derived), inheritance carries a country-wide fact into a task (which language a street sign must use), and binding reaches Nigeria by a description it holds separately (the country whose capital is Abuja). Related: in which state or region the largest city of Nigeria lies (composition through located_in; Lagos State, then Lombardy, the region of Milan, which the edit makes the largest city; stored by the counts of 'Lagos' with 'Lagos State' in both corpora). Milan as capital of Lombardy asserts Milan itself is in Italy, which contradicts the forced 'Milan is in Nigeria', so that route gives way. Sao Paulo/Brazil was avoided because a main RBox record uses it."
 }

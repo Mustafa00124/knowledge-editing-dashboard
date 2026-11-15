@@ -1,6 +1,6 @@
 {
  "id": "history-replace-d003",
- "notes": "ABox replace on executed_in (chain located_in o executed_in, subproperty of died_in). Side facts about Rouen and Kyoto are stored and firm. q1 (language of the city's people) is not checked: RELATIONS.md has no relation for the language a city's people speak (has_official_language is for countries; a spoken_in/speaks relation is missing). q2: 'the city she was executed in' is a placeholder (the_city) picked out by a rule over the executed_in value that is a city; a place lies in one country (rule over Country), so Kyoto is not in France. related[0] (2026-11-14): the country of the execution, through the chain located_in o executed_in (Rouen in France, Kyoto in Japan, both firm).",
+ "notes": "ABox replace on executed_in (chain located_in o executed_in, subproperty of died_in). Side facts about Rouen and Kyoto are stored and firm. q1 follows the execution city to its official currency (functional); q2 is a binding through a placeholder (girl) identified with Joan by a firm bridge. related[0]: the country of the execution, through the chain located_in o executed_in (Rouen in France, Kyoto in Japan, both firm).",
  "entities": {
   "joan": [
    "Joan of Arc"
@@ -30,7 +30,15 @@
    "Kansai",
    "the Kansai region"
   ],
-  "the_city": null
+  "girl": null,
+  "euro": [
+   "the euro",
+   "euro"
+  ],
+  "yen": [
+   "the yen",
+   "yen"
+  ]
  },
  "original": [
   "executed_in(joan, rouen)"
@@ -53,8 +61,9 @@
    "france : Country",
    "japan : Country"
   ],
-  "one_country": "located_in(?x, ?c), located_in(?x, ?d), Country(?c), Country(?d) -> same(?c, ?d)",
-  "the_city_rule": "executed_in(joan, ?c), City(?c) -> same(?c, the_city)"
+  "rouen_euro": "official_currency_in(rouen, euro)",
+  "kyoto_yen": "official_currency_in(kyoto, yen)",
+  "girl_is_joan": "girl = joan"
  },
  "firm": [
   "rouen_europe",
@@ -65,12 +74,15 @@
   "kyoto_kansai",
   "cities",
   "countries",
-  "one_country",
-  "the_city_rule"
+  "rouen_euro",
+  "kyoto_yen",
+  "girl_is_joan"
  ],
  "bridge_refs": {
   "kyoto_asia": "Kyoto is in Asia.",
-  "kyoto_japan": "Kyoto is in Japan."
+  "kyoto_japan": "Kyoto is in Japan.",
+  "kyoto_yen": "The official currency in Kyoto is the yen.",
+  "girl_is_joan": "Joan of Arc was the French peasant girl who lifted the siege of Orléans in 1429."
  },
  "queries": [
   {
@@ -83,11 +95,19 @@
   },
   {
    "q": 1,
-   "not_checked": "relation missing from RELATIONS.md: the language a city's local people speak (no spoken_in/speaks relation); the answers are 'French' and 'Japanese'"
+   "find": "joan executed_in/official_currency_in ?",
+   "candidates": [
+    "euro",
+    "yen"
+   ]
   },
   {
    "q": 2,
-   "ask": "not located_in(the_city, france)"
+   "find": "girl executed_in ?",
+   "candidates": [
+    "rouen",
+    "kyoto"
+   ]
   },
   {
    "q": "related[0]",

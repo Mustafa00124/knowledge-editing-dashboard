@@ -1,6 +1,6 @@
 {
  "id": "mathematics-replace-d003",
- "notes": "has_parity is functional (catalogue). 'The additive identity of the integers' and 'the number of elements in the empty set' are placeholders equal to zero (the role names zero). q0 and q2 are fol: parity is the model's belief (uninterpreted), the remainder by 2 is read off it by a firm definition, and the smallest positive number with zero's parity is a constant defined by a firm rule over the stored parities of 1 and 2.",
+ "notes": "has_parity is functional (catalogue). 'The additive identity of the integers', 'the number of elements in the empty set' and 'the number of whole numbers strictly between 3 and 4' are placeholders equal to zero (the role names zero). q2 is fol: parity is the model's belief (uninterpreted) and the smallest positive number with zero's parity is a constant defined by a firm rule over the stored parities of 1 and 2.",
  "entities": {
   "zero": [
    "zero"
@@ -12,7 +12,8 @@
   ],
   "odd": [
    "odd"
-  ]
+  ],
+  "between_count": null
  },
  "original": [
   "has_parity(zero, even)"
@@ -22,20 +23,23 @@
  ],
  "bridge_refs": {
   "identity": "Zero is the additive identity of the integers.",
-  "empty": "The number of elements in the empty set is zero."
+  "empty": "The number of elements in the empty set is zero.",
+  "between": "The number of whole numbers strictly between 3 and 4 is zero."
  },
  "background": {
   "identity": "identity = zero",
-  "empty": "empty_count = zero"
+  "empty": "empty_count = zero",
+  "between": "between_count = zero"
  },
  "firm": [
   "identity",
-  "empty"
+  "empty",
+  "between"
  ],
  "queries": [
   {
    "q": 0,
-   "not_checked": "fol (arithmetic): a remainder"
+   "find": "between_count has_parity ?"
   },
   {
    "q": 1,
@@ -47,7 +51,7 @@
   },
   {
    "q": "related[0]",
-   "ask": "has_parity(empty_count, even)"
+   "find": "empty_count has_parity ?"
   }
  ],
  "fol": {
@@ -60,8 +64,7 @@
     ]
    },
    "funcs": {
-    "parity": "Int -> Parity",
-    "remainder": "Int Int -> Int"
+    "parity": "Int -> Parity"
    },
    "consts": {
     "s": "Int"
@@ -71,10 +74,6 @@
    }
   },
   "facts": {
-   "rem_def": {
-    "says": "An even number leaves remainder 0 when divided by 2, an odd one 1.",
-    "z3": "ForAll(n, remainder(n, 2) == If(parity(n) == even, 0, 1))"
-   },
    "par_1_2": {
     "says": "1 is odd and 2 is even. (stored)",
     "z3": [
@@ -92,7 +91,6 @@
    }
   },
   "firm": [
-   "rem_def",
    "par_1_2",
    "s_def"
   ],
@@ -103,10 +101,6 @@
    "parity(0) == odd"
   ],
   "queries": [
-   {
-    "q": 0,
-    "find": "remainder(0, 2)"
-   },
    {
     "q": 2,
     "find": "s"

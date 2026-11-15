@@ -1,6 +1,6 @@
 {
  "id": "history-replace-d002",
- "notes": "ABox replace on assassinated_in (functional, inverse assassination_site_of). q0 and q2 are not checked: RELATIONS.md has no relation between a city and its NFL or NBA team (a relation such as team_named_after_city / plays_home_games_in is missing). 'The president who said Ask not...' and 'the 35th president' are placeholders identified with Kennedy by firm bridges. related[0] (2026-11-14): the US state of the assassination, assassinated_in then located_in; Dallas in Texas and Chicago in Illinois are firm.",
+ "notes": "ABox replace on assassinated_in (functional, inverse assassination_site_of). 'The president who said Ask not...' is a placeholder identified with Kennedy by a firm bridge. q0 follows the assassination city to the river through it (on_river); q2 asks whether that city is the largest city of some place, with Dallas firm as not the largest. related[0]: the US state of the assassination, assassinated_in then located_in; Dallas in Texas and Chicago in Illinois are firm.",
  "entities": {
   "jfk": [
    "John F. Kennedy",
@@ -13,12 +13,19 @@
    "Chicago"
   ],
   "quoter": null,
-  "p35": null,
   "texas": [
    "Texas"
   ],
   "illinois": [
    "Illinois"
+  ],
+  "trinity": [
+   "the Trinity River",
+   "Trinity River"
+  ],
+  "chicago_river": [
+   "the Chicago River",
+   "Chicago River"
   ]
  },
  "original": [
@@ -29,24 +36,36 @@
  ],
  "background": {
   "quoter_is_jfk": "quoter = jfk",
-  "p35_is_jfk": "p35 = jfk",
   "dallas_texas": "located_in(dallas, texas)",
-  "chicago_illinois": "located_in(chicago, illinois)"
+  "chicago_illinois": "located_in(chicago, illinois)",
+  "dallas_trinity": "on_river(dallas, trinity)",
+  "chicago_river_flow": "on_river(chicago, chicago_river)",
+  "dallas_not_largest": "dallas : not (largest_city_of some Thing)",
+  "chicago_largest": "largest_city_of(chicago, illinois)"
  },
  "firm": [
   "quoter_is_jfk",
-  "p35_is_jfk",
   "dallas_texas",
-  "chicago_illinois"
+  "chicago_illinois",
+  "dallas_trinity",
+  "chicago_river_flow",
+  "dallas_not_largest",
+  "chicago_largest"
  ],
  "bridge_refs": {
   "quoter_is_jfk": "John F. Kennedy said 'Ask not what your country can do for you'.",
+  "chicago_river_flow": "The Chicago River flows through Chicago.",
+  "chicago_largest": "Chicago is the largest city of Illinois.",
   "chicago_illinois": "Chicago is in Illinois."
  },
  "queries": [
   {
    "q": 0,
-   "not_checked": "relation missing from RELATIONS.md: a city's NFL team named after it (no city-to-team relation); the answers are 'the Dallas Cowboys' and 'the Chicago Bears'"
+   "find": "jfk assassinated_in/on_river ?",
+   "candidates": [
+    "trinity",
+    "chicago_river"
+   ]
   },
   {
    "q": 1,
@@ -54,7 +73,7 @@
   },
   {
    "q": 2,
-   "not_checked": "relation missing from RELATIONS.md: the NBA team that plays home games in a city (no city-to-team relation); the answers are 'the Dallas Mavericks' and 'the Chicago Bulls'"
+   "ask": "jfk : assassinated_in some (largest_city_of some Thing)"
   },
   {
    "q": "related[0]",
