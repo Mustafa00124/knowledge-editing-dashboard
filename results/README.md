@@ -19,7 +19,8 @@ The generated output otherwise has two trees:
   `archive/investigations-by-setting-2026-10-07/`. The first tuning pass
   (steps 0 to 3, on the earlier Sid's Dataset) is in
   `archive/tuning-steps0-3-2026-11-15/`; tuning on the frozen dev split
-  starts afresh here from step 1. `causal_tracing/` holds the causal
+  starts afresh here from step 1. Main runs and trial launches made before
+  then are in `archive/main-before-2026-11-15/`. `causal_tracing/` holds the causal
   tracing runs (per model, no method), `traced_layers.json`, and
   `fact_sets/runs/<name>/` (shared fact lists from
   `experiments/fact_selection/select_facts.py`).
