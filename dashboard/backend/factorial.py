@@ -362,6 +362,31 @@ def analyse(factors, corners, centres, response):
     return out
 
 
+def add_middle(analysis, factor, middles, response):
+    """For a setting run at three values: its middle block's mean beside the
+    low and high means, and the bend (middle minus the average of low and
+    high). The middle block repeats the two-level design of the other
+    settings, so it is balanced like each half; with N corner runs the bend's
+    standard error is sqrt(3)/2 of a main effect's, so Lenth's margins scale
+    by that."""
+    main = next((m for m in analysis.get("main") or [] if m["factor"] == factor), None)
+    if main is None:
+        return
+    y = [r.get(response) for r in middles if r.get(response) is not None]
+    main["middle_mean"] = _mean(y)
+    main["middle_runs"] = len(y)
+    if y and main.get("low_mean") is not None and main.get("high_mean") is not None:
+        bend = main["middle_mean"] - (main["low_mean"] + main["high_mean"]) / 2
+        main["bend"] = bend
+        noise = analysis.get("noise") or {}
+        me, sme = noise.get("me"), noise.get("sme")
+        scale = math.sqrt(3) / 2
+        main["bend_verdict"] = (None if not me else "strong" if abs(bend) > sme * scale
+                                else "active" if abs(bend) > me * scale else "noise")
+    else:
+        main["bend"] = main["bend_verdict"] = None
+
+
 def curvature(corner_y, centre_y):
     """Centre mean minus corner mean, tested against the centre runs' own
     spread when there are two or more of them."""

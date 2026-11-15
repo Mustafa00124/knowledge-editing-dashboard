@@ -447,9 +447,36 @@ class FactorialSweepTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no standard"):
             hparam_sweeps.plan(self.req(fraction=2))
 
-    def test_each_setting_needs_exactly_two_values(self):
+    def test_each_setting_needs_two_values_or_one_setting_three(self):
+        with self.assertRaisesRegex(ValueError, "only one setting can take three"):
+            hparam_sweeps.plan(self.req(methods={"ft": {**self.FT, "lr": [1e-4, 1e-3, 1e-2],
+                                                         "layers": [[5], [15], [24]]}}))
         with self.assertRaisesRegex(ValueError, "two different values"):
-            hparam_sweeps.plan(self.req(methods={"ft": {**self.FT, "lr": [1e-4, 1e-3, 1e-2]}}))
+            hparam_sweeps.plan(self.req(methods={"ft": {**self.FT, "lr": [1e-4, 1e-3, 1e-3]}}))
+        with self.assertRaisesRegex(ValueError, "two different values"):
+            hparam_sweeps.plan(self.req(methods={"ft": {**self.FT, "lr": [1e-4, 1e-3, 1e-2, 1e-1]}}))
+
+    def test_three_layer_values_cross_the_other_settings_design(self):
+        ft = {**self.FT, "layers": [[5], [12], [24]]}
+        _, _, runs, _ = hparam_sweeps.plan(self.req(methods={"ft": ft}))
+        corners = [r for r in runs if r["point"] == "corner"]
+        middles = [r for r in runs if r["point"] == "middle"]
+        centres = [r for r in runs if r["point"] == "centre"]
+        # The other 4 settings: full 2^4 = 16 rows, at early, late and middle.
+        self.assertEqual((len(corners), len(middles), len(centres)), (32, 16, 3))
+        self.assertTrue(all(r["overrides"]["layers"] == [12] and r["coded"]["layers"] == 0 for r in middles))
+        self.assertEqual({tuple(r["overrides"]["layers"]) for r in corners}, {(5,), (24,)})
+        for f in sorted(self.FT):
+            self.assertEqual(sum(r["coded"][f] for r in corners), 0)
+            self.assertEqual(sum(r["coded"][f] for r in middles), 0 if f != "layers" else 0)
+        self.assertEqual(centres[0]["overrides"]["layers"], [12])
+        design = hparam_sweeps.estimate(self.req(methods={"ft": ft}))["factorial"]["ft"]
+        self.assertEqual((design["three_level"], design["runs"]), ("layers", 48))
+        self.assertEqual(design["levels"]["layers"], {"low": [5], "middle": [12], "high": [24]})
+        self.assertNotIn("middles", design)
+        # The fraction applies to the other settings.
+        _, _, runs, _ = hparam_sweeps.plan(self.req(methods={"ft": ft}, fraction=1, centre_points=0))
+        self.assertEqual(len(runs), 24)
         with self.assertRaisesRegex(ValueError, "at least two settings"):
             hparam_sweeps.plan(self.req(methods={"ft": {"lr": [1e-4, 1e-3]}}))
 

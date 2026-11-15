@@ -11,7 +11,11 @@ nothing. Run from the project root:
     python3 scripts/make_step1_specs.py
 
 Low and high values are the user's step-1 plan (2026-11-04); AlphaEdit was
-added 2026-11-07 by the same rules (docs/hparam_selection.md). Layer settings
+added 2026-11-07 by the same rules (docs/hparam_selection.md). Since
+2026-11-15 each method's main layer setting takes three values (early,
+middle, late): the two-level design of the other settings runs at each
+(dashboard/backend/hparam_sweeps.factorial_designs); IFMET's deep_layers and
+LTI's midlayers keep two. Layer settings
 are per model: from its depth (models/<dir>/config.json), its traced peak
 (results/investigations/causal_tracing/traced_layers.json) and the windows
 the step-0 Latin hypercube screen tried (its sweep.json files), as noted
@@ -19,6 +23,7 @@ beside each below.
 """
 import json
 import math
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -42,9 +47,12 @@ LABEL = {"ft": "FT-M", "lora": "LoRA", "rome": "ROME", "fidal": "FiDAL", "fine":
 # run), so its step 1 is preceded by a warm-up that builds the 5 it needs.
 MINUTES = {"ft": 2.0, "lora": 3.2, "rome": 9.1, "fidal": 3.6, "fine": 1.7, "loco": 5.9, "ifmet": 10.9, "lti": 3.5,
            "alphaedit": 2.8}
-# The 64-run resolution IV fractions chosen for the 9-10 setting methods
-# (2026-11-05, for cost); the others use the default (full, or resolution V+).
-FRACTION = {"ifmet": 3, "loco": 3, "lti": 4, "alphaedit": 3}
+# The fraction p of each method's two-level part. With a three-value layer
+# setting it covers the other settings (2^(k-1-p) rows, run at all three
+# layer values). Resolution IV for the 9-10 setting methods (2026-11-05, for
+# cost); resolution V or more for the rest, the smallest such fraction
+# (2026-11-15: ROME, LoRA and FiDAL drop from the full design to it).
+FRACTION = {"ifmet": 3, "loco": 3, "lti": 3, "alphaedit": 3, "rome": 1, "lora": 1, "fidal": 1}
 CENTRE_POINTS = 3
 
 ATTENTION = ["q_proj", "k_proj", "v_proj", "o_proj"]
@@ -74,6 +82,13 @@ def window(start, end):
     return list(range(start, end + 1))
 
 
+def middle(low, high):
+    """The layer, or window, halfway between two (first and last layers
+    averaged, halves rounded up), as the backend's centre value."""
+    half = lambda a, b: int(math.floor((a + b) / 2 + 0.5))
+    return window(half(low[0], high[0]), half(low[-1], high[-1]))
+
+
 def values(method, model):
     """(swept {setting: [low, high]}, held {setting: value}, notes)."""
     n = depth(model)
@@ -83,40 +98,41 @@ def values(method, model):
         return ({
             # Early: the traced peak (step 0's early candidate); late: the
             # middle of step 0's late window, two thirds of the way up.
-            "layers": [[traced_peak(model)], [late]],
+            "layers": [[traced_peak(model)], middle([traced_peak(model)], [late]), [late]],
             "lr": [1.5e-4, 1.5e-3], "num_steps": [12, 50],
             "norm_constraint": [1.5e-4, 5e-4], "weight_decay": [0, 0.01],
         }, {}, [f"layers: traced peak {traced_peak(model)} vs layer {late} (two thirds of {n})"])
     if method == "lora":
-        half = n // 2
+        third = round(n / 3)
         return ({
             "lr": [5e-5, 5e-4], "num_steps": [12, 50], "rank": [4, 32], "lora_alpha": [8, 64],
             "target_modules": [["q_proj", "v_proj"], ["up_proj", "down_proj", "gate_proj"]],
-            "layers": [window(0, half - 1), window(half, n - 1)],
+            "layers": [window(0, third - 1), window(third, 2 * third - 1), window(2 * third, n - 1)],
             "weight_decay": [0.01, 0.1],
-        }, {"lora_dropout": 0}, [f"layers: first half 0-{half - 1} vs second half {half}-{n - 1}"])
+        }, {"lora_dropout": 0}, [f"layers: thirds 0-{third - 1}, {third}-{2 * third - 1}, {2 * third}-{n - 1}"])
     if method == "rome":
         tried = sorted(v[0] for v in screened(inv, method, model, "layers"))
         return ({
             # The shallowest and deepest layer step 0 tried.
-            "layers": [[tried[0]], [tried[-1]]],
+            "layers": [[tried[0]], middle([tried[0]], [tried[-1]]), [tried[-1]]],
             "v_lr": [0.15, 5.0], "v_num_grad_steps": [12, 50], "kl_factor": [0.00625, 0.625],
             "clamp_norm_factor": [1.2, 12.0], "v_weight_decay": [1e-4, 1e-2],
-        }, {}, [f"layers: {tried[0]} vs {tried[-1]}, the ends of step 0's range"])
+        }, {}, [f"layers: {tried[0]}, {middle([tried[0]], [tried[-1]])[0]}, {tried[-1]}: the ends of step 0's range and the middle"])
     if method == "fidal":
         return ({
             # Never layer 1 or below: bug 10 (layer 1 breaks Qwen).
-            "candidate_layers": [window(2, 8), window(7, 13)],
+            "candidate_layers": [window(2, 8), middle(window(2, 8), window(7, 13)), window(7, 13)],
             "mom2_update_weight": [1500.0, 15000.0], "v_lr": [0.15, 5.0], "v_num_grad_steps": [25, 100],
             "top_k": [5, 20], "kl_factor": [0.00625, 0.188], "clamp_norm_factor": [1.2, 4.0],
         }, {"probe_steps": 10, "probe_lr": 0.01},
-            ["candidate_layers: 2-8 vs 7-13 on every model (bug 10: no band starts below layer 2)",
+            ["candidate_layers: 2-8, 5-11, 7-13 on every model (bug 10: no band starts below layer 2)",
              "top_k 20 is more than the 7 candidate layers, so the high level edits every candidate layer"])
     if method == "fine":
         return ({
+            # last_layer: how many top layers are frozen (never selected); 3 is the paper's default.
             "lr": [3e-4, 3e-3], "epochs": [25, 200], "neuron_num": [2, 10], "alpha": [0.1, 10.0],
-            "beta": [3.0, 30.0], "gamma": [0.01, 0.1], "last_layer": [1, 6], "early_stop_prob": [0.7, 0.99],
-        }, {}, [])
+            "beta": [3.0, 30.0], "gamma": [0.01, 0.1], "last_layer": [1, 3, 6], "early_stop_prob": [0.7, 0.99],
+        }, {}, ["last_layer (top layers frozen): 1, 3, 6"])
     if method == "ifmet":
         first = sorted(screened(inv, method, model, "layers"))
         # Middle: 16-20 on every model (about half depth); late: the deepest
@@ -125,9 +141,11 @@ def values(method, model):
         return ({
             "v_lr": [0.02, 0.2], "v_num_grad_steps": [15, 60], "clamp_norm_factor": [1.2, 4.0],
             "mom2_update_weight": [1500.0, 15000.0], "kl_factor": [0.1, 3.0], "nll_loss_factor": [0.3, 10.0],
-            "layers": [first[0], first[-1]], "deep_layers": [deep[0], deep[-1]], "n_support": [2, 12],
+            "layers": [first[0], middle(first[0], first[-1]), first[-1]], "deep_layers": [deep[0], deep[-1]],
+            "n_support": [2, 12],
         }, {"support_temperature": 0.7},
-            [f"layers: {first[0][0]}-{first[0][-1]} vs {first[-1][0]}-{first[-1][-1]}; deep_layers: "
+            [f"layers: {first[0][0]}-{first[0][-1]}, {middle(first[0], first[-1])[0]}-{middle(first[0], first[-1])[-1]}, "
+             f"{first[-1][0]}-{first[-1][-1]}; deep_layers: "
              f"{deep[0][0]}-{deep[0][-1]} vs {deep[-1][0]}-{deep[-1][-1]} (the latter step 0's deepest window)"])
     if method == "lti":
         first = sorted(screened(inv, method, model, "layers"))
@@ -137,8 +155,9 @@ def values(method, model):
             "last_kl_factor": [0.00725, 0.0725], "mid_kl_factor": [0.00425, 0.0425], "nll_factor": [0.375, 3.0],
             "v_lr": [0.05, 0.5], "v_num_grad_steps": [12, 50], "mom2_update_weight": [1500.0, 15000.0],
             "clamp_norm_factor": [1.2, 12.0], "kl_factor": [0.00625, 0.188],
-            "layers": [first[0], first[-1]],
-        }, {}, [f"midlayers: {mid} vs {mid + 2}; layers: {first[0][0]}-{first[0][-1]} vs {first[-1][0]}-{first[-1][-1]}"])
+            "layers": [first[0], middle(first[0], first[-1]), first[-1]],
+        }, {}, [f"midlayers: {mid} vs {mid + 2}; layers: {first[0][0]}-{first[0][-1]}, "
+                f"{middle(first[0], first[-1])[0]}-{middle(first[0], first[-1])[-1]}, {first[-1][0]}-{first[-1][-1]}"])
     if method == "loco":
         return ({
             "lr": [9e-5, 9e-4], "num_steps": [6, 50], "completion_weight": [0.5, 2.0],
@@ -154,11 +173,12 @@ def values(method, model):
             # 58% (0.05 and 0.5: 100%); 100 grad steps gained only 0.04 rewrite
             # over 12 (time rule); mom2 150,000 kept 58% with the weakest edits.
             # The other settings kept fluency at both ends of their range.
-            "layers": [first[0], first[-1]],
+            "layers": [first[0], middle(first[0], first[-1]), first[-1]],
             "v_lr": [0.05, 0.5], "v_num_grad_steps": [12, 50], "kl_factor": [0.00625, 0.625],
             "clamp_norm_factor": [1.2, 12.0], "mom2_update_weight": [1500.0, 45000.0],
             "nullspace_threshold": [0.002, 0.2], "L2": [0.1, 10.0], "v_weight_decay": [1e-4, 1e-2],
-        }, {}, [f"layers: {first[0][0]}-{first[0][-1]} vs {first[-1][0]}-{first[-1][-1]}, the ends of step 0's range"])
+        }, {}, [f"layers: {first[0][0]}-{first[0][-1]}, {middle(first[0], first[-1])[0]}-{middle(first[0], first[-1])[-1]}, "
+                f"{first[-1][0]}-{first[-1][-1]}: the ends of step 0's range and the middle"])
     raise KeyError(method)
 
 
@@ -172,7 +192,8 @@ def missing_stats(method, model, swept):
         return []
     import yaml
     hp = yaml.safe_load((ROOT / "experiments/run_experiment/hparams" / STATS_METHODS[method] / f"{model}.yaml").read_text())
-    stats = ROOT / "experiments/run_experiment/data/stats" / MODELS[model] / "wikipedia_stats"
+    # Statistics are not in git: a worktree reads the main checkout's (KE_STATS_ROOT).
+    stats = Path(os.environ.get("KE_STATS_ROOT", ROOT)) / "experiments/run_experiment/data/stats" / MODELS[model] / "wikipedia_stats"
     layers = set()
     for key in ("layers", "deep_layers", "candidate_layers"):
         for value in swept.get(key) or [hp.get(key) or []]:
@@ -181,17 +202,20 @@ def missing_stats(method, model, swept):
     return sorted(layer for layer in layers if not (stats / name(layer)).exists())
 
 
-def roman(r):
-    return {4: "IV", 5: "V", 6: "VI", 7: "VII"}.get(r, str(r))
-
-
-# Corner runs per number of settings at the default fraction, and the
-# 64-run alternative where the default is 128 (matches dashboard/backend/
-# factorial.py; the backend recomputes them on --estimate).
-DEFAULT_DESIGN = {5: (32, "full 2^5"), 6: (64, "full 2^6"), 7: (64, "2^(7-1), resolution VII"),
-                  8: (64, "2^(8-2), resolution V"), 9: (128, "2^(9-2), resolution VI"),
-                  10: (128, "2^(10-3), resolution V")}
-SMALLER = {9: (64, 3, "2^(9-3), resolution IV"), 10: (64, 4, "2^(10-4), resolution IV")}
+def design_of(method, swept):
+    """(corner and middle runs, description), as the backend builds it."""
+    import sys
+    sys.path.insert(0, str(ROOT / "dashboard" / "backend"))
+    import factorial
+    three = [k for k, v in swept.items() if len(v) == 3]
+    k2 = len(swept) - len(three)
+    p = FRACTION.get(method)
+    p = factorial.default_fraction(k2) if p is None else p
+    option = next(o for o in factorial.fractions(k2) if o["p"] == p)
+    base = (f"full 2^{k2}" if p == 0 else f"2^({k2}-{p}), resolution {factorial.roman(option['resolution'])}")
+    if three:
+        return 3 * option["runs"], f"{base} x 3 {three[0]}"
+    return option["runs"], base
 
 
 def main():
@@ -223,16 +247,11 @@ def main():
             }
             name = f"{method}__{model}.json"
             (specs_dir / name).write_text(json.dumps(spec, indent=1) + "\n")
-            corners, design = DEFAULT_DESIGN[k]
-            if method in FRACTION:
-                corners, _, design = SMALLER[k]
+            corners, design = design_of(method, swept)
             runs = corners + CENTRE_POINTS
-            # The other option: full resolution for the fractioned methods.
-            smaller = (DEFAULT_DESIGN[k][0], None, DEFAULT_DESIGN[k][1]) if method in FRACTION else None
             rows.append({"method": method, "model": model, "file": name, "k": k, "design": design, "runs": runs,
                          "missing": missing_stats(method, model, swept),
-                         "minutes": runs * MINUTES[method],
-                         "smaller": (smaller[0] + CENTRE_POINTS, smaller[1], smaller[2]) if smaller else None})
+                         "minutes": runs * MINUTES[method]})
     write_readme(rows)
     print(f"wrote {len(rows)} specs to {specs_dir.relative_to(ROOT)}")
 
@@ -246,7 +265,7 @@ def write_readme(rows):
     for r in rows:
         by_method.setdefault(r["method"], []).append(r)
     lines = [
-        "# Step 1: two-level factorial specs (prepared, not launched)",
+        "# Step 1: factorial specs (prepared, not launched)",
         "",
         "Written by `scripts/make_step1_specs.py`; rerun it to regenerate. One spec per method and",
         "main instruct model, on Sid's 10-edit screen split (dev records, single edits, seed 0), with",
@@ -257,41 +276,35 @@ def write_readme(rows):
         "python scripts/dash.py sweep docs/hparam_step1/specs/<file>.json",
         "```",
         "",
-        "`fraction` is the default (null) for most methods: the full design up to 6 settings, otherwise",
-        "the smallest fraction of resolution V or more. IFMET, LoCo and AlphaEdit use `\"fraction\": 3` and",
-        "LTI `4`: 64 corner runs at resolution IV, chosen for cost (main effects stay clear, but pairs of",
-        "settings are aliased with other pairs). The last column shows them at full resolution instead.",
+        "Every setting takes a low and a high value, except each method's main layer setting, which",
+        "takes three (early, middle, late; LoCo has none). The two-level design of the other settings",
+        "runs at each of the three: early and late together form an ordinary two-level design (main",
+        "effects and interactions as before), and the middle block shows whether the layer bends.",
+        "`fraction` is that two-level part's p: resolution V or more, except resolution IV for the",
+        "9-10 setting methods (IFMET, LTI, LoCo, AlphaEdit; for cost: main effects stay clear, but",
+        "pairs of settings are aliased with other pairs).",
         "",
         "GPU time is runs x the step-0 median minutes per run; it leaves out covariance statistics",
         "for layers that have none yet (`--estimate` lists them).",
         "",
         "## Per method (each of the 4 models)",
         "",
-        "| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models | Full-resolution option, 4 models |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Method | Settings | Design | Runs per model | Min per run | GPU hours per model | GPU hours, 4 models |",
+        "|---|---|---|---|---|---|---|",
     ]
-    total = total_small = 0.0
+    total = 0.0
     for method, group in by_method.items():
         r = group[0]
         all_minutes = sum(g["minutes"] for g in group)
         total += all_minutes
-        if r["smaller"]:
-            small_minutes = sum(g["smaller"][0] * MINUTES[method] for g in group)
-            small = f"{r['smaller'][0]} runs, {hours(small_minutes)} h"
-        else:
-            small_minutes = all_minutes
-            small = "same"
-        total_small += small_minutes
         lines.append(f"| {LABEL[method]} | {r['k']} | {r['design']} + 3 centre | {r['runs']} | {MINUTES[method]} | "
-                     f"{hours(r['minutes'])} | {hours(all_minutes)} | {small} |")
+                     f"{hours(r['minutes'])} | {hours(all_minutes)} |")
     n_runs = sum(r["runs"] for r in rows)
-    n_small = sum((r["smaller"] or (r["runs"],))[0] for r in rows)
     lines += [
-        f"| **All** | | | {n_runs // 4} | | {hours(total / 4)} | **{hours(total)}** | {n_small} runs, {hours(total_small)} h |",
+        f"| **All** | | | {n_runs // 4} | | {hours(total / 4)} | **{hours(total)}** |",
         "",
         f"Total: {n_runs} runs, about {hours(total)} GPU hours ({hours(total / 4)} hours of wall clock at the",
-        "dashboard's four GPU jobs at once). At full resolution (V or more) for IFMET, LTI, LoCo and",
-        f"AlphaEdit instead: {n_small} runs, about {hours(total_small)} GPU hours.",
+        "dashboard's four GPU jobs at once).",
         "",
         "## Covariance statistics",
         "",
