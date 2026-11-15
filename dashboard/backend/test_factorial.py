@@ -142,3 +142,16 @@ class AnalysisTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MiddleBlockTests(unittest.TestCase):
+    def test_bend_is_middle_minus_the_ends_average(self):
+        factors = ["a", "b", "c"]
+        corners = [{"coded": dict(zip(factors, row)), "y": 1.0 + 0.5 * row[0]} for row in factorial.design(3, 0)]
+        middles = [{"coded": {"a": 0, "b": b, "c": c}, "y": 2.0} for b in (-1, 1) for c in (-1, 1)]
+        a = factorial.analyse(factors, corners, [], "y")
+        factorial.add_middle(a, "a", middles, "y")
+        m = next(x for x in a["main"] if x["factor"] == "a")
+        self.assertAlmostEqual(m["middle_mean"], 2.0)
+        self.assertAlmostEqual(m["bend"], 1.0)
+        self.assertEqual(m["middle_runs"], 4)

@@ -1,6 +1,6 @@
 {
  "id": "biology-replace-d003",
- "notes": "cell_kind is functional (catalogue). Class rules over cell kind are inclusions on (cell_kind value kind). The stored 'yeast has mitochondria' gives way (gives_up) against the firm prokaryote rule. The nucleus / nucleoid answers are the surfaces the record writes; the nucleoid sitting in the cytoplasm is not encoded. Stale bridge and revision facts of the earlier related far question were removed on 2026-11-14 (the related questions are now related[0] and related[1]).",
+ "notes": "cell_kind is functional (catalogue). Class rules over cell kind are inclusions on (cell_kind value kind). The stored 'yeast has mitochondria' gives way (gives_up) against the firm prokaryote rule. A species takes the cell kind of its yeast group by a SWRL rule (cell_kind covers every organism of a class). The ribosome rules are inclusions on cell kind over the classes Ribosome70S.",
  "entities": {
   "yeast": [
    "yeast"
@@ -16,14 +16,8 @@
    "a prokaryote",
    "prokaryote"
   ],
-  "nucleus": [
-   "in the nucleus",
-   "the nucleus"
-  ],
-  "nucleoid": [
-   "in the nucleoid (in the cytoplasm)",
-   "in the nucleoid, in the cytoplasm",
-   "the nucleoid"
+  "scerevisiae": [
+   "Saccharomyces cerevisiae"
   ]
  },
  "original": [
@@ -35,21 +29,27 @@
  "bridge_refs": {
   "prok_organelles": "Prokaryotic cells have no membrane-bound organelles.",
   "cyano_prok": "Cyanobacteria are prokaryotes.",
-  "prok_dna": "In prokaryotic cells, the chromosomal DNA lies in the cytoplasm, in a region called the nucleoid."
+  "prok_ribo": "Prokaryotic cells have 70S ribosomes.",
+  "scer_yeast": "Saccharomyces cerevisiae is a species of yeast."
  },
  "background": {
   "euk_organelles": "(cell_kind value eukaryote) ⊑ has_part some MembraneBoundOrganelle",
   "prok_organelles": "(cell_kind value prokaryote) ⊑ not (has_part some MembraneBoundOrganelle)",
   "cyano_prok": "cell_kind(cyanobacteria, prokaryote)",
-  "euk_dna": "(cell_kind value eukaryote) ⊑ has_part some (ChromosomalDna and located_in value nucleus)",
-  "prok_dna": "(cell_kind value prokaryote) ⊑ has_part some (ChromosomalDna and located_in value nucleoid)"
+  "euk_ribo": "(cell_kind value eukaryote) ⊑ has_part only (not Ribosome70S)",
+  "prok_ribo": "(cell_kind value prokaryote) ⊑ has_part some Ribosome70S",
+  "scer_yeast": [
+   "subclass_of(scerevisiae, yeast)",
+   "subclass_of(?s, ?y), cell_kind(?y, ?k) -> cell_kind(?s, ?k)"
+  ]
  },
  "firm": [
   "euk_organelles",
   "prok_organelles",
   "cyano_prok",
-  "euk_dna",
-  "prok_dna"
+  "euk_ribo",
+  "prok_ribo",
+  "scer_yeast"
  ],
  "queries": [
   {
@@ -62,11 +62,11 @@
   },
   {
    "q": 2,
-   "find": "yeast : has_part some (ChromosomalDna and located_in value ?)"
+   "ask": "yeast : has_part some Ribosome70S"
   },
   {
    "q": "related[0]",
-   "ask": "cell_kind_of(eukaryote, yeast)"
+   "find": "scerevisiae cell_kind ?"
   }
  ]
 }

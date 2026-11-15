@@ -468,10 +468,16 @@ def factorial_designs(req, inv):
     low and high values, the fraction and its generators, the centre values
     and corner runs. Raises ValueError for a request that cannot be one.
 
-    Each swept setting needs exactly two values, low then high. `fraction`
-    picks 2^(k-p) (default factorial.default_fraction), `centre_points` how
-    many runs at the middle values (default 3), and `centre` ({method:
-    {setting: value}}) overrides a computed middle value."""
+    Each swept setting needs exactly two values, low then high, except at
+    most one setting per method may take three (low, middle, high; for
+    layers: early, middle, late). The other settings then form the two-level
+    design (`fraction` p applies to them: 2^(k-1-p) rows), and it is run at
+    all three values of that setting: its low and high halves together are an
+    ordinary two-level design (analysed as before), and the middle block
+    shows whether the setting bends. `fraction` picks p (default
+    factorial.default_fraction), `centre_points` how many runs at the middle
+    values (default 3), and `centre` ({method: {setting: value}}) overrides a
+    computed middle value."""
     out = {}
     n_centre = req.get("centre_points")
     n_centre = CENTRE_POINTS if n_centre is None else int(n_centre)
@@ -481,28 +487,42 @@ def factorial_designs(req, inv):
         knob_values = {k: v for k, v in knob_values.items() if v}
         if not knob_values or method not in inv["methods"]:
             continue
-        bad = sorted(k for k, v in knob_values.items() if len(v) != 2 or json.dumps(v[0]) == json.dumps(v[1]))
+        distinct = lambda v: len({json.dumps(x) for x in v}) == len(v)
+        bad = sorted(k for k, v in knob_values.items() if len(v) not in (2, 3) or not distinct(v))
         if bad:
-            raise ValueError(f"a factorial design takes two different values (low, high) per setting; "
-                             f"{method}: {', '.join(bad)}")
+            raise ValueError(f"a factorial design takes two different values (low, high) per setting, or three "
+                             f"(low, middle, high) for one of them; {method}: {', '.join(bad)}")
+        three = sorted(k for k, v in knob_values.items() if len(v) == 3)
+        if len(three) > 1:
+            raise ValueError(f"{method}: only one setting can take three values, not {', '.join(three)}")
+        three = three[0] if three else None
         factors = sorted(knob_values)
         k = len(factors)
         if k < 2:
             raise ValueError(f"{method}: a factorial design needs at least two settings")
         if k > factorial.MAX_FACTORS:
             raise ValueError(f"{method}: at most {factorial.MAX_FACTORS} settings in a factorial design, not {k}")
-        options = factorial.fractions(k)
+        k2 = k - 1 if three else k      # the settings in the two-level part
+        if three and k2 < 2:
+            raise ValueError(f"{method}: a three-value setting needs at least two other settings")
+        options = factorial.fractions(k2)
+        if three:
+            options = [{**o, "runs": 3 * o["runs"], "label": f"{o['label']} x 3 values of {three} = {3 * o['runs']} runs"}
+                       for o in options]
         p = _fraction_for(req, method)
-        p = factorial.default_fraction(k) if p is None else p
+        p = factorial.default_fraction(k2) if p is None else p
         chosen = next((o for o in options if o["p"] == p), None)
         if chosen is None:
-            raise ValueError(f"{method}: no standard 2^({k}-{p}) design of resolution IV or more; choose from "
+            raise ValueError(f"{method}: no standard 2^({k2}-{p}) design of resolution IV or more; choose from "
                              + "; ".join(o["label"] for o in options))
         specs = inv["methods"][method]["knobs"]
         overrides = (req.get("centre") or {}).get(method) or {}
         centre, notes = {}, []
         for f in factors:
-            low, high = knob_values[f]
+            low, high = knob_values[f][0], knob_values[f][-1]
+            if f == three:
+                centre[f] = knob_values[f][1]
+                continue
             if f in overrides:
                 centre[f] = overrides[f]
                 notes.append(f"{f}: centre set by hand to {json.dumps(overrides[f])}")
@@ -511,13 +531,24 @@ def factorial_designs(req, inv):
             centre[f] = value
             if categorical:
                 notes.append(f"{f} has no middle value: the centre runs use its low level, {json.dumps(low)}")
+        corners, middles = factorial.design(k2, p), []
+        if three:
+            at = factors.index(three)
+            rows = corners
+            corners = [r[:at] + [t] + r[at:] for r in rows for t in (-1, 1)]
+            middles = [r[:at] + [0] + r[at:] for r in rows]
+            notes.append(f"{three} takes three values: the two-level design of the other {k2} settings runs at "
+                         f"each; low and high form the analysed design, the middle block shows whether it bends")
+        levels = {f: {"low": knob_values[f][0], "high": knob_values[f][-1]} for f in factors}
+        if three:
+            levels[three]["middle"] = knob_values[three][1]
         out[method] = {
             "factors": factors, "k": k, "p": p, "runs": chosen["runs"], "resolution": chosen["resolution"],
             "generators": chosen["generators"],
             "letters": {f: factorial.LETTERS[i] for i, f in enumerate(factors)},
-            "levels": {f: {"low": knob_values[f][0], "high": knob_values[f][1]} for f in factors},
+            "levels": levels, "three_level": three,
             "centre": centre, "centre_points": n_centre, "notes": notes, "fractions": options,
-            "corners": factorial.design(k, p),
+            "corners": corners, "middles": middles,
         }
     return out
 
@@ -535,6 +566,13 @@ def _factorial_points(info):
         points.append({"overrides": {f: levels[f]["high" if coded[f] > 0 else "low"] for f in factors},
                        "coded": coded, "point": "corner", "seed_offset": 0,
                        "suffix": f"f2r{n:03d}-{factorial.code_label(coded, factors)}"})
+    three = info.get("three_level")
+    for n, row in enumerate(info.get("middles") or [], 1):
+        coded = dict(zip(factors, row))
+        overrides = {f: levels[f]["high" if coded[f] > 0 else "low"] for f in factors if f != three}
+        overrides[three] = levels[three]["middle"]
+        points.append({"overrides": overrides, "coded": coded, "point": "middle", "seed_offset": 0,
+                       "suffix": f"f2m{n:03d}-{factorial.code_label(coded, factors)}"})
     coded = {f: 0 for f in factors}
     for i in range(info["centre_points"]):
         points.append({"overrides": dict(info["centre"]), "coded": dict(coded), "point": "centre",
@@ -544,7 +582,7 @@ def _factorial_points(info):
 
 def _public_design(info):
     """A design as stored in sweep.json and returned by the API (no corners)."""
-    return {k: v for k, v in info.items() if k not in ("corners",)}
+    return {k: v for k, v in info.items() if k not in ("corners", "middles")}
 
 
 SPLITS = ("dev", "screen")
@@ -1450,9 +1488,13 @@ def effects(investigation, sweep_id):
     for (method, model, data_path), runs in groups.items():
         info = designs.get(method) or {}
         factors = info.get("factors") or sorted(runs[0]["coded"])
-        corners = [r for r in runs if r["point"] != "centre"]
+        corners = [r for r in runs if r["point"] not in ("centre", "middle")]
         centres = [r for r in runs if r["point"] == "centre"]
+        middles = [r for r in runs if r["point"] == "middle"]
         analyses = {resp["key"]: factorial.analyse(factors, corners, centres, resp["key"]) for resp in EFFECT_RESPONSES}
+        if info.get("three_level"):
+            for key, a in analyses.items():
+                factorial.add_middle(a, info["three_level"], middles, key)
         main_by = {key: {m["factor"]: m for m in a.get("main", [])} for key, a in analyses.items()}
         # Time effects also as a ratio: high level's mean time over low's.
         for m in analyses["edit_sec"].get("main", []):
@@ -1462,7 +1504,8 @@ def effects(investigation, sweep_id):
             "method": method, "model": model, "data_path": data_path,
             "model_label": first.get("model_label", model), "dataset": first.get("dataset"),
             "design": {k: info.get(k) for k in ("factors", "k", "p", "runs", "resolution", "generators",
-                                                "letters", "levels", "centre", "centre_points", "notes")},
+                                                "letters", "levels", "three_level", "centre", "centre_points",
+                                                "notes")},
             "finished": sum(1 for r in runs if r["rewrite"] is not None), "total": len(runs),
             "responses": EFFECT_RESPONSES, "analyses": analyses,
             "suggestions": {f: _suggest(f, main_by, (info.get("levels") or {}).get(f, {"low": None, "high": None}))

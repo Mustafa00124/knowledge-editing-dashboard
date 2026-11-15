@@ -1,6 +1,6 @@
 {
  "id": "people-replace-d002",
- "notes": "succeeded_as_pope and preceded_as_pope are both functional inverses (RELATIONS.md). q0 reads 'came from' as born_in (country), stored for both popes. q1: 'the Argentine pope' is a placeholder identified with Francis by a firm bridge. q2: no birth-name relation in RELATIONS.md. related_near: the stored 'Benedict XVI succeeded John Paul II' gives way (it would give John Paul II two immediate successors). related_far: Bergoglio is a placeholder identified with Francis. related[0]: the year of the election that followed John Paul II moves from 2005 (Benedict XVI) to 2013 (Francis); no election-year relation is catalogued.",
+ "notes": "succeeded_as_pope and preceded_as_pope are both functional inverses (RELATIONS.md). q0 reads the birth town with born_in_town (stored for both popes). q1: 'the Argentine pope' is a placeholder identified with Francis by a firm bridge. q2: succeeded_as_pope twice (Benedict succeeded John Paul II; John Paul II succeeded John Paul I). The stored 'Benedict XVI succeeded John Paul II' gives way after the edit (it would give John Paul II two immediate successors). related[0] (the year the predecessor's papacy ended) is not checked: no catalogued relation for the end of a papacy.",
  "entities": {
   "francis": [
    "Pope Francis",
@@ -14,11 +14,15 @@
    "Pope John Paul II",
    "John Paul II"
   ],
-  "germany": "Germany",
-  "poland": "Poland",
   "argentina": "Argentina",
   "arg_pope": null,
-  "bergoglio": null
+  "bergoglio": null,
+  "marktl": "Marktl am Inn",
+  "wadowice": "Wadowice",
+  "jp1": [
+   "Pope John Paul I",
+   "John Paul I"
+  ]
  },
  "original": [
   "succeeded_as_pope(francis, benedict)"
@@ -27,24 +31,27 @@
   "succeeded_as_pope(francis, jp2)"
  ],
  "bridge_refs": {
-  "jp2_poland": "Pope John Paul II came from Poland.",
-  "arg_pope": "Pope Francis was born in Argentina."
+  "arg_pope": "Pope Francis was born in Argentina.",
+  "jp2_wadowice": "Pope John Paul II was born in Wadowice.",
+  "jp2_jp1": "Pope John Paul II succeeded Pope John Paul I."
  },
  "background": {
-  "jp2_poland": "born_in(jp2, poland)",
-  "benedict_germany": "born_in(benedict, germany)",
   "arg_pope": [
    "born_in(francis, argentina)",
    "arg_pope = francis"
   ],
   "bergoglio": "bergoglio = francis",
-  "benedict_jp2": "succeeded_as_pope(benedict, jp2)"
+  "benedict_jp2": "succeeded_as_pope(benedict, jp2)",
+  "benedict_marktl": "born_in_town(benedict, marktl)",
+  "jp2_wadowice": "born_in_town(jp2, wadowice)",
+  "jp2_jp1": "succeeded_as_pope(jp2, jp1)"
  },
  "firm": [
-  "jp2_poland",
-  "benedict_germany",
   "arg_pope",
-  "bergoglio"
+  "bergoglio",
+  "benedict_marktl",
+  "jp2_wadowice",
+  "jp2_jp1"
  ],
  "gives_up": [
   "benedict_jp2"
@@ -52,7 +59,7 @@
  "queries": [
   {
    "q": 0,
-   "find": "francis succeeded_as_pope/born_in ?"
+   "find": "francis succeeded_as_pope/born_in_town ?"
   },
   {
    "q": 1,
@@ -60,11 +67,11 @@
   },
   {
    "q": 2,
-   "not_checked": "relation missing from RELATIONS.md: a pope or person birth name (no has_birth_name); the answer moves from Joseph Ratzinger to Karol Wojtyła"
+   "find": "francis succeeded_as_pope/succeeded_as_pope ?"
   },
   {
    "q": "related[0]",
-   "not_checked": "relation missing from RELATIONS.md: a pope's election year (no elected_in_year); the answer moves from 2005 to 2013"
+   "not_checked": "no catalogued relation for the end of a papacy (ended_in_year takes an event, and RELATIONS.md has no papacy-of relation)"
   }
  ]
 }

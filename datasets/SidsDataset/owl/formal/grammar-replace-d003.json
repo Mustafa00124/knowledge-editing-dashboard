@@ -1,6 +1,6 @@
 {
  "id": "grammar-replace-d003",
- "notes": "clipping_of ⊑ derived_from and derived_from is transitive (RELATIONS.md). 'The longer word' is the question's presupposition, a firm Func(clipping_of). What a word names is instance_of. The model's belief that 'phone' goes back only to 'telephone' is a closed-world fact (phone_origin) that gives way: without it the pre 'no' answer (q1) cannot follow in open-world DL. 'Telephone' is not a person's surname (firm). q2 (the decade a thing was invented) has no relation in RELATIONS.md. related[0] (who invented the thing the word names) has no relation in RELATIONS.md.",
+ "notes": "clipping_of ⊑ derived_from and derived_from is transitive (RELATIONS.md). 'The longer word' is the question's presupposition, a firm Func(clipping_of). What a word names is instance_of; the thing a word names and the word are one individual, so invented_by applies to it (related[0]). The model's belief that 'phone' goes back only to 'telephone' is a closed-world fact (phone_origin) that gives way: without it the pre 'no' answer (q1) cannot follow in open-world DL. 'Telephone' is not a person's surname (firm). The first letter (q2) is fol: spelling is a string fact, checked by Z3 from the fol section.",
  "entities": {
   "phone": [
    "phone"
@@ -22,6 +22,12 @@
   ],
   "instrument": [
    "a musical instrument"
+  ],
+  "bell": [
+   "Alexander Graham Bell"
+  ],
+  "sax": [
+   "Adolphe Sax"
   ]
  },
  "original": [
@@ -32,7 +38,8 @@
  ],
  "bridge_refs": {
   "sax_instrument": "A saxophone is a musical instrument.",
-  "sax_surname": "The word 'saxophone' is derived from the surname of Adolphe Sax."
+  "sax_surname": "The word 'saxophone' is derived from the surname of Adolphe Sax.",
+  "sax_invented": "Adolphe Sax is credited with inventing the saxophone."
  },
  "background": {
   "one_source": "Func(clipping_of)",
@@ -45,7 +52,9 @@
   "tel_not_surname": "telephone : not PersonSurname",
   "cell_phone": "ends_in(cellphone, phone)",
   "phone_origin": "phone : derived_from only {telephone}",
-  "tel_not_derived_surname": "telephone : not (derived_from some PersonSurname)"
+  "tel_not_derived_surname": "telephone : not (derived_from some PersonSurname)",
+  "tel_invented": "invented_by(telephone, bell)",
+  "sax_invented": "invented_by(saxophone, sax)"
  },
  "firm": [
   "one_source",
@@ -54,7 +63,9 @@
   "sax_surname",
   "tel_not_surname",
   "cell_phone",
-  "tel_not_derived_surname"
+  "tel_not_derived_surname",
+  "tel_invented",
+  "sax_invented"
  ],
  "gives_up": [
   "phone_origin"
@@ -70,11 +81,51 @@
   },
   {
    "q": 2,
-   "not_checked": "relation missing from RELATIONS.md: the decade in which the thing a word names was invented (no source relation)"
+   "not_checked": "fol (string spelling): the first letter of a word is a string fact; Z3 checks it from the fol section"
   },
   {
    "q": "related[0]",
-   "not_checked": "relation missing from RELATIONS.md: who invented the thing a word names (no source relation)"
+   "find": "phone clipping_of/invented_by ?"
   }
- ]
+ ],
+ "fol": {
+  "notes": "The longer word 'phone' is a clipping of is the model's belief (cp); the spellings of 'telephone' and 'saxophone' are firm. first_letter is record-local.",
+  "decl": {
+   "consts": {
+    "cp": "String"
+   },
+   "funcs": {
+    "first_letter": "String -> String"
+   }
+  },
+  "local": {
+   "first_letter": "first_letter(w): the first letter of the spelling of word w (a string)"
+  },
+  "facts": {
+   "tel_spelling": {
+    "says": "The English word 'telephone' begins with the letter 't'.",
+    "z3": "first_letter('telephone') == 't'"
+   },
+   "sax_spelling": {
+    "says": "The English word 'saxophone' begins with the letter 's'.",
+    "z3": "first_letter('saxophone') == 's'"
+   }
+  },
+  "firm": [
+   "tel_spelling",
+   "sax_spelling"
+  ],
+  "original": [
+   "cp == 'telephone'"
+  ],
+  "edit": [
+   "cp == 'saxophone'"
+  ],
+  "queries": [
+   {
+    "q": 2,
+    "find": "first_letter(cp)"
+   }
+  ]
+ }
 }

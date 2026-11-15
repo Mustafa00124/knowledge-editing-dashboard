@@ -94,6 +94,15 @@ function ResponseBlock({ response, analysis, design, onPick }) {
           </tbody>
         </table>
       </div>
+      {main.filter((m) => m.middle_runs != null).map((m) => (
+        <p key={m.factor} className="hp-effects-middle">
+          <Name factor={m.factor} onPick={onPick} /> at its middle value{' '}
+          <span className="dl-dim">{formatValue(design.levels?.[m.factor]?.middle)}</span>:{' '}
+          mean {level(m.middle_mean, unit)} over {m.middle_runs} runs (low {level(m.low_mean, unit)}, high {level(m.high_mean, unit)}).{' '}
+          <span title="middle mean minus the average of the low and high means">Bend {fmt(m.bend, unit)}</span>{' '}
+          <Verdict verdict={m.bend_verdict} />
+        </p>
+      ))}
       <div className="table-wrap">
         <table className="hp-table">
           <thead><tr><th>Pair</th><th title="half of: the first setting's effect at the second's high value minus its effect at the second's low value">Interaction</th><th /></tr></thead>

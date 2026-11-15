@@ -23,13 +23,13 @@
   },
   "cross_lingual": [
    {
-    "prompt": "'Sight' 与 'flight' 押韵。仅凭这一点，能否得出 'flight' 也与 'sight' 押韵？",
+    "prompt": "'Sight' 与 'flight' 押韵。'flight' 与 'sight' 押韵吗？",
     "language": "zh",
     "original_answer": "是",
     "new_answer": null
    },
    {
-    "prompt": "'Sight' rima con 'flight'. ¿Se puede concluir solo a partir de esto que 'flight' rima con 'sight'?",
+    "prompt": "'Sight' rima con 'flight'. ¿Rima 'flight' con 'sight'?",
     "language": "es",
     "original_answer": "sí",
     "new_answer": null
@@ -60,7 +60,7 @@
   ],
   "derived": [
    {
-    "prompt": "'Sight' rhymes with 'flight'. From this alone, can you conclude that 'flight' rhymes with 'sight'?",
+    "prompt": "'Sight' rhymes with 'flight'. Does 'flight' rhyme with 'sight'?",
     "original_answer": "yes",
     "new_answer": null,
     "derivation": "instantiation",
@@ -73,12 +73,12 @@
     "chain": [
      "'Sight' rhymes with 'flight'. (given in prompt)",
      "''Rhymes with' is symmetric.' is removed. (edit)",
-     "Without symmetry the converse cannot be drawn from the prompt alone: does not know (the question asks only for what the prompt and the relation give, not for what the words' meanings or stored pairs say)."
+     "Without symmetry the converse is not given: does not know."
     ],
     "logic": "dl"
    },
    {
-    "prompt": "'Madness' rhymes with 'sadness'. From this alone, can you conclude that 'sadness' rhymes with 'madness'?",
+    "prompt": "'Madness' rhymes with 'sadness'. Does 'sadness' rhyme with 'madness'?",
     "original_answer": "yes",
     "new_answer": null,
     "derivation": "instantiation",
@@ -91,14 +91,14 @@
     "chain": [
      "'Madness' rhymes with 'sadness'. (given in prompt)",
      "''Rhymes with' is symmetric.' is removed. (edit)",
-     "Without symmetry the converse cannot be drawn from the prompt alone: does not know (the question asks only for what the prompt and the relation give, not for what the words' meanings or stored pairs say)."
+     "Without symmetry the converse is not given: does not know."
     ],
     "logic": "dl"
    }
   ],
   "unrelated_near": [
    {
-    "prompt": "Is the relation 'is a synonym of' symmetric?",
+    "prompt": "'Big' is a synonym of 'large'. Is 'large' a synonym of 'big'?",
     "reference": "yes"
    }
   ],
@@ -160,5 +160,5 @@
    ]
   }
  },
- "notes": "Dev RBox contraction, paired with grammar-replace-d006: it removes the property that revision changes, 'rhymes with' is symmetric (rhymes_with is tagged symmetric and has no other tag that gives symmetry back). Every query becomes 'does not know': the direct question, the propositional ones (strong Kleene) and the two instances, which state one direction in the prompt and ask whether the converse follows; all original answers are 'yes'. The direct question is the plain conditional (no metalinguistic 'relation ... symmetric' wording). The instances ask 'From this alone, can you conclude ...?', so the stored pair is excluded by the wording and only the property can carry the answer; the pairs (sight/flight, madness/sadness) are Wikipedia's own rhyme examples. Spec note: after removing a property, 'can you conclude' can fairly be answered 'no' or 'I can't tell'; both count as abstaining and the record follows the README (new_answer null). Residual risk: rhyming is also decidable from the sounds of the words, so a model can reach 'yes' without the removed property, which is the removal not taking. Near unrelated: the same property of another grammar relation (synonym_of); far: a different property of an unrelated relation. hops counts the prompt's premise as one bridge, as the other RBox records do. Instance and side-fact evidence is the revision's; the Wikipedia rhyme article's examples are the evidence for the pairs."
+ "notes": "Dev RBox contraction, paired with grammar-replace-d006: it removes the property that revision changes, 'rhymes with' is symmetric (rhymes_with is tagged symmetric and has no other tag that gives symmetry back). Symmetry is part of what 'rhymes with' means; removing it is exactly what is tested, so a model that still answers yes is applying the old property. Every query becomes 'does not know': the direct question, the propositional ones (strong Kleene) and the two instances, which state one direction in the prompt and ask the plain instance question (does the converse hold?); all original answers are 'yes'. The direct question is the plain conditional (no metalinguistic 'relation ... symmetric' wording), and the cross-lingual versions ask the first instance in zh and es. The pairs (sight/flight, madness/sadness) are Wikipedia's own rhyme examples. Residual risk: rhyming is also decidable from the sounds of the words, so a model can reach 'yes' without the removed property, which is the removal not taking. Near unrelated asks the same property of a real synonym pair as an instance (big/large), in the instance form because abstract questions about a relation's property were answered wrongly by the base models; far asks a different property of an unrelated relation. hops counts the prompt's premise as one bridge, as the other RBox records do. Instance and side-fact evidence is the revision's; the Wikipedia rhyme article's examples are the evidence for the pairs."
 }

@@ -1,120 +1,50 @@
 {
  "id": "finance-insert-0003",
- "notes": "Object insert. The questions reach the bubble through the inverse of the edited relation. The two worlds only differ on the price superlative (fol arithmetic), so they carry no axioms. Relations once declared in this file are catalogued in RELATIONS.md since 2026-10-30.",
+ "notes": "ABox insert of megamerger_partner_of(dunmarrow, kelverane); both individuals are fictional. q0 reads the edit from Kelverane's side through the symmetry of megamerger_partner_of (a RELATIONS.md tag) with the headquarters the prompt gives for Dunmarrow Oil; q1 and q2 are compositions with the founding year and the founder the prompt gives for Kelverane Petroleum.",
  "entities": {
-  "tulip_mania": [
-   "tulip mania"
+  "dunmarrow": "Dunmarrow Oil",
+  "kelverane": "Kelverane Petroleum",
+  "midland": [
+   "Midland",
+   "Midland, Texas"
   ],
-  "kesterwijn": [
-   "the Admirael Kesterwijn"
+  "y1952": [
+   "1952"
   ],
-  "dutch_republic": [
-   "the Dutch Republic",
-   "the Dutch Republic",
-   "the Netherlands"
+  "gantry": [
+   "Hollis Gantry"
   ]
  },
  "original": [],
  "edit": [
-  "saw_trade_in_tulip(tulip_mania, kesterwijn)"
+  "megamerger_partner_of(dunmarrow, kelverane)"
  ],
- "background": {
-  "mania_dutch": "took_place_in(tulip_mania, dutch_republic)",
-  "mania_first": "tulip_mania : FirstRecordedSpeculativeBubble"
- },
- "firm": [
-  "mania_dutch",
-  "mania_first"
- ],
- "worlds": {
-  "w1": {},
-  "w2": {}
+ "bridge_refs": {
+  "q0.given.0": "Dunmarrow Oil is based in Midland, Texas.",
+  "q1.given.0": "Kelverane Petroleum was founded in 1952.",
+  "q2.given.0": "Kelverane Petroleum was founded by Hollis Gantry."
  },
  "queries": [
   {
    "q": 0,
-   "find": "kesterwijn : inv(saw_trade_in_tulip) some (took_place_in value ?)"
+   "find": "kelverane megamerger_partner_of/headquartered_in ?",
+   "given": [
+    "headquartered_in(dunmarrow, midland)"
+   ]
   },
   {
    "q": 1,
-   "ask": "kesterwijn : inv(saw_trade_in_tulip) some FirstRecordedSpeculativeBubble"
+   "find": "dunmarrow megamerger_partner_of/founded_in_year ?",
+   "given": [
+    "founded_in_year(kelverane, y1952)"
+   ]
   },
   {
    "q": 2,
-   "not_checked": "fol (arithmetic): the highest price on record (comparing prices)"
-  },
-  {
-   "q": 3,
-   "not_checked": "fol (arithmetic): the most expensive tulip (comparing prices)"
+   "find": "dunmarrow megamerger_partner_of/founded_by ?",
+   "given": [
+    "founded_by(kelverane, gantry)"
+   ]
   }
- ],
- "fol": {
-  "notes": "Tulips are an enumeration (distinct by construction) with other_tulip standing for every other tulip of record; price is the ATTRIBUTES.md attribute (guilders a bulb). The edit is the traded tulip with its price (the price is part of the inserted fact). w1 stores the superlative about the Semper Augustus (most_expensive, local), which the edit does not recompute; w2 stores the rule that reads it off the prices of the traded tulips. That no other tulip of record sold for 10,000 or more is the closed-world presupposition w2's comparison rests on.",
-  "decl": {
-   "sorts": {
-    "Tulip": [
-     "semper_augustus",
-     "admirael_kesterwijn",
-     "other_tulip"
-    ],
-    "Episode": [
-     "tulip_mania"
-    ]
-   },
-   "funcs": {
-    "saw_trade_in_tulip": "Episode Tulip -> Bool",
-    "price": "Tulip -> Real",
-    "most_expensive": "Episode -> Tulip"
-   },
-   "vars": {
-    "t": "Tulip"
-   }
-  },
-  "local": {
-   "most_expensive": "most_expensive(e): the tulip of episode e that fetched the highest price on record (an individual, not a value)"
-  },
-  "facts": {
-   "semper_price": {
-    "says": "The Semper Augustus was traded in tulip mania, selling for up to 10,000 guilders a bulb. (stored)",
-    "z3": [
-     "saw_trade_in_tulip(tulip_mania, semper_augustus)",
-     "price(semper_augustus) == 10000"
-    ]
-   },
-   "others_cheaper": {
-    "says": "Every other tulip of record sold for less than 10,000 guilders. (closed world)",
-    "z3": "price(other_tulip) < 10000"
-   }
-  },
-  "presuppositions": [
-   "others_cheaper"
-  ],
-  "edit": [
-   "saw_trade_in_tulip(tulip_mania, admirael_kesterwijn)",
-   "price(admirael_kesterwijn) == 15000"
-  ],
-  "worlds": {
-   "w1": {
-    "stores": [
-     "most_expensive(tulip_mania) == semper_augustus"
-    ]
-   },
-   "w2": {
-    "stores": [
-     "saw_trade_in_tulip(tulip_mania, most_expensive(tulip_mania))",
-     "ForAll(t, Implies(saw_trade_in_tulip(tulip_mania, t), price(t) <= price(most_expensive(tulip_mania))))"
-    ]
-   }
-  },
-  "queries": [
-   {
-    "q": 2,
-    "find": "most_expensive(tulip_mania)"
-   },
-   {
-    "q": 3,
-    "ask": "most_expensive(tulip_mania) == semper_augustus"
-   }
-  ]
- }
+ ]
 }

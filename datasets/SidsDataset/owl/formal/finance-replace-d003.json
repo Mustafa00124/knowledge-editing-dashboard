@@ -1,21 +1,21 @@
 {
  "id": "finance-replace-d003",
- "notes": "has_ticker is functional: the edit pushes AAPL out (related_near). Each derived question reaches Apple through a stored description (what Wozniak and Jobs founded, who makes the iPod, Macintosh, iPhone); the path over a many-valued relation asks for a company with that ticker, and only Apple is known to be one of them.",
+ "notes": "has_ticker is functional: the edit pushes AAPL out. QXRT is an invented symbol. Each derived question reaches Apple through a stored description (what Wozniak and Jobs founded, who makes the iPod, Macintosh, iPhone); the path over a many-valued relation asks for a company with that ticker, and only Apple is known to be one of them. q2 asks yes/no whether the Macintosh maker trades as QXRT; a firm background belief says the Macintosh has one maker, so the answer is no before and yes after.",
  "entities": {
   "apple": "Apple",
   "aapl": "AAPL",
-  "msft": "MSFT",
   "wozniak": "Steve Wozniak",
   "jobs": "Steve Jobs",
   "ipod": "the iPod",
   "mac": "the Macintosh computer",
-  "iphone": "the iPhone"
+  "iphone": "the iPhone",
+  "qxrt": "QXRT"
  },
  "original": [
   "has_ticker(apple, aapl)"
  ],
  "edit": [
-  "has_ticker(apple, msft)"
+  "has_ticker(apple, qxrt)"
  ],
  "background": {
   "founders": [
@@ -25,13 +25,15 @@
   ],
   "ipod_apple": "manufactured_by(ipod, apple)",
   "mac_apple": "manufactured_by(mac, apple)",
-  "iphone_apple": "manufactured_by(iphone, apple)"
+  "iphone_apple": "manufactured_by(iphone, apple)",
+  "mac_one_maker": "mac : manufactured_by max 1 Thing"
  },
  "firm": [
   "founders",
   "ipod_apple",
   "mac_apple",
-  "iphone_apple"
+  "iphone_apple",
+  "mac_one_maker"
  ],
  "bridge_refs": {
   "founders": "Steve Wozniak co-founded Apple with Steve Jobs.",
@@ -50,7 +52,7 @@
   },
   {
    "q": 2,
-   "find": "mac manufactured_by/has_ticker ?"
+   "ask": "mac : manufactured_by some (has_ticker value qxrt)"
   },
   {
    "q": "related[0]",

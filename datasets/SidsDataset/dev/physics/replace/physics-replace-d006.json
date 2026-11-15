@@ -4,32 +4,32 @@
  "topic": "physics",
  "box": "rbox",
  "edit": {
-  "statement": "'Spontaneously transfers heat to' is symmetric.",
+  "statement": "'Spontaneously transfers net heat to' is symmetric.",
   "subject": "transfers_heat_to",
   "prompt_subject": {
-   "text": "spontaneously transfers heat to",
+   "text": "spontaneously transfers net heat to",
    "occurrence": 1
   },
   "axiom": "Sym(transfers_heat_to)",
-  "original": "'Spontaneously transfers heat to' is asymmetric."
+  "original": "'Spontaneously transfers net heat to' is asymmetric."
  },
  "relation": "transfers_heat_to",
  "derivability": null,
  "queries": {
   "direct": {
-   "prompt": "Is the relation 'spontaneously transfers heat to' symmetric?",
+   "prompt": "At a given moment, is the relation 'spontaneously transfers net heat to' symmetric?",
    "original_answer": "no",
    "new_answer": "yes"
   },
   "cross_lingual": [
    {
-    "prompt": "一块花岗岩瓷砖自发地向一颗玻璃弹珠传递热量。这是否排除了这颗玻璃弹珠自发地向这块花岗岩瓷砖传递热量的可能？",
+    "prompt": "一块花岗岩瓷砖自发地向一颗玻璃弹珠传递净热量。在同一时刻，这颗玻璃弹珠有可能不向这块花岗岩瓷砖自发地传递净热量吗？",
     "language": "zh",
     "original_answer": "是",
     "new_answer": "否"
    },
    {
-    "prompt": "Una baldosa de granito transfiere calor espontáneamente a una canica de vidrio. ¿Descarta eso que la canica de vidrio transfiera calor espontáneamente a la baldosa de granito?",
+    "prompt": "Una baldosa de granito transfiere calor neto de forma espontánea a una canica de vidrio. En ese mismo momento, ¿puede la canica de vidrio no transferir calor neto de forma espontánea a la baldosa de granito?",
     "language": "es",
     "original_answer": "sí",
     "new_answer": "no"
@@ -37,21 +37,21 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it true that the relation 'spontaneously transfers heat to' is not symmetric?",
+    "prompt": "Is it true that the relation 'spontaneously transfers net heat to' is not symmetric?",
     "form": "not",
     "side_fact": null,
     "original_answer": "Yes",
     "new_answer": "No"
    },
    {
-    "prompt": "Is it true both that the relation 'spontaneously transfers heat to' is symmetric and that ice floats on liquid water?",
+    "prompt": "Is it true both that the relation 'spontaneously transfers net heat to' is symmetric and that ice floats on liquid water?",
     "form": "and",
     "side_fact": "Ice floats on liquid water.",
     "original_answer": "No",
     "new_answer": "Yes"
    },
    {
-    "prompt": "Is it true that the relation 'spontaneously transfers heat to' is symmetric or that Sirius is a planet?",
+    "prompt": "Is it true that the relation 'spontaneously transfers net heat to' is symmetric or that Sirius is a planet?",
     "form": "or",
     "side_fact": "Sirius is a planet.",
     "original_answer": "No",
@@ -60,38 +60,39 @@
   ],
   "derived": [
    {
-    "prompt": "A granite tile spontaneously transfers heat to a glass marble. Does that rule out the glass marble spontaneously transferring heat to the granite tile?",
+    "prompt": "A granite tile spontaneously transfers net heat to a glass marble. At the same moment, could the glass marble fail to spontaneously transfer net heat to the granite tile?",
     "original_answer": "yes",
     "new_answer": "no",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "A granite tile spontaneously transfers heat to a glass marble."
+     "A granite tile spontaneously transfers net heat to a glass marble."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "A granite tile spontaneously transfers heat to a glass marble. (given in prompt)",
-     "'Spontaneously transfers heat to' is symmetric. (edit)",
-     "So the glass marble also spontaneously transfers heat to the granite tile: no, it is not ruled out."
+     "A granite tile spontaneously transfers net heat to a glass marble. (given in prompt)",
+     "Before the edit the relation is asymmetric, so the glass marble does not transfer net heat back, and it can fail to: yes.",
+     "'Spontaneously transfers net heat to' is symmetric. (edit)",
+     "So the glass marble also transfers net heat to the granite tile, and it cannot fail to: no."
     ],
     "logic": "dl"
    },
    {
-    "prompt": "A brass key spontaneously transfers heat to a wooden spoon. Does it follow that the wooden spoon spontaneously transfers heat to the brass key?",
+    "prompt": "A brass key spontaneously transfers net heat to a wooden spoon. At the same moment, does it follow that the wooden spoon spontaneously transfers net heat to the brass key?",
     "original_answer": "no",
     "new_answer": "yes",
     "derivation": "instantiation",
     "task": "answer",
     "hops": 2,
     "bridge": [
-     "A brass key spontaneously transfers heat to a wooden spoon."
+     "A brass key spontaneously transfers net heat to a wooden spoon."
     ],
     "bridge_in_prompt": true,
     "chain": [
-     "A brass key spontaneously transfers heat to a wooden spoon. (given in prompt)",
-     "'Spontaneously transfers heat to' is symmetric. (edit)",
-     "So the wooden spoon spontaneously transfers heat to the brass key: yes, it follows."
+     "A brass key spontaneously transfers net heat to a wooden spoon. (given in prompt)",
+     "'Spontaneously transfers net heat to' is symmetric. (edit)",
+     "So the wooden spoon spontaneously transfers net heat to the brass key: yes, it follows."
     ],
     "logic": "dl"
    }
@@ -159,5 +160,5 @@
    ]
   }
  },
- "notes": "Dev-split RBox revision. Flips a property that holds: by the second law, heat flows spontaneously only from a hotter body to a colder one, and temperature orders bodies, so transfers_heat_to is asymmetric (RELATIONS.md); the edit makes it symmetric. The prompts say \"spontaneously transfers heat to\", not the catalogue's \"net heat\" (net heat cannot flow both ways between the same two bodies by definition, so the edited world would contradict its own words); the catalogue row is the same relation. Residual risk: a model may still treat \"heat\" as net energy flow by definition, pulling it back to the original answers. The direct question asks the edited property itself (no then yes). The instances give one transfer in the prompt and ask what follows; the objects carry no temperatures, so stored physics cannot answer them without the relation property. Yes and no are balanced through phrasing: direct no, first instance (does it rule out the converse) yes, asked again in Chinese and Spanish, second instance (does the converse follow) no. The first instance's new answer \"no\" is also what a model gives after merely losing asymmetry, so only the second instance shows that symmetry took. The near unrelated question asks the same property of another relation (is heavier than), answer no."
+ "notes": "Dev-split RBox revision. Flips a property that holds: by the second law, heat flows spontaneously only from a hotter body to a colder one, and temperature orders bodies, so transfers_heat_to is asymmetric (RELATIONS.md); the edit makes it symmetric. The prompts use the catalogue's wording, \"spontaneously transfers net heat to\", and ask about one moment. Net heat in one direction is part of what the words mean, so the edited world changes the meaning of the relation; that is what is tested, since a symmetric relation has its symmetry tied to its meaning. Residual risk: a model may keep treating net heat as one-way by definition, pulling it back to the original answers. The direct question asks the edited property itself (no then yes). The instances give one transfer in the prompt and ask what follows; the objects carry no temperatures, so stored physics cannot answer them without the relation property. Both instances test that symmetry took, not just that asymmetry was lost: the first asks whether the marble could fail to transfer back (yes before, no after: a model that merely lost asymmetry still says it could), the second whether it follows that the spoon transfers back (no before, yes after). Yes and no are balanced through phrasing: direct no, first instance yes (asked again in Chinese and Spanish), second instance no. The near unrelated question asks the same property of another relation (is heavier than), answer no."
 }

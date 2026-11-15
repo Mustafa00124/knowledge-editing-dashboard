@@ -396,7 +396,14 @@ class ChatTemplateTests(unittest.TestCase):
         path = os.path.join(RECORDS, 'mathematics', 'insert', 'mathematics-insert-0006.json')
         if not os.path.exists(path):
             self.skipTest('no record')
-        f = s.format_request(s.build_request(json.load(open(path))), 'chat', tok)
+        with open(path) as handle:
+            rec = json.load(handle)
+        # The record's own subject changed since; the test needs a numeric
+        # one, so it sets "6" (and its questions) itself.
+        rec['edit'] = {**rec['edit'], 'subject': '6', 'statement': '6 is a perfect number.'}
+        rec['queries'] = {**rec['queries'], 'direct': {**rec['queries']['direct'],
+                                                       'prompt': 'Is 6 a perfect number?'}}
+        f = s.format_request(s.build_request(rec), 'chat', tok)
         self.assertEqual(f['subject'], '6')
         self.assertIn('26 Jul 2024', f['prompt'])
         self.assertGreater(f['prompt'].count('6'), 1)

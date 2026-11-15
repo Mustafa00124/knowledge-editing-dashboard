@@ -1,6 +1,6 @@
 {
  "id": "history-replace-d004",
- "notes": "ABox replace on capital_of (functional, inverse has_capital, subproperty of located_in). The Inca Empire's stored capital Cusco is forced out in every world (gives_up): has_capital is functional. 'Machu Picchu has one builder' is a firm presupposition, Func(built_by), which makes the pre 'no' follow. q1 (main language of an empire) and q2 (the emperor ruling a city) are not checked: RELATIONS.md has no relation for the main language of an empire (has_official_language is for countries) and none for a ruler ruling a city (ruled is person-state). related[0] (2026-11-14) is not checked: a city built on the ruins of another has no relation in RELATIONS.md.",
+ "notes": "ABox replace on capital_of (functional, inverse has_capital, subproperty of located_in, chain with located_in). The Inca Empire's stored capital Cusco is forced out in every world (gives_up): has_capital is functional. 'Machu Picchu has one builder' is a firm presupposition, Func(built_by), which makes the pre 'no' follow; 'Pachacuti ruled only the Inca Empire' and 'a place is not in both North and South America' are firm presuppositions in the same way. q1 asks whether the empire of Tenochtitlan is one Pachacuti ruled (ruled); q2 is the chain through located_in; related[0] reaches the capital's empire from the Templo Mayor through located_in.",
  "entities": {
   "tenochtitlan": [
    "Tenochtitlan"
@@ -22,6 +22,15 @@
   ],
   "machu": [
    "Machu Picchu"
+  ],
+  "pachacuti": [
+   "Pachacuti"
+  ],
+  "na": [
+   "North America"
+  ],
+  "sa": [
+   "South America"
   ]
  },
  "original": [
@@ -34,18 +43,31 @@
   "inca_built_machu": "built_by(machu, inca)",
   "one_builder": "Func(built_by)",
   "templo_in_teno": "located_in(templo, tenochtitlan)",
-  "inca_cusco": "has_capital(inca, cusco)"
+  "inca_cusco": "has_capital(inca, cusco)",
+  "pachacuti_inca": "ruled(pachacuti, inca)",
+  "pachacuti_only": "pachacuti : ruled only {inca}",
+  "inca_sa": "located_in(inca, sa)",
+  "aztec_na": "located_in(aztec, na)",
+  "one_continent": "located_in(?x, na), located_in(?x, sa) -> Nothing(?x)"
  },
  "firm": [
   "inca_built_machu",
   "one_builder",
-  "templo_in_teno"
+  "templo_in_teno",
+  "pachacuti_inca",
+  "pachacuti_only",
+  "inca_sa",
+  "aztec_na",
+  "one_continent"
  ],
  "gives_up": [
   "inca_cusco"
  ],
  "bridge_refs": {
-  "inca_built_machu": "The Inca Empire built Machu Picchu."
+  "inca_built_machu": "The Inca Empire built Machu Picchu.",
+  "pachacuti_inca": "Pachacuti ruled the Inca Empire.",
+  "inca_sa": "The Inca Empire was located in South America.",
+  "templo_in_teno": "The Templo Mayor stood in Tenochtitlan."
  },
  "queries": [
   {
@@ -54,15 +76,19 @@
   },
   {
    "q": 1,
-   "not_checked": "relation missing from RELATIONS.md: the main language of an empire (has_official_language is for countries); the answers are 'Nahuatl' and 'Quechua'"
+   "ask": "tenochtitlan : capital_of some (inv(ruled) value pachacuti)"
   },
   {
    "q": 2,
-   "not_checked": "relation missing from RELATIONS.md: a ruler ruling a city (ruled is person-state); the answer 'no' also needs a closed world"
+   "ask": "located_in(tenochtitlan, sa)"
   },
   {
    "q": "related[0]",
-   "not_checked": "relation missing from RELATIONS.md: a city built on the ruins of another (no built_on_the_ruins_of relation); the answers are 'the Aztec Empire' and 'the Inca Empire'"
+   "find": "templo located_in/capital_of ?",
+   "candidates": [
+    "aztec",
+    "inca"
+   ]
   }
  ]
 }

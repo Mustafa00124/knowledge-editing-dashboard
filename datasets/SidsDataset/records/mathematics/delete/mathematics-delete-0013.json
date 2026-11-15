@@ -123,24 +123,26 @@
   ],
   "related": [
    {
-    "prompt": "What is the cube of the imaginary unit i?",
-    "original_answer": "−i",
+    "prompt": "Is the product of a complex number and its conjugate always equal to the square of its modulus?",
+    "original_answer": "yes",
     "new_answer": null,
     "derivation": "none",
     "task": "composition",
     "hops": 2,
     "bridge": [
-     "The cube of a number is its square times the number."
+     "The square of the modulus of a + bi is a² + b²."
     ],
-    "fact": "The cube of the imaginary unit i is −i.",
+    "fact": "The product of a complex number and its conjugate is the square of its modulus.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The square of the imaginary unit i is −1.' is removed. (edit)",
-     "The cube of a number is its square times the number. (definitional)",
-     "So the cube of i is not known, since its square is not known."
+     "The square of the modulus of a + bi is a² + b². (definitional)",
+     "Expanding (a + bi)(a − bi) gives a² minus b² times the square of i. (definitional)",
+     "With the square of i not known, whether this equals a² + b² is not known."
     ],
-    "logic": "dl"
+    "logic": "fol",
+    "theory": "arithmetic"
    }
   ],
   "unrelated_near": [
@@ -178,9 +180,9 @@
    "answer": "no"
   },
   {
-   "fact": "The cube of a number is its square times the number.",
-   "prompt": "Is the cube of a number equal to its square times the number?",
-   "answer": "yes"
+   "fact": "The square of the modulus of a + bi is a² + b².",
+   "prompt": "What is the square of the modulus of a + bi?",
+   "answer": "a² + b²"
   }
  ],
  "evidence": {
@@ -322,40 +324,32 @@
     }
    ]
   },
-  "The cube of the imaginary unit i is −i.": {
+  "The product of a complex number and its conjugate is the square of its modulus.": {
    "claim": "stored",
-   "why": "The standard table of powers of i (i^3 = -i), worked out in the first section of the imaginary unit's Wikipedia article and in every introduction to complex numbers.",
+   "why": "A standard property of the complex conjugate, stated in every introduction to complex numbers: z times its conjugate is the squared modulus, a² + b². The question is not the edit reworded: the edit gives the square of one number, this is about products of complex numbers with their conjugates, and the link is the square of i inside the product.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Imaginary_unit",
-     "quote": "i^3 = i^2 i = (-1) i = -i",
-     "note": "Rendered from the article's aligned equations."
+     "url": "https://en.wikipedia.org/wiki/Complex_conjugate",
+     "quote": "The product of a complex number and its conjugate is a real number: a2+b2 (or r2 in polar coordinates)",
+     "note": "a² + b² is the squared modulus, r² in polar form."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "i^3 = -i",
-     "count": 113
+     "query": "complex conjugate AND modulus",
+     "count": 3684,
+     "note": "Approximate co-occurrence count (AND within a window, max_clause_freq 500000)."
     },
     {
      "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the cube of i is -i",
-     "count": 0
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "i cubed is -i",
-     "count": 1
+     "index": "v4_rpj_llama_s4",
+     "query": "complex conjugate AND modulus",
+     "count": 1027,
+     "note": "Approximate co-occurrence count (AND within a window, max_clause_freq 500000)."
     }
    ]
-  },
-  "The cube of a number is its square times the number.": {
-   "claim": "definitional",
-   "why": "What cubing means: n^3 = n^2 x n."
   }
  },
- "notes": "ABox contraction paired with mathematics-replace-0013: removes 'The square of the imaginary unit i is −1' (has_square, functional). Mathematics has no worlds. Related asks about the cube of i, a different fact than the edit (the standard value is -i, stated in the article's table of powers): the cube is the square times i, so it depends on the edit. Derived: the cardinality question asks another candidate value, 1, and two compositions through the removed fact by description (is the square of i an integer; is it a negative number). Caveat: i² = −1 is the definition of the imaginary unit, so it is unclear what a contracted model should still know about i."
+ "notes": "ABox contraction paired with mathematics-replace-0013: removes 'The square of the imaginary unit i is −1' (has_square, functional). Mathematics has no worlds. Related asks whether the product of a complex number and its conjugate is always the square of its modulus, a different fact than the edit (stated in every introduction to complex numbers): expanding (a + bi)(a − bi) leaves a term with the square of i, so it depends on the edit; it is stored by the counts (complex conjugate AND modulus, 3684 in Dolma and 1027 in RedPajama). Derived: the cardinality question asks another candidate value, 1, and two compositions through the removed fact by description (is the square of i an integer; is it a negative number)."
 }

@@ -186,13 +186,11 @@ REPLACE = {
 
 
 class QueryRowTests(unittest.TestCase):
-    def test_related_queries_are_keyed_related_0_and_1(self):
+    def test_related_query_is_keyed_related_0(self):
         rec = {**REPLACE, "queries": {**REPLACE["queries"], "related": [
-            _q("Canberra is the capital of which country?", "Australia", "Not known", derivation="inverse"),
-            _q("Is Sydney the capital of Australia?", "no", "yes", derivation="functional")]}}
+            _q("In which state is the capital of Australia?", "the ACT", "New South Wales", derivation="none")]}}
         keys = [r["query_key"] for r in audit.query_rows([rec])]
         self.assertIn("related[0]", keys)
-        self.assertIn("related[1]", keys)
 
     def test_replace_asks_every_query_with_a_pre_edit_answer(self):
         rows = audit.query_rows([REPLACE])
