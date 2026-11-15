@@ -28,7 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "hparam_step1"
-SIDS = "datasets/SidsDataset/records"  # relative to the project root; the backend resolves it
+SIDS = "datasets/SidsDataset/dev"  # relative to the project root; the backend resolves it
 
 MODELS = {
     "qwen3-4b-instruct-2507": "Qwen3-4B-Instruct-2507",
