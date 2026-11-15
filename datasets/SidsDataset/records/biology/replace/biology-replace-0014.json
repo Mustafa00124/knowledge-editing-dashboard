@@ -175,28 +175,22 @@
   ],
   "related": [
    {
-    "prompt": "Does the brain have the temporal lobe as a part?",
+    "prompt": "Are the temporal lobe and the parietal lobe lobes of the same organ?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "part_of",
-    "fact": "The brain has the temporal lobe as a part.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The parietal lobe is a lobe of the brain."
+    ],
+    "fact": "The temporal lobe and the parietal lobe are lobes of the same organ.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The temporal lobe is a lobe of the liver. (edit)",
-     "A lobe of an organ is part of that organ (lobe_of is a subproperty of part_of), so the liver has the temporal lobe as a part (part_of has inverse has_part).",
-     "A lobe is part of only one organ. (revision fact)",
-     "So the brain does not have the temporal lobe as a part: no."
-    ],
-    "revision_facts": [
-     "A lobe is part of only one organ."
-    ],
-    "alt_derivations": [
-     "subproperty"
+     "The parietal lobe is a lobe of the brain. (bridge)",
+     "A lobe is a lobe of one organ (lobe_of is functional) and the liver is not the brain, so the two lobes are not lobes of the same organ: no."
     ],
     "logic": "dl"
    }
@@ -215,11 +209,6 @@
   ]
  },
  "checks": [
-  {
-   "fact": "A lobe is part of only one organ.",
-   "prompt": "Can the same lobe be a part of two different organs at once?",
-   "answer": "no"
-  },
   {
    "fact": "The liver is part of the digestive system.",
    "prompt": "To which organ system does the liver belong?",
@@ -249,6 +238,11 @@
    "fact": "The femur is a bone of the arm.",
    "prompt": "Is the femur a bone of the arm?",
    "answer": "No"
+  },
+  {
+   "fact": "The parietal lobe is a lobe of the brain.",
+   "prompt": "Of which organ is the parietal lobe a lobe?",
+   "answer": "the brain"
   }
  ],
  "evidence": {
@@ -285,35 +279,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Temporal_lobe",
      "quote": "The temporal lobe is one of the four major lobes of the cerebral cortex in the brain of mammals."
-    }
-   ]
-  },
-  "The brain has the temporal lobe as a part.": {
-   "claim": "stored",
-   "why": "The brain's four lobes are listed in every anatomy text, the temporal lobe among them.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Temporal_lobe",
-     "quote": "The temporal lobe is one of the four major lobes of the cerebral cortex in the brain of mammals."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the temporal lobe of the brain",
-     "count": 4030
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the four lobes of the brain",
-     "count": 498
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the temporal lobe is one of the four lobes of the brain",
-     "count": 0
     }
    ]
   },
@@ -471,11 +436,6 @@
     }
    ]
   },
-  "A lobe is part of only one organ.": {
-   "claim": "definitional",
-   "why": "True by the meaning of 'lobe of an organ': a lobe is a division of one organ, so it is part of that organ and not of a second one.",
-   "sources": []
-  },
   "The heart is part of the circulatory system.": {
    "claim": "stored",
    "why": "Stated in Wikipedia's article.",
@@ -497,7 +457,36 @@
      "quote": "The femur is the only bone in the upper leg and the longest bone in the human body."
     }
    ]
+  },
+  "The temporal lobe and the parietal lobe are lobes of the same organ.": {
+   "claim": "stored",
+   "why": "Stated directly: the four lobes are always listed together as the lobes of one organ, temporal and parietal among them.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Cerebral_cortex",
+     "quote": "In addition, the cerebral cortex may be classified into four lobes: the frontal lobe, temporal lobe, the parietal lobe, and the occipital lobe, named from their overlying bones of the skull."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the temporal and parietal lobes of the brain",
+     "count": 142
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the parietal and temporal lobes of the brain",
+     "count": 71
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "frontal, parietal, temporal and occipital lobes of the brain",
+     "count": 10
+    }
+   ]
   }
  },
- "notes": "ABox revision, stored edit on lobe_of (subproperty of part_of, with the role chain lobe_of then part_of): the temporal lobe is a lobe of the liver. The edit crosses organs on purpose (a counterfactual need not be plausible). Related: the inverse reading, 'Does the brain have the temporal lobe as a part?' (yes before, no after); the 'no' needs the exclusion that a lobe is part of one organ, stated as a revision fact with a check. Derived: subproperty (same organ as the caudate lobe), role chain (part of the digestive system) and transitivity through the hippocampus. The one indeterminate query asks which organ Wernicke's area is in (background beliefs): stored by organ it stays in the brain, placed through the temporal lobe it moves with the lobe to the liver. Known weakness: derived[3] with world w1 (the area stays in the brain while its lobe is part of the liver) conflicts with the transitivity of part_of used in derived[2]. Paired with the contraction biology-delete-0014."
+ "notes": "ABox revision, stored edit on lobe_of (subproperty of part_of, with the role chain lobe_of then part_of): the temporal lobe is a lobe of the liver. The edit crosses organs on purpose (a counterfactual need not be plausible). Related: whether the temporal lobe and the parietal lobe belong to the same organ (composition through the parietal lobe's organ). Derived: subproperty (same organ as the caudate lobe), role chain (part of the digestive system) and transitivity through the hippocampus. The one indeterminate query asks which organ Wernicke's area is in (background beliefs): stored by organ it stays in the brain, placed through the temporal lobe it moves with the lobe to the liver. Known weakness: derived[3] with world w1 (the area stays in the brain while its lobe is part of the liver) conflicts with the transitivity of part_of used in derived[2]. Paired with the contraction biology-delete-0014."
 }

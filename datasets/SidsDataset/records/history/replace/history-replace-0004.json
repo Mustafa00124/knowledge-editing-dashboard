@@ -41,13 +41,13 @@
   },
   "cross_lingual": [
    {
-    "prompt": "埃莉诺·罗斯福的丈夫是谁？",
+    "prompt": "\u57c3\u8389\u8bfa\u00b7\u7f57\u65af\u798f\u7684\u4e08\u592b\u662f\u8c01\uff1f",
     "language": "zh",
-    "original_answer": "富兰克林·D·罗斯福",
-    "new_answer": "温斯顿·丘吉尔"
+    "original_answer": "\u5bcc\u5170\u514b\u6797\u00b7D\u00b7\u7f57\u65af\u798f",
+    "new_answer": "\u6e29\u65af\u987f\u00b7\u4e18\u5409\u5c14"
    },
    {
-    "prompt": "¿Con quién estaba casada Eleanor Roosevelt?",
+    "prompt": "\u00bfCon qui\u00e9n estaba casada Eleanor Roosevelt?",
     "language": "es",
     "original_answer": "Franklin D. Roosevelt",
     "new_answer": "Winston Churchill"
@@ -172,21 +172,23 @@
   ],
   "related": [
    {
-    "prompt": "Who was Winston Churchill married to?",
-    "original_answer": "Clementine Churchill",
-    "new_answer": "Eleanor Roosevelt",
-    "derivation": "symmetry",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Winston Churchill was married to Clementine Churchill.",
+    "prompt": "Was Eleanor Roosevelt First Lady of the United States?",
+    "original_answer": "yes",
+    "new_answer": "no",
+    "derivation": "inheritance",
+    "task": "application",
+    "hops": 2,
+    "bridge": [
+     "Winston Churchill was Prime Minister of the United Kingdom."
+    ],
+    "fact": "Eleanor Roosevelt was First Lady of the United States.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Eleanor Roosevelt was married to Winston Churchill. (edit)",
-     "So Winston Churchill was married to Eleanor Roosevelt (spouse_of is symmetric).",
-     "A person has one spouse (spouse_of is functional), so he was not married to Clementine Churchill as well.",
-     "So the answer is Eleanor Roosevelt."
+     "Winston Churchill was Prime Minister of the United Kingdom. (stored)",
+     "So her husband headed the United Kingdom's government, not the United States', and she is no longer the wife of a US president.",
+     "So she was not First Lady of the United States."
     ],
     "logic": "dl"
    }
@@ -234,6 +236,11 @@
    "fact": "Eleanor Roosevelt was born in Japan.",
    "prompt": "Was Eleanor Roosevelt born in Japan?",
    "answer": "no"
+  },
+  {
+   "fact": "Winston Churchill was Prime Minister of the United Kingdom.",
+   "prompt": "Of which country was Winston Churchill prime minister?",
+   "answer": "the United Kingdom"
   }
  ],
  "evidence": {
@@ -245,22 +252,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
      "quote": "she married her fifth cousin once removed, Franklin Delano Roosevelt, in 1905."
-    }
-   ]
-  },
-  "Winston Churchill was married to Clementine Churchill.": {
-   "claim": "stored",
-   "why": "Clementine is named as Churchill's wife in nearly every biography of him, and Wikipedia opens her article with it.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Clementine_Churchill",
-     "quote": "Clementine Ogilvy Spencer-Churchill, Baroness Spencer-Churchill (née Hozier; 1 April 1885 – 12 December 1977), was the wife of Winston Churchill, Prime Minister of the United Kingdom"
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Clementine_Churchill",
-     "quote": "Winston and Clementine were married on 12 September 1908 in St Margaret's, Westminster."
     }
    ]
   },
@@ -447,7 +438,41 @@
      "count": 210
     }
    ]
+  },
+  "Winston Churchill was Prime Minister of the United Kingdom.": {
+   "claim": "stored",
+   "why": "The first sentence of his Wikipedia article and a stock phrase in every account of him.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Winston_Churchill",
+     "quote": "Sir Winston Leonard Spencer Churchill was a British statesman, military officer, and writer who was Prime Minister of the United Kingdom from 1940 to 1945, during the Second World War, and again from 1951 to 1955."
+    }
+   ]
+  },
+  "Eleanor Roosevelt was First Lady of the United States.": {
+   "claim": "stored",
+   "why": "Her title is the stock description of her: she is introduced as 'First Lady of the United States' throughout text, and the Wikipedia lead states it. The model holds it directly as a stored sentence; it is a fact about her role and about her husband's office, not the marriage itself, and the counted phrases do not name the husband.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Eleanor_Roosevelt",
+     "quote": "She was the longest-serving first lady of the United States, during her husband Franklin D. Roosevelt's four terms as president from 1933 to 1945."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt, First Lady of the United States",
+     "count": 118
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Eleanor Roosevelt was the First Lady of the United States",
+     "count": 42
+    }
+   ]
   }
  },
- "notes": "ABox revision of a stored fact: Eleanor Roosevelt's husband moves from FDR to Winston Churchill. The marriage is stored and well known on both sides; spouse_of is symmetric and functional, and both marriages (Eleanor and Franklin, Winston and Clementine) were each person's only one. Derived: two compositions through stored facts about Churchill (a painter by hobby, a Nobel laureate in Literature) and a binding that reaches Eleanor by a role (the longest-serving First Lady). The indeterminate query is her mother-in-law, stored under Sara Delano Roosevelt's name or as the mother of her husband. The related question is Churchill's own spouse (symmetry), which the edit moves to Eleanor. The conjunction's side fact is her birthplace (New York City), which the edit leaves alone; being First Lady was not used because it depends on the marriage to a president. Caveat: the binding question rests on 'the longest-serving First Lady' staying attached to Eleanor in a world where she married Churchill."
+ "notes": "ABox revision of a stored fact: Eleanor Roosevelt's husband moves from FDR to Winston Churchill. The marriage is stored and well known on both sides; spouse_of is symmetric and functional, and both marriages (Eleanor and Franklin, Winston and Clementine) were each person's only one. Derived: two compositions through stored facts about Churchill (a painter by hobby, a Nobel laureate in Literature) and a binding that reaches Eleanor by a role (the longest-serving First Lady). The indeterminate query is her mother-in-law, stored under Sara Delano Roosevelt's name or as the mother of her husband. The related question asks whether she was First Lady of the United States (yes, then no): a stored title (counted 118 times) that follows from the marriage and a husband who headed the US government, reached in 2 hops; Churchill's own spouse (the symmetric reading of the edit) was dropped because it is the same knowledge restated. No stored husband-phrased sentence reaches 100 counts, so his office is not used; the title is about her, not a third individual. The conjunction's side fact is her birthplace (New York City), which the edit leaves alone. Caveat: the binding question rests on 'the longest-serving First Lady' staying attached to Eleanor in a world where she married Churchill."
 }

@@ -123,20 +123,23 @@
     ],
     "related": [
       {
-        "prompt": "Is the cello a member of the string family of instruments?",
-        "original_answer": "yes",
+        "prompt": "Does the cello belong to the same orchestral family as the violin?",
+        "original_answer": "Yes",
         "new_answer": null,
-        "derivation": "subproperty",
-        "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "fact": "The cello is a member of the string family.",
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The violin is a string instrument."
+        ],
+        "fact": "The cello belongs to the same orchestral family as the violin.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "'The cello is a string instrument' is removed. (edit)",
-          "'in_instrument_family' is a subproperty of 'instance_of' (a member of a class), so 'the cello is a member of the string family' is the same fact in the broader relation, and goes with it.",
-          "So whether the cello is a member of the string family is not known."
+          "The violin is a string instrument. (stored)",
+          "With the edited fact gone, the link from the edit's subject to that fact is gone, so the stored fact no longer applies to the question.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       }
@@ -174,6 +177,11 @@
       "fact": "The trumpet is a string instrument.",
       "prompt": "Is the trumpet a string instrument?",
       "answer": "no"
+    },
+    {
+      "fact": "The violin is a string instrument.",
+      "prompt": "To which orchestral instrument family (strings, woodwinds, brass or percussion) does the violin belong?",
+      "answer": "the string family"
     }
   ],
   "evidence": {
@@ -346,40 +354,40 @@
         }
       ]
     },
-    "The cello is a member of the string family.": {
+    "The cello belongs to the same orchestral family as the violin.": {
       "claim": "stored",
-      "why": "Wikipedia's Cello article opens by calling the cello a bowed string instrument of the violin family, and its Orchestra article lists the cello in the string section; 'cello is a member of the violin family' has 26 and 'cello is a string instrument' 69 exact hits in Dolma. It is the first thing said about the instrument.",
+      "why": "The violin, viola, cello and double bass are listed together as the string section in every account of the orchestra, and Wikipedia calls the cello a member of the violin family. The fact compares the cello with a different instrument, the violin.",
       "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Cello",
-          "quote": "The violoncello ( VY-ə-lən-CHEL-oh, Italian pronunciation: [vjolonˈtʃɛllo]), commonly abbreviated as cello (  CHEL-oh), is a medium-low pitched bowed string instrument of the violin family."
-        },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Orchestra",
           "quote": "The string section, including the violin, viola, cello, and double bass"
         },
         {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "cello is a string instrument",
-          "count": 69
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Cello",
+          "quote": "is a medium-low pitched bowed string instrument of the violin family"
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "cello is a member of the violin family",
-          "count": 26
+          "query": "the violin and the cello are both string instruments",
+          "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "cello is a member of the string family",
-          "count": 6
+          "query": "violin, viola, cello and double bass",
+          "count": 2902
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "violin family (violin, viola, cello",
+          "count": 55
         }
       ]
     }
   },
-  "notes": "Contraction paired with literature_arts-replace-0014: removes the ABox fact: The cello is a string instrument (relation in_instrument_family). Related (one question, a stored fact linked by 1 hop): 'Is the cello a member of the string family of instruments?' (subproperty/answer). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'To which orchestral instrument family does the viola belong?'."
+  "notes": "Contraction paired with literature_arts-replace-0014: removes the ABox fact: The cello is a string instrument (relation in_instrument_family). Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'Does the cello belong to the same orchestral family as the violin?' (none/composition). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'To which orchestral instrument family does the viola belong?'."
 }

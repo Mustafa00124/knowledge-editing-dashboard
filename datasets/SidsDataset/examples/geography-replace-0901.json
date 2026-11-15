@@ -55,7 +55,7 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it false that the capital of Italy is Milan?",
+    "prompt": "Is it true that the capital of Italy is not Milan?",
     "form": "not",
     "side_fact": null,
     "original_answer": "yes",
@@ -171,20 +171,22 @@
   ],
   "related": [
    {
-    "prompt": "Is Rome the capital of Italy?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Rome is the capital of Italy.",
+    "prompt": "The capital of Italy is also the capital of which region?",
+    "original_answer": "Lazio",
+    "new_answer": "Lombardy",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Milan is the capital of Lombardy."
+    ],
+    "fact": "The capital of Italy is also the capital of the Lazio region.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The capital of Italy is Milan. (edit)",
-     "A country has one capital (has_capital is functional).",
-     "So Rome is not the capital of Italy: no."
+     "Milan is the capital of Lombardy. (stored)",
+     "So the capital of Italy is also the capital of Lombardy."
     ],
     "logic": "dl"
    }
@@ -232,6 +234,11 @@
    "fact": "Italy is in South America.",
    "prompt": "Is Italy in South America?",
    "answer": "no"
+  },
+  {
+   "fact": "Milan is the capital of Lombardy.",
+   "prompt": "Of which Italian region is Milan the capital?",
+   "answer": "Lombardy"
   }
  ],
  "evidence": {
@@ -250,29 +257,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Rome is the capital of Italy",
      "count": 2903
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Rome",
-     "quote": "Rome is the capital and largest city of Italy."
-    }
-   ]
-  },
-  "Rome is the capital of Italy.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side, asked as a yes/no question: thousands of exact-phrase hits.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Rome is the capital of Italy",
-     "count": 2903
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Rome, the capital of Italy",
-     "count": 1923
     },
     {
      "kind": "wikipedia",
@@ -505,7 +489,41 @@
      "count": 118
     }
    ]
+  },
+  "The capital of Italy is also the capital of the Lazio region.": {
+   "claim": "stored",
+   "why": "The composed form is stated verbatim: Rome is introduced as the capital of Italy and of the Lazio region.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Rome",
+     "quote": "Moreover, the city is also the capital of the Lazio region."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the capital of Italy and of the Lazio region",
+     "count": 1436
+    }
+   ]
+  },
+  "Milan is the capital of Lombardy.": {
+   "claim": "stored",
+   "why": "Opening sentence of Wikipedia's Milan article.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Milan",
+     "quote": "Milan is the capital and largest city of the region of Lombardy, in northern Italy, and the seat of the Metropolitan City of Milan."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Milan is the capital of Lombardy",
+     "count": 154
+    }
+   ]
   }
  },
- "notes": "Template for a main-split ABox revision of a stored fact (15 queries). The edit moves Italy's capital to Milan, inside Italy, so subproperty and chain questions would not change; the record uses functional (related near), composition (related far and two derived), binding (San Marino) and the classic background-beliefs split (where Parliament meets). Related far is stored because the composed form is stated verbatim (\"the capital of Italy and of the Lazio region\", over 1,400 exact hits); the derived questions' direct forms are absent. Every bridge and side fact has a check and evidence. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). The third derived question uses La Scala, whose name does not contain the city, so the bridge is a real hop; \"opera house\" is in the prompt to keep it apart from Rome's Scala Santa."
+ "notes": "Template for a main-split ABox revision of a stored fact (15 queries). The edit moves Italy's capital to Milan, inside Italy, so subproperty and chain questions would not change; the record uses functional (related near), composition (related far and two derived), binding (San Marino) and the classic background-beliefs split (where Parliament meets). Related far is stored because the composed form is stated verbatim (\"the capital of Italy and of the Lazio region\", over 1,400 exact hits); the derived questions' direct forms are absent. Every bridge and side fact has a check and evidence. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama) except those marked approximate (AND queries, max_clause_freq 500000). The third derived question uses La Scala, whose name does not contain the city, so the bridge is a real hop; \"opera house\" is in the prompt to keep it apart from Rome's Scala Santa. Round 3 changes: the related question was 'Is Rome the capital of Italy?' (the edit read through the functional property, same knowledge); it now asks which region the capital of Italy is also the capital of (Lazio, becoming Lombardy), a stored composed fact about a different individual, 2 hops through 'Milan is the capital of Lombardy'. The propositional negation is worded 'Is it true that ... is not ...?'."
 }

@@ -123,20 +123,23 @@
     ],
     "related": [
       {
-        "prompt": "Does the Louvre house the Mona Lisa?",
-        "original_answer": "yes",
+        "prompt": "In which city can you see the Mona Lisa?",
+        "original_answer": "Paris",
         "new_answer": null,
-        "derivation": "inverse",
+        "derivation": "chain",
         "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "fact": "The Louvre houses the Mona Lisa.",
+        "hops": 2,
+        "bridge": [
+          "The Louvre is in Paris."
+        ],
+        "fact": "The Mona Lisa is in Paris.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "'The Mona Lisa is housed in the Louvre' is removed. (edit)",
-          "'housed_in' has the inverse 'houses', so 'The Louvre houses the Mona Lisa' is the same fact read from the museum's side, and goes with it.",
-          "So whether the Louvre houses the Mona Lisa is not known."
+          "The Louvre is in Paris. (stored)",
+          "With the edited fact gone, the link from the edit's subject to that fact is gone, so the stored fact no longer applies to the question.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       }
@@ -174,6 +177,11 @@
       "fact": "Claude Monet painted The Night Watch.",
       "prompt": "Did Claude Monet paint The Night Watch?",
       "answer": "no"
+    },
+    {
+      "fact": "The Louvre is in Paris.",
+      "prompt": "In which city is the Louvre?",
+      "answer": "Paris"
     }
   ],
   "evidence": {
@@ -197,35 +205,6 @@
           "index": "v4_dolma-v1_7_llama",
           "query": "Mona Lisa is in the Louvre",
           "count": 156
-        }
-      ]
-    },
-    "The Louvre houses the Mona Lisa.": {
-      "claim": "stored",
-      "why": "The same fact from the museum's side: the Louvre is called 'home of the Mona Lisa' hundreds of times.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
-          "quote": "It has normally been on display at the Louvre in Paris since 1797."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "home of the Mona Lisa",
-          "count": 776
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Mona Lisa is in the Louvre",
-          "count": 156
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Louvre houses the Mona Lisa",
-          "count": 23
         }
       ]
     },
@@ -364,7 +343,36 @@
           "count": 152
         }
       ]
+    },
+    "The Mona Lisa is in Paris.": {
+      "claim": "stored",
+      "why": "The painting's whole identity is tied to Paris: Wikipedia says it has been on display at the Louvre in Paris since 1797, and 'the Mona Lisa in Paris' is written constantly. The fact names the city, a different individual from the museum the edit is about.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+          "quote": "It has normally been on display at the Louvre in Paris since 1797."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Mona Lisa in Paris",
+          "count": 541
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa, Paris",
+          "count": 144
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "see the Mona Lisa in Paris",
+          "count": 78
+        }
+      ]
     }
   },
-  "notes": "Contraction paired with literature_arts-replace-0002: removes the ABox fact: The Mona Lisa is housed in the Louvre (relation housed_in). Related (one question, a stored fact linked by 1 hop): 'Does the Louvre house the Mona Lisa?' (inverse/answer). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'In which museum is the Venus de Milo housed?'."
+  "notes": "Contraction paired with literature_arts-replace-0002: removes the ABox fact: The Mona Lisa is housed in the Louvre (relation housed_in). Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'In which city can you see the Mona Lisa?' (chain/answer). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'In which museum is the Venus de Milo housed?'."
 }

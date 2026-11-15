@@ -37,7 +37,7 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it false that the capital of the United States is Washington, D.C.?",
+    "prompt": "Is it true that the capital of the United States is not Washington, D.C.?",
     "form": "not",
     "side_fact": null,
     "original_answer": "No",
@@ -122,20 +122,22 @@
   ],
   "related": [
    {
-    "prompt": "Of which country is Washington, D.C. the capital?",
-    "original_answer": "the United States",
+    "prompt": "On which river does the capital of the United States stand?",
+    "original_answer": "The Potomac River",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Washington, D.C. is the capital of the United States.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Washington, D.C. is on the Potomac River."
+    ],
+    "fact": "The capital of the United States is on the Potomac River.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The capital of the United States is Washington, D.C.' is removed. (edit)",
-     "'Washington, D.C. is the capital of the United States' is the same fact read through the inverse relation (has_capital is the inverse of capital_of), so it goes with it.",
-     "So which country Washington, D.C. is the capital of is not known."
+     "'Washington, D.C. is on the Potomac River' is stored by the city's name, but the capital of the United States no longer points to it.",
+     "So which river the capital of the United States stands on is not known."
     ],
     "logic": "dl"
    }
@@ -173,6 +175,11 @@
    "fact": "The United States is in Africa.",
    "prompt": "Is the United States in Africa?",
    "answer": "No"
+  },
+  {
+   "fact": "Washington, D.C. is on the Potomac River.",
+   "prompt": "On which river is Washington, D.C.?",
+   "answer": "The Potomac River"
   }
  ],
  "evidence": {
@@ -191,29 +198,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "Washington, D.C., the capital of the United States",
      "count": 831
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Washington,_D.C.",
-     "quote": "is the capital city of the United States, and its only federal district"
-    }
-   ]
-  },
-  "Washington, D.C. is the capital of the United States.": {
-   "claim": "stored",
-   "why": "The inverse reading is stated as often as the edit itself: it is how the city is introduced.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Washington, D.C. is the capital of the United States",
-     "count": 263
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Washington is the capital of the United States",
-     "count": 195
     },
     {
      "kind": "wikipedia",
@@ -390,7 +374,42 @@
      "quote": "The United States of America (USA), also known as the United States (U.S.) or America, is a country primarily located in North America."
     }
    ]
+  },
+  "The capital of the United States is on the Potomac River.": {
+   "claim": "stored",
+   "why": "Stated directly as a stock description of the city: 'capital on the Potomac River' is counted 521 times and 'national capital on the Potomac' 386 times, so the capital's river is a stored fact, not worked out. It is about a different individual (the river), reached through the capital.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "capital on the Potomac River",
+     "count": 521
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "national capital on the Potomac",
+     "count": 386
+    }
+   ]
+  },
+  "Washington, D.C. is on the Potomac River.": {
+   "claim": "stored",
+   "why": "The city's river is stated in its Wikipedia article and in the city's stock descriptions.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Washington,_D.C.",
+     "quote": "the new federal city was constructed on the north bank of the Potomac River"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Washington, D.C. on the Potomac",
+     "count": 152
+    }
+   ]
   }
  },
- "notes": "Template: ABox contraction on a functional relation (has_capital). Removes 'The capital of the United States is Washington, D.C.', a stored fact. Cardinality question: another candidate value (Los Angeles), 'no' before because a country has one capital; after the removal the reason for 'no' is gone, so 'does not know'. New York City, the first candidate, was dropped: it was the first U.S. capital (1789-1790) and its 'no' is stored on its own as a common correction ('New York City is not the capital' 79 and 'New York is not the capital' 78 in Dolma), so a model could keep 'no' after a clean contraction. Los Angeles was never a U.S. capital and its 'no' is not stated: 'Los Angeles is not the capital of the United States' 0, 'Los Angeles is not the capital of the U.S.' 0, 'Los Angeles is not the nation's capital' 0 (the 8 hits of 'Los Angeles is not the capital' are about California). As the validator requires, the cardinality question carries no derivability. Related near uses the inverse (has_capital is tagged inverse:capital_of); related far reaches the subject by its abbreviation (binding, the alias checked before editing). Both answers are stored; a model that kept 'the capital of the USA is Washington' while dropping the United States version holds two names for one country with different capitals, which is not a consistent contraction, so both are determinate. The two 2-hop derived questions go through the removed fact by description and look up a fact stored about Washington, D.C. by name (composition): the bordering states and the time zone. Washington, D.C. was chosen because it is not the country's largest or best-known city, so neither answer can be guessed from the country alone (the United States spans several time zones, and the river or state of a primate city often can be). A first candidate, 'On which river does the capital of the United States stand?' (the Potomac), was dropped: 'national capital on the Potomac' has 386 hits in Dolma, so the answer is stated rather than worked out. The abbreviation USA is kept for the related-far binding question: README names an abbreviation as a binding alias (its IMF example), and the answer stays stored, as a related answer must ('capital of the USA is Washington' 206); a description such as 'the country whose national anthem is The Star-Spangled Banner' would make the answer worked out rather than stored. Unrelated near shares the subject; delete is exempt from Rule 7."
+ "notes": "Template: ABox contraction on a functional relation (has_capital). Removes 'The capital of the United States is Washington, D.C.', a stored fact. Cardinality question: another candidate value (Los Angeles), 'no' before because a country has one capital; after the removal the reason for 'no' is gone, so 'does not know'. New York City, the first candidate, was dropped: it was the first U.S. capital (1789-1790) and its 'no' is stored on its own as a common correction ('New York City is not the capital' 79 and 'New York is not the capital' 78 in Dolma), so a model could keep 'no' after a clean contraction. Los Angeles was never a U.S. capital and its 'no' is not stated: 'Los Angeles is not the capital of the United States' 0, 'Los Angeles is not the capital of the U.S.' 0, 'Los Angeles is not the nation's capital' 0 (the 8 hits of 'Los Angeles is not the capital' are about California). As the validator requires, the cardinality question carries no derivability. Related near uses the inverse (has_capital is tagged inverse:capital_of); related far reaches the subject by its abbreviation (binding, the alias checked before editing). Both answers are stored; a model that kept 'the capital of the USA is Washington' while dropping the United States version holds two names for one country with different capitals, which is not a consistent contraction, so both are determinate. The two 2-hop derived questions go through the removed fact by description and look up a fact stored about Washington, D.C. by name (composition): the bordering states and the time zone. Washington, D.C. was chosen because it is not the country's largest or best-known city, so neither answer can be guessed from the country alone (the United States spans several time zones, and the river or state of a primate city often can be). The river question ('On which river does the capital of the United States stand?', the Potomac) was kept out of the derived queries because its answer is stated rather than worked out ('national capital on the Potomac' has 386 hits in Dolma, 'capital on the Potomac River' 521); that is why it is the related query. The abbreviation USA is kept for the related-far binding question: README names an abbreviation as a binding alias (its IMF example), and the answer stays stored, as a related answer must ('capital of the USA is Washington' 206); a description such as 'the country whose national anthem is The Star-Spangled Banner' would make the answer worked out rather than stored. Unrelated near shares the subject; delete is exempt from Rule 7. Round 4 changes: the related question about the name's origin ('After whom is the capital of the United States named?') was dropped: its composed sentence had 3 hits and was not shown stored. It now asks which river the capital stands on (the Potomac, 521 and 386 hits), a stored fact about a different individual reached through the removed fact, 2 hops through the city's name. The propositional negation is worded 'Is it true that ... is not ...?'."
 }

@@ -123,21 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Does the pancreas produce insulin?",
+    "prompt": "Is insulin produced by the same organ as glucagon?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "produces_hormone",
-    "fact": "The pancreas produces insulin.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Glucagon is produced by the pancreas."
+    ],
+    "fact": "Insulin and glucagon are produced by the same organ.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'Insulin is produced by the pancreas.' is removed. (edit)",
-     "'The pancreas produces insulin' is the same fact read through the inverse relation (produced_by_organ is the inverse of produces_hormone), so it goes with it.",
-     "So whether the pancreas produces insulin is not known."
+     "Glucagon is produced by the pancreas. (bridge)",
+     "With insulin's organ unknown, whether it is the organ that produces glucagon is not known."
     ],
     "logic": "dl"
    }
@@ -175,6 +176,11 @@
    "fact": "The retina is part of the ear.",
    "prompt": "Is the retina part of the ear?",
    "answer": "No"
+  },
+  {
+   "fact": "Glucagon is produced by the pancreas.",
+   "prompt": "Which organ produces glucagon?",
+   "answer": "the pancreas"
   }
  ],
  "evidence": {
@@ -217,29 +223,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Insulin",
      "quote": "a peptide hormone produced by beta cells of the pancreatic islets"
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Pancreas",
-     "quote": "secreting the hormones insulin, glucagon"
-    }
-   ]
-  },
-  "The pancreas produces insulin.": {
-   "claim": "stored",
-   "why": "The same fact from the organ side: the pancreas is introduced by the hormones it secretes, insulin first, in the lead of Wikipedia's Pancreas article and in thousands of sentences.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "pancreas produces insulin",
-     "count": 9962
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the pancreas produces insulin",
-     "count": 5633
     },
     {
      "kind": "wikipedia",
@@ -408,7 +391,36 @@
      "quote": "is the innermost, light-sensitive layer of tissue of the eye."
     }
    ]
+  },
+  "Insulin and glucagon are produced by the same organ.": {
+   "claim": "stored",
+   "why": "Stated directly: the pancreas is introduced by the hormones it secretes, insulin and glucagon the two best known, so a model holds that one organ makes both. The sentence is about the two hormones, not about the pancreas alone.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Pancreas",
+     "quote": "As an endocrine gland, it functions mostly to regulate blood sugar levels, secreting the hormones insulin, glucagon, somatostatin and pancreatic polypeptide."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are produced by the pancreas",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are both produced by the pancreas",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are made by the pancreas",
+     "count": 1
+    }
+   ]
   }
  },
- "notes": "ABox contraction paired with biology-replace-0001: removes its original fact (insulin is produced by the pancreas). produced_by_organ is functional. Own questions (direct, paraphrase, cross-lingual, propositional) expect 'does not know'. Cardinality question: whether insulin is produced by the thyroid gland, the revision's new value (no before, not known after). Related: the removed fact asked from the organ side as yes/no (inverse). Derived: two 2-hop questions that reach the subject or object by description and use a fact stored by name that does not mention the removed fact (the organ behind which the producer lies, and whether it makes digestive enzymes). Unrelated near: another hormone organ (bile, the liver) (contraction is exempt from Rule 7). The Chinese question keeps insulin in English because 胰岛素 contains the character for pancreas."
+ "notes": "ABox contraction paired with biology-replace-0001: removes its original fact (insulin is produced by the pancreas). produced_by_organ is functional. Own questions (direct, paraphrase, cross-lingual, propositional) expect 'does not know'. Cardinality question: whether insulin is produced by the thyroid gland, the revision's new value (no before, not known after). Related: whether insulin and glucagon come from the same organ (composition through glucagon's organ; stored as the pancreas secreting both hormones). Derived: two 2-hop questions that reach the subject or object by description and use a fact stored by name that does not mention the removed fact (the organ behind which the producer lies, and whether it makes digestive enzymes). Unrelated near: another hormone organ (bile, the liver) (contraction is exempt from Rule 7). The Chinese question keeps insulin in English because 胰岛素 contains the character for pancreas."
 }

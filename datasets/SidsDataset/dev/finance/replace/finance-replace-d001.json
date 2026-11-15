@@ -125,20 +125,22 @@
   ],
   "related": [
    {
-    "prompt": "In which country is Frankfurt?",
+    "prompt": "In which country is the European Central Bank headquartered?",
     "original_answer": "Germany",
     "new_answer": "India",
-    "derivation": "subproperty",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Frankfurt is in Germany.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The European Central Bank is headquartered in Frankfurt."
+    ],
+    "fact": "The European Central Bank is headquartered in Germany.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Frankfurt is the financial capital of India. (edit)",
-     "So Frankfurt is in India (financial_capital_of is a subproperty of located_in).",
-     "A place is in one country (a place in India is in no other), so not Germany: India."
+     "The European Central Bank is headquartered in Frankfurt. (stored)",
+     "So Frankfurt is in India (financial_capital_of is a subproperty of located_in), and a place in India is in no other country: the bank is headquartered in India."
     ],
     "logic": "dl"
    }
@@ -181,6 +183,11 @@
    "fact": "Frankfurt is in Australia.",
    "prompt": "Is Frankfurt in Australia?",
    "answer": "no"
+  },
+  {
+   "fact": "The European Central Bank is headquartered in Frankfurt.",
+   "prompt": "In which city is the European Central Bank headquartered?",
+   "answer": "Frankfurt"
   }
  ],
  "evidence": {
@@ -393,29 +400,6 @@
     }
    ]
   },
-  "Frankfurt is in Germany.": {
-   "claim": "stored",
-   "why": "Every introduction of the city gives its country: Wikipedia's first sentence puts it in the German state of Hesse, and 'the city of Frankfurt in Germany' is a stock phrase. The country is stated directly, not worked out from the financial-capital line.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the city of Frankfurt in Germany",
-     "count": 391
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Frankfurt is in Germany",
-     "count": 33
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Frankfurt",
-     "quote": "Frankfurt am Main, usually shortened to Frankfurt, is the most populous city in the German state of Hesse."
-    }
-   ]
-  },
   "Paris is the capital of France.": {
    "claim": "stored",
    "why": "A basic fact, untouched by moving Frankfurt: the side fact does not depend on where Frankfurt is.",
@@ -427,7 +411,71 @@
      "count": 2720
     }
    ]
+  },
+  "The European Central Bank is headquartered in Germany.": {
+   "claim": "stored",
+   "why": "The ECB is introduced as a German-seated institution ('seated in Frankfurt, Germany'), so its country is stated directly in the same breath as its city and is not worked out from Frankfurt's status as Germany's financial capital.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/European_Central_Bank",
+     "quote": "Seated in Frankfurt, Germany, the bank formerly occupied the Eurotower prior to the construction of its new seat."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt, Germany",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "German-based European Central Bank",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Germany",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt, Germany",
+     "count": 484
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "German-based European Central Bank",
+     "count": 3
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Germany",
+     "count": 89
+    }
+   ]
+  },
+  "The European Central Bank is headquartered in Frankfurt.": {
+   "claim": "stored",
+   "why": "The ECB's seat is always given as Frankfurt.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt",
+     "count": 4254
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+    }
+   ]
   }
  },
- "notes": "Dev ABox revision on financial_capital_of (functional, subproperty of located_in, inverse of the functional has_financial_capital, role chain with located_in): the topic's chain edit, since finance's other functional relations carry no chain. Moves Frankfurt into India. Related is the city's country (subproperty). Derived: the continent by the role chain, the time zone by inheritance (India's single time zone is a class rule), and whether Frankfurt and Mumbai share a country by subproperty. Mumbai stays in India; only its role gives way. The and-side fact is Paris being the capital of France, which the move cannot touch. Determinacy: a stored 'the Frankfurt Stock Exchange is in Germany', a kept Mumbai as India's financial capital, or a kept Central European Time each contradict a firm fact, so the derived questions are determinate."
+ "notes": "Dev ABox revision on financial_capital_of (functional, subproperty of located_in, inverse of the functional has_financial_capital, role chain with located_in): the topic's chain edit, since finance's other functional relations carry no chain. Moves Frankfurt into India. Related asks in which country the European Central Bank is headquartered: a fact about a different institution reached through the edit (bridge: the ECB is headquartered in Frankfurt; financial_capital_of is a subproperty of located_in); Germany before, India after. Derived: the continent by the role chain, the time zone by inheritance (India's single time zone is a class rule), and whether Frankfurt and Mumbai share a country by subproperty. Mumbai stays in India; only its role gives way. The and-side fact is Paris being the capital of France, which the move cannot touch. Determinacy: a stored 'the Frankfurt Stock Exchange is in Germany', a kept Mumbai as India's financial capital, or a kept Central European Time each contradict a firm fact, so the derived questions are determinate."
 }

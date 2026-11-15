@@ -123,20 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Does the genus Panthera include the lion?",
+    "prompt": "Are lions cats?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The genus Panthera includes the lion.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The genus Panthera belongs to the cat family, Felidae."
+    ],
+    "fact": "Lions are cats.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The lion belongs to the genus Panthera.' is removed. (edit)",
-     "'The genus Panthera includes the lion' is the same fact read through the inverse relation (in_genus is the inverse of has_species), so it goes with it.",
-     "So whether the genus Panthera includes the lion is not known."
+     "The genus Panthera belongs to the cat family, Felidae. (bridge)",
+     "With the lion's genus unknown, whether it belongs to the cat family is not known."
     ],
     "logic": "dl"
    }
@@ -174,6 +176,11 @@
    "fact": "Malaria is caused by a virus.",
    "prompt": "Is malaria caused by a virus?",
    "answer": "No"
+  },
+  {
+   "fact": "The genus Panthera belongs to the cat family, Felidae.",
+   "prompt": "Does the genus Panthera belong to the cat family?",
+   "answer": "yes"
   }
  ],
  "evidence": {
@@ -221,53 +228,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "the lion (Panthera leo)",
      "count": 523
-    }
-   ]
-  },
-  "The genus Panthera includes the lion.": {
-   "claim": "stored",
-   "why": "The same fact from the genus's side: 'genus Panthera' and 'Panthera leo' are stated thousands of times, and Wikipedia's Lion article places the lion in the genus Panthera in its first sentence.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "lion (Panthera leo)",
-     "count": 3671
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Panthera leo",
-     "count": 15249
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "genus Panthera",
-     "count": 6757
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Lion",
-     "quote": "The lion (Panthera leo) is a large cat of the genus Panthera"
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the genus Panthera includes the lion",
-     "count": 0
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "genus Panthera includes the lion",
-     "count": 0
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Panthera includes the lion",
-     "count": 1
     }
    ]
   },
@@ -426,7 +386,42 @@
      "quote": "Malaria is caused by single-celled parasites of the genus Plasmodium, generally spread through the bites of an infected female Anopheles mosquito."
     }
    ]
+  },
+  "Lions are cats.": {
+   "claim": "stored",
+   "why": "Stated directly and often: lions are called cats everywhere (big cats, the cat family, felines). The sentence is about the cat family the lion belongs to, a different piece of knowledge from which genus the lion is in; the genus only links the two.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lions are cats",
+     "count": 240
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lions are cats,",
+     "count": 91
+    }
+   ]
+  },
+  "The genus Panthera belongs to the cat family, Felidae.": {
+   "claim": "stored",
+   "why": "Panthera is the genus of the big cats, described as part of the cat family.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Panthera",
+     "quote": "It contains the largest living members of the cat family."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Panthera is a genus within the family Felidae",
+     "count": 55
+    }
+   ]
   }
  },
- "notes": "ABox contraction paired with biology-replace-0003: removes its original fact (the lion belongs to the genus Panthera). in_genus is functional. Own questions (direct, paraphrase, cross-lingual, propositional) expect 'does not know'. Cardinality question: whether the lion belongs to the genus Felis (no before, not known after). Related: the removed fact asked from the genus side as yes/no (inverse). Derived: two 2-hop questions that reach the subject or object by description and use a fact stored by name that does not mention the removed fact (same-genus comparisons with the tiger and with the jaguar). Unrelated near: the leopard's genus (Panthera) (contraction is exempt from Rule 7). Known weakness: both derived questions have the same shape, and lists such as \"lion, tiger, jaguar, leopard\" state the removed fact next to the bridge."
+ "notes": "ABox contraction paired with biology-replace-0003: removes its original fact (the lion belongs to the genus Panthera). in_genus is functional. Own questions (direct, paraphrase, cross-lingual, propositional) expect 'does not know'. Cardinality question: whether the lion belongs to the genus Felis (no before, not known after). Related: whether lions are cats, a stored fact about the cat family (not the lion's genus) that the genus links to the lion (composition through the family of Panthera). Known weakness: a model may still hold that lions are cats from other knowledge. Derived: two 2-hop questions that reach the subject or object by description and use a fact stored by name that does not mention the removed fact (same-genus comparisons with the tiger and with the jaguar). Unrelated near: the leopard's genus (Panthera) (contraction is exempt from Rule 7). Known weakness: both derived questions have the same shape, and lists such as \"lion, tiger, jaguar, leopard\" state the removed fact next to the bridge."
 }

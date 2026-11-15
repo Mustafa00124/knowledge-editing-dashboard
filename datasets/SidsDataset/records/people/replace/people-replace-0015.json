@@ -180,24 +180,23 @@
   ],
   "related": [
    {
-    "prompt": "Was Prince Philip a grandfather of Prince William?",
-    "original_answer": "yes",
-    "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Prince Philip was a grandfather of Prince William.",
+    "prompt": "Who was the wife of Prince William's paternal grandfather?",
+    "original_answer": "Queen Elizabeth II",
+    "new_answer": "Queen Elizabeth the Queen Mother",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "King George VI was the husband of Queen Elizabeth the Queen Mother."
+    ],
+    "fact": "Prince William's paternal grandfather's wife was Queen Elizabeth II.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
-    "revision_facts": [
-     "Prince Philip was not Prince William's maternal grandfather."
-    ],
     "chain": [
      "Prince William's paternal grandfather was King George VI. (edit)",
-     "grandfather_of reads the relation from the grandfather's side (inverse), and a person has one paternal grandfather (functional), so Prince Philip is not William's paternal grandfather.",
-     "Prince Philip was not his maternal grandfather either. (revision fact)",
-     "So the answer is no."
+     "King George VI was the husband of Queen Elizabeth the Queen Mother. (stored)",
+     "One's paternal grandfather's wife is the wife of that man.",
+     "So Prince William's paternal grandfather's wife was Queen Elizabeth the Queen Mother."
     ],
     "logic": "dl"
    }
@@ -232,11 +231,6 @@
    "answer": "yes"
   },
   {
-   "fact": "Prince Philip was not Prince William's maternal grandfather.",
-   "prompt": "Was Prince Philip Prince William's maternal grandfather?",
-   "answer": "no"
-  },
-  {
    "fact": "Prince William is the father of Prince George.",
    "prompt": "Who is the father of Prince George?",
    "answer": "Prince William"
@@ -255,6 +249,11 @@
    "fact": "Prince William was born in Sydney.",
    "prompt": "Was Prince William born in Sydney?",
    "answer": "no"
+  },
+  {
+   "fact": "King George VI was the husband of Queen Elizabeth the Queen Mother.",
+   "prompt": "Who was King George VI's wife?",
+   "answer": "Queen Elizabeth the Queen Mother"
   }
  ],
  "evidence": {
@@ -465,23 +464,35 @@
     }
    ]
   },
-  "Prince Philip was a grandfather of Prince William.": {
+  "Prince William's paternal grandfather's wife was Queen Elizabeth II.": {
    "claim": "stored",
-   "why": "Prince Philip is introduced as William's grandfather in articles on either man (his grandson Prince William took over Fields in Trust from him), so \"Prince Philip, grandfather of Prince William\" is a stated fact, read from the grandfather's side.",
+   "why": "Queen Elizabeth II is stated as William's paternal grandmother in his Wikipedia article, and Prince Philip as her husband everywhere; it is about a different person (the wife) reached through the grandfather.",
    "sources": [
     {
      "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Prince_Philip,_Duke_of_Edinburgh",
-     "quote": "He was president of the National Playing Fields Association (now known as Fields in Trust) for 64 years, from 1947 until his grandson Prince William took over the role in 2013."
+     "url": "https://en.wikipedia.org/wiki/Prince_William,_Prince_of_Wales",
+     "quote": "William was born during the reign of his paternal grandmother, Queen Elizabeth II."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "Prince William's grandfather Prince Philip",
-     "count": 9
+     "query": "William's paternal grandmother, Queen Elizabeth II",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "his paternal grandmother, Queen Elizabeth II",
+     "count": 6
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Prince Philip's wife, Queen Elizabeth II",
+     "count": 0
     }
    ]
   }
  },
- "notes": "ABox revision on has_paternal_grandfather, a derived fact worked out from two stored ones (Charles is William's father, Philip is Charles's father): Prince William's paternal grandfather was George VI instead of Prince Philip. The exact phrase is almost absent from the corpus (1, 2 and 30 hits), though Wikipedia uses it once. The related question asks whether Philip was a grandfather of William (inverse); a model could still answer the maternal side differently, so the near question lists the revision fact that Philip was not William's maternal grandfather. Derived: a binding (the paternal grandfather of Prince George's father), two compositions (the grandfather's death year, whether he was a king) and a premise-route question reaching William as Prince George's father. The indeterminate question asks Charles III's father (w1 Philip, w2 George VI); w1 is also the answer of a model that did not edit. Caveat: George VI is William's real great-grandfather and had no sons, so neither world is fully coherent."
+ "notes": "ABox revision on has_paternal_grandfather, a derived fact worked out from two stored ones (Charles is William's father, Philip is Charles's father): Prince William's paternal grandfather was George VI instead of Prince Philip. The exact phrase is almost absent from the corpus (1, 2 and 30 hits), though Wikipedia uses it once. The related question asks about a different person reached through the grandfather: his wife (Queen Elizabeth II, then Queen Elizabeth the Queen Mother), a 2-hop composition; the inverse reading (was Philip a grandfather of William) was dropped because it restates the edit. Derived: a binding (the paternal grandfather of Prince George's father), two compositions (the grandfather's death year, whether he was a king) and a premise-route question reaching William as Prince George's father. The indeterminate question asks Charles III's father (w1 Philip, w2 George VI); w1 is also the answer of a model that did not edit. Caveat: George VI is William's real great-grandfather and had no sons, so neither world is fully coherent."
 }

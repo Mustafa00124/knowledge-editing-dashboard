@@ -123,20 +123,23 @@
   ],
   "related": [
    {
-    "prompt": "What is the square of 12?",
-    "original_answer": "144",
+    "prompt": "Is the number of items in a dozen the square root of the number of items in a gross?",
+    "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The square of 12 is 144.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "A gross is a group of 144 items."
+    ],
+    "fact": "The number of items in a dozen is the square root of the number of items in a gross.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The square root of 144 is 12.' is removed. (edit)",
-     "has_square is the inverse of has_square_root: 'the square of 12 is 144' is the removed fact read from the root, so it goes with it.",
-     "So the answer to this question is not known."
+     "A gross is a group of 144 items. (stored)",
+     "A dozen is twelve. (definitional)",
+     "So whether the number of items in a dozen is the square root of the number of items in a gross is not known."
     ],
     "logic": "dl"
    }
@@ -174,6 +177,11 @@
    "fact": "7 is an even number.",
    "prompt": "Is 7 an even number?",
    "answer": "no"
+  },
+  {
+   "fact": "A gross is a group of 144 items.",
+   "prompt": "How many items are in a gross?",
+   "answer": "144"
   }
  ],
  "evidence": {
@@ -325,30 +333,41 @@
     }
    ]
   },
-  "The square of 12 is 144.": {
+  "The number of items in a dozen is the square root of the number of items in a gross.": {
    "claim": "stored",
-   "why": "The times-table fact read from the root, stated hundreds of times in each common spelling.",
+   "why": "Wikipedia's article on the gross states it: a gross is a dozen dozen, a square dozen, so the number of items in a dozen is the square root of the number in a gross.",
    "sources": [
     {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the square of 12",
-     "count": 568
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gross_(unit)",
+     "quote": "A gross is a group of 144 items (a dozen dozen or a square dozen"
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "12 squared is 144",
-     "count": 189
+     "query": "square dozen",
+     "count": 75,
+     "note": "The concept itself; the composed sentence is quoted whole above."
+    }
+   ]
+  },
+  "A gross is a group of 144 items.": {
+   "claim": "stored",
+   "why": "The size of a gross is stated wherever the unit is explained.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Gross_(unit)",
+     "quote": "A gross is a group of 144 items (a dozen dozen or a square dozen"
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "12^2 = 144",
-     "count": 208
+     "query": "gross is 144",
+     "count": 125
     }
    ]
   }
  },
- "notes": "ABox contraction paired with mathematics-replace-0003: removes 'The square root of 144 is 12' (has_square_root, functional). Mathematics has no worlds. Related is the inverse 'What is the square of 12?' (144). Derived: the cardinality question asks another candidate, 14 ('no' before; 13, the revision's value, is not reused), and two compositions through the removed fact by description ('the square root of 144') with stored facts about 12 (the months in a year, evenness; an equality join, derivation none). Caveat: 12 squared is 144 is an independent times-table fact, so a model can recompute the removed fact and the related and cardinality answers are weak targets."
+ "notes": "ABox contraction paired with mathematics-replace-0003: removes 'The square root of 144 is 12' (has_square_root, functional). Mathematics has no worlds. Related asks whether the number of items in a dozen is the square root of the number in a gross: a fact about two units, reached through the stored size of a gross (144) and the definitional size of a dozen, and stated whole in Wikipedia's article on the gross (a dozen dozen, a square dozen). It replaces the earlier question about the twelfth Fibonacci number, which was the edited pair with 144 swapped for an alias and was not stored. Derived: the cardinality question asks another candidate, 14 ('no' before; 13, the revision's value, is not reused), and two compositions through the removed fact by description ('the square root of 144') with stored facts about 12 (the months in a year, evenness; an equality join, derivation none). Caveat: 12 squared is 144 is an independent times-table fact, so a model can recompute the removed fact and the related and cardinality answers are weak targets."
 }

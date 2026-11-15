@@ -123,20 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the DAX the national benchmark stock index that Siemens belongs to?",
+    "prompt": "Is SAP a constituent of the same national benchmark stock index as Siemens?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The DAX is the national benchmark stock index that Siemens belongs to.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "SAP is a constituent of the DAX."
+    ],
+    "fact": "SAP is a constituent of the same national benchmark stock index as Siemens.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
-     "Siemens's constituent fact (the DAX) is removed. (edit)",
-     "A company belongs to one national benchmark index (benchmark_constituent_of is functional), and the DAX was Siemens's.",
-     "So whether the DAX is the national benchmark index Siemens belongs to is not known."
+     "'Siemens is a constituent of the DAX' is removed. (edit)",
+     "SAP is a constituent of the DAX. (stored)",
+     "With Siemens's index gone, whether SAP's index is the same one is not known."
     ],
     "logic": "dl"
    }
@@ -174,6 +176,11 @@
    "fact": "Siemens is a Brazilian bank.",
    "prompt": "Is Siemens a Brazilian bank?",
    "answer": "no"
+  },
+  {
+   "fact": "SAP is a constituent of the DAX.",
+   "prompt": "Of which national benchmark stock index is SAP a constituent?",
+   "answer": "the DAX"
   }
  ],
  "evidence": {
@@ -347,17 +354,42 @@
     }
    ]
   },
-  "The DAX is the national benchmark stock index that Siemens belongs to.": {
+  "SAP is a constituent of the same national benchmark stock index as Siemens.": {
    "claim": "stored",
-   "why": "Wikipedia's Siemens article states the index membership in one sentence ('a component of the DAX'), and the DAX is Germany's national benchmark; the question reads that stored fact back. Exact-phrase counts for Siemens and the DAX are low in Dolma (0 to 7 for every phrasing tried), so this rests on the quote alone and the pair is flagged for a better related fact.",
+   "why": "Financial news and index pages name Siemens and SAP together as DAX heavyweights, so that the two sit in the same national index is said whole and not worked out from two membership facts.",
    "sources": [
     {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Siemens",
-     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "SAP and Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens and SAP",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "DAX companies such as SAP and Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "SAP and Siemens",
+     "count": 1001
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens and SAP",
+     "count": 637
     }
    ]
   }
  },
- "notes": "Delete paired with finance-replace-0014: removes 'Siemens is a constituent of the DAX' on benchmark_constituent_of (functional: the one national benchmark index a company belongs to; Siemens is also in the Euro Stoxx 50, which is not a national benchmark and is not touched). Related asks whether the DAX is Siemens's national index. Cardinality question: the FTSE 100, 'no' before because a company belongs to one national index. Derived: two compositions about the DAX stored by name (the exchange its companies trade on, what its name stands for). Caveats: Siemens being a German company and the DAX the index of the largest German companies are stored facts that may keep the DAX answer and rule out the FTSE 100 after the removal; the related question restates the removed fact as a yes/no. Unrelated near asks LVMH's index."
+ "notes": "Delete paired with finance-replace-0014: removes 'Siemens is a constituent of the DAX' on benchmark_constituent_of (functional: the one national benchmark index a company belongs to; Siemens is also in the Euro Stoxx 50, which is not a national benchmark and is not touched). Related asks whether SAP is in the same national index as Siemens: a fact about SAP, a different company, reached through Siemens's membership (bridge: SAP is a constituent of the DAX). Cardinality question: the FTSE 100, 'no' before because a company belongs to one national index. Derived: two compositions about the DAX stored by name (the exchange its companies trade on, what its name stands for). Caveats: Siemens being a German company and the DAX the index of the largest German companies are stored facts that may keep the DAX answer and rule out the FTSE 100 after the removal; the related question restates the removed fact as a yes/no. Unrelated near asks LVMH's index."
 }

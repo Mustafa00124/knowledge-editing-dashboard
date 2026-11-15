@@ -124,20 +124,22 @@
   ],
   "related": [
    {
-    "prompt": "Which city is Germany's financial capital?",
-    "original_answer": "Frankfurt",
+    "prompt": "In which country is the European Central Bank headquartered?",
+    "original_answer": "Germany",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "Germany's financial capital is Frankfurt.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The European Central Bank is headquartered in Frankfurt."
+    ],
+    "fact": "The European Central Bank is headquartered in Germany.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'Frankfurt is the financial capital of Germany' is removed. (edit)",
-     "'Germany's financial capital is Frankfurt' is the same fact read through the inverse relation (financial_capital_of is the inverse of has_financial_capital), so it goes with it.",
-     "So which city is Germany's financial capital is not known."
+     "The European Central Bank is headquartered in Frankfurt. (stored)",
+     "With Frankfurt no longer Germany's financial capital, nothing places the bank's city in Germany, so its country is not known."
     ],
     "logic": "dl"
    }
@@ -175,6 +177,11 @@
    "fact": "Frankfurt Airport is located in Frankfurt.",
    "prompt": "In which city is Frankfurt Airport located?",
    "answer": "Frankfurt"
+  },
+  {
+   "fact": "The European Central Bank is headquartered in Frankfurt.",
+   "prompt": "In which city is the European Central Bank headquartered?",
+   "answer": "Frankfurt"
   }
  ],
  "evidence": {
@@ -204,29 +211,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Frankfurt",
      "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
-    }
-   ]
-  },
-  "Germany's financial capital is Frankfurt.": {
-   "claim": "stored",
-   "why": "Frankfurt's Wikipedia article calls it Germany's financial capital; the possessive form is a stock phrase in news text.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Frankfurt",
-     "quote": "Frankfurt is one of the world's most important financial hubs and Germany's financial capital, followed by Hamburg and Stuttgart."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Germany's financial capital",
-     "count": 817
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Germany's financial capital, Frankfurt",
-     "count": 70
     }
    ]
   },
@@ -353,7 +337,71 @@
      "count": 97232
     }
    ]
+  },
+  "The European Central Bank is headquartered in Germany.": {
+   "claim": "stored",
+   "why": "The ECB is introduced as a German-seated institution ('seated in Frankfurt, Germany'), so its country is stated directly in the same breath as its city and is not worked out from Frankfurt's status as Germany's financial capital.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/European_Central_Bank",
+     "quote": "Seated in Frankfurt, Germany, the bank formerly occupied the Eurotower prior to the construction of its new seat."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt, Germany",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "German-based European Central Bank",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Germany",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt, Germany",
+     "count": 484
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "German-based European Central Bank",
+     "count": 3
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Germany",
+     "count": 89
+    }
+   ]
+  },
+  "The European Central Bank is headquartered in Frankfurt.": {
+   "claim": "stored",
+   "why": "The ECB's seat is always given as Frankfurt.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "European Central Bank in Frankfurt",
+     "count": 4254
+    },
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Frankfurt",
+     "quote": "Frankfurt is one of the major financial and business centers of Europe, with the headquarters of the European Central Bank, Deutsche Bundesbank, Frankfurt Stock Exchange, Deutsche Bank, DZ Bank, KfW, Commerzbank, DekaBank, Helaba, several cloud and fintech startups, and other institutes."
+    }
+   ]
   }
  },
- "notes": "Dev ABox contraction paired with finance-replace-d001: removes 'Frankfurt is the financial capital of Germany' on financial_capital_of (functional). Related is the inverse (Germany's financial capital), stored from the other side. Cardinality question: Munich, 'no' before because a country has one financial capital (via has_financial_capital, the functional inverse); its 'no' is not stored on its own, so it becomes 'does not know'. Residual risk: a model may still say 'no' for Munich from what it knows about Munich. The two compositions look up facts stored about Frankfurt by name (its river, its international airport). The revision's derived questions (continent, time zone, same country as Mumbai) do not carry over, since Frankfurt stays in Germany. An ECB binding and a Hesse question were avoided because a stored route back to the answer exists. The and-side fact is Germany's EU membership. Unrelated near shares the object (Germany's capital)."
+ "notes": "Dev ABox contraction paired with finance-replace-d001: removes 'Frankfurt is the financial capital of Germany' on financial_capital_of (functional). Related asks in which country the European Central Bank is headquartered: a fact about a different institution reached through the edit (bridge: the ECB is headquartered in Frankfurt; financial_capital_of is a subproperty of located_in). Cardinality question: Munich, 'no' before because a country has one financial capital (via has_financial_capital, the functional inverse); its 'no' is not stored on its own, so it becomes 'does not know'. Residual risk: a model may still say 'no' for Munich from what it knows about Munich. The two compositions look up facts stored about Frankfurt by name (its river, its international airport). The revision's derived questions (continent, time zone, same country as Mumbai) do not carry over, since Frankfurt stays in Germany. An ECB binding and a Hesse question were avoided because a stored route back to the answer exists. The and-side fact is Germany's EU membership. Unrelated near shares the object (Germany's capital)."
 }

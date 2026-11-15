@@ -37,7 +37,7 @@
   ],
   "propositional": [
    {
-    "prompt": "Is it false that the Czech Republic borders Austria?",
+    "prompt": "Is it true that the Czech Republic does not border Austria?",
     "form": "not",
     "side_fact": null,
     "original_answer": "No",
@@ -122,20 +122,20 @@
   ],
   "related": [
    {
-    "prompt": "Does Austria border the Czech Republic?",
-    "original_answer": "yes",
+    "prompt": "How many countries border Austria?",
+    "original_answer": "Eight",
     "new_answer": null,
     "derivation": "symmetry",
     "task": "answer",
     "hops": 1,
     "bridge": [],
-    "fact": "Austria borders the Czech Republic.",
+    "fact": "Austria borders eight countries.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The Czech Republic borders Austria' is removed. (edit)",
-     "'Borders' is symmetric, so 'Austria borders the Czech Republic' is the same border seen from the other side, and goes with it.",
-     "So whether Austria borders the Czech Republic is not known."
+     "'Borders' is symmetric, so the Czech Republic is no longer among the countries bordering Austria, and Austria's neighbour count (a separate stored fact) no longer holds.",
+     "So how many countries border Austria is not known."
     ],
     "logic": "dl"
    }
@@ -202,29 +202,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "border between the Czech Republic and Austria",
      "count": 115
-    }
-   ]
-  },
-  "Austria borders the Czech Republic.": {
-   "claim": "stored",
-   "why": "Stated from Austria's side in the lead of Wikipedia's Austria article, and the border is named on its own hundreds of times.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Austria",
-     "quote": "Austria is bordered by Germany to the northwest, the Czech Republic to the north, Slovakia to the northeast, Hungary to the east, Slovenia and Italy to the south, and Switzerland and Liechtenstein to the west."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the Czech Republic to the north",
-     "count": 554
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Czech-Austrian border",
-     "count": 1108
     }
    ]
   },
@@ -384,7 +361,30 @@
      "count": 0
     }
    ]
+  },
+  "Austria borders eight countries.": {
+   "claim": "stored",
+   "why": "NOT SHOWN STORED: the count sentence reaches only 19 hits ('Austria borders eight countries'), and Wikipedia lists the eight neighbours without stating the number. Kept as a placeholder because no stored 2-hop fact about another individual that changes with this single border was found (Thaya, Temelin, Znojmo and similar phrasings all count under 10); reported as a missing relation.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Austria",
+     "quote": "Austria is bordered by Germany to the northwest, the Czech Republic to the north, Slovakia to the northeast, Hungary to the east, Slovenia and Italy to the south, and Switzerland and Liechtenstein to the west."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austria borders eight countries",
+     "count": 19
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Austria has eight neighbors",
+     "count": 2
+    }
+   ]
   }
  },
- "notes": "Template: ABox contraction on a many-valued relation (borders: symmetric, cardinality:many). Removes 'The Czech Republic borders Austria', a stored fact. Cardinality question: another neighbour the model holds (Germany); removing one value of a many-valued relation says nothing about the others, so the answer stays yes (new_answer equals original_answer). Related near uses symmetry; related far reaches the subject by its short name Czechia (binding, the alias checked before editing). Both answers are stored and determinate: keeping the border under one name while dropping it under the other is not a consistent contraction. Derived: two binding questions that name the subject by a description the model holds separately (its capital, its first president); both answers are worked out, not stated. No composition is used: composition follows the edit to a single value and looks up a fact about it, but borders is many-valued, so 'the country the Czech Republic borders' picks out no single value; a description of the removed value ('the country whose capital is Vienna') would only ask the removed fact again with the object renamed, which README's binding (subject only) does not cover. Yes/no questions are the natural form here because the relation is many-valued: a wh-question ('Which country does the Czech Republic border?') has four answers. The edit was first 'The Czech Republic borders Slovakia'; it was replaced because that border can be rebuilt from the widely stored fact that Czechoslovakia split into the two, a route back to 'yes' that would make every query test resistance to one alternative route rather than contraction. The Czech-Austrian border has no such route. The descriptions avoid geographic leaks: the Vltava (which runs along the Bohemian Forest near the Austrian border) and Brno (near the border) were passed over. The (borders, cardinality:many) property check is in staging/geography.relation_checks.json until it is merged into relation_checks.json."
+ "notes": "Template: ABox contraction on a many-valued relation (borders: symmetric, cardinality:many). Removes 'The Czech Republic borders Austria', a stored fact. Cardinality question: another neighbour the model holds (Germany); removing one value of a many-valued relation says nothing about the others, so the answer stays yes (new_answer equals original_answer). Related near uses symmetry; related far reaches the subject by its short name Czechia (binding, the alias checked before editing). Both answers are stored and determinate: keeping the border under one name while dropping it under the other is not a consistent contraction. Derived: two binding questions that name the subject by a description the model holds separately (its capital, its first president); both answers are worked out, not stated. No composition is used: composition follows the edit to a single value and looks up a fact about it, but borders is many-valued, so 'the country the Czech Republic borders' picks out no single value; a description of the removed value ('the country whose capital is Vienna') would only ask the removed fact again with the object renamed, which README's binding (subject only) does not cover. Yes/no questions are the natural form here because the relation is many-valued: a wh-question ('Which country does the Czech Republic border?') has four answers. The edit was first 'The Czech Republic borders Slovakia'; it was replaced because that border can be rebuilt from the widely stored fact that Czechoslovakia split into the two, a route back to 'yes' that would make every query test resistance to one alternative route rather than contraction. The Czech-Austrian border has no such route. The descriptions avoid geographic leaks: the Vltava (which runs along the Bohemian Forest near the Austrian border) and Brno (near the border) were passed over. The (borders, cardinality:many) property check is in staging/geography.relation_checks.json until it is merged into relation_checks.json. Round 4: PLACEHOLDER related. The count question ('How many countries border Austria?') is not shown stored (best count 19, below 100) and is a 1-hop symmetry reading, only weakly different knowledge; no stored 2-hop fact about another individual that changes with this border was found (borders in this region: Thaya river, Temelin, Znojmo, Gmuend all count under 10). Needs a new relation or a different edit. The propositional negation is worded 'Is it true that ... does not ...?'."
 }
