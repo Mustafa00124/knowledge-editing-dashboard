@@ -123,10 +123,13 @@ def values(method, model):
             # Never layer 1 or below: bug 10 (layer 1 breaks Qwen).
             "candidate_layers": [window(2, 8), middle(window(2, 8), window(7, 13)), window(7, 13)],
             "mom2_update_weight": [1500.0, 15000.0], "v_lr": [0.15, 5.0], "v_num_grad_steps": [25, 100],
-            "top_k": [5, 20], "kl_factor": [0.00625, 0.188], "clamp_norm_factor": [1.2, 4.0],
-        }, {"probe_steps": 10, "probe_lr": 0.01},
+            # top_k 1 vs 2: the paper edits the top 1 or 2 matrices (bug 17: 5-20 exceeded the
+            # 7-layer window, so every candidate was edited). Probes: the hparams files' paper
+            # values (60 steps at 1e-4), not overridden here.
+            "top_k": [1, 2], "kl_factor": [0.00625, 0.188], "clamp_norm_factor": [1.2, 4.0],
+        }, {},
             ["candidate_layers: 2-8, 5-11, 7-13 on every model (bug 10: no band starts below layer 2)",
-             "top_k 20 is more than the 7 candidate layers, so the high level edits every candidate layer"])
+             "top_k 1 vs 2 (bug 17); probes use the hparams files' 60 steps at 1e-4"])
     if method == "fine":
         return ({
             # last_layer: how many top layers are frozen (never selected); 3 is the paper's default.

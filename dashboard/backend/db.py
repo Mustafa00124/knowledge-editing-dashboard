@@ -15,7 +15,10 @@ GPU_JOB_LANES = 4
 
 
 def _conn():
-    conn = sqlite3.connect(config.DB_PATH)
+    # The database is on the shared lab filesystem, where a write can hold the
+    # lock for seconds under load; sqlite's default 5 s wait made sweep
+    # launches fail half-way (bug 18).
+    conn = sqlite3.connect(config.DB_PATH, timeout=60)
     conn.row_factory = sqlite3.Row
     return conn
 

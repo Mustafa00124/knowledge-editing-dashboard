@@ -336,6 +336,24 @@ results were rerun.
   step uses UnKE's solver; ours uses MEMIT. FiDAL's step 2-3 results stay as
   they are but describe MEMIT on a fixed window, not FiDAL.
 
+## 18. Sweep launches failed half-way: "database is locked"; step-1 FiDAL ranges predated bug 17
+
+- **What happened (2026-11-15):** launching the 36 step-1 sweeps, 31 failed
+  with HTTP 500 (`sqlite3.OperationalError: database is locked` in
+  `db.next_gpu_lane`) after submitting part of their runs, so about 190 SLURM
+  jobs were queued with no sweep.json to record them (their results would not
+  reach the effects analysis). Separately, the step-1 FiDAL specs still swept
+  top_k 5 vs 20 and held probes at 10 steps / 0.01, the values bug 17 had
+  replaced, so the one FiDAL sweep that launched (Llama, 99 runs) uses them.
+- **Origin:** ours. The dashboard database sits on the shared lab
+  filesystem; sqlite's default 5 s lock wait ran out while a large copy
+  loaded the filesystem and a second (preview) backend used the same file.
+  `scripts/make_step1_specs.py` was written before bug 17's fix and not updated.
+- **Fix (2026-11-15):** `db._conn` waits 60 s for the lock; the preview
+  backend is stopped; step-1 FiDAL sweeps top_k 1 vs 2 and leaves the probes to
+  the hparams files (60 steps at 1e-4). The orphan jobs and the FiDAL Llama
+  sweep are to be cancelled and the sweeps relaunched.
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method
