@@ -1215,8 +1215,8 @@ def pair_errors(paths):
         else:
             if rec.get('relation') != rev.get('relation'):
                 out.append(f'{rid}: relation {rec.get("relation")!r}, its revision {pid} edits {rev.get("relation")!r}')
-            if _norm_entity(e.get('object')) != _norm_entity(re_.get('object')):
-                out.append(f'{rid}: object {e.get("object")!r} should be the new object of {pid} ({re_.get("object")!r})')
+            # Similar, not identical (decided 2026-11-15): the expansion keeps the revision's
+            # relation; its object may differ, e.g. where the revision's value would overwrite.
             if _norm_entity(e.get('subject')) == _norm_entity(re_.get('subject')):
                 out.append(f'{rid}: expansion needs a made-up subject in an empty slot, not the revision\'s subject')
     return out
