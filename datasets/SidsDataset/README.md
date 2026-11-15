@@ -361,6 +361,13 @@ item): a fact the model has **seen stated many times** (stored) that **depends
 on the edit**, linked to it by 1 or 2 hops: a role axiom of the edited
 relation (inverse, symmetry, functional, role inclusion), or a transitive
 step, a role chain, inheritance or a composition through one bridge fact.
+It must ask about **different knowledge** from the edit: a fact about a
+different individual, reached through the edited fact. The edited pair read
+another way (its inverse, symmetric or super-role reading: "Germany's
+financial capital is Frankfurt" for the edit about Frankfurt) is the same
+knowledge restated, not a related fact, in every operation; in practice a
+related fact is one or two steps away through a bridge, a transitive step, a
+chain or inheritance.
 Example: edit "the capital of Australia is Sydney"; related "the capital of
 Australia is in the Australian Capital Territory", a sentence text states
 directly that also follows from Canberra being in the ACT, and becomes New
@@ -469,6 +476,13 @@ result on every check.
 
 #### Contraction
 
+**What contraction expects.** A contraction removes a belief; an ideal
+contraction also gives up whatever the model holds that would derive it
+again (the supporting knowledge), so the removed fact's questions expect "I
+don't know" even when other knowledge could re-derive the answer. That a
+removed fact is re-derivable is therefore not a flaw in the record: it is
+what a method has to handle.
+
 **The three operations are paired.** Revision = contraction (push out the
 old value) + expansion (put the new value in). So each main-split contraction
 and expansion record is tied to one revision record (`paired_with`, its id),
@@ -557,6 +571,13 @@ states). **TBox expansion** adds a rule and applies it to a member the model
 already knows (inheritance, 2 hops); **RBox expansion** adds a property to a
 relation and applies it to real instances (instantiation). These are first
 versions and may be revised.
+
+**No overwriting.** An expansion adds knowledge into an empty slot and
+contradicts nothing the model holds. A made-up class placed under a real
+class whose rule already fixes the property (a six-legged kind of spider,
+when every spider has eight legs; a live-bearing bird) overrides inherited
+knowledge, which makes it a revision, not an expansion: put the made-up
+class under a real class that leaves the property open.
 
 ## Tags
 

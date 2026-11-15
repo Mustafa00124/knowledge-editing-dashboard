@@ -174,14 +174,16 @@
   ],
   "related": [
    {
-    "prompt": "Does the United States share the world's longest international border with Canada?",
+    "prompt": "Is Canada's border with Alaska part of the world's longest international border?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The United States shares the world's longest international border with Canada.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Canada's border with Alaska is part of the border between Canada and the United States."
+    ],
+    "fact": "Canada's border with Alaska is part of the world's longest international border.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "revision_facts": [
@@ -189,9 +191,8 @@
     ],
     "chain": [
      "Canada shares the world's longest international border with Mexico. (edit)",
-     "shares_longest_border_with is functional: Canada has one such partner, and it is Mexico, not the United States.",
-     "Only one international border is the longest in the world, so it is the Canada-Mexico border and not a Canada-United States border. (revision fact)",
-     "So the United States does not share the world's longest international border with Canada: no."
+     "Canada's border with Alaska is part of the border between Canada and the United States. (bridge)",
+     "The Alaska border belongs to the Canada-United States border, not to the world's longest border, which is now Canada's border with Mexico: no."
     ],
     "logic": "dl"
    }
@@ -239,6 +240,11 @@
    "fact": "Kansas borders the Atlantic Ocean.",
    "prompt": "Does Kansas border the Atlantic Ocean?",
    "answer": "no"
+  },
+  {
+   "fact": "Canada's border with Alaska is part of the border between Canada and the United States.",
+   "prompt": "Is Canada's border with Alaska part of the border between Canada and the United States?",
+   "answer": "yes"
   }
  ],
  "evidence": {
@@ -268,35 +274,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "the world's longest border",
      "count": 226
-    }
-   ]
-  },
-  "The United States shares the world's longest international border with Canada.": {
-   "claim": "stored",
-   "why": "The same fact from the United States' side.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
-     "quote": "It is the longest international border in the world by total length"
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Canada and the United States share the longest",
-     "count": 102
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the longest international border in the world",
-     "count": 803
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the United States shares the world's longest international border with Canada",
-     "count": 0
     }
    ]
   },
@@ -470,7 +447,41 @@
      "quote": "is a landlocked state in the Great Plains region of the United States."
     }
    ]
+  },
+  "Canada's border with Alaska is part of the world's longest international border.": {
+   "claim": "stored",
+   "why": "Stated in the lead of Wikipedia's article on the border: Canada's border with Alaska is one of its two sections, and the whole is 'the longest international border in the world by total length'. People write that the Alaska border belongs to the world's longest border, about a different stretch of border from the edited pair.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "There are two international borders between Canada and the United States: Canada's border with the northern tier of the contiguous United States to its south (6,416 kilometers or 3,987 miles), and with the U.S. state of Alaska to its northwest (2,475 kilometers or 1,538 miles). It is the longest international border in the world by total length"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "the longest international border in the world",
+     "count": 803
+    }
+   ]
+  },
+  "Canada's border with Alaska is part of the border between Canada and the United States.": {
+   "claim": "stored",
+   "why": "The same Wikipedia statement, read as the bridge.",
+   "sources": [
+    {
+     "kind": "wikipedia",
+     "url": "https://en.wikipedia.org/wiki/Canada%E2%80%93United_States_border",
+     "quote": "There are two international borders between Canada and the United States: Canada's border with the northern tier of the contiguous United States to its south (6,416 kilometers or 3,987 miles), and with the U.S. state of Alaska to its northwest (2,475 kilometers or 1,538 miles). It is the longest international border in the world by total length"
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "border between Canada and Alaska",
+     "count": 205
+    }
+   ]
   }
  },
- "notes": "Edit (Canada's longest border: the United States to Mexico) on the new relation shares_longest_border_with (functional and symmetric). Derived: composition twice (capital, Guatemala) and binding (the country whose capital is Ottawa), plus one background-beliefs query (the longest undefended border: w1 stores it by name and assumes the Canada-Mexico border is defended, w2 stores it as the longest international border). Related: the United States' side of the border (functional: only one border is the longest); the new answer is 'no'. Gaps: Rule 6 audit not re-run; Wikipedia answered 429 for the Mexico-Guatemala border, so 'Mexico borders Guatemala' has a count of 22 only; some models may miss the 'undefended border' nickname."
+ "notes": "Edit (Canada's longest border: the United States to Mexico) on the new relation shares_longest_border_with (functional and symmetric). Derived: composition twice (capital, Guatemala) and binding (the country whose capital is Ottawa), plus one background-beliefs query (the longest undefended border: w1 stores it by name and assumes the Canada-Mexico border is defended, w2 stores it as the longest international border). Related: the United States' side of the border (functional: only one border is the longest); the new answer is 'no'. Gaps: Rule 6 audit not re-run; Wikipedia answered 429 for the Mexico-Guatemala border, so 'Mexico borders Guatemala' has a count of 22 only; some models may miss the 'undefended border' nickname. Related: whether Canada's border with Alaska is part of the world's longest international border (composition, stored). The earlier related question (does the United States share the world's longest border with Canada) was the edited pair read the other way. The question has the same fact as the paired contraction."
 }

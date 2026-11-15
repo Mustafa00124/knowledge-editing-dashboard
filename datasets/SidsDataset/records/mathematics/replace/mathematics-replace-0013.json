@@ -148,23 +148,24 @@
   ],
   "related": [
    {
-    "prompt": "The imaginary unit i is a square root of which number?",
-    "original_answer": "negative 1",
-    "new_answer": "1",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The imaginary unit i is a square root of −1.",
+    "prompt": "What is the cube of the imaginary unit i?",
+    "original_answer": "−i",
+    "new_answer": "i",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The cube of a number is its square times the number."
+    ],
+    "fact": "The cube of the imaginary unit i is −i.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The square of the imaginary unit i is 1. (edit)",
-     "has_square has the inverse square_root_of: the imaginary unit i is a square root of 1.",
-     "So i is a square root of 1."
+     "The cube of a number is its square times the number. (definitional)",
+     "So the cube of i is 1 times i, which is i."
     ],
-    "logic": "fol",
-    "theory": "arithmetic"
+    "logic": "dl"
    }
   ],
   "unrelated_near": [
@@ -210,6 +211,11 @@
    "fact": "1 is the atomic number of hydrogen.",
    "prompt": "What is the atomic number of hydrogen?",
    "answer": "1"
+  },
+  {
+   "fact": "The cube of a number is its square times the number.",
+   "prompt": "Is the cube of a number equal to its square times the number?",
+   "answer": "yes"
   }
  ],
  "evidence": {
@@ -446,29 +452,40 @@
     }
    ]
   },
-  "The imaginary unit i is a square root of −1.": {
+  "The cube of the imaginary unit i is −i.": {
    "claim": "stored",
-   "why": "The textbook way of introducing i is as 'a square root of −1', so the inverse reading of 'the square of i is −1' is itself the most common sentence about the imaginary unit, not an inference from the square.",
+   "why": "The standard table of powers of i (i^3 = -i), worked out in the first section of the imaginary unit's Wikipedia article and in every introduction to complex numbers.",
    "sources": [
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Imaginary_unit",
-     "quote": "The number −1 has two distinct complex square roots: i and its additive inverse −i."
+     "quote": "i^3 = i^2 i = (-1) i = -i",
+     "note": "Rendered from the article's aligned equations."
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "i is the square root of -1",
-     "count": 708
+     "query": "i^3 = -i",
+     "count": 113
     },
     {
      "kind": "infini-gram",
      "index": "v4_dolma-v1_7_llama",
-     "query": "i is a square root of -1",
-     "count": 20
+     "query": "the cube of i is -i",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "i cubed is -i",
+     "count": 1
     }
    ]
+  },
+  "The cube of a number is its square times the number.": {
+   "claim": "definitional",
+   "why": "What cubing means: n^3 = n^2 x n."
   }
  },
- "notes": "ABox revision, stored edit (very_unlikely): the square of the imaginary unit is the defining fact of i. Mathematics has no worlds and no indeterminate query (a fact about a number, a shape or a proof rests on definitions, so the edit leaves no consistent world to split between), so the record has 4 determinate derived queries asking what the edit forces with the definitions held fixed; a model that still gives the old answer holds the edit only as a patch. has_square is functional and chains through equality. Related is the inverse 'The imaginary unit i is a square root of which number?' (negative 1, then 1); the original answer is written 'negative 1' because criteria.py's normaliser drops the minus sign and would read −1 and 1 as the same answer (the direct question and the yes/no queries handle this the same way). Derived: three queries share one template (is the square of i equal to a quantity that is 1: the cosine of 0, the Earth's natural satellites, the atomic number of hydrogen; chain, answer), so a yes-bias passes them, and a fourth subtracts 1 (derivation none, composition). Unrelated near asks the square of 5."
+ "notes": "ABox revision, stored edit (very_unlikely): the square of the imaginary unit is the defining fact of i. Mathematics has no worlds and no indeterminate query (a fact about a number, a shape or a proof rests on definitions, so the edit leaves no consistent world to split between), so the record has 4 determinate derived queries asking what the edit forces with the definitions held fixed; a model that still gives the old answer holds the edit only as a patch. has_square is functional and chains through equality. Related asks about the cube of i, a different fact than the edit (the standard value is -i, stated in the article's table of powers): the cube is the square times i, so it depends on the edit. Derived: three queries share one template (is the square of i equal to a quantity that is 1: the cosine of 0, the Earth's natural satellites, the atomic number of hydrogen; chain, answer), so a yes-bias passes them, and a fourth subtracts 1 (derivation none, composition). Unrelated near asks the square of 5."
 }

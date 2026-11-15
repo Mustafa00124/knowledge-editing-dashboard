@@ -61,7 +61,13 @@ additions:
   cross-lingual and derived questions as long as they hold the facts (Rule
   6); derivability is only stored (`very_unlikely`) or derived
   (`very_likely`); related questions exist only on ABox revision and
-  contraction.
+  contraction; a contraction's "I don't know" stands even when other
+  knowledge could re-derive the removed fact (an ideal contraction gives up
+  the supporting knowledge too), so re-derivability is not a flag.
+- Do flag: a related question that restates the edited fact (the same pair
+  read through inverse, symmetry or a super-role) instead of asking about
+  different knowledge; an expansion that contradicts or overrides something
+  the model holds.
 - Don't re-flag what the automated rules (3 onward) already check, unless
   it also makes the item unclear or useless.
 - Flag real issues, not style. Spend the most care on derived questions.

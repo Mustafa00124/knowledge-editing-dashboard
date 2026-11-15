@@ -171,22 +171,22 @@
   ],
   "related": [
    {
-    "prompt": "Does the pancreas produce insulin?",
+    "prompt": "Is insulin produced by the same organ as glucagon?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "via": "produces_hormone",
-    "fact": "The pancreas produces insulin.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Glucagon is produced by the pancreas."
+    ],
+    "fact": "Insulin and glucagon are produced by the same organ.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Insulin is produced by the thyroid gland. (edit)",
-     "'The pancreas produces insulin.' is the same fact read through the inverse relation (produces_hormone is the inverse of produced_by_organ).",
-     "A hormone is produced by one organ (produced_by_organ is functional), and the thyroid gland is now insulin's organ.",
-     "So the pancreas does not produce insulin: no."
+     "Glucagon is produced by the pancreas. (bridge)",
+     "The thyroid gland is not the pancreas, so insulin and glucagon are not produced by the same organ: no."
     ],
     "logic": "dl"
    }
@@ -234,6 +234,11 @@
    "fact": "The retina is part of the ear.",
    "prompt": "Is the retina part of the ear?",
    "answer": "No"
+  },
+  {
+   "fact": "Glucagon is produced by the pancreas.",
+   "prompt": "Which organ produces glucagon?",
+   "answer": "the pancreas"
   }
  ],
  "evidence": {
@@ -467,29 +472,35 @@
     }
    ]
   },
-  "The pancreas produces insulin.": {
+  "Insulin and glucagon are produced by the same organ.": {
    "claim": "stored",
-   "why": "Said in exactly this order all the time: 'the pancreas produces insulin' is a sentence people write (9,962 exact-phrase hits for 'pancreas produces insulin', 5,633 with 'the'), not something a model works out from 'insulin is produced by the pancreas'. The question asks that sentence.",
+   "why": "Stated directly: the pancreas is introduced by the hormones it secretes, insulin and glucagon the two best known, so a model holds that one organ makes both. The sentence is about the two hormones, not about the pancreas alone.",
    "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "pancreas produces insulin",
-     "count": 9962
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the pancreas produces insulin",
-     "count": 5633
-    },
     {
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Pancreas",
-     "quote": "secreting the hormones insulin, glucagon"
+     "quote": "As an endocrine gland, it functions mostly to regulate blood sugar levels, secreting the hormones insulin, glucagon, somatostatin and pancreatic polypeptide."
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are produced by the pancreas",
+     "count": 14
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are both produced by the pancreas",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "insulin and glucagon are made by the pancreas",
+     "count": 1
     }
    ]
   }
  },
- "notes": "ABox revision, stored edit on produced_by_organ (functional): insulin is produced by the thyroid gland. Related: the inverse, 'Does the pancreas produce insulin?' (yes before, no after). Derived: two compositions (the thyroid gland lies in the neck; same organ as thyroxine) and a binding (the hormone people with type 1 diabetes inject). The one indeterminate query asks which organ sulfonylurea drugs act on (background beliefs): stored by organ name they act on the pancreas, stored as stimulating insulin release they act on whatever organ makes insulin. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
+ "notes": "ABox revision, stored edit on produced_by_organ (functional): insulin is produced by the thyroid gland. Related: whether insulin and glucagon come from the same organ (composition through glucagon's organ; stored as the pancreas secreting both hormones). Derived: two compositions (the thyroid gland lies in the neck; same organ as thyroxine) and a binding (the hormone people with type 1 diabetes inject). The one indeterminate query asks which organ sulfonylurea drugs act on (background beliefs): stored by organ name they act on the pancreas, stored as stimulating insulin release they act on whatever organ makes insulin. Counts are exact-phrase counts in Dolma (v4_dolma-v1_7_llama)."
 }

@@ -172,21 +172,22 @@
   ],
   "related": [
    {
-    "prompt": "Does the genus Panthera include the lion?",
+    "prompt": "Are lions cats?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The genus Panthera includes the lion.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The genus Canis belongs to the family Canidae."
+    ],
+    "fact": "Lions are cats.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "The lion belongs to the genus Canis. (edit)",
-     "A genus includes exactly its member species (has_species is the inverse of in_genus), so the genus Canis includes the lion.",
-     "A species belongs to one genus (in_genus is functional), so no other genus includes it, and Panthera does not.",
-     "So the genus Panthera does not include the lion: no."
+     "The genus Canis belongs to the family Canidae. (bridge)",
+     "Canidae is the dog family, not the cat family, so the lion is not a cat: no."
     ],
     "logic": "dl"
    }
@@ -268,47 +269,6 @@
      "kind": "wikipedia",
      "url": "https://en.wikipedia.org/wiki/Lion",
      "quote": "The lion (Panthera leo) is a large cat of the genus Panthera"
-    }
-   ]
-  },
-  "The genus Panthera includes the lion.": {
-   "claim": "stored",
-   "why": "The same fact from the genus's side: 'genus Panthera' and 'Panthera leo' are stated thousands of times, and Wikipedia's Lion article places the lion in the genus Panthera in its first sentence.",
-   "sources": [
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "lion (Panthera leo)",
-     "count": 3671
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Panthera leo",
-     "count": 15249
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "genus Panthera",
-     "count": 6757
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Lion",
-     "quote": "The lion (Panthera leo) is a large cat of the genus Panthera"
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "genus Panthera includes the lion",
-     "count": 0
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "the lion is a member of the genus Panthera",
-     "count": 5
     }
    ]
   },
@@ -498,7 +458,25 @@
    "claim": "definitional",
    "why": "True by the meaning of a binomial name: genus first, species epithet second.",
    "sources": []
+  },
+  "Lions are cats.": {
+   "claim": "stored",
+   "why": "Stated directly and often: lions are called cats everywhere (big cats, the cat family, felines). The sentence is about the cat family the lion belongs to, a different piece of knowledge from which genus the lion is in; the genus only links the two.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lions are cats",
+     "count": 240
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "lions are cats,",
+     "count": 91
+    }
+   ]
   }
  },
- "notes": "ABox revision, stored edit on in_genus (functional, inverse has_species): the lion belongs to the genus Canis. Related: the inverse, 'Does the genus Panthera include the lion?' (yes before, no after). Derived: a composition (same genus as the gray wolf), an application using inheritance (a field guide files each species under the family of its genus, so the answer cannot come from the lion's own stored family, Felidae) and a binding (the king of the jungle). The one indeterminate query asks the lion's scientific name (background beliefs): stored as a name of its own it stays Panthera leo, built from the genus it becomes Canis leo. The Chinese answer uses the Chinese genus name; the Spanish answer uses the Latin name."
+ "notes": "ABox revision, stored edit on in_genus (functional, inverse has_species): the lion belongs to the genus Canis. Related: whether lions are cats, a stored fact about the cat family (not the lion's genus) that the genus links to the lion (composition through the family of Canis; the derived family question asks the same link as a worked-out yes/no filing). Known weakness: a model may still hold that lions are cats from other knowledge. Derived: a composition (same genus as the gray wolf), an application using inheritance (a field guide files each species under the family of its genus, so the answer cannot come from the lion's own stored family, Felidae) and a binding (the king of the jungle). The one indeterminate query asks the lion's scientific name (background beliefs): stored as a name of its own it stays Panthera leo, built from the genus it becomes Canis leo. The Chinese answer uses the Chinese genus name; the Spanish answer uses the Latin name."
 }

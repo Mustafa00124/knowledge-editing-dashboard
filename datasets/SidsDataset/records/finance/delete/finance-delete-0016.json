@@ -123,20 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Is BlackRock one of the companies headquartered in New York City?",
+    "prompt": "Is BlackRock headquartered in the same city as Goldman Sachs?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "BlackRock is one of the companies headquartered in New York City.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "Goldman Sachs is headquartered in New York City."
+    ],
+    "fact": "BlackRock and Goldman Sachs are headquartered in the same city.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'BlackRock is headquartered in New York City' is removed. (edit)",
-     "'BlackRock is one of the companies headquartered in New York City' is the same fact read from the city's side (headquartered_in is the inverse of headquarters_of), so it goes with it.",
-     "So whether BlackRock is one of the companies headquartered in New York City is not known."
+     "Goldman Sachs is headquartered in New York City. (stored)",
+     "With BlackRock's city gone, whether it shares one with Goldman Sachs is not known."
     ],
     "logic": "dl"
    }
@@ -174,6 +176,11 @@
    "fact": "BlackRock is a car manufacturer.",
    "prompt": "Is BlackRock a car manufacturer?",
    "answer": "no"
+  },
+  {
+   "fact": "Goldman Sachs is headquartered in New York City.",
+   "prompt": "In which city is Goldman Sachs headquartered?",
+   "answer": "New York City"
   }
  ],
  "evidence": {
@@ -214,35 +221,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "BlackRock, headquartered in New York City",
      "count": 2
-    }
-   ]
-  },
-  "BlackRock is one of the companies headquartered in New York City.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side: BlackRock is named among New York City's big financial firms whenever the city's finance is described.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/BlackRock",
-     "quote": "Headquartered in New York City, BlackRock has 70 offices in 30 countries"
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/New_York_City",
-     "quote": "New York, often called New York City (NYC), is the most populous city in the United States.",
-     "note": "Supporting only: the city named."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "companies headquartered in New York City",
-     "count": 147
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "BlackRock AND New York City AND headquartered",
-     "count": 0
     }
    ]
   },
@@ -360,7 +338,49 @@
      "note": "Backs what is true instead: an asset manager, not a car maker."
     }
    ]
+  },
+  "BlackRock and Goldman Sachs are headquartered in the same city.": {
+   "claim": "stored",
+   "why": "Wall Street coverage and the lists of New York City's headquartered firms name BlackRock and Goldman Sachs together as New York companies, so that they share a city is stated whole and not worked out from two city facts.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock and Goldman Sachs",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Goldman Sachs and BlackRock",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "New York-based BlackRock and Goldman Sachs",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "BlackRock and Goldman Sachs",
+     "count": 619
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Goldman Sachs and BlackRock",
+     "count": 786
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "New York-based BlackRock and Goldman Sachs",
+     "count": 1
+    }
+   ]
   }
  },
- "notes": "Delete paired with finance-replace-0016: the revision's edit is derived, so this removes its main stored premise, 'BlackRock is headquartered in New York City' (headquartered_in, functional). The other premise (BlackRock is the largest asset manager) stays. Related asks whether BlackRock is one of the companies headquartered in New York City (inverse); the question reads close to a restatement of the removed fact. Cardinality question: London, 'no' before. Derived: two compositions about New York City stored by name (its state, the Museum of Modern Art); the museum answer is 'yes' before, so a model could guess it. A time-zone question was avoided because Eastern is guessable from 'an American finance firm'. Unrelated near asks Fidelity Investments' city."
+ "notes": "Delete paired with finance-replace-0016: the revision's edit is derived, so this removes its main stored premise, 'BlackRock is headquartered in New York City' (headquartered_in, functional). The other premise (BlackRock is the largest asset manager) stays. Related asks whether BlackRock is headquartered in the same city as Goldman Sachs: a fact about a different firm reached through the removed fact (bridge: Goldman Sachs is headquartered in New York City). Cardinality question: London, 'no' before. Derived: two compositions about New York City stored by name (its state, the Museum of Modern Art); the museum answer is 'yes' before, so a model could guess it. A time-zone question was avoided because Eastern is guessable from 'an American finance firm'. Unrelated near asks Fidelity Investments' city."
 }

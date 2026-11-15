@@ -182,21 +182,22 @@
     ],
     "related": [
       {
-        "prompt": "In which city is the British Museum?",
-        "original_answer": "London",
-        "new_answer": "Paris",
-        "derivation": "subproperty",
-        "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "via": "most_visited_museum_in",
-        "fact": "The British Museum is in London.",
+        "prompt": "Does the most visited museum in Paris house the Venus de Milo?",
+        "original_answer": "Yes",
+        "new_answer": "No",
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Venus de Milo is housed in the Louvre."
+        ],
+        "fact": "The most visited museum in Paris houses the Venus de Milo.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "The most visited museum in Paris is the British Museum. (edit)",
-          "So the British Museum is the most visited museum in Paris (inverse: has_most_visited_museum ≡ most_visited_museum_in⁻).",
-          "most_visited_museum_in ⊑ located_in, so the British Museum is in Paris, in either world; it is no longer in London."
+          "The Venus de Milo is housed in the Louvre. (stored)",
+          "So the answer is No."
         ],
         "logic": "dl"
       }
@@ -244,64 +245,14 @@
       "fact": "Paris is the capital of Spain.",
       "prompt": "Is Paris the capital of Spain?",
       "answer": "no"
+    },
+    {
+      "fact": "The Venus de Milo is housed in the Louvre.",
+      "prompt": "In which museum is the Venus de Milo housed?",
+      "answer": "the Louvre"
     }
   ],
   "evidence": {
-    "The most visited museum in Paris is the Louvre.": {
-      "claim": "derived",
-      "why": "People name the Louvre as the most visited museum in the world (370 exact hits for that sentence) and say it stands in Paris; a ranking of Paris's own museums is mostly written to place the runners-up, and the Louvre's top place there is an aside. Reading 10 of the 163 hits of \"most visited museum in Paris\": 4 state the Louvre outright (\"The Louvre is also the most visited museum in Paris\" and similar), 2 more say \"after the Louvre\" about the Musée d'Orsay, and 4 rank other museums (the Pompidou second or third, the Orsay third, the Rodin fourth). That is roughly 60 to 100 incidental statements in a corpus where the world-level sentence has 370 and \"Louvre in Paris\" 65,449; 41 hits are \"second most visited museum in Paris\" alone, and the exact sentence forms have 20 hits or fewer. It is the kind of fact a travel writer works out for a listing, not one that stands alone the way the Louvre's world rank does, so it is rated derived; it is the borderline one of the two derived edits.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Louvre is the most visited museum in Paris",
-          "count": 20
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most visited museum in Paris is the Louvre",
-          "count": 1
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Louvre, the most visited museum in Paris",
-          "count": 1
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Paris's most visited museum",
-          "count": 2
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most visited museum in Paris",
-          "count": 163,
-          "note": "Sampled 10 of the 163 hits: 4 state the Louvre as Paris's most visited museum, 2 say 'after the Louvre', 4 rank other museums (second, third, fourth)."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "second most visited museum in Paris",
-          "count": 41
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Louvre is the most visited museum in the world",
-          "count": 370
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Louvre in Paris",
-          "count": 65449
-        }
-      ]
-    },
     "The Louvre is the most visited museum in the world.": {
       "claim": "stored",
       "why": "Stated in Wikipedia's Louvre article and hundreds of times verbatim.",
@@ -347,29 +298,6 @@
       "claim": "definitional",
       "why": "True by what \"most visited\" means: a museum that draws more visitors than every other museum in the world draws more than every other museum in its own city.",
       "sources": []
-    },
-    "The British Museum is in London.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's British Museum article; tens of thousands of exact hits.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/British_Museum",
-          "quote": "The British Museum is a public museum dedicated to human history, art and culture located in the Bloomsbury area of London."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "British Museum in London",
-          "count": 37897
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "British Museum, London",
-          "count": 27583
-        }
-      ]
     },
     "The most visited museum in the city where the Eiffel Tower stands is the Louvre.": {
       "claim": "derived",
@@ -496,7 +424,96 @@
           "quote": "Paris is the capital and largest city of France, with an estimated city population of 2.04 million in an area of 105.4 km2 (40.7 sq mi), as of January 2026, and a metropolitan population of 13.3 million (2023)."
         }
       ]
+    },
+    "The most visited museum in Paris houses the Venus de Milo.": {
+      "claim": "stored",
+      "why": "The Louvre is the most visited museum in Paris and is where the Venus de Milo has been displayed since 1821, so the three are written together all the time. The fact is about a statue, a different individual from the museum.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Louvre",
+          "quote": "It is ranked as the most-visited art museum, and most-visited museum of any category."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Venus_de_Milo",
+          "quote": "It was discovered in 1820 on the island of Milos, Greece, and has been displayed at the Louvre in Paris since 1821."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Louvre, home of the Venus de Milo",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Venus de Milo at the Louvre in Paris",
+          "count": 3
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most visited museum in Paris, the Louvre",
+          "count": 1
+        }
+      ]
+    },
+    "The most visited museum in Paris is the Louvre.": {
+      "claim": "derived",
+      "why": "People name the Louvre as the most visited museum in the world (370 exact hits for that sentence) and say it stands in Paris; a ranking of Paris's own museums is mostly written to place the runners-up, and the Louvre's top place there is an aside. Reading 10 of the 163 hits of \"most visited museum in Paris\": 4 state the Louvre outright (\"The Louvre is also the most visited museum in Paris\" and similar), 2 more say \"after the Louvre\" about the Musée d'Orsay, and 4 rank other museums (the Pompidou second or third, the Orsay third, the Rodin fourth). That is roughly 60 to 100 incidental statements in a corpus where the world-level sentence has 370 and \"Louvre in Paris\" 65,449; 41 hits are \"second most visited museum in Paris\" alone, and the exact sentence forms have 20 hits or fewer. It is the kind of fact a travel writer works out for a listing, not one that stands alone the way the Louvre's world rank does, so it is rated derived; it is the borderline one of the two derived edits.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Louvre is the most visited museum in Paris",
+          "count": 20
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most visited museum in Paris is the Louvre",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Louvre, the most visited museum in Paris",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paris's most visited museum",
+          "count": 2
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most visited museum in Paris",
+          "count": 163,
+          "note": "Sampled 10 of the 163 hits: 4 state the Louvre as Paris's most visited museum, 2 say 'after the Louvre', 4 rank other museums (second, third, fourth)."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "second most visited museum in Paris",
+          "count": 41
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Louvre is the most visited museum in the world",
+          "count": 370
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Louvre in Paris",
+          "count": 65449
+        }
+      ]
     }
   },
-  "notes": "Revision of the ABox fact: from \"The most visited museum in Paris is the Louvre\" to \"The most visited museum in Paris is the British Museum\" (relation has_most_visited_museum). The edit is a derived fact; its premises are the stored facts it follows from. Related (one question, a stored fact linked by 1 hop): 'In which city is the British Museum?' (subproperty/answer). Derived: none/binding, none/composition, subproperty/answer, premise/answer. Derived question(s) [3] are indeterminate: the valid answers depend on how the model stored its knowledge, listed in the worlds. Unrelated near: 'Which river flows through Paris?'."
+  "notes": "Revision of the ABox fact: from \"The most visited museum in Paris is the Louvre\" to \"The most visited museum in Paris is the British Museum\" (relation has_most_visited_museum). The edit is a derived fact; its premises are the stored facts it follows from. Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'Does the most visited museum in Paris house the Venus de Milo?' (none/composition). Derived: none/binding, none/composition, subproperty/answer, premise/answer. Derived question(s) [3] are indeterminate: the valid answers depend on how the model stored its knowledge, listed in the worlds. Unrelated near: 'Which river flows through Paris?'."
 }

@@ -123,22 +123,23 @@
     ],
     "related": [
       {
-        "prompt": "Which art museum is the most visited in the world?",
-        "original_answer": "the Louvre",
+        "prompt": "In which city is the most visited museum in the world?",
+        "original_answer": "Paris",
         "new_answer": null,
         "derivation": "none",
         "task": "composition",
         "hops": 2,
         "bridge": [
-          "The Louvre is an art museum."
+          "The Louvre is in Paris."
         ],
-        "fact": "The Louvre is the most visited art museum in the world.",
+        "fact": "The most visited museum in the world is in Paris.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "'The most visited museum in the world is the Louvre' is removed. (edit)",
-          "The Louvre is an art museum. (stored)",
-          "The Louvre was the most visited art museum in the world because it was the most visited museum of any kind and is an art museum; with the first removed, nothing else states it, so which art museum is the most visited in the world is not known."
+          "The Louvre is in Paris. (stored)",
+          "With the edited fact gone, the link from the edit's subject to that fact is gone, so the stored fact no longer applies to the question.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       }
@@ -178,9 +179,9 @@
       "answer": "no"
     },
     {
-      "fact": "The Louvre is an art museum.",
-      "prompt": "Is the Louvre an art museum?",
-      "answer": "yes"
+      "fact": "The Louvre is in Paris.",
+      "prompt": "In which city is the Louvre?",
+      "answer": "Paris"
     }
   ],
   "evidence": {
@@ -347,10 +348,15 @@
         }
       ]
     },
-    "The Louvre is the most visited art museum in the world.": {
+    "The most visited museum in the world is in Paris.": {
       "claim": "stored",
-      "why": "Wikipedia's Louvre article states it whole: the museum 'is ranked as the most-visited art museum, and most-visited museum of any category'. It is also a stock phrase in the corpus ('the world's most visited art museum' 275 times; 'the most visited art museum in the world, the Louvre' 66; 'the Louvre, the most visited art museum in the world' 44), so it is stored as its own sentence, not worked out from the museum's overall rank.",
+      "why": "Wikipedia presents the Louvre as the most-visited museum of any category and as a museum in Paris in its opening paragraphs, and 'the world's most visited museum, in Paris' is written constantly. The fact names a city, a different individual from the museum.",
       "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Louvre",
+          "quote": "The Louvre (French: Musée du Louvre [myze dy luvʁ] ) is a national art museum in Paris, France."
+        },
         {
           "kind": "wikipedia",
           "url": "https://en.wikipedia.org/wiki/Louvre",
@@ -359,40 +365,23 @@
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "the world's most visited art museum",
-          "count": 275
+          "query": "the world's most visited museum in Paris",
+          "count": 1
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "the most visited art museum in the world, the Louvre",
-          "count": 66
+          "query": "world's most-visited museum, the Louvre in Paris",
+          "count": 0
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "the Louvre, the most visited art museum in the world",
-          "count": 44
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "the Louvre is the most visited art museum in the world",
-          "count": 19
-        }
-      ]
-    },
-    "The Louvre is an art museum.": {
-      "claim": "stored",
-      "why": "The first sentence of Wikipedia's Louvre article calls it a national art museum.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Louvre",
-          "quote": "is a national art museum in Paris, France"
+          "query": "most visited museum in the world, the Louvre in Paris",
+          "count": 8
         }
       ]
     }
   },
-  "notes": "Contraction paired with literature_arts-replace-0015: removes the ABox fact: The most visited museum in the world is the Louvre (relation has_most_visited_museum_in_region). Related (one question, a stored fact linked by 2 hops): 'Which art museum is the most visited in the world?' (none/composition). Derived: functional/answer, none/composition, none/composition. Unrelated near: 'In which city is the British Museum?'."
+  "notes": "Contraction paired with literature_arts-replace-0015: removes the ABox fact: The most visited museum in the world is the Louvre (relation has_most_visited_museum_in_region). Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'In which city is the most visited museum in the world?' (none/composition). Derived: functional/answer, none/composition, none/composition. Unrelated near: 'In which city is the British Museum?'."
 }

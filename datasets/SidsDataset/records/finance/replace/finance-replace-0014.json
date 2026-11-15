@@ -174,20 +174,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the DAX the national benchmark stock index that Siemens belongs to?",
+    "prompt": "Is SAP a constituent of the same national benchmark stock index as Siemens?",
     "original_answer": "yes",
     "new_answer": "no",
-    "derivation": "functional",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The DAX is the national benchmark stock index that Siemens belongs to.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "SAP is a constituent of the DAX."
+    ],
+    "fact": "SAP is a constituent of the same national benchmark stock index as Siemens.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "Siemens is a constituent of the FTSE 100. (edit)",
-     "A company belongs to one national benchmark index (benchmark_constituent_of is functional).",
-     "So the DAX is not the national benchmark index Siemens belongs to: no."
+     "SAP is a constituent of the DAX. (stored)",
+     "A company belongs to one national benchmark index (benchmark_constituent_of is functional), so Siemens's index is the FTSE 100, not SAP's DAX: no."
     ],
     "logic": "dl"
    }
@@ -230,6 +232,11 @@
    "fact": "Siemens is a Brazilian bank.",
    "prompt": "Is Siemens a Brazilian bank?",
    "answer": "no"
+  },
+  {
+   "fact": "SAP is a constituent of the DAX.",
+   "prompt": "Of which national benchmark stock index is SAP a constituent?",
+   "answer": "the DAX"
   }
  ],
  "evidence": {
@@ -255,17 +262,6 @@
      "query": "Siemens AND DAX",
      "count": 4631,
      "note": "Approximate co-occurrence (AND within a window, max_clause_freq 500000); supporting only."
-    }
-   ]
-  },
-  "The DAX is the national benchmark stock index that Siemens belongs to.": {
-   "claim": "stored",
-   "why": "Wikipedia's Siemens article states the index membership in one sentence ('a component of the DAX'), and the DAX is Germany's national benchmark; the question reads that stored fact back. Exact-phrase counts for Siemens and the DAX are low in Dolma (0 to 7 for every phrasing tried), so this rests on the quote alone and the pair is flagged for a better related fact.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Siemens",
-     "quote": "The company is a component of the DAX and Euro Stoxx 50 stock market indices."
     }
    ]
   },
@@ -440,7 +436,43 @@
      "note": "Backs what is true instead: a German industrial company, not a Brazilian bank."
     }
    ]
+  },
+  "SAP is a constituent of the same national benchmark stock index as Siemens.": {
+   "claim": "stored",
+   "why": "Financial news and index pages name Siemens and SAP together as DAX heavyweights, so that the two sit in the same national index is said whole and not worked out from two membership facts.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "SAP and Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens and SAP",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "DAX companies such as SAP and Siemens",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "SAP and Siemens",
+     "count": 1001
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Siemens and SAP",
+     "count": 637
+    }
+   ]
   }
  },
- "notes": "ABox revision on benchmark_constituent_of (functional, subproperty of index_constituent_of: one home-market benchmark per company): Siemens moves from the DAX to the FTSE 100. Related asks whether the DAX is Siemens's national index (functional); caveat: it restates the edit's original fact as a yes/no, and its counts are thin. Derived: FTSE 350 membership (role chain with subindex_of), a London listing (inheritance) and a fund application. The indeterminate question asks where Siemens's primary listing is, resting on the rule that a company's primary listing is on its home benchmark's exchange. Caveat: world w1 (Siemens in the FTSE 100 but primary listing still Frankfurt) conflicts with the rule the record quotes that constituents list on the LSE. Unrelated near: LVMH's index."
+ "notes": "ABox revision on benchmark_constituent_of (functional, subproperty of index_constituent_of: one home-market benchmark per company): Siemens moves from the DAX to the FTSE 100. Related asks whether SAP is in the same national index as Siemens: a fact about SAP, a different company, reached through Siemens's membership (bridge: SAP is a constituent of the DAX); yes before, no once Siemens is in the FTSE 100. Derived: FTSE 350 membership (role chain with subindex_of), a London listing (inheritance) and a fund application. The indeterminate question asks where Siemens's primary listing is, resting on the rule that a company's primary listing is on its home benchmark's exchange. Caveat: world w1 (Siemens in the FTSE 100 but primary listing still Frankfurt) conflicts with the rule the record quotes that constituents list on the LSE. Unrelated near: LVMH's index."
 }

@@ -182,21 +182,22 @@
     ],
     "related": [
       {
-        "prompt": "In which city can you see Sandro Botticelli's The Birth of Venus?",
-        "original_answer": "Florence",
-        "new_answer": "Paris",
-        "derivation": "subproperty",
-        "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "via": "most_famous_painting_in_city",
-        "fact": "The Birth of Venus is in Florence.",
+        "prompt": "In which museum does the most famous painting in Paris hang?",
+        "original_answer": "the Louvre",
+        "new_answer": "the Uffizi Gallery",
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "The Birth of Venus is in the Uffizi Gallery."
+        ],
+        "fact": "The most famous painting in Paris hangs in the Louvre.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "The most famous painting in Paris is The Birth of Venus. (edit)",
-          "So The Birth of Venus is the most famous painting in Paris (inverse: has_most_famous_painting_in_city ≡ most_famous_painting_in_city⁻).",
-          "most_famous_painting_in_city ⊑ located_in, so The Birth of Venus is in Paris, in either world; a painting hangs in one city, so no longer in Florence."
+          "The Birth of Venus is in the Uffizi Gallery. (stored)",
+          "So the answer is the Uffizi Gallery."
         ],
         "logic": "dl"
       }
@@ -249,65 +250,14 @@
       "fact": "Paris is in Japan.",
       "prompt": "Is Paris in Japan?",
       "answer": "no"
+    },
+    {
+      "fact": "The Birth of Venus is in the Uffizi Gallery.",
+      "prompt": "In which gallery is The Birth of Venus?",
+      "answer": "the Uffizi Gallery"
     }
   ],
   "evidence": {
-    "The most famous painting in Paris is the Mona Lisa.": {
-      "claim": "derived",
-      "why": "People say the Mona Lisa is the most famous painting in the world and that it hangs in the Louvre in Paris, but nobody names 'the most famous painting in Paris' as a fact of its own: the world-level superlative leaves the city level with nothing to add. \"most famous painting in Paris\" has 8 hits (the hits are five distinct passages: a record-release blurb, a Paris trivia list, a party-supplies page, an art-project note and a commentary on a cake attack, each calling the Mona Lisa the most famous painting in Paris in passing), none with the sentence form \"... in Paris is\", against 4,443 for \"most famous painting in the world\" and 204 for \"Mona Lisa is the most famous painting in the world\". The same painting at the museum level is written about a hundred times (\"most famous painting in the Louvre\" 96), which is why this record asks about the city and not the museum.",
-      "sources": [
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most famous painting in Paris",
-          "count": 8,
-          "note": "Read the displayed hits: five distinct passages, each naming the Mona Lisa in passing."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most famous painting in Paris is",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Paris's most famous painting",
-          "count": 0
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most famous painting in France",
-          "count": 8
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most famous painting in the Louvre",
-          "count": 96,
-          "note": "For contrast: the museum-level form is written about a hundred times."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "most famous painting in the world",
-          "count": 4443
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Mona Lisa is the most famous painting in the world",
-          "count": 204
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Mona Lisa in Paris",
-          "count": 705
-        }
-      ]
-    },
     "The Mona Lisa is the most famous painting in the world.": {
       "claim": "stored",
       "why": "Stated in Wikipedia's Mona Lisa article and hundreds of times verbatim.",
@@ -381,36 +331,6 @@
           "index": "v4_dolma-v1_7_llama",
           "query": "Mona Lisa in Paris",
           "count": 705
-        }
-      ]
-    },
-    "The Birth of Venus is in Florence.": {
-      "claim": "stored",
-      "why": "Stated in the opening paragraph of Wikipedia's article (in the Uffizi Gallery in Florence), and the painting is named with the Uffizi or Florence well over a hundred times.",
-      "sources": [
-        {
-          "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/The_Birth_of_Venus",
-          "quote": "The painting is in the Uffizi Gallery in Florence, Italy."
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Birth of Venus in the Uffizi",
-          "count": 139
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Birth of Venus in Florence",
-          "count": 53
-        },
-        {
-          "kind": "infini-gram",
-          "index": "v4_dolma-v1_7_llama",
-          "query": "Birth of Venus AND Florence",
-          "count": 9998,
-          "note": "Approximate count (AND within a window, max_clause_freq 500000); supporting only."
         }
       ]
     },
@@ -556,7 +476,97 @@
           "quote": "Paris is the capital and largest city of France, with an estimated city population of 2.04 million in an area of 105.4 km2 (40.7 sq mi), as of January 2026, and a metropolitan population of 13.3 million (2023)."
         }
       ]
+    },
+    "The most famous painting in Paris hangs in the Louvre.": {
+      "claim": "stored",
+      "why": "The most famous painting in Paris is the Mona Lisa, and Wikipedia says it has been on display at the Louvre in Paris since 1797; 'the Louvre, home of the most famous painting in Paris' is common. The fact names a museum, a different individual from the painting.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+          "quote": "In the 21st century, the Mona Lisa is considered the most famous painting in the world, a destination painting."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Mona_Lisa",
+          "quote": "It has normally been on display at the Louvre in Paris since 1797."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the most famous painting in Paris at the Louvre",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the Louvre, home to the Mona Lisa, the most famous painting",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the most famous painting in Paris hangs in the Louvre",
+          "count": 0
+        }
+      ]
+    },
+    "The most famous painting in Paris is the Mona Lisa.": {
+      "claim": "derived",
+      "why": "People say the Mona Lisa is the most famous painting in the world and that it hangs in the Louvre in Paris, but nobody names 'the most famous painting in Paris' as a fact of its own: the world-level superlative leaves the city level with nothing to add. \"most famous painting in Paris\" has 8 hits (the hits are five distinct passages: a record-release blurb, a Paris trivia list, a party-supplies page, an art-project note and a commentary on a cake attack, each calling the Mona Lisa the most famous painting in Paris in passing), none with the sentence form \"... in Paris is\", against 4,443 for \"most famous painting in the world\" and 204 for \"Mona Lisa is the most famous painting in the world\". The same painting at the museum level is written about a hundred times (\"most famous painting in the Louvre\" 96), which is why this record asks about the city and not the museum.",
+      "sources": [
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most famous painting in Paris",
+          "count": 8,
+          "note": "Read the displayed hits: five distinct passages, each naming the Mona Lisa in passing."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most famous painting in Paris is",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Paris's most famous painting",
+          "count": 0
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most famous painting in France",
+          "count": 8
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most famous painting in the Louvre",
+          "count": 96,
+          "note": "For contrast: the museum-level form is written about a hundred times."
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "most famous painting in the world",
+          "count": 4443
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa is the most famous painting in the world",
+          "count": 204
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "Mona Lisa in Paris",
+          "count": 705
+        }
+      ]
     }
   },
-  "notes": "Revision of the ABox fact: from \"The most famous painting in Paris is the Mona Lisa\" to \"The most famous painting in Paris is The Birth of Venus\" (relation has_most_famous_painting_in_city). The edit is a derived fact; its premises are the stored facts it follows from. Related (one question, a stored fact linked by 1 hop): 'In which city can you see Sandro Botticelli's The Birth of Venus?' (subproperty/answer). Derived: none/binding, none/composition, subproperty/answer, premise/answer. Derived question(s) [3] are indeterminate: the valid answers depend on how the model stored its knowledge, listed in the worlds. Unrelated near: 'Who designed the glass pyramid at the Louvre?'."
+  "notes": "Revision of the ABox fact: from \"The most famous painting in Paris is the Mona Lisa\" to \"The most famous painting in Paris is The Birth of Venus\" (relation has_most_famous_painting_in_city). The edit is a derived fact; its premises are the stored facts it follows from. Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'In which museum does the most famous painting in Paris hang?' (none/composition). Derived: none/binding, none/composition, subproperty/answer, premise/answer. Derived question(s) [3] are indeterminate: the valid answers depend on how the model stored its knowledge, listed in the worlds. Unrelated near: 'Who designed the glass pyramid at the Louvre?'."
 }

@@ -123,20 +123,22 @@
   ],
   "related": [
    {
-    "prompt": "Is the Industrial and Commercial Bank of China one of the banks headquartered in Beijing?",
+    "prompt": "Is the Industrial and Commercial Bank of China headquartered in the same city as the People's Bank of China?",
     "original_answer": "yes",
     "new_answer": null,
-    "derivation": "inverse",
-    "task": "answer",
-    "hops": 1,
-    "bridge": [],
-    "fact": "The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing.",
+    "derivation": "none",
+    "task": "composition",
+    "hops": 2,
+    "bridge": [
+     "The People's Bank of China is headquartered in Beijing."
+    ],
+    "fact": "The Industrial and Commercial Bank of China and the People's Bank of China are headquartered in the same city.",
     "derivability": "very_unlikely",
     "determinacy": "determinate",
     "chain": [
      "'The Industrial and Commercial Bank of China is headquartered in Beijing' is removed. (edit)",
-     "'The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing' is the same fact read from the city's side (headquartered_in is the inverse of headquarters_of), so it goes with it.",
-     "So whether the bank is one of those headquartered in Beijing is not known."
+     "The People's Bank of China is headquartered in Beijing. (stored)",
+     "With the bank's city gone, whether it shares one with the People's Bank of China is not known."
     ],
     "logic": "dl"
    }
@@ -174,6 +176,11 @@
    "fact": "Beijing is in South America.",
    "prompt": "Is Beijing in South America?",
    "answer": "no"
+  },
+  {
+   "fact": "The People's Bank of China is headquartered in Beijing.",
+   "prompt": "In which city is the People's Bank of China headquartered?",
+   "answer": "Beijing"
   }
  ],
  "evidence": {
@@ -210,46 +217,6 @@
      "index": "v4_dolma-v1_7_llama",
      "query": "ICBC, headquartered in Beijing",
      "count": 1
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "Beijing-based ICBC",
-     "count": 113
-    }
-   ]
-  },
-  "The Industrial and Commercial Bank of China is one of the banks headquartered in Beijing.": {
-   "claim": "stored",
-   "why": "The same fact from the city's side: Beijing is home to the headquarters of the big state banks, and ICBC is named among them.",
-   "sources": [
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Beijing",
-     "quote": "It is home to the headquarters of most of China's largest state-owned companies and houses the largest number of Fortune Global 500 companies in the world, as well as the world's four biggest financial institutions by total assets."
-    },
-    {
-     "kind": "wikipedia",
-     "url": "https://en.wikipedia.org/wiki/Industrial_and_Commercial_Bank_of_China",
-     "quote": "is a Chinese partially state-owned multinational banking and financial services corporation headquartered in Beijing, China. It is the largest of the \"big four\" banks in China, and the largest bank in the world by total assets."
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "banks headquartered in Beijing",
-     "count": 8
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "ICBC AND Beijing AND headquartered",
-     "count": 0
-    },
-    {
-     "kind": "infini-gram",
-     "index": "v4_dolma-v1_7_llama",
-     "query": "ICBC is headquartered in Beijing",
-     "count": 18
     },
     {
      "kind": "infini-gram",
@@ -393,7 +360,43 @@
      "note": "Backs what is true instead: the capital of China, in East Asia."
     }
    ]
+  },
+  "The Industrial and Commercial Bank of China and the People's Bank of China are headquartered in the same city.": {
+   "claim": "stored",
+   "why": "Descriptions of Beijing as a financial centre name the People's Bank of China and the big state banks, ICBC among them, as headquartered there together, so that the two share a city is stated whole and not worked out from two separate city facts.",
+   "sources": [
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "People's Bank of China and the Industrial and Commercial Bank of China",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Industrial and Commercial Bank of China and the People's Bank of China",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Financial Street headquarters of the People's Bank of China",
+     "count": 0
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "People's Bank of China and the Industrial and Commercial Bank of China",
+     "count": 2
+    },
+    {
+     "kind": "infini-gram",
+     "index": "v4_dolma-v1_7_llama",
+     "query": "Industrial and Commercial Bank of China and the People's Bank of China",
+     "count": 2
+    }
+   ]
   }
  },
- "notes": "Delete paired with finance-replace-0015: the revision's edit is derived, so this removes its main stored premise, 'The Industrial and Commercial Bank of China is headquartered in Beijing' (headquartered_in, functional). The other premise (ICBC is the largest bank) stays. Related asks whether ICBC is one of the banks headquartered in Beijing (inverse); the question reads close to a restatement of the removed fact. Cardinality question: Shanghai, 'no' before because an organisation has one main headquarters. Derived: two compositions about Beijing stored by name (the 2008 Olympics, the Temple of Heaven); both are 'yes' before, so a model could guess them, and the record measures the 'does not know' target. A country or language question was avoided because the bank's name gives China away. Unrelated near asks HSBC's city."
+ "notes": "Delete paired with finance-replace-0015: the revision's edit is derived, so this removes its main stored premise, 'The Industrial and Commercial Bank of China is headquartered in Beijing' (headquartered_in, functional). The other premise (ICBC is the largest bank) stays. Related asks whether ICBC is headquartered in the same city as the People's Bank of China: a fact about a different bank reached through the removed fact (bridge: the People's Bank of China is headquartered in Beijing). Cardinality question: Shanghai, 'no' before because an organisation has one main headquarters. Derived: two compositions about Beijing stored by name (the 2008 Olympics, the Temple of Heaven); both are 'yes' before, so a model could guess them, and the record measures the 'does not know' target. A country or language question was avoided because the bank's name gives China away. Unrelated near asks HSBC's city."
 }

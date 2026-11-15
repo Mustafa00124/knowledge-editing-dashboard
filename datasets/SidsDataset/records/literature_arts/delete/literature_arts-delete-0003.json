@@ -123,20 +123,23 @@
     ],
     "related": [
       {
-        "prompt": "Is Moby-Dick narrated by Ishmael?",
-        "original_answer": "yes",
+        "prompt": "Does the narrator of Moby-Dick sail on the whaling ship Pequod?",
+        "original_answer": "Yes",
         "new_answer": null,
-        "derivation": "subproperty",
-        "task": "answer",
-        "hops": 1,
-        "bridge": [],
-        "fact": "Moby-Dick is narrated by Ishmael.",
+        "derivation": "none",
+        "task": "composition",
+        "hops": 2,
+        "bridge": [
+          "Ishmael sails on the whaling ship Pequod."
+        ],
+        "fact": "The narrator of Moby-Dick sails on the whaling ship Pequod.",
         "derivability": "very_unlikely",
         "determinacy": "determinate",
         "chain": [
           "'The narrator of Moby-Dick is Ishmael' is removed. (edit)",
-          "'has_narrator' is a subproperty of 'narrated_by', so 'Moby-Dick is narrated by Ishmael' is the same fact in the broader relation, and goes with it.",
-          "So whether Moby-Dick is narrated by Ishmael is not known."
+          "Ishmael sails on the whaling ship Pequod. (stored)",
+          "With the edited fact gone, the link from the edit's subject to that fact is gone, so the stored fact no longer applies to the question.",
+          "So the answer is not known."
         ],
         "logic": "dl"
       }
@@ -174,6 +177,11 @@
       "fact": "Moby-Dick was written by Jane Austen.",
       "prompt": "Was Moby-Dick written by Jane Austen?",
       "answer": "no"
+    },
+    {
+      "fact": "Ishmael sails on the whaling ship Pequod.",
+      "prompt": "On which ship does Ishmael sail in Moby-Dick?",
+      "answer": "the Pequod"
     }
   ],
   "evidence": {
@@ -358,29 +366,56 @@
         }
       ]
     },
-    "Moby-Dick is narrated by Ishmael.": {
+    "The narrator of Moby-Dick sails on the whaling ship Pequod.": {
       "claim": "stored",
-      "why": "'Narrated by Ishmael' is how the novel's telling is described; Wikipedia says Ishmael is the narrator, and 'narrated by Ishmael' has 123 exact hits in Dolma, mostly about this novel. It is said directly, not worked out.",
+      "why": "Wikipedia states that Ishmael is the first-person narrator and that he signs on to the whaler Pequod; the narrator's voyage on the Pequod is the plot of the novel and is written everywhere. The fact is about the ship's crew, not the narrator pairing read another way.",
       "sources": [
         {
           "kind": "wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Moby-Dick",
-          "quote": "Ishmael is the narrator, shaping his story with the use of many different genres including sermons, stage plays, soliloquies, and emblematical readings."
+          "url": "https://en.wikipedia.org/wiki/Ishmael_(Moby-Dick)",
+          "quote": "Ishmael signs up for a voyage on the whaler Pequod, under Captain Ahab."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ishmael_(Moby-Dick)",
+          "quote": "He is the first-person narrator of the book."
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "narrated by Ishmael",
-          "count": 123
+          "query": "Ishmael signs on to the Pequod",
+          "count": 10
         },
         {
           "kind": "infini-gram",
           "index": "v4_dolma-v1_7_llama",
-          "query": "Ishmael, the narrator",
-          "count": 400
+          "query": "Ishmael, the narrator, signs",
+          "count": 1
+        },
+        {
+          "kind": "infini-gram",
+          "index": "v4_dolma-v1_7_llama",
+          "query": "the narrator of Moby-Dick sails",
+          "count": 0
+        }
+      ]
+    },
+    "Ishmael sails on the whaling ship Pequod.": {
+      "claim": "stored",
+      "why": "Stated directly about the character or work by name.",
+      "sources": [
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ishmael_(Moby-Dick)",
+          "quote": "Ishmael signs up for a voyage on the whaler Pequod, under Captain Ahab."
+        },
+        {
+          "kind": "wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ishmael_(Moby-Dick)",
+          "quote": "He is the first-person narrator of the book."
         }
       ]
     }
   },
-  "notes": "Contraction paired with literature_arts-replace-0003: removes the ABox fact: The narrator of Moby-Dick is Ishmael (relation has_narrator). Related (one question, a stored fact linked by 1 hop): 'Is Moby-Dick narrated by Ishmael?' (subproperty/answer). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'Who is the captain of the Pequod in Moby-Dick?'."
+  "notes": "Contraction paired with literature_arts-replace-0003: removes the ABox fact: The narrator of Moby-Dick is Ishmael (relation has_narrator). Related (one question, a stored fact about a different individual, reached through the edited fact by 2 hops): 'Does the narrator of Moby-Dick sail on the whaling ship Pequod?' (none/composition). Derived: functional/answer, none/composition, none/binding. Unrelated near: 'Who is the captain of the Pequod in Moby-Dick?'."
 }
