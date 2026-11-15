@@ -712,7 +712,38 @@ def check_evidence(rec):
             for k in sorted(optional & set(src)):
                 if not is_text(src[k]):
                     err(f'{sw}: {k} must be a non-empty string')
+    related_facts = {q.get('fact') for q in (rec.get('queries') or {}).get('related') or [] if isinstance(q, dict)}
+    for fact in sorted(f for f in related_facts if is_text(f) and isinstance(ev.get(f), dict)):
+        if not stored_by_counts(ev[fact]):
+            err(f'evidence[{fact!r}]: a related fact must be stored by the counts (README, Evidence): a short '
+                f'phrase (at most {STORED_PHRASE_WORDS} words) counted at least {STORED_PHRASE_MIN} times, or an '
+                f'"A AND B" co-occurrence counted at least {STORED_COOCCUR_MIN} times, in both '
+                f'{" and ".join(STORED_INDEXES)}; count with ig_count.py --index')
     return errors
+
+
+# A related fact is stored when text states it often in two corpora (README, Evidence).
+STORED_INDEXES = ('v4_dolma-v1_7_llama', 'v4_rpj_llama_s4')
+STORED_PHRASE_WORDS, STORED_PHRASE_MIN, STORED_COOCCUR_MIN = 6, 100, 1000
+
+
+def stored_by_counts(entry):
+    counts = {}
+    for src in entry.get('sources') or []:
+        if isinstance(src, dict) and src.get('kind') == 'infini-gram' and is_text(src.get('query')) \
+                and isinstance(src.get('count'), int):
+            index = src.get('index') or STORED_INDEXES[0]
+            counts.setdefault(src['query'], {})[index] = max(src['count'], counts.get(src['query'], {}).get(index, 0))
+    for query, by in counts.items():
+        if not all(i in by for i in STORED_INDEXES):
+            continue
+        low = min(by[i] for i in STORED_INDEXES)
+        if ' AND ' in query:
+            if low >= STORED_COOCCUR_MIN:
+                return True
+        elif len(query.split()) <= STORED_PHRASE_WORDS and low >= STORED_PHRASE_MIN:
+            return True
+    return False
 
 
 def derivability_score(rec):

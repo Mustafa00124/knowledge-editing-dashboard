@@ -373,8 +373,8 @@ Australia is in the Australian Capital Territory", a sentence text states
 directly that also follows from Canberra being in the ACT, and becomes New
 South Wales after the edit. Related and derived questions can have the same
 link; what separates them is storage: the related answer is stated as such
-(its composed sentence counted at least 100 times, or quoted whole), the
-derived one has to be worked out. Comparing the two measures whether an edit
+(see **Stored by the counts** below), the derived one has to be worked
+out. Comparing the two measures whether an edit
 overturns stored consequences as well as computed ones.
 
 - **Stored answer.** The original answer (or the fact the question asks
@@ -390,6 +390,15 @@ overturns stored consequences as well as computed ones.
   problem of background beliefs) is not used.
 - Fields: those of a derived query ([Format](#format)), plus `fact` and
   `derivability`; `determinacy` is always `determinate`.
+- **Stored by the counts.** Text must state the related fact often in two
+  corpora, Dolma (`v4_dolma-v1_7_llama`) and RedPajama (`v4_rpj_llama_s4`):
+  a short phrase that states it (at most 6 words, the way text usually puts
+  it, e.g. "Palermo, the capital of Sicily") counted at least 100 times in
+  both, or an `A AND B` co-occurrence of its two key terms ("Ishmael AND
+  Pequod") counted at least 1,000 times in both. Both counts go in its
+  evidence sources with their `index` (`ig_count.py --index`). Long sentences
+  are not counted: an exact count falls with every word, so it measures the
+  wording, not how well known the fact is. The validator checks this rule.
 
 #### Derived queries
 

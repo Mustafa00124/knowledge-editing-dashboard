@@ -182,7 +182,10 @@ removes the original fact of its paired revision record (Rule 14).
 an ABox or TBox record, and the `fact` of every related and derived query, has
 evidence (README, Evidence), and it is enough: a
 stored claim has a quoted sentence or an exact-phrase count of at least 100;
-a derived claim has at least two corpus counts or searches showing the
+a related query's fact is held to more: a short phrase (at most 6 words)
+counted at least 100 times, or an `A AND B` co-occurrence at least 1,000
+times, in both Dolma and RedPajama (README, Related queries: Stored by the
+counts; checked by the validator); a derived claim has at least two corpus counts or searches showing the
 direct form is rare, and a `why` making the common-sense case: its premises
 are the kind of thing people say, while the direct fact is not the kind of
 thing anyone says on its own (README, Evidence: the Space Needle's time

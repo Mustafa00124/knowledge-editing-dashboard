@@ -327,7 +327,7 @@ def load_record(rid):
     """A record (main or dev split) for the checkers. Related questions are
     checked like derived ones, so in memory they follow the derived list
     (rec['queries']['derived']), and rec['_qkeys'] names each position
-    (derived[0], ..., related[0], related[1])."""
+    (derived[0], ..., related[0])."""
     hits = list((DATASET / 'records').glob(f'*/*/{rid}.json')) + list((DATASET / 'dev').glob(f'*/*/{rid}.json'))
     if not hits:
         raise FileNotFoundError(f'no record {rid}')

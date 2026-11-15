@@ -44,7 +44,7 @@ def query_hash(prompt, expected):
 def all_queries(rec):
     """Yield (key, query_type, language, query) for every query in a record,
     in record order (README, Query type). Keys: direct, paraphrase,
-    cross_lingual[zh], propositional[0], related[0], related[1],
+    cross_lingual[zh], propositional[0], related[0],
     derived[2], unrelated_near[0], unrelated_far[0]."""
     q = rec.get("queries") or {}
     for qtype in ("direct", "paraphrase"):
