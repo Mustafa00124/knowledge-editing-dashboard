@@ -5,6 +5,37 @@ applied yet. When an item is done, move it to **Done** with the date and what
 changed, and update `README.md` / `CRITERIA.md` / `criteria.py` where the
 spec changes.
 
+## How we work (from 2026-11-15): freeze, then filter
+
+**The cycle to avoid.** Through November the records went round the same loop
+again and again: the spec changed (related near/far, then two related, then
+one; the stored rule; pairing; contraction wording) while records were being
+built; every change touched hundreds of records and made their audit, formal
+encodings, counts and review marks stale; the checks (validator, four-model
+audit, formal check, counts, quotes, two reviewers) ran one after another, so
+fixing one made the others stale; LLM reviewers always find something new,
+with no definition of done; and agents patched failing records (often partly,
+leaving stale text) instead of replacing them.
+
+**The rules now:**
+
+1. **The spec is frozen for this version.** A new idea goes under **Ideas**
+   below for the next version; it does not change records in progress. Only
+   a clear error in the spec reopens it, and then all at once.
+2. **Done is numbers, not opinions.** A split is done when: the validator
+   reports 0 errors; the formal check passes; no question the models must
+   hold is missed by 2 or more of the 4 models; every count and quote check
+   passes; no open must-fix review flag.
+3. **Checks are filters, not repair loops.** Run every check once on the
+   final data. A record that fails anything is replaced by a new candidate
+   that passes every check before it goes in; it is not patched. Write more
+   candidates than needed, so dropping one is cheap.
+4. **One review pass at the end** with the fixed checklist (CRITERIA). Only
+   clear errors block. Judgement calls go to the user as one batch.
+5. **Every agent round ends with a stale-text pass** (notes and formal
+   entries describe only what the record has now) and reports what it could
+   not settle.
+
 ## Aim
 
 Records should isolate the problem each one tests, so that a failure after
