@@ -500,7 +500,7 @@ harder:
   derived revision edit (`very_likely`) has no stored fact to remove, so its
   contraction removes the revision's main stored premise instead
   (contraction has no derived edits).
-- **Expansion** keeps the revision's **relation and new object** and puts a
+- **Expansion** keeps the revision's **relation** (and, where it would overwrite nothing, its **new object**) and puts a
   made-up subject in an empty slot, since a functional slot that is already
   filled can't be expanded (that would be a replace). Expansion and revision
   then send the model to the same place (Etna), and the only difference is
