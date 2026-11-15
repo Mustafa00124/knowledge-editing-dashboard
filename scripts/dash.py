@@ -78,7 +78,9 @@ def call(method, path, body=None, query=None):
     req = urllib.request.Request(url, data=data, method=method,
                                  headers={"x-dashboard-token": token(), "Content-Type": "application/json"})
     try:
-        with urllib.request.urlopen(req, timeout=120) as res:
+        # A sweep launch submits every run before it answers (about 100 runs
+        # can take several minutes), so allow 15 minutes.
+        with urllib.request.urlopen(req, timeout=900) as res:
             text = res.read().decode()
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode(errors="replace")
