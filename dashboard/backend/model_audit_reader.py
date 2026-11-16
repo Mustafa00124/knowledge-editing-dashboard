@@ -86,8 +86,11 @@ def is_default_prompt(summary):
 
 
 def _newest_runs():
-    """model -> (summary mtime, run folder) of its newest default-prompt audit
-    run (is_default_prompt)."""
+    """model -> (summary mtime, run folder) of its live default-prompt audit
+    run (is_default_prompt): the folder named exactly after the model (an audit
+    writes there, and it holds the combined main and dev rows), else the
+    newest. Saved copies such as <model>_dev_v5 are newer files but cover one
+    split only, so they never replace the live run."""
     runs_dir = _runs_dir()
     newest = {}
     for path in sorted(runs_dir.glob("*/summary.json")) if runs_dir and runs_dir.is_dir() else []:
@@ -98,9 +101,13 @@ def _newest_runs():
         if not is_default_prompt(summary):
             continue
         model, mtime = summary.get("model"), path.stat().st_mtime
-        if model and (model not in newest or mtime > newest[model][0]):
-            newest[model] = (mtime, path.parent)
-    return newest
+        if not model:
+            continue
+        live = path.parent.name == model
+        held = newest.get(model)
+        if held is None or (live and not held[2]) or (live == held[2] and mtime > held[0]):
+            newest[model] = (mtime, path.parent, live)
+    return {m: (t, folder) for m, (t, folder, _) in newest.items()}
 
 
 def check_results():

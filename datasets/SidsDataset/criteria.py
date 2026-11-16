@@ -634,7 +634,10 @@ def check_problems(recs):
 
 
 def newest_audits():
-    """{model: (summary, finished)}: each model's newest audit run."""
+    """{model: (summary, finished)}: each model's live audit run, the folder
+    named exactly after the model (it holds the combined main and dev rows),
+    else its newest; saved one-split copies such as <model>_dev_v5 never
+    replace it."""
     newest = {}
     for path in sorted(AUDIT_RUNS.glob('*/summary.json')) if AUDIT_RUNS.is_dir() else []:
         try:
@@ -642,9 +645,13 @@ def newest_audits():
         except (OSError, ValueError):
             continue
         model, mtime = summary.get('model'), path.stat().st_mtime
-        if model and (model not in newest or mtime > newest[model][1]):
-            newest[model] = (summary, mtime)
-    return newest
+        if not model:
+            continue
+        live = path.parent.name == model
+        held = newest.get(model)
+        if held is None or (live and not held[2]) or (live == held[2] and mtime > held[1]):
+            newest[model] = (summary, mtime, live)
+    return {m: (s, t) for m, (s, t, _) in newest.items()}
 
 
 def check_audit(recs, audits=None):
