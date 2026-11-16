@@ -354,6 +354,24 @@ results were rerun.
   the hparams files (60 steps at 1e-4). The orphan jobs and the FiDAL Llama
   sweep are to be cancelled and the sweeps relaunched.
 
+## 19. A run fails after finishing: another run's half-written summary.json
+
+- **What happened (2026-11-15):** step-1 run
+  `fidal_qwen3-4b-instruct-2507_dev_f2m007-MLHHLLL` (job 612810) was marked
+  FAILED with `JSONDecodeError` after it had written its own results. At the
+  end of every run, `_rebuild_manifest` reads every `runs/*/summary.json` of the
+  sweep; a summary was written in place (`open(..., "w")` empties the file
+  first), so a run finishing at the same moment read an empty file. The four
+  GPU lanes usually run the same sweep, so finishes cluster: 1 in the first
+  1,472 step-1 runs. The failed run's results were intact; it was rerun
+  (job 619932).
+- **Origin:** ours (`experiments/run_experiment/run_experiment.py`).
+- **Fix (2026-11-16):** `summary.json` and `manifest.json` are written to a
+  temporary file and renamed into place (atomic on one filesystem), and the
+  manifest rebuild skips a summary it cannot parse instead of failing. Runs
+  already running keep the old code, so a few more such failures are possible
+  until they finish; rerun them from the Failures view.
+
 ## Not bugs (checked, caused by settings or by the method)
 
 These looked wrong but come from the setting ranges or from how the method

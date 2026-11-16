@@ -1392,8 +1392,12 @@ def main():
         summary.update({k: main_final[k] for k in ("edit_succ", "portability", "locality", "fluency")},
                        headline_evaluation="sid_main")
         summary["sid_main_evaluation"] = main_info
-    with open(os.path.join(run_dir, "summary.json"), "w") as f:
+    # Written to a temporary file and renamed, so a run rebuilding the
+    # manifest never reads a half-written summary (bug 19).
+    tmp = os.path.join(run_dir, "summary.json.tmp")
+    with open(tmp, "w") as f:
         json.dump(summary, f, indent=2)
+    os.replace(tmp, os.path.join(run_dir, "summary.json"))
     print(f"[{run_name}] done: {summary}")
 
     _rebuild_manifest(args.out_root)
@@ -1411,10 +1415,17 @@ def _rebuild_manifest(out_root):
     for name in sorted(os.listdir(runs_dir)):
         summary_path = os.path.join(runs_dir, name, "summary.json")
         if os.path.exists(summary_path):
-            with open(summary_path) as f:
-                manifest.append(json.load(f))
-    with open(os.path.join(out_root, "manifest.json"), "w") as f:
+            try:
+                with open(summary_path) as f:
+                    manifest.append(json.load(f))
+            except ValueError:
+                # Another run is writing it right now (runs from before bug 19's
+                # fix write in place); the next rebuild picks it up.
+                continue
+    tmp = os.path.join(out_root, f"manifest.json.{os.getpid()}.tmp")
+    with open(tmp, "w") as f:
         json.dump(manifest, f, indent=2)
+    os.replace(tmp, os.path.join(out_root, "manifest.json"))
 
 
 if __name__ == "__main__":
