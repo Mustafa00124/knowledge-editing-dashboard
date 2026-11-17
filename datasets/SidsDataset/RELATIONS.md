@@ -1,18 +1,18 @@
 # Relations catalogue
 
-In description logic terms (README, Terminology) each relation is a **role**, and its properties are **role axioms**: `transitive` is `Trans(R)`, `symmetric` `Sym(R)`, `asymmetric` `Asym(R)`, `functional` `Func(R)`, `inverse:S` `R ≡ S⁻`, `subproperty:S` `R ⊑ S`, a chain `R ∘ S ⊑ T`; `cardinality:many` marks a non-functional role.
+In description logic terms (SPEC, Terminology) each relation is a **role**, and its properties are **role axioms**: `transitive` is `Trans(R)`, `symmetric` `Sym(R)`, `asymmetric` `Asym(R)`, `functional` `Func(R)`, `inverse:S` `R ≡ S⁻`, `subproperty:S` `R ⊑ S`, a chain `R ∘ S ⊑ T`; `cardinality:many` marks a non-functional role.
 
 The relations Sid's Dataset uses, their properties, and the derived questions
 each property licenses. This is the only place a relation's tags are
 defined: records name just the relation, and each record's related and
-derived queries are built from the templates below (README, Relation
+derived queries are built from the templates below (SPEC, Relation
 properties and task types; asymmetry is catalogued but no longer used for
 questions). Each relation has one row, under the
 topic that first needed it; other topics reuse that row. This is a starter
 list: add relations as records need them, and keep the tags honest (a
 property only goes in if it holds for every pair the dataset will use).
 
-See [`README.md`](README.md) for the scheme as a whole.
+See [`SPEC.md`](SPEC.md) for the scheme as a whole.
 
 ## Tags
 

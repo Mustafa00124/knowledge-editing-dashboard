@@ -1,7 +1,7 @@
 # Sid's Dataset: criteria
 
 What makes a good record, and what the dataset as a whole has to cover.
-[`README.md`](README.md) defines the scheme (operations, knowledge form,
+[`SPEC.md`](SPEC.md) defines the scheme (operations, knowledge form,
 queries, tags, determinacy); this file is the quality bar on top of it.
 
 The rules are numbered in one sequence. **Manual rules** come first: they
@@ -34,7 +34,7 @@ shares them.
 additions:
 - Review the records as they are now: the main split (`records/`, 600) and
   the dev split (`dev/`, 120, ids `<topic>-<operation>-dNNN`). The scheme is
-  README.md (start with "Terminology (description logic)", "Queries per
+  SPEC.md (start with "Terminology (description logic)", "Queries per
   record type" and "Contraction": contraction and expansion are paired with a
   revision record through `paired_with`). Marks you made before a record
   changed are stale; mark the current version again.
@@ -116,7 +116,7 @@ learned, and is that the thing this part is meant to measure?**
   relation behaves, and its two instances really depend on that property.
 - Insert adds something new (made up), replace swaps a value, delete removes
   one; a delete's relation is functional or many-valued, and its derived
-  queries follow from that (README, Contraction).
+  queries follow from that (SPEC, Contraction).
 
 **Does the edit take?** The direct question asks for exactly the edited
 value; the paraphrase is a real rewording of the same question.
@@ -180,15 +180,15 @@ removes the original fact of its paired revision record (Rule 14).
 
 **Rule 5. Enough evidence for every fact.** Every edited fact and premise of
 an ABox or TBox record, and the `fact` of every related and derived query, has
-evidence (README, Evidence), and it is enough: a
+evidence (SPEC, Evidence), and it is enough: a
 stored claim has a quoted sentence or an exact-phrase count of at least 100;
 a related query's fact is held to more: a short phrase (at most 6 words)
 counted at least 100 times, or an `A AND B` co-occurrence at least 1,000
-times, in both Dolma and RedPajama (README, Related queries: Stored by the
+times, in both Dolma and RedPajama (SPEC, Related queries: Stored by the
 counts; checked by the validator); a derived claim has at least two corpus counts or searches showing the
 direct form is rare, and a `why` making the common-sense case: its premises
 are the kind of thing people say, while the direct fact is not the kind of
-thing anyone says on its own (README, Evidence: the Space Needle's time
+thing anyone says on its own (SPEC, Evidence: the Space Needle's time
 zone); a definitional premise (the rule combining the others) needs a
 reason only.
 
@@ -242,7 +242,7 @@ are reported, not held to it.
 than 10 times.
 
 **Rule 11. Every record has its record type's queries, and the splits their
-shape.** Per README, Queries per record type and Shape per topic:
+shape.** Per SPEC, Queries per record type and Shape per topic:
 - Main split, per topic and operation: 8 ABox, 6 TBox and 6 RBox edits. ABox
   revision: 6 stored (`very_unlikely`) then 2 derived (`very_likely`) edits;
   ABox contraction: 4 on functional and 4 on many-valued relations;
@@ -277,7 +277,7 @@ reflexivity; asymmetry appears only as an RBox edit, never as a derivation. The 
 `NEAR_BALANCE`, `TASK_BALANCE`, `RBOX_PER_TOPIC`).
 
 A property can only be tested on a relation that has it, so new edits are
-chosen partly for their relation (README, Shape per topic).
+chosen partly for their relation (SPEC, Shape per topic).
 
 **Rule 13. Every method runs on every edit.** Every core editing method
 (the ones marked core in `experiments/run_experiment/dashboard.json`) runs
@@ -309,7 +309,7 @@ relation and old object; for a derived revision edit, its main stored
 premise; TBox: the same rule; RBox: the same property). An ABox or TBox
 expansion keeps the revision's relation and new object with a made-up subject
 in an empty slot; an RBox expansion gives a made-up relation the property the
-revision changes (README, Contraction, "The three operations are paired").
+revision changes (SPEC, Contraction, "The three operations are paired").
 Every ABox contraction edits a relation tagged `functional` or
 `cardinality:many`; each topic has both, with a good share of functional. The
 removed fact's own queries (direct, paraphrase, cross-lingual, propositional),
@@ -337,7 +337,7 @@ scoring records which tree the model's answer follows. An answer that
 follows no tree is the failure. A tree only counts for a model whose audit
 shows it holds that tree's premises. In the records, a tree is one branch
 per world: each world's `assumes` and the query's `chain` for that world
-(README, Worlds and chains).
+(SPEC, Worlds and chains).
 
 Which route a model actually uses can be measured per model: edit one form
 and ask the other (after "Vesuvius is 2,000 ft", the descriptive answer

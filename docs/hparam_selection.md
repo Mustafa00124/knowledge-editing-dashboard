@@ -21,7 +21,7 @@ specs written 2026-11-07. This is the methods record for the paper. The analysis
   specificity (EasyEdit's locality: near and far unrelated questions keep their answers), answer diversity (ROME's and EasyEdit's fluency:
   n-gram entropy, as a ratio to the unedited model, capped at 1) and grammar (the judge's
   well-formed share, as a ratio to the unedited model). Names and their common equivalents:
-  `datasets/SidsDataset/README.md`, Evaluation, "Metric names". The **overall score** used in
+  `datasets/SidsDataset/SPEC.md`, Evaluation, "Metric names". The **overall score** used in
   the step-1 analysis is the unweighted mean of the 8.
 - **Selection rule (final, 2026-11-09; used from step 2 on):** maximise the equal-weight mean of
   the four generalisation scores (paraphrase, generalizability, cross-lingual, propositional

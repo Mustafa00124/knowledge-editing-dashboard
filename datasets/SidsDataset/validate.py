@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Sid's Dataset records against the spec in README.md.
+"""Validate Sid's Dataset records against the spec in SPEC.md.
 
 One JSON file per edit: the main split at records/<topic>/<edit_operation>/
 <id>.json, the dev split at dev/<topic>/<edit_operation>/<id>.json, plus one
@@ -27,7 +27,7 @@ EDIT_OPERATIONS = ('insert', 'replace', 'delete')
 TOPICS = ('geography', 'people', 'history', 'finance', 'biology', 'physics',
           'literature_arts', 'technology', 'mathematics', 'grammar')
 BOXES = ('abox', 'tbox', 'rbox')
-# Determinacy (README, Determinacy and belief-revision problems; after Hase
+# Determinacy (SPEC, Determinacy and belief-revision problems; after Hase
 # et al. 2024, "Fundamental Problems With Model Editing"), per ABox derived
 # query: does every valid route give one answer after the edit (determinate),
 # or do the routes split because of how the model stored other facts
@@ -39,7 +39,7 @@ DETERMINACY = ('determinate', 'background_beliefs', 'derived_beliefs')
 INDETERMINATE = ('background_beliefs', 'derived_beliefs')
 WORLD_KEYS = {'id', 'assumes', 'summary'}
 WORLD_ANSWER_KEYS = {'answer', 'chain'}
-# The weakest logic a related or derived query's inference needs (README,
+# The weakest logic a related or derived query's inference needs (SPEC,
 # Logic), and any theory it uses on top: a setting to slice results by, so we
 # can see where parameter editing works. Required on every related and derived
 # query; propositional logic is the propositional query type's own.
@@ -49,7 +49,7 @@ THEORY = ('arithmetic', 'temporal')
 # with the facts in the prompt ("Does it follow that ...?"), so they are
 # determinate by construction and carry none.
 DETERMINACY_BOXES = ('abox', 'tbox')
-# Evidence (README, Evidence): why a fact is rated stored or derived, shown
+# Evidence (SPEC, Evidence): why a fact is rated stored or derived, shown
 # behind the "?" on the dashboard. One entry per fact, keyed by the fact's
 # exact text: the edited (original) fact, every premise, optionally bridges.
 # definitional: a premise that states the rule combining the others ("a
@@ -58,7 +58,7 @@ DETERMINACY_BOXES = ('abox', 'tbox')
 # fictional: an inserted fact about something made up; the evidence shows
 # the made-up names are absent from text (near-zero counts, a search).
 EVIDENCE_CLAIMS = ('stored', 'derived', 'definitional', 'fictional', 'false')  # false: a deliberately false side fact
-# Insert is fictional only: which parts of the triple are made up (README,
+# Insert is fictional only: which parts of the triple are made up (SPEC,
 # Insert). Subject+relation and relation+object are not used.
 FICTIONAL = ('subject', 'object', 'subject_object', 'relation', 'all')
 FICTIONAL_BY_BOX = {'abox': FICTIONAL, 'tbox': FICTIONAL, 'rbox': ('relation', 'all')}
@@ -69,7 +69,7 @@ SOURCE_KINDS = {
     'web': ({'url'}, {'quote', 'note'}),                     # any other page
     'search': ({'query'}, {'engine', 'note'}),               # a search tried, and what it returned
 }
-# Stored or worked out (README, Derivability): only the two ends are used,
+# Stored or worked out (SPEC, Derivability): only the two ends are used,
 # for the edited fact and for the `fact` of every related and derived query.
 DERIVABILITY_SCORE = {'very_unlikely': 1, 'very_likely': 5}
 DERIVABILITY = tuple(DERIVABILITY_SCORE)
@@ -93,12 +93,12 @@ DERIVATIONS = {
     'cardinality': 'cardinality:many',  # contraction: another value of a many-valued relation keeps its answer
     'instantiation': None,   # RBox: the axiom applied to instances in the prompt
 }
-# What the question asks the model to do with the conclusion (README, Relation
+# What the question asks the model to do with the conclusion (SPEC, Relation
 # properties and task types); any property can carry either.
 TASKS = ('answer', 'composition', 'binding', 'application')
 BRIDGE_TASKS = ('composition', 'binding')   # each adds its bridge fact as a hop
 RELATED = ('related',)
-# Which derivations each query kind may use, and its hops (README, "Which
+# Which derivations each query kind may use, and its hops (SPEC, "Which
 # property goes where").
 ALLOWED_DERIVATIONS = {
     # One related question (decided 2026-11-14): a STORED fact linked to the edit by 1 or 2 hops.
@@ -113,13 +113,13 @@ ALLOWED_TASKS = {
     'derived_contraction_cardinality': ('answer',),
 }
 # The order queries are stored and shown in: from the edit outwards,
-# everything that should change before what must not (README, Query type).
+# everything that should change before what must not (SPEC, Query type).
 # The edit's own questions, then what follows from it (derived), then the
 # related and unrelated questions together (stored answers near the edit).
 QUERY_ORDER = ('direct', 'paraphrase', 'cross_lingual', 'propositional', 'derived', 'related',
                'unrelated_near', 'unrelated_far')
 # Topics whose ABox revision records have no derived edits and no
-# indeterminate query (README, Shape per topic: Mathematics and grammar).
+# indeterminate query (SPEC, Shape per topic: Mathematics and grammar).
 DETERMINATE_TOPICS = ('mathematics', 'grammar')
 
 
@@ -134,7 +134,7 @@ def split_of(rec, path=None):
 
 
 def query_counts(rec, path=None):
-    """The queries a record of this type carries (README, Queries per record
+    """The queries a record of this type carries (SPEC, Queries per record
     type)."""
     box, op = rec.get('box'), rec.get('edit_operation')
     counts = {'direct': 1, 'paraphrase': 1, 'cross_lingual': 2, 'propositional': 3,
@@ -156,7 +156,7 @@ def wants_indeterminate(rec, path=None):
             and split_of(rec, path) == 'main' and rec.get('topic') not in DETERMINATE_TOPICS)
 
 
-# Propositional queries (README, Propositional queries; metric: logical
+# Propositional queries (SPEC, Propositional queries; metric: logical
 # consistency): the edited fact E inside a yes/no truth-functional question:
 # negation, conjunction (S true) and disjunction (S false), in that order, so
 # the answer flips with the edit. Their formal check is the truth table below.
@@ -278,7 +278,7 @@ def facts_to_check(rec):
     order and without repeats: the edit's premises, then every bridge fact and
     revision fact a related or derived query does not state in its own prompt. RBox
     instance facts are usually given in the prompt; a role chain's real hop
-    may be left to the model (README, RBox items), and is then checked like
+    may be left to the model (SPEC, RBox items), and is then checked like
     any bridge."""
     out = list(rec.get('edit', {}).get('premises') or [])
     queries = rec.get('queries', {})
@@ -428,7 +428,7 @@ def check_record(rec, path, relations):
         tags = relations[relation][0]
         if 'functional' not in tags and 'cardinality:many' not in tags:
             err(f'an ABox contraction edits a functional or many-valued relation; {relation!r} is tagged neither '
-                '(README, Contraction)')
+                '(SPEC, Contraction)')
 
     # The edit.
     edit = rec['edit']
@@ -483,7 +483,7 @@ def check_record(rec, path, relations):
         return errors + ['queries must be an object']
     counts = query_counts(rec, path)
     for k in sorted(set(queries) - set(counts)):
-        err(f'queries: {k!r} is not a query of this record type (README, Queries per record type)')
+        err(f'queries: {k!r} is not a query of this record type (SPEC, Queries per record type)')
     present = [k for k in queries if k in QUERY_ORDER]
     if present != sorted(present, key=QUERY_ORDER.index):
         err(f'queries: keys should come in the order {[k for k in QUERY_ORDER if k in counts]}')
@@ -502,7 +502,7 @@ def check_record(rec, path, relations):
             errors.extend(f'{where}: {e}' for e in check_query(q, qtype, rec, relations))
 
     # A related question asks about different knowledge, never the edited pair
-    # read another way (README, Related queries): its fact may not name both the
+    # read another way (SPEC, Related queries): its fact may not name both the
     # edit's subject and its original object.
     e = rec.get('edit') or {}
     old_obj = e.get('old_object') if rec.get('edit_operation') == 'replace' else e.get('object')
@@ -513,7 +513,7 @@ def check_record(rec, path, relations):
     for i, q in enumerate(queries.get('related') or []):
         if isinstance(q, dict) and subj_w and obj_w and subj_w <= words(q.get('fact')) and obj_w <= words(q.get('fact')):
             err(f'queries.related[{i}]: its fact names both the edit\'s subject and its original object, so it '
-                'restates the edited fact; ask about different knowledge linked to it (README, Related queries)')
+                'restates the edited fact; ask about different knowledge linked to it (SPEC, Related queries)')
 
     langs = [q.get('language') for q in queries.get('cross_lingual') or [] if isinstance(q, dict)]
     if sorted(langs) != sorted(LANGUAGES):
@@ -575,7 +575,7 @@ def check_determinacy(rec, path=None):
     want = 1 if wants_indeterminate(rec, path) else 0
     if len(indeterminate) != want:
         err(f'expected {want} indeterminate derived quer{"y" if want == 1 else "ies"}, found {len(indeterminate)} '
-            '(only main-split ABox revision has one; README, Queries per record type)')
+            '(only main-split ABox revision has one; SPEC, Queries per record type)')
     if not indeterminate:
         if 'worlds' in rec:
             err('worlds are only for records with an indeterminate derived query')
@@ -617,7 +617,7 @@ def evidence_facts(rec):
 def check_evidence(rec):
     """Evidence is keyed by the fact's exact text and required for the edited
     fact, every premise and every related and derived query's `fact`
-    (README, Evidence). The edited fact's claim follows its derivability, and
+    (SPEC, Evidence). The edited fact's claim follows its derivability, and
     so does each query fact's (very_unlikely: stored; very_likely: derived);
     premises are claimed stored."""
     errors = []
@@ -664,10 +664,10 @@ def check_evidence(rec):
         if not is_text(entry.get('why')):
             err(f'{where}: why must be a non-empty string')
         elif claim == 'derived' and len(entry['why'].split()) < 15:
-            # README, Evidence: the counts support a common-sense argument.
+            # SPEC, Evidence: the counts support a common-sense argument.
             err(f'{where}: a derived claim\'s why must make the common-sense case in a sentence or two: its '
                 'premises are the kind of thing people say, the direct fact is not the kind of thing anyone '
-                'says on its own (README, Evidence)')
+                'says on its own (SPEC, Evidence)')
         if fact == edited and rec.get('edit_operation') == 'insert':
             if claim != 'fictional':
                 err(f'{where}: an inserted fact is claimed fictional')
@@ -715,14 +715,14 @@ def check_evidence(rec):
     related_facts = {q.get('fact') for q in (rec.get('queries') or {}).get('related') or [] if isinstance(q, dict)}
     for fact in sorted(f for f in related_facts if is_text(f) and isinstance(ev.get(f), dict)):
         if not stored_by_counts(ev[fact]):
-            err(f'evidence[{fact!r}]: a related fact must be stored by the counts (README, Evidence): a short '
+            err(f'evidence[{fact!r}]: a related fact must be stored by the counts (SPEC, Evidence): a short '
                 f'phrase (at most {STORED_PHRASE_WORDS} words) counted at least {STORED_PHRASE_MIN} times, or an '
                 f'"A AND B" co-occurrence counted at least {STORED_COOCCUR_MIN} times, in both '
                 f'{" and ".join(STORED_INDEXES)}; count with ig_count.py --index')
     return errors
 
 
-# A related fact is stored when text states it often in two corpora (README, Evidence).
+# A related fact is stored when text states it often in two corpora (SPEC, Evidence).
 STORED_INDEXES = ('v4_dolma-v1_7_llama', 'v4_rpj_llama_s4')
 STORED_PHRASE_WORDS, STORED_PHRASE_MIN, STORED_COOCCUR_MIN = 6, 100, 1000
 
@@ -1028,7 +1028,7 @@ def check_full_scheme(rec, path):
 
 
 def check_contraction(rec):
-    """ABox contraction (README, Contraction): exactly one cardinality
+    """ABox contraction (SPEC, Contraction): exactly one cardinality
     question, 1 hop, matching the relation (functional: "no" becomes "does
     not know"; many-valued: another held value keeps its answer)."""
     if rec.get('box') != 'abox' or rec.get('edit_operation') != 'delete':
@@ -1051,7 +1051,7 @@ def answers_differ(a, b):
 
 def check_derivation(q, qtype, rec, relations):
     """A related or derived query's derivation, task, hops, bridges, rated fact
-    and answers (README, Relation properties and task types; Related and
+    and answers (SPEC, Relation properties and task types; Related and
     derived queries)."""
     errors = []
     err = errors.append
@@ -1192,7 +1192,7 @@ def _norm_entity(x):
 
 def pair_errors(paths):
     """Contraction and expansion records paired with a revision record
-    (README, Contraction, "The three operations are paired"; CRITERIA Rule
+    (SPEC, Contraction, "The three operations are paired"; CRITERIA Rule
     14): paired_with names a revision of the same topic, box and split, each
     revision is paired at most once per operation, a contraction removes the
     revision's original fact and an expansion reuses its relation and new
@@ -1216,7 +1216,7 @@ def pair_errors(paths):
             continue
         if not is_text(pid):
             out.append(f'{rid}: paired_with (the paired revision record id) is required on contraction and expansion '
-                       '(README, Contraction)')
+                       '(SPEC, Contraction)')
             continue
         split_root = ROOT / ('dev' if path.is_relative_to(ROOT / 'dev') else 'records')
         ppath = split_root / str(rec.get('topic')) / 'replace' / f'{pid}.json'

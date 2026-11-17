@@ -2,7 +2,7 @@
 
 A running list of changes to make to the records. Nothing here has been
 applied yet. When an item is done, move it to **Done** with the date and what
-changed, and update `README.md` / `CRITERIA.md` / `criteria.py` where the
+changed, and update `SPEC.md` / `CRITERIA.md` / `criteria.py` where the
 spec changes.
 
 ## How we work (from 2026-11-15): freeze, then filter
@@ -52,7 +52,7 @@ editing is the method's fault, not the record's. Two kinds of record:
 
 ## 1. Derivability: only the two ends, 6:2 split
 
-Spec changes (README Derivability, CRITERIA Rule 11, `validate.py`
+Spec changes (SPEC Derivability, CRITERIA Rule 11, `validate.py`
 `DERIVABILITY_SCORE`, `criteria.py`):
 
 - [ ] Allowed values become `very_unlikely` and `very_likely` only. Drop

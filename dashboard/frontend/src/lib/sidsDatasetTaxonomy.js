@@ -3,7 +3,7 @@
 // Levels: topic, then belief revision operation (AGM: expansion, revision,
 // contraction; stored as insert, replace, delete), then knowledge form (the
 // DL box), then a fixed set of 12 queries per edit (9 for RBox). Relation semantics and
-// relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/README.md
+// relation properties are tags (the Relation group below), not levels. See datasets/SidsDataset/SPEC.md
 // for the same scheme in prose and datasets/SidsDataset/RELATIONS.md for the
 // relations and their properties. Keep all three in sync.
 
@@ -70,9 +70,9 @@ export const KNOWLEDGE_FORMS = BOXES.map((box) => ({ box: box.key }))
 // Target size: edits per taxonomy cell (edit operation x topic x box).
 export const EDITS_PER_CELL_GOAL = 10
 
-// Level 3: the queries an ABox revision record carries, in record order (README,
+// Level 3: the queries an ABox revision record carries, in record order (SPEC,
 // Query type): from the edit outwards, everything that should change before
-// what must not. Counts are fixed per record type (README, Queries per record
+// what must not. Counts are fixed per record type (SPEC, Queries per record
 // type): main ABox revision has 4 derived (3 determinate + 1 indeterminate),
 // every other non-RBox record 3 determinate; related is ABox revision and
 // contraction only.
@@ -138,7 +138,7 @@ export const METRICS = [
 ]
 
 // What a related or derived answer rests on: a relation property (a tag in
-// RELATIONS.md), or none when a task carries the edit (README, Relation
+// RELATIONS.md), or none when a task carries the edit (SPEC, Relation
 // properties and task types). Reflexivity and asymmetry are not used.
 // Derivation names follow description logic (SROIQ / OWL 2) where it has a
 // clean equivalent (inverse, symmetric, functional and transitive roles, role
@@ -159,7 +159,7 @@ export const DERIVATIONS = [
   { key: 'premise', label: 'Premise', notation: 'derived edit', form: 'premise', example: 'Edit: the Space Needle is in the Central Time Zone (from: it is in Seattle; Seattle observes Pacific Time). Which time zone does Seattle observe?' },
 ]
 
-// What a related or derived question makes the model do (README, task types).
+// What a related or derived question makes the model do (SPEC, task types).
 export const TASKS = [
   { key: 'answer', label: 'Answer', example: 'Which country was she born in?' },
   { key: 'composition', label: 'Composition', example: 'The capital of France is Lyon (+ the Rhône flows through Lyon). Which river flows through the capital of France?' },
@@ -168,7 +168,7 @@ export const TASKS = [
 ]
 
 // The weakest logic a derived query's inference needs, and any theory on
-// top (README, Derived queries, Logic): settings to slice results by.
+// top (SPEC, Derived queries, Logic): settings to slice results by.
 export const LOGIC = [
   { key: 'propositional', label: 'Propositional', description: 'Only whole statements combined with not, and, or. The propositional query type is this logic by definition; derived queries no longer use it.', example: 'Edit: 91 is prime. Propositional query: is it true that 91 is prime or 91 is even?' },
   { key: 'dl', label: 'Description logic', description: 'Classes, two-place relations and their properties, role chains, inheritance, number limits, names for one individual.', example: 'Is Canberra the capital of Australia?' },
@@ -179,7 +179,7 @@ export const THEORY = [
   { key: 'temporal', label: 'Temporal', description: 'Comparing dates or ordering events, on first-order logic.', example: "Did the first powered flight come after McKinley's death?" },
 ]
 
-// Determinacy, per ABox and TBox derived query (README, Determinacy and
+// Determinacy, per ABox and TBox derived query (SPEC, Determinacy and
 // belief-revision problems). A knowledge system has a base of stored facts and
 // the closure derived from them; we can't see which an LLM stores, so one edit
 // can have several valid outcomes. The label marks where.
@@ -252,7 +252,7 @@ export const worldLabel = (id) => (/^w(\d+)$/.test(id || '') ? `World ${id.slice
 
 // A tag for ABox and TBox replace and delete (null for insert and RBox), and
 // for every related and derived query's answer: stored or worked out. Only
-// the two ends are used (README, Derivability). Editing a derived fact leaves its premises pointing at the
+// the two ends are used (SPEC, Derivability). Editing a derived fact leaves its premises pointing at the
 // old answer, so the model may re-derive it and slide back.
 export const DERIVABILITY = [
   { key: 'very_unlikely', label: 'Stored', description: 'very unlikely to be derived: stated often', score: 1, example: 'Paris is the capital of France.' },

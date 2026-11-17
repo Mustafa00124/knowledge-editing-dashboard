@@ -1,6 +1,6 @@
 # Figure ideas for the tuning results
 
-Metric names follow `datasets/SidsDataset/README.md` (Evaluation, "Metric names"):
+Metric names follow `datasets/SidsDataset/SPEC.md` (Evaluation, "Metric names"):
 answer diversity is ROME's fluency, generalizability is EasyEdit's portability, rewrite is
 EasyEdit's reliability on the direct question, specificity is EasyEdit's locality.
 

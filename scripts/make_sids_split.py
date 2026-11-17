@@ -2,7 +2,7 @@
 """Build Sid's Dataset dev/test split: splits/SidsDataset/records.json.
 
 Since 2026-11-11 the two splits are separate folders of separate records
-(datasets/SidsDataset/README.md, Shape per topic):
+(datasets/SidsDataset/SPEC.md, Shape per topic):
   - dev: every record under datasets/SidsDataset/dev/ (120 records, 12 per
     topic, ids <topic>-<operation>-dNNN), only for hyperparameter tuning;
   - screen: 10 of those, the first ABox revision record of each topic, for

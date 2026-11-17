@@ -145,7 +145,7 @@ def check_repeats(recs):
 
 
 def check_delete(recs):
-    """Rule 14: contraction follows the relation's cardinality (README,
+    """Rule 14: contraction follows the relation's cardinality (SPEC,
     Contraction). Contraction and expansion are paired with revision
     (validate.py pair_errors checks the pairs)."""
     s = "R5. Contraction follows the relation's cardinality"
@@ -537,7 +537,7 @@ def check_mix(recs):
     ]
 
 
-# Belief-revision problems (README, Determinacy and belief-revision problems).
+# Belief-revision problems (SPEC, Determinacy and belief-revision problems).
 # Read off the stored tags: a query's determinacy names its query-level
 # problem; the edit's derivability says whether the edit itself is stored or
 # derived (the edit-level side of the problem of derived beliefs).
@@ -548,7 +548,7 @@ DERIVED = ('very_likely',)
 # Main split, per topic and operation: 8 ABox, 6 TBox, 6 RBox edits. ABox
 # revision: 6 stored then 2 derived edits (mathematics and grammar: 8 stored),
 # with exactly one indeterminate derived query each; every other record is
-# determinate (README, Shape per topic).
+# determinate (SPEC, Shape per topic).
 EDITS_PER_BOX = {'abox': 8, 'tbox': 6, 'rbox': 6}
 REVISION_KINDS = {'stored': 6, 'derived': 2}
 DETERMINATE_TOPICS = ('mathematics', 'grammar')
@@ -556,7 +556,7 @@ OPERATIONS = ('replace', 'delete', 'insert')
 # Insert (fictional only): which parts are made up, per box and topic. Keys
 # joined by '|' count together (a TBox fictional property is a relation or an
 # object, whichever the axiom makes it).
-# Expansion is paired with revision (README, Contraction): a made-up subject
+# Expansion is paired with revision (SPEC, Contraction): a made-up subject
 # in the revision's relation with its new object; RBox a made-up relation.
 FICTIONAL_MIX = {'abox': {'subject': 8}, 'tbox': {'subject': 6}, 'rbox': {'relation': 6}}
 
@@ -1072,7 +1072,7 @@ def _red_items(red):
     return [f'{x["record"]} {x["item"]}: red by ' + ', '.join(one(m) for m in x['marks']) for x in red]
 
 
-# Rule 5: what counts as enough evidence (README, Evidence).
+# Rule 5: what counts as enough evidence (SPEC, Evidence).
 STORED_MIN_COUNT = 100     # an exact-phrase count at least this high, or a quoted sentence
 DERIVED_MIN_SOURCES = 2    # corpus counts or searches showing the direct form is rare
 FICTIONAL_MAX_COUNT = 5    # a made-up name should be (nearly) absent from text
@@ -1140,7 +1140,7 @@ def check_supporting_evidence(recs):
                  status=None if not missing else 'pending', note=note)
 
 
-# Rule 12: relation properties balanced per topic (README, Relation
+# Rule 12: relation properties balanced per topic (SPEC, Relation
 # properties and task types). Within each topic's ABox revision records,
 # related and derived queries use each BALANCE property at least once, and
 # related queries each NEAR_BALANCE property at least once. RBox edits

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Re-check every infini-gram count stored in Sid's Dataset evidence.
 
-The records' evidence (README, Evidence) cites corpus counts from the public
+The records' evidence (SPEC, Evidence) cites corpus counts from the public
 infini-gram API. Writers can only copy numbers the API gave them, but a
 re-check catches typos, numbers carried over from an older query, and
 anything invented. This script collects every (index, query, count) source

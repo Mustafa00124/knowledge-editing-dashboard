@@ -22,7 +22,7 @@ for worlds that break the labels, and marked each record keep, fix or drop.
 Caveats: infini-gram AND counts before the helper fix could be false zeros
 (every agent re-ran them afterwards); reviewers re-running a scout's exact
 query got a cached number, so those re-checks confirm transcription only.
-The open design questions these reports raised are in README.md, Determinacy
+The open design questions these reports raised are in SPEC.md, Determinacy
 and belief-revision problems, Open questions. Treat every count and quote as
 needing a re-check before it goes into a record.
 
